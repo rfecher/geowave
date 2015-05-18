@@ -130,16 +130,6 @@ public class DBScanIterationsJobRunner implements
 
 			// context does not mater in this case
 
-			// final double[] distances = AbstractPartitioner.getDistances(
-			// runTimeProperties,
-			// AbstractPartitioner.class);
-			// for (int i = 0; i < distances.length; i++) {
-			// distances[i] *= 10;
-			// }
-			// AbstractPartitioner.putDistances(
-			// runTimeProperties,
-			// distances);
-
 			try {
 				final Partitioner<?> partitioner = runTimeProperties.getClassInstance(
 						PartitionParameters.Partition.PARTITIONER_CLASS,

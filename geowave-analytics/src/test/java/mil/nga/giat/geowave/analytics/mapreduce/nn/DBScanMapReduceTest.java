@@ -29,6 +29,7 @@ import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
 import mil.nga.giat.geowave.analytics.tools.AnalyticFeature;
 import mil.nga.giat.geowave.analytics.tools.ConfigurationWrapper;
+import mil.nga.giat.geowave.analytics.tools.NeighborData;
 import mil.nga.giat.geowave.analytics.tools.Projection;
 import mil.nga.giat.geowave.analytics.tools.ShapefileTool;
 import mil.nga.giat.geowave.analytics.tools.SimpleFeatureProjection;
@@ -484,18 +485,18 @@ public class DBScanMapReduceTest
 							0.2310),
 				});
 		final Cluster<SimpleFeature> sfCluster = new Cluster<SimpleFeature>(
-				new NNData<SimpleFeature>(
+				new NeighborData<SimpleFeature>(
 						geo1,
 						new ByteArrayId(
 								geo1.getID()),
 						0.0),
-				new HashSet<NNData<SimpleFeature>>());
-		sfCluster.members.add(new NNData<SimpleFeature>(
+				new HashSet<NeighborData<SimpleFeature>>());
+		sfCluster.members.add(new NeighborData<SimpleFeature>(
 				geo2,
 				new ByteArrayId(
 						geo2.getID()),
 				0.0));
-		sfCluster.members.add(new NNData<SimpleFeature>(
+		sfCluster.members.add(new NeighborData<SimpleFeature>(
 				geo3,
 				new ByteArrayId(
 						geo3.getID()),

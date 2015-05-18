@@ -5,6 +5,7 @@ import java.util.Set;
 
 import mil.nga.giat.geowave.analytics.clustering.runners.MultiLevelJumpKMeansClusteringJobRunner;
 import mil.nga.giat.geowave.analytics.clustering.runners.MultiLevelKMeansClusteringJobRunner;
+import mil.nga.giat.geowave.analytics.mapreduce.nn.DBScanIterationsJobRunner;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNJobRunner;
 
 import org.apache.commons.cli.BasicParser;
@@ -30,6 +31,10 @@ public class AnalyticsMain
 				"nn",
 				"Nearest Neighbors",
 				new NNJobRunner()),
+		DBSCAN(
+				"dbscan",
+				"DBSCAN",
+				new DBScanIterationsJobRunner()),
 		KMeansJump(
 				"kmeans-jump",
 				"KMeans Clustering using Jump Method",

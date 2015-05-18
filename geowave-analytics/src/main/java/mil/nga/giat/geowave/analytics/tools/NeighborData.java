@@ -1,19 +1,19 @@
-package mil.nga.giat.geowave.analytics.mapreduce.nn;
+package mil.nga.giat.geowave.analytics.tools;
 
 import org.apache.commons.codec.binary.Hex;
 
 import mil.nga.giat.geowave.index.ByteArrayId;
 
-public class NNData<T> implements
-		Comparable<NNData<T>>
+public class NeighborData<T> implements
+		Comparable<NeighborData<T>>
 {
 	private T element;
 	private ByteArrayId id;
 	private double distance;
 
-	public NNData() {}
+	public NeighborData() {}
 
-	public NNData(
+	public NeighborData(
 			T element,
 			ByteArrayId id,
 			double distance ) {
@@ -23,8 +23,8 @@ public class NNData<T> implements
 		this.distance = distance;
 	}
 
-	public NNData(
-			final NNData<T> element,
+	public NeighborData(
+			final NeighborData<T> element,
 			final double distance ) {
 		super();
 		this.element = element.getElement();
@@ -32,7 +32,7 @@ public class NNData<T> implements
 		this.distance = distance;
 	}
 
-	protected ByteArrayId getId() {
+	public ByteArrayId getId() {
 		return id;
 	}
 
@@ -71,7 +71,7 @@ public class NNData<T> implements
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		@SuppressWarnings("unchecked")
-		NNData<T> other = (NNData<T>) obj;
+		NeighborData<T> other = (NeighborData<T>) obj;
 		if (element == null) {
 			if (other.element != null) return false;
 		}
@@ -81,7 +81,7 @@ public class NNData<T> implements
 
 	@Override
 	public int compareTo(
-			NNData<T> otherNNData ) {
+			NeighborData<T> otherNNData ) {
 		final int dist = Double.compare(
 				distance,
 				otherNNData.distance);

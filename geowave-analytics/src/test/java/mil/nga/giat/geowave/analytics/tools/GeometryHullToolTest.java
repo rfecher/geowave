@@ -10,13 +10,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import mil.nga.giat.geowave.analytics.distance.CoordinateCircleDistanceFn;
-import mil.nga.giat.geowave.analytics.tools.GeometryHullTool;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.algorithm.ConvexHull;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -100,7 +98,7 @@ public class GeometryHullToolTest
 						6,
 						10));
 
-		// assertTrue(distance5 < 0);
+		assertTrue(distance5 < 0);
 
 		double distance6 = GeometryHullTool.calcDistance(
 				new Coordinate(
@@ -317,7 +315,7 @@ public class GeometryHullToolTest
 	@Test
 	public void testConcaveHullBulkTest() {
 		long time = System.currentTimeMillis();
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10; i++) {
 			assertTrue(getHull(
 					factory.createLineString(new Coordinate[] {
 						new Coordinate(
@@ -327,7 +325,24 @@ public class GeometryHullToolTest
 								40.8,
 								40.6)
 					}),
-					"1",
+					"po1",
+					false,
+					true).isSimple() || true);
+		}
+		System.out.println(System.currentTimeMillis() - time);
+		time = System.currentTimeMillis();
+		for (int i = 0; i < 10; i++) {
+			assertTrue(getHull(
+					factory.createLineString(new Coordinate[] {
+						new Coordinate(
+								41.2,
+								40.8),
+						new Coordinate(
+								40.8,
+								40.6)
+					}),
+					"er1",
+					false,
 					false).isSimple() || true);
 		}
 		System.out.println(System.currentTimeMillis() - time);
@@ -495,8 +510,9 @@ public class GeometryHullToolTest
 							40.8,
 							40.6)
 				}),
-				"1a",
-				save);
+				"p1",
+				save,
+				false);
 		final Geometry concave2 = getHull(
 				factory.createLineString(new Coordinate[] {
 					new Coordinate(
@@ -506,8 +522,9 @@ public class GeometryHullToolTest
 							40.8,
 							40.6)
 				}),
-				"2a",
-				save);
+				"p2",
+				save,
+				false);
 		final Geometry concave3 = getHull(
 				factory.createLineString(new Coordinate[] {
 					new Coordinate(
@@ -517,8 +534,9 @@ public class GeometryHullToolTest
 							41.2,
 							40.8)
 				}),
-				"3a",
-				save);
+				"p3",
+				save,
+				false);
 
 		final Geometry hull = concave1.union(
 				concave2).union(
@@ -527,7 +545,7 @@ public class GeometryHullToolTest
 		assertTrue(hull.isSimple());
 
 		writeToShapeFile(
-				"finalhull1",
+				"final_phull",
 				hull);
 
 		coversPoints(
@@ -544,7 +562,8 @@ public class GeometryHullToolTest
 	private Geometry getHull(
 			LineString str,
 			String name,
-			boolean save ) {
+			boolean save,
+			boolean parkandOh ) {
 
 		List<Point> points = CurvedDensityDataGeneratorTool.generatePoints(
 				str,
@@ -564,7 +583,9 @@ public class GeometryHullToolTest
 				coordinates,
 				factory);
 
-		final Geometry concaveHull = cg.concaveHull1(
+		final Geometry concaveHull = parkandOh ? cg.concaveHullParkOhMethod(
+				convexHull.getConvexHull(),
+				Arrays.asList(coordinates)) : cg.concaveHull(
 				convexHull.getConvexHull(),
 				Arrays.asList(coordinates));
 		if (save || !concaveHull.isSimple()) {
@@ -578,15 +599,15 @@ public class GeometryHullToolTest
 					"hullx_" + name,
 					convexHull.getConvexHull());
 		}
-		
-	//	final Geometry concaveHull1 = cg.concaveHull1(
-	//			convexHull.getConvexHull(),
-	//			Arrays.asList(coordinates));
-	//	if (save || !concaveHull1.isSimple()) {
-	//		writeToShapeFile(
-	//				"chull_" + name,
-	//				concaveHull1);
-	//	}
+
+		// final Geometry concaveHull1 = cg.concaveHull1(
+		// convexHull.getConvexHull(),
+		// Arrays.asList(coordinates));
+		// if (save || !concaveHull1.isSimple()) {
+		// writeToShapeFile(
+		// "chull_" + name,
+		// concaveHull1);
+		// }
 
 		return concaveHull;
 	}

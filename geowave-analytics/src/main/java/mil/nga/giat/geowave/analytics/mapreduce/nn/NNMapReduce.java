@@ -18,6 +18,7 @@ import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
 import mil.nga.giat.geowave.analytics.tools.ConfigurationWrapper;
+import mil.nga.giat.geowave.analytics.tools.NeighborData;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.JobContextConfigurationWrapper;
 import mil.nga.giat.geowave.analytics.tools.partitioners.OrthodromicDistancePartitioner;
 import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner;
@@ -184,8 +185,8 @@ public class NNMapReduce
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context )
 				throws IOException,
 				InterruptedException {
-			final Set<NNData<VALUEIN>> primaries = createSetForNeighbors(true);
-			final Set<NNData<VALUEIN>> others = createSetForNeighbors(false);
+			final Set<NeighborData<VALUEIN>> primaries = createSetForNeighbors(true);
+			final Set<NeighborData<VALUEIN>> others = createSetForNeighbors(false);
 			final PARTITION_SUMMARY summary = createSummary();
 
 			for (final AdapterWithObjectWritable inputValue : values) {
@@ -194,16 +195,16 @@ public class NNMapReduce
 						serializationTool,
 						inputValue);
 				if (inputValue.isPrimary()) {
-					primaries.add(new NNData<VALUEIN>(unwrappedValue,inputValue.getDataId(),0));
+					primaries.add(new NeighborData<VALUEIN>(unwrappedValue,inputValue.getDataId(),0));
 				}
 				else {
-					others.add(new NNData<VALUEIN>(unwrappedValue,inputValue.getDataId(),0));
+					others.add(new NeighborData<VALUEIN>(unwrappedValue,inputValue.getDataId(),0));
 				}
 			}
 
-			final TreeSet<NNData<VALUEIN>> neighbors = new TreeSet<NNData<VALUEIN>>();
-			for (final NNData<VALUEIN> primary : primaries) {
-				for (final NNData<VALUEIN> anotherPrimary : primaries) {
+			final TreeSet<NeighborData<VALUEIN>> neighbors = new TreeSet<NeighborData<VALUEIN>>();
+			for (final NeighborData<VALUEIN> primary : primaries) {
+				for (final NeighborData<VALUEIN> anotherPrimary : primaries) {
 					if (anotherPrimary.getElement().equals(primary.getElement())) {
 						continue;
 					}
@@ -211,7 +212,7 @@ public class NNMapReduce
 							primary.getElement(),
 							anotherPrimary.getElement());
 					if (distance <= maxDistance) {
-						neighbors.add(new NNData<VALUEIN>(
+						neighbors.add(new NeighborData<VALUEIN>(
 								anotherPrimary,
 								distance));
 						if (neighbors.size() > maxNeighbors) {
@@ -219,7 +220,7 @@ public class NNMapReduce
 						}
 					}
 				}
-				for (final NNData<VALUEIN> anOther : others) {
+				for (final NeighborData<VALUEIN> anOther : others) {
 					if (anOther.getElement().equals(primary.getElement())) {
 						continue;
 					}
@@ -227,7 +228,7 @@ public class NNMapReduce
 							primary.getElement(),
 							anOther.getElement());
 					if (distance <= maxDistance) {
-						neighbors.add(new NNData<VALUEIN>(
+						neighbors.add(new NeighborData<VALUEIN>(
 								anOther,
 								distance));
 						if (neighbors.size() > maxNeighbors) {
@@ -275,15 +276,15 @@ public class NNMapReduce
 		 * allow the extending classes to return sets with constraints and
 		 * management algorithms
 		 */
-		protected Set<NNData<VALUEIN>> createSetForNeighbors(
+		protected Set<NeighborData<VALUEIN>> createSetForNeighbors(
 				final boolean isSetForPrimary ) {
-			return new HashSet<NNData<VALUEIN>>();
+			return new HashSet<NeighborData<VALUEIN>>();
 		}
 
 		protected abstract void processNeighbors(
 				PartitionData partitionData,
-				NNData<VALUEIN> primary,
-				Set<NNData<VALUEIN>> neighbors,
+				NeighborData<VALUEIN> primary,
+				Set<NeighborData<VALUEIN>> neighbors,
 				Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context,
 				PARTITION_SUMMARY summary )
 				throws IOException,
@@ -349,8 +350,8 @@ public class NNMapReduce
 		@Override
 		protected void processNeighbors(
 				final PartitionData partitionData,
-				final NNData<SimpleFeature> primary,
-				final Set<NNData<SimpleFeature>> neighbors,
+				final NeighborData<SimpleFeature> primary,
+				final Set<NeighborData<SimpleFeature>> neighbors,
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, Text, Text>.Context context,
 				final Boolean summary )
 				throws IOException,
@@ -369,7 +370,7 @@ public class NNMapReduce
 						utfBytes,
 						0,
 						utfBytes.length);
-				for (final NNData<SimpleFeature> neighbor : neighbors) {
+				for (final NeighborData<SimpleFeature> neighbor : neighbors) {
 					if (neighborsText.getLength() > 0) {
 						neighborsText.append(
 								sepBytes,
