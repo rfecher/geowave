@@ -86,6 +86,20 @@ public class StatsManager
 				statsList.add(new FeatureNumericRangeStatistics(
 						dataAdapter.getAdapterId(),
 						descriptor.getLocalName()));
+				visibilityHandlers.put(
+						statsList.get(
+								statsList.size() - 1).getStatisticsId(),
+						new FieldIdStatisticVisibility(
+								new ByteArrayId(
+										descriptor.getLocalName())));
+				statsList.add(new FeatureNumericHistogramStatistics(
+						dataAdapter.getAdapterId(),
+						descriptor.getLocalName()));
+			}
+			else if (String.class.isAssignableFrom(descriptor.getType().getBinding())) {
+				statsList.add(new FeatureCountMinSketchStatistics(
+						dataAdapter.getAdapterId(),
+						descriptor.getLocalName()));
 			}
 			else if (Geometry.class.isAssignableFrom(descriptor.getType().getBinding())) {
 				statsList.add(new FeatureBoundingBoxStatistics(

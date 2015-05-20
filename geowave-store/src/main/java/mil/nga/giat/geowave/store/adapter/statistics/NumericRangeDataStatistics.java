@@ -109,4 +109,19 @@ abstract public class NumericRangeDataStatistics<T> extends
 			}
 		}
 	}
+
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(
+				"range[adapter=").append(
+				super.getDataAdapterId().getString());
+		buffer.append(
+				", min=").append(
+				getMin());
+		buffer.append(
+				", max=").append(
+				getMax());
+		buffer.append("]");
+		return buffer.toString();
+	}
 }

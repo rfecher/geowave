@@ -52,7 +52,7 @@ public class StatsManagerTest
 				schema);
 		final ByteArrayId[] ids = statsManager.getSupportedStatisticsIds();
 		assertEquals(
-				6,
+				8,
 				ids.length);
 		assertTrue(ArrayUtils.contains(
 				ids,
@@ -93,6 +93,7 @@ public class StatsManagerTest
 				dataAdapter,
 				FeatureTimeRangeStatistics.composeId("when"));
 		assertNotNull(stat);
+		System.out.println(stat);
 		assertFalse(stat == statsManager.createDataStatistics(
 				dataAdapter,
 				FeatureTimeRangeStatistics.composeId("when")));
