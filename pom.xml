@@ -718,7 +718,7 @@
 								<goals>
 									<goal>shade</goal>
 								</goals>
-								<configuration>
+								<configuration><artifactSet><excludes><exclude>javax.media:jai*:*</exclude></excludes></artifactSet>
 									<filters>
 										<filter>
 											<artifact>junit:junit</artifact>

@@ -38,9 +38,9 @@ public class BandFeatureIterator implements
 	}
 	private static final String DOWNLOAD_PREFIX = "http://landsat-pds.s3.amazonaws.com/L8";
 	protected static final String BANDS_TYPE_NAME = "band";
-	protected static final String BAND_ATTRIBUTE_NAME = "band";
-	protected static final String SIZE_ATTRIBUTE_NAME = "sizeMB";
-	protected static final String BAND_DOWNLOAD_ATTRIBUTE_NAME = "bandDownloadUrl";
+	public static final String BAND_ATTRIBUTE_NAME = "band";
+	public static final String SIZE_ATTRIBUTE_NAME = "sizeMB";
+	public static final String BAND_DOWNLOAD_ATTRIBUTE_NAME = "bandDownloadUrl";
 	private Iterator<SimpleFeature> iterator;
 	private final SceneFeatureIterator sceneIterator;
 

@@ -60,14 +60,14 @@ public class SceneFeatureIterator implements
 	private final static Logger LOGGER = LoggerFactory.getLogger(SceneFeatureIterator.class);
 	private static final String SCENES_GZ_URL = "http://landsat-pds.s3.amazonaws.com/scene_list.gz";
 	protected static final String SCENES_TYPE_NAME = "scene";
-	protected static final String SHAPE_ATTRIBUTE_NAME = "shape";
-	protected static final String ACQUISITION_DATE_ATTRIBUTE_NAME = "acquisitionDate";
-	protected static final String CLOUD_COVER_ATTRIBUTE_NAME = "cloudCover";
-	protected static final String PROCESSING_LEVEL_ATTRIBUTE_NAME = "processingLevel";
-	protected static final String PATH_ATTRIBUTE_NAME = "path";
-	protected static final String ROW_ATTRIBUTE_NAME = "row";
-	protected static final String SCENE_DOWNLOAD_ATTRIBUTE_NAME = "sceneDownloadUrl";
-	protected static final String ENTITY_ID_ATTRIBUTE_NAME = "entityId";
+	public static final String SHAPE_ATTRIBUTE_NAME = "shape";
+	public static final String ACQUISITION_DATE_ATTRIBUTE_NAME = "acquisitionDate";
+	public static final String CLOUD_COVER_ATTRIBUTE_NAME = "cloudCover";
+	public static final String PROCESSING_LEVEL_ATTRIBUTE_NAME = "processingLevel";
+	public static final String PATH_ATTRIBUTE_NAME = "path";
+	public static final String ROW_ATTRIBUTE_NAME = "row";
+	public static final String SCENE_DOWNLOAD_ATTRIBUTE_NAME = "sceneDownloadUrl";
+	public static final String ENTITY_ID_ATTRIBUTE_NAME = "entityId";
 
 	protected static final String[] SCENE_ATTRIBUTES = new String[] {
 		SHAPE_ATTRIBUTE_NAME,

@@ -230,7 +230,9 @@ public class RasterDataAdapter implements
 		this.buildPyramid = buildPyramid;
 		this.mergeStrategy = new RootMergeStrategy(
 				getAdapterId(),
-				sampleModel,
+				sampleModel.createCompatibleSampleModel(
+						tileSize,
+						tileSize),
 				mergeStrategy);
 		init();
 	}
@@ -369,7 +371,9 @@ public class RasterDataAdapter implements
 		interpolation = Interpolation.getInstance(interpolationType);
 		this.mergeStrategy = new RootMergeStrategy(
 				getAdapterId(),
-				sampleModel,
+				sampleModel.createCompatibleSampleModel(
+						tileSize,
+						tileSize),
 				mergeStrategy);
 		init();
 	}
@@ -1512,7 +1516,7 @@ public class RasterDataAdapter implements
 							coverageName));
 		}
 		else if (RasterFootprintStatistics.STATS_ID.equals(statisticsId)) {
-			return new RasterBoundingBoxStatistics(
+			return new RasterFootprintStatistics(
 					new ByteArrayId(
 							coverageName));
 		}

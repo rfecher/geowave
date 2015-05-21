@@ -39,7 +39,9 @@ public class GeoWaveGTRasterFormat extends
 	public static final CoordinateReferenceSystem DEFAULT_CRS;
 	static {
 		try {
-			DEFAULT_CRS = CRS.decode("EPSG:4326");
+			DEFAULT_CRS = CRS.decode(
+					"EPSG:4326",
+					true);
 		}
 		catch (final FactoryException e) {
 			LOGGER.error(
