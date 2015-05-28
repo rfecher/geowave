@@ -71,54 +71,80 @@ public class StatsManager
 				null);
 	}
 
+	/**
+	 * Supports replacement.
+	 * 
+	 * @param stats
+	 * @param visibilityHandler
+	 */
+	public void addStats(
+			DataStatistics<SimpleFeature> stats,
+			DataStatisticsVisibilityHandler<SimpleFeature> visibilityHandler ) {
+		int replaceStat = 0;
+		for (DataStatistics<SimpleFeature> currentStat : statsList) {
+			if (currentStat.getStatisticsId().equals(
+					stats.getStatisticsId())) {
+				break;
+			}
+			replaceStat++;
+		}
+		if (replaceStat < statsList.size()) this.statsList.remove(replaceStat);
+		this.statsList.add(stats);
+		this.visibilityHandlers.put(
+				stats.getStatisticsId(),
+				visibilityHandler);
+	}
+
 	public StatsManager(
 			final DataAdapter<SimpleFeature> dataAdapter,
 			final SimpleFeatureType persistedType,
 			final SimpleFeatureType reprojectedType,
 			final MathTransform transform ) {
 		for (final AttributeDescriptor descriptor : persistedType.getAttributeDescriptors()) {
+			FieldIdStatisticVisibility visibility = new FieldIdStatisticVisibility(
+					new ByteArrayId(
+							descriptor.getLocalName()));
 			if (TimeUtils.isTemporal(descriptor.getType().getBinding())) {
-				statsList.add(new FeatureTimeRangeStatistics(
-						dataAdapter.getAdapterId(),
-						descriptor.getLocalName()));
+				addStats(
+						new FeatureTimeRangeStatistics(
+								dataAdapter.getAdapterId(),
+								descriptor.getLocalName()),
+						visibility);
 			}
 			else if (Number.class.isAssignableFrom(descriptor.getType().getBinding())) {
-				statsList.add(new FeatureNumericRangeStatistics(
-						dataAdapter.getAdapterId(),
-						descriptor.getLocalName()));
-				visibilityHandlers.put(
-						statsList.get(
-								statsList.size() - 1).getStatisticsId(),
-						new FieldIdStatisticVisibility(
-								new ByteArrayId(
-										descriptor.getLocalName())));
-				statsList.add(new FeatureNumericHistogramStatistics(
-						dataAdapter.getAdapterId(),
-						descriptor.getLocalName()));
+				addStats(
+						new FeatureNumericRangeStatistics(
+								dataAdapter.getAdapterId(),
+								descriptor.getLocalName()),
+						visibility);
+				addStats(
+						new FeatureNumericHistogramStatistics(
+								dataAdapter.getAdapterId(),
+								descriptor.getLocalName()),
+						visibility);
 			}
 			else if (String.class.isAssignableFrom(descriptor.getType().getBinding())) {
-				statsList.add(new FeatureCountMinSketchStatistics(
-						dataAdapter.getAdapterId(),
-						descriptor.getLocalName()));
+				addStats(
+						new FeatureHyperLogLogStatistics(
+								dataAdapter.getAdapterId(),
+								descriptor.getLocalName(),
+								16),
+						visibility);
 			}
 			else if (Geometry.class.isAssignableFrom(descriptor.getType().getBinding())) {
-				statsList.add(new FeatureBoundingBoxStatistics(
-						dataAdapter.getAdapterId(),
-						descriptor.getLocalName(),
-						persistedType,
-						reprojectedType,
-						transform));
+				addStats(
+						new FeatureBoundingBoxStatistics(
+								dataAdapter.getAdapterId(),
+								descriptor.getLocalName(),
+								persistedType,
+								reprojectedType,
+								transform),
+						visibility);
 			}
 			else {
 				continue;
 			}
-			// last one added to set visibility
-			visibilityHandlers.put(
-					statsList.get(
-							statsList.size() - 1).getStatisticsId(),
-					new FieldIdStatisticVisibility(
-							new ByteArrayId(
-									descriptor.getLocalName())));
+
 		}
 	}
 
