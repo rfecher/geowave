@@ -118,7 +118,7 @@ public class StatsManager
 								descriptor.getLocalName()),
 						visibility);
 				addStats(
-						new FeatureNumericHistogramStatistics(
+						new FeatureFixedBinNumericStatistics(
 								dataAdapter.getAdapterId(),
 								descriptor.getLocalName()),
 						visibility);
