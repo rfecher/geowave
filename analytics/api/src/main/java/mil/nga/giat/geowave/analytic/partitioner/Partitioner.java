@@ -45,6 +45,7 @@ public interface Partitioner<T>
 
 	public void setup(
 			PropertyManagement runTimeProperties,
+			Class<?> scope,
 			Configuration configuration );
 
 	public static class PartitionData implements

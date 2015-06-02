@@ -57,12 +57,7 @@ public class KSamplerMapReduceTest
 	public KSamplerMapReduceTest() {
 
 		try {
-			dataOps = new MockAccumuloOperationsFactory().build(
-					null,
-					null,
-					null,
-					null,
-					null);
+			dataOps = new MockAccumuloOperationsFactory().build(null);
 		}
 		catch (AccumuloException e) {
 			dataOps = null;
@@ -149,9 +144,11 @@ public class KSamplerMapReduceTest
 
 		CentroidManagerGeoWave.setParameters(
 				reduceDriver.getConfiguration(),
+				KSamplerMapReduce.class,
 				propManagement);
 		CentroidManagerGeoWave.setParameters(
 				mapDriver.getConfiguration(),
+				KSamplerMapReduce.class,
 				propManagement);
 
 		mapDriver.getConfiguration().setClass(

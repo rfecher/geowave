@@ -127,11 +127,11 @@ public class ConvexHullMapReduce
 
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					ConvexHullMapReduce.class,
 					ConvexHullMapReduce.LOGGER);
 			try {
 				itemWrapperFactory = config.getInstance(
 						HullParameters.Hull.WRAPPER_FACTORY_CLASS,
-						ConvexHullMapReduce.class,
 						AnalyticItemWrapperFactory.class,
 						SimpleFeatureItemWrapperFactory.class);
 
@@ -264,7 +264,8 @@ public class ConvexHullMapReduce
 				InterruptedException {
 
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
-					context);
+					context,
+					ConvexHullMapReduce.class);
 			super.setup(context);
 			try {
 				centroidManager = new CentroidManagerGeoWave<T>(
@@ -281,7 +282,6 @@ public class ConvexHullMapReduce
 			try {
 				projectionFunction = config.getInstance(
 						HullParameters.Hull.PROJECTION_CLASS,
-						ConvexHullMapReduce.class,
 						Projection.class,
 						SimpleFeatureProjection.class);
 
@@ -294,7 +294,6 @@ public class ConvexHullMapReduce
 
 			final String polygonDataTypeId = config.getString(
 					HullParameters.Hull.DATA_TYPE_ID,
-					ConvexHullMapReduce.class,
 					"convex_hull");
 
 			outputAdapter = AnalyticFeature.createGeometryFeatureAdapter(
@@ -302,14 +301,12 @@ public class ConvexHullMapReduce
 					new String[0],
 					config.getString(
 							HullParameters.Hull.DATA_NAMESPACE_URI,
-							ConvexHullMapReduce.class,
 							BasicFeatureTypes.DEFAULT_NAMESPACE),
 					ClusteringUtils.CLUSTERING_CRS);
 
 			indexId = new ByteArrayId(
 					StringUtils.stringToBinary(config.getString(
 							HullParameters.Hull.INDEX_ID,
-							ConvexHullMapReduce.class,
 							IndexType.SPATIAL_VECTOR.getDefaultId())));
 
 		}

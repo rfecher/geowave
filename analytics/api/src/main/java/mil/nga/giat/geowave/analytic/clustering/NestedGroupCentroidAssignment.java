@@ -87,10 +87,11 @@ public class NestedGroupCentroidAssignment<T>
 	 */
 	public static void setZoomLevel(
 			final Configuration config,
+			final Class<?> scope,
 			final int zoomLevel ) {
 		RunnerUtils.setParameter(
 				config,
-				NestedGroupCentroidAssignment.class,
+				scope,
 				new Object[] {
 					zoomLevel
 				},
@@ -108,10 +109,11 @@ public class NestedGroupCentroidAssignment<T>
 	 */
 	public static void setParentBatchID(
 			final Configuration config,
+			final Class<?> scope,
 			final String parentID ) {
 		RunnerUtils.setParameter(
 				config,
-				NestedGroupCentroidAssignment.class,
+				scope,
 				new Object[] {
 					parentID
 				},
@@ -143,19 +145,15 @@ public class NestedGroupCentroidAssignment<T>
 			AccumuloSecurityException {
 		endZoomLevel = wrapper.getInt(
 				CentroidParameters.Centroid.ZOOM_LEVEL,
-				NestedGroupCentroidAssignment.class,
 				1);
 		parentBatchID = wrapper.getString(
 				GlobalParameters.Global.PARENT_BATCH_ID,
-				NestedGroupCentroidAssignment.class,
 				wrapper.getString(
 						GlobalParameters.Global.BATCH_ID,
-						NestedGroupCentroidAssignment.class,
 						null));
 		@SuppressWarnings("unchecked")
 		final DistanceFn<T> distanceFunction = wrapper.getInstance(
 				CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-				NestedGroupCentroidAssignment.class,
 				DistanceFn.class,
 				FeatureCentroidDistanceFn.class);
 		this.associationdFunction.setDistanceFunction(distanceFunction);
@@ -252,14 +250,16 @@ public class NestedGroupCentroidAssignment<T>
 
 	public static void setParameters(
 			final Configuration config,
+			final Class<?> scope,
 			final PropertyManagement runTimeProperties ) {
 		CentroidManagerGeoWave.setParameters(
 				config,
+				scope,
 				runTimeProperties);
 
 		RunnerUtils.setParameter(
 				config,
-				NestedGroupCentroidAssignment.class,
+				scope,
 				runTimeProperties,
 				new ParameterEnum[] {
 					CommonParameters.Common.DISTANCE_FUNCTION_CLASS,

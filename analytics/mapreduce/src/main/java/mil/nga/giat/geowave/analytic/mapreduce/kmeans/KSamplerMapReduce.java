@@ -172,10 +172,10 @@ public class KSamplerMapReduce
 
 			ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					KSamplerMapReduce.class,
 					KSamplerMapReduce.LOGGER);
 			sampleSize = config.getInt(
 					SampleParameters.Sample.SAMPLE_SIZE,
-					KSamplerMapReduce.class,
 					1);
 
 			try {
@@ -190,7 +190,6 @@ public class KSamplerMapReduce
 			try {
 				samplingFunction = config.getInstance(
 						SampleParameters.Sample.SAMPLE_RANK_FUNCTION,
-						KSamplerMapReduce.class,
 						SamplingRankFunction.class,
 						RandomSamplingRankFunction.class);
 
@@ -203,7 +202,6 @@ public class KSamplerMapReduce
 			try {
 				itemWrapperFactory = config.getInstance(
 						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-						KSamplerMapReduce.class,
 						AnalyticItemWrapperFactory.class,
 						SimpleFeatureItemWrapperFactory.class);
 
@@ -291,39 +289,34 @@ public class KSamplerMapReduce
 
 			ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					KSamplerMapReduce.class,
 					KSamplerMapReduce.LOGGER);
 
 			maxCount = config.getInt(
 					SampleParameters.Sample.SAMPLE_SIZE,
-					KSamplerMapReduce.class,
 					1);
 
 			zoomLevel = config.getInt(
 					CentroidParameters.Centroid.ZOOM_LEVEL,
-					KSamplerMapReduce.class,
 					1);
 
 			sampleDataTypeId = new ByteArrayId(
 					StringUtils.stringToBinary(config.getString(
 							SampleParameters.Sample.DATA_TYPE_ID,
-							KSamplerMapReduce.class,
 							"sample")));
 
 			batchID = config.getString(
 					GlobalParameters.Global.BATCH_ID,
-					KSamplerMapReduce.class,
 					UUID.randomUUID().toString());
 
 			indexId = new ByteArrayId(
 					StringUtils.stringToBinary(config.getString(
 							SampleParameters.Sample.INDEX_ID,
-							KSamplerMapReduce.class,
 							IndexType.SPATIAL_VECTOR.getDefaultId())));
 
 			try {
 				centroidExtractor = config.getInstance(
 						CentroidParameters.Centroid.EXTRACTOR_CLASS,
-						KSamplerMapReduce.class,
 						CentroidExtractor.class,
 						SimpleFeatureCentroidExtractor.class);
 			}
@@ -335,7 +328,6 @@ public class KSamplerMapReduce
 			try {
 				itemWrapperFactory = config.getInstance(
 						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-						KSamplerMapReduce.class,
 						AnalyticItemWrapperFactory.class,
 						SimpleFeatureItemWrapperFactory.class);
 

@@ -17,7 +17,6 @@ import mil.nga.giat.geowave.datastore.accumulo.mapreduce.GeoWaveConfiguratorBase
 import mil.nga.giat.geowave.datastore.accumulo.mapreduce.input.GeoWaveInputFormat;
 import mil.nga.giat.geowave.datastore.accumulo.util.AccumuloUtils;
 
-
 //@formatter:off
 /*if[ACCUMULO_1.5.2]
  else[ACCUMULO_1.5.2]*/
@@ -131,9 +130,7 @@ public class KMeansDistortionJobRunner extends
 				authToken);
 
 		// @formatter:off
-		/* if[ACCUMULO_1.5.2]
-		AccumuloOutputFormat.setZooKeeperInstance(job, instanceName, zookeeper);
-		else[ACCUMULO_1.5.2]*/
+		/* if[ACCUMULO_1.5.2] AccumuloOutputFormat.setZooKeeperInstance(job, instanceName, zookeeper); else[ACCUMULO_1.5.2] */
 		final ClientConfiguration config = new ClientConfiguration().withZkHosts(
 				zookeeper).withInstance(
 				instanceName);
@@ -176,7 +173,7 @@ public class KMeansDistortionJobRunner extends
 				super.getReducerCount()));
 		RunnerUtils.setParameter(
 				config,
-				KMeansDistortionMapReduce.class,
+				getScope(),
 				runTimeProperties,
 				new ParameterEnum[] {
 					CentroidParameters.Centroid.EXTRACTOR_CLASS,
@@ -185,6 +182,7 @@ public class KMeansDistortionJobRunner extends
 
 		NestedGroupCentroidAssignment.setParameters(
 				config,
+				getScope(),
 				runTimeProperties);
 
 		return super.run(

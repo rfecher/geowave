@@ -220,7 +220,6 @@ public class OrthodromicDistancePartitioner<T> extends
 
 		final String crsName = context.getString(
 				GlobalParameters.Global.CRS_ID,
-				this.getClass(),
 				"EPSG:4326");
 		try {
 			crs = CRS.decode(
@@ -236,7 +235,6 @@ public class OrthodromicDistancePartitioner<T> extends
 		try {
 			dimensionExtractor = context.getInstance(
 					ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-					this.getClass(),
 					DimensionExtractor.class,
 					SimpleFeatureGeometryExtractor.class);
 		}
@@ -248,7 +246,6 @@ public class OrthodromicDistancePartitioner<T> extends
 
 		final String distanceUnit = context.getString(
 				ClusteringParameters.Clustering.GEOMETRIC_DISTANCE_UNIT,
-				this.getClass(),
 				"m");
 
 		this.geometricDistanceUnit = (Unit<Length>) Unit.valueOf(distanceUnit);
@@ -273,14 +270,16 @@ public class OrthodromicDistancePartitioner<T> extends
 
 	@Override
 	public void setup(
-			PropertyManagement runTimeProperties,
-			Configuration configuration ) {
+			final PropertyManagement runTimeProperties,
+			final Class<?> scope,
+			final Configuration configuration ) {
 		super.setup(
 				runTimeProperties,
+				scope,
 				configuration);
 		RunnerUtils.setParameter(
 				configuration,
-				getClass(),
+				scope,
 				runTimeProperties,
 				new ParameterEnum[] {
 					GlobalParameters.Global.CRS_ID,

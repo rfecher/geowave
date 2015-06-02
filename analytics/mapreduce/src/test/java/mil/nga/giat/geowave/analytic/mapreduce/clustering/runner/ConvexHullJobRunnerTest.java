@@ -70,6 +70,7 @@ public class ConvexHullJobRunnerTest
 				tool.setConf(configuration);
 				FeatureDataAdapterStoreFactory.transferState(
 						configuration,
+						ConvexHullMapReduce.class,
 						runTimeProperties);
 				return tool.run(runTimeProperties.toGeoWaveRunnerArguments());
 			}
@@ -88,7 +89,8 @@ public class ConvexHullJobRunnerTest
 						10,
 						job.getNumReduceTasks());
 				final JobContextConfigurationWrapper configWrapper = new JobContextConfigurationWrapper(
-						job);
+						job,
+						ConvexHullMapReduce.class);
 				Assert.assertEquals(
 						"file://foo/bin",
 						job.getConfiguration().get(
@@ -103,7 +105,6 @@ public class ConvexHullJobRunnerTest
 
 					final AdapterStoreFactory adapterStoreFactory = configWrapper.getInstance(
 							CommonParameters.Common.ADAPTER_STORE_FACTORY,
-							ConvexHullMapReduce.class,
 							AdapterStoreFactory.class,
 							AccumuloAdapterStoreFactory.class);
 
@@ -118,7 +119,6 @@ public class ConvexHullJobRunnerTest
 
 					final Projection<?> projection = configWrapper.getInstance(
 							HullParameters.Hull.PROJECTION_CLASS,
-							ConvexHullMapReduce.class,
 							Projection.class,
 							SimpleFeatureProjection.class);
 
@@ -145,7 +145,6 @@ public class ConvexHullJobRunnerTest
 						2,
 						configWrapper.getInt(
 								CentroidParameters.Centroid.ZOOM_LEVEL,
-								NestedGroupCentroidAssignment.class,
 								-1));
 				return true;
 			}

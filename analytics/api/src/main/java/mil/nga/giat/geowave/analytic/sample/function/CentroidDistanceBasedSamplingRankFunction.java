@@ -80,13 +80,15 @@ public class CentroidDistanceBasedSamplingRankFunction<T> implements
 
 	public static void setParameters(
 			final Configuration config,
+			final Class<?> scope,
 			final PropertyManagement runTimeProperties ) {
 		NestedGroupCentroidAssignment.setParameters(
 				config,
+				scope,
 				runTimeProperties);
 		RunnerUtils.setParameter(
 				config,
-				CentroidDistanceBasedSamplingRankFunction.class,
+				scope,
 				runTimeProperties,
 				new ParameterEnum[] {
 					SampleParameters.Sample.PROBABILITY_FUNCTION,
@@ -102,7 +104,6 @@ public class CentroidDistanceBasedSamplingRankFunction<T> implements
 		try {
 			sampleProbabilityFn = context.getInstance(
 					SampleParameters.Sample.PROBABILITY_FUNCTION,
-					CentroidDistanceBasedSamplingRankFunction.class,
 					SampleProbabilityFn.class,
 					RandomProbabilitySampleFn.class);
 		}
@@ -114,7 +115,6 @@ public class CentroidDistanceBasedSamplingRankFunction<T> implements
 		try {
 			itemWrapperFactory = context.getInstance(
 					CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-					CentroidDistanceBasedSamplingRankFunction.class,
 					AnalyticItemWrapperFactory.class,
 					SimpleFeatureItemWrapperFactory.class);
 

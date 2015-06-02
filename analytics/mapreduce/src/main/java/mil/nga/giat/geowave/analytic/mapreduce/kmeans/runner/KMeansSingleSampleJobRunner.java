@@ -127,7 +127,7 @@ public class KMeansSingleSampleJobRunner<T> extends
 					CentroidParameters.Centroid.INDEX_ID,
 					CentroidParameters.Centroid.DATA_TYPE_ID,
 					CentroidParameters.Centroid.DATA_NAMESPACE_URI,
-					CentroidParameters.Centroid.EXTRACTOR_CLASS,				
+					CentroidParameters.Centroid.EXTRACTOR_CLASS,
 					CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
 					CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
 					DataStoreParameters.DataStoreParam.ZOOKEEKER,

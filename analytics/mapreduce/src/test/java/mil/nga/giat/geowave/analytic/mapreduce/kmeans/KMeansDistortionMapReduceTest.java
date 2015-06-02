@@ -129,19 +129,16 @@ public class KMeansDistortionMapReduceTest
 
 		NestedGroupCentroidAssignment.setParameters(
 				reduceDriver.getConfiguration(),
+				KMeansDistortionMapReduce.class,
 				propManagement);
 		NestedGroupCentroidAssignment.setParameters(
 				mapDriver.getConfiguration(),
+				KMeansDistortionMapReduce.class,
 				propManagement);
 
 		serializations();
 
-		final BasicAccumuloOperations dataOps = new MockAccumuloOperationsFactory().build(
-				null,
-				null,
-				null,
-				null,
-				null);
+		final BasicAccumuloOperations dataOps = new MockAccumuloOperationsFactory().build(null);
 
 		capturedObjects.clear();
 

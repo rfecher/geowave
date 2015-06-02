@@ -21,7 +21,6 @@ import mil.nga.giat.geowave.analytic.mapreduce.JobContextConfigurationWrapper;
 import mil.nga.giat.geowave.analytic.mapreduce.MapReduceIntegration;
 import mil.nga.giat.geowave.analytic.mapreduce.SequenceFileInputFormatConfiguration;
 import mil.nga.giat.geowave.analytic.mapreduce.clustering.GroupAssignmentMapReduce;
-import mil.nga.giat.geowave.analytic.mapreduce.clustering.runner.GroupAssigmentJobRunner;
 import mil.nga.giat.geowave.analytic.param.CentroidParameters;
 import mil.nga.giat.geowave.analytic.param.CommonParameters;
 import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
@@ -67,6 +66,7 @@ public class GroupAssigmentJobRunnerTest
 				tool.setConf(configuration);
 				FeatureDataAdapterStoreFactory.transferState(
 						configuration,
+						GroupAssignmentMapReduce.class,
 						runTimeProperties);
 				return tool.run(runTimeProperties.toGeoWaveRunnerArguments());
 			}
@@ -85,7 +85,8 @@ public class GroupAssigmentJobRunnerTest
 						10,
 						job.getNumReduceTasks());
 				final JobContextConfigurationWrapper configWrapper = new JobContextConfigurationWrapper(
-						job);
+						job,
+						GroupAssignmentMapReduce.class);
 				Assert.assertEquals(
 						"file://foo/bin",
 						job.getConfiguration().get(
@@ -95,25 +96,21 @@ public class GroupAssigmentJobRunnerTest
 						3,
 						configWrapper.getInt(
 								CentroidParameters.Centroid.ZOOM_LEVEL,
-								NestedGroupCentroidAssignment.class,
 								-1));
 				Assert.assertEquals(
 						"b1234",
 						configWrapper.getString(
 								GlobalParameters.Global.PARENT_BATCH_ID,
-								NestedGroupCentroidAssignment.class,
 								""));
 				Assert.assertEquals(
 						"b12345",
 						configWrapper.getString(
 								GlobalParameters.Global.BATCH_ID,
-								NestedGroupCentroidAssignment.class,
 								""));
 
 				try {
 					final AnalyticItemWrapperFactory<?> wrapper = configWrapper.getInstance(
 							CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-							GroupAssignmentMapReduce.class,
 							AnalyticItemWrapperFactory.class,
 							SimpleFeatureItemWrapperFactory.class);
 
@@ -123,7 +120,6 @@ public class GroupAssigmentJobRunnerTest
 
 					final DistanceFn<?> distancFn = configWrapper.getInstance(
 							CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-							NestedGroupCentroidAssignment.class,
 							DistanceFn.class,
 							GeometryCentroidDistanceFn.class);
 

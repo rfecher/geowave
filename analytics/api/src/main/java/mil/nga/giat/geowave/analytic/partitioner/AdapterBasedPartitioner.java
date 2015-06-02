@@ -138,7 +138,6 @@ public class AdapterBasedPartitioner extends
 			adapterStore = new SerializableAdapterStore(
 					context.getInstance(
 							CommonParameters.Common.ADAPTER_STORE_FACTORY,
-							this.getClass(),
 							AdapterStoreFactory.class,
 							AccumuloAdapterStoreFactory.class).getAdapterStore(
 							context));
@@ -153,14 +152,16 @@ public class AdapterBasedPartitioner extends
 
 	@Override
 	public void setup(
-			PropertyManagement runTimeProperties,
-			Configuration configuration ) {
+			final PropertyManagement runTimeProperties,
+			final Class<?> scope,
+			final Configuration configuration ) {
 		super.setup(
 				runTimeProperties,
+				scope,
 				configuration);
 		RunnerUtils.setParameter(
 				configuration,
-				getClass(),
+				scope,
 				runTimeProperties,
 				new ParameterEnum[] {
 					CommonParameters.Common.ADAPTER_STORE_FACTORY

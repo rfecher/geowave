@@ -95,13 +95,16 @@ public class GroupAssigmentJobRunner extends
 				});
 		NestedGroupCentroidAssignment.setParameters(
 				config,
+				getScope(),
 				runTimeProperties);
 		CentroidManagerGeoWave.setParameters(
 				config,
+				getScope(),
 				runTimeProperties);
 
 		NestedGroupCentroidAssignment.setZoomLevel(
 				config,
+				getScope(),
 				zoomLevel);
 
 		return super.run(

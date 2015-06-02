@@ -69,18 +69,17 @@ public class GeoWaveAnalyticExtractJobRunner extends
 			throws Exception {
 
 		JobContextConfigurationWrapper configWrapper = new JobContextConfigurationWrapper(
-				job);
+				job,
+				SimpleFeatureOutputReducer.class);
 
 		reducerCount = Math.max(
 				configWrapper.getInt(
 						ExtractParameters.Extract.REDUCER_COUNT,
-						SimpleFeatureOutputReducer.class,
 						1),
 				1);
 
 		outputBaseDir = configWrapper.getString(
 				MapReduceParameters.MRConfig.HDFS_BASE_DIR,
-				SimpleFeatureOutputReducer.class,
 				"/tmp");
 
 		LOGGER.info("Output base directory " + outputBaseDir);
@@ -133,7 +132,7 @@ public class GeoWaveAnalyticExtractJobRunner extends
 				runTimeProperties.getPropertyAsString(
 						MapReduceParameters.MRConfig.HDFS_BASE_DIR,
 						"/tmp") + "/" + runTimeProperties.getPropertyAsString(
-								DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
+						DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
 						"x") + "_dedupe");
 	}
 

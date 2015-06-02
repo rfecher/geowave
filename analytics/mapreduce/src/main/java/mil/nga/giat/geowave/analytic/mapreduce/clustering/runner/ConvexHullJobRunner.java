@@ -149,9 +149,11 @@ public class ConvexHullJobRunner extends
 				4));
 		CentroidManagerGeoWave.setParameters(
 				config,
+				getScope(),
 				runTimeProperties);
 		NestedGroupCentroidAssignment.setParameters(
 				config,
+				getScope(),
 				runTimeProperties);
 
 		int localZoomLevel = runTimeProperties.getPropertyAsInt(
@@ -160,6 +162,7 @@ public class ConvexHullJobRunner extends
 		// getting group from next level, now that the prior level is complete
 		NestedGroupCentroidAssignment.setZoomLevel(
 				config,
+				getScope(),
 				localZoomLevel + 1);
 
 		addDataAdapter(

@@ -46,15 +46,17 @@ public class UpdateCentroidCostJobRunner extends
 
 		CentroidManagerGeoWave.setParameters(
 				config,
+				getScope(),
 				runTimeProperties);
 
 		NestedGroupCentroidAssignment.setParameters(
 				config,
+				getScope(),
 				runTimeProperties);
 
 		RunnerUtils.setParameter(
 				config,
-				UpdateCentroidCostMapReduce.class,
+				getScope(),
 				runTimeProperties,
 				new ParameterEnum[] {
 					CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS

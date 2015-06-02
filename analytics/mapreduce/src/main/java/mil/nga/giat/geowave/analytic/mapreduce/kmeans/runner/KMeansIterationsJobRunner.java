@@ -258,10 +258,10 @@ public class KMeansIterationsJobRunner<T> implements
 	@Override
 	public void fillOptions(
 			final Set<Option> options ) {
-		
+
 		PropertyManagement.fillOptions(
 				options,
-				new ParameterEnum[] {					
+				new ParameterEnum[] {
 					CentroidParameters.Centroid.INDEX_ID,
 					CentroidParameters.Centroid.DATA_TYPE_ID,
 					CentroidParameters.Centroid.DATA_NAMESPACE_URI,

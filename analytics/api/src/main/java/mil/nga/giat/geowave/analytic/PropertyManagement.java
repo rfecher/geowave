@@ -651,7 +651,6 @@ public class PropertyManagement implements
 	@Override
 	public int getInt(
 			final Enum<?> property,
-			final Class<?> scope,
 			final int defaultValue ) {
 		return getPropertyAsInt(
 				(ParameterEnum) (property),
@@ -661,7 +660,6 @@ public class PropertyManagement implements
 	@Override
 	public double getDouble(
 			final Enum<?> property,
-			final Class<?> scope,
 			final double defaultValue ) {
 		return getPropertyAsDouble(
 				(ParameterEnum) (property),
@@ -671,7 +669,6 @@ public class PropertyManagement implements
 	@Override
 	public String getString(
 			final Enum<?> property,
-			final Class<?> scope,
 			final String defaultValue ) {
 		return this.getPropertyAsString(
 				(ParameterEnum) (property),
@@ -681,7 +678,6 @@ public class PropertyManagement implements
 	@Override
 	public <T> T getInstance(
 			final Enum<?> property,
-			final Class<?> scope,
 			final Class<T> iface,
 			final Class<? extends T> defaultValue )
 			throws InstantiationException,
@@ -694,8 +690,7 @@ public class PropertyManagement implements
 
 	@Override
 	public byte[] getBytes(
-			final Enum<?> property,
-			final Class<?> scope ) {
+			final Enum<?> property ) {
 		return getPropertyAsBytes((ParameterEnum) property);
 	}
 

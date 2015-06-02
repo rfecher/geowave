@@ -153,8 +153,8 @@ public class SampleMultipleSetsJobRunner<T> extends
 				CentroidParameters.Centroid.INDEX_ID,
 				SampleParameters.Sample.INDEX_ID);
 
-		NestedGroupCentroidAssignment.setZoomLevel(
-				config,
+		runTimeProperties.store(
+				CentroidParameters.Centroid.ZOOM_LEVEL,
 				zoomLevel);
 
 		stage1Setup();

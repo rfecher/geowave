@@ -70,20 +70,26 @@ import com.google.common.primitives.SignedBytes;
  * 
  * @Formatter:on
  * 
- * * Properties:
+ *               * Properties:
  * 
- * @formatter:off "NNMapReduce.Partition.PartitionerClass" -> {@link mil.nga.giat.geowave.analytic.partitioner.Partitioner}
+ * @formatter:off "NNMapReduce.Partition.PartitionerClass" ->
+ *                {@link mil.nga.giat.geowave.analytic.partitioner.Partitioner}
  *                <p/>
- *               "NNMapReduce.Common.DistanceFunctionClass" -> Used to
- *                determine distance to between simple features {@link mil.nga.giat.geowave.analytic.distance.DistanceFn}
+ *                "NNMapReduce.Common.DistanceFunctionClass" -> Used to
+ *                determine distance to between simple features
+ *                {@link mil.nga.giat.geowave.analytic.distance.DistanceFn}
  *                <p/>
- *                "NNMapReduce.Partition.PartitionerClass" -> {@link mil.nga.giat.geowave.analytic.partitioner.Partitioner}
+ *                "NNMapReduce.Partition.PartitionerClass" ->
+ *                {@link mil.nga.giat.geowave.analytic.partitioner.Partitioner}
  *                <p/>
- *                "NNMapReduce.Partition.MaxMemberSelection" -> Maximum number of neighbors (pick the top K closest, where this variable is K) (integer)
+ *                "NNMapReduce.Partition.MaxMemberSelection" -> Maximum number
+ *                of neighbors (pick the top K closest, where this variable is
+ *                K) (integer)
  *                <p/>
- *                "NNMapReduce.Partition.PartitionDistance" -> Maximum distance between item and its neighbors. (double)
- *                
- *                
+ *                "NNMapReduce.Partition.PartitionDistance" -> Maximum distance
+ *                between item and its neighbors. (double)
+ * 
+ * 
  * @Formatter:on
  */
 public class NNMapReduce
@@ -135,6 +141,7 @@ public class NNMapReduce
 			super.setup(context);
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					NNMapReduce.class,
 					LOGGER);
 			try {
 				serializationTool = new HadoopWritableSerializationTool(
@@ -150,7 +157,6 @@ public class NNMapReduce
 			try {
 				partitioner = config.getInstance(
 						PartitionParameters.Partition.PARTITIONER_CLASS,
-						NNMapReduce.class,
 						Partitioner.class,
 						OrthodromicDistancePartitioner.class);
 
@@ -288,6 +294,7 @@ public class NNMapReduce
 
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					NNMapReduce.class,
 					NNMapReduce.LOGGER);
 
 			try {
@@ -305,7 +312,6 @@ public class NNMapReduce
 			try {
 				distanceFn = config.getInstance(
 						CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-						NNMapReduce.class,
 						DistanceFn.class,
 						FeatureCentroidOrthodromicDistanceFn.class);
 			}
@@ -316,12 +322,11 @@ public class NNMapReduce
 
 			maxDistance = config.getDouble(
 					PartitionParameters.Partition.PARTITION_DISTANCE,
-					NNMapReduce.class,
+
 					1.0);
 
 			maxNeighbors = config.getInt(
 					PartitionParameters.Partition.MAX_MEMBER_SELECTION,
-					NNMapReduce.class,
 					Integer.MAX_VALUE);
 		}
 	}

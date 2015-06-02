@@ -1,5 +1,7 @@
 package mil.nga.giat.geowave.analytic.db;
 
+import mil.nga.giat.geowave.analytic.ConfigurationWrapper;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
 import mil.nga.giat.geowave.datastore.accumulo.BasicAccumuloOperations;
 
 import org.apache.accumulo.core.client.AccumuloException;
@@ -10,20 +12,26 @@ public class DirectBasicAccumuloOperationsFactory implements
 {
 	@Override
 	public BasicAccumuloOperations build(
-			final String zookeeperUrl,
-			final String instanceName,
-			final String userName,
-			final String password,
-			final String tableNamespace )
+			final ConfigurationWrapper config )
 			throws AccumuloException,
 			AccumuloSecurityException {
 		// BasicAccumuloOperations has a built in connection pool
 		return new BasicAccumuloOperations(
-				zookeeperUrl,
-				instanceName,
-				userName,
-				password,
-				tableNamespace);
+				config.getString(
+						DataStoreParameters.DataStoreParam.ZOOKEEKER,
+						"localhost:2181"),
+				config.getString(
+						DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
+						"minInstance"),
+				config.getString(
+						DataStoreParameters.DataStoreParam.ACCUMULO_USER,
+						""),
+				config.getString(
+						DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
+						""),
+				config.getString(
+						DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
+						""));
 
 	}
 

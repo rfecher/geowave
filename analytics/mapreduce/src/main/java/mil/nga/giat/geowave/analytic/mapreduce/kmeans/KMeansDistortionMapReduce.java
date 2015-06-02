@@ -131,6 +131,7 @@ public class KMeansDistortionMapReduce
 			super.setup(context);
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					KMeansDistortionMapReduce.class,
 					KMeansDistortionMapReduce.LOGGER);
 
 			try {
@@ -145,7 +146,6 @@ public class KMeansDistortionMapReduce
 			try {
 				centroidExtractor = config.getInstance(
 						CentroidParameters.Centroid.EXTRACTOR_CLASS,
-						KMeansDistortionMapReduce.class,
 						CentroidExtractor.class,
 						SimpleFeatureCentroidExtractor.class);
 			}
@@ -157,7 +157,6 @@ public class KMeansDistortionMapReduce
 			try {
 				itemWrapperFactory = config.getInstance(
 						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-						KMeansDistortionMapReduce.class,
 						AnalyticItemWrapperFactory.class,
 						SimpleFeatureItemWrapperFactory.class);
 			}
@@ -264,11 +263,11 @@ public class KMeansDistortionMapReduce
 			super.setup(context);
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					KMeansDistortionMapReduce.class,
 					KMeansDistortionMapReduce.LOGGER);
 
 			final int k = config.getInt(
 					JumpParameters.Jump.COUNT_OF_CENTROIDS,
-					KMeansDistortionMapReduce.class,
 					-1);
 			if (k > 0) {
 				expectedK = Integer.toString(k);

@@ -14,11 +14,8 @@ import mil.nga.giat.geowave.analytic.mapreduce.GeoWaveAnalyticJobRunner;
 import mil.nga.giat.geowave.analytic.mapreduce.JobContextConfigurationWrapper;
 import mil.nga.giat.geowave.analytic.mapreduce.MapReduceIntegration;
 import mil.nga.giat.geowave.analytic.mapreduce.SequenceFileInputFormatConfiguration;
-import mil.nga.giat.geowave.analytic.mapreduce.nn.NNJobRunner;
-import mil.nga.giat.geowave.analytic.mapreduce.nn.NNMapReduce;
 import mil.nga.giat.geowave.analytic.param.CommonParameters;
 import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
-import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.MapReduceParameters.MRConfig;
 import mil.nga.giat.geowave.analytic.param.PartitionParameters.Partition;
 import mil.nga.giat.geowave.analytic.partitioner.FeatureDataAdapterStoreFactory;
@@ -52,6 +49,7 @@ public class NNJobRunnerTest
 				tool.setConf(configuration);
 				FeatureDataAdapterStoreFactory.transferState(
 						configuration,
+						NNMapReduce.class,
 						runTimeProperties);
 				return tool.run(runTimeProperties.toGeoWaveRunnerArguments());
 			}
@@ -70,7 +68,8 @@ public class NNJobRunnerTest
 						10,
 						job.getNumReduceTasks());
 				final JobContextConfigurationWrapper configWrapper = new JobContextConfigurationWrapper(
-						job);
+						job,
+						NNMapReduce.class);
 				Assert.assertEquals(
 						"file://foo/bin",
 						job.getConfiguration().get(
@@ -80,7 +79,6 @@ public class NNJobRunnerTest
 						0.4,
 						configWrapper.getDouble(
 								Partition.PARTITION_DISTANCE,
-								NNMapReduce.class,
 								0.0),
 						0.001);
 
@@ -88,13 +86,12 @@ public class NNJobRunnerTest
 						100,
 						configWrapper.getInt(
 								Partition.MAX_MEMBER_SELECTION,
-								NNMapReduce.class,
+
 								1));
 
 				try {
 					final Partitioner<?> wrapper = configWrapper.getInstance(
 							Partition.PARTITIONER_CLASS,
-							NNMapReduce.class,
 							Partitioner.class,
 							null);
 
@@ -104,7 +101,6 @@ public class NNJobRunnerTest
 
 					final DistanceFn<?> distancFn = configWrapper.getInstance(
 							CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-							NNMapReduce.class,
 							DistanceFn.class,
 							GeometryCentroidDistanceFn.class);
 

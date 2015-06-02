@@ -125,7 +125,7 @@ public class KSamplerJobRunner extends
 				IndexType.SPATIAL_TEMPORAL_VECTOR.getDefaultId());
 		RunnerUtils.setParameter(
 				config,
-				KSamplerMapReduce.class,
+				getScope(),
 				runTimeProperties,
 				new ParameterEnum[] {
 					GlobalParameters.Global.BATCH_ID,
@@ -139,7 +139,7 @@ public class KSamplerJobRunner extends
 
 		RunnerUtils.setParameter(
 				config,
-				KSamplerMapReduce.class,
+				getScope(),
 				new Object[] {
 					samplingRankFunctionClass
 				},
@@ -149,6 +149,7 @@ public class KSamplerJobRunner extends
 
 		NestedGroupCentroidAssignment.setParameters(
 				config,
+				getScope(),
 				runTimeProperties);
 
 		addDataAdapter(

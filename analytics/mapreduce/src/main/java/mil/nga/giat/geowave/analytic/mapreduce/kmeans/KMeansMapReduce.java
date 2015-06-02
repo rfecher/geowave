@@ -120,6 +120,7 @@ public class KMeansMapReduce
 			super.setup(context);
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					KMeansMapReduce.class,
 					KMeansMapReduce.LOGGER);
 
 			try {
@@ -134,7 +135,6 @@ public class KMeansMapReduce
 			try {
 				centroidExtractor = config.getInstance(
 						CentroidParameters.Centroid.EXTRACTOR_CLASS,
-						KMeansMapReduce.class,
 						CentroidExtractor.class,
 						SimpleFeatureCentroidExtractor.class);
 			}
@@ -146,7 +146,6 @@ public class KMeansMapReduce
 			try {
 				itemWrapperFactory = config.getInstance(
 						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-						KMeansMapReduce.class,
 						AnalyticItemWrapperFactory.class,
 						SimpleFeatureItemWrapperFactory.class);
 
@@ -286,6 +285,7 @@ public class KMeansMapReduce
 				centroidManager = new CentroidManagerGeoWave<Object>(
 						new JobContextConfigurationWrapper(
 								context,
+								KMeansMapReduce.class,
 								KMeansMapReduce.LOGGER));
 			}
 			catch (final Exception e) {

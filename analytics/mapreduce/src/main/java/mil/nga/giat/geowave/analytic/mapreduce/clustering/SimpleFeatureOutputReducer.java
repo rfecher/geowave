@@ -121,27 +121,24 @@ public class SimpleFeatureOutputReducer extends
 			InterruptedException {
 		super.setup(context);
 		final ConfigurationWrapper config = new JobContextConfigurationWrapper(
-				context);
+				context,
+				SimpleFeatureOutputReducer.class);
 
 		outputDataTypeID = config.getString(
 				ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID,
-				SimpleFeatureOutputReducer.class,
 				"reduced_features");
 
 		batchID = config.getString(
 				GlobalParameters.Global.BATCH_ID,
-				SimpleFeatureOutputReducer.class,
 				UUID.randomUUID().toString());
 
 		groupID = config.getString(
 				ExtractParameters.Extract.GROUP_ID,
-				SimpleFeatureOutputReducer.class,
 				UUID.randomUUID().toString());
 
 		try {
 			dimExtractor = config.getInstance(
 					ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-					SimpleFeatureOutputReducer.class,
 					DimensionExtractor.class,
 					EmptyDimensionExtractor.class);
 		}
@@ -162,7 +159,6 @@ public class SimpleFeatureOutputReducer extends
 				dimExtractor.getDimensionNames(),
 				config.getString(
 						ExtractParameters.Extract.DATA_NAMESPACE_URI,
-						SimpleFeatureOutputReducer.class,
 						BasicFeatureTypes.DEFAULT_NAMESPACE),
 				ClusteringUtils.CLUSTERING_CRS);
 

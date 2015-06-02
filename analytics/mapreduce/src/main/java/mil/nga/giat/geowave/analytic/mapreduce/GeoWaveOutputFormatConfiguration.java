@@ -69,11 +69,11 @@ public class GeoWaveOutputFormatConfiguration implements
 		PropertyManagement.fillOptions(
 				options,
 				new ParameterEnum[] {
-						DataStoreParameters.DataStoreParam.ZOOKEEKER,
-						DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
-						DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
-						DataStoreParameters.DataStoreParam.ACCUMULO_USER,
-						DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE
+					DataStoreParameters.DataStoreParam.ZOOKEEKER,
+					DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
+					DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
+					DataStoreParameters.DataStoreParam.ACCUMULO_USER,
+					DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE
 				});
 	}
 }

@@ -64,6 +64,7 @@ public class NNJobRunner extends
 
 		partitioner.setup(
 				runTimeProperties,
+				getScope(),
 				config);
 
 		RunnerUtils.setParameter(

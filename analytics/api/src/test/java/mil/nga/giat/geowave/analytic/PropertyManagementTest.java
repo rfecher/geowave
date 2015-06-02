@@ -159,7 +159,7 @@ public class PropertyManagementTest
 		PropertyManagement.fillOptions(
 				options,
 				new ParameterEnum[] {
-						DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
+					DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
 				});
 		assertEquals(
 				1,

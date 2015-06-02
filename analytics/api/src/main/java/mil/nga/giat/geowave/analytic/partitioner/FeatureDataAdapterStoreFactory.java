@@ -55,10 +55,11 @@ public class FeatureDataAdapterStoreFactory implements
 
 	public static void transferState(
 			Configuration configuration,
+			Class<?> scope,
 			PropertyManagement runTimeProperties ) {
 		RunnerUtils.setParameter(
 				configuration,
-				FeatureDataAdapterStoreFactory.class,
+				scope,
 				runTimeProperties,
 				new ParameterEnum[] {
 					MyData.DATA
@@ -80,9 +81,7 @@ public class FeatureDataAdapterStoreFactory implements
 		return new MemoryAdapterStore(
 				new DataAdapter[] {
 					PersistenceUtils.fromBinary(
-							context.getBytes(
-									MyData.DATA,
-									this.getClass()),
+							context.getBytes(MyData.DATA),
 							DataAdapter.class)
 				});
 	}

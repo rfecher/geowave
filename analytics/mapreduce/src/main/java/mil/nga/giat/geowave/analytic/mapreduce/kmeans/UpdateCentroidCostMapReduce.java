@@ -101,6 +101,7 @@ public class UpdateCentroidCostMapReduce
 
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					UpdateCentroidCostMapReduce.class,
 					UpdateCentroidCostMapReduce.LOGGER);
 
 			try {
@@ -116,7 +117,6 @@ public class UpdateCentroidCostMapReduce
 			try {
 				itemWrapperFactory = config.getInstance(
 						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-						KMeansMapReduce.class,
 						AnalyticItemWrapperFactory.class,
 						SimpleFeatureItemWrapperFactory.class);
 
@@ -223,6 +223,7 @@ public class UpdateCentroidCostMapReduce
 
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					UpdateCentroidCostMapReduce.class,
 					UpdateCentroidCostMapReduce.LOGGER);
 
 			try {

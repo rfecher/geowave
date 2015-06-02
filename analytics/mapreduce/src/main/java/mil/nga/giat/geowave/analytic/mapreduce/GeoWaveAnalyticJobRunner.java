@@ -228,11 +228,11 @@ public abstract class GeoWaveAnalyticJobRunner extends
 		configure(job);
 
 		final JobContextConfigurationWrapper configWrapper = new JobContextConfigurationWrapper(
-				job);
+				job,
+				getScope());
 
 		final FormatConfiguration inputFormat = configWrapper.getInstance(
 				InputParameters.Input.INPUT_FORMAT,
-				getScope(),
 				FormatConfiguration.class,
 				null);
 
@@ -242,7 +242,6 @@ public abstract class GeoWaveAnalyticJobRunner extends
 
 		final FormatConfiguration outputFormat = configWrapper.getInstance(
 				OutputParameters.Output.OUTPUT_FORMAT,
-				getScope(),
 				FormatConfiguration.class,
 				null);
 
@@ -254,7 +253,6 @@ public abstract class GeoWaveAnalyticJobRunner extends
 
 		job.setNumReduceTasks(configWrapper.getInt(
 				OutputParameters.Output.REDUCER_COUNT,
-				getScope(),
 				1));
 
 		job.setJarByClass(this.getClass());

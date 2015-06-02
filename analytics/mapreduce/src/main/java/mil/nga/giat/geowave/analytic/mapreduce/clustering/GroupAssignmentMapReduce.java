@@ -140,6 +140,7 @@ public class GroupAssignmentMapReduce
 
 			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
+					GroupAssignmentMapReduce.class,
 					GroupAssignmentMapReduce.LOGGER);
 
 			try {
@@ -154,7 +155,6 @@ public class GroupAssignmentMapReduce
 			try {
 				centroidExtractor = config.getInstance(
 						CentroidParameters.Centroid.EXTRACTOR_CLASS,
-						GroupAssignmentMapReduce.class,
 						CentroidExtractor.class,
 						SimpleFeatureCentroidExtractor.class);
 			}
@@ -166,7 +166,6 @@ public class GroupAssignmentMapReduce
 			try {
 				itemWrapperFactory = config.getInstance(
 						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-						GroupAssignmentMapReduce.class,
 						AnalyticItemWrapperFactory.class,
 						SimpleFeatureItemWrapperFactory.class);
 

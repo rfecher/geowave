@@ -185,7 +185,6 @@ public class CentroidManagerGeoWave<T> implements
 		try {
 			centroidFactory = context.getInstance(
 					CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-					this.getClass(),
 					AnalyticItemWrapperFactory.class,
 					SimpleFeatureItemWrapperFactory.class);
 			centroidFactory.initialize(context);
@@ -201,52 +200,30 @@ public class CentroidManagerGeoWave<T> implements
 
 		this.level = context.getInt(
 				CentroidParameters.Centroid.ZOOM_LEVEL,
-				this.getClass(),
 				1);
 
 		centroidDataTypeId = context.getString(
 				CentroidParameters.Centroid.DATA_TYPE_ID,
-				this.getClass(),
 				"centroid");
 
 		batchId = context.getString(
 				GlobalParameters.Global.BATCH_ID,
-				this.getClass(),
 				Long.toString(Calendar.getInstance().getTime().getTime()));
 
 		final String indexId = context.getString(
 				CentroidParameters.Centroid.INDEX_ID,
-				this.getClass(),
 				IndexType.SPATIAL_VECTOR.getDefaultId());
 
 		try {
 			final String zk = context.getString(
 					DataStoreParameters.DataStoreParam.ZOOKEEKER,
-					this.getClass(),
 					"localhost:2181");
 
 			basicAccumuloOperations = context.getInstance(
 					CommonParameters.Common.ACCUMULO_CONNECT_FACTORY,
-					this.getClass(),
 					BasicAccumuloOperationsFactory.class,
 					DirectBasicAccumuloOperationsFactory.class).build(
-					zk,
-					context.getString(
-							DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
-							this.getClass(),
-							""),
-					context.getString(
-							DataStoreParameters.DataStoreParam.ACCUMULO_USER,
-							this.getClass(),
-							"root"),
-					context.getString(
-							DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
-							this.getClass(),
-							""),
-					context.getString(
-							DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
-							this.getClass(),
-							""));
+					context);
 
 		}
 		catch (final Exception e) {
@@ -298,14 +275,9 @@ public class CentroidManagerGeoWave<T> implements
 		try {
 			basicAccumuloOperations = runTimeProperties.getInstance(
 					CommonParameters.Common.ACCUMULO_CONNECT_FACTORY,
-					this.getClass(),
 					BasicAccumuloOperationsFactory.class,
 					DirectBasicAccumuloOperationsFactory.class).build(
-					runTimeProperties.getPropertyAsString(DataStoreParameters.DataStoreParam.ZOOKEEKER),
-					runTimeProperties.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE),
-					runTimeProperties.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_USER),
-					runTimeProperties.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD),
-					runTimeProperties.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE));
+					runTimeProperties);
 		}
 		catch (InstantiationException | IllegalAccessException e) {
 			throw new IOException(
@@ -659,10 +631,11 @@ public class CentroidManagerGeoWave<T> implements
 
 	public static void setParameters(
 			final Configuration config,
+			final Class<?> scope,
 			final PropertyManagement runTimeProperties ) {
 		RunnerUtils.setParameter(
 				config,
-				CentroidManagerGeoWave.class,
+				scope,
 				runTimeProperties,
 				new ParameterEnum[] {
 					CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,

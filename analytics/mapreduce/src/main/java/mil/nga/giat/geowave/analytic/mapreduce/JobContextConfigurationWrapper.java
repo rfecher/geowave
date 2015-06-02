@@ -14,26 +14,30 @@ public class JobContextConfigurationWrapper implements
 	protected static final Logger LOGGER = LoggerFactory.getLogger(JobContextConfigurationWrapper.class);
 
 	private final JobContext context;
+	private final Class<?> scope;
 	private Logger logger = LOGGER;
 
 	public JobContextConfigurationWrapper(
-			final JobContext context ) {
+			final JobContext context,
+			final Class<?> scope ) {
 		super();
 		this.context = context;
+		this.scope = scope;
 	}
 
 	public JobContextConfigurationWrapper(
 			final JobContext context,
+			final Class<?> scope,
 			final Logger logger ) {
 		super();
 		this.context = context;
+		this.scope = scope;
 		this.logger = logger;
 	}
 
 	@Override
 	public int getInt(
 			final Enum<?> property,
-			final Class<?> scope,
 			final int defaultValue ) {
 		final String propName = GeoWaveConfiguratorBase.enumToConfKey(
 				scope,
@@ -49,7 +53,6 @@ public class JobContextConfigurationWrapper implements
 	@Override
 	public String getString(
 			final Enum<?> property,
-			final Class<?> scope,
 			final String defaultValue ) {
 		final String propName = GeoWaveConfiguratorBase.enumToConfKey(
 				scope,
@@ -64,7 +67,6 @@ public class JobContextConfigurationWrapper implements
 	@Override
 	public <T> T getInstance(
 			final Enum<?> property,
-			final Class<?> scope,
 			final Class<T> iface,
 			final Class<? extends T> defaultValue )
 			throws InstantiationException,
@@ -96,7 +98,6 @@ public class JobContextConfigurationWrapper implements
 	@Override
 	public double getDouble(
 			Enum<?> property,
-			Class<?> scope,
 			double defaultValue ) {
 		final String propName = GeoWaveConfiguratorBase.enumToConfKey(
 				scope,
@@ -110,8 +111,7 @@ public class JobContextConfigurationWrapper implements
 
 	@Override
 	public byte[] getBytes(
-			Enum<?> property,
-			Class<?> scope ) {
+			Enum<?> property ) {
 		final String propName = GeoWaveConfiguratorBase.enumToConfKey(
 				scope,
 				property);

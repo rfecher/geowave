@@ -159,11 +159,7 @@ public class ClusteringUtils
 					CommonParameters.Common.ACCUMULO_CONNECT_FACTORY,
 					BasicAccumuloOperationsFactory.class,
 					DirectBasicAccumuloOperationsFactory.class).build(
-					zookeeper,
-					accumuloInstance,
-					propertyManagement.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_USER),
-					propertyManagement.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD),
-					propertyManagement.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE));
+					propertyManagement);
 
 			final AccumuloIndexStore indexStore = new AccumuloIndexStore(
 					ops);
@@ -232,11 +228,7 @@ public class ClusteringUtils
 				CommonParameters.Common.ACCUMULO_CONNECT_FACTORY,
 				BasicAccumuloOperationsFactory.class,
 				DirectBasicAccumuloOperationsFactory.class).build(
-				propertyManagement.getPropertyAsString(DataStoreParameters.DataStoreParam.ZOOKEEKER),
-				propertyManagement.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE),
-				propertyManagement.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_USER),
-				propertyManagement.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD),
-				propertyManagement.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE));
+				propertyManagement);
 
 	}
 

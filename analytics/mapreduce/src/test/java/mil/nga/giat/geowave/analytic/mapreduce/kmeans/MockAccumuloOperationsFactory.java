@@ -1,5 +1,6 @@
 package mil.nga.giat.geowave.analytic.mapreduce.kmeans;
 
+import mil.nga.giat.geowave.analytic.ConfigurationWrapper;
 import mil.nga.giat.geowave.analytic.db.BasicAccumuloOperationsFactory;
 import mil.nga.giat.geowave.datastore.accumulo.BasicAccumuloOperations;
 
@@ -36,11 +37,7 @@ public class MockAccumuloOperationsFactory implements
 
 	@Override
 	public BasicAccumuloOperations build(
-			String zookeeperUrl,
-			String instanceName,
-			String userName,
-			String password,
-			String tableNamespace )
+			ConfigurationWrapper config )
 			throws AccumuloException,
 			AccumuloSecurityException {
 		return new BasicAccumuloOperations(

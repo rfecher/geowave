@@ -127,7 +127,6 @@ public abstract class AbstractPartitioner<T> implements
 
 		final String distances = context.getString(
 				ClusteringParameters.Clustering.DISTANCE_THRESHOLDS,
-				this.getClass(),
 				"0.000001");
 
 		final String distancesArray[] = distances.split(",");
@@ -142,7 +141,6 @@ public abstract class AbstractPartitioner<T> implements
 		try {
 			final IndexModelBuilder builder = context.getInstance(
 					CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
-					this.getClass(),
 					IndexModelBuilder.class,
 					SpatialIndexModelBuilder.class);
 
@@ -169,10 +167,11 @@ public abstract class AbstractPartitioner<T> implements
 	@Override
 	public void setup(
 			final PropertyManagement runTimeProperties,
+			final Class<?> scope,
 			final Configuration configuration ) {
 		RunnerUtils.setParameter(
 				configuration,
-				getClass(),
+				scope,
 				runTimeProperties,
 				new ParameterEnum[] {
 					CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,

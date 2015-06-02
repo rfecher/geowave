@@ -67,6 +67,7 @@ public class KMeansJobRunner extends
 			throws Exception {
 		NestedGroupCentroidAssignment.setParameters(
 				configuration,
+				getScope(),
 				runTimeProperties);
 		super.setReducerCount(runTimeProperties.getPropertyAsInt(
 				ClusteringParameters.Clustering.MAX_REDUCER_COUNT,
@@ -76,7 +77,7 @@ public class KMeansJobRunner extends
 
 		RunnerUtils.setParameter(
 				configuration,
-				KMeansMapReduce.class,
+				getScope(),
 				runTimeProperties,
 				new ParameterEnum[] {
 					CentroidParameters.Centroid.EXTRACTOR_CLASS,
