@@ -24,6 +24,7 @@ import mil.nga.giat.geowave.analytic.mapreduce.clustering.GroupAssignmentMapRedu
 import mil.nga.giat.geowave.analytic.mapreduce.clustering.runner.GroupAssigmentJobRunner;
 import mil.nga.giat.geowave.analytic.param.CentroidParameters;
 import mil.nga.giat.geowave.analytic.param.CommonParameters;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.MapReduceParameters.MRConfig;
 import mil.nga.giat.geowave.analytic.partitioner.FeatureDataAdapterStoreFactory;
@@ -168,20 +169,20 @@ public class GroupAssigmentJobRunnerTest
 				"/");
 
 		runTimeProperties.store(
-				GlobalParameters.Global.ZOOKEEKER,
+				DataStoreParameters.DataStoreParam.ZOOKEEKER,
 				"localhost:3000");
 
 		runTimeProperties.store(
-				GlobalParameters.Global.ACCUMULO_INSTANCE,
+				DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
 				"accumulo");
 		runTimeProperties.store(
-				GlobalParameters.Global.ACCUMULO_USER,
+				DataStoreParameters.DataStoreParam.ACCUMULO_USER,
 				"root");
 		runTimeProperties.store(
-				GlobalParameters.Global.ACCUMULO_PASSWORD,
+				DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
 				"pwd");
 		runTimeProperties.store(
-				GlobalParameters.Global.ACCUMULO_NAMESPACE,
+				DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
 				"test");
 		runTimeProperties.store(
 				GlobalParameters.Global.BATCH_ID,
@@ -226,7 +227,7 @@ public class GroupAssigmentJobRunnerTest
 
 		assertTrue(PropertyManagement.hasOption(
 				options,
-				GlobalParameters.Global.ACCUMULO_INSTANCE));
+				DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE));
 
 		assertTrue(PropertyManagement.hasOption(
 				options,

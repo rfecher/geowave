@@ -14,6 +14,7 @@ import mil.nga.giat.geowave.analytic.mapreduce.MapReduceJobRunner;
 import mil.nga.giat.geowave.analytic.param.CentroidParameters;
 import mil.nga.giat.geowave.analytic.param.ClusteringParameters;
 import mil.nga.giat.geowave.analytic.param.CommonParameters;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
 import mil.nga.giat.geowave.analytic.param.FormatConfiguration;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.MapReduceParameters;
@@ -192,11 +193,11 @@ public class SampleMultipleSetsJobRunner<T> extends
 					CentroidParameters.Centroid.EXTRACTOR_CLASS,
 					CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
 					CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
-					GlobalParameters.Global.ZOOKEEKER,
-					GlobalParameters.Global.ACCUMULO_INSTANCE,
-					GlobalParameters.Global.ACCUMULO_PASSWORD,
-					GlobalParameters.Global.ACCUMULO_USER,
-					GlobalParameters.Global.ACCUMULO_NAMESPACE,
+					DataStoreParameters.DataStoreParam.ZOOKEEKER,
+					DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
+					DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
+					DataStoreParameters.DataStoreParam.ACCUMULO_USER,
+					DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
 					GlobalParameters.Global.BATCH_ID
 				});
 

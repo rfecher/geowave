@@ -12,6 +12,7 @@ import mil.nga.giat.geowave.analytic.mapreduce.SequenceFileOutputFormatConfigura
 import mil.nga.giat.geowave.analytic.param.CentroidParameters;
 import mil.nga.giat.geowave.analytic.param.ClusteringParameters;
 import mil.nga.giat.geowave.analytic.param.CommonParameters;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
 import mil.nga.giat.geowave.analytic.param.ExtractParameters;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.HullParameters;
@@ -79,7 +80,7 @@ public abstract class MultiLevelClusteringJobRunner extends
 				new ParameterEnum[] {
 					Clustering.ZOOM_LEVELS,
 					Global.BATCH_ID,
-					Global.ACCUMULO_NAMESPACE
+					DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE
 				});
 		MapReduceParameters.fillOptions(options);
 		// the output data type is used for centroid management
@@ -198,7 +199,7 @@ public abstract class MultiLevelClusteringJobRunner extends
 					propertyManagement);
 			if (status == 0) {
 				final Path nextPath = new Path(
-						outputBaseDir + "/" + propertyManagement.getPropertyAsString(GlobalParameters.Global.ACCUMULO_NAMESPACE) + "_level_" + zoomLevel);
+						outputBaseDir + "/" + propertyManagement.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE) + "_level_" + zoomLevel);
 				if (fs.exists(nextPath)) {
 					fs.delete(
 							nextPath,

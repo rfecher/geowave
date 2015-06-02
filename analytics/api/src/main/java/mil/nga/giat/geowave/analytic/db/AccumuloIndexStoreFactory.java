@@ -2,6 +2,7 @@ package mil.nga.giat.geowave.analytic.db;
 
 import mil.nga.giat.geowave.analytic.ConfigurationWrapper;
 import mil.nga.giat.geowave.analytic.param.CommonParameters;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.core.store.index.IndexStore;
 import mil.nga.giat.geowave.datastore.accumulo.BasicAccumuloOperations;
@@ -23,11 +24,11 @@ public class AccumuloIndexStoreFactory implements
 			throws InstantiationException {
 
 		final String zookeeper = context.getString(
-				GlobalParameters.Global.ZOOKEEKER,
+				DataStoreParameters.DataStoreParam.ZOOKEEKER,
 				this.getClass(),
 				"localhost:2181");
 		final String accumuloInstance = context.getString(
-				GlobalParameters.Global.ACCUMULO_INSTANCE,
+				DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
 				this.getClass(),
 				"minInstance");
 
@@ -41,15 +42,15 @@ public class AccumuloIndexStoreFactory implements
 					zookeeper,
 					accumuloInstance,
 					context.getString(
-							GlobalParameters.Global.ACCUMULO_USER,
+							DataStoreParameters.DataStoreParam.ACCUMULO_USER,
 							this.getClass(),
 							"root"),
 					context.getString(
-							GlobalParameters.Global.ACCUMULO_PASSWORD,
+							DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
 							this.getClass(),
 							""),
 					context.getString(
-							GlobalParameters.Global.ACCUMULO_NAMESPACE,
+							DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
 							this.getClass(),
 							""));
 		}

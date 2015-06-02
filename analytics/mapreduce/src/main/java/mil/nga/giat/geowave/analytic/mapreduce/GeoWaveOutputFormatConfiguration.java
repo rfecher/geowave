@@ -3,6 +3,7 @@ package mil.nga.giat.geowave.analytic.mapreduce;
 import java.util.Set;
 
 import mil.nga.giat.geowave.analytic.PropertyManagement;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
 import mil.nga.giat.geowave.analytic.param.FormatConfiguration;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.ParameterEnum;
@@ -29,19 +30,19 @@ public class GeoWaveOutputFormatConfiguration implements
 		GeoWaveOutputFormat.setAccumuloOperationsInfo(
 				configuration,
 				runTimeProperties.getPropertyAsString(
-						GlobalParameters.Global.ZOOKEEKER,
+						DataStoreParameters.DataStoreParam.ZOOKEEKER,
 						"localhost:2181"),
 				runTimeProperties.getPropertyAsString(
-						GlobalParameters.Global.ACCUMULO_INSTANCE,
+						DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
 						"miniInstance"),
 				runTimeProperties.getPropertyAsString(
-						GlobalParameters.Global.ACCUMULO_USER,
+						DataStoreParameters.DataStoreParam.ACCUMULO_USER,
 						"root"),
 				runTimeProperties.getPropertyAsString(
-						GlobalParameters.Global.ACCUMULO_PASSWORD,
+						DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
 						"password"),
 				runTimeProperties.getPropertyAsString(
-						GlobalParameters.Global.ACCUMULO_NAMESPACE,
+						DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
 						"undefined"));
 
 	}
@@ -68,11 +69,11 @@ public class GeoWaveOutputFormatConfiguration implements
 		PropertyManagement.fillOptions(
 				options,
 				new ParameterEnum[] {
-					GlobalParameters.Global.ZOOKEEKER,
-					GlobalParameters.Global.ACCUMULO_INSTANCE,
-					GlobalParameters.Global.ACCUMULO_PASSWORD,
-					GlobalParameters.Global.ACCUMULO_USER,
-					GlobalParameters.Global.ACCUMULO_NAMESPACE
+						DataStoreParameters.DataStoreParam.ZOOKEEKER,
+						DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
+						DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
+						DataStoreParameters.DataStoreParam.ACCUMULO_USER,
+						DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE
 				});
 	}
 }

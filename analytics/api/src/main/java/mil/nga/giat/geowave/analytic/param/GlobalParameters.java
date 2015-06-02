@@ -9,31 +9,6 @@ public class GlobalParameters
 	public enum Global
 			implements
 			ParameterEnum {
-		ZOOKEEKER(
-				String.class,
-				"z",
-				"A comma-separated list of zookeeper servers used by an Accumulo instance.",
-				true),
-		ACCUMULO_INSTANCE(
-				String.class,
-				"i",
-				"The Accumulo instance ID",
-				true),
-		ACCUMULO_USER(
-				String.class,
-				"u",
-				"A valid Accumulo user ID",
-				true),
-		ACCUMULO_PASSWORD(
-				String.class,
-				"p",
-				"The password for the Accumulo user",
-				true),
-		ACCUMULO_NAMESPACE(
-				String.class,
-				"n",
-				"The table namespace (optional; default is no namespace)",
-				true),
 		PARENT_BATCH_ID(
 				String.class,
 				"pb",

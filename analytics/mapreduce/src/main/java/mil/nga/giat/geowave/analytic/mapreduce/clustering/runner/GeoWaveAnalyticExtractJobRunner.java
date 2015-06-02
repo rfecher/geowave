@@ -15,6 +15,7 @@ import mil.nga.giat.geowave.analytic.mapreduce.JobContextConfigurationWrapper;
 import mil.nga.giat.geowave.analytic.mapreduce.MapReduceJobController;
 import mil.nga.giat.geowave.analytic.mapreduce.MapReduceJobRunner;
 import mil.nga.giat.geowave.analytic.mapreduce.clustering.SimpleFeatureOutputReducer;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
 import mil.nga.giat.geowave.analytic.param.ExtractParameters;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.MapReduceParameters;
@@ -132,7 +133,7 @@ public class GeoWaveAnalyticExtractJobRunner extends
 				runTimeProperties.getPropertyAsString(
 						MapReduceParameters.MRConfig.HDFS_BASE_DIR,
 						"/tmp") + "/" + runTimeProperties.getPropertyAsString(
-						GlobalParameters.Global.ACCUMULO_NAMESPACE,
+								DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
 						"x") + "_dedupe");
 	}
 
@@ -258,11 +259,11 @@ public class GeoWaveAnalyticExtractJobRunner extends
 					ExtractParameters.Extract.MIN_INPUT_SPLIT,
 					ExtractParameters.Extract.MAX_INPUT_SPLIT,
 					ExtractParameters.Extract.QUERY,
-					GlobalParameters.Global.ZOOKEEKER,
-					GlobalParameters.Global.ACCUMULO_INSTANCE,
-					GlobalParameters.Global.ACCUMULO_PASSWORD,
-					GlobalParameters.Global.ACCUMULO_USER,
-					GlobalParameters.Global.ACCUMULO_NAMESPACE,
+					DataStoreParameters.DataStoreParam.ZOOKEEKER,
+					DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
+					DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
+					DataStoreParameters.DataStoreParam.ACCUMULO_USER,
+					DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
 					GlobalParameters.Global.BATCH_ID
 				});
 

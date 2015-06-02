@@ -12,7 +12,8 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
 
-import mil.nga.giat.geowave.analytic.param.GlobalParameters;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
+import mil.nga.giat.geowave.analytic.param.GroupParameterEnum;
 import mil.nga.giat.geowave.analytic.param.ParameterEnum;
 import mil.nga.giat.geowave.core.geotime.store.query.SpatialQuery;
 import mil.nga.giat.geowave.core.index.ByteArrayUtils;
@@ -589,11 +590,11 @@ public class PropertyManagement implements
 	 * Arguments, in the correct order, passed to {@link GeoWaveJobRunner}
 	 */
 	public static final ParameterEnum[] GeoWaveRunnerArguments = new ParameterEnum[] {
-		GlobalParameters.Global.ZOOKEEKER,
-		GlobalParameters.Global.ACCUMULO_INSTANCE,
-		GlobalParameters.Global.ACCUMULO_USER,
-		GlobalParameters.Global.ACCUMULO_PASSWORD,
-		GlobalParameters.Global.ACCUMULO_NAMESPACE
+		DataStoreParameters.DataStoreParam.ZOOKEEKER,
+		DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
+		DataStoreParameters.DataStoreParam.ACCUMULO_USER,
+		DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
+		DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE
 	};
 
 	public String[] toGeoWaveRunnerArguments() {
@@ -970,6 +971,9 @@ public class PropertyManagement implements
 			final ParameterEnum[] params ) {
 		for (ParameterEnum param : params) {
 			options.add(param.getOption());
+			if (param instanceof GroupParameterEnum) {
+				((GroupParameterEnum) param).fillOptions(options);
+			}
 		}
 	}
 }

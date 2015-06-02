@@ -8,15 +8,15 @@ import mil.nga.giat.geowave.analytic.mapreduce.GeoWaveAnalyticJobRunner;
 import mil.nga.giat.geowave.analytic.mapreduce.kmeans.KMeansDistortionMapReduce;
 import mil.nga.giat.geowave.analytic.param.CentroidParameters;
 import mil.nga.giat.geowave.analytic.param.ClusteringParameters;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.JumpParameters;
 import mil.nga.giat.geowave.analytic.param.ParameterEnum;
-
 import mil.nga.giat.geowave.core.index.StringUtils;
-
 import mil.nga.giat.geowave.datastore.accumulo.mapreduce.GeoWaveConfiguratorBase;
 import mil.nga.giat.geowave.datastore.accumulo.mapreduce.input.GeoWaveInputFormat;
 import mil.nga.giat.geowave.datastore.accumulo.util.AccumuloUtils;
+
 
 //@formatter:off
 /*if[ACCUMULO_1.5.2]
@@ -167,7 +167,7 @@ public class KMeansDistortionJobRunner extends
 			throws Exception {
 
 		distortationTableName = AccumuloUtils.getQualifiedTableName(
-				runTimeProperties.getPropertyAsString(GlobalParameters.Global.ACCUMULO_NAMESPACE),
+				runTimeProperties.getPropertyAsString(DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE),
 				runTimeProperties.getPropertyAsString(
 						CentroidParameters.Centroid.DISTORTION_TABLE_NAME,
 						"KmeansDistortion"));

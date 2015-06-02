@@ -23,6 +23,7 @@ import mil.nga.giat.geowave.analytic.mapreduce.clustering.ConvexHullMapReduce;
 import mil.nga.giat.geowave.analytic.mapreduce.clustering.runner.ConvexHullJobRunner;
 import mil.nga.giat.geowave.analytic.param.CentroidParameters;
 import mil.nga.giat.geowave.analytic.param.CommonParameters;
+import mil.nga.giat.geowave.analytic.param.DataStoreParameters;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.HullParameters;
 import mil.nga.giat.geowave.analytic.param.InputParameters;
@@ -167,19 +168,19 @@ public class ConvexHullJobRunnerTest
 				new Path(
 						"file://foo/bin"));
 		runTimeProperties.store(
-				GlobalParameters.Global.ZOOKEEKER,
+				DataStoreParameters.DataStoreParam.ZOOKEEKER,
 				"localhost:3000");
 		runTimeProperties.store(
-				GlobalParameters.Global.ACCUMULO_INSTANCE,
+				DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE,
 				"accumulo");
 		runTimeProperties.store(
-				GlobalParameters.Global.ACCUMULO_USER,
+				DataStoreParameters.DataStoreParam.ACCUMULO_USER,
 				"root");
 		runTimeProperties.store(
-				GlobalParameters.Global.ACCUMULO_PASSWORD,
+				DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD,
 				"pwd");
 		runTimeProperties.store(
-				GlobalParameters.Global.ACCUMULO_NAMESPACE,
+				DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE,
 				"test");
 		runTimeProperties.store(
 				GlobalParameters.Global.BATCH_ID,
@@ -263,22 +264,22 @@ public class ConvexHullJobRunnerTest
 
 		assertTrue(PropertyManagement.hasOption(
 				options,
-				GlobalParameters.Global.ZOOKEEKER));
+				DataStoreParameters.DataStoreParam.ZOOKEEKER));
 		assertTrue(PropertyManagement.hasOption(
 				options,
-				GlobalParameters.Global.ACCUMULO_INSTANCE));
+				DataStoreParameters.DataStoreParam.ACCUMULO_INSTANCE));
 		assertTrue(PropertyManagement.hasOption(
 				options,
-				GlobalParameters.Global.ACCUMULO_USER));
+				DataStoreParameters.DataStoreParam.ACCUMULO_USER));
 		assertTrue(PropertyManagement.hasOption(
 				options,
-				GlobalParameters.Global.ACCUMULO_PASSWORD));
+				DataStoreParameters.DataStoreParam.ACCUMULO_PASSWORD));
 		assertTrue(PropertyManagement.hasOption(
 				options,
 				GlobalParameters.Global.BATCH_ID));
 		assertTrue(PropertyManagement.hasOption(
 				options,
-				GlobalParameters.Global.ACCUMULO_NAMESPACE));
+				DataStoreParameters.DataStoreParam.ACCUMULO_NAMESPACE));
 	}
 
 	@Test
