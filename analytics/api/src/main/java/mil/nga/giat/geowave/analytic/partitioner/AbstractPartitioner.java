@@ -220,14 +220,10 @@ public abstract class AbstractPartitioner<T> implements
 	@Override
 	public void fillOptions(
 			final Set<Option> options ) {
-		CommonParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new CommonParameters.Common[] {
-					CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS
-				});
-		ClusteringParameters.fillOptions(
-				options,
-				new ClusteringParameters.Clustering[] {
+				new ParameterEnum[] {
+					CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
 					ClusteringParameters.Clustering.DISTANCE_THRESHOLDS
 				});
 

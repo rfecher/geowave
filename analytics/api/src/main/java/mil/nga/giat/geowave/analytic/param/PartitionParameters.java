@@ -1,8 +1,5 @@
 package mil.nga.giat.geowave.analytic.param;
 
-import java.util.Arrays;
-import java.util.Set;
-
 import mil.nga.giat.geowave.analytic.PropertyManagement;
 import mil.nga.giat.geowave.analytic.partitioner.Partitioner;
 
@@ -14,17 +11,36 @@ public class PartitionParameters
 			implements
 			ParameterEnum {
 		PARTITION_DISTANCE(
-				Double.class),
+				Double.class,
+				"pd",
+				"Partition Distance",
+				true),
 		MAX_MEMBER_SELECTION(
-				Integer.class),
+				Integer.class,
+				"pms",
+				"Maximum number of members selected from a partition",
+				true),
 		PARTITIONER_CLASS(
-				Partitioner.class);
+				Partitioner.class,
+				"pc",
+				"Index Identifier for Centroids",
+				true);
 
 		private final Class<?> baseClass;
 
+		private final Option option;
+
 		Partition(
-				final Class<?> baseClass ) {
+				final Class<?> baseClass,
+				final String name,
+				final String description,
+				boolean hasArg ) {
 			this.baseClass = baseClass;
+			this.option = PropertyManagement.newOption(
+					this,
+					name,
+					description,
+					hasArg);
 		}
 
 		@Override
@@ -36,45 +52,10 @@ public class PartitionParameters
 		public Enum<?> self() {
 			return this;
 		}
-	}
 
-	public static final void fillOptions(
-			final Set<Option> options,
-			final Partition[] params ) {
-		if (contains(
-				params,
-				Partition.PARTITIONER_CLASS)) {
-			options.add(PropertyManagement.newOption(
-					Partition.PARTITIONER_CLASS,
-					"pc",
-					"Index Identifier for Centroids",
-					true));
+		@Override
+		public Option getOption() {
+			return option;
 		}
-		if (contains(
-				params,
-				Partition.MAX_MEMBER_SELECTION)) {
-			options.add(PropertyManagement.newOption(
-					Partition.MAX_MEMBER_SELECTION,
-					"pms",
-					"Maximum number of members selected from a partition",
-					true));
-		}
-		if (contains(
-				params,
-				Partition.PARTITION_DISTANCE)) {
-			options.add(PropertyManagement.newOption(
-					Partition.PARTITION_DISTANCE,
-					"pd",
-					"Partition Distance",
-					true));
-		}
-	}
-
-	private static boolean contains(
-			final Partition[] params,
-			final Partition option ) {
-		return Arrays.asList(
-				params).contains(
-				option);
 	}
 }

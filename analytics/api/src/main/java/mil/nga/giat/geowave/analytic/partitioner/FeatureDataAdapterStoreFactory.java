@@ -11,6 +11,7 @@ import mil.nga.giat.geowave.core.store.adapter.AdapterStore;
 import mil.nga.giat.geowave.core.store.adapter.DataAdapter;
 import mil.nga.giat.geowave.core.store.adapter.MemoryAdapterStore;
 
+import org.apache.commons.cli.Option;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,11 @@ public class FeatureDataAdapterStoreFactory implements
 		@Override
 		public Enum<?> self() {
 			return this;
+		}
+
+		@Override
+		public Option getOption() {
+			return null;
 		}
 
 	}

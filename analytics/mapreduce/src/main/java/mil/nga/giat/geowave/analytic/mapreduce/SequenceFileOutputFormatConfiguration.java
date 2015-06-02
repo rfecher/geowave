@@ -5,6 +5,7 @@ import java.util.Set;
 import mil.nga.giat.geowave.analytic.PropertyManagement;
 import mil.nga.giat.geowave.analytic.param.FormatConfiguration;
 import mil.nga.giat.geowave.analytic.param.OutputParameters;
+import mil.nga.giat.geowave.analytic.param.ParameterEnum;
 
 import org.apache.commons.cli.Option;
 import org.apache.hadoop.conf.Configuration;
@@ -60,9 +61,9 @@ public class SequenceFileOutputFormatConfiguration implements
 	@Override
 	public void fillOptions(
 			final Set<Option> options ) {
-		OutputParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new OutputParameters.Output[] {
+				new ParameterEnum[] {
 					OutputParameters.Output.HDFS_OUTPUT_PATH
 				});
 	}

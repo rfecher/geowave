@@ -113,9 +113,9 @@ public class GroupAssigmentJobRunner extends
 			Set<Option> options ) {
 		super.fillOptions(options);
 
-		GlobalParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new GlobalParameters.Global[] {
+				new ParameterEnum[] {
 					GlobalParameters.Global.ZOOKEEKER,
 					GlobalParameters.Global.ACCUMULO_INSTANCE,
 					GlobalParameters.Global.ACCUMULO_PASSWORD,

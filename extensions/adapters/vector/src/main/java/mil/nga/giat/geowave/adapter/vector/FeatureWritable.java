@@ -69,8 +69,9 @@ public class FeatureWritable implements
 			final DataInput input )
 			throws IOException {
 		try {
+			String ns = input.readUTF();
 			featureType = FeatureDataUtils.decodeType(
-					input.readUTF(),
+					"-".equals(ns) ? "" : ns,
 					input.readUTF(),
 					input.readUTF(),
 					input.readUTF());
@@ -100,7 +101,7 @@ public class FeatureWritable implements
 	public void write(
 			final DataOutput output )
 			throws IOException {
-		output.writeUTF(featureType.getName().getNamespaceURI() == null ? "" : featureType.getName().getNamespaceURI());
+		output.writeUTF(featureType.getName().getNamespaceURI() == null ? "-" : featureType.getName().getNamespaceURI());
 		output.writeUTF(featureType.getTypeName());
 		output.writeUTF(DataUtilities.encodeType(featureType));
 		output.writeUTF(FeatureDataUtils.getAxis(featureType.getCoordinateReferenceSystem()));

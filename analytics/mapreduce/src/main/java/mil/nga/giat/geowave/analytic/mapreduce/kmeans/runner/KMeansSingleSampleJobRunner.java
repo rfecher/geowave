@@ -19,6 +19,7 @@ import mil.nga.giat.geowave.analytic.param.CommonParameters;
 import mil.nga.giat.geowave.analytic.param.FormatConfiguration;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.MapReduceParameters;
+import mil.nga.giat.geowave.analytic.param.ParameterEnum;
 import mil.nga.giat.geowave.analytic.param.SampleParameters;
 
 import org.apache.commons.cli.Option;
@@ -115,49 +116,28 @@ public class KMeansSingleSampleJobRunner<T> extends
 	public void fillOptions(
 			final Set<Option> options ) {
 		kmeansJobRunner.fillOptions(options);
-		ClusteringParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new ClusteringParameters.Clustering[] {
-					ClusteringParameters.Clustering.MAX_REDUCER_COUNT
-				});
-		SampleParameters.fillOptions(
-				options,
-				new SampleParameters.Sample[] {
+				new ParameterEnum[] {
+					ClusteringParameters.Clustering.MAX_REDUCER_COUNT,
 					SampleParameters.Sample.SAMPLE_SIZE,
-					SampleParameters.Sample.SAMPLE_RANK_FUNCTION
-				});
-		CentroidParameters.fillOptions(
-				options,
-				new CentroidParameters.Centroid[] {
+					SampleParameters.Sample.SAMPLE_RANK_FUNCTION,
 					CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
 					CentroidParameters.Centroid.INDEX_ID,
 					CentroidParameters.Centroid.DATA_TYPE_ID,
 					CentroidParameters.Centroid.DATA_NAMESPACE_URI,
-					CentroidParameters.Centroid.EXTRACTOR_CLASS,
-				});
-		CommonParameters.fillOptions(
-				options,
-				new CommonParameters.Common[] {
+					CentroidParameters.Centroid.EXTRACTOR_CLASS,				
 					CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-					CommonParameters.Common.DIMENSION_EXTRACT_CLASS
-				});
-		GlobalParameters.fillOptions(
-				options,
-				new GlobalParameters.Global[] {
+					CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
 					GlobalParameters.Global.ZOOKEEKER,
 					GlobalParameters.Global.ACCUMULO_INSTANCE,
 					GlobalParameters.Global.ACCUMULO_PASSWORD,
 					GlobalParameters.Global.ACCUMULO_USER,
 					GlobalParameters.Global.ACCUMULO_NAMESPACE,
-					GlobalParameters.Global.BATCH_ID
-				});
-		MapReduceParameters.fillOptions(options);
-		ClusteringParameters.fillOptions(
-				options,
-				new ClusteringParameters.Clustering[] {
+					GlobalParameters.Global.BATCH_ID,
 					ClusteringParameters.Clustering.MAX_REDUCER_COUNT
 				});
-
+		MapReduceParameters.fillOptions(options);
 		NestedGroupCentroidAssignment.fillOptions(options);
 
 		// override

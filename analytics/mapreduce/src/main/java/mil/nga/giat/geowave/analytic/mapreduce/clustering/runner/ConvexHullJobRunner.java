@@ -177,9 +177,9 @@ public class ConvexHullJobRunner extends
 			Set<Option> options ) {
 		super.fillOptions(options);
 
-		GlobalParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new GlobalParameters.Global[] {
+				new ParameterEnum[] {
 					GlobalParameters.Global.ZOOKEEKER,
 					GlobalParameters.Global.ACCUMULO_INSTANCE,
 					GlobalParameters.Global.ACCUMULO_PASSWORD,
@@ -191,9 +191,9 @@ public class ConvexHullJobRunner extends
 		MapReduceParameters.fillOptions(options);
 		NestedGroupCentroidAssignment.fillOptions(options);
 
-		HullParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new HullParameters.Hull[] {
+				new ParameterEnum[] {
 					HullParameters.Hull.WRAPPER_FACTORY_CLASS,
 					HullParameters.Hull.PROJECTION_CLASS,
 					HullParameters.Hull.REDUCER_COUNT,

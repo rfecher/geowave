@@ -1,8 +1,5 @@
 package mil.nga.giat.geowave.analytic.param;
 
-import java.util.Arrays;
-import java.util.Set;
-
 import mil.nga.giat.geowave.analytic.PropertyManagement;
 
 import org.apache.commons.cli.Option;
@@ -14,16 +11,34 @@ public class OutputParameters
 			implements
 			ParameterEnum {
 		REDUCER_COUNT(
-				Integer.class),
+				Integer.class,
+				"orc",
+				"Number of Reducers For Output",
+				true),
 		OUTPUT_FORMAT(
-				FormatConfiguration.class),
+				FormatConfiguration.class,
+				"ofc",
+				"Output Format Class",
+				true),
 		HDFS_OUTPUT_PATH(
-				Path.class);
+				Path.class,
+				"oop",
+				"Output HDFS File Path",
+				true);
 		private final Class<?> baseClass;
+		private final Option option;
 
 		Output(
-				final Class<?> baseClass ) {
+				final Class<?> baseClass,
+				final String name,
+				final String description,
+				boolean hasArg ) {
 			this.baseClass = baseClass;
+			this.option = PropertyManagement.newOption(
+					this,
+					name,
+					description,
+					hasArg);
 		}
 
 		@Override
@@ -35,47 +50,10 @@ public class OutputParameters
 		public Enum<?> self() {
 			return this;
 		}
-	}
 
-	public static final void fillOptions(
-			final Set<Option> options,
-			final Output[] params ) {
-
-		if (contains(
-				params,
-				Output.HDFS_OUTPUT_PATH)) {
-			options.add(PropertyManagement.newOption(
-					Output.HDFS_OUTPUT_PATH,
-					"oop",
-					"Output HDFS File Path",
-					true));
+		@Override
+		public Option getOption() {
+			return option;
 		}
-		if (contains(
-				params,
-				Output.REDUCER_COUNT)) {
-			options.add(PropertyManagement.newOption(
-					Output.REDUCER_COUNT,
-					"orc",
-					"Number of Reducers For Output",
-					true));
-		}
-
-		if (contains(
-				params,
-				Output.OUTPUT_FORMAT)) {
-			options.add(PropertyManagement.newOption(
-					Output.OUTPUT_FORMAT,
-					"ofc",
-					"Output Format Class",
-					true));
-		}
-	}
-
-	private static boolean contains(
-			final Output[] params,
-			final Output option ) {
-		return Arrays.asList(
-				params).contains(
-				option);
 	}
 }

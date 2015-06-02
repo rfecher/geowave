@@ -21,6 +21,7 @@ import mil.nga.giat.geowave.analytic.param.FormatConfiguration;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
 import mil.nga.giat.geowave.analytic.param.JumpParameters;
 import mil.nga.giat.geowave.analytic.param.MapReduceParameters;
+import mil.nga.giat.geowave.analytic.param.ParameterEnum;
 import mil.nga.giat.geowave.analytic.param.SampleParameters;
 import mil.nga.giat.geowave.core.index.sfc.data.NumericRange;
 import mil.nga.giat.geowave.datastore.accumulo.BasicAccumuloOperations;
@@ -222,35 +223,19 @@ public class KMeansJumpJobRunner extends
 			final Set<Option> options ) {
 		kmeansRunner.singleSamplekmeansJobRunner.fillOptions(options);
 		kmeansRunner.parallelJobRunner.fillOptions(options);
-		JumpParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new JumpParameters.Jump[] {
+				new ParameterEnum[] {
 					JumpParameters.Jump.RANGE_OF_CENTROIDS,
-					JumpParameters.Jump.KPLUSPLUS_MIN
-				});
-		ClusteringParameters.fillOptions(
-				options,
-				new ClusteringParameters.Clustering[] {
-					ClusteringParameters.Clustering.MAX_REDUCER_COUNT
-				});
-		CentroidParameters.fillOptions(
-				options,
-				new CentroidParameters.Centroid[] {
+					JumpParameters.Jump.KPLUSPLUS_MIN,
+					ClusteringParameters.Clustering.MAX_REDUCER_COUNT,
 					CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
 					CentroidParameters.Centroid.INDEX_ID,
 					CentroidParameters.Centroid.DATA_TYPE_ID,
 					CentroidParameters.Centroid.DATA_NAMESPACE_URI,
 					CentroidParameters.Centroid.EXTRACTOR_CLASS,
-				});
-		CommonParameters.fillOptions(
-				options,
-				new CommonParameters.Common[] {
 					CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-					CommonParameters.Common.DIMENSION_EXTRACT_CLASS
-				});
-		GlobalParameters.fillOptions(
-				options,
-				new GlobalParameters.Global[] {
+					CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
 					GlobalParameters.Global.ZOOKEEKER,
 					GlobalParameters.Global.ACCUMULO_INSTANCE,
 					GlobalParameters.Global.ACCUMULO_PASSWORD,

@@ -9,6 +9,7 @@ import mil.nga.giat.geowave.analytic.clustering.ClusteringUtils;
 import mil.nga.giat.geowave.analytic.param.ExtractParameters;
 import mil.nga.giat.geowave.analytic.param.FormatConfiguration;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters;
+import mil.nga.giat.geowave.analytic.param.ParameterEnum;
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.index.StringUtils;
 import mil.nga.giat.geowave.core.store.adapter.DataAdapter;
@@ -152,19 +153,14 @@ public class GeoWaveInputFormatConfiguration implements
 	@Override
 	public void fillOptions(
 			Set<Option> options ) {
-		GlobalParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new GlobalParameters.Global[] {
+				new ParameterEnum[] {
 					GlobalParameters.Global.ZOOKEEKER,
 					GlobalParameters.Global.ACCUMULO_INSTANCE,
 					GlobalParameters.Global.ACCUMULO_PASSWORD,
 					GlobalParameters.Global.ACCUMULO_USER,
-					GlobalParameters.Global.ACCUMULO_NAMESPACE
-				});
-
-		ExtractParameters.fillOptions(
-				options,
-				new ExtractParameters.Extract[] {
+					GlobalParameters.Global.ACCUMULO_NAMESPACE,
 					ExtractParameters.Extract.INDEX_ID,
 					ExtractParameters.Extract.ADAPTER_ID,
 					ExtractParameters.Extract.QUERY,

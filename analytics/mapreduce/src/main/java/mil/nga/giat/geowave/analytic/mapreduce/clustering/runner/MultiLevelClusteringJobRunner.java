@@ -18,6 +18,7 @@ import mil.nga.giat.geowave.analytic.param.HullParameters;
 import mil.nga.giat.geowave.analytic.param.InputParameters;
 import mil.nga.giat.geowave.analytic.param.MapReduceParameters;
 import mil.nga.giat.geowave.analytic.param.OutputParameters;
+import mil.nga.giat.geowave.analytic.param.ParameterEnum;
 import mil.nga.giat.geowave.analytic.param.ClusteringParameters.Clustering;
 import mil.nga.giat.geowave.analytic.param.GlobalParameters.Global;
 import mil.nga.giat.geowave.core.geotime.IndexType;
@@ -73,14 +74,10 @@ public abstract class MultiLevelClusteringJobRunner extends
 		hullRunner.fillOptions(options);
 		getClusteringRunner().fillOptions(
 				options);
-		ClusteringParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new Clustering[] {
-					Clustering.ZOOM_LEVELS
-				});
-		GlobalParameters.fillOptions(
-				options,
-				new Global[] {
+				new ParameterEnum[] {
+					Clustering.ZOOM_LEVELS,
 					Global.BATCH_ID,
 					Global.ACCUMULO_NAMESPACE
 				});

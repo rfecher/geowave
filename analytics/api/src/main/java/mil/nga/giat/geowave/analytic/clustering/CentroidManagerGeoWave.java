@@ -8,13 +8,13 @@ import java.util.Set;
 
 import mil.nga.giat.geowave.adapter.vector.FeatureDataAdapter;
 import mil.nga.giat.geowave.adapter.vector.query.AccumuloCqlConstraintsQuery;
+import mil.nga.giat.geowave.analytic.AnalyticFeature.ClusterFeatureAttribute;
 import mil.nga.giat.geowave.analytic.AnalyticItemWrapper;
 import mil.nga.giat.geowave.analytic.AnalyticItemWrapperFactory;
 import mil.nga.giat.geowave.analytic.ConfigurationWrapper;
 import mil.nga.giat.geowave.analytic.PropertyManagement;
 import mil.nga.giat.geowave.analytic.RunnerUtils;
 import mil.nga.giat.geowave.analytic.SimpleFeatureItemWrapperFactory;
-import mil.nga.giat.geowave.analytic.AnalyticFeature.ClusterFeatureAttribute;
 import mil.nga.giat.geowave.analytic.clustering.exception.MatchingCentroidNotFoundException;
 import mil.nga.giat.geowave.analytic.db.BasicAccumuloOperationsFactory;
 import mil.nga.giat.geowave.analytic.db.DirectBasicAccumuloOperationsFactory;
@@ -596,26 +596,17 @@ public class CentroidManagerGeoWave<T> implements
 
 	public static void fillOptions(
 			final Set<Option> options ) {
-		GlobalParameters.fillOptions(
+
+		PropertyManagement.fillOptions(
 				options,
-				new GlobalParameters.Global[] {
+				new ParameterEnum[] {
 					GlobalParameters.Global.ZOOKEEKER,
 					GlobalParameters.Global.ACCUMULO_INSTANCE,
 					GlobalParameters.Global.ACCUMULO_PASSWORD,
 					GlobalParameters.Global.ACCUMULO_USER,
 					GlobalParameters.Global.ACCUMULO_NAMESPACE,
-					GlobalParameters.Global.BATCH_ID
-				});
-
-		CommonParameters.fillOptions(
-				options,
-				new CommonParameters.Common[] {
-					CommonParameters.Common.ACCUMULO_CONNECT_FACTORY
-				});
-
-		CentroidParameters.fillOptions(
-				options,
-				new CentroidParameters.Centroid[] {
+					GlobalParameters.Global.BATCH_ID,
+					CommonParameters.Common.ACCUMULO_CONNECT_FACTORY,
 					CentroidParameters.Centroid.DATA_TYPE_ID,
 					CentroidParameters.Centroid.DATA_NAMESPACE_URI,
 					CentroidParameters.Centroid.INDEX_ID,

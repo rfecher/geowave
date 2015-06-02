@@ -276,9 +276,9 @@ public abstract class GeoWaveAnalyticJobRunner extends
 			outputFormat.fillOptions(options);
 		}
 
-		CommonParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new CommonParameters.Common[] {
+				new ParameterEnum[] {
 					CommonParameters.Common.ADAPTER_STORE_FACTORY,
 					CommonParameters.Common.INDEX_STORE_FACTORY
 				});

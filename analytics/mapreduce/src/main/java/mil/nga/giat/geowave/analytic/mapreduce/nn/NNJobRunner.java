@@ -87,17 +87,12 @@ public class NNJobRunner extends
 	public void fillOptions(
 			final Set<Option> options ) {
 		super.fillOptions(options);
-		PartitionParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new PartitionParameters.Partition[] {
+				new ParameterEnum[] {
 					Partition.PARTITIONER_CLASS,
 					Partition.PARTITION_DISTANCE,
-					Partition.MAX_MEMBER_SELECTION
-				});
-
-		CommonParameters.fillOptions(
-				options,
-				new CommonParameters.Common[] {
+					Partition.MAX_MEMBER_SELECTION,
 					CommonParameters.Common.DISTANCE_FUNCTION_CLASS
 				});
 	}

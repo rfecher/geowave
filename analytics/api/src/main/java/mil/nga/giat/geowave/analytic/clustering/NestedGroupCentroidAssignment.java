@@ -124,23 +124,14 @@ public class NestedGroupCentroidAssignment<T>
 			final Set<Option> options ) {
 		CentroidManagerGeoWave.fillOptions(options);
 
-		GlobalParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new GlobalParameters.Global[] {
-					GlobalParameters.Global.PARENT_BATCH_ID
-				});
-
-		CommonParameters.fillOptions(
-				options,
-				new CommonParameters.Common[] {
+				new ParameterEnum[] {
+					CentroidParameters.Centroid.ZOOM_LEVEL,
+					GlobalParameters.Global.PARENT_BATCH_ID,
 					CommonParameters.Common.DISTANCE_FUNCTION_CLASS
 				});
 
-		CentroidParameters.fillOptions(
-				options,
-				new CentroidParameters.Centroid[] {
-					CentroidParameters.Centroid.ZOOM_LEVEL
-				});
 	}
 
 	public NestedGroupCentroidAssignment(

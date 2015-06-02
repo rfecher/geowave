@@ -1,8 +1,5 @@
 package mil.nga.giat.geowave.analytic.param;
 
-import java.util.Arrays;
-import java.util.Set;
-
 import mil.nga.giat.geowave.analytic.PropertyManagement;
 import mil.nga.giat.geowave.analytic.extract.DimensionExtractor;
 import mil.nga.giat.geowave.core.store.query.DistributableQuery;
@@ -15,30 +12,70 @@ public class ExtractParameters
 			implements
 			ParameterEnum {
 		OUTPUT_DATA_TYPE_ID(
-				String.class),
+				String.class,
+				"eot",
+				"Output Data Type ID",
+				true),
 		DATA_NAMESPACE_URI(
-				String.class),
+				String.class,
+				"ens",
+				"Output Data Namespace URI",
+				true),
 		REDUCER_COUNT(
-				Integer.class),
+				Integer.class,
+				"erc",
+				"Number of Reducers For initial data extraction and de-duplication",
+				true),
 		DIMENSION_EXTRACT_CLASS(
-				DimensionExtractor.class),
+				DimensionExtractor.class,
+				"ede",
+				"Class to extract dimensions into a simple feature output",
+				true),
 		QUERY(
-				DistributableQuery.class),
+				DistributableQuery.class,
+				"eq",
+				"Query",
+				true),
 		MAX_INPUT_SPLIT(
-				Integer.class),
+				Integer.class,
+				"emx",
+				"Maximum input split size",
+				true),
 		MIN_INPUT_SPLIT(
-				Integer.class),
+				Integer.class,
+				"emn",
+				"Minimum input split size",
+				true),
 		INDEX_ID(
-				String.class),
+				String.class,
+				"ei",
+				"Extract from a specific index",
+				true),
 		GROUP_ID(
-				String.class),
+				String.class,
+				"eg",
+				"Group ID assigned to extracted data",
+				true),
 		ADAPTER_ID(
-				String.class);
+				String.class,
+				"eit",
+				"Input Data Type ID",
+				true);
+
 		private final Class<?> baseClass;
+		private final Option option;
 
 		Extract(
-				final Class<?> baseClass ) {
+				final Class<?> baseClass,
+				final String name,
+				final String description,
+				boolean hasArg ) {
 			this.baseClass = baseClass;
+			this.option = PropertyManagement.newOption(
+					this,
+					name,
+					description,
+					hasArg);
 		}
 
 		@Override
@@ -50,99 +87,10 @@ public class ExtractParameters
 		public Enum<?> self() {
 			return this;
 		}
-	}
 
-	public static final void fillOptions(
-			final Set<Option> options,
-			final Extract[] params ) {
-		if (contains(
-				params,
-				Extract.OUTPUT_DATA_TYPE_ID)) {
-			options.add(PropertyManagement.newOption(
-					Extract.OUTPUT_DATA_TYPE_ID,
-					"eot",
-					"Output Data Type ID",
-					true));
+		@Override
+		public Option getOption() {
+			return option;
 		}
-		if (contains(
-				params,
-				Extract.ADAPTER_ID)) {
-			options.add(PropertyManagement.newOption(
-					Extract.ADAPTER_ID,
-					"eit",
-					"Input Data Type ID",
-					true));
-		}
-		if (contains(
-				params,
-				Extract.MAX_INPUT_SPLIT)) {
-			options.add(PropertyManagement.newOption(
-					Extract.MAX_INPUT_SPLIT,
-					"emx",
-					"Maximum input split size",
-					true));
-		}
-		if (contains(
-				params,
-				Extract.DATA_NAMESPACE_URI)) {
-			options.add(PropertyManagement.newOption(
-					Extract.DATA_NAMESPACE_URI,
-					"ens",
-					"Output Data Namespace URI",
-					true));
-		}
-		if (contains(
-				params,
-				Extract.QUERY)) {
-			options.add(PropertyManagement.newOption(
-					Extract.QUERY,
-					"eq",
-					"Query",
-					true));
-		}
-		if (contains(
-				params,
-				Extract.GROUP_ID)) {
-			options.add(PropertyManagement.newOption(
-					Extract.GROUP_ID,
-					"eg",
-					"Group ID assigned to extracted data",
-					true));
-		}
-		if (contains(
-				params,
-				Extract.MIN_INPUT_SPLIT)) {
-			options.add(PropertyManagement.newOption(
-					Extract.MIN_INPUT_SPLIT,
-					"emn",
-					"Minimum input split size",
-					true));
-		}
-		if (contains(
-				params,
-				Extract.REDUCER_COUNT)) {
-			options.add(PropertyManagement.newOption(
-					Extract.REDUCER_COUNT,
-					"erc",
-					"Number of Reducers For initial data extraction and de-duplication",
-					true));
-		}
-		if (contains(
-				params,
-				Extract.DIMENSION_EXTRACT_CLASS)) {
-			options.add(PropertyManagement.newOption(
-					Extract.DIMENSION_EXTRACT_CLASS,
-					"ede",
-					"Class to extract dimensions into a simple feature output",
-					true));
-		}
-	}
-
-	private static boolean contains(
-			final Extract[] params,
-			final Extract option ) {
-		return Arrays.asList(
-				params).contains(
-				option);
 	}
 }

@@ -1,8 +1,5 @@
 package mil.nga.giat.geowave.analytic.param;
 
-import java.util.Arrays;
-import java.util.Set;
-
 import mil.nga.giat.geowave.analytic.PropertyManagement;
 import mil.nga.giat.geowave.analytic.sample.SampleProbabilityFn;
 import mil.nga.giat.geowave.analytic.sample.function.SamplingRankFunction;
@@ -15,26 +12,60 @@ public class SampleParameters
 			implements
 			ParameterEnum {
 		SAMPLE_SIZE(
-				Integer.class),
+				Integer.class,
+				"sss",
+				"Sample Size",
+				true),
 		MIN_SAMPLE_SIZE(
-				Integer.class),
+				Integer.class,
+				"sms",
+				"Minimum Sample Size",
+				true),
 		MAX_SAMPLE_SIZE(
-				Integer.class),
+				Integer.class,
+				"sxs",
+				"Max Sample Size",
+				true),
 		DATA_TYPE_ID(
-				String.class),
+				String.class,
+				"sdt",
+				"Sample Data Type Id",
+				true),
 		INDEX_ID(
-				String.class),
+				String.class,
+				"sdt",
+				"Sample Index Type Id",
+				true),
 		SAMPLE_ITERATIONS(
-				Integer.class),
+				Integer.class,
+				"ssi",
+				"Minimum number of sample iterations",
+				true),
 		PROBABILITY_FUNCTION(
-				SampleProbabilityFn.class),
+				SampleProbabilityFn.class,
+				"spf",
+				"The PDF determines the probability for samping an item. Used by specific sample rank functions, such as CentroidDistanceBasedSamplingRankFunction.",
+				true),
 		SAMPLE_RANK_FUNCTION(
-				SamplingRankFunction.class);
+				SamplingRankFunction.class,
+				"srf",
+				"The rank function used when sampling the first N highest rank items.",
+				true);
+
 		private final Class<?> baseClass;
+		private final Option option;
 
 		Sample(
-				final Class<?> baseClass ) {
+				final Class<?> baseClass,
+				final String name,
+				final String description,
+				boolean hasArg ) {
 			this.baseClass = baseClass;
+			this.option = PropertyManagement.newOption(
+					this,
+					name,
+					description,
+					hasArg);
 		}
 
 		@Override
@@ -46,91 +77,11 @@ public class SampleParameters
 		public Enum<?> self() {
 			return this;
 		}
-	}
 
-	public static final void fillOptions(
-			final Set<Option> options,
-			final Sample[] params ) {
-		if (contains(
-				params,
-				Sample.SAMPLE_ITERATIONS)) {
-			options.add(PropertyManagement.newOption(
-					Sample.SAMPLE_ITERATIONS,
-					"ssi",
-					"Minimum number of sample iterations",
-					true));
-		}
-		if (contains(
-				params,
-				Sample.DATA_TYPE_ID)) {
-			options.add(PropertyManagement.newOption(
-					Sample.DATA_TYPE_ID,
-					"sdt",
-					"Sample Data Type Id",
-					true));
-		}
-
-		if (contains(
-				params,
-				Sample.INDEX_ID)) {
-			options.add(PropertyManagement.newOption(
-					Sample.INDEX_ID,
-					"sdt",
-					"Sample Index Type Id",
-					true));
-		}
-		if (contains(
-				params,
-				Sample.MIN_SAMPLE_SIZE)) {
-			options.add(PropertyManagement.newOption(
-					Sample.MIN_SAMPLE_SIZE,
-					"sms",
-					"Minimum Sample Size",
-					true));
-		}
-		if (contains(
-				params,
-				Sample.MAX_SAMPLE_SIZE)) {
-			options.add(PropertyManagement.newOption(
-					Sample.MAX_SAMPLE_SIZE,
-					"sxs",
-					"Max Sample Size",
-					true));
-		}
-		if (contains(
-				params,
-				Sample.SAMPLE_SIZE)) {
-			options.add(PropertyManagement.newOption(
-					Sample.SAMPLE_SIZE,
-					"sss",
-					"Sample Size",
-					true));
-		}
-		if (contains(
-				params,
-				Sample.PROBABILITY_FUNCTION)) {
-			options.add(PropertyManagement.newOption(
-					Sample.PROBABILITY_FUNCTION,
-					"spf",
-					"The PDF determines the probability for samping an item. Used by specific sample rank functions, such as CentroidDistanceBasedSamplingRankFunction.",
-					true));
-		}
-		if (contains(
-				params,
-				Sample.SAMPLE_RANK_FUNCTION)) {
-			options.add(PropertyManagement.newOption(
-					Sample.SAMPLE_RANK_FUNCTION,
-					"srf",
-					"The rank function used when sampling the first N highest rank items.",
-					true));
+		@Override
+		public Option getOption() {
+			return option;
 		}
 	}
 
-	private static boolean contains(
-			final Sample[] params,
-			final Sample option ) {
-		return Arrays.asList(
-				params).contains(
-				option);
-	}
 }

@@ -137,7 +137,9 @@ public class PropertyManagement implements
 			final PropertyConverter<T> converter ) {
 		Serializable convertedValue;
 		try {
-			convertedValue = converter.convert(value);
+			convertedValue = converter.convert(
+					value,
+					this);
 		}
 		catch (final Exception e) {
 			throw new IllegalArgumentException(
@@ -296,7 +298,9 @@ public class PropertyManagement implements
 						converter.baseClass())) {
 					return this.validate(
 							property,
-							converter.convert(value));
+							converter.convert(
+									value,
+									this));
 				}
 			}
 		}
@@ -320,7 +324,9 @@ public class PropertyManagement implements
 			throws Exception {
 
 		final Serializable value = properties.get(toPropertyName(property));
-		return converter.convert(value);
+		return converter.convert(
+				value,
+				this);
 	}
 
 	public byte[] getPropertyAsBytes(
@@ -530,7 +536,9 @@ public class PropertyManagement implements
 		if (val != null) {
 			return (DistributableQuery) validate(
 					property,
-					new QueryConverter().convert(val));
+					new QueryConverter().convert(
+							val,
+							this));
 		}
 		return null;
 	}
@@ -542,7 +550,9 @@ public class PropertyManagement implements
 		if (val != null) {
 			return (Path) validate(
 					property,
-					new PathConverter().convert(val));
+					new PathConverter().convert(
+							val,
+							this));
 		}
 		return null;
 	}
@@ -555,7 +565,9 @@ public class PropertyManagement implements
 		if (val != null) {
 			return (Persistable) validate(
 					property,
-					new PersistableConverter().convert(val));
+					new PersistableConverter().convert(
+							val,
+							this));
 		}
 		return null;
 	}
@@ -786,7 +798,9 @@ public class PropertyManagement implements
 			final PropertyConverter converter : converters) {
 				if (property.getBaseClass().isAssignableFrom(
 						converter.baseClass())) {
-					return converter.convert(value);
+					return converter.convert(
+							value,
+							this);
 				}
 			}
 		}
@@ -796,7 +810,11 @@ public class PropertyManagement implements
 			final PropertyConverter converter : converters) {
 				if (property.getBaseClass().isAssignableFrom(
 						converter.baseClass())) {
-					return converter.convert(converter.convert(value.toString()));
+					return converter.convert(
+							converter.convert(
+									value.toString(),
+									this),
+							this);
 				}
 			}
 		}
@@ -807,11 +825,13 @@ public class PropertyManagement implements
 			Serializable
 	{
 		public Serializable convert(
-				T ob )
+				T ob,
+				PropertyManagement requesterContext )
 				throws Exception;
 
 		public T convert(
-				Serializable ob )
+				Serializable ob,
+				PropertyManagement requesterContext )
 				throws Exception;
 
 		public Class<T> baseClass();
@@ -828,7 +848,8 @@ public class PropertyManagement implements
 
 		@Override
 		public Serializable convert(
-				final DistributableQuery ob ) {
+				final DistributableQuery ob,
+				final PropertyManagement requesterContext ) {
 			try {
 				return toBytes(ob);
 			}
@@ -843,7 +864,8 @@ public class PropertyManagement implements
 
 		@Override
 		public DistributableQuery convert(
-				final Serializable ob )
+				final Serializable ob,
+				final PropertyManagement requesterContext )
 				throws Exception {
 			if (ob instanceof byte[]) {
 				return (DistributableQuery) PropertyManagement.fromBytes(
@@ -876,13 +898,15 @@ public class PropertyManagement implements
 
 		@Override
 		public Serializable convert(
-				final Path ob ) {
+				final Path ob,
+				final PropertyManagement requesterContext ) {
 			return ob.toUri().toString();
 		}
 
 		@Override
 		public Path convert(
-				final Serializable ob )
+				final Serializable ob,
+				final PropertyManagement requesterContext )
 				throws Exception {
 			return new Path(
 					ob.toString());
@@ -905,7 +929,8 @@ public class PropertyManagement implements
 
 		@Override
 		public Serializable convert(
-				final Persistable ob ) {
+				final Persistable ob,
+				final PropertyManagement requesterContext ) {
 			try {
 				return toBytes(ob);
 			}
@@ -920,7 +945,8 @@ public class PropertyManagement implements
 
 		@Override
 		public Persistable convert(
-				final Serializable ob )
+				final Serializable ob,
+				final PropertyManagement requesterContext )
 				throws Exception {
 			if (ob instanceof byte[]) {
 				return fromBytes(
@@ -937,6 +963,13 @@ public class PropertyManagement implements
 		public Class<Persistable> baseClass() {
 			return Persistable.class;
 		}
+	}
 
+	public static final void fillOptions(
+			final Set<Option> options,
+			final ParameterEnum[] params ) {
+		for (ParameterEnum param : params) {
+			options.add(param.getOption());
+		}
 	}
 }

@@ -262,14 +262,10 @@ public class OrthodromicDistancePartitioner<T> extends
 	public void fillOptions(
 			Set<Option> options ) {
 		super.fillOptions(options);
-		ClusteringParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new ClusteringParameters.Clustering[] {
-					ClusteringParameters.Clustering.GEOMETRIC_DISTANCE_UNIT
-				});
-		ExtractParameters.fillOptions(
-				options,
-				new ExtractParameters.Extract[] {
+				new ParameterEnum[] {
+					ClusteringParameters.Clustering.GEOMETRIC_DISTANCE_UNIT,
 					ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS
 				});
 

@@ -25,6 +25,7 @@ import mil.nga.giat.geowave.analytic.param.CentroidParameters;
 import mil.nga.giat.geowave.analytic.param.ClusteringParameters;
 import mil.nga.giat.geowave.analytic.param.CommonParameters;
 import mil.nga.giat.geowave.analytic.param.FormatConfiguration;
+import mil.nga.giat.geowave.analytic.param.ParameterEnum;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -257,25 +258,18 @@ public class KMeansIterationsJobRunner<T> implements
 	@Override
 	public void fillOptions(
 			final Set<Option> options ) {
-		CentroidParameters.fillOptions(
+		
+		PropertyManagement.fillOptions(
 				options,
-				new CentroidParameters.Centroid[] {
+				new ParameterEnum[] {					
 					CentroidParameters.Centroid.INDEX_ID,
 					CentroidParameters.Centroid.DATA_TYPE_ID,
 					CentroidParameters.Centroid.DATA_NAMESPACE_URI,
 					CentroidParameters.Centroid.EXTRACTOR_CLASS,
-					CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS
-				});
-		ClusteringParameters.fillOptions(
-				options,
-				new ClusteringParameters.Clustering[] {
+					CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
 					ClusteringParameters.Clustering.MAX_REDUCER_COUNT,
 					ClusteringParameters.Clustering.MAX_ITERATIONS,
-					ClusteringParameters.Clustering.CONVERGANCE_TOLERANCE
-				});
-		CommonParameters.fillOptions(
-				options,
-				new CommonParameters.Common[] {
+					ClusteringParameters.Clustering.CONVERGANCE_TOLERANCE,
 					CommonParameters.Common.DISTANCE_FUNCTION_CLASS
 				});
 

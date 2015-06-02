@@ -246,9 +246,9 @@ public class GeoWaveAnalyticExtractJobRunner extends
 	@Override
 	public void fillOptions(
 			final Set<Option> options ) {
-		ExtractParameters.fillOptions(
+		PropertyManagement.fillOptions(
 				options,
-				new ExtractParameters.Extract[] {
+				new ParameterEnum[] {
 					ExtractParameters.Extract.REDUCER_COUNT,
 					ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID,
 					ExtractParameters.Extract.DATA_NAMESPACE_URI,
@@ -257,11 +257,7 @@ public class GeoWaveAnalyticExtractJobRunner extends
 					ExtractParameters.Extract.ADAPTER_ID,
 					ExtractParameters.Extract.MIN_INPUT_SPLIT,
 					ExtractParameters.Extract.MAX_INPUT_SPLIT,
-					ExtractParameters.Extract.QUERY
-				});
-		GlobalParameters.fillOptions(
-				options,
-				new GlobalParameters.Global[] {
+					ExtractParameters.Extract.QUERY,
 					GlobalParameters.Global.ZOOKEEKER,
 					GlobalParameters.Global.ACCUMULO_INSTANCE,
 					GlobalParameters.Global.ACCUMULO_PASSWORD,
