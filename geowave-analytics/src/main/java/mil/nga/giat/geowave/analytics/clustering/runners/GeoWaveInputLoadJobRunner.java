@@ -13,7 +13,9 @@ import mil.nga.giat.geowave.analytics.tools.IndependentJobRunner;
 import mil.nga.giat.geowave.analytics.tools.PropertyManagement;
 import mil.nga.giat.geowave.analytics.tools.RunnerUtils;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.GeoWaveAnalyticJobRunner;
+import mil.nga.giat.geowave.analytics.tools.mapreduce.GeoWaveInputFormatConfiguration;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.MapReduceJobRunner;
+import mil.nga.giat.geowave.analytics.tools.mapreduce.SequenceFileOutputFormatConfiguration;
 
 import org.apache.commons.cli.Option;
 import org.apache.hadoop.conf.Configuration;
@@ -33,7 +35,11 @@ public class GeoWaveInputLoadJobRunner extends
 		MapReduceJobRunner,
 		IndependentJobRunner
 {
-	public GeoWaveInputLoadJobRunner() {}
+	public GeoWaveInputLoadJobRunner() {
+		// defaults
+		super.setInputFormatConfiguration(new GeoWaveInputFormatConfiguration());
+		super.setOutputFormatConfiguration(new SequenceFileOutputFormatConfiguration());
+	}
 
 	@Override
 	public void configure(

@@ -12,11 +12,13 @@ import mil.nga.giat.geowave.analytics.parameters.ClusteringParameters;
 import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.ExtractParameters;
 import mil.nga.giat.geowave.analytics.parameters.GlobalParameters;
+import mil.nga.giat.geowave.analytics.parameters.PartitionParameters.Partition;
 import mil.nga.giat.geowave.analytics.tools.AnalyticFeature;
 import mil.nga.giat.geowave.analytics.tools.PropertyManagement;
 import mil.nga.giat.geowave.analytics.tools.model.SpatialIndexModelBuilder;
 import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner.PartitionData;
 import mil.nga.giat.geowave.index.sfc.data.MultiDimensionalNumericData;
+
 import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.referencing.CRS;
 import org.junit.Test;
@@ -76,9 +78,14 @@ public class OrthodromicDistancePartitionerTest
 
 		PropertyManagement propertyManagement = new PropertyManagement();
 
-		propertyManagement.store(
-				ClusteringParameters.Clustering.DISTANCE_THRESHOLDS,
-				"111.321");
+		AbstractPartitioner.putDistances(
+				propertyManagement,
+				new double[] {
+					propertyManagement.getPropertyAsDouble(
+							Partition.PARTITION_DISTANCE,
+							10000)
+				});
+
 		propertyManagement.store(
 				CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
 				SpatialIndexModelBuilder.class);
@@ -94,7 +101,7 @@ public class OrthodromicDistancePartitionerTest
 				"EPSG:4326");
 		propertyManagement.store(
 				ClusteringParameters.Clustering.GEOMETRIC_DISTANCE_UNIT,
-				"km");
+				"m");
 
 		OrthodromicDistancePartitioner<SimpleFeature> partitioner = new OrthodromicDistancePartitioner<SimpleFeature>();
 

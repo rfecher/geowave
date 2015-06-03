@@ -12,6 +12,7 @@ import mil.nga.giat.geowave.accumulo.metadata.AccumuloIndexStore;
 import mil.nga.giat.geowave.index.ByteArrayId;
 import mil.nga.giat.geowave.store.CloseableIterator;
 import mil.nga.giat.geowave.store.adapter.DataAdapter;
+import mil.nga.giat.geowave.store.adapter.statistics.DataStatistics;
 import mil.nga.giat.geowave.store.adapter.statistics.StatsCompositionTool;
 import mil.nga.giat.geowave.store.index.Index;
 import mil.nga.giat.geowave.store.query.Query;
@@ -33,7 +34,7 @@ public class StatsTool
 {
 	private static final Logger LOGGER = Logger.getLogger(StatsTool.class);
 
-	public static boolean calculateStastics(
+	public static boolean dumpStatistics(
 			final AccumuloOperations accumuloOperations,
 			final ByteArrayId adapterId,
 			final String[] authorizations )
@@ -54,28 +55,14 @@ public class StatsTool
 			LOGGER.error("Unknown adapter " + adapterId);
 			return false;
 		}
-		statsStore.deleteObjects(
-				adapter.getAdapterId(),
-				authorizations);
-		try (StatsCompositionTool<?> statsTool = new StatsCompositionTool(
-				adapter,
-				statsStore)) {
-			try (CloseableIterator<Index> indexit = indexStore.getIndices()) {
-				while (indexit.hasNext()) {
-					final Index index = indexit.next();
-					try (CloseableIterator<?> entryIt = dataStore.query(
-							adapter,
-							index,
-							(Query) null,
-							(Integer) null,
-							statsTool,
-							authorizations)) {
-						while (entryIt.hasNext()) {
-							entryIt.next();
-						}
-					}
+		try (CloseableIterator<DataStatistics<?>> it = statsStore.getAllDataStatistics(authorizations)) {
+			while (it.hasNext())
+				try {
+					System.out.println(it.next().toString());
 				}
-			}
+				catch (Exception ex) {
+					ex.printStackTrace();
+				}
 		}
 		catch (Exception ex) {
 			LOGGER.error(
@@ -104,7 +91,7 @@ public class StatsTool
 				accumuloUser,
 				accumuloPassword,
 				namespace);
-		System.exit(calculateStastics(
+		System.exit(dumpStatistics(
 				accumuloOperations,
 				new ByteArrayId(
 						adapterId),

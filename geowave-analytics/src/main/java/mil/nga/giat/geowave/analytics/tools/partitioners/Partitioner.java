@@ -41,12 +41,24 @@ public interface Partitioner<T>
 	public List<PartitionData> getCubeIdentifiers(
 			final T entry );
 
+	public void partition(
+			T entry,
+			PartitionDataCallback callback )
+			throws Exception;
+
 	public void fillOptions(
 			Set<Option> options );
 
 	public void setup(
 			PropertyManagement runTimeProperties,
 			Configuration configuration );
+
+	public static interface PartitionDataCallback
+	{
+		void partitionWith(
+				PartitionData data )
+				throws Exception;
+	}
 
 	public static class PartitionData implements
 			Serializable,

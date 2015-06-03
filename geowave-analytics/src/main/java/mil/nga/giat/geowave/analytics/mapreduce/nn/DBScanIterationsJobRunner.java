@@ -16,6 +16,7 @@ import mil.nga.giat.geowave.analytics.parameters.PartitionParameters.Partition;
 import mil.nga.giat.geowave.analytics.tools.IndependentJobRunner;
 import mil.nga.giat.geowave.analytics.tools.PropertyManagement;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.FormatConfiguration;
+import mil.nga.giat.geowave.analytics.tools.mapreduce.GeoWaveInputFormatConfiguration;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.GeoWaveOutputFormatConfiguration;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.MapReduceJobController;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.MapReduceJobRunner;
@@ -58,7 +59,9 @@ public class DBScanIterationsJobRunner implements
 
 	public DBScanIterationsJobRunner() {
 		super();
-		inputLoadRunner.setOutputFormatConfiguration(new GeoWaveOutputFormatConfiguration());
+		inputFormatConfiguration = new GeoWaveInputFormatConfiguration();
+		jobRunner.setInputFormatConfiguration(inputFormatConfiguration);
+		jobRunner.setOutputFormatConfiguration(new GeoWaveOutputFormatConfiguration());
 	}
 
 	public void setInputFormatConfiguration(
@@ -112,9 +115,15 @@ public class DBScanIterationsJobRunner implements
 		jobRunner.setOutputFormatConfiguration(new SequenceFileOutputFormatConfiguration(
 				startPath));
 
+		LOGGER.info(
+				"Running with partition distance {}",
+				runTimeProperties.getPropertyAsDouble(
+						Partition.PARTITION_DISTANCE,
+						10.0));
 		final int initialStatus = jobRunner.run(
 				config,
 				runTimeProperties);
+
 		if (initialStatus != 0) {
 			return initialStatus;
 		}

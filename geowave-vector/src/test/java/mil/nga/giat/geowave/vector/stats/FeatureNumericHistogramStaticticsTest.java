@@ -15,6 +15,7 @@ import mil.nga.giat.geowave.vector.adapter.FeatureDataAdapter;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.commons.math.util.MathUtils;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -55,7 +56,7 @@ public class FeatureNumericHistogramStaticticsTest
 	}
 
 	private SimpleFeature create(
-			final long val ) {
+			final Double val ) {
 		final List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
 		final Object[] defaults = new Object[descriptors.size()];
 		int p = 0;
@@ -101,15 +102,15 @@ public class FeatureNumericHistogramStaticticsTest
 
 		stat.entryIngested(
 				null,
-				create(100));
+				create(100.0));
 		stat.entryIngested(
 				null,
-				create(101));
+				create(101.0));
 		stat.entryIngested(
 				null,
-				create(2));
+				create(2.0));
 
-		long next = 1;
+		double next = 1;
 		for (int i = 0; i < 10000; i++) {
 			next = next + (Math.round(rand.nextDouble()));
 			stat.entryIngested(
@@ -122,11 +123,11 @@ public class FeatureNumericHistogramStaticticsTest
 						"sp.geostuff"),
 				"pop");
 
-		final long start2 = next;
+		final double start2 = next;
 
-		long max = 0;
+		double max = 0;
 		for (long i = 0; i < 10000; i++) {
-			final long val = next + (long) (1000 * rand.nextDouble());
+			final double val = next + (double) (1000 * rand.nextDouble());
 			stat2.entryIngested(
 					null,
 					create(val));
@@ -134,7 +135,7 @@ public class FeatureNumericHistogramStaticticsTest
 					val,
 					max);
 		}
-		final long skewvalue = next + (long) (1000 * rand.nextDouble());
+		final double skewvalue = next + (double) (1000 * rand.nextDouble());
 		SimpleFeature skewedFeature = create(skewvalue);
 		for (int i = 0; i < 10000; i++) {
 			stat2.entryIngested(
@@ -186,35 +187,32 @@ public class FeatureNumericHistogramStaticticsTest
 
 		final Random rand = new Random(
 				7777);
-		long next = 1;
+		double next = 1;
 		for (int i = 0; i < 10000; i++) {
-			next = next + (Math.round(rand.nextDouble()));
+			next = next + rand.nextDouble() * 100.0;
 			stat1.entryIngested(
 					null,
 					create(next));
 		}
 
-		final FeatureNumericHistogramStatistics stat2 = new FeatureNumericHistogramStatistics(
-				new ByteArrayId(
-						"sp.geostuff"),
-				"pop");
-
-		next = 1004839434;
-		for (long i = 0; i < 10000; i++) {
-			final long val = next + (long) (1000 * rand.nextDouble());
-			stat2.entryIngested(
-					null,
-					create(val));
+		for (long i = 0; i < 1000000; i++) {
+			FeatureNumericHistogramStatistics stat2 = new FeatureNumericHistogramStatistics(
+					new ByteArrayId(
+							"sp.geostuff"),
+					"pop");
+			for (int j = 0; j < 100; j++) {
+				stat2.entryIngested(
+						null,
+						create(4839000434.547854578 * rand.nextDouble() * rand.nextGaussian()));
+			}
+			byte[] b = stat2.toBinary();
+			stat2.fromBinary(b);
+			b = stat1.toBinary();
+			stat1.fromBinary(b);
+			stat1.merge(stat2);
 		}
 
-		byte[] b = stat2.toBinary();
-		stat2.fromBinary(b);
-
-		b = stat1.toBinary();
-		stat1.fromBinary(b);
-
-		stat1.merge(stat2);
-
+		System.out.println(stat1);
 	}
 
 	@Test
@@ -230,15 +228,15 @@ public class FeatureNumericHistogramStaticticsTest
 
 		stat.entryIngested(
 				null,
-				create(-100));
+				create(-100.0));
 		stat.entryIngested(
 				null,
-				create(-101));
+				create(-101.0));
 		stat.entryIngested(
 				null,
-				create(-2));
+				create(-2.0));
 
-		long next = -1;
+		double next = -1;
 		for (int i = 0; i < 10000; i++) {
 			next = next - (Math.round(rand.nextDouble()));
 			stat.entryIngested(
@@ -251,11 +249,11 @@ public class FeatureNumericHistogramStaticticsTest
 						"sp.geostuff"),
 				"pop");
 
-		final long start2 = next;
+		final double start2 = next;
 
-		long min = 0;
+		double min = 0;
 		for (long i = 0; i < 10000; i++) {
-			final long val = next - (long) (1000 * rand.nextDouble());
+			final double val = next - (long) (1000 * rand.nextDouble());
 			stat2.entryIngested(
 					null,
 					create(val));
@@ -263,7 +261,7 @@ public class FeatureNumericHistogramStaticticsTest
 					val,
 					min);
 		}
-		final long skewvalue = next - (long) (1000 * rand.nextDouble());
+		final double skewvalue = next - (double) (1000 * rand.nextDouble());
 		SimpleFeature skewedFeature = create(skewvalue);
 		for (int i = 0; i < 10000; i++) {
 			stat2.entryIngested(
@@ -322,32 +320,57 @@ public class FeatureNumericHistogramStaticticsTest
 		double min = 0;
 		double max = 0;
 
-		long next = 0;
-		for (int i = 0; i < 10000; i++) {
-			next = next + (Math.round(rand.nextDouble()));
-			stat.entryIngested(
+		double next = 0;
+		for (int i = 1; i < 10000; i++) {
+			final FeatureNumericHistogramStatistics stat2 = new FeatureNumericHistogramStatistics(
+					new ByteArrayId(
+							"sp.geostuff"),
+					"pop");
+			double m = 10000.0 * Math.pow(
+					10.0,
+					((i / 100) + 1));
+			if (i == 50) {
+				System.out.println("1");
+				next = 0.0;
+			}
+			else if (i == 100) {
+				System.out.println("2");
+				next = Double.NaN;
+			}
+			else if (i == 150) {
+				System.out.println("3");
+				next = Double.MAX_VALUE;
+			}
+			else if (i == 200) {
+				System.out.println("4");
+				next = Integer.MAX_VALUE;
+			}
+			else if (i == 225) {
+				System.out.println("");
+				next = Integer.MIN_VALUE;
+			}
+			else {
+				next = (m * rand.nextDouble() * MathUtils.sign(rand.nextGaussian()));
+			}
+			stat2.entryIngested(
 					null,
 					create(next));
 			max = Math.max(
 					next,
 					max);
-		}
-
-		next = 0;
-		for (int i = 0; i < 10000; i++) {
-			next = next - (Math.round(rand.nextDouble()));
-			stat.entryIngested(
-					null,
-					create(next));
 			min = Math.min(
 					next,
 					min);
+			stat.fromBinary(stat.toBinary());
+			stat2.fromBinary(stat2.toBinary());
+			stat.merge(stat2);
+
 		}
 
 		assertEquals(
 				0.5,
 				stat.cdf(0),
-				0.001);
+				0.01);
 
 		assertEquals(
 				0.0,
@@ -360,7 +383,7 @@ public class FeatureNumericHistogramStaticticsTest
 				0.00001);
 
 		assertEquals(
-				20000,
+				1000000,
 				sum(stat.count(10)));
 
 		final double r = stat.percentPopulationOverRange(

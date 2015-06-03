@@ -222,6 +222,10 @@ public class OrthodromicDistancePartitioner<T> extends
 		final double[] distancePerDimensionForIndex = new double[distancePerDimension.length];
 		for (int i = 0; i < distancePerDimension.length; i++) {
 			distancePerDimensionForIndex[i] = (i == longDimensionPosition) ? envelope.getWidth() / 2.0 : (i == latDimensionPosition ? envelope.getHeight() / 2.0 : distancePerDimension[i]);
+			LOGGER.info(
+					"Dimension size {} is {} ",
+					i,
+					distancePerDimensionForIndex[i]);
 		}
 
 		super.initIndex(

@@ -18,11 +18,13 @@ import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
 import mil.nga.giat.geowave.analytics.tools.ConfigurationWrapper;
+import mil.nga.giat.geowave.analytics.tools.LoggingConfigurationWrapper;
 import mil.nga.giat.geowave.analytics.tools.NeighborData;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.JobContextConfigurationWrapper;
 import mil.nga.giat.geowave.analytics.tools.partitioners.OrthodromicDistancePartitioner;
 import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner;
 import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner.PartitionData;
+import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner.PartitionDataCallback;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -116,21 +118,38 @@ public class NNMapReduce
 			@SuppressWarnings("unchecked")
 			final T unwrappedValue =  (T) ( (value instanceof ObjectWritable) ?
 				serializationTool.fromWritable(key.getAdapterId(),(ObjectWritable) value) : value);;
-			for (final PartitionData partitionData : partitioner.getCubeIdentifiers(unwrappedValue)) {
-				//System.out.println(((SimpleFeature)unwrappedValue).getDefaultGeometry().toString() + " = " + partitionData.toString());
-				outputValue.setAdapterId(key.getAdapterId());
-				AdapterWithObjectWritable.fillWritableWithAdapter(
-						serializationTool,
-						outputValue,
-						key.getAdapterId(),
-						key.getDataId(),
-						partitionData.isPrimary(),
-						unwrappedValue);
-				partitionDataWritable.setPartitionData(partitionData);
-				context.write(
-						partitionDataWritable,
-						outputValue);
+			try {
+				partitioner.partition(unwrappedValue,
+						new PartitionDataCallback()  {
+
+							@Override
+							public void partitionWith(
+									final PartitionData partitionData ) throws Exception {
+								outputValue.setAdapterId(key.getAdapterId());
+								AdapterWithObjectWritable.fillWritableWithAdapter(
+										serializationTool,
+										outputValue,
+										key.getAdapterId(),
+										key.getDataId(),
+										partitionData.isPrimary(),
+										unwrappedValue);
+								partitionDataWritable.setPartitionData(partitionData);
+								context.write(
+										partitionDataWritable,
+										outputValue);
+								
+							}});
 			}
+			catch (final IOException e) {
+				  throw e;
+			}
+			catch (final Exception e) {
+			  throw new IOException(e);
+			}
+				
+				
+				//System.out.println(((SimpleFeature)unwrappedValue).getDefaultGeometry().toString() + " = " + partitionData.toString());
+		
 		}
 
 		@SuppressWarnings("unchecked")
@@ -140,9 +159,10 @@ public class NNMapReduce
 				throws IOException,
 				InterruptedException {
 			super.setup(context);
-			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
+			LOGGER.info("Running NNMapper");
+			final ConfigurationWrapper config = new LoggingConfigurationWrapper(LOGGER,new JobContextConfigurationWrapper(
 					context,
-					LOGGER);
+					LOGGER));
 			try {
 				serializationTool = new HadoopWritableSerializationTool(
 						new JobContextAdapterStore(

@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -707,6 +708,17 @@ public class PropertyManagement implements
 		else {
 			os.write(2);
 		}
+	}
+
+	public void dump() {
+		LOGGER.info("Properties : ");
+		for (Map.Entry<String, Serializable> prop : this.localProperties.entrySet()) {
+			LOGGER.info(
+					"{} = {}",
+					prop.getKey(),
+					prop.getValue());
+		}
+		nestProperties.dump();
 	}
 
 	public void fromInput(

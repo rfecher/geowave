@@ -7,9 +7,14 @@ import mil.nga.giat.geowave.accumulo.mapreduce.input.GeoWaveInputKey;
 import mil.nga.giat.geowave.analytics.clustering.ClusteringUtils;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNMapReduce.PartitionDataWritable;
 import mil.nga.giat.geowave.analytics.parameters.ClusteringParameters;
+import mil.nga.giat.geowave.analytics.parameters.ClusteringParameters.Clustering;
 import mil.nga.giat.geowave.analytics.parameters.GlobalParameters;
+import mil.nga.giat.geowave.analytics.parameters.GlobalParameters.Global;
 import mil.nga.giat.geowave.analytics.parameters.HullParameters;
+import mil.nga.giat.geowave.analytics.parameters.HullParameters.Hull;
 import mil.nga.giat.geowave.analytics.parameters.ParameterEnum;
+import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
+import mil.nga.giat.geowave.analytics.parameters.PartitionParameters.Partition;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
 import mil.nga.giat.geowave.analytics.tools.AnalyticFeature;
 import mil.nga.giat.geowave.analytics.tools.Projection;
@@ -102,6 +107,36 @@ public class DBScanJobRunner extends
 	public void fillOptions(
 			final Set<Option> options ) {
 		super.fillOptions(options);
+
+		PartitionParameters.fillOptions(
+				options,
+				new PartitionParameters.Partition[] {
+					Partition.PARTITIONER_CLASS,
+					Partition.PARTITION_DISTANCE,
+					Partition.MAX_MEMBER_SELECTION
+				});
+
+		GlobalParameters.fillOptions(
+				options,
+				new GlobalParameters.Global[] {
+					Global.BATCH_ID
+				});
+
+		HullParameters.fillOptions(
+				options,
+				new HullParameters.Hull[] {
+					Hull.HULL_BUILDER,
+					Hull.DATA_TYPE_ID,
+					Hull.PROJECTION_CLASS
+				});
+
+		ClusteringParameters.fillOptions(
+				options,
+				new ClusteringParameters.Clustering[] {
+					Clustering.MINIMUM_SIZE,
+					Clustering.GEOMETRIC_DISTANCE_UNIT,
+					Clustering.DISTANCE_THRESHOLDS
+				});
 	}
 
 }

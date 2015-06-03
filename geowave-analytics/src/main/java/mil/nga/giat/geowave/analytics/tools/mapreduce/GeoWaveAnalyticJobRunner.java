@@ -246,6 +246,7 @@ public abstract class GeoWaveAnalyticJobRunner extends
 				null);
 
 		if (inputFormat != null) {
+			LOGGER.info("Loading data using {}" + inputFormat.getFormatClass().toString());
 			job.setInputFormatClass((Class<? extends InputFormat>) inputFormat.getFormatClass());
 		}
 
@@ -292,6 +293,11 @@ public abstract class GeoWaveAnalyticJobRunner extends
 			outputFormat.fillOptions(options);
 		}
 
+		OutputParameters.fillOptions(
+				options,
+				new OutputParameters.Output[] {
+					OutputParameters.Output.REDUCER_COUNT
+				});
 		CommonParameters.fillOptions(
 				options,
 				new CommonParameters.Common[] {

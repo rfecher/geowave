@@ -17,6 +17,7 @@ import mil.nga.giat.geowave.analytics.tools.PropertyManagement;
 import mil.nga.giat.geowave.analytics.tools.RunnerUtils;
 import mil.nga.giat.geowave.analytics.tools.model.IndexModelBuilder;
 import mil.nga.giat.geowave.analytics.tools.model.SpatialIndexModelBuilder;
+import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner.PartitionDataCallback;
 import mil.nga.giat.geowave.index.ByteArrayId;
 import mil.nga.giat.geowave.index.sfc.SFCFactory.SFCType;
 import mil.nga.giat.geowave.index.sfc.data.MultiDimensionalNumericData;
@@ -97,6 +98,32 @@ public abstract class AbstractPartitioner<T> implements
 				partitionIdSet);
 	}
 
+	@Override
+	public void partition(
+			final T entry,
+			final PartitionDataCallback callback )
+			throws Exception {
+		final NumericDataHolder numericData = getNumericData(entry);
+		if (numericData == null) {
+			return;
+		}
+		for (ByteArrayId addId : getIndex().getIndexStrategy().getInsertionIds(
+				numericData.primary)) {
+			callback.partitionWith(new PartitionData(
+					addId,
+					true));
+		}
+
+		for (final MultiDimensionalNumericData expansionData : numericData.expansion) {
+			for (ByteArrayId addId : getIndex().getIndexStrategy().getInsertionIds(
+					expansionData)) {
+				callback.partitionWith(new PartitionData(
+						addId,
+						false));
+			}
+		}
+	}
+
 	protected static class NumericDataHolder
 	{
 		MultiDimensionalNumericData primary;
@@ -132,7 +159,7 @@ public abstract class AbstractPartitioner<T> implements
 			buffer.append(distance);
 			buffer.append(',');
 		}
-		config.store(
+		config.storeIfEmpty(
 				ClusteringParameters.Clustering.DISTANCE_THRESHOLDS,
 				buffer.substring(
 						0,

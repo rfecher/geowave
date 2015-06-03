@@ -46,6 +46,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>mil.nga.giat</groupId>
 			<artifactId>geowave-raster</artifactId>
 			<version>${project.version}</version>
@@ -271,7 +275,6 @@
 												<exclude>META-INF/*.SF</exclude>
 												<exclude>META-INF/*.DSA</exclude>
 												<exclude>META-INF/*.RSA</exclude>
-												<exclude>log4j.properties</exclude>
 											</excludes>
 										</filter>
 									</filters>

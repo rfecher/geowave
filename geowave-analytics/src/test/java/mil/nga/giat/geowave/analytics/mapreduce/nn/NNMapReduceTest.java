@@ -188,7 +188,7 @@ public class NNMapReduceTest
 
 		final List<Pair<PartitionDataWritable, AdapterWithObjectWritable>> mapperResults = mapDriver.run();
 		assertEquals(
-				6,
+				10, // includes overlap
 				mapperResults.size());
 		assertNotNull(getPartitionDataFor(
 				mapperResults,
