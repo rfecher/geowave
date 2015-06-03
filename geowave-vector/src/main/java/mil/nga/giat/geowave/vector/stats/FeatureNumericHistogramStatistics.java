@@ -23,6 +23,8 @@ public class FeatureNumericHistogramStatistics extends
 	private DoubleHistogram positiveHistogram = new LocalDoubleHistogram();
 	private DoubleHistogram negativeHistogram = null;
 
+	private double maxValue = Math.pow(2, 63)/Math.pow(2, 14) - 1;
+	private double minValue = - (maxValue);
 	protected FeatureNumericHistogramStatistics() {
 		super();
 	}
@@ -203,6 +205,8 @@ public class FeatureNumericHistogramStatistics extends
 			return;
 		}
 		final double num = ((Number) o).doubleValue();
+		if (num < minValue || num > maxValue || Double.isNaN(num))
+			return;
 		if (num >= 0)
 			positiveHistogram.recordValue(num);
 		else {
