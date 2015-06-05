@@ -4,9 +4,12 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import mil.nga.giat.geowave.accumulo.mapreduce.HadoopWritableSerializationTool;
 import mil.nga.giat.geowave.accumulo.mapreduce.JobContextAdapterStore;
@@ -19,12 +22,12 @@ import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
 import mil.nga.giat.geowave.analytics.tools.ConfigurationWrapper;
 import mil.nga.giat.geowave.analytics.tools.LoggingConfigurationWrapper;
-import mil.nga.giat.geowave.analytics.tools.NeighborData;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.JobContextConfigurationWrapper;
 import mil.nga.giat.geowave.analytics.tools.partitioners.OrthodromicDistancePartitioner;
 import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner;
 import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner.PartitionData;
 import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner.PartitionDataCallback;
+import mil.nga.giat.geowave.index.ByteArrayId;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -205,8 +208,8 @@ public class NNMapReduce
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context )
 				throws IOException,
 				InterruptedException {
-			final Set<NeighborData<VALUEIN>> primaries = createSetForNeighbors(true);
-			final Set<NeighborData<VALUEIN>> others = createSetForNeighbors(false);
+			final Map<ByteArrayId,VALUEIN> primaries = new HashMap<ByteArrayId,VALUEIN>();
+			final Map<ByteArrayId,VALUEIN> others = new HashMap<ByteArrayId,VALUEIN>();
 			final PARTITION_SUMMARY summary = createSummary();
 
 			for (final AdapterWithObjectWritable inputValue : values) {
@@ -215,55 +218,54 @@ public class NNMapReduce
 						serializationTool,
 						inputValue);
 				if (inputValue.isPrimary()) {
-					primaries.add(new NeighborData<VALUEIN>(unwrappedValue,inputValue.getDataId(),0));
+					primaries.put(inputValue.getDataId(),unwrappedValue);
 				}
 				else {
-					others.add(new NeighborData<VALUEIN>(unwrappedValue,inputValue.getDataId(),0));
+					others.put(inputValue.getDataId(),unwrappedValue);
 				}
 			}
 
-			final TreeSet<NeighborData<VALUEIN>> neighbors = new TreeSet<NeighborData<VALUEIN>>();
-			for (final NeighborData<VALUEIN> primary : primaries) {
-				for (final NeighborData<VALUEIN> anotherPrimary : primaries) {
-					if (anotherPrimary.getElement().equals(primary.getElement())) {
+			LOGGER.info("Processing " + key.toString() + " with primary = " + primaries.size() + " and other = " + others.size());
+			
+			for (final Map.Entry<ByteArrayId,VALUEIN> primary : primaries.entrySet()) {
+				final List<Map.Entry<ByteArrayId,VALUEIN>> neighbors = new ArrayList<Map.Entry<ByteArrayId,VALUEIN>>();
+				for (final Map.Entry<ByteArrayId,VALUEIN> anotherPrimary : primaries.entrySet()) {
+					if (anotherPrimary.getKey().equals(primary.getKey())) {
 						continue;
 					}
 					final double distance = distanceFn.measure(
-							primary.getElement(),
-							anotherPrimary.getElement());
+							primary.getValue(),
+							anotherPrimary.getValue());
 					if (distance <= maxDistance) {
-						neighbors.add(new NeighborData<VALUEIN>(
-								anotherPrimary,
-								distance));
+						neighbors.add(
+								anotherPrimary);
 						if (neighbors.size() > maxNeighbors) {
-							neighbors.pollLast();
+							continue; // need some condense function
 						}
 					}
 				}
-				for (final NeighborData<VALUEIN> anOther : others) {
-					if (anOther.getElement().equals(primary.getElement())) {
+				for (final Map.Entry<ByteArrayId,VALUEIN>  anOther : others.entrySet()) {
+					if (anOther.getKey().equals(primary.getKey())) {
 						continue;
 					}
 					final double distance = distanceFn.measure(
-							primary.getElement(),
-							anOther.getElement());
+							primary.getValue(),
+							anOther.getValue());
 					if (distance <= maxDistance) {
-						neighbors.add(new NeighborData<VALUEIN>(
-								anOther,
-								distance));
+						neighbors.add(
+								anOther);
 						if (neighbors.size() > maxNeighbors) {
-							neighbors.pollLast();
+							continue; // need some condense function
 						}
 					}
 				}
 				processNeighbors(
 							key.partitionData,
-							primary,
+							primary.getKey(),
+							primary.getValue(),
 							neighbors,
 							context,
 							summary);
-				
-				neighbors.clear();
 			}
 
 			processSummary(
@@ -291,20 +293,11 @@ public class NNMapReduce
 				Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context ) 
 						throws IOException, InterruptedException;
 
-		/**
-		 * 
-		 * allow the extending classes to return sets with constraints and
-		 * management algorithms
-		 */
-		protected Set<NeighborData<VALUEIN>> createSetForNeighbors(
-				final boolean isSetForPrimary ) {
-			return new HashSet<NeighborData<VALUEIN>>();
-		}
-
 		protected abstract void processNeighbors(
 				PartitionData partitionData,
-				NeighborData<VALUEIN> primary,
-				Set<NeighborData<VALUEIN>> neighbors,
+				ByteArrayId primaryId,
+				VALUEIN primary,
+				List<Map.Entry<ByteArrayId,VALUEIN>> neighbors,
 				Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context,
 				PARTITION_SUMMARY summary )
 				throws IOException,
@@ -370,8 +363,9 @@ public class NNMapReduce
 		@Override
 		protected void processNeighbors(
 				final PartitionData partitionData,
-				final NeighborData<SimpleFeature> primary,
-				final Set<NeighborData<SimpleFeature>> neighbors,
+				final ByteArrayId primaryId,
+				final SimpleFeature primary,
+				final List<Map.Entry<ByteArrayId,SimpleFeature>> neighbors,
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, Text, Text>.Context context,
 				final Boolean summary )
 				throws IOException,
@@ -384,20 +378,20 @@ public class NNMapReduce
 			byte[] utfBytes;
 			try {
 
-				utfBytes = primary.getElement().getID().getBytes(
+				utfBytes = primary.getID().getBytes(
 						"UTF-8");
 				primaryText.append(
 						utfBytes,
 						0,
 						utfBytes.length);
-				for (final NeighborData<SimpleFeature> neighbor : neighbors) {
+				for (final Map.Entry<ByteArrayId,SimpleFeature> neighbor : neighbors) {
 					if (neighborsText.getLength() > 0) {
 						neighborsText.append(
 								sepBytes,
 								0,
 								sepBytes.length);
 					}
-					utfBytes = neighbor.getElement().getID().getBytes(
+					utfBytes = neighbor.getValue().getID().getBytes(
 							"UTF-8");
 					neighborsText.append(
 							utfBytes,

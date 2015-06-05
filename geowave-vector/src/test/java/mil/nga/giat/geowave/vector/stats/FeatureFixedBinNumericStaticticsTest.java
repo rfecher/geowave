@@ -319,8 +319,7 @@ public class FeatureFixedBinNumericStaticticsTest
 		System.out.println(stat.toString());
 
 	}
-	
-	
+
 	@Test
 	public void testMix2() {
 
@@ -345,7 +344,6 @@ public class FeatureFixedBinNumericStaticticsTest
 					next,
 					max);
 		}
-
 
 		assertEquals(
 				1.0,

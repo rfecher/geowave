@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +29,6 @@ import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
 import mil.nga.giat.geowave.analytics.tools.AnalyticFeature;
 import mil.nga.giat.geowave.analytics.tools.ConfigurationWrapper;
-import mil.nga.giat.geowave.analytics.tools.NeighborData;
 import mil.nga.giat.geowave.analytics.tools.Projection;
 import mil.nga.giat.geowave.analytics.tools.ShapefileTool;
 import mil.nga.giat.geowave.analytics.tools.SimpleFeatureProjection;
@@ -485,22 +484,19 @@ public class DBScanMapReduceTest
 							0.2310),
 				});
 		final Cluster<SimpleFeature> sfCluster = new Cluster<SimpleFeature>(
-				new NeighborData<SimpleFeature>(
-						geo1,
-						new ByteArrayId(
-								geo1.getID()),
-						0.0),
-				new HashSet<NeighborData<SimpleFeature>>());
-		sfCluster.members.add(new NeighborData<SimpleFeature>(
-				geo2,
+				new ByteArrayId(
+						geo1.getID()),
+				geo1,
+				new ArrayList<Map.Entry<ByteArrayId, SimpleFeature>>());
+		sfCluster.members.add(new AbstractMap.SimpleEntry<ByteArrayId, SimpleFeature>(
 				new ByteArrayId(
 						geo2.getID()),
-				0.0));
-		sfCluster.members.add(new NeighborData<SimpleFeature>(
-				geo3,
+				geo2));
+		sfCluster.members.add(new AbstractMap.SimpleEntry<ByteArrayId, SimpleFeature>(
 				new ByteArrayId(
 						geo3.getID()),
-				0.0));
+						geo3));
+
 
 		final Geometry results = builder.getProjection(sfCluster);
 

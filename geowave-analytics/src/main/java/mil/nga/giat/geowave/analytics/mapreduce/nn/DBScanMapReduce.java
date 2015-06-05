@@ -1,7 +1,7 @@
 package mil.nga.giat.geowave.analytics.mapreduce.nn;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,11 +26,9 @@ import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
 import mil.nga.giat.geowave.analytics.tools.AnalyticFeature;
 import mil.nga.giat.geowave.analytics.tools.ConfigurationWrapper;
 import mil.nga.giat.geowave.analytics.tools.GeometryHullTool;
-import mil.nga.giat.geowave.analytics.tools.NeighborData;
 import mil.nga.giat.geowave.analytics.tools.Projection;
 import mil.nga.giat.geowave.analytics.tools.PropertyManagement;
 import mil.nga.giat.geowave.analytics.tools.RunnerUtils;
-import mil.nga.giat.geowave.analytics.tools.ShapefileTool;
 import mil.nga.giat.geowave.analytics.tools.SimpleFeatureProjection;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.JobContextConfigurationWrapper;
 import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner.PartitionData;
@@ -76,8 +74,9 @@ public class DBScanMapReduce
 		@Override
 		protected void processNeighbors(
 				final PartitionData partitionData,
-				final NeighborData<VALUEIN> primary,
-				final Set<NeighborData<VALUEIN>> neighbors,
+				final ByteArrayId primaryId,
+				final VALUEIN primary,
+				final List<Map.Entry<ByteArrayId, VALUEIN>> neighbors,
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context,
 				final Map<ByteArrayId, Cluster<VALUEIN>> summary )
 				throws IOException,
@@ -90,6 +89,7 @@ public class DBScanMapReduce
 					summary,
 					new Cluster<VALUEIN>(
 							memberSizeFn,
+							primaryId,
 							primary,
 							neighbors));
 
@@ -139,8 +139,8 @@ public class DBScanMapReduce
 					final SimpleFeature newPolygonFeature = AnalyticFeature.createGeometryFeature(
 							outputAdapter.getType(),
 							batchID,
-							cluster.center.getId().getString(),
-							cluster.center.getId().getString(), // name
+							cluster.id.getString(),
+							cluster.id.getString(), // name
 							partitionData.getGroupId() != null ? partitionData.getGroupId().toString() : entry.getKey().getString(), // group
 							0.0,
 							hullBuilder.getProjection(cluster),
@@ -226,15 +226,15 @@ public class DBScanMapReduce
 				public long getCount(
 						Cluster<VALUEIN> cluster ) {
 					long count = cluster.members.size();
-					if (cluster.center.getElement() instanceof SimpleFeature) {
-						final SimpleFeature sf = (SimpleFeature) cluster.center.getElement();
+					if (cluster.center instanceof SimpleFeature) {
+						final SimpleFeature sf = (SimpleFeature) cluster.center;
 						// this occurs in the case of multiple iterations of DB
 						// SCAN
 						if (sf.getFeatureType().getName().getLocalPart().equals(
 								outputAdapter.getType().getName().getLocalPart())) {
 							count = (Long) sf.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName());
-							for (final NeighborData<VALUEIN> members : cluster.members) {
-								final SimpleFeature sfm = (SimpleFeature) members.getElement();
+							for (final Map.Entry<ByteArrayId, VALUEIN> member : cluster.members) {
+								final SimpleFeature sfm = (SimpleFeature) member.getValue();
 								count += (Long) sfm.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName());
 							}
 						}
@@ -311,15 +311,15 @@ public class DBScanMapReduce
 		@Override
 		public Geometry getProjection(
 				final Cluster<VALUEIN> cluster ) {
-			if (cluster.members.isEmpty()) return projectionFunction.getProjection(cluster.center.getElement());
+			if (cluster.members.isEmpty()) return projectionFunction.getProjection(cluster.center);
 			final List<Coordinate> batchCoords = new ArrayList<Coordinate>();
 			for (final Coordinate coordinate : projectionFunction.getProjection(
-					cluster.center.getElement()).getCoordinates()) {
+					cluster.center).getCoordinates()) {
 				batchCoords.add(coordinate);
 			}
-			for (final NeighborData<VALUEIN> member : cluster.members) {
+			for (final Map.Entry<ByteArrayId, VALUEIN> member : cluster.members) {
 				for (final Coordinate coordinate : projectionFunction.getProjection(
-						member.getElement()).getCoordinates()) {
+						member.getValue()).getCoordinates()) {
 					batchCoords.add(coordinate);
 				}
 			}
@@ -358,11 +358,11 @@ public class DBScanMapReduce
 		@Override
 		public Geometry getProjection(
 				final Cluster<SimpleFeature> cluster ) {
-			if (cluster.members.isEmpty()) return projectionFunction.getProjection(cluster.center.getElement());
-			Geometry hull = (Geometry) cluster.center.getElement().getDefaultGeometry();
+			if (cluster.members.isEmpty()) return projectionFunction.getProjection(cluster.center);
+			Geometry hull = (Geometry) cluster.center.getDefaultGeometry();
 
-			for (final NeighborData<SimpleFeature> member : cluster.members) {
-				Geometry hulltoUnion = (Geometry) member.getElement().getDefaultGeometry();
+			for (final Map.Entry<ByteArrayId, SimpleFeature> member : cluster.members) {
+				Geometry hulltoUnion = (Geometry) member.getValue().getDefaultGeometry();
 				try {
 					hull = hull.union(hulltoUnion);
 				}
@@ -381,29 +381,33 @@ public class DBScanMapReduce
 
 	public static class Cluster<VALUE>
 	{
-		final protected NeighborData<VALUE> center;
-		final protected Set<NeighborData<VALUE>> members;
+		final protected VALUE center;
+		final protected List<Map.Entry<ByteArrayId, VALUE>> members;
 		protected long size = 0;
 		protected double density = 0;
 		final private ClusterMemberSize<VALUE> memberSizeFn;
+		final private ByteArrayId id;
 
 		public Cluster(
 				final ClusterMemberSize<VALUE> memberSizeFn,
-				final NeighborData<VALUE> center,
-				final Set<NeighborData<VALUE>> members ) {
+				final ByteArrayId centerId,
+				final VALUE center,
+				final List<Map.Entry<ByteArrayId, VALUE>> members ) {
 			super();
+			this.id = centerId;
 			this.center = center;
 			this.memberSizeFn = memberSizeFn;
-			this.members = new HashSet<NeighborData<VALUE>>(
-					members);
+			this.members = members;
 			this.size = memberSizeFn.getCount(this);
 			density = size;
 		}
 
 		public Cluster(
-				final NeighborData<VALUE> center,
-				final Set<NeighborData<VALUE>> members ) {
+				final ByteArrayId centerId,
+				final VALUE center,
+				final List<Map.Entry<ByteArrayId, VALUE>> members ) {
 			super();
+			this.id = centerId;
 			this.center = center;
 			this.memberSizeFn = new ClusterMemberSize<VALUE>() {
 
@@ -413,28 +417,26 @@ public class DBScanMapReduce
 					return cluster.members.size();
 				}
 			};
-			this.members = new HashSet<NeighborData<VALUE>>(
-					members);
+			this.members = members;
 			this.size = memberSizeFn.getCount(this);
 			density = size;
 		}
 
 		public static <VALUE> void mergeClusters(
-
 				final Map<ByteArrayId, Cluster<VALUE>> index,
 				final Cluster<VALUE> newCluster ) {
-			if (index.containsKey(newCluster.center.getId())) {
+			if (index.containsKey(newCluster.id)) {
 				index.get(
-						newCluster.center.getId()).merge(
+						newCluster.id).merge(
 						newCluster,
 						index);
 
 				return;
 			}
 
-			for (final NeighborData<VALUE> member : newCluster.members) {
-				if (index.containsKey(member.getId())) {
-					Cluster<VALUE> cluster = index.get(member.getId());
+			for (final Map.Entry<ByteArrayId, VALUE> member : newCluster.members) {
+				if (index.containsKey(member.getKey())) {
+					Cluster<VALUE> cluster = index.get(member.getKey());
 					cluster.merge(
 							newCluster,
 							index);
@@ -443,16 +445,16 @@ public class DBScanMapReduce
 			}
 
 			index.put(
-					newCluster.center.getId(),
+					newCluster.id,
 					newCluster);
 
-			for (final NeighborData<VALUE> neighbor : newCluster.members) {
+			for (final Map.Entry<ByteArrayId, VALUE> neighbor : newCluster.members) {
 				index.put(
-						neighbor.getId(),
+						neighbor.getKey(),
 						newCluster);
 			}
 			index.put(
-					newCluster.center.getId(),
+					newCluster.id,
 					newCluster);
 		}
 
@@ -469,13 +471,15 @@ public class DBScanMapReduce
 					this.density);
 
 			index.put(
-					clusterToMerge.center.getId(),
+					clusterToMerge.id,
 					this);
-			members.add(clusterToMerge.center);
-			for (final NeighborData<VALUE> neighbor : clusterToMerge.members) {
+			members.add(new AbstractMap.SimpleEntry<ByteArrayId, VALUE>(
+					clusterToMerge.id,
+					clusterToMerge.center));
+			for (final Map.Entry<ByteArrayId, VALUE> neighbor : clusterToMerge.members) {
 				members.add(neighbor);
 				index.put(
-						neighbor.getId(),
+						neighbor.getKey(),
 						this);
 			}
 			// update the merged count
@@ -490,7 +494,7 @@ public class DBScanMapReduce
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((center.getId() == null) ? 0 : center.getId().hashCode());
+			result = prime * result + ((id == null) ? 0 : id.hashCode());
 			return result;
 		}
 
@@ -501,11 +505,10 @@ public class DBScanMapReduce
 			if (obj == null) return false;
 			if (getClass() != obj.getClass()) return false;
 			Cluster other = (Cluster) obj;
-			if (center == null) {
-				if (other.center != null) return false;
+			if (id == null) {
+				if (other.id != null) return false;
 			}
-			else if (!center.getId().equals(
-					other.center.getId())) return false;
+			else if (!id.equals(other.id)) return false;
 			return true;
 		}
 	}
