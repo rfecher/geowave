@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import mil.nga.giat.geowave.accumulo.mapreduce.HadoopWritableSerializationTool;
 import mil.nga.giat.geowave.accumulo.mapreduce.JobContextAdapterStore;
@@ -228,7 +226,7 @@ public class NNMapReduce
 			LOGGER.info("Processing " + key.toString() + " with primary = " + primaries.size() + " and other = " + others.size());
 			
 			for (final Map.Entry<ByteArrayId,VALUEIN> primary : primaries.entrySet()) {
-				final List<Map.Entry<ByteArrayId,VALUEIN>> neighbors = new ArrayList<Map.Entry<ByteArrayId,VALUEIN>>();
+				final List<Map.Entry<ByteArrayId,VALUEIN>> neighbors = createNeighborsList();
 				for (final Map.Entry<ByteArrayId,VALUEIN> anotherPrimary : primaries.entrySet()) {
 					if (anotherPrimary.getKey().equals(primary.getKey())) {
 						continue;
@@ -272,6 +270,10 @@ public class NNMapReduce
 					key.partitionData,
 					summary,
 					context);
+		}
+		
+		public List<Map.Entry<ByteArrayId,VALUEIN>> createNeighborsList() {
+			return  new ArrayList<Map.Entry<ByteArrayId,VALUEIN>>();
 		}
 
 		/**
@@ -347,6 +349,8 @@ public class NNMapReduce
 					PartitionParameters.Partition.MAX_MEMBER_SELECTION,
 					NNMapReduce.class,
 					Integer.MAX_VALUE);
+			
+			LOGGER.info("Maximum Neighbors = {}" , maxNeighbors);
 		}
 	}
 

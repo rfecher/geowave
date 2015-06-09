@@ -487,7 +487,8 @@ public class DBScanMapReduceTest
 				new ByteArrayId(
 						geo1.getID()),
 				geo1,
-				new ArrayList<Map.Entry<ByteArrayId, SimpleFeature>>());
+				new ClippedList<SimpleFeature>(
+						100000000));
 		sfCluster.members.add(new AbstractMap.SimpleEntry<ByteArrayId, SimpleFeature>(
 				new ByteArrayId(
 						geo2.getID()),
@@ -495,8 +496,7 @@ public class DBScanMapReduceTest
 		sfCluster.members.add(new AbstractMap.SimpleEntry<ByteArrayId, SimpleFeature>(
 				new ByteArrayId(
 						geo3.getID()),
-						geo3));
-
+				geo3));
 
 		final Geometry results = builder.getProjection(sfCluster);
 

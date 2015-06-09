@@ -67,6 +67,14 @@ public class DBScanMapReduce
 		};
 
 		@Override
+		public List<Map.Entry<ByteArrayId, VALUEIN>> createNeighborsList() {
+			// one less neighbor so that the NN component does not clip on our
+			// behalf
+			return new ClippedList<VALUEIN>(
+					super.maxNeighbors - 1);
+		}
+
+		@Override
 		protected Map<ByteArrayId, Cluster<VALUEIN>> createSummary() {
 			return new HashMap<ByteArrayId, Cluster<VALUEIN>>();
 		}
@@ -91,7 +99,7 @@ public class DBScanMapReduce
 							memberSizeFn,
 							primaryId,
 							primary,
-							neighbors));
+							(ClippedList<VALUEIN>) neighbors));
 
 		}
 
@@ -109,6 +117,10 @@ public class DBScanMapReduce
 					ClusteringParameters.Clustering.MINIMUM_SIZE,
 					NNMapReduce.class,
 					2);
+
+			LOGGER.info(
+					"Minumum owners = {}",
+					minOwners);
 		}
 	}
 
@@ -325,6 +337,11 @@ public class DBScanMapReduce
 			}
 			final Coordinate[] actualCoords = batchCoords.toArray(new Coordinate[batchCoords.size()]);
 
+			LOGGER.info(
+					"Cluster {} with size {}",
+					cluster.id.toString(),
+					actualCoords.length);
+
 			// generate convex hull for current batch of points
 			final ConvexHull convexHull = new ConvexHull(
 					actualCoords,
@@ -382,7 +399,7 @@ public class DBScanMapReduce
 	public static class Cluster<VALUE>
 	{
 		final protected VALUE center;
-		final protected List<Map.Entry<ByteArrayId, VALUE>> members;
+		final protected ClippedList<VALUE> members;
 		protected long size = 0;
 		protected double density = 0;
 		final private ClusterMemberSize<VALUE> memberSizeFn;
@@ -392,7 +409,7 @@ public class DBScanMapReduce
 				final ClusterMemberSize<VALUE> memberSizeFn,
 				final ByteArrayId centerId,
 				final VALUE center,
-				final List<Map.Entry<ByteArrayId, VALUE>> members ) {
+				final ClippedList<VALUE> members ) {
 			super();
 			this.id = centerId;
 			this.center = center;
@@ -405,7 +422,7 @@ public class DBScanMapReduce
 		public Cluster(
 				final ByteArrayId centerId,
 				final VALUE center,
-				final List<Map.Entry<ByteArrayId, VALUE>> members ) {
+				final ClippedList<VALUE> members ) {
 			super();
 			this.id = centerId;
 			this.center = center;
@@ -414,7 +431,7 @@ public class DBScanMapReduce
 				@Override
 				public long getCount(
 						Cluster<VALUE> cluster ) {
-					return cluster.members.size();
+					return cluster.members.addCount();
 				}
 			};
 			this.members = members;
@@ -425,6 +442,8 @@ public class DBScanMapReduce
 		public static <VALUE> void mergeClusters(
 				final Map<ByteArrayId, Cluster<VALUE>> index,
 				final Cluster<VALUE> newCluster ) {
+
+			// if already clustered
 			if (index.containsKey(newCluster.id)) {
 				index.get(
 						newCluster.id).merge(
@@ -434,6 +453,7 @@ public class DBScanMapReduce
 				return;
 			}
 
+			// if a member is clustered (reachable) from another cluster
 			for (final Map.Entry<ByteArrayId, VALUE> member : newCluster.members) {
 				if (index.containsKey(member.getKey())) {
 					Cluster<VALUE> cluster = index.get(member.getKey());
@@ -476,8 +496,8 @@ public class DBScanMapReduce
 			members.add(new AbstractMap.SimpleEntry<ByteArrayId, VALUE>(
 					clusterToMerge.id,
 					clusterToMerge.center));
+			members.addAll(clusterToMerge.members);
 			for (final Map.Entry<ByteArrayId, VALUE> neighbor : clusterToMerge.members) {
-				members.add(neighbor);
 				index.put(
 						neighbor.getKey(),
 						this);
@@ -518,4 +538,5 @@ public class DBScanMapReduce
 		long getCount(
 				Cluster<VALUE> cluster );
 	}
+
 }

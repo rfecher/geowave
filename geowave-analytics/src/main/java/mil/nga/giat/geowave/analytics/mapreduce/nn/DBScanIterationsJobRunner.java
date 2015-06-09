@@ -61,7 +61,7 @@ public class DBScanIterationsJobRunner implements
 		super();
 		inputFormatConfiguration = new GeoWaveInputFormatConfiguration();
 		jobRunner.setInputFormatConfiguration(inputFormatConfiguration);
-		jobRunner.setOutputFormatConfiguration(new GeoWaveOutputFormatConfiguration());
+		inputLoadRunner.setOutputFormatConfiguration(new GeoWaveOutputFormatConfiguration());
 	}
 
 	public void setInputFormatConfiguration(
