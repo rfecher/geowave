@@ -39,7 +39,7 @@ public class SerializableAdapterStore implements
 	}
 
 	public SerializableAdapterStore(
-			AdapterStore adapterStore ) {
+			final AdapterStore adapterStore ) {
 		super();
 		this.adapterStore = adapterStore;
 	}

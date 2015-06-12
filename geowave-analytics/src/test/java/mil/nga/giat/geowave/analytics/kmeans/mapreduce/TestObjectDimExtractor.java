@@ -11,13 +11,13 @@ public class TestObjectDimExtractor extends
 {
 	@Override
 	public String getGroupID(
-			TestObject anObject ) {
+			final TestObject anObject ) {
 		return anObject.getGroupID();
 	}
 
 	@Override
 	public Geometry getGeometry(
-			TestObject anObject ) {
+			final TestObject anObject ) {
 		return anObject.geo;
 	}
 }

@@ -27,7 +27,7 @@ public class GeometryCalculations
 	final double xMin, yMin, xMax, yMax;
 
 	public GeometryCalculations(
-			CoordinateReferenceSystem crs ) {
+			final CoordinateReferenceSystem crs ) {
 		factory = new GeometryFactory();
 		this.crs = crs;
 		xMin = crs.getCoordinateSystem().getAxis(
@@ -54,9 +54,9 @@ public class GeometryCalculations
 	public List<Geometry> buildSurroundingGeometries(
 			final double[] distances,
 			final Unit<Length> unit,
-			Coordinate coordinate ) {
-		List<Geometry> geos = new LinkedList<Geometry>();
-		GeodeticCalculator geoCalc = new GeodeticCalculator();
+			final Coordinate coordinate ) {
+		final List<Geometry> geos = new LinkedList<Geometry>();
+		final GeodeticCalculator geoCalc = new GeodeticCalculator();
 
 		try {
 			geoCalc.setStartingGeographicPoint(
@@ -68,13 +68,13 @@ public class GeometryCalculations
 					unit.getConverterTo(
 							SI.METER).convert(
 							distances[1]));
-			DirectPosition north = geoCalc.getDestinationPosition();
+			final DirectPosition north = geoCalc.getDestinationPosition();
 			geoCalc.setDirection(
 					90,
 					unit.getConverterTo(
 							SI.METER).convert(
 							distances[0]));
-			DirectPosition east = geoCalc.getDestinationPosition();
+			final DirectPosition east = geoCalc.getDestinationPosition();
 			geoCalc.setStartingGeographicPoint(
 					coordinate.x,
 					coordinate.y);
@@ -83,18 +83,18 @@ public class GeometryCalculations
 					unit.getConverterTo(
 							SI.METER).convert(
 							distances[0]));
-			DirectPosition west = geoCalc.getDestinationPosition();
+			final DirectPosition west = geoCalc.getDestinationPosition();
 			geoCalc.setDirection(
 					180,
 					unit.getConverterTo(
 							SI.METER).convert(
 							distances[1]));
-			DirectPosition south = geoCalc.getDestinationPosition();
+			final DirectPosition south = geoCalc.getDestinationPosition();
 
-			double x1 = west.getOrdinate(0);
-			double x2 = east.getOrdinate(0);
-			double y1 = north.getOrdinate(1);
-			double y2 = south.getOrdinate(1);
+			final double x1 = west.getOrdinate(0);
+			final double x2 = east.getOrdinate(0);
+			final double y1 = north.getOrdinate(1);
+			final double y2 = south.getOrdinate(1);
 
 			handleBoundaries(
 					geos,
@@ -104,7 +104,7 @@ public class GeometryCalculations
 					y1,
 					y2);
 		}
-		catch (Exception ex) {
+		catch (final Exception ex) {
 			LOGGER.error(
 					"Cannot calculate envelope for {} : {}",
 					coordinate.toString(),
@@ -117,12 +117,12 @@ public class GeometryCalculations
 	}
 
 	private void handleBoundaries(
-			List<Geometry> geos,
-			Coordinate coordinate,
-			double x1,
-			double x2,
-			double y1,
-			double y2 ) {
+			final List<Geometry> geos,
+			final Coordinate coordinate,
+			final double x1,
+			final double x2,
+			final double y1,
+			final double y2 ) {
 
 		if (Math.signum(x1) > Math.signum(coordinate.x)) {
 			ReferencedEnvelope bounds = new ReferencedEnvelope(

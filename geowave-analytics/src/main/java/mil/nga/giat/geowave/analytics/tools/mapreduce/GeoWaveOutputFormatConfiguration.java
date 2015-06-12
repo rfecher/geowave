@@ -21,8 +21,8 @@ public class GeoWaveOutputFormatConfiguration implements
 
 	@Override
 	public void setup(
-			PropertyManagement runTimeProperties,
-			Configuration configuration )
+			final PropertyManagement runTimeProperties,
+			final Configuration configuration )
 			throws Exception {
 		GeoWaveOutputFormat.setAccumuloOperationsInfo(
 				configuration,
@@ -56,13 +56,13 @@ public class GeoWaveOutputFormatConfiguration implements
 
 	@Override
 	public void setDataIsWritable(
-			boolean isWritable ) {
+			final boolean isWritable ) {
 		isDataWritable = isWritable;
 	}
 
 	@Override
 	public void fillOptions(
-			Set<Option> options ) {
+			final Set<Option> options ) {
 		GlobalParameters.fillOptions(
 				options,
 				new GlobalParameters.Global[] {

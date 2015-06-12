@@ -34,7 +34,9 @@ public class SimpleFeatureGeometryExtractor extends
 	protected static int getSRID(
 			final SimpleFeature geometryFeature ) {
 		final CoordinateReferenceSystem crs = geometryFeature.getDefaultGeometryProperty().getDescriptor().getCoordinateReferenceSystem();
-		if (crs == null) return 4326;
+		if (crs == null) {
+			return 4326;
+		}
 		final ReferenceIdentifier id = getFirst(crs.getIdentifiers());
 		if (id == null) {
 			return 4326;
@@ -44,7 +46,9 @@ public class SimpleFeatureGeometryExtractor extends
 
 	protected static final <T> ReferenceIdentifier getFirst(
 			final Iterable<ReferenceIdentifier> iterable ) {
-		if (iterable == null) return null;
+		if (iterable == null) {
+			return null;
+		}
 		final Iterator<ReferenceIdentifier> it = iterable.iterator();
 		if (it.hasNext()) {
 			final ReferenceIdentifier id = it.next();
@@ -57,8 +61,8 @@ public class SimpleFeatureGeometryExtractor extends
 
 	@Override
 	public String getGroupID(
-			SimpleFeature anObject ) {
-		Object v = anObject.getAttribute("GroupID");
+			final SimpleFeature anObject ) {
+		final Object v = anObject.getAttribute("GroupID");
 		return v == null ? null : v.toString();
 	}
 

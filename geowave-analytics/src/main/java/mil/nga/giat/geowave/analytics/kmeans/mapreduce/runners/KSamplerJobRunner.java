@@ -14,7 +14,6 @@ import mil.nga.giat.geowave.analytics.sample.functions.RandomSamplingRankFunctio
 import mil.nga.giat.geowave.analytics.sample.functions.SamplingRankFunction;
 import mil.nga.giat.geowave.analytics.tools.PropertyManagement;
 import mil.nga.giat.geowave.analytics.tools.RunnerUtils;
-import mil.nga.giat.geowave.analytics.tools.mapreduce.FormatConfiguration;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.GeoWaveAnalyticJobRunner;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.GeoWaveOutputFormatConfiguration;
 import mil.nga.giat.geowave.analytics.tools.mapreduce.MapReduceJobRunner;

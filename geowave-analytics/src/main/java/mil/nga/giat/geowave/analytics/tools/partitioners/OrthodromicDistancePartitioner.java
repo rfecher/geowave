@@ -99,7 +99,7 @@ public class OrthodromicDistancePartitioner<T> extends
 				getDistancePerDimension());
 		final MultiDimensionalNumericData[] values = new MultiDimensionalNumericData[geometries.size()];
 		int i = 0;
-		for (Geometry geometry : geometries) {
+		for (final Geometry geometry : geometries) {
 			values[i++] = getNumericData(
 					geometry.getEnvelope(),
 					otherDimensionData);
@@ -109,8 +109,8 @@ public class OrthodromicDistancePartitioner<T> extends
 	}
 
 	private MultiDimensionalNumericData getNumericData(
-			Geometry geometry,
-			double[] otherDimensionData ) {
+			final Geometry geometry,
+			final double[] otherDimensionData ) {
 		final DimensionField<?>[] dimensionFields = getIndex().getIndexModel().getDimensions();
 		final NumericData[] numericData = new NumericData[dimensionFields.length];
 		final double[] distancePerDimension = getDistancePerDimension();
@@ -119,7 +119,9 @@ public class OrthodromicDistancePartitioner<T> extends
 		for (int i = 0; i < dimensionFields.length; i++) {
 			final double minValue = (i == this.longDimensionPosition) ? geometry.getEnvelopeInternal().getMinX() : (i == this.latDimensionPosition ? geometry.getEnvelopeInternal().getMinY() : otherDimensionData[otherIndex] - distancePerDimension[i]);
 			final double maxValue = (i == this.longDimensionPosition) ? geometry.getEnvelopeInternal().getMaxX() : (i == this.latDimensionPosition ? geometry.getEnvelopeInternal().getMaxY() : otherDimensionData[otherIndex] + distancePerDimension[i]);
-			if (i != this.longDimensionPosition && i != latDimensionPosition) otherIndex++;
+			if ((i != this.longDimensionPosition) && (i != latDimensionPosition)) {
+				otherIndex++;
+			}
 			numericData[i] = new NumericRange(
 					minValue,
 					maxValue);
@@ -147,7 +149,9 @@ public class OrthodromicDistancePartitioner<T> extends
 			final Class<? extends NumericDimensionDefinition> clazz ) {
 
 		for (int i = 0; i < fields.length; i++) {
-			if (clazz.isInstance(fields[i].getBaseDefinition())) return i;
+			if (clazz.isInstance(fields[i].getBaseDefinition())) {
+				return i;
+			}
 		}
 		return -1;
 	}
@@ -155,8 +159,8 @@ public class OrthodromicDistancePartitioner<T> extends
 	private List<Geometry> getGeometries(
 			final Geometry envelope,
 			final double[] distancePerDimension ) {
-		List<Geometry> finalList = new ArrayList<Geometry>();
-		for (Coordinate coordinate : envelope.getCoordinates()) {
+		final List<Geometry> finalList = new ArrayList<Geometry>();
+		for (final Coordinate coordinate : envelope.getCoordinates()) {
 			finalList.addAll(calculator.buildSurroundingGeometries(
 					new double[] {
 						distancePerDimension[longDimensionPosition],
@@ -188,7 +192,7 @@ public class OrthodromicDistancePartitioner<T> extends
 						"EPSG:4326",
 						true);
 			}
-			catch (FactoryException e) {
+			catch (final FactoryException e) {
 				LOGGER.error(
 						"CRS not providd and default EPSG:4326 cannot be instantiated",
 						e);
@@ -261,7 +265,7 @@ public class OrthodromicDistancePartitioner<T> extends
 					DimensionExtractor.class,
 					SimpleFeatureGeometryExtractor.class);
 		}
-		catch (Exception ex) {
+		catch (final Exception ex) {
 			throw new IOException(
 					"Cannot find class for  " + ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS.toString(),
 					ex);
@@ -281,7 +285,7 @@ public class OrthodromicDistancePartitioner<T> extends
 
 	@Override
 	public void fillOptions(
-			Set<Option> options ) {
+			final Set<Option> options ) {
 		super.fillOptions(options);
 		ClusteringParameters.fillOptions(
 				options,
@@ -298,8 +302,8 @@ public class OrthodromicDistancePartitioner<T> extends
 
 	@Override
 	public void setup(
-			PropertyManagement runTimeProperties,
-			Configuration configuration ) {
+			final PropertyManagement runTimeProperties,
+			final Configuration configuration ) {
 		super.setup(
 				runTimeProperties,
 				configuration);

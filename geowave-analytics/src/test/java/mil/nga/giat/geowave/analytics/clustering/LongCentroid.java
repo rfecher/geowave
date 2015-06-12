@@ -22,6 +22,7 @@ public class LongCentroid implements
 		return result;
 	}
 
+	@Override
 	public int getIterationID() {
 		return 0;
 	}
@@ -135,7 +136,7 @@ public class LongCentroid implements
 
 	@Override
 	public void setZoomLevel(
-			int level ) {
+			final int level ) {
 		// TODO Auto-generated method stub
 
 	}
@@ -148,7 +149,7 @@ public class LongCentroid implements
 
 	@Override
 	public void setBatchID(
-			String batchID ) {
+			final String batchID ) {
 		// TODO Auto-generated method stub
 
 	}
@@ -161,7 +162,7 @@ public class LongCentroid implements
 
 	@Override
 	public void setGroupID(
-			String groupID ) {
+			final String groupID ) {
 		this.groupID = groupID;
 
 	}

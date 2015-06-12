@@ -11,7 +11,7 @@ public abstract class EmptyDimensionExtractor<T> implements
 
 	@Override
 	public double[] getDimensions(
-			T anObject ) {
+			final T anObject ) {
 		return EMPTY_VAL;
 	}
 

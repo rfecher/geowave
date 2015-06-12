@@ -17,16 +17,17 @@ public class SimpleFeatureProjection implements
 
 	@Override
 	public Geometry getProjection(
-			SimpleFeature anItem ) {
+			final SimpleFeature anItem ) {
 		return (Geometry) anItem.getDefaultGeometry();
 	}
 
 	@Override
 	public void initialize(
-			ConfigurationWrapper context )
+			final ConfigurationWrapper context )
 			throws IOException {}
 
+	@Override
 	public void setup(
-			PropertyManagement runTimeProperties,
-			Configuration configuration ) {}
+			final PropertyManagement runTimeProperties,
+			final Configuration configuration ) {}
 }

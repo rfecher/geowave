@@ -16,7 +16,7 @@ public class ToolRunnerMapReduceIntegration implements
 
 	@Override
 	public Job getJob(
-			Tool tool )
+			final Tool tool )
 			throws IOException {
 		return new Job(
 				tool.getConf());
@@ -24,9 +24,9 @@ public class ToolRunnerMapReduceIntegration implements
 
 	@Override
 	public int submit(
-			Configuration configuration,
-			PropertyManagement runTimeProperties,
-			GeoWaveAnalyticJobRunner tool )
+			final Configuration configuration,
+			final PropertyManagement runTimeProperties,
+			final GeoWaveAnalyticJobRunner tool )
 			throws Exception {
 		return ToolRunner.run(
 				configuration,
@@ -36,11 +36,11 @@ public class ToolRunnerMapReduceIntegration implements
 
 	@Override
 	public Counters waitForCompletion(
-			Job job )
+			final Job job )
 			throws ClassNotFoundException,
 			InterruptedException,
 			Exception {
-		boolean status = job.waitForCompletion(true);
+		final boolean status = job.waitForCompletion(true);
 		return status ? job.getCounters() : null;
 
 	}

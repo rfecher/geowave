@@ -328,12 +328,12 @@ public class GeometryHullTool
 		for (final Coordinate candidate : innerPoints) {
 			double min = Double.MAX_VALUE;
 			Edge bestEdge = null;
-			for (Edge edge : edges) {
+			for (final Edge edge : edges) {
 				final double dist = calcDistance(
 						edge.start,
 						edge.end,
 						candidate);
-				if (dist > 0 && dist < min) {
+				if ((dist > 0) && (dist < min)) {
 					min = dist;
 					bestEdge = edge;
 				}
@@ -354,7 +354,7 @@ public class GeometryHullTool
 						candidate.getDistance(),
 						0.0,
 						0.000000001)) {
-					Coordinate selectedCandidate = candidate.getElement();
+					final Coordinate selectedCandidate = candidate.getElement();
 					final double eh = edge.distance;
 					final double startToCandidate = distanceFnForCoordinate.measure(
 							edge.start,
@@ -381,7 +381,7 @@ public class GeometryHullTool
 						newEdge2.connectLast(newEdge1);
 						edge.next.connectLast(newEdge2);
 						lastEdge = newEdge1;
-						for (NeighborData<Coordinate> otherPoint : edge.points) {
+						for (final NeighborData<Coordinate> otherPoint : edge.points) {
 							final double dist1 = calcDistance(
 									newEdge1.start,
 									newEdge1.end,
@@ -390,7 +390,7 @@ public class GeometryHullTool
 									newEdge2.start,
 									newEdge2.end,
 									otherPoint.getElement());
-							if ((dist1 < dist2 || dist2 < 0) && dist1 > 0) {
+							if (((dist1 < dist2) || (dist2 < 0)) && (dist1 > 0)) {
 								otherPoint.setDistance(dist1);
 								newEdge1.points.add(otherPoint);
 							}

@@ -24,10 +24,10 @@ public class MockAccumuloOperationsFactory implements
 							new PasswordToken(
 									new byte[0]));
 				}
-				catch (AccumuloException e) {
+				catch (final AccumuloException e) {
 					e.printStackTrace();
 				}
-				catch (AccumuloSecurityException e) {
+				catch (final AccumuloSecurityException e) {
 					e.printStackTrace();
 				}
 			}
@@ -36,11 +36,11 @@ public class MockAccumuloOperationsFactory implements
 
 	@Override
 	public BasicAccumuloOperations build(
-			String zookeeperUrl,
-			String instanceName,
-			String userName,
-			String password,
-			String tableNamespace )
+			final String zookeeperUrl,
+			final String instanceName,
+			final String userName,
+			final String password,
+			final String tableNamespace )
 			throws AccumuloException,
 			AccumuloSecurityException {
 		return new BasicAccumuloOperations(

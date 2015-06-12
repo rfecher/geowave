@@ -47,6 +47,9 @@ public class DBScanJobRunner extends
 		job.setOutputKeyClass(GeoWaveInputKey.class);
 		job.setOutputValueClass(ObjectWritable.class);
 		job.setSpeculativeExecution(false);
+		job.getConfiguration().set(
+				"mapreduce.map.java.opts",
+				"-Xmx4096m");
 	}
 
 	@Override
@@ -73,7 +76,7 @@ public class DBScanJobRunner extends
 						namespaceURI,
 						ClusteringUtils.CLUSTERING_CRS));
 
-		Projection<?> projectionFunction = runTimeProperties.getClassInstance(
+		final Projection<?> projectionFunction = runTimeProperties.getClassInstance(
 				HullParameters.Hull.PROJECTION_CLASS,
 				Projection.class,
 				SimpleFeatureProjection.class);

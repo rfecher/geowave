@@ -221,7 +221,7 @@ public class KMeansMapReduce
 						centroidID,
 						groupID);
 			}
-			catch (MatchingCentroidNotFoundException e) {
+			catch (final MatchingCentroidNotFoundException e) {
 				LOGGER.error("Unable to get centroid " + centroidID + " for group " + groupID);
 				return;
 			}
@@ -247,7 +247,7 @@ public class KMeansMapReduce
 				KMeansMapReduce.LOGGER.trace(groupID + " contains " + centroidID);
 			}
 
-			AnalyticItemWrapper<Object> nextCentroid = centroidManager.createNextCentroid(
+			final AnalyticItemWrapper<Object> nextCentroid = centroidManager.createNextCentroid(
 					centroid.getWrappedItem(),
 					groupID,
 					new Coordinate(

@@ -102,7 +102,7 @@ public class KMeansDistortionMapReduceTest
 				reduceDriver.getConfiguration(),
 				testObjectAapter);
 
-		PropertyManagement propManagement = new PropertyManagement();
+		final PropertyManagement propManagement = new PropertyManagement();
 		propManagement.store(
 				CommonParameters.Common.ACCUMULO_CONNECT_FACTORY,
 				MockAccumuloOperationsFactory.class);

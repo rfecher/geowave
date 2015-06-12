@@ -42,11 +42,11 @@ public class HeatmapSurface
 	 */
 	private static final int GAUSSIAN_APPROX_ITER = 4;
 
-	private Envelope srcEnv;
+	private final Envelope srcEnv;
 
-	private int xSize;
+	private final int xSize;
 
-	private int ySize;
+	private final int ySize;
 
 	private float[][] grid;
 
@@ -66,10 +66,10 @@ public class HeatmapSurface
 	 *            the height of the output grid
 	 */
 	public HeatmapSurface(
-			int kernelRadius,
-			Envelope srcEnv,
-			int xSize,
-			int ySize ) {
+			final int kernelRadius,
+			final Envelope srcEnv,
+			final int xSize,
+			final int ySize ) {
 		this.srcEnv = srcEnv;
 		this.xSize = xSize;
 		this.ySize = ySize;
@@ -94,41 +94,45 @@ public class HeatmapSurface
 	 *            the data value of the point
 	 */
 	public void addPoint(
-			double x,
-			double y,
-			double value ) {
+			final double x,
+			final double y,
+			final double value ) {
 		/**
 		 * Input points are converted to grid space, and offset by the grid
 		 * expansion offset
 		 */
-		int gi = i(x);
-		int gj = j(y);
+		final int gi = i(x);
+		final int gj = j(y);
 
 		// check if point falls outside grid - skip it if so
-		if (gi < 0 || gi > grid.length || gj < 0 || gj > grid[0].length) return;
+		if ((gi < 0) || (gi > grid.length) || (gj < 0) || (gj > grid[0].length)) {
+			return;
+		}
 
 		grid[gi][gj] = (float) value;
 		// System.out.println("data[" + gi + ", " + gj + "] <- " + value);
 	}
 
 	public void addPoints(
-			double minx,
-			double miny,
-			double maxx,
-			double maxy,
-			double value ) {
+			final double minx,
+			final double miny,
+			final double maxx,
+			final double maxy,
+			final double value ) {
 		/**
 		 * Input points are converted to grid space, and offset by the grid
 		 * expansion offset
 		 */
-		int gmini = i(minx);
-		int gminj = j(miny);
-		int gmaxi = i(maxx);
-		int gmaxj = j(maxy);
+		final int gmini = i(minx);
+		final int gminj = j(miny);
+		final int gmaxi = i(maxx);
+		final int gmaxj = j(maxy);
 		for (int gi = gmini; gi <= gmaxi; gi++) {
 			for (int gj = gminj; gj <= gmaxj; gj++) {
 				// check if point falls outside grid - skip it if so
-				if (gi < 0 || gi > grid.length || gj < 0 || gj > grid[0].length) continue;
+				if ((gi < 0) || (gi > grid.length) || (gj < 0) || (gj > grid[0].length)) {
+					continue;
+				}
 
 				grid[gi][gj] = (float) value;
 			}
@@ -144,12 +148,18 @@ public class HeatmapSurface
 	 * @return the column index
 	 */
 	public int i(
-			double x ) {
-		if (x > srcEnv.getMaxX()) return xSize;
-		if (x < srcEnv.getMinX()) return -1;
-		int i = (int) ((x - srcEnv.getMinX()) / dx + 0.5);
+			final double x ) {
+		if (x > srcEnv.getMaxX()) {
+			return xSize;
+		}
+		if (x < srcEnv.getMinX()) {
+			return -1;
+		}
+		int i = (int) (((x - srcEnv.getMinX()) / dx) + 0.5);
 		// have already check x is in bounds, so ensure returning a valid value
-		if (i >= xSize) i = xSize - 1;
+		if (i >= xSize) {
+			i = xSize - 1;
+		}
 		return i;
 	}
 
@@ -161,12 +171,18 @@ public class HeatmapSurface
 	 * @return the column index
 	 */
 	public int j(
-			double y ) {
-		if (y > srcEnv.getMaxY()) return ySize;
-		if (y < srcEnv.getMinY()) return -1;
-		int j = (int) ((y - srcEnv.getMinY()) / dy + 0.5);
+			final double y ) {
+		if (y > srcEnv.getMaxY()) {
+			return ySize;
+		}
+		if (y < srcEnv.getMinY()) {
+			return -1;
+		}
+		int j = (int) (((y - srcEnv.getMinY()) / dy) + 0.5);
 		// have already check x is in bounds, so ensure returning a valid value
-		if (j >= ySize) j = ySize - 1;
+		if (j >= ySize) {
+			j = ySize - 1;
+		}
 		return j;
 	}
 
@@ -188,12 +204,12 @@ public class HeatmapSurface
 	}
 
 	private float[][] extractGrid(
-			float[][] grid,
-			int xBase,
-			int yBase,
-			int xSize,
-			int ySize ) {
-		float[][] gridExtract = new float[xSize][ySize];
+			final float[][] grid,
+			final int xBase,
+			final int yBase,
+			final int xSize,
+			final int ySize ) {
+		final float[][] gridExtract = new float[xSize][ySize];
 		for (int i = 0; i < xSize; i++) {
 			System.arraycopy(
 					grid[xBase + i],
@@ -206,13 +222,13 @@ public class HeatmapSurface
 	}
 
 	private float[][] computeHeatmap(
-			float[][] grid,
-			int kernelRadius ) {
-		int xSize = grid.length;
-		int ySize = grid[0].length;
+			final float[][] grid,
+			final int kernelRadius ) {
+		final int xSize = grid.length;
+		final int ySize = grid[0].length;
 
-		int baseBoxKernelRadius = kernelRadius / GAUSSIAN_APPROX_ITER;
-		int radiusIncBreak = kernelRadius - baseBoxKernelRadius * GAUSSIAN_APPROX_ITER;
+		final int baseBoxKernelRadius = kernelRadius / GAUSSIAN_APPROX_ITER;
+		final int radiusIncBreak = kernelRadius - (baseBoxKernelRadius * GAUSSIAN_APPROX_ITER);
 
 		/**
 		 * Since Box Blur is linearly separable, can implement it by doing 2 1-D
@@ -221,15 +237,17 @@ public class HeatmapSurface
 		 * grid values.
 		 */
 		// holds flipped copy of first box blur pass
-		float[][] grid2 = new float[ySize][xSize];
+		final float[][] grid2 = new float[ySize][xSize];
 		for (int count = 0; count < GAUSSIAN_APPROX_ITER; count++) {
 			int boxKernelRadius = baseBoxKernelRadius;
 			/**
 			 * If required, increment radius to ensure sum of radii equals total
 			 * kernel radius
 			 */
-			if (count < radiusIncBreak) boxKernelRadius++;
-			// System.out.println(boxKernelRadius);
+			if (count < radiusIncBreak) {
+				boxKernelRadius++;
+				// System.out.println(boxKernelRadius);
+			}
 
 			boxBlur(
 					boxKernelRadius,
@@ -255,8 +273,8 @@ public class HeatmapSurface
 	 * @param radiusIncBreak
 	 */
 	private void testNormalizeFactor(
-			int baseBoxKernelRadius,
-			int radiusIncBreak ) {
+			final int baseBoxKernelRadius,
+			final int radiusIncBreak ) {
 		double val = 1.0;
 		for (int count = 0; count < GAUSSIAN_APPROX_ITER; count++) {
 			int boxKernelRadius = baseBoxKernelRadius;
@@ -264,10 +282,12 @@ public class HeatmapSurface
 			 * If required, increment radius to ensure sum of radii equals total
 			 * kernel radius
 			 */
-			if (count < radiusIncBreak) boxKernelRadius++;
+			if (count < radiusIncBreak) {
+				boxKernelRadius++;
+			}
 
-			int dia = 2 * boxKernelRadius + 1;
-			float kernelVal = kernelVal(boxKernelRadius);
+			final int dia = (2 * boxKernelRadius) + 1;
+			final float kernelVal = kernelVal(boxKernelRadius);
 			System.out.println(boxKernelRadius + " kernel val = " + kernelVal);
 
 			if (count == 0) {
@@ -293,15 +313,17 @@ public class HeatmapSurface
 	 * @param grid
 	 */
 	private void normalize(
-			float[][] grid ) {
+			final float[][] grid ) {
 		float max = Float.NEGATIVE_INFINITY;
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[0].length; j++) {
-				if (grid[i][j] > max) max = grid[i][j];
+				if (grid[i][j] > max) {
+					max = grid[i][j];
+				}
 			}
 		}
 
-		float normFactor = 1.0f / max;
+		final float normFactor = 1.0f / max;
 
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[0].length; j++) {
@@ -311,22 +333,22 @@ public class HeatmapSurface
 	}
 
 	private float kernelVal(
-			int kernelRadius ) {
+			final int kernelRadius ) {
 		// This kernel function has been confirmed to integrate to 1 over the
 		// full radius
-		float val = (float) (1.0f / (2 * kernelRadius + 1));
+		final float val = 1.0f / ((2 * kernelRadius) + 1);
 		return val;
 	}
 
 	private void boxBlur(
-			int kernelRadius,
-			float[][] input,
-			float[][] output ) {
-		int width = input.length;
-		int height = input[0].length;
+			final int kernelRadius,
+			final float[][] input,
+			final float[][] output ) {
+		final int width = input.length;
+		final int height = input[0].length;
 
 		// init moving average total
-		float kernelVal = kernelVal(kernelRadius);
+		final float kernelVal = kernelVal(kernelRadius);
 		// System.out.println("boxblur: radius = " + kernelRadius +
 		// " kernel val = " + kernelVal);
 
@@ -335,7 +357,9 @@ public class HeatmapSurface
 			double tot = 0.0;
 
 			for (int i = -kernelRadius; i <= kernelRadius; i++) {
-				if (i < 0 || i >= width) continue;
+				if ((i < 0) || (i >= width)) {
+					continue;
+				}
 				tot += kernelVal * input[i][j];
 			}
 
@@ -346,11 +370,15 @@ public class HeatmapSurface
 			for (int i = 1; i < width; i++) {
 
 				// update box running total
-				int iprev = i - 1 - kernelRadius;
-				if (iprev >= 0) tot -= kernelVal * input[iprev][j];
+				final int iprev = i - 1 - kernelRadius;
+				if (iprev >= 0) {
+					tot -= kernelVal * input[iprev][j];
+				}
 
-				int inext = i + kernelRadius;
-				if (inext < width) tot += kernelVal * input[inext][j];
+				final int inext = i + kernelRadius;
+				if (inext < width) {
+					tot += kernelVal * input[inext][j];
+				}
 
 				output[j][i] = (float) tot;
 				// if (i==49 && j==147) System.out.println("val[ " + i + ", " +

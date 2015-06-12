@@ -242,20 +242,23 @@ public class CentroidManagerTest
 
 			@Override
 			public int processGroup(
-					String groupID,
-					List<AnalyticItemWrapper<SimpleFeature>> centroids ) {
-				if (groupID.equals(grp1))
+					final String groupID,
+					final List<AnalyticItemWrapper<SimpleFeature>> centroids ) {
+				if (groupID.equals(grp1)) {
 					assertEquals(
 							2,
 							centroids.size());
-				else if (groupID.equals(grp2))
+				}
+				else if (groupID.equals(grp2)) {
 					assertEquals(
 							1,
 							centroids.size());
-				else
+				}
+				else {
 					assertTrue(
 							"what group is this : " + groupID,
 							false);
+				}
 				return 0;
 			}
 
@@ -280,26 +283,26 @@ public class CentroidManagerTest
 	}
 
 	private int checkShapeFile(
-			String location )
+			final String location )
 			throws Exception {
-		File file = new File(
+		final File file = new File(
 				location + ".shp");
-		Map<String, Serializable> map = new HashMap<>();
+		final Map<String, Serializable> map = new HashMap<>();
 		map.put(
 				"url",
 				file.toURI().toURL());
 
-		DataStore dataStore = DataStoreFinder.getDataStore(map);
-		String typeName = dataStore.getTypeNames()[0];
+		final DataStore dataStore = DataStoreFinder.getDataStore(map);
+		final String typeName = dataStore.getTypeNames()[0];
 
-		FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore.getFeatureSource(typeName);
+		final FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore.getFeatureSource(typeName);
 
-		FeatureCollection<?, SimpleFeature> collection = source.getFeatures();
+		final FeatureCollection<?, SimpleFeature> collection = source.getFeatures();
 
 		int count = 0;
 		try (FeatureIterator<SimpleFeature> results = collection.features()) {
 			while (results.hasNext()) {
-				SimpleFeature feature = (SimpleFeature) results.next();
+				final SimpleFeature feature = results.next();
 				count += (feature.getDefaultGeometry() != null ? 1 : 0);
 			}
 		}

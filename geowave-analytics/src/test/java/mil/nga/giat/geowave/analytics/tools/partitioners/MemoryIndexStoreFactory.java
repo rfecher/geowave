@@ -15,7 +15,7 @@ public class MemoryIndexStoreFactory implements
 
 	@Override
 	public IndexStore getIndexStore(
-			ConfigurationWrapper context )
+			final ConfigurationWrapper context )
 			throws InstantiationException {
 		return IndexStoreInstance;
 	}

@@ -77,10 +77,10 @@ public class AnalyticsMain
 			return (AnalyticRunner) Class.forName(
 					argValue).newInstance();
 		}
-		catch (InstantiationException e) {
+		catch (final InstantiationException e) {
 			System.err.println("Cannot not instantiate " + argValue);
 		}
-		catch (IllegalAccessException e) {
+		catch (final IllegalAccessException e) {
 			System.err.println("Cannot not access " + argValue);
 		}
 		catch (ClassNotFoundException | ClassCastException e) {

@@ -23,12 +23,12 @@ public class TimeDimensionExtractor extends
 
 	@Override
 	public double[] getDimensions(
-			SimpleFeature anObject ) {
-		double[] timeVal = new double[1];
+			final SimpleFeature anObject ) {
+		final double[] timeVal = new double[1];
 		double count = 0.0;
-		for (AttributeDescriptor attr : anObject.getFeatureType().getAttributeDescriptors()) {
+		for (final AttributeDescriptor attr : anObject.getFeatureType().getAttributeDescriptors()) {
 			if (TimeUtils.isTemporal(attr.getType().getClass())) {
-				Object o = anObject.getAttribute(attr.getName());
+				final Object o = anObject.getAttribute(attr.getName());
 				count += 1.0;
 				if (o instanceof Date) {
 					timeVal[0] += ((Date) o).getTime();

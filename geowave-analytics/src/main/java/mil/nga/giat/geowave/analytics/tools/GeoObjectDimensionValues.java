@@ -39,7 +39,7 @@ public class GeoObjectDimensionValues implements
 		this.z = z;
 		values = extraDimensions;
 		this.distance = distance;
-		this.count = 1;
+		count = 1;
 	}
 
 	public void add(
@@ -130,7 +130,7 @@ public class GeoObjectDimensionValues implements
 
 	@Override
 	public void fromBinary(
-			byte[] bytes ) {
+			final byte[] bytes ) {
 		final ByteBuffer b = ByteBuffer.wrap(bytes);
 		count = b.getLong();
 		x = b.getDouble();

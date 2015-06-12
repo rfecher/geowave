@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import mil.nga.giat.geowave.accumulo.mapreduce.HadoopWritableSerializationTool;
 import mil.nga.giat.geowave.accumulo.mapreduce.JobContextAdapterStore;
@@ -15,6 +16,7 @@ import mil.nga.giat.geowave.accumulo.mapreduce.input.GeoWaveInputFormat;
 import mil.nga.giat.geowave.accumulo.mapreduce.input.GeoWaveInputKey;
 import mil.nga.giat.geowave.analytics.distance.DistanceFn;
 import mil.nga.giat.geowave.analytics.distance.FeatureDistanceFn;
+import mil.nga.giat.geowave.analytics.mapreduce.nn.NeighorIndex.ListFactory;
 import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
@@ -219,52 +221,67 @@ public class NNMapReduce
 					primaries.put(inputValue.getDataId(),unwrappedValue);
 				}
 				else {
-					if (!primaries.containsKey(inputValue.getDataId()))
-					   others.put(inputValue.getDataId(),unwrappedValue);
+					if (!primaries.containsKey(inputValue.getDataId())) {
+						others.put(inputValue.getDataId(),unwrappedValue);
+					}
 				}
 			}
 
 			LOGGER.info("Processing " + key.toString() + " with primary = " + primaries.size() + " and other = " + others.size());
 			
-			for (final Map.Entry<ByteArrayId,VALUEIN> primary : primaries.entrySet()) {
-				final List<Map.Entry<ByteArrayId,VALUEIN>> neighbors = createNeighborsList();
+			final NeighorIndex<VALUEIN> index = new NeighorIndex<VALUEIN>(new ListFactory<VALUEIN>() {
+				@Override
+				public List<Entry<ByteArrayId, VALUEIN>> buildNeighborList() {
+					return createNeighborsList();
+				}				
+			});
+
+			
+			
+			for (final Map.Entry<ByteArrayId,VALUEIN> primary : primaries.entrySet()) {		
+				int addCount = 0;
 				for (final Map.Entry<ByteArrayId,VALUEIN> anotherPrimary : primaries.entrySet()) {
 					if (anotherPrimary.getKey().equals(primary.getKey())) {
 						continue;
-					}
-					final double distance = distanceFn.measure(
+					}			
+					addCount++;
+					if (!index.contains(primary, anotherPrimary)) {
+					  final double distance = distanceFn.measure(
 							primary.getValue(),
 							anotherPrimary.getValue());
-					if (distance <= maxDistance) {
-						neighbors.add(
-								anotherPrimary);
-						if (neighbors.size() > maxNeighbors) {
-							continue; // need a condense function
-						}
+					   if (distance <= maxDistance) {
+						index.add(primary,
+					 			anotherPrimary,true);
+					   }	
 					}
 				}
 				for (final Map.Entry<ByteArrayId,VALUEIN>  anOther : others.entrySet()) {
 					if (anOther.getKey().equals(primary.getKey())) {
 						continue;
 					}
-					final double distance = distanceFn.measure(
+					addCount++;
+					if (!index.contains(primary, anOther)) {
+					  final double distance = distanceFn.measure(
 							primary.getValue(),
 							anOther.getValue());
-					if (distance <= maxDistance) {
-						neighbors.add(
-								anOther);
-						if (neighbors.size() > maxNeighbors) {
-							continue; // need some condense function
-						}
+					    if (distance <= maxDistance) {
+						index.add(primary,
+								anOther,
+								false);
+					    }
 					}
 				}
+				if (addCount > 0) {
 				processNeighbors(
 							key.partitionData,
 							primary.getKey(),
 							primary.getValue(),
-							neighbors,
+							index.get(primary.getKey()),
 							context,
 							summary);
+				}
+				
+				index.empty(primary.getKey());
 			}
 
 			processSummary(
@@ -300,7 +317,7 @@ public class NNMapReduce
 				PartitionData partitionData,
 				ByteArrayId primaryId,
 				VALUEIN primary,
-				List<Map.Entry<ByteArrayId,VALUEIN>> neighbors,
+				List<Map.Entry<ByteArrayId,VALUEIN>> neighborIndex,
 				Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context,
 				PARTITION_SUMMARY summary )
 				throws IOException,
@@ -375,7 +392,7 @@ public class NNMapReduce
 				final Boolean summary )
 				throws IOException,
 				InterruptedException {
-			if (neighbors.size() == 0) {
+			if ((neighbors == null) || (neighbors.size() == 0)) {
 				return;
 			}
 			primaryText.clear();

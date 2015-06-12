@@ -454,13 +454,13 @@ public class DistortionGroupManagementTest
 				StringUtils.stringFromBinary(index.getId().getBytes()),
 				"b1",
 				1);
-		List<String> groups = centroidManager.getAllCentroidGroups();
+		final List<String> groups = centroidManager.getAllCentroidGroups();
 		assertEquals(
 				2,
 				groups.size());
-		boolean groupFound[] = new boolean[2];
-		for (String grpId : groups) {
-			List<AnalyticItemWrapper<SimpleFeature>> items = centroidManager.getCentroidsForGroup(grpId);
+		final boolean groupFound[] = new boolean[2];
+		for (final String grpId : groups) {
+			final List<AnalyticItemWrapper<SimpleFeature>> items = centroidManager.getCentroidsForGroup(grpId);
 			assertEquals(
 					2,
 					items.size());
@@ -479,7 +479,7 @@ public class DistortionGroupManagementTest
 		}
 		// each unique group is found?
 		int c = 0;
-		for (boolean gf : groupFound) {
+		for (final boolean gf : groupFound) {
 			c += (gf ? 1 : 0);
 		}
 		assertEquals(

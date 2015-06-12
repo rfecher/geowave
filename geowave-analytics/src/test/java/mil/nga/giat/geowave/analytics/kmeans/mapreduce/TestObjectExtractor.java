@@ -9,7 +9,7 @@ public class TestObjectExtractor implements
 {
 	@Override
 	public Point getCentroid(
-			TestObject anObject ) {
+			final TestObject anObject ) {
 		return anObject.geo.getCentroid();
 	}
 }

@@ -39,9 +39,12 @@ public class FeatureCentroidDistanceFn implements
 	}
 
 	private Geometry getGeometry(
-			SimpleFeature x ) {
-		for (Object attr : x.getAttributes())
-			if (attr instanceof Geometry) return (Geometry) attr;
+			final SimpleFeature x ) {
+		for (final Object attr : x.getAttributes()) {
+			if (attr instanceof Geometry) {
+				return (Geometry) attr;
+			}
+		}
 		return (Geometry) x.getDefaultGeometry();
 	}
 

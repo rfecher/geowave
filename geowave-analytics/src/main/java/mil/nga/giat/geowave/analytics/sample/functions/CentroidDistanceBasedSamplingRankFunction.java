@@ -164,7 +164,7 @@ public class CentroidDistanceBasedSamplingRankFunction<T> implements
 						}
 					});
 		}
-		catch (IOException e) {
+		catch (final IOException e) {
 			throw new RuntimeException(
 					e);
 		}

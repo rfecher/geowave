@@ -17,7 +17,6 @@ import mil.nga.giat.geowave.analytics.tools.PropertyManagement;
 import mil.nga.giat.geowave.analytics.tools.RunnerUtils;
 import mil.nga.giat.geowave.analytics.tools.model.IndexModelBuilder;
 import mil.nga.giat.geowave.analytics.tools.model.SpatialIndexModelBuilder;
-import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner.PartitionDataCallback;
 import mil.nga.giat.geowave.index.ByteArrayId;
 import mil.nga.giat.geowave.index.sfc.SFCFactory.SFCType;
 import mil.nga.giat.geowave.index.sfc.data.MultiDimensionalNumericData;
@@ -107,7 +106,7 @@ public abstract class AbstractPartitioner<T> implements
 		if (numericData == null) {
 			return;
 		}
-		for (ByteArrayId addId : getIndex().getIndexStrategy().getInsertionIds(
+		for (final ByteArrayId addId : getIndex().getIndexStrategy().getInsertionIds(
 				numericData.primary)) {
 			callback.partitionWith(new PartitionData(
 					addId,
@@ -115,7 +114,7 @@ public abstract class AbstractPartitioner<T> implements
 		}
 
 		for (final MultiDimensionalNumericData expansionData : numericData.expansion) {
-			for (ByteArrayId addId : getIndex().getIndexStrategy().getInsertionIds(
+			for (final ByteArrayId addId : getIndex().getIndexStrategy().getInsertionIds(
 					expansionData)) {
 				callback.partitionWith(new PartitionData(
 						addId,
@@ -152,10 +151,10 @@ public abstract class AbstractPartitioner<T> implements
 
 	public static void putDistances(
 			final PropertyManagement config,
-			double[] distances ) {
+			final double[] distances ) {
 
 		final StringBuffer buffer = new StringBuffer();
-		for (double distance : distances) {
+		for (final double distance : distances) {
 			buffer.append(distance);
 			buffer.append(',');
 		}
@@ -204,10 +203,12 @@ public abstract class AbstractPartitioner<T> implements
 				this.getClass(),
 				1.0);
 
-		if (precisionFactor < 0 || precisionFactor > 1.0) throw new IllegalArgumentException(
-				String.format(
-						"Precision value must be between 0 and 1: %.6f",
-						precisionFactor));
+		if ((precisionFactor < 0) || (precisionFactor > 1.0)) {
+			throw new IllegalArgumentException(
+					String.format(
+							"Precision value must be between 0 and 1: %.6f",
+							precisionFactor));
+		}
 
 		try {
 			final IndexModelBuilder builder = context.getInstance(
@@ -264,7 +265,7 @@ public abstract class AbstractPartitioner<T> implements
 			final double distance = distancePerDimensionForIndex[i] * 2.0; // total
 			// width...(radius)
 			// adjust by precision factory (0 to 1.0)
-			dimensionPrecision[i] = (int) (precisionFactor * (double) Math.abs((int) (Math.log(dimensions[i].getRange() / distance) / Math.log(2))));
+			dimensionPrecision[i] = (int) (precisionFactor * Math.abs((int) (Math.log(dimensions[i].getRange() / distance) / Math.log(2))));
 
 			totalRequestedPrecision += dimensionPrecision[i];
 		}

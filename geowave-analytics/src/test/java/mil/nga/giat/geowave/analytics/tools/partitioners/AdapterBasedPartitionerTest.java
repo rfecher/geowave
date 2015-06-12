@@ -46,15 +46,15 @@ public class AdapterBasedPartitionerTest
 
 	@Test
 	public void testTools() {
-		PropertyManagement pMt = new PropertyManagement();
+		final PropertyManagement pMt = new PropertyManagement();
 		final double[] distances = new double[] {
 			0.02,
 			0.35
 		};
-		AdapterBasedPartitioner.putDistances(
+		AbstractPartitioner.putDistances(
 				pMt,
 				distances);
-		final double[] copyOfDistances = AdapterBasedPartitioner.getDistances(
+		final double[] copyOfDistances = AbstractPartitioner.getDistances(
 				pMt,
 				getClass());
 		assertTrue(Arrays.equals(
@@ -94,8 +94,8 @@ public class AdapterBasedPartitionerTest
 				1,
 				0);
 
-		PropertyManagement propertyManagement = new PropertyManagement();
-		AdapterBasedPartitioner partitioner = new AdapterBasedPartitioner();
+		final PropertyManagement propertyManagement = new PropertyManagement();
+		final AdapterBasedPartitioner partitioner = new AdapterBasedPartitioner();
 
 		propertyManagement.store(
 				ClusteringParameters.Clustering.DISTANCE_THRESHOLDS,
@@ -123,7 +123,7 @@ public class AdapterBasedPartitionerTest
 				partitions.size());
 		assertTrue(hasOnePrimary(partitions));
 
-		for (PartitionData partition : partitions) {
+		for (final PartitionData partition : partitions) {
 			final MultiDimensionalNumericData ranges = partitioner.getRangesForPartition(partition);
 			assertTrue(ranges.getDataPerDimension()[0].getMin() < 0.0000000001);
 			assertTrue(ranges.getDataPerDimension()[0].getMax() > -0.0000000001);
@@ -221,7 +221,7 @@ public class AdapterBasedPartitionerTest
 		double minX = 0;
 		double maxY = 0;
 		double minY = 0;
-		for (PartitionData partition : partitions) {
+		for (final PartitionData partition : partitions) {
 			final MultiDimensionalNumericData ranges = partitioner.getRangesForPartition(partition);
 			// System.out.println(ranges.getDataPerDimension()[0] + "; "
 			// +ranges.getDataPerDimension()[1] + " = " + partition.isPrimary);
@@ -246,9 +246,9 @@ public class AdapterBasedPartitionerTest
 	}
 
 	private boolean hasOnePrimary(
-			List<PartitionData> data ) {
+			final List<PartitionData> data ) {
 		int count = 0;
-		for (PartitionData dataitem : data) {
+		for (final PartitionData dataitem : data) {
 			count += (dataitem.isPrimary() ? 1 : 0);
 		}
 		return count == 1;

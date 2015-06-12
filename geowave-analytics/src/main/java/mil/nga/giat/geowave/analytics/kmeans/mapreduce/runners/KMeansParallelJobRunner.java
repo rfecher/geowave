@@ -145,7 +145,7 @@ public class KMeansParallelJobRunner extends
 
 	@Override
 	public void fillOptions(
-			Set<Option> options ) {
+			final Set<Option> options ) {
 		kmeansJobRunner.fillOptions(options);
 		sampleSetsRunner.fillOptions(options);
 		// while override

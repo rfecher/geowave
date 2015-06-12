@@ -9,9 +9,9 @@ import java.util.List;
 
 import mil.nga.giat.geowave.analytics.clustering.CentroidPairing;
 import mil.nga.giat.geowave.analytics.distance.FeatureCentroidDistanceFn;
+import mil.nga.giat.geowave.analytics.kmeans.serial.AnalyticStats.StatValue;
 import mil.nga.giat.geowave.analytics.kmeans.serial.KMeansParallelInitialize;
 import mil.nga.giat.geowave.analytics.kmeans.serial.StatsMap;
-import mil.nga.giat.geowave.analytics.kmeans.serial.AnalyticStats.StatValue;
 import mil.nga.giat.geowave.analytics.sample.BahmanEtAlSampleProbabilityFn;
 import mil.nga.giat.geowave.analytics.sample.Sampler;
 import mil.nga.giat.geowave.analytics.tools.AnalyticItemWrapper;
@@ -95,12 +95,13 @@ public class KMeansParallelInitializeTest
 					}
 				});
 		final List<AnalyticItemWrapper<SimpleFeature>> itemSet = new ArrayList<AnalyticItemWrapper<SimpleFeature>>();
-		for (SimpleFeature feature : pointSet)
+		for (final SimpleFeature feature : pointSet) {
 			itemSet.add(itemFactory.create(feature));
+		}
 		final Pair<List<CentroidPairing<SimpleFeature>>, List<AnalyticItemWrapper<SimpleFeature>>> result = initializer.runLocal(itemSet);
 		assertTrue(result.getRight().size() >= 5);
 		assertTrue(isMonotonic((StatsMap) initializer.getStats()));
-		for (AnalyticItemWrapper<SimpleFeature> centroid : result.getRight()) {
+		for (final AnalyticItemWrapper<SimpleFeature> centroid : result.getRight()) {
 			System.out.println(centroid.getWrappedItem().toString() + " = " + centroid.getAssociationCount());
 		}
 	}

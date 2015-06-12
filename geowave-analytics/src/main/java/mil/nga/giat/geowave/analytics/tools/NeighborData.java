@@ -1,8 +1,8 @@
 package mil.nga.giat.geowave.analytics.tools;
 
-import org.apache.commons.codec.binary.Hex;
-
 import mil.nga.giat.geowave.index.ByteArrayId;
+
+import org.apache.commons.codec.binary.Hex;
 
 public class NeighborData<T> implements
 		Comparable<NeighborData<T>>
@@ -14,9 +14,9 @@ public class NeighborData<T> implements
 	public NeighborData() {}
 
 	public NeighborData(
-			T element,
-			ByteArrayId id,
-			double distance ) {
+			final T element,
+			final ByteArrayId id,
+			final double distance ) {
 		super();
 		this.element = element;
 		this.id = id;
@@ -37,7 +37,7 @@ public class NeighborData<T> implements
 	}
 
 	protected void setId(
-			ByteArrayId id ) {
+			final ByteArrayId id ) {
 		this.id = id;
 	}
 
@@ -66,22 +66,32 @@ public class NeighborData<T> implements
 
 	@Override
 	public boolean equals(
-			Object obj ) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		@SuppressWarnings("unchecked")
-		NeighborData<T> other = (NeighborData<T>) obj;
-		if (element == null) {
-			if (other.element != null) return false;
+			final Object obj ) {
+		if (this == obj) {
+			return true;
 		}
-		else if (!element.equals(other.element)) return false;
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		@SuppressWarnings("unchecked")
+		final NeighborData<T> other = (NeighborData<T>) obj;
+		if (element == null) {
+			if (other.element != null) {
+				return false;
+			}
+		}
+		else if (!element.equals(other.element)) {
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public int compareTo(
-			NeighborData<T> otherNNData ) {
+			final NeighborData<T> otherNNData ) {
 		final int dist = Double.compare(
 				distance,
 				otherNNData.distance);

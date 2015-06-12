@@ -31,15 +31,15 @@ import com.vividsolutions.jts.geom.Envelope;
 class GridTransform
 {
 
-	private Envelope env;
+	private final Envelope env;
 
-	private int xSize;
+	private final int xSize;
 
-	private int ySize;
+	private final int ySize;
 
-	private double dx;
+	private final double dx;
 
-	private double dy;
+	private final double dy;
 
 	/**
 	 * Creates a new transform.
@@ -52,9 +52,9 @@ class GridTransform
 	 *            the number of cells along the Y axis of the grid
 	 */
 	public GridTransform(
-			Envelope env,
-			int xSize,
-			int ySize ) {
+			final Envelope env,
+			final int xSize,
+			final int ySize ) {
 		this.env = env;
 		this.xSize = xSize;
 		this.ySize = ySize;
@@ -70,9 +70,11 @@ class GridTransform
 	 * @return the X ordinate of the column
 	 */
 	public double x(
-			int i ) {
-		if (i >= xSize - 1) return env.getMaxX();
-		return env.getMinX() + i * dx;
+			final int i ) {
+		if (i >= (xSize - 1)) {
+			return env.getMaxX();
+		}
+		return env.getMinX() + (i * dx);
 	}
 
 	/**
@@ -83,9 +85,11 @@ class GridTransform
 	 * @return the Y ordinate of the row
 	 */
 	public double y(
-			int j ) {
-		if (j >= ySize - 1) return env.getMaxY();
-		return env.getMinY() + j * dy;
+			final int j ) {
+		if (j >= (ySize - 1)) {
+			return env.getMaxY();
+		}
+		return env.getMinY() + (j * dy);
 	}
 
 	/**
@@ -96,12 +100,18 @@ class GridTransform
 	 * @return the column index
 	 */
 	public int i(
-			double x ) {
-		if (x > env.getMaxX()) return xSize;
-		if (x < env.getMinX()) return -1;
+			final double x ) {
+		if (x > env.getMaxX()) {
+			return xSize;
+		}
+		if (x < env.getMinX()) {
+			return -1;
+		}
 		int i = (int) ((x - env.getMinX()) / dx);
 		// have already check x is in bounds, so ensure returning a valid value
-		if (i >= xSize) i = xSize - 1;
+		if (i >= xSize) {
+			i = xSize - 1;
+		}
 		return i;
 	}
 
@@ -113,12 +123,18 @@ class GridTransform
 	 * @return the column index
 	 */
 	public int j(
-			double y ) {
-		if (y > env.getMaxY()) return ySize;
-		if (y < env.getMinY()) return -1;
+			final double y ) {
+		if (y > env.getMaxY()) {
+			return ySize;
+		}
+		if (y < env.getMinY()) {
+			return -1;
+		}
 		int j = (int) ((y - env.getMinY()) / dy);
 		// have already check x is in bounds, so ensure returning a valid value
-		if (j >= ySize) j = ySize - 1;
+		if (j >= ySize) {
+			j = ySize - 1;
+		}
 		return j;
 	}
 

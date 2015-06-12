@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Set;
 
 import mil.nga.giat.geowave.analytics.extract.CentroidExtractor;
-import mil.nga.giat.geowave.analytics.mapreduce.nn.DBScanMapReduce.HullBuilder;
 import mil.nga.giat.geowave.analytics.tools.AnalyticItemWrapperFactory;
 import mil.nga.giat.geowave.analytics.tools.Projection;
 import mil.nga.giat.geowave.analytics.tools.PropertyManagement;

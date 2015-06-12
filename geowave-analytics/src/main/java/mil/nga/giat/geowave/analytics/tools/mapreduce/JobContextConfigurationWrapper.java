@@ -21,7 +21,7 @@ public class JobContextConfigurationWrapper implements
 	public JobContextConfigurationWrapper(
 			final JobContext context ) {
 		super();
-		this.configuration = GeoWaveConfiguratorBase.getConfiguration(context);
+		configuration = GeoWaveConfiguratorBase.getConfiguration(context);
 	}
 
 	public JobContextConfigurationWrapper(
@@ -34,7 +34,7 @@ public class JobContextConfigurationWrapper implements
 			final JobContext context,
 			final Logger logger ) {
 		super();
-		this.configuration = GeoWaveConfiguratorBase.getConfiguration(context);
+		configuration = GeoWaveConfiguratorBase.getConfiguration(context);
 		this.logger = logger;
 	}
 
@@ -46,8 +46,10 @@ public class JobContextConfigurationWrapper implements
 		final String propName = GeoWaveConfiguratorBase.enumToConfKey(
 				scope,
 				property);
-		if (configuration.getRaw(propName) == null) logger.warn("Using default for property " + propName);
-		int v = configuration.getInt(
+		if (configuration.getRaw(propName) == null) {
+			logger.warn("Using default for property " + propName);
+		}
+		final int v = configuration.getInt(
 				propName,
 				defaultValue);
 		return v;
@@ -61,7 +63,9 @@ public class JobContextConfigurationWrapper implements
 		final String propName = GeoWaveConfiguratorBase.enumToConfKey(
 				scope,
 				property);
-		if (configuration.getRaw(propName) == null) logger.warn("Using default for property " + propName);
+		if (configuration.getRaw(propName) == null) {
+			logger.warn("Using default for property " + propName);
+		}
 		return configuration.get(
 				propName,
 				defaultValue);
@@ -80,7 +84,9 @@ public class JobContextConfigurationWrapper implements
 					scope,
 					property);
 			if (configuration.getRaw(propName) == null) {
-				if (defaultValue == null) return null;
+				if (defaultValue == null) {
+					return null;
+				}
 				logger.warn("Using default for property " + propName);
 			}
 			return configuration.getClass(
@@ -100,13 +106,15 @@ public class JobContextConfigurationWrapper implements
 
 	@Override
 	public double getDouble(
-			Enum<?> property,
-			Class<?> scope,
-			double defaultValue ) {
+			final Enum<?> property,
+			final Class<?> scope,
+			final double defaultValue ) {
 		final String propName = GeoWaveConfiguratorBase.enumToConfKey(
 				scope,
 				property);
-		if (configuration.getRaw(propName) == null) logger.warn("Using default for property " + propName);
+		if (configuration.getRaw(propName) == null) {
+			logger.warn("Using default for property " + propName);
+		}
 		return configuration.getDouble(
 				propName,
 				defaultValue);
@@ -114,13 +122,15 @@ public class JobContextConfigurationWrapper implements
 
 	@Override
 	public byte[] getBytes(
-			Enum<?> property,
-			Class<?> scope ) {
+			final Enum<?> property,
+			final Class<?> scope ) {
 		final String propName = GeoWaveConfiguratorBase.enumToConfKey(
 				scope,
 				property);
-		String data = configuration.getRaw(propName);
-		if (data == null) logger.error(propName + " not found ");
+		final String data = configuration.getRaw(propName);
+		if (data == null) {
+			logger.error(propName + " not found ");
+		}
 		return ByteArrayUtils.byteArrayFromString(data);
 	}
 

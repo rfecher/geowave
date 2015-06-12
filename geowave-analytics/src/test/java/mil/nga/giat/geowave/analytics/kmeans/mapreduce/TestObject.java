@@ -28,14 +28,14 @@ public class TestObject implements
 	}
 
 	public TestObject(
-			Geometry geo,
-			String id,
-			String groupID ) {
+			final Geometry geo,
+			final String id,
+			final String groupID ) {
 		super();
 		this.geo = geo;
 		this.id = id;
 		this.groupID = groupID;
-		this.name = id;
+		name = id;
 	}
 
 	public TestObject(
@@ -44,7 +44,7 @@ public class TestObject implements
 		geo = factory.createPoint(coor);
 		geo.setSRID(2029);
 		this.id = id;
-		this.name = id;
+		name = id;
 	}
 
 	public int getLevel() {
@@ -52,7 +52,7 @@ public class TestObject implements
 	}
 
 	public void setLevel(
-			int level ) {
+			final int level ) {
 		this.level = level;
 	}
 
@@ -61,7 +61,7 @@ public class TestObject implements
 	}
 
 	public void setName(
-			String name ) {
+			final String name ) {
 		this.name = name;
 	}
 
@@ -73,26 +73,40 @@ public class TestObject implements
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((geo == null) ? 0 : geo.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = (prime * result) + ((geo == null) ? 0 : geo.hashCode());
+		result = (prime * result) + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(
-			Object obj ) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		TestObject other = (TestObject) obj;
+			final Object obj ) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final TestObject other = (TestObject) obj;
 		if (geo == null) {
-			if (other.geo != null) return false;
+			if (other.geo != null) {
+				return false;
+			}
 		}
-		else if (!geo.equals(other.geo)) return false;
+		else if (!geo.equals(other.geo)) {
+			return false;
+		}
 		if (id == null) {
-			if (other.id != null) return false;
+			if (other.id != null) {
+				return false;
+			}
 		}
-		else if (!id.equals(other.id)) return false;
+		else if (!id.equals(other.id)) {
+			return false;
+		}
 		return true;
 	}
 }

@@ -509,7 +509,7 @@ public class DBScanMapReduceTest
 						results
 					});
 		}
-		catch (IOException e) {
+		catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -526,11 +526,13 @@ public class DBScanMapReduceTest
 	}
 
 	private static boolean coversPoints(
-			Geometry coverer,
-			Geometry pointsToCover ) {
-		for (Coordinate coordinate : pointsToCover.getCoordinates()) {
+			final Geometry coverer,
+			final Geometry pointsToCover ) {
+		for (final Coordinate coordinate : pointsToCover.getCoordinates()) {
 			if (!coverer.covers(coverer.getFactory().createPoint(
-					coordinate))) return false;
+					coordinate))) {
+				return false;
+			}
 		}
 		return true;
 	}

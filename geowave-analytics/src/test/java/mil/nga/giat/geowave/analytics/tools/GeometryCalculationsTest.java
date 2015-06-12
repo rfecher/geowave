@@ -27,11 +27,11 @@ public class GeometryCalculationsTest
 			throws NoSuchAuthorityCodeException,
 			FactoryException,
 			TransformException {
-		CoordinateReferenceSystem crs = CRS.decode(
+		final CoordinateReferenceSystem crs = CRS.decode(
 				"EPSG:4326",
 				true);
 
-		GeometryCalculations calculator = new GeometryCalculations(
+		final GeometryCalculations calculator = new GeometryCalculations(
 				crs);
 		List<Geometry> geos = calculator.buildSurroundingGeometries(
 				new double[] {
@@ -48,7 +48,7 @@ public class GeometryCalculationsTest
 		Geometry geo = geos.get(0);
 		double lastDist = Double.NaN;
 		Coordinate lastCoord = null;
-		for (Coordinate coord : geo.getCoordinates()) {
+		for (final Coordinate coord : geo.getCoordinates()) {
 			if (lastCoord != null) {
 				final double dist = JTS.orthodromicDistance(
 						lastCoord,
@@ -91,7 +91,7 @@ public class GeometryCalculationsTest
 				geos.size());
 		geo = geos.get(0);
 		envelope = geo.getEnvelopeInternal();
-		assertTrue(envelope.getMaxX() < -179 && envelope.getMaxX() > -180);
+		assertTrue((envelope.getMaxX() < -179) && (envelope.getMaxX() > -180));
 		assertEquals(
 				-180.0,
 				envelope.getMinX(),
@@ -99,7 +99,7 @@ public class GeometryCalculationsTest
 
 		geo = geos.get(1);
 		envelope = geo.getEnvelopeInternal();
-		assertTrue(envelope.getMinX() < 180 && envelope.getMinX() > 179);
+		assertTrue((envelope.getMinX() < 180) && (envelope.getMinX() > 179));
 		assertEquals(
 				180.0,
 				envelope.getMaxX(),

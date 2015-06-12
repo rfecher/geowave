@@ -27,17 +27,17 @@ public class SimpleFeatureCentroidExractorTest
 	@Test
 	public void test()
 			throws SchemaException {
-		SimpleFeatureType schema = DataUtilities.createType(
+		final SimpleFeatureType schema = DataUtilities.createType(
 				"testGeo",
 				"location:Point:srid=4326,name:String");
-		List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
-		Object[] defaults = new Object[descriptors.size()];
+		final List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
+		final Object[] defaults = new Object[descriptors.size()];
 		int p = 0;
-		for (AttributeDescriptor descriptor : descriptors) {
+		for (final AttributeDescriptor descriptor : descriptors) {
 			defaults[p++] = descriptor.getDefaultValue();
 		}
 
-		SimpleFeature feature = SimpleFeatureBuilder.build(
+		final SimpleFeature feature = SimpleFeatureBuilder.build(
 				schema,
 				defaults,
 				UUID.randomUUID().toString());
@@ -49,7 +49,7 @@ public class SimpleFeatureCentroidExractorTest
 						-45,
 						45)));
 
-		Point point = extractor.getCentroid(feature);
+		final Point point = extractor.getCentroid(feature);
 		assertEquals(
 				4326,
 				point.getSRID());

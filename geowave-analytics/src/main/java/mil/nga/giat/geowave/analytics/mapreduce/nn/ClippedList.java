@@ -25,19 +25,19 @@ import mil.nga.giat.geowave.index.ByteArrayId;
 public class ClippedList<VALUEIN> implements
 		List<Map.Entry<ByteArrayId, VALUEIN>>
 {
-	private List<Map.Entry<ByteArrayId, VALUEIN>> list = new ArrayList<Map.Entry<ByteArrayId, VALUEIN>>();
+	private final List<Map.Entry<ByteArrayId, VALUEIN>> list = new ArrayList<Map.Entry<ByteArrayId, VALUEIN>>();
 	private int addCount;
-	private int maxSize;
+	private final int maxSize;
 
 	protected ClippedList(
-			int maxSize ) {
+			final int maxSize ) {
 		super();
 		this.maxSize = maxSize;
 	}
 
 	@Override
 	public boolean add(
-			Entry<ByteArrayId, VALUEIN> entry ) {
+			final Entry<ByteArrayId, VALUEIN> entry ) {
 		if (list.size() == maxSize) {
 			list.remove(maxSize - 1);
 		}
@@ -47,8 +47,8 @@ public class ClippedList<VALUEIN> implements
 
 	@Override
 	public void add(
-			int position,
-			Entry<ByteArrayId, VALUEIN> entry ) {
+			final int position,
+			final Entry<ByteArrayId, VALUEIN> entry ) {
 		if (list.size() == maxSize) {
 			list.remove(maxSize - 1);
 		}
@@ -64,15 +64,15 @@ public class ClippedList<VALUEIN> implements
 
 	@Override
 	public boolean addAll(
-			Collection<? extends Entry<ByteArrayId, VALUEIN>> collection ) {
+			final Collection<? extends Entry<ByteArrayId, VALUEIN>> collection ) {
 		int listSize = list.size();
-		int amountToRemove = listSize + collection.size() - maxSize;
+		final int amountToRemove = (listSize + collection.size()) - maxSize;
 		if (amountToRemove > 0) {
 			for (int i = 0; i < amountToRemove; i++) {
 				list.remove(--listSize);
 			}
 		}
-		boolean success = list.addAll(collection);
+		final boolean success = list.addAll(collection);
 		if (success) {
 			if (collection instanceof ClippedList) {
 				this.addCount += ((ClippedList) collection).addCount();
@@ -86,8 +86,8 @@ public class ClippedList<VALUEIN> implements
 
 	@Override
 	public boolean addAll(
-			int position,
-			Collection<? extends Entry<ByteArrayId, VALUEIN>> collection ) {
+			final int position,
+			final Collection<? extends Entry<ByteArrayId, VALUEIN>> collection ) {
 		throw new java.lang.UnsupportedOperationException(
 				"ClippedList.addAll(int,Collection<? extends Entry<ByteArrayId, VALUEIN>>)");
 	}
@@ -100,27 +100,26 @@ public class ClippedList<VALUEIN> implements
 
 	@Override
 	public boolean contains(
-			Object obj ) {
-		throw new java.lang.UnsupportedOperationException(
-				"ClippedList.contains()");
+			final Object obj ) {
+		return this.list.contains(obj);
 	}
 
 	@Override
 	public boolean containsAll(
-			Collection<?> arg0 ) {
+			final Collection<?> arg0 ) {
 		throw new java.lang.UnsupportedOperationException(
 				"ClippedList.containsAll(Collection<?> arg0)");
 	}
 
 	@Override
 	public Entry<ByteArrayId, VALUEIN> get(
-			int position ) {
+			final int position ) {
 		return list.get(position);
 	}
 
 	@Override
 	public int indexOf(
-			Object position ) {
+			final Object position ) {
 		return list.indexOf(position);
 	}
 
@@ -136,7 +135,7 @@ public class ClippedList<VALUEIN> implements
 
 	@Override
 	public int lastIndexOf(
-			Object obj ) {
+			final Object obj ) {
 		return list.lastIndexOf(obj);
 	}
 
@@ -147,44 +146,48 @@ public class ClippedList<VALUEIN> implements
 
 	@Override
 	public ListIterator<Entry<ByteArrayId, VALUEIN>> listIterator(
-			int position ) {
+			final int position ) {
 		return list.listIterator(position);
 	}
 
 	@Override
 	public boolean remove(
-			Object obj ) {
+			final Object obj ) {
 		final boolean success = list.remove(obj);
-		if (success) addCount--;
+		if (success) {
+			addCount--;
+		}
 		return success;
 	}
 
 	@Override
 	public Entry<ByteArrayId, VALUEIN> remove(
-			int position ) {
+			final int position ) {
 		final Entry<ByteArrayId, VALUEIN> obj = list.remove(position);
-		if (obj != null) addCount--;
+		if (obj != null) {
+			addCount--;
+		}
 		return obj;
 	}
 
 	@Override
 	public boolean removeAll(
-			Collection<?> arg0 ) {
+			final Collection<?> arg0 ) {
 		throw new java.lang.UnsupportedOperationException(
 				"ClippedList.removeAll(Collection<?> arg0)");
 	}
 
 	@Override
 	public boolean retainAll(
-			Collection<?> arg0 ) {
+			final Collection<?> arg0 ) {
 		throw new java.lang.UnsupportedOperationException(
 				"ClippedList.retainAll(Collection<?> arg0)");
 	}
 
 	@Override
 	public Entry<ByteArrayId, VALUEIN> set(
-			int arg0,
-			Entry<ByteArrayId, VALUEIN> obj ) {
+			final int arg0,
+			final Entry<ByteArrayId, VALUEIN> obj ) {
 		return list.set(
 				0,
 				obj);
@@ -201,8 +204,8 @@ public class ClippedList<VALUEIN> implements
 
 	@Override
 	public List<Entry<ByteArrayId, VALUEIN>> subList(
-			int positionOne,
-			int length ) {
+			final int positionOne,
+			final int length ) {
 		return list.subList(
 				positionOne,
 				length);
@@ -215,7 +218,7 @@ public class ClippedList<VALUEIN> implements
 
 	@Override
 	public <T> T[] toArray(
-			T[] array ) {
+			final T[] array ) {
 		return list.toArray(array);
 	}
 }

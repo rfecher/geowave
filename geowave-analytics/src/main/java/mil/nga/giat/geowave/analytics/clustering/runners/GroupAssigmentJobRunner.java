@@ -43,7 +43,7 @@ public class GroupAssigmentJobRunner extends
 
 	@Override
 	public void configure(
-			Job job )
+			final Job job )
 			throws Exception {
 		job.setMapperClass(GroupAssignmentMapReduce.GroupAssignmentMapper.class);
 		job.setMapOutputKeyClass(GeoWaveInputKey.class);
@@ -110,7 +110,7 @@ public class GroupAssigmentJobRunner extends
 
 	@Override
 	public void fillOptions(
-			Set<Option> options ) {
+			final Set<Option> options ) {
 		super.fillOptions(options);
 
 		GlobalParameters.fillOptions(

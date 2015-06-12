@@ -31,13 +31,13 @@ import org.opengis.filter.spatial.BBOX;
 class BBOXExpandingFilterVisitor extends
 		DuplicatingFilterVisitor
 {
-	private double expandMinX;
+	private final double expandMinX;
 
-	private double expandMaxX;
+	private final double expandMaxX;
 
-	private double expandMinY;
+	private final double expandMinY;
 
-	private double expandMaxY;
+	private final double expandMaxY;
 
 	/**
 	 * Creates a new expanding filter.
@@ -52,10 +52,10 @@ class BBOXExpandingFilterVisitor extends
 	 *            the distance to expand the box Y dimension upwards
 	 */
 	public BBOXExpandingFilterVisitor(
-			double expandMinX,
-			double expandMaxX,
-			double expandMinY,
-			double expandMaxY ) {
+			final double expandMinX,
+			final double expandMaxX,
+			final double expandMinY,
+			final double expandMaxY ) {
 		this.expandMinX = expandMinX;
 		this.expandMaxX = expandMaxX;
 		this.expandMinY = expandMinY;
@@ -69,19 +69,19 @@ class BBOXExpandingFilterVisitor extends
 	@SuppressWarnings("deprecation")
 	@Override
 	public Object visit(
-			BBOX filter,
-			Object extraData ) {
+			final BBOX filter,
+			final Object extraData ) {
 		// no need to change the property name
-		Expression propertyName = filter.getExpression1();
+		final Expression propertyName = filter.getExpression1();
 
 		/**
 		 * Using the deprecated methods since they are too useful...
 		 */
-		double minx = filter.getMinX();
-		double miny = filter.getMinY();
-		double maxx = filter.getMaxX();
-		double maxy = filter.getMaxY();
-		String srs = filter.getSRS();
+		final double minx = filter.getMinX();
+		final double miny = filter.getMinY();
+		final double maxx = filter.getMaxX();
+		final double maxy = filter.getMaxY();
+		final String srs = filter.getSRS();
 
 		return getFactory(
 				extraData).bbox(

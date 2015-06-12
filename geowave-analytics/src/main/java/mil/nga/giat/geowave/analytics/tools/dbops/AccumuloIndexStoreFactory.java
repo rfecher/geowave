@@ -19,7 +19,7 @@ public class AccumuloIndexStoreFactory implements
 
 	@Override
 	public IndexStore getIndexStore(
-			ConfigurationWrapper context )
+			final ConfigurationWrapper context )
 			throws InstantiationException {
 
 		final String zookeeper = context.getString(

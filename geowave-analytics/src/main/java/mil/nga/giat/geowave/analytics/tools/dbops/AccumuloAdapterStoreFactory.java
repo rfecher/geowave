@@ -1,16 +1,16 @@
 package mil.nga.giat.geowave.analytics.tools.dbops;
 
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import mil.nga.giat.geowave.accumulo.BasicAccumuloOperations;
 import mil.nga.giat.geowave.accumulo.metadata.AccumuloAdapterStore;
 import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.GlobalParameters;
 import mil.nga.giat.geowave.analytics.tools.ConfigurationWrapper;
 import mil.nga.giat.geowave.store.adapter.AdapterStore;
+
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AccumuloAdapterStoreFactory implements
 		AdapterStoreFactory
@@ -19,7 +19,7 @@ public class AccumuloAdapterStoreFactory implements
 
 	@Override
 	public AdapterStore getAdapterStore(
-			ConfigurationWrapper context )
+			final ConfigurationWrapper context )
 			throws InstantiationException {
 
 		final String zookeeper = context.getString(

@@ -30,7 +30,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.slf4j.Logger;
@@ -74,7 +73,7 @@ public class GeometryDataSetGenerator
 	}
 
 	public void setIncludePolygons(
-			boolean includePolygons ) {
+			final boolean includePolygons ) {
 		this.includePolygons = includePolygons;
 	}
 
@@ -232,7 +231,7 @@ public class GeometryDataSetGenerator
 			final double distanceFactor,
 			final int points ) {
 		final List<SimpleFeature> pointSet = new ArrayList<SimpleFeature>();
-		for (Point point : CurvedDensityDataGeneratorTool.generatePoints(
+		for (final Point point : CurvedDensityDataGeneratorTool.generatePoints(
 				line,
 				distanceFactor,
 				points)) {
@@ -331,7 +330,7 @@ public class GeometryDataSetGenerator
 	}
 
 	public List<SimpleFeature> addRandomNoisePoints(
-			List<SimpleFeature> pointSet,
+			final List<SimpleFeature> pointSet,
 			final int minSetSize,
 			final double minAxis[],
 			final double maxAxis[] ) {
@@ -590,7 +589,7 @@ public class GeometryDataSetGenerator
 	}
 
 	private static SimpleFeatureBuilder getBuilder(
-			String name )
+			final String name )
 			throws FactoryException {
 		final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
 		typeBuilder.setName(name);

@@ -31,7 +31,7 @@ public class GeometryHullToolTest
 
 	@Test
 	public void testDistance() {
-		double distance1 = GeometryHullTool.calcDistance(
+		final double distance1 = GeometryHullTool.calcDistance(
 				new Coordinate(
 						3,
 						3),
@@ -42,7 +42,7 @@ public class GeometryHullToolTest
 						5,
 						5.5));
 
-		double distance2 = GeometryHullTool.calcDistance(
+		final double distance2 = GeometryHullTool.calcDistance(
 				new Coordinate(
 						3,
 						3),
@@ -58,7 +58,7 @@ public class GeometryHullToolTest
 				distance2,
 				0.0001);
 
-		double distance3 = GeometryHullTool.calcDistance(
+		final double distance3 = GeometryHullTool.calcDistance(
 				new Coordinate(
 						4,
 						6),
@@ -71,7 +71,7 @@ public class GeometryHullToolTest
 
 		assertTrue(distance3 > 0);
 
-		double distance4 = GeometryHullTool.calcDistance(
+		final double distance4 = GeometryHullTool.calcDistance(
 				new Coordinate(
 						4,
 						6),
@@ -87,7 +87,7 @@ public class GeometryHullToolTest
 				distance4,
 				0.001);
 
-		double distance5 = GeometryHullTool.calcDistance(
+		final double distance5 = GeometryHullTool.calcDistance(
 				new Coordinate(
 						5,
 						7),
@@ -100,7 +100,7 @@ public class GeometryHullToolTest
 
 		assertTrue(distance5 < 0);
 
-		double distance6 = GeometryHullTool.calcDistance(
+		final double distance6 = GeometryHullTool.calcDistance(
 				new Coordinate(
 						5,
 						7),
@@ -111,7 +111,7 @@ public class GeometryHullToolTest
 						7,
 						6.5));
 
-		double distance7 = GeometryHullTool.calcDistance(
+		final double distance7 = GeometryHullTool.calcDistance(
 				new Coordinate(
 						5,
 						7),
@@ -403,13 +403,13 @@ public class GeometryHullToolTest
 
 	@Test
 	public void testLRPolygons() {
-		Geometry leftShape = factory.createPolygon(poly1);
-		Geometry rightShape = factory.createPolygon(poly2);
+		final Geometry leftShape = factory.createPolygon(poly1);
+		final Geometry rightShape = factory.createPolygon(poly2);
 		assertTrue(GeometryHullTool.clockwise(leftShape.getCoordinates()));
 		assertFalse(GeometryHullTool.clockwise(rightShape.getCoordinates()));
-		GeometryHullTool cg = new GeometryHullTool();
+		final GeometryHullTool cg = new GeometryHullTool();
 		cg.setDistanceFnForCoordinate(new CoordinateCircleDistanceFn());
-		Geometry geo = cg.connect(
+		final Geometry geo = cg.connect(
 				leftShape,
 				rightShape);
 		assertEquals(
@@ -420,15 +420,15 @@ public class GeometryHullToolTest
 
 	@Test
 	public void testRLPolygons() {
-		Geometry leftShape = factory.createPolygon(poly2);
+		final Geometry leftShape = factory.createPolygon(poly2);
 
-		Geometry rightShape = factory.createPolygon(poly1);
+		final Geometry rightShape = factory.createPolygon(poly1);
 
 		assertFalse(GeometryHullTool.clockwise(leftShape.getCoordinates()));
 		assertTrue(GeometryHullTool.clockwise(rightShape.getCoordinates()));
-		GeometryHullTool cg = new GeometryHullTool();
+		final GeometryHullTool cg = new GeometryHullTool();
 		cg.setDistanceFnForCoordinate(new CoordinateCircleDistanceFn());
-		Geometry geo = cg.connect(
+		final Geometry geo = cg.connect(
 				leftShape,
 				rightShape);
 		assertEquals(
@@ -437,8 +437,8 @@ public class GeometryHullToolTest
 	}
 
 	private Coordinate[] reversed(
-			Coordinate[] poly ) {
-		Coordinate polyReversed[] = new Coordinate[poly.length];
+			final Coordinate[] poly ) {
+		final Coordinate polyReversed[] = new Coordinate[poly.length];
 		for (int i = 0; i < poly.length; i++) {
 			polyReversed[i] = poly[poly.length - i - 1];
 		}
@@ -447,7 +447,7 @@ public class GeometryHullToolTest
 
 	@Test
 	public void interesectEdges() {
-		GeometryHullTool.Edge e1 = new GeometryHullTool.Edge(
+		final GeometryHullTool.Edge e1 = new GeometryHullTool.Edge(
 				new Coordinate(
 						20.0,
 						20.0),
@@ -455,7 +455,7 @@ public class GeometryHullToolTest
 						21.5,
 						21),
 				0);
-		GeometryHullTool.Edge e2 = new GeometryHullTool.Edge(
+		final GeometryHullTool.Edge e2 = new GeometryHullTool.Edge(
 				new Coordinate(
 						20.4,
 						19.0),
@@ -466,7 +466,7 @@ public class GeometryHullToolTest
 		assertTrue(GeometryHullTool.edgesIntersect(
 				e1,
 				e2));
-		GeometryHullTool.Edge e3 = new GeometryHullTool.Edge(
+		final GeometryHullTool.Edge e3 = new GeometryHullTool.Edge(
 				new Coordinate(
 						20.4,
 						19.0),
@@ -482,14 +482,14 @@ public class GeometryHullToolTest
 	@Test
 	public void testRLSamePolygons() {
 
-		Geometry leftShape = factory.createPolygon(reversed(poly1));
-		Geometry rightShape = factory.createPolygon(reversed(poly2));
+		final Geometry leftShape = factory.createPolygon(reversed(poly1));
+		final Geometry rightShape = factory.createPolygon(reversed(poly2));
 
 		assertFalse(GeometryHullTool.clockwise(leftShape.getCoordinates()));
 		assertTrue(GeometryHullTool.clockwise(rightShape.getCoordinates()));
-		GeometryHullTool cg = new GeometryHullTool();
+		final GeometryHullTool cg = new GeometryHullTool();
 		cg.setDistanceFnForCoordinate(new CoordinateCircleDistanceFn());
-		Geometry geo = cg.connect(
+		final Geometry geo = cg.connect(
 				leftShape,
 				rightShape);
 		assertEquals(
@@ -500,7 +500,7 @@ public class GeometryHullToolTest
 	@Test
 	public void testPolygonConnection() {
 
-		boolean save = true;
+		final boolean save = true;
 		final Geometry concave1 = getHull(
 				factory.createLineString(new Coordinate[] {
 					new Coordinate(
@@ -560,22 +560,22 @@ public class GeometryHullToolTest
 	}
 
 	private Geometry getHull(
-			LineString str,
-			String name,
-			boolean save,
-			boolean parkandOh ) {
+			final LineString str,
+			final String name,
+			final boolean save,
+			final boolean parkandOh ) {
 
-		List<Point> points = CurvedDensityDataGeneratorTool.generatePoints(
+		final List<Point> points = CurvedDensityDataGeneratorTool.generatePoints(
 				str,
 				0.4,
 				1000);
 
-		GeometryHullTool cg = new GeometryHullTool();
+		final GeometryHullTool cg = new GeometryHullTool();
 		cg.setDistanceFnForCoordinate(new CoordinateCircleDistanceFn());
 
 		final Coordinate[] coordinates = new Coordinate[points.size()];
 		int i = 0;
-		for (Point point : points) {
+		for (final Point point : points) {
 			coordinates[i++] = point.getCoordinate();
 		}
 
@@ -613,8 +613,8 @@ public class GeometryHullToolTest
 	}
 
 	private static void writeToShapeFile(
-			String name,
-			Geometry... geos ) {
+			final String name,
+			final Geometry... geos ) {
 		if (true) { // LOGGER.isDebugEnabled()) {
 			try {
 				ShapefileTool.writeShape(
@@ -623,7 +623,7 @@ public class GeometryHullToolTest
 								"./target/test_" + name),
 						geos);
 			}
-			catch (IOException e) {
+			catch (final IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -631,11 +631,13 @@ public class GeometryHullToolTest
 	}
 
 	private static boolean coversPoints(
-			Geometry coverer,
-			Geometry pointsToCover ) {
-		for (Coordinate coordinate : pointsToCover.getCoordinates()) {
+			final Geometry coverer,
+			final Geometry pointsToCover ) {
+		for (final Coordinate coordinate : pointsToCover.getCoordinates()) {
 			if (!coverer.covers(coverer.getFactory().createPoint(
-					coordinate))) return false;
+					coordinate))) {
+				return false;
+			}
 		}
 		return true;
 	}

@@ -57,7 +57,7 @@ public class NNJobRunner extends
 			final PropertyManagement runTimeProperties )
 			throws Exception {
 
-		Partitioner<?> partitioner = runTimeProperties.getClassInstance(
+		final Partitioner<?> partitioner = runTimeProperties.getClassInstance(
 				Partition.PARTITIONER_CLASS,
 				Partitioner.class,
 				OrthodromicDistancePartitioner.class);

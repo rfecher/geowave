@@ -59,7 +59,7 @@ public class DBScanMapReduce
 		protected ClusterMemberSize<VALUEIN> memberSizeFn = new ClusterMemberSize<VALUEIN>() {
 			@Override
 			public long getCount(
-					Cluster<VALUEIN> cluster ) {
+					final Cluster<VALUEIN> cluster ) {
 				return cluster.getSize();
 			}
 		};
@@ -236,7 +236,7 @@ public class DBScanMapReduce
 			memberSizeFn = new ClusterMemberSize<VALUEIN>() {
 				@Override
 				public long getCount(
-						Cluster<VALUEIN> cluster ) {
+						final Cluster<VALUEIN> cluster ) {
 					long count = cluster.members.size();
 					if (cluster.center instanceof SimpleFeature) {
 						final SimpleFeature sf = (SimpleFeature) cluster.center;
@@ -323,7 +323,9 @@ public class DBScanMapReduce
 		@Override
 		public Geometry getProjection(
 				final Cluster<VALUEIN> cluster ) {
-			if (cluster.members.isEmpty()) return projectionFunction.getProjection(cluster.center);
+			if (cluster.members.isEmpty()) {
+				return projectionFunction.getProjection(cluster.center);
+			}
 			final Set<Coordinate> batchCoords = new HashSet<Coordinate>();
 			for (final Coordinate coordinate : projectionFunction.getProjection(
 					cluster.center).getCoordinates()) {
@@ -340,7 +342,7 @@ public class DBScanMapReduce
 					cluster.id.toString(),
 					batchCoords.size());
 
-			GeometryFactory factory = new GeometryFactory();
+			final GeometryFactory factory = new GeometryFactory();
 			if (batchCoords.size() == 1) {
 				return factory.createPoint(batchCoords.iterator().next());
 			}
@@ -363,10 +365,11 @@ public class DBScanMapReduce
 							hull,
 							batchCoords);
 				}
-				else
+				else {
 					return hull;
+				}
 			}
-			catch (Exception ex) {
+			catch (final Exception ex) {
 				LOGGER.error(
 						"Failed to compute hull",
 						ex);
@@ -401,15 +404,17 @@ public class DBScanMapReduce
 		@Override
 		public Geometry getProjection(
 				final Cluster<SimpleFeature> cluster ) {
-			if (cluster.members.isEmpty()) return projectionFunction.getProjection(cluster.center);
+			if (cluster.members.isEmpty()) {
+				return projectionFunction.getProjection(cluster.center);
+			}
 			Geometry hull = (Geometry) cluster.center.getDefaultGeometry();
 
 			for (final Map.Entry<ByteArrayId, SimpleFeature> member : cluster.members) {
-				Geometry hulltoUnion = (Geometry) member.getValue().getDefaultGeometry();
+				final Geometry hulltoUnion = (Geometry) member.getValue().getDefaultGeometry();
 				try {
 					hull = hull.union(hulltoUnion);
 				}
-				catch (com.vividsolutions.jts.geom.TopologyException ex) {
+				catch (final com.vividsolutions.jts.geom.TopologyException ex) {
 					hull = addToHull(
 							hull,
 							hulltoUnion);
@@ -457,7 +462,7 @@ public class DBScanMapReduce
 
 				@Override
 				public long getCount(
-						Cluster<VALUE> cluster ) {
+						final Cluster<VALUE> cluster ) {
 					return cluster.members.addCount();
 				}
 			};
@@ -483,7 +488,7 @@ public class DBScanMapReduce
 			// if a member is clustered (reachable) from another cluster
 			for (final Map.Entry<ByteArrayId, VALUE> member : newCluster.members) {
 				if (index.containsKey(member.getKey())) {
-					Cluster<VALUE> cluster = index.get(member.getKey());
+					final Cluster<VALUE> cluster = index.get(member.getKey());
 					cluster.merge(
 							newCluster,
 							index);
@@ -507,7 +512,7 @@ public class DBScanMapReduce
 				final Map<ByteArrayId, Cluster<VALUE>> index ) {
 			// drop off
 			final double drop = (clusterToMerge.density / this.density);
-			if (drop < 0.1 || drop > 10) {
+			if ((drop < 0.1) || (drop > 10)) {
 				return;
 			}
 			density = Math.min(
@@ -523,16 +528,21 @@ public class DBScanMapReduce
 			// Geometry otherHull = hullBuilder.getProjection(clusterToMerge);
 			// }
 
-			members.add(new AbstractMap.SimpleEntry<ByteArrayId, VALUE>(
-					clusterToMerge.id,
-					clusterToMerge.center));
-			members.addAll(clusterToMerge.members);
+			if (index.get(clusterToMerge.id) != this) {
+				members.add(new AbstractMap.SimpleEntry<ByteArrayId, VALUE>(
+						clusterToMerge.id,
+						clusterToMerge.center));
+			}
 
 			for (final Map.Entry<ByteArrayId, VALUE> neighbor : clusterToMerge.members) {
-				index.put(
-						neighbor.getKey(),
-						this);
+				if (index.get(neighbor.getKey()) != this) {
+					members.add(neighbor);
+					index.put(
+							neighbor.getKey(),
+							this);
+				}
 			}
+			clusterToMerge.members.clear();
 			// update the merged count
 			this.size = memberSizeFn.getCount(this);
 		}
@@ -545,21 +555,31 @@ public class DBScanMapReduce
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((id == null) ? 0 : id.hashCode());
+			result = (prime * result) + ((id == null) ? 0 : id.hashCode());
 			return result;
 		}
 
 		@Override
 		public boolean equals(
-				Object obj ) {
-			if (this == obj) return true;
-			if (obj == null) return false;
-			if (getClass() != obj.getClass()) return false;
-			Cluster other = (Cluster) obj;
-			if (id == null) {
-				if (other.id != null) return false;
+				final Object obj ) {
+			if (this == obj) {
+				return true;
 			}
-			else if (!id.equals(other.id)) return false;
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final Cluster other = (Cluster) obj;
+			if (id == null) {
+				if (other.id != null) {
+					return false;
+				}
+			}
+			else if (!id.equals(other.id)) {
+				return false;
+			}
 			return true;
 		}
 	}

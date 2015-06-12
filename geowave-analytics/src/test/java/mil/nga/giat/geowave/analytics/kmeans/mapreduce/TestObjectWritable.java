@@ -67,21 +67,31 @@ public class TestObjectWritable implements
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((obj == null) ? 0 : obj.hashCode());
+		result = (prime * result) + ((obj == null) ? 0 : obj.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(
-			Object obj ) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		TestObjectWritable other = (TestObjectWritable) obj;
-		if (this.obj == null) {
-			if (other.obj != null) return false;
+			final Object obj ) {
+		if (this == obj) {
+			return true;
 		}
-		else if (!this.obj.equals(other.obj)) return false;
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final TestObjectWritable other = (TestObjectWritable) obj;
+		if (this.obj == null) {
+			if (other.obj != null) {
+				return false;
+			}
+		}
+		else if (!this.obj.equals(other.obj)) {
+			return false;
+		}
 		return true;
 	}
 

@@ -49,8 +49,8 @@ public class ClusteringParameters
 	}
 
 	public static final void fillOptions(
-			Set<Option> options,
-			Clustering[] params ) {
+			final Set<Option> options,
+			final Clustering[] params ) {
 		if (contains(
 				params,
 				Clustering.ZOOM_LEVELS)) {
@@ -127,8 +127,8 @@ public class ClusteringParameters
 	}
 
 	private static boolean contains(
-			Clustering[] params,
-			Clustering option ) {
+			final Clustering[] params,
+			final Clustering option ) {
 		return Arrays.asList(
 				params).contains(
 				option);

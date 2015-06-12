@@ -50,8 +50,8 @@ public class CommonParameters
 	}
 
 	public static final void fillOptions(
-			Set<Option> options,
-			Common[] params ) {
+			final Set<Option> options,
+			final Common[] params ) {
 		if (contains(
 				params,
 				Common.DIMENSION_EXTRACT_CLASS)) {
@@ -101,8 +101,8 @@ public class CommonParameters
 	}
 
 	private static boolean contains(
-			Common[] params,
-			Common option ) {
+			final Common[] params,
+			final Common option ) {
 		return Arrays.asList(
 				params).contains(
 				option);

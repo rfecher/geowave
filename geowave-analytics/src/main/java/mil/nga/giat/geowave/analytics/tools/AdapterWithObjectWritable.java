@@ -46,7 +46,7 @@ public class AdapterWithObjectWritable implements
 	}
 
 	public void setDataId(
-			ByteArrayId dataId ) {
+			final ByteArrayId dataId ) {
 		this.dataId = dataId;
 	}
 
@@ -97,8 +97,9 @@ public class AdapterWithObjectWritable implements
 			output.writeInt(dataIdBinary.length);
 			output.write(dataIdBinary);
 		}
-		else
+		else {
 			output.writeInt(0);
+		}
 
 		output.writeBoolean(isPrimary);
 		objectWritable.write(output);

@@ -298,16 +298,18 @@ public class KMeansIterationsJobRunnerTest
 
 				@Override
 				public AnalyticItemWrapper<SimpleFeature> getCentroidById(
-						String id,
-						String groupID )
+						final String id,
+						final String groupID )
 						throws IOException,
 						MatchingCentroidNotFoundException {
-					Iterator<AnalyticItemWrapper<SimpleFeature>> it = this.getCentroidsForGroup(
+					final Iterator<AnalyticItemWrapper<SimpleFeature>> it = this.getCentroidsForGroup(
 							groupID).iterator();
 					while (it.hasNext()) {
-						AnalyticItemWrapper<SimpleFeature> feature = (it.next());
+						final AnalyticItemWrapper<SimpleFeature> feature = (it.next());
 						if (feature.getID().equals(
-								id)) return feature;
+								id)) {
+							return feature;
+						}
 					}
 					throw new MatchingCentroidNotFoundException(
 							id);

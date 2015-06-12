@@ -32,8 +32,8 @@ public class GeoWaveInputFormatConfiguration implements
 
 	@Override
 	public void setup(
-			PropertyManagement runTimeProperties,
-			Configuration configuration )
+			final PropertyManagement runTimeProperties,
+			final Configuration configuration )
 			throws Exception {
 		GeoWaveInputFormat.setAccumuloOperationsInfo(
 				configuration,
@@ -68,7 +68,7 @@ public class GeoWaveInputFormatConfiguration implements
 				}
 			}
 		}
-		for (Index index : indices) {
+		for (final Index index : indices) {
 			GeoWaveInputFormat.addIndex(
 					configuration,
 					index);
@@ -86,13 +86,13 @@ public class GeoWaveInputFormatConfiguration implements
 				}
 			}
 		}
-		for (DataAdapter<?> adapter : adapters) {
+		for (final DataAdapter<?> adapter : adapters) {
 			GeoWaveInputFormat.addDataAdapter(
 					configuration,
 					adapter);
 		}
 
-		DistributableQuery query = runTimeProperties.getPropertyAsQuery(ExtractParameters.Extract.QUERY);
+		final DistributableQuery query = runTimeProperties.getPropertyAsQuery(ExtractParameters.Extract.QUERY);
 
 		if (query != null) {
 			GeoWaveInputFormat.setQuery(
@@ -143,14 +143,14 @@ public class GeoWaveInputFormatConfiguration implements
 
 	@Override
 	public void setDataIsWritable(
-			boolean isWritable ) {
+			final boolean isWritable ) {
 		isDataWritable = isWritable;
 
 	}
 
 	@Override
 	public void fillOptions(
-			Set<Option> options ) {
+			final Set<Option> options ) {
 		GlobalParameters.fillOptions(
 				options,
 				new GlobalParameters.Global[] {

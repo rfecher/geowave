@@ -63,11 +63,11 @@ public class KSamplerMapReduceTest
 					null,
 					null);
 		}
-		catch (AccumuloException e) {
+		catch (final AccumuloException e) {
 			dataOps = null;
 			e.printStackTrace();
 		}
-		catch (AccumuloSecurityException e) {
+		catch (final AccumuloSecurityException e) {
 			dataOps = null;
 			e.printStackTrace();
 		}
@@ -117,13 +117,13 @@ public class KSamplerMapReduceTest
 		final KSamplerMapReduce.SampleReducer<TestObject> reducer = new KSamplerMapReduce.SampleReducer<TestObject>();
 		mapDriver = MapDriver.newMapDriver(mapper);
 		reduceDriver = ReduceDriver.newReduceDriver(reducer);
-		DataAdapter adapter = AnalyticFeature.createGeometryFeatureAdapter(
+		final DataAdapter adapter = AnalyticFeature.createGeometryFeatureAdapter(
 				"altoids",
 				new String[] {},
 				"http://geowave.test.net",
 				ClusteringUtils.CLUSTERING_CRS);
 
-		PropertyManagement propManagement = new PropertyManagement();
+		final PropertyManagement propManagement = new PropertyManagement();
 		propManagement.store(
 				CommonParameters.Common.ACCUMULO_CONNECT_FACTORY,
 				MockAccumuloOperationsFactory.class);

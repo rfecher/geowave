@@ -82,7 +82,7 @@ public class GaussianFilter
 			final CellCounter results,
 			final int numXPosts,
 			final int numYPosts,
-			double contributionScaleFactor ) {
+			final double contributionScaleFactor ) {
 		incrementBBox(
 				lon,
 				lon,
@@ -154,7 +154,7 @@ public class GaussianFilter
 			final CellCounter results,
 			final int numXPosts,
 			final int numYPosts,
-			double contributionScaleFactor ) {
+			final double contributionScaleFactor ) {
 		final int numDimensions = 2;
 		final double[] minBinLocationPerDimension = new double[numDimensions];
 		final double[] maxBinLocationPerDimension = new double[numDimensions];

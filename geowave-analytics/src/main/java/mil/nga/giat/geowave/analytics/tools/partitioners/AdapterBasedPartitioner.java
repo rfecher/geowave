@@ -6,10 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.ParameterEnum;
 import mil.nga.giat.geowave.analytics.tools.ConfigurationWrapper;
@@ -30,6 +26,10 @@ import mil.nga.giat.geowave.store.adapter.AdapterPersistenceEncoding;
 import mil.nga.giat.geowave.store.adapter.AdapterStore;
 import mil.nga.giat.geowave.store.adapter.DataAdapter;
 import mil.nga.giat.geowave.store.index.CommonIndexModel;
+
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class uses the {@link DataAdapter} to decode the dimension fields to be
@@ -153,8 +153,8 @@ public class AdapterBasedPartitioner extends
 
 	@Override
 	public void setup(
-			PropertyManagement runTimeProperties,
-			Configuration configuration ) {
+			final PropertyManagement runTimeProperties,
+			final Configuration configuration ) {
 		super.setup(
 				runTimeProperties,
 				configuration);

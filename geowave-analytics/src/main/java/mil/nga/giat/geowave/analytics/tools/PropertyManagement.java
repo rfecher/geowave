@@ -103,9 +103,9 @@ public class PropertyManagement implements
 	}
 
 	public PropertyManagement(
-			PropertyManagement pm ) {
-		this.nestProperties = pm;
-		this.converters.addAll(pm.converters);
+			final PropertyManagement pm ) {
+		nestProperties = pm;
+		converters.addAll(pm.converters);
 	}
 
 	public PropertyManagement(
@@ -194,7 +194,7 @@ public class PropertyManagement implements
 			final ParameterEnum propertyName,
 			final Serializable value ) {
 		final String pName = toPropertyName(propertyName);
-		if (!containsPropertyValue(pName) && value != null) {
+		if (!containsPropertyValue(pName) && (value != null)) {
 			LOGGER.info(
 					"Setting parameter : {} to {}",
 					pName,
@@ -701,7 +701,7 @@ public class PropertyManagement implements
 				os)) {
 			oos.writeObject(localProperties);
 		}
-		if (this.nestProperties != null) {
+		if (nestProperties != null) {
 			os.write(1);
 			nestProperties.toOutput(os);
 		}
@@ -712,7 +712,7 @@ public class PropertyManagement implements
 
 	public void dump() {
 		LOGGER.info("Properties : ");
-		for (Map.Entry<String, Serializable> prop : this.localProperties.entrySet()) {
+		for (final Map.Entry<String, Serializable> prop : localProperties.entrySet()) {
 			LOGGER.info(
 					"{} = {}",
 					prop.getKey(),
@@ -971,14 +971,16 @@ public class PropertyManagement implements
 	}
 
 	private boolean containsPropertyValue(
-			String name ) {
-		return (nestProperties != null && nestProperties.containsPropertyValue(name)) || localProperties.containsKey(name);
+			final String name ) {
+		return ((nestProperties != null) && nestProperties.containsPropertyValue(name)) || localProperties.containsKey(name);
 	}
 
 	private Serializable getPropertyValue(
-			String name ) {
-		Serializable val = localProperties != null ? localProperties.get(name) : null;
-		if (val == null) return nestProperties != null ? nestProperties.getPropertyValue(name) : null;
+			final String name ) {
+		final Serializable val = localProperties != null ? localProperties.get(name) : null;
+		if (val == null) {
+			return nestProperties != null ? nestProperties.getPropertyValue(name) : null;
+		}
 		return val;
 	}
 }

@@ -209,14 +209,14 @@ public class TestObjectDataAdapter extends
 
 		@Override
 		public TestObjectWritable toWritable(
-				TestObject entry ) {
+				final TestObject entry ) {
 			return new TestObjectWritable(
 					entry);
 		}
 
 		@Override
 		public TestObject fromWritable(
-				TestObjectWritable writable ) {
+				final TestObjectWritable writable ) {
 			return writable.getObj();
 		}
 

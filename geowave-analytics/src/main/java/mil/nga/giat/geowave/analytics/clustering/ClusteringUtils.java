@@ -120,9 +120,9 @@ public class ClusteringUtils
 	}
 
 	public static DataAdapter[] getAdapters(
-			PropertyManagement propertyManagement )
+			final PropertyManagement propertyManagement )
 			throws IOException {
-		BasicAccumuloOperations ops;
+		final BasicAccumuloOperations ops;
 		try {
 
 			final AdapterStore adapterStore = propertyManagement.getClassInstance(
@@ -141,14 +141,14 @@ public class ClusteringUtils
 			adapters.toArray(result);
 			return result;
 		}
-		catch (InstantiationException e) {
+		catch (final InstantiationException e) {
 			throw new IOException(
 					e);
 		}
 	}
 
 	public static Index[] getIndices(
-			PropertyManagement propertyManagement ) {
+			final PropertyManagement propertyManagement ) {
 		BasicAccumuloOperations ops;
 		final String zookeeper = propertyManagement.getPropertyAsString(
 				GlobalParameters.Global.ZOOKEEKER,
@@ -190,7 +190,7 @@ public class ClusteringUtils
 					"Cannot connect to GeoWave for Index Inquiry (" + accumuloInstance + "@ " + zookeeper + ")",
 					e);
 		}
-		catch (InstantiationException e) {
+		catch (final InstantiationException e) {
 			LOGGER.error(
 					"cannot connect to GeoWave ",
 					e);
@@ -247,7 +247,7 @@ public class ClusteringUtils
 			final PropertyManagement propertyManagement )
 			throws Exception {
 
-		Class<DimensionExtractor> dimensionExtractorClass = propertyManagement.getPropertyAsClass(
+		final Class<DimensionExtractor> dimensionExtractorClass = propertyManagement.getPropertyAsClass(
 				CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
 				DimensionExtractor.class);
 

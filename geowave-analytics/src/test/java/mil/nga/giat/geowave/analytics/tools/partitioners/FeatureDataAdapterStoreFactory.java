@@ -48,8 +48,8 @@ public class FeatureDataAdapterStoreFactory implements
 	}
 
 	public static void transferState(
-			Configuration configuration,
-			PropertyManagement runTimeProperties ) {
+			final Configuration configuration,
+			final PropertyManagement runTimeProperties ) {
 		RunnerUtils.setParameter(
 				configuration,
 				FeatureDataAdapterStoreFactory.class,
@@ -60,8 +60,8 @@ public class FeatureDataAdapterStoreFactory implements
 	}
 
 	public static void saveState(
-			FeatureDataAdapter dataAdapter,
-			PropertyManagement runTimeProperties ) {
+			final FeatureDataAdapter dataAdapter,
+			final PropertyManagement runTimeProperties ) {
 		runTimeProperties.store(
 				MyData.DATA,
 				PersistenceUtils.toBinary(dataAdapter));
@@ -69,7 +69,7 @@ public class FeatureDataAdapterStoreFactory implements
 
 	@Override
 	public synchronized AdapterStore getAdapterStore(
-			ConfigurationWrapper context )
+			final ConfigurationWrapper context )
 			throws InstantiationException {
 		return new MemoryAdapterStore(
 				new DataAdapter[] {

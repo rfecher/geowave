@@ -40,7 +40,7 @@ public class CoordinateCircleDistanceFn implements
 					y,
 					getCRS());
 		}
-		catch (TransformException e) {
+		catch (final TransformException e) {
 			throw new RuntimeException(
 					"Failed to transform coordinates to provided CRS",
 					e);

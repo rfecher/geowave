@@ -32,7 +32,6 @@ import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +149,7 @@ public class KSamplerMapReduce
 					sampleSize,
 					(T) value);
 			if (rank > 0.0000000001) {
-				AnalyticItemWrapper<Object> wrapper = itemWrapperFactory.create(value);
+				final AnalyticItemWrapper<Object> wrapper = itemWrapperFactory.create(value);
 				outputKey.setDataId(new ByteArrayId(
 						keyManager.putData(
 								nestedGroupCentroidAssigner.getGroupForLevel(wrapper),
@@ -171,7 +170,7 @@ public class KSamplerMapReduce
 				InterruptedException {
 			super.setup(context);
 
-			ConfigurationWrapper config = new JobContextConfigurationWrapper(
+			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
 					KSamplerMapReduce.LOGGER);
 			sampleSize = config.getInt(
@@ -239,7 +238,7 @@ public class KSamplerMapReduce
 				throws IOException,
 				InterruptedException {
 
-			String groupID = KeyManager.getGroupAsString(key.getDataId().getBytes());
+			final String groupID = KeyManager.getGroupAsString(key.getDataId().getBytes());
 
 			for (final Object value : values) {
 				final AnalyticItemWrapper<T> sampleItem = itemWrapperFactory.create((T) value);
@@ -247,7 +246,7 @@ public class KSamplerMapReduce
 				outputCount = outputCount == null ? Integer.valueOf(0) : outputCount;
 				if ((outputCount == null) || (outputCount < maxCount)) {
 
-					AnalyticItemWrapper<T> centroid = createCentroid(
+					final AnalyticItemWrapper<T> centroid = createCentroid(
 							groupID,
 							sampleItem);
 					if (centroid != null) {
@@ -290,7 +289,7 @@ public class KSamplerMapReduce
 				InterruptedException {
 			super.setup(context);
 
-			ConfigurationWrapper config = new JobContextConfigurationWrapper(
+			final ConfigurationWrapper config = new JobContextConfigurationWrapper(
 					context,
 					KSamplerMapReduce.LOGGER);
 
@@ -355,19 +354,19 @@ public class KSamplerMapReduce
 	{
 		@Override
 		public int getPartition(
-				GeoWaveInputKey key,
-				ObjectWritable val,
-				int numPartitions ) {
+				final GeoWaveInputKey key,
+				final ObjectWritable val,
+				final int numPartitions ) {
 			final byte[] grpIDInBytes = KeyManager.getGroup(key.getDataId().getBytes());
-			int partition = hash(grpIDInBytes) % numPartitions;
+			final int partition = hash(grpIDInBytes) % numPartitions;
 			return partition;
 		}
 
 		private int hash(
-				byte[] data ) {
+				final byte[] data ) {
 			int code = 1;
 			int i = 0;
-			for (byte b : data) {
+			for (final byte b : data) {
 				code += b * Math.pow(
 						31,
 						data.length - 1 - (i++));
