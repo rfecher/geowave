@@ -303,9 +303,8 @@ public class GeometryHullTool
 	 */
 	public Geometry concaveHull(
 			final Geometry geometry,
-			final List<Coordinate> providedInnerPoints ) {
-
-		final Set<Coordinate> innerPoints = new HashSet<Coordinate>(
+			final Collection<Coordinate> providedInnerPoints ) {
+		final Set<Coordinate> innerPoints = (providedInnerPoints instanceof Set) ? (Set<Coordinate>) providedInnerPoints : new HashSet<Coordinate>(
 				providedInnerPoints);
 		final TreeSet<Edge> edges = new TreeSet<Edge>();
 		final Coordinate[] geoCoordinateList = geometry.getCoordinates();

@@ -2,7 +2,6 @@ package mil.nga.giat.geowave.analytics.mapreduce.nn;
 
 import java.io.IOException;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,13 +57,14 @@ public class DBScanMapReduce
 	{
 		protected int minOwners = 0;
 		protected ClusterMemberSize<VALUEIN> memberSizeFn = new ClusterMemberSize<VALUEIN>() {
-
 			@Override
 			public long getCount(
 					Cluster<VALUEIN> cluster ) {
-				return cluster.members.size();
+				return cluster.getSize();
 			}
 		};
+
+		protected HullBuilder<VALUEIN> hullBuilder;
 
 		@Override
 		public List<Map.Entry<ByteArrayId, VALUEIN>> createNeighborsList() {
@@ -121,6 +121,20 @@ public class DBScanMapReduce
 			LOGGER.info(
 					"Minumum owners = {}",
 					minOwners);
+
+			try {
+				hullBuilder = config.getInstance(
+						HullParameters.Hull.HULL_BUILDER,
+						NNMapReduce.class,
+						HullBuilder.class,
+						PointMergeBuilder.class);
+
+				hullBuilder.initialize(config);
+			}
+			catch (final Exception e1) {
+				throw new IOException(
+						e1);
+			}
 		}
 	}
 
@@ -131,7 +145,6 @@ public class DBScanMapReduce
 		private int zoomLevel = 1;
 		private int iteration = 1;
 		private FeatureDataAdapter outputAdapter;
-		private HullBuilder<VALUEIN> hullBuilder;
 
 		private final ObjectWritable output = new ObjectWritable();
 
@@ -190,19 +203,6 @@ public class DBScanMapReduce
 					context);
 
 			super.setup(context);
-			try {
-				hullBuilder = config.getInstance(
-						HullParameters.Hull.HULL_BUILDER,
-						NNMapReduce.class,
-						HullBuilder.class,
-						PointMergeBuilder.class);
-
-				hullBuilder.initialize(config);
-			}
-			catch (final Exception e1) {
-				throw new IOException(
-						e1);
-			}
 
 			batchID = config.getString(
 					GlobalParameters.Global.BATCH_ID,
@@ -324,7 +324,7 @@ public class DBScanMapReduce
 		public Geometry getProjection(
 				final Cluster<VALUEIN> cluster ) {
 			if (cluster.members.isEmpty()) return projectionFunction.getProjection(cluster.center);
-			final List<Coordinate> batchCoords = new ArrayList<Coordinate>();
+			final Set<Coordinate> batchCoords = new HashSet<Coordinate>();
 			for (final Coordinate coordinate : projectionFunction.getProjection(
 					cluster.center).getCoordinates()) {
 				batchCoords.add(coordinate);
@@ -335,22 +335,48 @@ public class DBScanMapReduce
 					batchCoords.add(coordinate);
 				}
 			}
-			final Coordinate[] actualCoords = batchCoords.toArray(new Coordinate[batchCoords.size()]);
-
 			LOGGER.info(
 					"Cluster {} with size {}",
 					cluster.id.toString(),
-					actualCoords.length);
+					batchCoords.size());
 
-			// generate convex hull for current batch of points
-			final ConvexHull convexHull = new ConvexHull(
-					actualCoords,
-					new GeometryFactory());
+			GeometryFactory factory = new GeometryFactory();
+			if (batchCoords.size() == 1) {
+				return factory.createPoint(batchCoords.iterator().next());
+			}
 
-			final Geometry hull = convexHull.getConvexHull();
-			return connectGeometryTool.concaveHull(
-					hull,
-					batchCoords);
+			final Coordinate[] actualCoords = batchCoords.toArray(new Coordinate[batchCoords.size()]);
+
+			if (batchCoords.size() == 2) {
+				return factory.createLineString(actualCoords);
+			}
+
+			try {
+				// generate convex hull for current batch of points
+				final ConvexHull convexHull = new ConvexHull(
+						actualCoords,
+						factory);
+
+				final Geometry hull = convexHull.getConvexHull();
+				if (batchCoords.size() > 5) {
+					return connectGeometryTool.concaveHull(
+							hull,
+							batchCoords);
+				}
+				else
+					return hull;
+			}
+			catch (Exception ex) {
+				LOGGER.error(
+						"Failed to compute hull",
+						ex);
+				LOGGER.warn(cluster.center.toString());
+				for (final Map.Entry<ByteArrayId, VALUEIN> member : cluster.members) {
+					LOGGER.warn(member.getValue().toString());
+				}
+				throw ex;
+			}
+
 		}
 	}
 
@@ -388,7 +414,7 @@ public class DBScanMapReduce
 							hull,
 							hulltoUnion);
 					LOGGER.warn(
-							"Exception occurred mergeing concave hulls",
+							"Exception occurred merging concave hulls",
 							ex);
 				}
 			}
@@ -404,6 +430,7 @@ public class DBScanMapReduce
 		protected double density = 0;
 		final private ClusterMemberSize<VALUE> memberSizeFn;
 		final private ByteArrayId id;
+		final private boolean isHull = false;
 
 		public Cluster(
 				final ClusterMemberSize<VALUE> memberSizeFn,
@@ -473,9 +500,6 @@ public class DBScanMapReduce
 						neighbor.getKey(),
 						newCluster);
 			}
-			index.put(
-					newCluster.id,
-					newCluster);
 		}
 
 		public void merge(
@@ -489,14 +513,21 @@ public class DBScanMapReduce
 			density = Math.min(
 					clusterToMerge.density,
 					this.density);
-
 			index.put(
 					clusterToMerge.id,
 					this);
+
+			// if (members.size() + clusterToMerge.members.size() >
+			// members.getMaxSize()) {
+			// Geometry thisHull = hullBuilder.getProjection(this);
+			// Geometry otherHull = hullBuilder.getProjection(clusterToMerge);
+			// }
+
 			members.add(new AbstractMap.SimpleEntry<ByteArrayId, VALUE>(
 					clusterToMerge.id,
 					clusterToMerge.center));
 			members.addAll(clusterToMerge.members);
+
 			for (final Map.Entry<ByteArrayId, VALUE> neighbor : clusterToMerge.members) {
 				index.put(
 						neighbor.getKey(),

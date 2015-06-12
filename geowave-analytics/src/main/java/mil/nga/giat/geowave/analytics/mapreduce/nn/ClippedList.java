@@ -13,7 +13,7 @@ import mil.nga.giat.geowave.index.ByteArrayId;
 /**
  * 
  * Maintains a list of entries, clipping entries after reaching a maximum size;
- * Ideally, middle entries are clipped at Random. However, due to peformance
+ * Ideally, middle entries are clipped at Random. However, due to performance
  * considerations, the last entry is clipped.
  * 
  * The list maintains the total number of additions (minus removals) since the
@@ -58,6 +58,10 @@ public class ClippedList<VALUEIN> implements
 				entry);
 	}
 
+	public int getMaxSize() {
+		return maxSize;
+	}
+
 	@Override
 	public boolean addAll(
 			Collection<? extends Entry<ByteArrayId, VALUEIN>> collection ) {
@@ -84,19 +88,8 @@ public class ClippedList<VALUEIN> implements
 	public boolean addAll(
 			int position,
 			Collection<? extends Entry<ByteArrayId, VALUEIN>> collection ) {
-		final boolean result = list.addAll(
-				position,
-				collection);
-		if (result) {
-			if (collection instanceof ClippedList) {
-				this.addCount += ((ClippedList) collection).addCount();
-			}
-			else {
-				this.addCount += collection.size();
-			}
-		}
-		return result;
-
+		throw new java.lang.UnsupportedOperationException(
+				"ClippedList.addAll(int,Collection<? extends Entry<ByteArrayId, VALUEIN>>)");
 	}
 
 	@Override

@@ -219,7 +219,8 @@ public class NNMapReduce
 					primaries.put(inputValue.getDataId(),unwrappedValue);
 				}
 				else {
-					others.put(inputValue.getDataId(),unwrappedValue);
+					if (!primaries.containsKey(inputValue.getDataId()))
+					   others.put(inputValue.getDataId(),unwrappedValue);
 				}
 			}
 
@@ -238,7 +239,7 @@ public class NNMapReduce
 						neighbors.add(
 								anotherPrimary);
 						if (neighbors.size() > maxNeighbors) {
-							continue; // need some condense function
+							continue; // need a condense function
 						}
 					}
 				}
