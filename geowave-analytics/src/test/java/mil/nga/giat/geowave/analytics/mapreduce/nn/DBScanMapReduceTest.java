@@ -72,7 +72,7 @@ public class DBScanMapReduceTest
 			AccumuloException,
 			AccumuloSecurityException {
 		final NNMapReduce.NNMapper<SimpleFeature> nnMapper = new NNMapReduce.NNMapper<SimpleFeature>();
-		final NNMapReduce.NNReducer<SimpleFeature, GeoWaveInputKey, ObjectWritable, Map<ByteArrayId, Cluster<SimpleFeature>>> nnReducer = new DBScanMapReduce.DBScanMapHullReducer<SimpleFeature>();
+		final NNMapReduce.NNReducer<SimpleFeature, GeoWaveInputKey, ObjectWritable, Map<ByteArrayId, Cluster<SimpleFeature>>> nnReducer = new DBScanMapReduce.DBScanMapHullReducer();
 
 		mapDriver = MapDriver.newMapDriver(nnMapper);
 		reduceDriver = ReduceDriver.newReduceDriver(nnReducer);
@@ -487,8 +487,11 @@ public class DBScanMapReduceTest
 				new ByteArrayId(
 						geo1.getID()),
 				geo1,
-				new ClippedList<SimpleFeature>(
-						100000000));
+				new SimpleFeatureClusterList(
+						"NA",
+						null,
+						10000000,
+						(Geometry) geo1.getDefaultGeometry()));
 		sfCluster.members.add(new AbstractMap.SimpleEntry<ByteArrayId, SimpleFeature>(
 				new ByteArrayId(
 						geo2.getID()),
@@ -517,12 +520,8 @@ public class DBScanMapReduceTest
 		assertTrue(coversPoints(
 				results,
 				(Geometry) geo1.getDefaultGeometry()));
-		assertTrue(coversPoints(
-				results,
-				(Geometry) geo2.getDefaultGeometry()));
-		assertTrue(coversPoints(
-				results,
-				(Geometry) geo3.getDefaultGeometry()));
+		assertTrue(results.intersects((Geometry) geo2.getDefaultGeometry()));
+		assertTrue(results.intersects((Geometry) geo3.getDefaultGeometry()));
 	}
 
 	private static boolean coversPoints(

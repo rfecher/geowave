@@ -946,39 +946,4 @@ public class GeometryHullTool
 		}
 
 	}
-
-	public double measureDistanceBetweenHulls(
-			final Geometry g1,
-			final Geometry g2 ) {
-		if (g1.distance(g2) <= 0.0) {
-			return 0.0;
-		}
-		Coordinate minG1 = null, lastMinG1 = null, minG2 = null, lastMinG2 = null;
-		for (final Coordinate g1coord : g1.getCoordinates()) {
-			final double minDist = Double.MAX_VALUE;
-			for (final Coordinate g2coord : g2.getCoordinates()) {
-				final double dist = (distanceFnForCoordinate.measure(
-						g1coord,
-						g2coord));
-				if (dist < minDist) {
-					lastMinG2 = minG2;
-					minG1 = g1coord;
-					lastMinG1 = minG1;
-					minG2 = g2coord;
-				}
-			}
-		}
-		final double base = distanceFnForCoordinate.measure(
-				minG1,
-				lastMinG1);
-		final double s1 = distanceFnForCoordinate.measure(
-				minG1,
-				minG2);
-		final double s2 = distanceFnForCoordinate.measure(
-				lastMinG2,
-				minG2);
-		final double p = (s1 + s2 + base) / 2.0;
-		final double area = Math.sqrt(p * (p - base) * (p - s1) * (p - s2));
-		return (2 * area) / base;
-	}
 }

@@ -4,19 +4,15 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import mil.nga.giat.geowave.accumulo.mapreduce.HadoopWritableSerializationTool;
 import mil.nga.giat.geowave.accumulo.mapreduce.JobContextAdapterStore;
 import mil.nga.giat.geowave.accumulo.mapreduce.input.GeoWaveInputFormat;
 import mil.nga.giat.geowave.accumulo.mapreduce.input.GeoWaveInputKey;
 import mil.nga.giat.geowave.analytics.distance.DistanceFn;
-import mil.nga.giat.geowave.analytics.distance.FeatureDistanceFn;
-import mil.nga.giat.geowave.analytics.mapreduce.nn.NeighorIndex.ListFactory;
+import mil.nga.giat.geowave.analytics.distance.FeatureGeometryDistanceFn;
 import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
@@ -229,14 +225,7 @@ public class NNMapReduce
 
 			LOGGER.info("Processing " + key.toString() + " with primary = " + primaries.size() + " and other = " + others.size());
 			
-			final NeighorIndex<VALUEIN> index = new NeighorIndex<VALUEIN>(new ListFactory<VALUEIN>() {
-				@Override
-				public List<Entry<ByteArrayId, VALUEIN>> buildNeighborList() {
-					return createNeighborsList();
-				}				
-			});
-
-			
+			final NeighorIndex<VALUEIN> index = new NeighorIndex<VALUEIN>(this.createNeighborsListFactory());			
 			
 			for (final Map.Entry<ByteArrayId,VALUEIN> primary : primaries.entrySet()) {		
 				int addCount = 0;
@@ -290,8 +279,8 @@ public class NNMapReduce
 					context);
 		}
 		
-		public List<Map.Entry<ByteArrayId,VALUEIN>> createNeighborsList() {
-			return  new ArrayList<Map.Entry<ByteArrayId,VALUEIN>>();
+		public  NeighborListFactory<VALUEIN> createNeighborsListFactory() {
+			return new DefaultNeighborList.DefaultNeighborListFactory<VALUEIN>();
 		}
 
 		/**
@@ -317,7 +306,7 @@ public class NNMapReduce
 				PartitionData partitionData,
 				ByteArrayId primaryId,
 				VALUEIN primary,
-				List<Map.Entry<ByteArrayId,VALUEIN>> neighborIndex,
+				NeighborList<VALUEIN> neighbors,
 				Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context,
 				PARTITION_SUMMARY summary )
 				throws IOException,
@@ -351,7 +340,7 @@ public class NNMapReduce
 						CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
 						NNMapReduce.class,
 						DistanceFn.class,
-						FeatureDistanceFn.class);
+						FeatureGeometryDistanceFn.class);
 			}
 			catch (InstantiationException | IllegalAccessException e) {
 				throw new IOException(
@@ -387,7 +376,7 @@ public class NNMapReduce
 				final PartitionData partitionData,
 				final ByteArrayId primaryId,
 				final SimpleFeature primary,
-				final List<Map.Entry<ByteArrayId,SimpleFeature>> neighbors,
+				final NeighborList<SimpleFeature> neighbors,
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, Text, Text>.Context context,
 				final Boolean summary )
 				throws IOException,

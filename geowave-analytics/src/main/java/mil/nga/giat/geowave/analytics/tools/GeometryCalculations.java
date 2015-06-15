@@ -7,6 +7,8 @@ import javax.measure.quantity.Length;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
+import mil.nga.giat.geowave.analytics.distance.DistanceFn;
+
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.geometry.DirectPosition;
@@ -187,4 +189,25 @@ public class GeometryCalculations
 		}
 
 	}
+	/*
+	 * public static double measureDistanceBetweenGeometries( final
+	 * DistanceFn<Coordinate> distanceFnForCoordinate, final Geometry g1, final
+	 * Geometry g2 ) { if (g1.distance(g2) <= 0.0) { return 0.0; } Coordinate
+	 * minG1 = null, minG2 = null;
+	 * 
+	 * double minDist = Double.MAX_VALUE; final Coordinate[] g1Coords =
+	 * g1.getCoordinates(); final Coordinate[] g2Coords = g2.getCoordinates();
+	 * int g1Pos, g2Pos; for (int g1i = 0; g1i < g1Coords.length; g1i++) { final
+	 * Coordinate g1coord = g1Coords[g1i]; for (int g2i = 0; g2i <
+	 * g1Coords.length; g2i++) { final Coordinate g2coord = g2Coords[g2i]; final
+	 * double dist = (distanceFnForCoordinate.measure( g1coord, g2coord)); if
+	 * (dist < minDist) { minG1 = g1coord; minG2 = g2coord; minDist = dist;
+	 * g1Pos = g1i; g2Pos = g2i; } } } if (g1Coords.length == 1) { if
+	 * (g2Coords.length == 1) { // one point to one point return minDist; } }
+	 * final double base = distanceFnForCoordinate.measure( minG1, lastMinG1);
+	 * final double s1 = distanceFnForCoordinate.measure( minG1, minG2); final
+	 * double s2 = distanceFnForCoordinate.measure( lastMinG2, minG2); final
+	 * double p = (s1 + s2 + base) / 2.0; final double area = Math.sqrt(p * (p -
+	 * base) * (p - s1) * (p - s2)); return (2 * area) / base; }
+	 */
 }

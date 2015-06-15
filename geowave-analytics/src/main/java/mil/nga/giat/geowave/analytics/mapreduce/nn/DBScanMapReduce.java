@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -16,6 +15,8 @@ import mil.nga.giat.geowave.analytics.distance.CoordinateCircleDistanceFn;
 import mil.nga.giat.geowave.analytics.distance.DistanceFn;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNMapReduce.NNReducer;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNMapReduce.PartitionDataWritable;
+import mil.nga.giat.geowave.analytics.mapreduce.nn.SimpleFeatureClusterList.GeometryIterable;
+import mil.nga.giat.geowave.analytics.mapreduce.nn.SimpleFeatureClusterList.SimpleFeatureClusterListFactory;
 import mil.nga.giat.geowave.analytics.parameters.ClusteringParameters;
 import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.GlobalParameters;
@@ -56,23 +57,6 @@ public class DBScanMapReduce
 			NNReducer<VALUEIN, KEYOUT, VALUEOUT, Map<ByteArrayId, Cluster<VALUEIN>>>
 	{
 		protected int minOwners = 0;
-		protected ClusterMemberSize<VALUEIN> memberSizeFn = new ClusterMemberSize<VALUEIN>() {
-			@Override
-			public long getCount(
-					final Cluster<VALUEIN> cluster ) {
-				return cluster.getSize();
-			}
-		};
-
-		protected HullBuilder<VALUEIN> hullBuilder;
-
-		@Override
-		public List<Map.Entry<ByteArrayId, VALUEIN>> createNeighborsList() {
-			// one less neighbor so that the NN component does not clip on our
-			// behalf
-			return new ClippedList<VALUEIN>(
-					super.maxNeighbors - 1);
-		}
 
 		@Override
 		protected Map<ByteArrayId, Cluster<VALUEIN>> createSummary() {
@@ -84,7 +68,7 @@ public class DBScanMapReduce
 				final PartitionData partitionData,
 				final ByteArrayId primaryId,
 				final VALUEIN primary,
-				final List<Map.Entry<ByteArrayId, VALUEIN>> neighbors,
+				final NeighborList<VALUEIN> neighbors,
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context,
 				final Map<ByteArrayId, Cluster<VALUEIN>> summary )
 				throws IOException,
@@ -96,10 +80,9 @@ public class DBScanMapReduce
 			Cluster.mergeClusters(
 					summary,
 					new Cluster<VALUEIN>(
-							memberSizeFn,
 							primaryId,
 							primary,
-							(ClippedList<VALUEIN>) neighbors));
+							neighbors));
 
 		}
 
@@ -122,43 +105,32 @@ public class DBScanMapReduce
 					"Minumum owners = {}",
 					minOwners);
 
-			try {
-				hullBuilder = config.getInstance(
-						HullParameters.Hull.HULL_BUILDER,
-						NNMapReduce.class,
-						HullBuilder.class,
-						PointMergeBuilder.class);
-
-				hullBuilder.initialize(config);
-			}
-			catch (final Exception e1) {
-				throw new IOException(
-						e1);
-			}
 		}
 	}
 
-	public static class DBScanMapHullReducer<VALUEIN> extends
-			DBScanMapReducer<VALUEIN, GeoWaveInputKey, ObjectWritable>
+	public static class DBScanMapHullReducer extends
+			DBScanMapReducer<SimpleFeature, GeoWaveInputKey, ObjectWritable>
 	{
 		private String batchID;
 		private int zoomLevel = 1;
 		private int iteration = 1;
 		private FeatureDataAdapter outputAdapter;
+		protected HullBuilder hullBuilder;
+		protected Projection<SimpleFeature> projectionFunction;
 
 		private final ObjectWritable output = new ObjectWritable();
 
 		@Override
 		protected void processSummary(
 				final PartitionData partitionData,
-				final Map<ByteArrayId, Cluster<VALUEIN>> summary,
+				final Map<ByteArrayId, Cluster<SimpleFeature>> summary,
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context )
 				throws IOException,
 				InterruptedException {
 			final HadoopWritableSerializer<SimpleFeature, FeatureWritable> serializer = outputAdapter.createWritableSerializer();
-			final Set<Cluster<VALUEIN>> processed = new HashSet<Cluster<VALUEIN>>();
-			for (final Map.Entry<ByteArrayId, Cluster<VALUEIN>> entry : summary.entrySet()) {
-				final Cluster<VALUEIN> cluster = entry.getValue();
+			final Set<Cluster<SimpleFeature>> processed = new HashSet<Cluster<SimpleFeature>>();
+			for (final Map.Entry<ByteArrayId, Cluster<SimpleFeature>> entry : summary.entrySet()) {
+				final Cluster<SimpleFeature> cluster = entry.getValue();
 				if (!processed.contains(cluster)) {
 					processed.add(cluster);
 					final SimpleFeature newPolygonFeature = AnalyticFeature.createGeometryFeature(
@@ -193,6 +165,15 @@ public class DBScanMapReduce
 			}
 		}
 
+		public NeighborListFactory<SimpleFeature> createNeighborsListFactory() {
+			return new SimpleFeatureClusterListFactory(
+					this.outputAdapter.getType().getName().getLocalPart(),
+					projectionFunction,
+					this.maxDistance,
+					this.maxNeighbors);
+		}
+
+		@SuppressWarnings("unchecked")
 		@Override
 		protected void setup(
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context )
@@ -233,50 +214,22 @@ public class DBScanMapReduce
 							BasicFeatureTypes.DEFAULT_NAMESPACE),
 					ClusteringUtils.CLUSTERING_CRS);
 
-			memberSizeFn = new ClusterMemberSize<VALUEIN>() {
-				@Override
-				public long getCount(
-						final Cluster<VALUEIN> cluster ) {
-					long count = cluster.members.size();
-					if (cluster.center instanceof SimpleFeature) {
-						final SimpleFeature sf = (SimpleFeature) cluster.center;
-						// this occurs in the case of multiple iterations of DB
-						// SCAN
-						if (sf.getFeatureType().getName().getLocalPart().equals(
-								outputAdapter.getType().getName().getLocalPart())) {
-							count = (Long) sf.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName());
-							for (final Map.Entry<ByteArrayId, VALUEIN> member : cluster.members) {
-								final SimpleFeature sfm = (SimpleFeature) member.getValue();
-								count += (Long) sfm.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName());
-							}
-						}
-					}
-					return count;
-				}
-			};
-
-		}
-	}
-
-	public static interface HullBuilder<VALUEIN> extends
-			Projection<Cluster<VALUEIN>>
-	{
-	}
-
-	public static class PointMergeBuilder<VALUEIN> implements
-			HullBuilder<VALUEIN>
-	{
-		Projection<VALUEIN> projectionFunction;
-		DistanceFn<Coordinate> distanceFunction;
-		GeometryHullTool connectGeometryTool = new GeometryHullTool();
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void initialize(
-				final ConfigurationWrapper context )
-				throws IOException {
 			try {
-				projectionFunction = context.getInstance(
+				hullBuilder = config.getInstance(
+						HullParameters.Hull.HULL_BUILDER,
+						NNMapReduce.class,
+						HullBuilder.class,
+						PointMergeBuilder.class);
+
+				hullBuilder.initialize(config);
+			}
+			catch (final Exception e1) {
+				throw new IOException(
+						e1);
+			}
+
+			try {
+				projectionFunction = config.getInstance(
 						HullParameters.Hull.PROJECTION_CLASS,
 						HullBuilder.class,
 						Projection.class,
@@ -286,6 +239,27 @@ public class DBScanMapReduce
 				throw new IOException(
 						e);
 			}
+
+		}
+	}
+
+	public static interface HullBuilder extends
+			Projection<Cluster<SimpleFeature>>
+	{
+	}
+
+	public static class PointMergeBuilder implements
+			HullBuilder
+	{
+
+		DistanceFn<Coordinate> distanceFunction;
+		GeometryHullTool connectGeometryTool = new GeometryHullTool();
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void initialize(
+				final ConfigurationWrapper context )
+				throws IOException {
 
 			try {
 				distanceFunction = context.getInstance(
@@ -315,25 +289,22 @@ public class DBScanMapReduce
 						HullParameters.Hull.PROJECTION_CLASS
 					});
 
-			projectionFunction.setup(
-					runTimeProperties,
-					configuration);
 		}
 
 		@Override
 		public Geometry getProjection(
-				final Cluster<VALUEIN> cluster ) {
+				final Cluster<SimpleFeature> cluster ) {
+			final Geometry centerGeometry = (Geometry) cluster.center.getDefaultGeometry();
 			if (cluster.members.isEmpty()) {
-				return projectionFunction.getProjection(cluster.center);
+				return centerGeometry;
 			}
 			final Set<Coordinate> batchCoords = new HashSet<Coordinate>();
-			for (final Coordinate coordinate : projectionFunction.getProjection(
-					cluster.center).getCoordinates()) {
+			for (final Coordinate coordinate : centerGeometry.getCoordinates()) {
 				batchCoords.add(coordinate);
 			}
-			for (final Map.Entry<ByteArrayId, VALUEIN> member : cluster.members) {
-				for (final Coordinate coordinate : projectionFunction.getProjection(
-						member.getValue()).getCoordinates()) {
+			for (final Map.Entry<ByteArrayId, Geometry> member : new GeometryIterable(
+					(SimpleFeatureClusterList) cluster.members)) {
+				for (final Coordinate coordinate : member.getValue().getCoordinates()) {
 					batchCoords.add(coordinate);
 				}
 			}
@@ -374,7 +345,8 @@ public class DBScanMapReduce
 						"Failed to compute hull",
 						ex);
 				LOGGER.warn(cluster.center.toString());
-				for (final Map.Entry<ByteArrayId, VALUEIN> member : cluster.members) {
+				for (final Map.Entry<ByteArrayId, Geometry> member : new GeometryIterable(
+						(SimpleFeatureClusterList) cluster.members)) {
 					LOGGER.warn(member.getValue().toString());
 				}
 				throw ex;
@@ -384,8 +356,8 @@ public class DBScanMapReduce
 	}
 
 	public static class HullMergeBuilder extends
-			PointMergeBuilder<SimpleFeature> implements
-			HullBuilder<SimpleFeature>
+			PointMergeBuilder implements
+			HullBuilder
 	{
 
 		private Geometry addToHull(
@@ -404,13 +376,15 @@ public class DBScanMapReduce
 		@Override
 		public Geometry getProjection(
 				final Cluster<SimpleFeature> cluster ) {
+			final Geometry centerGeometry = (Geometry) cluster.center.getDefaultGeometry();
 			if (cluster.members.isEmpty()) {
-				return projectionFunction.getProjection(cluster.center);
+				return centerGeometry;
 			}
-			Geometry hull = (Geometry) cluster.center.getDefaultGeometry();
+			Geometry hull = centerGeometry;
 
-			for (final Map.Entry<ByteArrayId, SimpleFeature> member : cluster.members) {
-				final Geometry hulltoUnion = (Geometry) member.getValue().getDefaultGeometry();
+			for (final Map.Entry<ByteArrayId, Geometry> member : new GeometryIterable(
+					(SimpleFeatureClusterList) cluster.members)) {
+				final Geometry hulltoUnion = (Geometry) member.getValue();
 				try {
 					hull = hull.union(hulltoUnion);
 				}
@@ -430,48 +404,23 @@ public class DBScanMapReduce
 	public static class Cluster<VALUE>
 	{
 		final protected VALUE center;
-		final protected ClippedList<VALUE> members;
+		final protected NeighborList<VALUE> members;
 		protected long size = 0;
 		protected double density = 0;
-		final private ClusterMemberSize<VALUE> memberSizeFn;
 		final private ByteArrayId id;
-		final private boolean isHull = false;
-
-		public Cluster(
-				final ClusterMemberSize<VALUE> memberSizeFn,
-				final ByteArrayId centerId,
-				final VALUE center,
-				final ClippedList<VALUE> members ) {
-			super();
-			this.id = centerId;
-			this.center = center;
-			this.memberSizeFn = memberSizeFn;
-			this.members = members;
-			this.size = memberSizeFn.getCount(this);
-			density = size;
-		}
 
 		public Cluster(
 				final ByteArrayId centerId,
 				final VALUE center,
-				final ClippedList<VALUE> members ) {
+				final NeighborList<VALUE> members ) {
 			super();
 			this.id = centerId;
 			this.center = center;
-			this.memberSizeFn = new ClusterMemberSize<VALUE>() {
-
-				@Override
-				public long getCount(
-						final Cluster<VALUE> cluster ) {
-					return cluster.members.addCount();
-				}
-			};
 			this.members = members;
-			this.size = memberSizeFn.getCount(this);
 			density = size;
 		}
 
-		public static <VALUE> void mergeClusters(
+		public static <VALUE, CONVTYPE> void mergeClusters(
 				final Map<ByteArrayId, Cluster<VALUE>> index,
 				final Cluster<VALUE> newCluster ) {
 
@@ -534,17 +483,21 @@ public class DBScanMapReduce
 						clusterToMerge.center));
 			}
 
-			for (final Map.Entry<ByteArrayId, VALUE> neighbor : clusterToMerge.members) {
-				if (index.get(neighbor.getKey()) != this) {
-					members.add(neighbor);
-					index.put(
-							neighbor.getKey(),
-							this);
-				}
-			}
+			this.members.merge(
+					clusterToMerge.members,
+					new NeighborList.Callback<VALUE>() {
+
+						@Override
+						public void add(
+								final ByteArrayId key ) {
+							index.put(
+									key,
+									Cluster.this);
+
+						}
+
+					});
 			clusterToMerge.members.clear();
-			// update the merged count
-			this.size = memberSizeFn.getCount(this);
 		}
 
 		public long getSize() {
@@ -582,12 +535,6 @@ public class DBScanMapReduce
 			}
 			return true;
 		}
-	}
-
-	public interface ClusterMemberSize<VALUE>
-	{
-		long getCount(
-				Cluster<VALUE> cluster );
 	}
 
 }
