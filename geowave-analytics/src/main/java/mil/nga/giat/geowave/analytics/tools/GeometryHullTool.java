@@ -436,6 +436,77 @@ public class GeometryHullTool
 				e2.end) <= 0.0;
 	}
 
+	/**
+	 * 
+	 * Gift unwrapping (e.g. dig) concept, taking a convex hull and a set of
+	 * inner points, add inner points to the hull without violating hull
+	 * invariants--all points must reside on the hull or inside the hull. Based
+	 * on: Jin-Seo Park and Se-Jong Oh.
+	 * "A New Concave Algorithm and Concaveness Measure for n-dimensional Datasets"
+	 * . Department of Nanobiomedical Science. Dankook University". 2010.
+	 * 
+	 * Per the paper, N = concaveThreshold.
+	 * 
+	 * This algorithm evaluates remarkably better that Park and Oh, but the
+	 * quality of the result is merginally less.
+	 * 
+	 * @param geometry
+	 * @param providedInnerPoints
+	 * @return
+	 */
+	public static Geometry addPoints(
+			final Geometry geometry,
+			final Coordinate[] points ) {
+		final TreeSet<Edge> edges = new TreeSet<Edge>();
+		final Coordinate[] geoCoordinateList = geometry.getCoordinates();
+		final int s = geoCoordinateList.length - 1;
+		final Edge firstEdge = new Edge(
+				geoCoordinateList[0],
+				geoCoordinateList[1],
+				0.0);
+		Edge lastEdge = firstEdge;
+		for (int i = 1; i < s; i++) {
+			final Edge newEdge = new Edge(
+					geoCoordinateList[i],
+					geoCoordinateList[i + 1],
+					0.0);
+			newEdge.connectLast(lastEdge);
+			lastEdge = newEdge;
+		}
+		firstEdge.connectLast(lastEdge);
+		for (final Coordinate candidate : points) {
+			double min = Double.MAX_VALUE;
+			Edge bestEdge = null;
+			for (final Edge edge : edges) {
+				final double dist = calcDistance(
+						edge.start,
+						edge.end,
+						candidate);
+				if ((dist > 0) && (dist < min)) {
+					min = dist;
+					bestEdge = edge;
+				}
+			}
+			if (bestEdge != null) {
+				final Edge newEdge1 = new Edge(
+						bestEdge.start,
+						candidate,
+						0.0);
+				final Edge newEdge2 = new Edge(
+						candidate,
+						bestEdge.end,
+						0.0);
+				edges.add(newEdge2);
+				edges.add(newEdge1);
+				newEdge1.connectLast(bestEdge.last);
+				newEdge2.connectLast(newEdge1);
+				bestEdge.next.connectLast(newEdge2);
+			}
+		}
+		return geometry.getFactory().createPolygon(
+				reassemble(lastEdge));
+	}
+
 	private static boolean isCandidateCloserToAnotherEdge(
 			final double distanceToBeat,
 			final Edge selectedEdgeToBeat,
@@ -497,7 +568,7 @@ public class GeometryHullTool
 	public Geometry connect(
 			final Geometry shape1,
 			final Geometry shape2 ) {
-
+		if (shape1.intersects(shape2)) return shape1.union(shape2);
 		return connect(
 				shape1,
 				shape2,

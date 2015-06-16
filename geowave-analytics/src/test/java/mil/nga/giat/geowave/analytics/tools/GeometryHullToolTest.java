@@ -7,9 +7,12 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import mil.nga.giat.geowave.analytics.distance.CoordinateCircleDistanceFn;
+import mil.nga.giat.geowave.analytics.tools.GeometryGenerator.DistortationFn;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -17,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.algorithm.ConvexHull;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -349,6 +353,37 @@ public class GeometryHullToolTest
 
 	}
 
+	private Random r = new Random(
+			7777);
+
+	private Coordinate pickOneAndAugmentOne(
+			Coordinate[] list ) {
+		final Coordinate select = list[(Math.abs(r.nextInt()) % list.length)];
+		return new Coordinate(
+				select.x + r.nextGaussian(),
+				select.y + r.nextGaussian(),
+				select.z);
+	}
+
+	@Test
+	public void testConcaveHullIncrementalBuildTest() {
+
+		Geometry geo = factory.createPolygon(poly2);
+		for (int i = 0; i < 1000; i++) {
+			geo = GeometryHullTool.addPoints(
+					geo,
+					new Coordinate[] {
+						pickOneAndAugmentOne(poly2)
+					});
+		}
+		// writeToShapeFile(
+		// "final_increment",
+		// geo);
+
+		assertTrue(geo.isSimple());
+
+	}
+
 	final Coordinate[] poly1 = new Coordinate[] {
 		new Coordinate(
 				40,
@@ -434,6 +469,87 @@ public class GeometryHullToolTest
 		assertEquals(
 				"POLYGON ((39.2 41.2, 39 40.7, 38.7 40.1, 38.4 39.5, 39.3 39.2, 40.6 39.6, 40.8 40.6, 41.2 40.8, 40.5 41, 39.2 41.2))",
 				geo.toString());
+	}
+
+//	@Test
+	public void testRandomConnect()
+			throws IOException {
+
+		final GeometryHullTool cg = new GeometryHullTool();
+		cg.setDistanceFnForCoordinate(new CoordinateCircleDistanceFn());
+		Iterator<Geometry> it1 = GeometryGenerator.generate(
+				1000,
+				Arrays.asList(
+						0.9,
+						0.75,
+						1.1),
+				new DistortationFn() {
+					final Random r = new Random(
+							7777);
+
+					@Override
+					public double distort() {
+						return r.nextDouble();
+					}
+
+				},
+				5,
+				new Envelope(
+						45,
+						55,
+						35,
+						45));
+		Iterator<Geometry> it2 = GeometryGenerator.generate(
+				1000,
+				Arrays.asList(
+						0.9,
+						0.75,
+						1.1),
+				new DistortationFn() {
+					final Random r = new Random(
+							7777);
+
+					@Override
+					public double distort() {
+						return r.nextDouble();
+					}
+
+				},
+				5,
+				new Envelope(
+						05,
+						15,
+						85,
+						95));
+
+		while (it1.hasNext()) {
+			Geometry rightShape = it1.next();
+			Geometry leftShape = it2.next();
+
+			ShapefileTool.writeShape(
+					"test_random",
+					new File(
+							"./target/test_randoms"),
+					new Geometry[] {
+						leftShape,
+						rightShape
+					});
+			Geometry geo = cg.connect(
+					leftShape,
+					rightShape);
+
+			ShapefileTool.writeShape(
+					"test_random",
+					new File(
+							"./target/test_random"),
+					new Geometry[] {
+						geo
+					});
+			if (!geo.isSimple()) {
+
+				assertTrue(false);
+			}
+		}
 	}
 
 	private Coordinate[] reversed(

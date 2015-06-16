@@ -15,7 +15,6 @@ import mil.nga.giat.geowave.analytics.distance.CoordinateCircleDistanceFn;
 import mil.nga.giat.geowave.analytics.distance.DistanceFn;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNMapReduce.NNReducer;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNMapReduce.PartitionDataWritable;
-import mil.nga.giat.geowave.analytics.mapreduce.nn.SimpleFeatureClusterList.GeometryIterable;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.SimpleFeatureClusterList.SimpleFeatureClusterListFactory;
 import mil.nga.giat.geowave.analytics.parameters.ClusteringParameters;
 import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
@@ -49,6 +48,26 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
+/**
+ * The approach differs from the approach commonly documented (e.g.
+ * https://en.wikipedia.org/wiki/DBSCAN). This approach does not maintain a
+ * queue of viable neighbors to navigate.
+ * 
+ * Each cluster is a centroid with its neighbors. Clusters are merged if they
+ * share neighbors in common and both clusters meet the minimum size
+ * constraints.
+ * 
+ * Clusters may be made up of points or geometries.
+ * 
+ * There are two HullBuilders. The first builder is suitable for a first
+ * iteration, finding and composing concave clusters from raw data. The second
+ * builder is used to union those clusters on subsequent iterations. If the
+ * clusters do not intersect, then shortest two possible edges are added to form
+ * a connection.
+ * 
+ * @author roberteb
+ * 
+ */
 public class DBScanMapReduce
 {
 	protected static final Logger LOGGER = LoggerFactory.getLogger(DBScanMapReduce.class);
@@ -74,7 +93,7 @@ public class DBScanMapReduce
 				throws IOException,
 				InterruptedException {
 
-			if (neighbors.size() < minOwners) {
+			if ((neighbors == null) || (neighbors.size() == 0 || neighbors.size() < minOwners)) {
 				return;
 			}
 			Cluster.mergeClusters(
@@ -302,8 +321,7 @@ public class DBScanMapReduce
 			for (final Coordinate coordinate : centerGeometry.getCoordinates()) {
 				batchCoords.add(coordinate);
 			}
-			for (final Map.Entry<ByteArrayId, Geometry> member : new GeometryIterable(
-					(SimpleFeatureClusterList) cluster.members)) {
+			for (final Map.Entry<ByteArrayId, Geometry> member : ((ConvertingList<Geometry>) cluster.members).getIterable()) {
 				for (final Coordinate coordinate : member.getValue().getCoordinates()) {
 					batchCoords.add(coordinate);
 				}
@@ -345,8 +363,7 @@ public class DBScanMapReduce
 						"Failed to compute hull",
 						ex);
 				LOGGER.warn(cluster.center.toString());
-				for (final Map.Entry<ByteArrayId, Geometry> member : new GeometryIterable(
-						(SimpleFeatureClusterList) cluster.members)) {
+				for (final Map.Entry<ByteArrayId, Geometry> member : ((ConvertingList<Geometry>) cluster.members).getIterable()) {
 					LOGGER.warn(member.getValue().toString());
 				}
 				throw ex;
@@ -382,11 +399,15 @@ public class DBScanMapReduce
 			}
 			Geometry hull = centerGeometry;
 
-			for (final Map.Entry<ByteArrayId, Geometry> member : new GeometryIterable(
-					(SimpleFeatureClusterList) cluster.members)) {
+			for (final Map.Entry<ByteArrayId, Geometry> member : ((ConvertingList<Geometry>) cluster.members).getIterable()) {
 				final Geometry hulltoUnion = (Geometry) member.getValue();
 				try {
-					hull = hull.union(hulltoUnion);
+					if (hull.intersects(hulltoUnion))
+						hull = hull.union(hulltoUnion);
+					else
+						hull = connectGeometryTool.connect(
+								hull,
+								hulltoUnion);
 				}
 				catch (final com.vividsolutions.jts.geom.TopologyException ex) {
 					hull = addToHull(
@@ -401,6 +422,11 @@ public class DBScanMapReduce
 		}
 	}
 
+	/**
+	 * Core component of the DBSCan algorithm
+	 * 
+	 * @param <VALUE>
+	 */
 	public static class Cluster<VALUE>
 	{
 		final protected VALUE center;
@@ -470,12 +496,6 @@ public class DBScanMapReduce
 			index.put(
 					clusterToMerge.id,
 					this);
-
-			// if (members.size() + clusterToMerge.members.size() >
-			// members.getMaxSize()) {
-			// Geometry thisHull = hullBuilder.getProjection(this);
-			// Geometry otherHull = hullBuilder.getProjection(clusterToMerge);
-			// }
 
 			if (index.get(clusterToMerge.id) != this) {
 				members.add(new AbstractMap.SimpleEntry<ByteArrayId, VALUE>(
