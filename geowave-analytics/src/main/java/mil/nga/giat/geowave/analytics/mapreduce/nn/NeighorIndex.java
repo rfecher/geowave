@@ -62,7 +62,9 @@ public class NeighorIndex<NNTYPE>
 			final Map.Entry<ByteArrayId, NNTYPE> neighbor ) {
 		NeighborList<NNTYPE> neighbors = index.get(center.getKey());
 		if (neighbors == null) {
-			neighbors = listFactory.buildNeighborList(center.getValue());
+			neighbors = listFactory.buildNeighborList(
+					center.getKey(),
+					center.getValue());
 			index.put(
 					center.getKey(),
 					neighbors);

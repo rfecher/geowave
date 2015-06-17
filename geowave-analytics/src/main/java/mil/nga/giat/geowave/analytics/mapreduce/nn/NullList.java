@@ -39,12 +39,6 @@ public class NullList<NNTYPE> implements
 	}
 
 	@Override
-	public NNTYPE get(
-			ByteArrayId key ) {
-		return null;
-	}
-
-	@Override
 	public boolean isEmpty() {
 		return true;
 	}

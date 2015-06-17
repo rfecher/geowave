@@ -50,6 +50,7 @@ public class DefaultNeighborList<NNTYPE> implements
 	{
 		@Override
 		public NeighborList<NNTYPE> buildNeighborList(
+				ByteArrayId centerId,
 				NNTYPE center ) {
 			return new DefaultNeighborList<NNTYPE>();
 		}
@@ -60,7 +61,6 @@ public class DefaultNeighborList<NNTYPE> implements
 		return list.isEmpty();
 	}
 
-	@Override
 	public NNTYPE get(
 			ByteArrayId key ) {
 		for (Entry<ByteArrayId, NNTYPE> entry : list) {

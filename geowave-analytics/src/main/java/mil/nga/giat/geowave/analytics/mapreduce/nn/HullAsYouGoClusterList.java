@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import mil.nga.giat.geowave.analytics.distance.DistanceFn;
 import mil.nga.giat.geowave.analytics.tools.AnalyticFeature;
@@ -19,7 +18,6 @@ import mil.nga.giat.geowave.analytics.tools.PropertyManagement;
 import mil.nga.giat.geowave.index.ByteArrayId;
 
 import org.apache.hadoop.conf.Configuration;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
@@ -45,8 +43,8 @@ public class HullAsYouGoClusterList implements
 	private final int maxSize;
 	private Projection<SimpleFeature> projectionFunction;
 	private String clusterFeatureTypeName;
-	private final SimpleFeature clusterImage;
-	private List<Coordinate> cluster = new ArrayList<Coordinate>();
+	private Geometry clusterGeo;
+	private List<Coordinate> clusterPoints = new ArrayList<Coordinate>();
 	private GeometryHullTool connectGeometryTool = new GeometryHullTool();
 	// maintains the count of a geometry representing a cluster of points
 	private HashMap<ByteArrayId, Long> clusteredGeometryCounts = null;
@@ -56,22 +54,12 @@ public class HullAsYouGoClusterList implements
 			final Projection<SimpleFeature> projectionFunction,
 			final DistanceFn<Coordinate> distanceFnForCoordinate,
 			final int maxSize,
+			final ByteArrayId centerId,
 			final SimpleFeature center ) {
 		super();
-		final Object[] defaults = new Object[center.getFeatureType().getAttributeDescriptors().size()];
-		int p = 0;
-		for (final AttributeDescriptor descriptor : center.getFeatureType().getAttributeDescriptors()) {
-			defaults[p++] = descriptor.getDefaultValue();
-		}
-
-		// see reason in the iterator
-		this.clusterImage = SimpleFeatureBuilder.build(
-				center.getFeatureType(),
-				defaults,
-				UUID.randomUUID().toString());
 
 		this.connectGeometryTool.setDistanceFnForCoordinate(distanceFnForCoordinate);
-		this.clusterImage.setDefaultGeometry(center.getDefaultGeometry());
+
 		this.projectionFunction = projectionFunction == null ? new Projection<SimpleFeature>() {
 
 			@Override
@@ -95,6 +83,18 @@ public class HullAsYouGoClusterList implements
 
 		this.maxSize = maxSize;
 		this.clusterFeatureTypeName = clusterFeatureTypeName;
+		final Geometry clusterGeo = (this.projectionFunction.getProjection(center));
+
+		// start with the center. TODO Should change to a buffer!!!
+		this.clusterGeo = (!center.getFeatureType().getName().getLocalPart().equals(
+				clusterFeatureTypeName)) ? clusterGeo.getCentroid() : clusterGeo;
+
+		for (Coordinate coordinate : this.clusterGeo.getCoordinates()) {
+			clusterPoints.add(coordinate);
+		}
+		this.add(
+				centerId,
+				center);
 	}
 
 	private static final Long ONE = 1L;
@@ -103,38 +103,54 @@ public class HullAsYouGoClusterList implements
 	@Override
 	public boolean add(
 			final Entry<ByteArrayId, SimpleFeature> entry ) {
+		return this.add(
+				entry.getKey(),
+				entry.getValue());
+	}
 
-		if (getCount(entry.getKey()) == 0) return false;
-		final SimpleFeature newInstance = entry.getValue();
-		Geometry newGeo = projectionFunction.getProjection(entry.getValue());
-		final Geometry centerGeo = (Geometry) clusterImage.getDefaultGeometry();
+	private boolean add(
+			final ByteArrayId id,
+			final SimpleFeature newInstance ) {
+		if (getCount(id) != 0) return false;
+		Geometry newGeo = projectionFunction.getProjection(newInstance);
 		Long count = ONE;
 		if (newInstance.getFeatureType().getName().getLocalPart().equals(
 				clusterFeatureTypeName)) {
 			count = (Long) newInstance.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName());
-			clusterImage.setDefaultGeometry(centerGeo.union(newGeo));
+			clusterGeo = clusterGeo.union(newGeo);
 		}
-
 		else {
 			newGeo = clip(
-					centerGeo,
+					clusterGeo,
 					newGeo);
-			if (!centerGeo.covers(newGeo)) {
+
+			Geometry differentSet = newGeo;
+			try {
+			 differentSet = newGeo.difference(clusterGeo);
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			if (!differentSet.isEmpty()) {
 
 				// not a cluster geometry...shrink it to size of this centroid
 				// since it may be big (line, polygon, etc.)
 
-				clusterImage.setDefaultGeometry(GeometryHullTool.addPoints(
-						centerGeo,
-						newGeo.getCoordinates()));
+				clusterGeo = GeometryHullTool.addPoints(
+						clusterGeo,
+						differentSet.getCoordinates());
 			}
 			else {
 				for (final Coordinate coordinate : newGeo.getCoordinates())
-					this.cluster.add(coordinate);
+					this.clusterPoints.add(coordinate);
 			}
 		}
-		putCount(entry.getKey(),count);
+
+		putCount(
+				id,
+				count);
 		addCount += count;
+
 		return true;
 	}
 
@@ -185,12 +201,6 @@ public class HullAsYouGoClusterList implements
 	}
 
 	@Override
-	public SimpleFeature get(
-			ByteArrayId key ) {
-		return clusterImage;
-	}
-
-	@Override
 	public void merge(
 			NeighborList<SimpleFeature> otherList,
 			mil.nga.giat.geowave.analytics.mapreduce.nn.NeighborList.Callback<SimpleFeature> callback ) {
@@ -208,6 +218,7 @@ public class HullAsYouGoClusterList implements
 		final DistanceOp op = new DistanceOp(
 				centerGeo,
 				geometry);
+		// TODO : buffer distance
 		return centerGeo.getFactory().createPoint(
 				op.nearestPoints()[1]);
 	}
@@ -217,10 +228,10 @@ public class HullAsYouGoClusterList implements
 		return new GeometryIterable(
 				this);
 	}
-	
+
 	private Long getCount(
 			ByteArrayId keyId ) {
-		if (clusteredGeometryCounts == null) return ZERO;
+		if (clusteredGeometryCounts == null || !clusteredGeometryCounts.containsKey(keyId)) return ZERO;
 		return clusteredGeometryCounts.get(keyId);
 	}
 
@@ -250,8 +261,8 @@ public class HullAsYouGoClusterList implements
 					(Entry<ByteArrayId, Geometry>) new AbstractMap.SimpleEntry<ByteArrayId, Geometry>(
 							(ByteArrayId) null,
 							geometryMembers.connectGeometryTool.concaveHull(
-									(Geometry) geometryMembers.clusterImage.getDefaultGeometry(),
-									geometryMembers.cluster))).iterator();
+									geometryMembers.clusterGeo,
+									geometryMembers.clusterPoints))).iterator();
 		}
 	}
 
@@ -279,12 +290,14 @@ public class HullAsYouGoClusterList implements
 		}
 
 		public NeighborList<SimpleFeature> buildNeighborList(
-				SimpleFeature center ) {
+				final ByteArrayId centerId,
+				final SimpleFeature center ) {
 			return new HullAsYouGoClusterList(
 					clusterFeatureTypeName,
 					projectionFunction,
 					distanceFnForCoordinate,
 					maxSize,
+					centerId,
 					center);
 		}
 	}

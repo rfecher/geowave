@@ -491,7 +491,9 @@ public class DBScanMapReduceTest
 						"NA",
 						null,
 						10000000,
-						(Geometry) geo1.getDefaultGeometry()));
+						new ByteArrayId(
+								"123"),
+						geo1));
 		sfCluster.members.add(new AbstractMap.SimpleEntry<ByteArrayId, SimpleFeature>(
 				new ByteArrayId(
 						geo2.getID()),

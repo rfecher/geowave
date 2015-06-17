@@ -10,8 +10,6 @@ public interface NeighborList<NNTYPE> extends
 	public boolean add(
 			Entry<ByteArrayId, NNTYPE> entry );
 
-	public NNTYPE get(
-			ByteArrayId key );
 
 	public boolean contains(
 			ByteArrayId key );

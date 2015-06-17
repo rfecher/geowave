@@ -29,7 +29,6 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * Intended to run in a single thread. Not Thread Safe.
  * 
  * 
- * @param <VALUEIN>
  */
 public class SimpleFeatureClusterList implements
 		NeighborList<SimpleFeature>,
@@ -52,9 +51,9 @@ public class SimpleFeatureClusterList implements
 			final String clusterFeatureTypeName,
 			final Projection<SimpleFeature> projectionFunction,
 			final int maxSize,
-			final Geometry center ) {
+			final ByteArrayId centerId,
+			final SimpleFeature center ) {
 		super();
-		this.center = center;
 		this.projectionFunction = projectionFunction == null ? new Projection<SimpleFeature>() {
 
 			@Override
@@ -78,14 +77,59 @@ public class SimpleFeatureClusterList implements
 
 		this.maxSize = maxSize;
 		this.clusterFeatureTypeName = clusterFeatureTypeName;
+		this.center = this.projectionFunction.getProjection(center);
+		this.add(
+				centerId,
+				center);
+
 	}
 
 	private static final Long ONE = 1L;
+	private static final Long ZERO = 0L;
 
 	@Override
 	public boolean add(
 			final Entry<ByteArrayId, SimpleFeature> entry ) {
-		final SimpleFeature newInstance = entry.getValue();
+		return this.add(
+				entry.getKey(),
+				entry.getValue());
+	}
+
+	private boolean add(
+			final ByteArrayId id,
+			final SimpleFeature newInstance ) {
+
+		updateSample(
+				id,
+				newInstance);
+		if (!clusteredGeometries.containsKey(id)) {
+			Long count = ONE;
+			Geometry geo = projectionFunction.getProjection(newInstance);
+			if (newInstance.getFeatureType().getName().getLocalPart().equals(
+					clusterFeatureTypeName)) {
+				count = (Long) newInstance.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName());
+				putCount(
+						id,
+						count);
+			}
+			else {
+				// not a cluster geometry...shrink it to size of this centroid
+				// since it may be big (line, polygon, etc.)
+				geo = clip(geo);
+			}
+			clusteredGeometries.put(
+					id,
+					geo);
+
+			addCount += count;
+			return true;
+		}
+		return false;
+	}
+
+	private void updateSample(
+			final ByteArrayId id,
+			final SimpleFeature newInstance ) {
 		if (sample == null) {
 			final Object[] defaults = new Object[newInstance.getFeatureType().getAttributeDescriptors().size()];
 			int p = 0;
@@ -100,34 +144,11 @@ public class SimpleFeatureClusterList implements
 					UUID.randomUUID().toString());
 
 		}
-		if (!clusteredGeometries.containsKey(entry.getKey())) {
-			Long count = ONE;
-			Geometry geo = projectionFunction.getProjection(entry.getValue());
-			if (newInstance.getFeatureType().getName().getLocalPart().equals(
-					clusterFeatureTypeName)) {
-				count = (Long) newInstance.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName());
-				putCount(
-						entry.getKey(),
-						count);
-			}
-			else {
-				// not a cluster geometry...shrink it to size of this centroid
-				// since it may be big (line, polygon, etc.)
-				geo = clip(geo);
-			}
-			clusteredGeometries.put(
-					entry.getKey(),
-					geo);
-
-			addCount += count;
-			return true;
-		}
-		return false;
 	}
 
 	private Long getCount(
 			ByteArrayId keyId ) {
-		if (clusteredGeometryCounts == null) return ONE;
+		if (clusteredGeometryCounts == null || !clusteredGeometryCounts.containsKey(keyId)) return ZERO;
 		return clusteredGeometryCounts.get(keyId);
 	}
 
@@ -195,7 +216,6 @@ public class SimpleFeatureClusterList implements
 		return clusteredGeometries.isEmpty();
 	}
 
-	@Override
 	public SimpleFeature get(
 			ByteArrayId key ) {
 
@@ -286,12 +306,14 @@ public class SimpleFeatureClusterList implements
 		}
 
 		public NeighborList<SimpleFeature> buildNeighborList(
+				ByteArrayId centerId,
 				SimpleFeature center ) {
 			return new SimpleFeatureClusterList(
 					clusterFeatureTypeName,
 					projectionFunction,
 					maxSize,
-					(Geometry) center.getDefaultGeometry());
+					centerId,
+					center);
 		}
 	}
 

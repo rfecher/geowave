@@ -54,7 +54,7 @@ public class GeometryGenerator
 				// We will use a coordinate list to build the linearring
 				CoordinateList clist = new CoordinateList();
 				double angle = 0.0;
-				for (int i = 0; angle < 360; angle += (delta*distortationFn.distort()+delta), i++) {
+				for (int i = 0; angle < 360; angle += (delta * distortationFn.distort() + delta), i++) {
 					double a = distanceactors.get(i % distanceactors.size()) * 0.5 * dx;
 					double b = distanceactors.get(i % distanceactors.size()) * 0.5 * dy;
 					clist.add(new Coordinate(
@@ -64,9 +64,7 @@ public class GeometryGenerator
 				}
 
 				clist.add(clist.get(0));
-				return geometryFactory.createPolygon(
-						clist.toCoordinateArray()
-						);
+				return geometryFactory.createPolygon(clist.toCoordinateArray());
 			}
 
 			@Override

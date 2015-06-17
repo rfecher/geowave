@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import mil.nga.giat.geowave.analytics.distance.CoordinateEuclideanDistanceFn;
 import mil.nga.giat.geowave.analytics.distance.DistanceFn;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,6 +31,7 @@ public class GeometryHullTool
 {
 	DistanceFn<Coordinate> distanceFnForCoordinate;
 	double concaveThreshold = 1.8;
+	private static final CoordinateEuclideanDistanceFn GeometricDistanceFn = new CoordinateEuclideanDistanceFn();
 
 	public void connect(
 			final List<Geometry> geometries ) {
@@ -64,7 +66,7 @@ public class GeometryHullTool
 		Coordinate end;
 		double distance;
 		Edge next, last;
-		TreeSet<NeighborData<Coordinate>> points = new TreeSet<NeighborData<Coordinate>>();
+		private TreeSet<NeighborData<Coordinate>> points = null;
 
 		public Edge(
 				final Coordinate start,
@@ -74,6 +76,13 @@ public class GeometryHullTool
 			this.start = start;
 			this.end = end;
 			this.distance = distance;
+		}
+
+		public TreeSet<NeighborData<Coordinate>> getPoints() {
+			if (points == null) {
+				points = new TreeSet<NeighborData<Coordinate>>();
+			}
+			return points;
 		}
 
 		@Override
@@ -339,16 +348,17 @@ public class GeometryHullTool
 				}
 			}
 			if (bestEdge != null) {
-				bestEdge.points.add(new NeighborData<Coordinate>(
-						candidate,
-						null,
-						min));
+				bestEdge.getPoints().add(
+						new NeighborData<Coordinate>(
+								candidate,
+								null,
+								min));
 			}
 		}
 		while (!edges.isEmpty()) {
 			final Edge edge = edges.pollLast();
 			lastEdge = edge;
-			NeighborData<Coordinate> candidate = edge.points.pollFirst();
+			NeighborData<Coordinate> candidate = edge.getPoints().pollFirst();
 			while (candidate != null) {
 				if (!MathUtils.equals(
 						candidate.getDistance(),
@@ -381,7 +391,7 @@ public class GeometryHullTool
 						newEdge2.connectLast(newEdge1);
 						edge.next.connectLast(newEdge2);
 						lastEdge = newEdge1;
-						for (final NeighborData<Coordinate> otherPoint : edge.points) {
+						for (final NeighborData<Coordinate> otherPoint : edge.getPoints()) {
 							final double dist1 = calcDistance(
 									newEdge1.start,
 									newEdge1.end,
@@ -392,17 +402,19 @@ public class GeometryHullTool
 									otherPoint.getElement());
 							if (((dist1 < dist2) || (dist2 < 0)) && (dist1 > 0)) {
 								otherPoint.setDistance(dist1);
-								newEdge1.points.add(otherPoint);
+								newEdge1.getPoints().add(
+										otherPoint);
 							}
 							else if (dist2 > 0) {
 								otherPoint.setDistance(dist2);
-								newEdge2.points.add(otherPoint);
+								newEdge2.getPoints().add(
+										otherPoint);
 							}
 						}
-						edge.points.clear(); // forces this loop to end
+						edge.getPoints().clear(); // forces this loop to end
 					}
 				}
-				candidate = edge.points.pollFirst();
+				candidate = edge.getPoints().pollFirst();
 			}
 
 		}
@@ -456,55 +468,104 @@ public class GeometryHullTool
 	 */
 	public static Geometry addPoints(
 			final Geometry geometry,
-			final Coordinate[] points ) {
-		final TreeSet<Edge> edges = new TreeSet<Edge>();
-		final Coordinate[] geoCoordinateList = geometry.getCoordinates();
-		final int s = geoCoordinateList.length - 1;
-		final Edge firstEdge = new Edge(
-				geoCoordinateList[0],
-				geoCoordinateList[1],
+			final Coordinate[] pointsToAdd ) {
+		final Coordinate[] geoCoordinates = geometry.getCoordinates();
+		final Coordinate[] edgeCoordinates = geoCoordinates.length > 0 ? geoCoordinates : pointsToAdd;
+		final Coordinate[] addCoordinates = geoCoordinates.length > 0 ? pointsToAdd : geoCoordinates;
+		if (addCoordinates.length == 1 && edgeCoordinates.length == 1) {
+			if (addCoordinates[0].equals(edgeCoordinates[0])) return geometry;
+			return geometry.getFactory().createLineString(
+					new Coordinate[] {
+						addCoordinates[0],
+						edgeCoordinates[0]
+					});
+		}
+		final int s = edgeCoordinates.length - 1;
+		Edge firstEdge = new Edge(
+				edgeCoordinates[0],
+				edgeCoordinates[1],
 				0.0);
 		Edge lastEdge = firstEdge;
-		for (int i = 1; i < s; i++) {
-			final Edge newEdge = new Edge(
-					geoCoordinateList[i],
-					geoCoordinateList[i + 1],
+		if (s == 1) {
+			lastEdge = new Edge(
+					edgeCoordinates[1],
+					edgeCoordinates[0],
 					0.0);
-			newEdge.connectLast(lastEdge);
-			lastEdge = newEdge;
+			lastEdge.connectLast(firstEdge);
+		}
+		else {
+			for (int i = 1; i < s; i++) {
+				final Edge newEdge = new Edge(
+						edgeCoordinates[i],
+						edgeCoordinates[i + 1],
+						0.0);
+				newEdge.connectLast(lastEdge);
+				lastEdge = newEdge;
+			}
 		}
 		firstEdge.connectLast(lastEdge);
-		for (final Coordinate candidate : points) {
+		for (final Coordinate candidate : addCoordinates) {
 			double min = Double.MAX_VALUE;
+			double minCoordinateDist = Double.MAX_VALUE;
 			Edge bestEdge = null;
-			for (final Edge edge : edges) {
+			Edge bestEdgeStart = null;
+			Edge currentEdge = firstEdge;
+			do {
+			//	DistanceOp op = new DistanceOp();
 				final double dist = calcDistance(
-						edge.start,
-						edge.end,
+						currentEdge.start,
+						currentEdge.end,
 						candidate);
+				// need to find the closest coordinate distance as well, since
+				// the new coordinate
+				// might not live on a perpendicular bisector of the edge, which
+				// is ideally what this algorithm looks for
+			//	if (bestEdge == null) {
+					final double coordinateDistance = GeometricDistanceFn.measure(
+							currentEdge.start,
+							candidate);
+					if ((coordinateDistance >= 0) && (coordinateDistance < minCoordinateDist)) {
+						minCoordinateDist = coordinateDistance;
+						bestEdgeStart = currentEdge;
+					}
+			//	}
 				if ((dist > 0) && (dist < min)) {
 					min = dist;
-					bestEdge = edge;
+					bestEdge = currentEdge;
 				}
+				currentEdge = currentEdge.next;
 			}
-			if (bestEdge != null) {
-				final Edge newEdge1 = new Edge(
-						bestEdge.start,
+			while (currentEdge != firstEdge);
+			if (bestEdge == null || minCoordinateDist < min) {
+				double angle1 = Math.abs(calcAngle(
+						bestEdgeStart.start,
 						candidate,
-						0.0);
-				final Edge newEdge2 = new Edge(
+						bestEdgeStart.end));
+				double angle2 = Math.abs(calcAngle(
+						bestEdgeStart.last.end,
 						candidate,
-						bestEdge.end,
-						0.0);
-				edges.add(newEdge2);
-				edges.add(newEdge1);
-				newEdge1.connectLast(bestEdge.last);
-				newEdge2.connectLast(newEdge1);
-				bestEdge.next.connectLast(newEdge2);
+						bestEdgeStart.start));
+				if (angle1 < angle2) {
+					bestEdge = bestEdgeStart;
+				}
+				else
+					bestEdge = bestEdgeStart.last;
 			}
+			final Edge newEdge1 = new Edge(
+					bestEdge.start,
+					candidate,
+					0.0);
+			final Edge newEdge2 = new Edge(
+					candidate,
+					bestEdge.end,
+					0.0);
+			newEdge1.connectLast(bestEdge.last);
+			newEdge2.connectLast(newEdge1);
+			bestEdge.next.connectLast(newEdge2);
+			firstEdge = newEdge1;
 		}
 		return geometry.getFactory().createPolygon(
-				reassemble(lastEdge));
+				reassemble(firstEdge));
 	}
 
 	private static boolean isCandidateCloserToAnotherEdge(

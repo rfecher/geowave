@@ -13,9 +13,9 @@ import mil.nga.giat.geowave.accumulo.mapreduce.input.GeoWaveInputKey;
 import mil.nga.giat.geowave.analytics.clustering.ClusteringUtils;
 import mil.nga.giat.geowave.analytics.distance.CoordinateCircleDistanceFn;
 import mil.nga.giat.geowave.analytics.distance.DistanceFn;
+import mil.nga.giat.geowave.analytics.mapreduce.nn.HullAsYouGoClusterList.HullAsYouGoClusterListFactory;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNMapReduce.NNReducer;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNMapReduce.PartitionDataWritable;
-import mil.nga.giat.geowave.analytics.mapreduce.nn.SimpleFeatureClusterList.SimpleFeatureClusterListFactory;
 import mil.nga.giat.geowave.analytics.parameters.ClusteringParameters;
 import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.GlobalParameters;
@@ -185,9 +185,11 @@ public class DBScanMapReduce
 		}
 
 		public NeighborListFactory<SimpleFeature> createNeighborsListFactory() {
-			return new SimpleFeatureClusterListFactory(
+			return new HullAsYouGoClusterListFactory(
+					// return new SimpleFeatureClusterListFactory(
 					this.outputAdapter.getType().getName().getLocalPart(),
 					projectionFunction,
+					new CoordinateCircleDistanceFn(),
 					this.maxDistance,
 					this.maxNeighbors);
 		}
@@ -238,7 +240,7 @@ public class DBScanMapReduce
 						HullParameters.Hull.HULL_BUILDER,
 						NNMapReduce.class,
 						HullBuilder.class,
-						PointMergeBuilder.class);
+						HullMergeBuilder.class);
 
 				hullBuilder.initialize(config);
 			}
@@ -397,17 +399,18 @@ public class DBScanMapReduce
 			if (cluster.members.isEmpty()) {
 				return centerGeometry;
 			}
-			Geometry hull = centerGeometry;
+			Geometry hull = null;
 
 			for (final Map.Entry<ByteArrayId, Geometry> member : ((ConvertingList<Geometry>) cluster.members).getIterable()) {
 				final Geometry hulltoUnion = (Geometry) member.getValue();
 				try {
-					if (hull.intersects(hulltoUnion))
-						hull = hull.union(hulltoUnion);
-					else
-						hull = connectGeometryTool.connect(
-								hull,
-								hulltoUnion);
+					if (hull == null) hull = hulltoUnion;
+					// if (hull.intersects(hulltoUnion))
+					else hull = hull.union(hulltoUnion);
+					// else
+					// hull = connectGeometryTool.connect(
+					// hull,
+					// hulltoUnion);
 				}
 				catch (final com.vividsolutions.jts.geom.TopologyException ex) {
 					hull = addToHull(

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.io.WKTReader;
 
 public class GeometryHullToolTest
 {
@@ -471,7 +474,7 @@ public class GeometryHullToolTest
 				geo.toString());
 	}
 
-//	@Test
+	@Test
 	public void testRandomConnect()
 			throws IOException {
 
@@ -547,7 +550,17 @@ public class GeometryHullToolTest
 					});
 			if (!geo.isSimple()) {
 
-				assertTrue(false);
+				// assertTrue(false);
+				geo = cg.connect(
+						leftShape,
+						rightShape);
+				ShapefileTool.writeShape(
+						"test_random2",
+						new File(
+								"./target/test_random2"),
+						new Geometry[] {
+							geo
+						});
 			}
 		}
 	}
@@ -673,6 +686,134 @@ public class GeometryHullToolTest
 		coversPoints(
 				hull,
 				concave3);
+	}
+
+	@Test
+	public void ddTest()
+			throws ParseException,
+			com.vividsolutions.jts.io.ParseException {
+		final PrecisionModel precision = new PrecisionModel();
+		final GeometryFactory geometryFactory = new GeometryFactory(
+				precision,
+				4326);
+		final WKTReader wktReader = new WKTReader(
+				geometryFactory);
+		writeToShapeFile(
+				"setx_" + "bad",
+				new Geometry[] {
+					(Geometry) wktReader.read("POLYGON ((-87.18595826452814 -31.894736299835213, -87.0660839797606 -31.89895032484047, -87.12131965414326 -31.803476827009025, -87.08445878687198 -31.818705948805857, -87.08187363764486 -31.864770818347772, -87.10823899365407 -31.84310948323357, -87.18595826452814 -31.894736299835213))")
+				});
+
+	}
+
+	@Test
+	public void addPointsTest() {
+		Geometry geo = GeometryHullTool.addPoints(
+				factory.createPoint(new Coordinate(
+						3,
+						4)),
+				new Coordinate[] {
+					new Coordinate(
+							4,
+							5)
+				});
+		geo = GeometryHullTool.addPoints(
+				geo,
+				new Coordinate[] {
+					new Coordinate(
+							3,
+							6),
+					new Coordinate(
+							2,
+							5)
+				});
+		assertEquals(
+				"POLYGON ((3 6, 2 5, 3 4, 4 5, 3 6))",
+				(geo.toString()));
+
+		geo = GeometryHullTool.addPoints(
+				factory.createPoint(new Coordinate(
+						3,
+						4)),
+				new Coordinate[] {
+					new Coordinate(
+							4,
+							5)
+				});
+		geo = GeometryHullTool.addPoints(
+				geo,
+				new Coordinate[] {
+					new Coordinate(
+							5,
+							6),
+					new Coordinate(
+							2,
+							5)
+				});
+		assertTrue(geo.isSimple());
+		assertEquals(
+				"POLYGON ((3 4, 2 5, 5 6, 4 5, 3 4))",
+				(geo.toString()));
+
+		geo = GeometryHullTool.addPoints(
+				factory.createPoint(new Coordinate(
+						3,
+						3)),
+				new Coordinate[] {
+					new Coordinate(
+							4,
+							3)
+				});
+		geo = GeometryHullTool.addPoints(
+				geo,
+				new Coordinate[] {
+					new Coordinate(
+							3.5,
+							4),
+					new Coordinate(
+							3.6,
+							3.9)
+				});
+		assertTrue(geo.isSimple());
+		assertEquals(
+				"POLYGON ((4 3, 3.6 3.9, 3.5 4, 3 3, 4 3))",
+				(geo.toString()));
+
+		geo = GeometryHullTool.addPoints(
+				factory.createPoint(new Coordinate(
+						3,
+						3)),
+				new Coordinate[] {
+					new Coordinate(
+							4,
+							3)
+				});
+		geo = GeometryHullTool.addPoints(
+				geo,
+				new Coordinate[] {
+					new Coordinate(
+							3.5,
+							4),
+					new Coordinate(
+							3.4,
+							3.9),
+					new Coordinate(
+							3.45,
+							3.5),
+					new Coordinate(
+							3.422,
+							3.502),
+					new Coordinate(
+							2,
+							3)
+				});
+
+		writeToShapeFile(
+				"setx_" + "badc",
+				new Geometry[] {
+					geo
+				});
+		assertTrue(geo.isSimple());
 	}
 
 	private Geometry getHull(
