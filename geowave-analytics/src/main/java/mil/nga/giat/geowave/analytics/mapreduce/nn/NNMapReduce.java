@@ -223,18 +223,17 @@ public class NNMapReduce
 				}
 			}
 
-			LOGGER.info("Processing " + key.toString() + " with primary = " + primaries.size() + " and other = " + others.size());
+			LOGGER.warn("Processing " + key.toString() + " with primary = " + primaries.size() + " and other = " + others.size());
 			
-			final NeighorIndex<VALUEIN> index = new NeighorIndex<VALUEIN>(this.createNeighborsListFactory());			
+			final NeighorIndex<VALUEIN> index = new NeighorIndex<VALUEIN>(this.createNeighborsListFactory(summary));			
 			
 			for (final Map.Entry<ByteArrayId,VALUEIN> primary : primaries.entrySet()) {		
-				int addCount = 0;
+				final NeighborList<VALUEIN> primaryList = index.init(primary);
 				for (final Map.Entry<ByteArrayId,VALUEIN> anotherPrimary : primaries.entrySet()) {
 					if (anotherPrimary.getKey().equals(primary.getKey())) {
 						continue;
 					}			
-					addCount++;
-					if (!index.contains(primary, anotherPrimary)) {
+					if (!primaryList.contains(anotherPrimary.getKey())) {
 					  final double distance = distanceFn.measure(
 							primary.getValue(),
 							anotherPrimary.getValue());
@@ -248,8 +247,7 @@ public class NNMapReduce
 					if (anOther.getKey().equals(primary.getKey())) {
 						continue;
 					}
-					addCount++;
-					if (!index.contains(primary, anOther)) {
+					if (!primaryList.contains(anOther.getKey())) {
 					  final double distance = distanceFn.measure(
 							primary.getValue(),
 							anOther.getValue());
@@ -260,15 +258,13 @@ public class NNMapReduce
 					    }
 					}
 				}
-				if (addCount > 0) {
 				processNeighbors(
 							key.partitionData,
 							primary.getKey(),
 							primary.getValue(),
-							index.get(primary.getKey()),
+							primaryList,
 							context,
 							summary);
-				}
 				
 				index.empty(primary.getKey());
 			}
@@ -279,7 +275,7 @@ public class NNMapReduce
 					context);
 		}
 		
-		public  NeighborListFactory<VALUEIN> createNeighborsListFactory() {
+		public  NeighborListFactory<VALUEIN> createNeighborsListFactory(PARTITION_SUMMARY summary) {
 			return new DefaultNeighborList.DefaultNeighborListFactory<VALUEIN>();
 		}
 

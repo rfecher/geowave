@@ -505,51 +505,43 @@ public class GeometryHullTool
 		}
 		firstEdge.connectLast(lastEdge);
 		for (final Coordinate candidate : addCoordinates) {
-			double min = Double.MAX_VALUE;
-			double minCoordinateDist = Double.MAX_VALUE;
+			double[] minProfile = new double[] {
+				0,
+				Double.MAX_VALUE,
+				Double.MAX_VALUE
+			};
 			Edge bestEdge = null;
-			Edge bestEdgeStart = null;
 			Edge currentEdge = firstEdge;
 			do {
-			//	DistanceOp op = new DistanceOp();
-				final double dist = calcDistance(
+				final double[] distProfile = calcDistanceSegment(
 						currentEdge.start,
 						currentEdge.end,
 						candidate);
-				// need to find the closest coordinate distance as well, since
-				// the new coordinate
-				// might not live on a perpendicular bisector of the edge, which
-				// is ideally what this algorithm looks for
-			//	if (bestEdge == null) {
-					final double coordinateDistance = GeometricDistanceFn.measure(
-							currentEdge.start,
-							candidate);
-					if ((coordinateDistance >= 0) && (coordinateDistance < minCoordinateDist)) {
-						minCoordinateDist = coordinateDistance;
-						bestEdgeStart = currentEdge;
-					}
-			//	}
-				if ((dist > 0) && (dist < min)) {
-					min = dist;
+				// need to choose close edge based on proximity either the edges
+				// coordinate OR
+				// the length of the projection, which ever is closer
+				// do not use distance from the 'end' part of the edge, as that
+				// is picked up
+				// as the start of the 'next' edge.
+				final double dist = distProfile[1];
+				if (distProfile[0] <= 1.0 && (dist > 0) && (dist < minProfile[1])) {
+					minProfile = distProfile;
 					bestEdge = currentEdge;
 				}
 				currentEdge = currentEdge.next;
 			}
 			while (currentEdge != firstEdge);
-			if (bestEdge == null || minCoordinateDist < min) {
-				double angle1 = Math.abs(calcAngle(
-						bestEdgeStart.start,
-						candidate,
-						bestEdgeStart.end));
-				double angle2 = Math.abs(calcAngle(
-						bestEdgeStart.last.end,
-						candidate,
-						bestEdgeStart.start));
-				if (angle1 < angle2) {
-					bestEdge = bestEdgeStart;
+			// is the candidate not on the projection for the closest edge
+			// (e.g. within the outer vertical angle)
+			if (minProfile[0] < 0.0 || minProfile[0] > 1.0) {
+				// choose the edge whose projection is farthest
+				double[] distProfileForOtherEdge = calcDistanceSegment(
+						bestEdge.last.start,
+						bestEdge.last.end,
+						candidate);
+				if (distProfileForOtherEdge[2] > minProfile[2]) {
+					bestEdge = bestEdge.last;
 				}
-				else
-					bestEdge = bestEdgeStart.last;
 			}
 			final Edge newEdge1 = new Edge(
 					bestEdge.start,
@@ -864,7 +856,7 @@ public class GeometryHullTool
 	 * @param two
 	 * @return -1 if before start point, -2 if after end point
 	 */
-	public static double calcDistance(
+	public static double[] calcDistanceSegment(
 			final Coordinate start,
 			final Coordinate end,
 			final Coordinate point ) {
@@ -892,7 +884,23 @@ public class GeometryHullTool
 				projectionLength).add(
 				vOne);
 		final double o = Math.sqrt((projectionLength < 0.0) ? vOne.distance(vVertex) : ((projectionLength > 1.0) ? vTwo.distance(vVertex) : vVertex.distance(projection)));
-		return ((projectionLength < 0.0) || (projectionLength > 1.0) ? -1 : o);
+
+		return new double[] {
+			projectionLength,
+			o,
+			vVertex.distance(projection)
+		};
+	}
+
+	public static double calcDistance(
+			final Coordinate start,
+			final Coordinate end,
+			final Coordinate point ) {
+		double[] p = calcDistanceSegment(
+				start,
+				end,
+				point);
+		return (p[0] < 0.0 || p[0] > 1.0) ? -1 : p[1];
 	}
 
 	public static Pair<Integer, Integer> getClosestPoints(

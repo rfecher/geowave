@@ -43,11 +43,4 @@ public class NullList<NNTYPE> implements
 		return true;
 	}
 
-	@Override
-	public void merge(
-			NeighborList<NNTYPE> otherList,
-			mil.nga.giat.geowave.analytics.mapreduce.nn.NeighborList.Callback<NNTYPE> callback ) {
-
-	}
-
 }

@@ -35,6 +35,8 @@ public class DBScanJobRunner extends
 		NNJobRunner
 {
 
+	private boolean firstIteration = true;
+
 	@Override
 	public void configure(
 			final Job job )
@@ -50,6 +52,14 @@ public class DBScanJobRunner extends
 		job.getConfiguration().set(
 				"mapreduce.map.java.opts",
 				"-Xmx4096m");
+		job.getConfiguration().setBooleanIfUnset(
+				"first.iteration",
+				firstIteration);
+	}
+
+	protected void setFirstIteration(
+			boolean firstIteration ) {
+		this.firstIteration = firstIteration;
 	}
 
 	@Override

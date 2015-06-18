@@ -70,13 +70,4 @@ public class DefaultNeighborList<NNTYPE> implements
 		return null;
 	}
 
-	@Override
-	public void merge(
-			NeighborList<NNTYPE> otherList,
-			mil.nga.giat.geowave.analytics.mapreduce.nn.NeighborList.Callback<NNTYPE> callback ) {
-		for (Entry<ByteArrayId, NNTYPE> item : otherList) {
-			if (this.add(item)) callback.add(item.getKey());
-		}
-
-	}
 }

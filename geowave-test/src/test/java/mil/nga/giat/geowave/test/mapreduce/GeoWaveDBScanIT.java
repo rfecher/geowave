@@ -157,7 +157,7 @@ public class GeoWaveDBScanIT extends
 				ShapefileTool.writeShape(
 						feature.getName(),
 						new File(
-								"./target/testdb_" + feature.getName()),
+								"./target/test_final_" + feature.getName()),
 						new Geometry[] {
 							feature.getGeometry()
 						});

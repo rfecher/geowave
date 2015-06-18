@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import mil.nga.giat.geowave.analytics.clustering.runners.GeoWaveInputLoadJobRunner;
-import mil.nga.giat.geowave.analytics.mapreduce.nn.DBScanMapReduce.HullMergeBuilder;
 import mil.nga.giat.geowave.analytics.parameters.ClusteringParameters;
 import mil.nga.giat.geowave.analytics.parameters.GlobalParameters;
 import mil.nga.giat.geowave.analytics.parameters.HullParameters;
@@ -132,7 +131,7 @@ public class DBScanIterationsJobRunner implements
 				ClusteringParameters.Clustering.MAX_ITERATIONS,
 				15);
 
-		int iteration = 1;
+		int iteration = 2;
 		long lastRecordCount = 0;
 		double precisionFactor = 0.9;
 		while (maxIterationCount > 0) {
@@ -168,13 +167,11 @@ public class DBScanIterationsJobRunner implements
 			jobRunner.setInputFormatConfiguration(new SequenceFileInputFormatConfiguration(
 					startPath));
 
+			jobRunner.setFirstIteration(false);
+
 			localScopeProperties.store(
 					HullParameters.Hull.ZOOM_LEVEL,
 					zoomLevel);
-
-			localScopeProperties.store(
-					HullParameters.Hull.HULL_BUILDER,
-					HullMergeBuilder.class);
 
 			localScopeProperties.store(
 					HullParameters.Hull.ITERATION,

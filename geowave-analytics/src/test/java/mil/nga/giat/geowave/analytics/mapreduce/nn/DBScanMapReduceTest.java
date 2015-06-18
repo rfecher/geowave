@@ -2,11 +2,8 @@ package mil.nga.giat.geowave.analytics.mapreduce.nn;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +15,6 @@ import mil.nga.giat.geowave.analytics.clustering.ClusteringUtils;
 import mil.nga.giat.geowave.analytics.distance.DistanceFn;
 import mil.nga.giat.geowave.analytics.distance.FeatureDistanceFn;
 import mil.nga.giat.geowave.analytics.kmeans.mapreduce.SimpleFeatureImplSerialization;
-import mil.nga.giat.geowave.analytics.mapreduce.nn.DBScanMapReduce.Cluster;
-import mil.nga.giat.geowave.analytics.mapreduce.nn.DBScanMapReduce.HullBuilder;
-import mil.nga.giat.geowave.analytics.mapreduce.nn.DBScanMapReduce.HullMergeBuilder;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNMapReduce.PartitionDataWritable;
 import mil.nga.giat.geowave.analytics.parameters.ClusteringParameters;
 import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
@@ -28,11 +22,8 @@ import mil.nga.giat.geowave.analytics.parameters.HullParameters;
 import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
 import mil.nga.giat.geowave.analytics.tools.AnalyticFeature;
-import mil.nga.giat.geowave.analytics.tools.ConfigurationWrapper;
 import mil.nga.giat.geowave.analytics.tools.Projection;
-import mil.nga.giat.geowave.analytics.tools.ShapefileTool;
 import mil.nga.giat.geowave.analytics.tools.SimpleFeatureProjection;
-import mil.nga.giat.geowave.analytics.tools.mapreduce.JobContextConfigurationWrapper;
 import mil.nga.giat.geowave.analytics.tools.partitioners.OrthodromicDistancePartitioner;
 import mil.nga.giat.geowave.analytics.tools.partitioners.Partitioner.PartitionData;
 import mil.nga.giat.geowave.index.ByteArrayId;
@@ -42,7 +33,6 @@ import mil.nga.giat.geowave.vector.adapter.FeatureWritable;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.data.Key;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
 import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
@@ -106,7 +96,7 @@ public class DBScanMapReduceTest
 
 		reduceDriver.getConfiguration().setClass(
 				GeoWaveConfiguratorBase.enumToConfKey(
-						HullBuilder.class,
+						DBScanMapReduce.class,
 						HullParameters.Hull.PROJECTION_CLASS),
 				SimpleFeatureProjection.class,
 				Projection.class);
@@ -418,112 +408,6 @@ public class DBScanMapReduceTest
 			}
 		}
 		return null;
-	}
-
-	@Test
-	public void testHullBuilder()
-			throws IOException {
-		final HullMergeBuilder builder = new HullMergeBuilder();
-		final Configuration config = new Configuration();
-		config.setClass(
-				GeoWaveConfiguratorBase.enumToConfKey(
-						HullBuilder.class,
-						HullParameters.Hull.PROJECTION_CLASS),
-				SimpleFeatureProjection.class,
-				Projection.class);
-		final ConfigurationWrapper context = new JobContextConfigurationWrapper(
-				config);
-		builder.initialize(context);
-
-		final SimpleFeature geo1 = createTestGeometry(
-				"g1",
-				new Coordinate[] {
-					new Coordinate(
-							0.2311,
-							0.2312),
-					new Coordinate(
-							0.2314,
-							0.2315),
-					new Coordinate(
-							0.2313,
-							0.2313),
-					new Coordinate(
-							0.2311,
-							0.2312)
-				});
-		final SimpleFeature geo2 = createTestGeometry(
-				"g2",
-				new Coordinate[] {
-					new Coordinate(
-							0.2310,
-							0.2311),
-					new Coordinate(
-							0.2315,
-							0.2311),
-					new Coordinate(
-							0.23135,
-							0.23135),
-					new Coordinate(
-							0.2310,
-							0.2311)
-				});
-		final SimpleFeature geo3 = createTestGeometry(
-				"g3",
-				new Coordinate[] {
-					new Coordinate(
-							0.2309,
-							0.2310),
-					new Coordinate(
-							0.2314,
-							0.2315),
-					new Coordinate(
-							0.23137,
-							0.23137),
-					new Coordinate(
-							0.2309,
-							0.2310),
-				});
-		final Cluster<SimpleFeature> sfCluster = new Cluster<SimpleFeature>(
-				new ByteArrayId(
-						geo1.getID()),
-				geo1,
-				new SimpleFeatureClusterList(
-						"NA",
-						null,
-						10000000,
-						new ByteArrayId(
-								"123"),
-						geo1));
-		sfCluster.members.add(new AbstractMap.SimpleEntry<ByteArrayId, SimpleFeature>(
-				new ByteArrayId(
-						geo2.getID()),
-				geo2));
-		sfCluster.members.add(new AbstractMap.SimpleEntry<ByteArrayId, SimpleFeature>(
-				new ByteArrayId(
-						geo3.getID()),
-				geo3));
-
-		final Geometry results = builder.getProjection(sfCluster);
-
-		try {
-			ShapefileTool.writeShape(
-					"dbmrhull",
-					new File(
-							"./target/testhull5"),
-					new Geometry[] {
-						results
-					});
-		}
-		catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		assertTrue(coversPoints(
-				results,
-				(Geometry) geo1.getDefaultGeometry()));
-		assertTrue(results.intersects((Geometry) geo2.getDefaultGeometry()));
-		assertTrue(results.intersects((Geometry) geo3.getDefaultGeometry()));
 	}
 
 	private static boolean coversPoints(

@@ -10,7 +10,6 @@ public interface NeighborList<NNTYPE> extends
 	public boolean add(
 			Entry<ByteArrayId, NNTYPE> entry );
 
-
 	public boolean contains(
 			ByteArrayId key );
 
@@ -19,14 +18,4 @@ public interface NeighborList<NNTYPE> extends
 	public int size();
 
 	public boolean isEmpty();
-
-	public void merge(
-			NeighborList<NNTYPE> otherList,
-			Callback<NNTYPE> callback );
-
-	public interface Callback<NNTYPE>
-	{
-		public void add(
-				ByteArrayId key );
-	}
 }

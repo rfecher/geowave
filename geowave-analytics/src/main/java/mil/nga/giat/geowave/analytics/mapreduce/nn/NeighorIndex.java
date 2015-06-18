@@ -18,22 +18,18 @@ public class NeighorIndex<NNTYPE>
 		this.listFactory = listFactory;
 	}
 
-	public NeighborList<NNTYPE> get(
-			final ByteArrayId id ) {
-		return index.get(id);
-	}
-
-	public boolean contains(
-			final Map.Entry<ByteArrayId, NNTYPE> node,
-			final Map.Entry<ByteArrayId, NNTYPE> neighbor ) {
-		return resolve(
-				this.index.get(node.getKey())).contains(
-				neighbor.getKey());
-	}
-
-	private NeighborList<NNTYPE> resolve(
-			NeighborList<NNTYPE> list ) {
-		return (list == null) ? nullList : list;
+	public NeighborList<NNTYPE> init(
+			final Map.Entry<ByteArrayId, NNTYPE> node ) {
+		NeighborList<NNTYPE> neighbors = index.get(node.getKey());
+		if (neighbors == null) {
+			neighbors = listFactory.buildNeighborList(
+					node.getKey(),
+					node.getValue());
+			index.put(
+					node.getKey(),
+					neighbors);
+		}
+		return neighbors;
 	}
 
 	public void add(
