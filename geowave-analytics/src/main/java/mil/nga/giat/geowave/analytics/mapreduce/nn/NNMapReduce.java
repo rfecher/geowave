@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import mil.nga.giat.geowave.accumulo.mapreduce.HadoopWritableSerializationTool;
@@ -196,6 +197,16 @@ public class NNMapReduce
 		protected DistanceFn<VALUEIN> distanceFn;
 		protected double maxDistance = 1.0;
 		protected int maxNeighbors = Integer.MAX_VALUE;
+		protected TypeConverter<VALUEIN> typeConverter = new TypeConverter<VALUEIN>() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public VALUEIN convert(final ByteArrayId id,
+					final Object o ) {
+				return (VALUEIN)o;
+			}
+			
+		};
 
 		@Override
 		protected void reduce(
@@ -209,10 +220,10 @@ public class NNMapReduce
 			final PARTITION_SUMMARY summary = createSummary();
 
 			for (final AdapterWithObjectWritable inputValue : values) {
-				@SuppressWarnings("unchecked")
-				final VALUEIN unwrappedValue = (VALUEIN) AdapterWithObjectWritable.fromWritableWithAdapter(
+
+				final VALUEIN unwrappedValue =  typeConverter.convert(inputValue.getDataId(),AdapterWithObjectWritable.fromWritableWithAdapter(
 						serializationTool,
-						inputValue);
+						inputValue));
 				if (inputValue.isPrimary()) {
 					primaries.put(inputValue.getDataId(),unwrappedValue);
 				}
@@ -227,7 +238,9 @@ public class NNMapReduce
 			
 			final NeighorIndex<VALUEIN> index = new NeighorIndex<VALUEIN>(this.createNeighborsListFactory(summary));			
 			
-			for (final Map.Entry<ByteArrayId,VALUEIN> primary : primaries.entrySet()) {		
+			final Iterator<Map.Entry<ByteArrayId,VALUEIN>> primaryIt = primaries.entrySet().iterator();
+			while (primaryIt.hasNext()) {
+			    final Map.Entry<ByteArrayId,VALUEIN> primary  =  primaryIt.next();
 				final NeighborList<VALUEIN> primaryList = index.init(primary);
 				for (final Map.Entry<ByteArrayId,VALUEIN> anotherPrimary : primaries.entrySet()) {
 					if (anotherPrimary.getKey().equals(primary.getKey())) {
@@ -267,6 +280,7 @@ public class NNMapReduce
 							summary);
 				
 				index.empty(primary.getKey());
+				primaryIt.remove();
 			}
 
 			processSummary(

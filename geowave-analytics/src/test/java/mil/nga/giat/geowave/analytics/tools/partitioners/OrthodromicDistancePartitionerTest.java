@@ -169,7 +169,7 @@ public class OrthodromicDistancePartitionerTest
 
 		partitions = partitioner.getCubeIdentifiers(feature);
 		assertEquals(
-				4,
+				2,
 				partitions.size());
 		assertTrue(hasOnePrimary(partitions));
 		double maxX = 0;

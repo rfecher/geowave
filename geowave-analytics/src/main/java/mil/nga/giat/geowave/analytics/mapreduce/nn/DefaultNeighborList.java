@@ -70,4 +70,9 @@ public class DefaultNeighborList<NNTYPE> implements
 		return null;
 	}
 
+	@Override
+	public void init() {
+
+	}
+
 }

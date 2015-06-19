@@ -6,10 +6,8 @@ import java.util.Set;
 
 import mil.nga.giat.geowave.analytics.distance.DistanceFn;
 import mil.nga.giat.geowave.analytics.tools.GeometryHullTool;
-import mil.nga.giat.geowave.analytics.tools.Projection;
 import mil.nga.giat.geowave.index.ByteArrayId;
 
-import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +28,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  */
 public class SingleItemClusterList extends
 		DBScanClusterList implements
-		CompressingCluster<SimpleFeature, Geometry>
+		CompressingCluster<ClusterItem, Geometry>
 {
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(SingleItemClusterList.class);
@@ -42,19 +40,17 @@ public class SingleItemClusterList extends
 	private final GeometryHullTool connectGeometryTool = new GeometryHullTool();
 
 	public SingleItemClusterList(
-			final Projection<SimpleFeature> projectionFunction,
 			final DistanceFn<Coordinate> distanceFnForCoordinate,
 			final ByteArrayId centerId,
-			final SimpleFeature center,
-			final Map<ByteArrayId, Cluster<SimpleFeature>> index ) {
+			final ClusterItem center,
+			final Map<ByteArrayId, Cluster<ClusterItem>> index ) {
 		super(
-				projectionFunction,
 				centerId,
 				index);
 
 		this.connectGeometryTool.setDistanceFnForCoordinate(distanceFnForCoordinate);
 
-		final Geometry clusterGeo = (this.projectionFunction.getProjection(center));
+		final Geometry clusterGeo = center.getGeometry();
 
 		// start with the center. TODO Should change to a buffer!!!
 		this.clusterGeo = clusterGeo.getCentroid();
@@ -63,7 +59,7 @@ public class SingleItemClusterList extends
 			clusterPoints.add(coordinate);
 		}
 
-		this.add(
+		add(
 				centerId,
 				center);
 	}
@@ -71,15 +67,18 @@ public class SingleItemClusterList extends
 	@Override
 	protected Long addAndFetchCount(
 			final ByteArrayId id,
-			final SimpleFeature newInstance ) {
-		Geometry newGeo = projectionFunction.getProjection(newInstance);
+			final ClusterItem newInstance ) {
+		Geometry newGeo = newInstance.getGeometry();
 
 		newGeo = clip(
 				clusterGeo,
 				newGeo);
 
-		for (final Coordinate coordinate : newGeo.getCoordinates())
-			this.clusterPoints.add(coordinate);
+		if (!clusterGeo.covers(newGeo)) {
+			for (final Coordinate coordinate : newGeo.getCoordinates())
+				this.clusterPoints.add(coordinate);
+			checkForCompression();
+		}
 
 		return ONE;
 	}
@@ -100,9 +99,17 @@ public class SingleItemClusterList extends
 
 	@Override
 	public void merge(
-			Cluster<SimpleFeature> cluster ) {
+			Cluster<ClusterItem> cluster ) {
 		super.merge(cluster);
 		this.clusterPoints.addAll(((SingleItemClusterList) cluster).clusterPoints);
+		checkForCompression();
+	}
+
+	private void checkForCompression() {
+		if (clusterPoints.size() > 20) {
+			clusterGeo = compress();
+			clusterPoints.clear();
+		}
 	}
 
 	@Override
@@ -153,27 +160,23 @@ public class SingleItemClusterList extends
 	}
 
 	public static class SingleItemClusterListFactory implements
-			NeighborListFactory<SimpleFeature>
+			NeighborListFactory<ClusterItem>
 	{
-		private final Projection<SimpleFeature> projectionFunction;
 		private final DistanceFn<Coordinate> distanceFnForCoordinate;
-		private final Map<ByteArrayId, Cluster<SimpleFeature>> index;
+		private final Map<ByteArrayId, Cluster<ClusterItem>> index;
 
 		public SingleItemClusterListFactory(
-				final Projection<SimpleFeature> projectionFunction,
 				final DistanceFn<Coordinate> distanceFnForCoordinate,
-				final Map<ByteArrayId, Cluster<SimpleFeature>> index ) {
+				final Map<ByteArrayId, Cluster<ClusterItem>> index ) {
 			super();
-			this.projectionFunction = projectionFunction;
 			this.distanceFnForCoordinate = distanceFnForCoordinate;
 			this.index = index;
 		}
 
-		public NeighborList<SimpleFeature> buildNeighborList(
+		public NeighborList<ClusterItem> buildNeighborList(
 				final ByteArrayId centerId,
-				final SimpleFeature center ) {
+				final ClusterItem center ) {
 			return new SingleItemClusterList(
-					projectionFunction,
 					distanceFnForCoordinate,
 					centerId,
 					center,

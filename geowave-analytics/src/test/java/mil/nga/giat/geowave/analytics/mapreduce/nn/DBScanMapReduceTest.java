@@ -12,12 +12,9 @@ import mil.nga.giat.geowave.accumulo.mapreduce.GeoWaveConfiguratorBase;
 import mil.nga.giat.geowave.accumulo.mapreduce.JobContextAdapterStore;
 import mil.nga.giat.geowave.accumulo.mapreduce.input.GeoWaveInputKey;
 import mil.nga.giat.geowave.analytics.clustering.ClusteringUtils;
-import mil.nga.giat.geowave.analytics.distance.DistanceFn;
-import mil.nga.giat.geowave.analytics.distance.FeatureDistanceFn;
 import mil.nga.giat.geowave.analytics.kmeans.mapreduce.SimpleFeatureImplSerialization;
 import mil.nga.giat.geowave.analytics.mapreduce.nn.NNMapReduce.PartitionDataWritable;
 import mil.nga.giat.geowave.analytics.parameters.ClusteringParameters;
-import mil.nga.giat.geowave.analytics.parameters.CommonParameters;
 import mil.nga.giat.geowave.analytics.parameters.HullParameters;
 import mil.nga.giat.geowave.analytics.parameters.PartitionParameters;
 import mil.nga.giat.geowave.analytics.tools.AdapterWithObjectWritable;
@@ -61,8 +58,8 @@ public class DBScanMapReduceTest
 			throws IOException,
 			AccumuloException,
 			AccumuloSecurityException {
-		final NNMapReduce.NNMapper<SimpleFeature> nnMapper = new NNMapReduce.NNMapper<SimpleFeature>();
-		final NNMapReduce.NNReducer<SimpleFeature, GeoWaveInputKey, ObjectWritable, Map<ByteArrayId, Cluster<SimpleFeature>>> nnReducer = new DBScanMapReduce.DBScanMapHullReducer();
+		final NNMapReduce.NNMapper<ClusterItem> nnMapper = new NNMapReduce.NNMapper<ClusterItem>();
+		final NNMapReduce.NNReducer<ClusterItem, GeoWaveInputKey, ObjectWritable, Map<ByteArrayId, Cluster<ClusterItem>>> nnReducer = new DBScanMapReduce.DBScanMapHullReducer();
 
 		mapDriver = MapDriver.newMapDriver(nnMapper);
 		reduceDriver = ReduceDriver.newReduceDriver(nnReducer);
@@ -72,13 +69,6 @@ public class DBScanMapReduceTest
 						OrthodromicDistancePartitioner.class,
 						ClusteringParameters.Clustering.DISTANCE_THRESHOLDS),
 				"10,10");
-
-		reduceDriver.getConfiguration().setClass(
-				GeoWaveConfiguratorBase.enumToConfKey(
-						NNMapReduce.class,
-						CommonParameters.Common.DISTANCE_FUNCTION_CLASS),
-				FeatureDistanceFn.class,
-				DistanceFn.class);
 
 		reduceDriver.getConfiguration().setDouble(
 				GeoWaveConfiguratorBase.enumToConfKey(

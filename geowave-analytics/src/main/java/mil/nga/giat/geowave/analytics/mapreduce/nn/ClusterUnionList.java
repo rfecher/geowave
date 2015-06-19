@@ -4,12 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import mil.nga.giat.geowave.analytics.tools.AnalyticFeature;
-import mil.nga.giat.geowave.analytics.tools.Projection;
 import mil.nga.giat.geowave.analytics.tools.ShapefileTool;
 import mil.nga.giat.geowave.index.ByteArrayId;
 
-import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +23,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class ClusterUnionList extends
 		DBScanClusterList implements
-		CompressingCluster<SimpleFeature, Geometry>
+		CompressingCluster<ClusterItem, Geometry>
 {
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(ClusterUnionList.class);
@@ -35,28 +32,27 @@ public class ClusterUnionList extends
 	private Geometry clusterGeo;
 
 	public ClusterUnionList(
-			final Projection<SimpleFeature> projectionFunction,
 			final ByteArrayId centerId,
-			final SimpleFeature center,
-			final Map<ByteArrayId, Cluster<SimpleFeature>> index ) {
+			final ClusterItem center,
+			final Map<ByteArrayId, Cluster<ClusterItem>> index ) {
 		super(
-				projectionFunction,
 				centerId,
 				index);
 
-		clusterGeo = (this.projectionFunction.getProjection(center));
+		clusterGeo = center.getGeometry();
 
 		putCount(
 				centerId,
-				(Long) center.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName()));
+				center.getCount(),
+				true);
 
 	}
 
 	protected Long addAndFetchCount(
 			final ByteArrayId id,
-			final SimpleFeature newInstance ) {
+			final ClusterItem newInstance ) {
 
-		Geometry newGeo = projectionFunction.getProjection(newInstance);
+		Geometry newGeo = newInstance.getGeometry();
 		try {
 			clusterGeo = clusterGeo.union(newGeo);
 		}
@@ -84,15 +80,15 @@ public class ClusterUnionList extends
 			}
 		}
 
-		return (Long) newInstance.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName());
+		return (Long) newInstance.getCount();
 	}
 
 	@Override
 	public void merge(
-			Cluster<SimpleFeature> cluster ) {
-		super.merge(cluster);
+			Cluster<ClusterItem> cluster ) {
+		interpolateAddCount((DBScanClusterList) cluster);
 		if (cluster != this) {
-			this.clusterGeo = this.clusterGeo.union(((ClusterUnionList) cluster).clusterGeo);
+			clusterGeo = clusterGeo.union(((ClusterUnionList) cluster).clusterGeo);
 		}
 	}
 
@@ -102,24 +98,21 @@ public class ClusterUnionList extends
 	}
 
 	public static class ClusterUnionListFactory implements
-			NeighborListFactory<SimpleFeature>
+			NeighborListFactory<ClusterItem>
 	{
-		private final Projection<SimpleFeature> projectionFunction;
-		private final Map<ByteArrayId, Cluster<SimpleFeature>> index;
+		private final Map<ByteArrayId, Cluster<ClusterItem>> index;
 
 		public ClusterUnionListFactory(
-				final Projection<SimpleFeature> projectionFunction,
-				final Map<ByteArrayId, Cluster<SimpleFeature>> index ) {
+
+				final Map<ByteArrayId, Cluster<ClusterItem>> index ) {
 			super();
-			this.projectionFunction = projectionFunction;
 			this.index = index;
 		}
 
-		public NeighborList<SimpleFeature> buildNeighborList(
+		public NeighborList<ClusterItem> buildNeighborList(
 				final ByteArrayId centerId,
-				final SimpleFeature center ) {
+				final ClusterItem center ) {
 			return new ClusterUnionList(
-					projectionFunction,
 					centerId,
 					center,
 					index);

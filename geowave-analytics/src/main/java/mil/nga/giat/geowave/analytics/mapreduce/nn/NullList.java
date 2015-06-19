@@ -43,4 +43,9 @@ public class NullList<NNTYPE> implements
 		return true;
 	}
 
+	@Override
+	public void init() {
+
+	}
+
 }

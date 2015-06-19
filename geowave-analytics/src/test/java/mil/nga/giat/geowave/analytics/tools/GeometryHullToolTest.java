@@ -474,7 +474,6 @@ public class GeometryHullToolTest
 				geo.toString());
 	}
 
-
 	public void testRandomConnect()
 			throws IOException {
 
@@ -687,7 +686,6 @@ public class GeometryHullToolTest
 				hull,
 				concave3);
 	}
-
 
 	public void addPointsTest()
 			throws com.vividsolutions.jts.io.ParseException {

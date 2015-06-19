@@ -95,6 +95,8 @@ public class DBScanMapReduce
 							ids.next(),
 							first);
 				}
+				// for gc
+				if (first != cluster) cluster.clear();
 			}
 
 		}
@@ -121,14 +123,39 @@ public class DBScanMapReduce
 		}
 	}
 
+	public static class SimpleFeatureToClusterItemConverter implements
+			TypeConverter<ClusterItem>
+	{
+
+		final Projection<SimpleFeature> projection;
+
+		public SimpleFeatureToClusterItemConverter(
+				Projection<SimpleFeature> projection ) {
+			super();
+			this.projection = projection;
+		}
+
+		@Override
+		public ClusterItem convert(
+				final ByteArrayId id,
+				final Object o ) {
+			final SimpleFeature feature = (SimpleFeature) o;
+			Long count = (Long) feature.getAttribute(AnalyticFeature.ClusterFeatureAttribute.COUNT.attrName());
+
+			return new ClusterItem(
+					feature.getID(),
+					projection.getProjection(feature),
+					count == null ? 1 : count);
+		}
+	}
+
 	public static class DBScanMapHullReducer extends
-			DBScanMapReducer<SimpleFeature, GeoWaveInputKey, ObjectWritable>
+			DBScanMapReducer<ClusterItem, GeoWaveInputKey, ObjectWritable>
 	{
 		private String batchID;
 		private int zoomLevel = 1;
 		private int iteration = 1;
 		private FeatureDataAdapter outputAdapter;
-		protected Projection<SimpleFeature> projectionFunction;
 
 		private final ObjectWritable output = new ObjectWritable();
 		private boolean firstIteration = true;
@@ -136,15 +163,15 @@ public class DBScanMapReduce
 		@Override
 		protected void processSummary(
 				final PartitionData partitionData,
-				final Map<ByteArrayId, Cluster<SimpleFeature>> summary,
+				final Map<ByteArrayId, Cluster<ClusterItem>> summary,
 				final Reducer<PartitionDataWritable, AdapterWithObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context )
 				throws IOException,
 				InterruptedException {
 			final HadoopWritableSerializer<SimpleFeature, FeatureWritable> serializer = outputAdapter.createWritableSerializer();
-			final Set<Cluster<SimpleFeature>> processed = new HashSet<Cluster<SimpleFeature>>();
-			for (final Map.Entry<ByteArrayId, Cluster<SimpleFeature>> entry : summary.entrySet()) {
+			final Set<Cluster<ClusterItem>> processed = new HashSet<Cluster<ClusterItem>>();
+			for (final Map.Entry<ByteArrayId, Cluster<ClusterItem>> entry : summary.entrySet()) {
 				@SuppressWarnings("unchecked")
-				final CompressingCluster<SimpleFeature, Geometry> cluster = (CompressingCluster<SimpleFeature, Geometry>) entry.getValue();
+				final CompressingCluster<ClusterItem, Geometry> cluster = (CompressingCluster<ClusterItem, Geometry>) entry.getValue();
 				if (!processed.contains(cluster)) {
 					processed.add(cluster);
 					final SimpleFeature newPolygonFeature = AnalyticFeature.createGeometryFeature(
@@ -178,13 +205,11 @@ public class DBScanMapReduce
 			}
 		}
 
-		public NeighborListFactory<SimpleFeature> createNeighborsListFactory(
-				Map<ByteArrayId, Cluster<SimpleFeature>> summary ) {
+		public NeighborListFactory<ClusterItem> createNeighborsListFactory(
+				Map<ByteArrayId, Cluster<ClusterItem>> summary ) {
 			return (firstIteration) ? new SingleItemClusterListFactory(
-					projectionFunction,
 					new CoordinateCircleDistanceFn(),
 					summary) : new ClusterUnionListFactory(
-					projectionFunction,
 					summary);
 
 		}
@@ -234,6 +259,7 @@ public class DBScanMapReduce
 							BasicFeatureTypes.DEFAULT_NAMESPACE),
 					ClusteringUtils.CLUSTERING_CRS);
 
+			Projection<SimpleFeature> projectionFunction;
 			try {
 				projectionFunction = config.getInstance(
 						HullParameters.Hull.PROJECTION_CLASS,
@@ -245,6 +271,11 @@ public class DBScanMapReduce
 				throw new IOException(
 						e);
 			}
+
+			super.typeConverter = new SimpleFeatureToClusterItemConverter(
+					projectionFunction);
+
+			super.distanceFn = new ClusterItemDistanceFn();
 
 		}
 	}

@@ -29,6 +29,7 @@ public class NeighorIndex<NNTYPE>
 					node.getKey(),
 					neighbors);
 		}
+		neighbors.init();
 		return neighbors;
 	}
 
