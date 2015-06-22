@@ -78,7 +78,11 @@ public class DBScanMapReduce
 				throws IOException,
 				InterruptedException {
 
-			if ((neighbors == null) || (neighbors.size() == 0 || neighbors.size() < minOwners)) {
+			if ((neighbors == null) || (neighbors.size() == 0)) {
+				return;
+			}
+			if (neighbors.size() < minOwners) {
+				neighbors.clear();
 				return;
 			}
 
@@ -89,6 +93,7 @@ public class DBScanMapReduce
 				final Cluster<VALUEIN> cluster = linkedClusterIt.next();
 				if (first == null) first = cluster;
 				first.merge((Cluster<VALUEIN>) cluster);
+				// transfer these clustered IDs the one merged cluster
 				Iterator<ByteArrayId> ids = cluster.clusteredIds();
 				while (ids.hasNext()) {
 					summary.put(
@@ -188,13 +193,14 @@ public class DBScanMapReduce
 							iteration,
 							cluster.size());
 					output.set(serializer.toWritable(newPolygonFeature));
-					ShapefileTool.writeShape(
-							cluster.getId().getString() + iteration,
-							new File(
-									"./target/testdb_" + cluster.getId().getString() + iteration),
-							new Geometry[] {
-								(Geometry) cluster.get()
-							});
+					// ShapefileTool.writeShape(
+					// cluster.getId().getString() + iteration,
+					// new File(
+					// "./target/testdb_" + cluster.getId().getString() +
+					// iteration),
+					// new Geometry[] {
+					// (Geometry) cluster.get()
+					// });
 					context.write(
 							new GeoWaveInputKey(
 									outputAdapter.getAdapterId(),

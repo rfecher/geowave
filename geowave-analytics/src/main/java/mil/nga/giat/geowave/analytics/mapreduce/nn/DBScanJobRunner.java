@@ -52,6 +52,9 @@ public class DBScanJobRunner extends
 		job.getConfiguration().set(
 				"mapreduce.map.java.opts",
 				"-Xmx4096m");
+		job.getConfiguration().set(
+				"mapred.task.timeout",
+				"2000000");
 		job.getConfiguration().setBooleanIfUnset(
 				"first.iteration",
 				firstIteration);

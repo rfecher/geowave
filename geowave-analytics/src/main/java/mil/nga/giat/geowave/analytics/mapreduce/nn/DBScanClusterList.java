@@ -25,6 +25,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * Supports merging with other clusters, incrementing the count by only those
  * components different from the other cluster.
  * 
+ * A cluster is not recognized until it is added to an index (a global state).
+ * Clusters and there items are not indexed until they meet some criteria
+ * (external).
+ * 
  * Intended to run in a single thread. Not Thread Safe.
  * 
  */
@@ -43,6 +47,7 @@ public abstract class DBScanClusterList implements
 	private final ByteArrayId id;
 
 	// global state
+	// ID to cluster.
 	private final Map<ByteArrayId, Cluster<ClusterItem>> index;
 
 	public DBScanClusterList(
@@ -67,6 +72,11 @@ public abstract class DBScanClusterList implements
 				entry.getValue());
 	}
 
+	/**
+	 * 
+	 * @param id
+	 * @return true if the neighbor is formally assigned to another cluster
+	 */
 	private boolean checkAssignment(
 			final ByteArrayId id ) {
 		final Cluster<ClusterItem> cluster = index.get(id);
@@ -88,12 +98,15 @@ public abstract class DBScanClusterList implements
 			return false;
 		}
 
+		// Is the neighbor ID already assigned to another cluster.
 		final boolean assignedElseWhere = checkAssignment(id);
 
 		final Long count = addAndFetchCount(
 				id,
 				newInstance);
 
+		// The list of clustered IDs is not adjusted if this added id is already
+		// assigned to another cluster.
 		putCount(
 				id,
 				count,
@@ -101,6 +114,12 @@ public abstract class DBScanClusterList implements
 
 		return true;
 	}
+
+	/**
+	 * Clear the contents. Invoked when the contents of a cluster are merged
+	 * with another cluster. This method is supportive for GC, not serving any
+	 * algorithm logic.
+	 */
 
 	@Override
 	public void clear() {
@@ -111,7 +130,7 @@ public abstract class DBScanClusterList implements
 	@Override
 	public boolean contains(
 			final ByteArrayId obj ) {
-		return (clusteredGeometryCounts != null) && clusteredGeometryCounts.containsKey(obj);
+		return index.containsKey(obj) || (clusteredGeometryCounts != null) && clusteredGeometryCounts.containsKey(obj);
 	}
 
 	@Override
@@ -172,6 +191,18 @@ public abstract class DBScanClusterList implements
 		return clusteredGeometryCounts == null ? Collections.<ByteArrayId> emptyList().iterator() : clusteredGeometryCounts.keySet().iterator();
 	}
 
+	/**
+	 * Since some of the IDs added to this cluster may already be associated
+	 * with another cluster, traverse through the IDs to find those associated
+	 * clusters, through inspection of the index. Link to the associated
+	 * clusters. If linked to more than one, then this cluster may server as a
+	 * bridge between clusters. Clear any IDs associated with other clusters so
+	 * they are not double counted. This has the added benefit of reducing the
+	 * memory footprint of this cluster.
+	 * 
+	 * Recall that a cluster is not referenced in the index unless it met the
+	 * external requirements.
+	 */
 	@Override
 	public void init() {
 		if (clusteredGeometryCounts != null && !clusteredGeometryCounts.isEmpty()) {
@@ -221,6 +252,8 @@ public abstract class DBScanClusterList implements
 				LOGGER.warn(
 						"Cannot calculate difference of geometries to interpolate size ",
 						ex);
+				LOGGER.warn(geo1.toString());
+				LOGGER.warn(geo2.toString());
 			}
 			addCount += (int) (clusterToAdd.addCount * interpolationFactor);
 		}

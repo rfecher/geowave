@@ -256,6 +256,7 @@ public class NNMapReduce
 					   }	
 					}
 				}
+				context.progress();
 				for (final Map.Entry<ByteArrayId,VALUEIN>  anOther : others.entrySet()) {
 					if (anOther.getKey().equals(primary.getKey())) {
 						continue;
@@ -271,6 +272,7 @@ public class NNMapReduce
 					    }
 					}
 				}
+				context.progress();
 				processNeighbors(
 							key.partitionData,
 							primary.getKey(),
@@ -279,6 +281,8 @@ public class NNMapReduce
 							context,
 							summary);
 				
+				// the list is not needed once the primary has been thoroughly processed.
+				// child classes may use there on collections to retain neighbor list, if needed.
 				index.empty(primary.getKey());
 				primaryIt.remove();
 			}

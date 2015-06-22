@@ -19,6 +19,9 @@ public interface NeighborList<NNTYPE> extends
 	public boolean contains(
 			ByteArrayId key );
 
+	/**
+	 * Clear the contents.
+	 */
 	public void clear();
 
 	public int size();

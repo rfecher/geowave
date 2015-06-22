@@ -5,12 +5,20 @@ import java.util.Map;
 
 import mil.nga.giat.geowave.index.ByteArrayId;
 
+/**
+ * Maintain an association between an ID of any item and its neighbors, as they
+ * are discovered. The index supports a bi-directional association, forming a
+ * graph of adjacency lists.
+ * 
+ * 
+ * @param <NNTYPE>
+ */
 public class NeighorIndex<NNTYPE>
 {
-	final Map<ByteArrayId, NeighborList<NNTYPE>> index = new HashMap<ByteArrayId, NeighborList<NNTYPE>>();
-	final NeighborListFactory<NNTYPE> listFactory;
+	private final Map<ByteArrayId, NeighborList<NNTYPE>> index = new HashMap<ByteArrayId, NeighborList<NNTYPE>>();
+	private final NeighborListFactory<NNTYPE> listFactory;
 
-	final NullList<NNTYPE> nullList = new NullList<NNTYPE>();
+	private final NullList<NNTYPE> nullList = new NullList<NNTYPE>();
 
 	public NeighorIndex(
 			final NeighborListFactory<NNTYPE> listFactory ) {
@@ -18,6 +26,19 @@ public class NeighorIndex<NNTYPE>
 		this.listFactory = listFactory;
 	}
 
+	/**
+	 * Invoked when the provided node is being inspected to find neighbors.
+	 * Creates the associated neighbor list, if not already created. Notifies
+	 * the neighbor list that it is formally initialized. The neighbor list may
+	 * already exist and have associated neighbors. This occurs when those
+	 * relationships are discovered through traversing the neighbor.
+	 * 
+	 * This method is designed for neighbor lists do some optimizations just
+	 * prior to the neighbor discovery process.
+	 * 
+	 * @param node
+	 * @return
+	 */
 	public NeighborList<NNTYPE> init(
 			final Map.Entry<ByteArrayId, NNTYPE> node ) {
 		NeighborList<NNTYPE> neighbors = index.get(node.getKey());
