@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -159,6 +160,19 @@ public class AccumuloDataStore implements
 				this);
 	}
 
+	/**
+	 * Provides a hook for other data stores to register additional callbacks
+	 * into the ingest process
+	 * 
+	 * @param callbacks
+	 * @return a reference to all writers opened by callbacks, so they can be
+	 *         properly closed
+	 */
+	protected <T> List<Writer> addAdditionalCallbacks(
+			final List<IngestCallback<T>> callbacks ) {
+		return Collections.emptyList();
+	}
+
 	@Override
 	public <T> List<ByteArrayId> ingest(
 			final WritableDataAdapter<T> writableAdapter,
@@ -210,6 +224,7 @@ public class AccumuloDataStore implements
 		store(writableAdapter);
 		store(index);
 
+		final List<Writer> writers = new ArrayList<>();
 		Writer writer = null;
 		StatsCompositionTool<T> statisticsTool = null;
 		try {
@@ -239,6 +254,7 @@ public class AccumuloDataStore implements
 			writer = accumuloOperations.createWriter(
 					indexName,
 					accumuloOptions.isCreateTable());
+			writers.add(writer);
 
 			if (accumuloOptions.isUseLocalityGroups() && !accumuloOperations.localityGroupExists(
 					indexName,
@@ -271,19 +287,28 @@ public class AccumuloDataStore implements
 				final Writer altIdxWriter = accumuloOperations.createWriter(
 						altIdxTableName,
 						accumuloOptions.isCreateTable());
+				writers.add(altIdxWriter);
 
 				AccumuloUtils.writeAltIndex(
 						writableAdapter,
 						entryInfo,
 						entry,
 						altIdxWriter);
-
-				altIdxWriter.close();
 			}
 
-			statisticsTool.entryIngested(
+			final List<IngestCallback<T>> callbacks = new ArrayList<IngestCallback<T>>();
+			callbacks.add(statisticsTool);
+			writers.addAll(addAdditionalCallbacks(callbacks));
+			final IngestCallback<T> finalIngestCallback = new IngestCallbackList<T>(
+					callbacks);
+
+			finalIngestCallback.entryIngested(
 					entryInfo,
 					entry);
+
+			for (Writer w : writers) {
+				w.close();
+			}
 
 			synchronizeStatsWithStore(
 					statisticsTool,
@@ -405,6 +430,7 @@ public class AccumuloDataStore implements
 			store(dataWriter);
 			store(index);
 
+			final List<Writer> writers = new ArrayList<>();
 			final String tableName = StringUtils.stringFromBinary(index.getId().getBytes());
 			final String altIdxTableName = tableName + AccumuloUtils.ALT_INDEX_TABLE;
 			final byte[] adapterId = dataWriter.getAdapterId().getBytes();
@@ -430,6 +456,7 @@ public class AccumuloDataStore implements
 			final mil.nga.giat.geowave.datastore.accumulo.Writer writer = accumuloOperations.createWriter(
 					indexName,
 					accumuloOptions.isCreateTable());
+			writers.add(writer);
 
 			if (accumuloOptions.isUseLocalityGroups() && !accumuloOperations.localityGroupExists(
 					tableName,
@@ -455,6 +482,7 @@ public class AccumuloDataStore implements
 				altIdxWriter = accumuloOperations.createWriter(
 						altIdxTableName,
 						accumuloOptions.isCreateTable());
+				writers.add(altIdxWriter);
 
 				callbacks.add(new AltIndexIngestCallback<T>(
 						altIdxWriter,
@@ -466,6 +494,7 @@ public class AccumuloDataStore implements
 			if (ingestCallback != null) {
 				callbacks.add(ingestCallback);
 			}
+			writers.addAll(addAdditionalCallbacks(callbacks));
 			final IngestCallback<T> finalIngestCallback;
 			if (callbacks.size() > 1) {
 				finalIngestCallback = new IngestCallbackList<T>(
@@ -511,10 +540,9 @@ public class AccumuloDataStore implements
 							});
 				}
 			});
-			writer.close();
 
-			if (useAltIndex && (altIdxWriter != null)) {
-				altIdxWriter.close();
+			for (Writer w : writers) {
+				w.close();
 			}
 
 			synchronizeStatsWithStore(
