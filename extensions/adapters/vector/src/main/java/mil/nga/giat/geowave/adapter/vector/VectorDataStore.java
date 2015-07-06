@@ -3,14 +3,17 @@ package mil.nga.giat.geowave.adapter.vector;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import mil.nga.giat.geowave.adapter.vector.ingest.SecondaryIndexingIngestCallback;
 import mil.nga.giat.geowave.adapter.vector.query.AccumuloCqlConstraintsQuery;
 import mil.nga.giat.geowave.adapter.vector.query.DistributedRenderQuery;
 import mil.nga.giat.geowave.adapter.vector.query.SpatialDecimationQuery;
 import mil.nga.giat.geowave.adapter.vector.wms.DistributableRenderer;
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.store.CloseableIterator;
+import mil.nga.giat.geowave.core.store.IngestCallback;
 import mil.nga.giat.geowave.core.store.adapter.AdapterStore;
 import mil.nga.giat.geowave.core.store.adapter.DataAdapter;
 import mil.nga.giat.geowave.core.store.adapter.MemoryAdapterStore;
@@ -21,8 +24,10 @@ import mil.nga.giat.geowave.core.store.query.Query;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloDataStore;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloOperations;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloOptions;
+import mil.nga.giat.geowave.datastore.accumulo.Writer;
 import mil.nga.giat.geowave.datastore.accumulo.util.CloseableIteratorWrapper;
 
+import org.apache.log4j.Logger;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
@@ -40,6 +45,7 @@ import com.google.common.collect.Iterators;
 public class VectorDataStore extends
 		AccumuloDataStore
 {
+	private final static Logger LOGGER = Logger.getLogger(VectorDataStore.class);
 
 	public VectorDataStore(
 			final IndexStore indexStore,
@@ -243,4 +249,24 @@ public class VectorDataStore extends
 				limit);
 
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected <T> List<Writer> addAdditionalCallbacks(
+			List<IngestCallback<T>> callbacks ) {
+		SecondaryIndexingIngestCallback callback;
+		try {
+			callback = new SecondaryIndexingIngestCallback(
+					accumuloOperations);
+			callbacks.add((IngestCallback<T>) callback);
+			return callback.getAllWriters();
+		}
+		catch (InstantiationException e) {
+			LOGGER.error(
+					"Unable to instantiate SecondaryIndexingIngestCallback",
+					e);
+			return Collections.emptyList();
+		}
+	}
+
 }

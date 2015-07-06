@@ -228,12 +228,16 @@ public class BasicAccumuloOperations implements
 						e);
 			}
 		}
+		BatchWriterConfig config = new BatchWriterConfig();
+		config.setMaxMemory(byteBufferSize);
+		config.setMaxLatency(
+				timeoutMillis,
+				TimeUnit.MILLISECONDS);
+		config.setMaxWriteThreads(numThreads);
 		return new mil.nga.giat.geowave.datastore.accumulo.BatchWriterWrapper(
 				connector.createBatchWriter(
 						qName,
-						byteBufferSize,
-						timeoutMillis,
-						numThreads));
+						config));
 	}
 
 	@Override
