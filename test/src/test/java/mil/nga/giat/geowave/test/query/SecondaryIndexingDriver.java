@@ -1,8 +1,11 @@
 package mil.nga.giat.geowave.test.query;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.UUID;
 
 import mil.nga.giat.geowave.adapter.vector.FeatureDataAdapter;
@@ -44,6 +47,8 @@ public class SecondaryIndexingDriver extends
 
 {
 	private static SimpleFeatureType schema;
+	private static Random random = new Random();
+	private static int NUM_FEATURES = 10;
 
 	@BeforeClass
 	public static void init()
@@ -85,12 +90,17 @@ public class SecondaryIndexingDriver extends
 
 		final Index index = IndexType.SPATIAL_VECTOR.createDefaultIndex();
 
+		List<SimpleFeature> features = new ArrayList<>();
+		for (int x = 0; x < NUM_FEATURES; x++) {
+			features.add(buildSimpleFeature());
+		}
+
 		dataStore.ingest(
 				dataAdapter,
 				index,
-				buildSimpleFeature());
+				features.iterator());
 
-		System.out.println("Feature ingested");
+		System.out.println("Feature(s) ingested");
 
 		// final CloseableIterator<?> results = dataStore.query(new
 		// SpatialQuery(
@@ -114,10 +124,10 @@ public class SecondaryIndexingDriver extends
 			TableNotFoundException {
 
 		int numNumericEntries = countNumberOfEntriesInIndexTable(NumericSecondaryIndex.TABLE_NAME);
-		Assert.assertTrue(numNumericEntries == 1);
+		Assert.assertTrue(numNumericEntries == NUM_FEATURES);
 
 		int numTemporalEntries = countNumberOfEntriesInIndexTable(TemporalSecondaryIndex.TABLE_NAME);
-		Assert.assertTrue(numTemporalEntries == 1);
+		Assert.assertTrue(numTemporalEntries == NUM_FEATURES);
 	}
 
 	private int countNumberOfEntriesInIndexTable(
@@ -137,14 +147,20 @@ public class SecondaryIndexingDriver extends
 		final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(
 				schema);
 
+		int randomLng = random.nextInt(361) - 180; // generate random # between
+													// -180, 180 inclusive
+		int randomLat = random.nextInt(181) - 90; // generate random # between
+													// -90, 90 inclusive
+		int randomPersons = random.nextInt(2000000);
+
 		builder.set(
 				"location",
 				GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
-						-102,
-						41)));
+						randomLng,
+						randomLat)));
 		builder.set(
 				"persons",
-				1500000);
+				randomPersons);
 		builder.set(
 				"record_date",
 				new Date());
@@ -153,7 +169,7 @@ public class SecondaryIndexingDriver extends
 				"10-15");
 		builder.set(
 				"affiliation",
-				"blahblah");
+				"blah blah");
 
 		return builder.buildFeature(UUID.randomUUID().toString());
 	}

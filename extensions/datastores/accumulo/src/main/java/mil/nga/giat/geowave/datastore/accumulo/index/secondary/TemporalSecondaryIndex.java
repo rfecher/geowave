@@ -34,7 +34,10 @@ public class TemporalSecondaryIndex extends
 		if (instance == null) {
 			try {
 				instance = new TemporalSecondaryIndex(
-						accumuloOperations.createWriter(TABLE_NAME));
+						accumuloOperations.createWriter(
+								TABLE_NAME,
+								true,
+								false));
 			}
 			catch (TableNotFoundException e) {
 				throw new InstantiationException(

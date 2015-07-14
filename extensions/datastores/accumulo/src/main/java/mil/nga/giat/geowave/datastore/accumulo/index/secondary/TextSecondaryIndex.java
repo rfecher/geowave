@@ -32,7 +32,10 @@ public class TextSecondaryIndex extends
 		if (instance == null) {
 			try {
 				instance = new TextSecondaryIndex(
-						accumuloOperations.createWriter(TABLE_NAME));
+						accumuloOperations.createWriter(
+								TABLE_NAME,
+								true,
+								false));
 			}
 			catch (TableNotFoundException e) {
 				throw new InstantiationException(
