@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import mil.nga.giat.geowave.core.index.PersistenceUtils;
-import mil.nga.giat.geowave.core.store.index.Index;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 
 import org.apache.accumulo.core.data.Range;
 import org.apache.hadoop.io.Text;
@@ -26,27 +26,27 @@ public class GeoWaveInputSplit extends
 		InputSplit implements
 		Writable
 {
-	private Map<Index, List<Range>> ranges;
+	private Map<PrimaryIndex, List<Range>> ranges;
 	private String[] locations;
 
 	protected GeoWaveInputSplit() {
-		ranges = new HashMap<Index, List<Range>>();
+		ranges = new HashMap<PrimaryIndex, List<Range>>();
 		locations = new String[] {};
 	}
 
 	protected GeoWaveInputSplit(
-			final Map<Index, List<Range>> ranges,
+			final Map<PrimaryIndex, List<Range>> ranges,
 			final String[] locations ) {
 		this.ranges = ranges;
 		this.locations = locations;
 	}
 
-	public Set<Index> getIndices() {
+	public Set<PrimaryIndex> getIndices() {
 		return ranges.keySet();
 	}
 
 	public List<Range> getRanges(
-			final Index index ) {
+			final PrimaryIndex index ) {
 		return ranges.get(index);
 	}
 
@@ -58,7 +58,7 @@ public class GeoWaveInputSplit extends
 	public long getLength()
 			throws IOException {
 		long diff = 0;
-		for (final Entry<Index, List<Range>> indexEntry : ranges.entrySet()) {
+		for (final Entry<PrimaryIndex, List<Range>> indexEntry : ranges.entrySet()) {
 			for (final Range range : indexEntry.getValue()) {
 				final Text startRow = range.isInfiniteStartKey() ? new Text(
 						new byte[] {
@@ -100,15 +100,15 @@ public class GeoWaveInputSplit extends
 			final DataInput in )
 			throws IOException {
 		final int numIndices = in.readInt();
-		ranges = new HashMap<Index, List<Range>>(
+		ranges = new HashMap<PrimaryIndex, List<Range>>(
 				numIndices);
 		for (int i = 0; i < numIndices; i++) {
 			final int indexLength = in.readInt();
 			final byte[] indexBytes = new byte[indexLength];
 			in.readFully(indexBytes);
-			final Index index = PersistenceUtils.fromBinary(
+			final PrimaryIndex index = PersistenceUtils.fromBinary(
 					indexBytes,
-					Index.class);
+					PrimaryIndex.class);
 			final int numRanges = in.readInt();
 			final List<Range> rangeList = new ArrayList<Range>(
 					numRanges);
@@ -141,7 +141,7 @@ public class GeoWaveInputSplit extends
 			final DataOutput out )
 			throws IOException {
 		out.writeInt(ranges.size());
-		for (final Entry<Index, List<Range>> range : ranges.entrySet()) {
+		for (final Entry<PrimaryIndex, List<Range>> range : ranges.entrySet()) {
 			final byte[] indexBytes = PersistenceUtils.toBinary(range.getKey());
 			out.writeInt(indexBytes.length);
 			out.write(indexBytes);

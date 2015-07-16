@@ -42,8 +42,8 @@ import mil.nga.giat.geowave.core.store.filter.FilterList;
 import mil.nga.giat.geowave.core.store.filter.QueryFilter;
 import mil.nga.giat.geowave.core.store.index.CommonIndexModel;
 import mil.nga.giat.geowave.core.store.index.CommonIndexValue;
-import mil.nga.giat.geowave.core.store.index.Index;
-import mil.nga.giat.geowave.core.store.index.IndexStore;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndexStore;
 import mil.nga.giat.geowave.core.store.query.Query;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloDataStore;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloOperations;
@@ -169,7 +169,7 @@ public class AccumuloUtils
 			final Key key,
 			final Value value,
 			final DataAdapter<?> adapter,
-			final Index index ) {
+			final PrimaryIndex index ) {
 		return decodeRow(
 				key,
 				value,
@@ -183,7 +183,7 @@ public class AccumuloUtils
 			final Value value,
 			final DataAdapter<?> adapter,
 			final QueryFilter clientFilter,
-			final Index index ) {
+			final PrimaryIndex index ) {
 		final AccumuloRowId rowId = new AccumuloRowId(
 				key.getRow().copyBytes());
 		return decodeRowObj(
@@ -203,7 +203,7 @@ public class AccumuloUtils
 			final Value value,
 			final AdapterStore adapterStore,
 			final QueryFilter clientFilter,
-			final Index index,
+			final PrimaryIndex index,
 			final ScanCallback<T> scanCallback ) {
 		final AccumuloRowId rowId = new AccumuloRowId(
 				key.getRow().copyBytes());
@@ -224,7 +224,7 @@ public class AccumuloUtils
 			final AccumuloRowId rowId,
 			final AdapterStore adapterStore,
 			final QueryFilter clientFilter,
-			final Index index ) {
+			final PrimaryIndex index ) {
 		return decodeRowObj(
 				key,
 				value,
@@ -243,7 +243,7 @@ public class AccumuloUtils
 			final DataAdapter<T> dataAdapter,
 			final AdapterStore adapterStore,
 			final QueryFilter clientFilter,
-			final Index index,
+			final PrimaryIndex index,
 			final ScanCallback<T> scanCallback ) {
 		final Pair<T, DataStoreEntryInfo> pair = decodeRow(
 				key,
@@ -266,7 +266,7 @@ public class AccumuloUtils
 			final DataAdapter<T> dataAdapter,
 			final AdapterStore adapterStore,
 			final QueryFilter clientFilter,
-			final Index index,
+			final PrimaryIndex index,
 			final ScanCallback<T> scanCallback ) {
 		if ((dataAdapter == null) && (adapterStore == null)) {
 			LOGGER.error("Could not decode row from iterator. Either adapter or adapter store must be non-null.");
@@ -404,7 +404,7 @@ public class AccumuloUtils
 
 	public static <T> DataStoreEntryInfo write(
 			final WritableDataAdapter<T> writableAdapter,
-			final Index index,
+			final PrimaryIndex index,
 			final T entry,
 			final Writer writer ) {
 		return AccumuloUtils.write(
@@ -417,7 +417,7 @@ public class AccumuloUtils
 
 	public static <T> DataStoreEntryInfo write(
 			final WritableDataAdapter<T> writableAdapter,
-			final Index index,
+			final PrimaryIndex index,
 			final T entry,
 			final Writer writer,
 			final VisibilityWriter<T> customFieldVisibilityWriter ) {
@@ -495,7 +495,7 @@ public class AccumuloUtils
 
 	public static <T> List<Mutation> entryToMutations(
 			final WritableDataAdapter<T> dataWriter,
-			final Index index,
+			final PrimaryIndex index,
 			final T entry,
 			final VisibilityWriter<T> customFieldVisibilityWriter ) {
 		final DataStoreEntryInfo ingestInfo = getIngestInfo(
@@ -543,7 +543,7 @@ public class AccumuloUtils
 	 */
 	public static <T> List<ByteArrayId> getRowIds(
 			final WritableDataAdapter<T> dataWriter,
-			final Index index,
+			final PrimaryIndex index,
 			final T entry ) {
 		final CommonIndexModel indexModel = index.getIndexModel();
 		final AdapterPersistenceEncoding encodedData = dataWriter.encode(
@@ -597,7 +597,7 @@ public class AccumuloUtils
 	})
 	public static <T> DataStoreEntryInfo getIngestInfo(
 			final WritableDataAdapter<T> dataWriter,
-			final Index index,
+			final PrimaryIndex index,
 			final T entry,
 			final VisibilityWriter<T> customFieldVisibilityWriter ) {
 		final CommonIndexModel indexModel;
@@ -784,17 +784,17 @@ public class AccumuloUtils
 	 * @param connector
 	 * @param namespace
 	 */
-	public static List<Index> getIndices(
+	public static List<PrimaryIndex> getIndices(
 			final Connector connector,
 			final String namespace ) {
-		final List<Index> indices = new ArrayList<Index>();
+		final List<PrimaryIndex> indices = new ArrayList<PrimaryIndex>();
 
-		final IndexStore indexStore = new AccumuloIndexStore(
+		final PrimaryIndexStore indexStore = new AccumuloIndexStore(
 				new BasicAccumuloOperations(
 						connector,
 						namespace));
 
-		final Iterator<Index> itr = indexStore.getIndices();
+		final Iterator<PrimaryIndex> itr = indexStore.getIndices();
 
 		while (itr.hasNext()) {
 			indices.add(itr.next());
@@ -818,7 +818,7 @@ public class AccumuloUtils
 	public static void setSplitsByQuantile(
 			final Connector connector,
 			final String namespace,
-			final Index index,
+			final PrimaryIndex index,
 			final int quantile )
 			throws AccumuloException,
 			AccumuloSecurityException,
@@ -900,7 +900,7 @@ public class AccumuloUtils
 	public static void setSplitsByNumSplits(
 			final Connector connector,
 			final String namespace,
-			final Index index,
+			final PrimaryIndex index,
 			final int numberSplits )
 			throws AccumuloException,
 			AccumuloSecurityException,
@@ -962,7 +962,7 @@ public class AccumuloUtils
 	public static void setSplitsByNumRows(
 			final Connector connector,
 			final String namespace,
-			final Index index,
+			final PrimaryIndex index,
 			final long numberRows )
 			throws AccumuloException,
 			AccumuloSecurityException,
@@ -1019,7 +1019,7 @@ public class AccumuloUtils
 	public static boolean isLocalityGroupSet(
 			final Connector connector,
 			final String namespace,
-			final Index index,
+			final PrimaryIndex index,
 			final DataAdapter<?> adapter )
 			throws AccumuloException,
 			AccumuloSecurityException,
@@ -1049,7 +1049,7 @@ public class AccumuloUtils
 	public static void setLocalityGroup(
 			final Connector connector,
 			final String namespace,
-			final Index index,
+			final PrimaryIndex index,
 			final DataAdapter<?> adapter )
 			throws AccumuloException,
 			AccumuloSecurityException,
@@ -1079,7 +1079,7 @@ public class AccumuloUtils
 	public static long getEntries(
 			final Connector connector,
 			final String namespace,
-			final Index index,
+			final PrimaryIndex index,
 			final DataAdapter<?> adapter )
 			throws AccumuloException,
 			AccumuloSecurityException,
@@ -1125,7 +1125,7 @@ public class AccumuloUtils
 	public static long getEntries(
 			final Connector connector,
 			final String namespace,
-			final Index index )
+			final PrimaryIndex index )
 			throws AccumuloException,
 			AccumuloSecurityException,
 			IOException {
@@ -1186,7 +1186,7 @@ public class AccumuloUtils
 	private static CloseableIterator<Entry<Key, Value>> getIterator(
 			final Connector connector,
 			final String namespace,
-			final Index index )
+			final PrimaryIndex index )
 			throws AccumuloException,
 			AccumuloSecurityException,
 			IOException,
@@ -1236,13 +1236,13 @@ public class AccumuloUtils
 
 		private final Iterator<Entry<Key, Value>> scannerIt;
 		private final AdapterStore adapterStore;
-		private final Index index;
+		private final PrimaryIndex index;
 		private final QueryFilter clientFilter;
 		private Entry<Key, Value> nextValue;
 
 		public IteratorWrapper(
 				final AdapterStore adapterStore,
-				final Index index,
+				final PrimaryIndex index,
 				final Iterator<Entry<Key, Value>> scannerIt,
 				final QueryFilter clientFilter ) {
 			this.adapterStore = adapterStore;
@@ -1270,7 +1270,7 @@ public class AccumuloUtils
 		private Object decodeRow(
 				final Entry<Key, Value> row,
 				final QueryFilter clientFilter,
-				final Index index ) {
+				final PrimaryIndex index ) {
 			return AccumuloUtils.decodeRow(
 					row.getKey(),
 					row.getValue(),

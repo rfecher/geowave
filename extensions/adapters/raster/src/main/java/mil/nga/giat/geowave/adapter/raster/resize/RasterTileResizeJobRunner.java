@@ -7,7 +7,7 @@ import mil.nga.giat.geowave.core.store.CloseableIterator;
 import mil.nga.giat.geowave.core.store.DataStore;
 import mil.nga.giat.geowave.core.store.IndexWriter;
 import mil.nga.giat.geowave.core.store.adapter.DataAdapter;
-import mil.nga.giat.geowave.core.store.index.Index;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloDataStore;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloOperations;
 import mil.nga.giat.geowave.datastore.accumulo.BasicAccumuloOperations;
@@ -143,14 +143,14 @@ public class RasterTileResizeJobRunner extends
 		JobContextAdapterStore.addDataAdapter(
 				job.getConfiguration(),
 				newAdapter);
-		Index index = null;
+		PrimaryIndex index = null;
 		if (indexId != null) {
 			index = new AccumuloIndexStore(
 					oldNamespaceOperations).getIndex(new ByteArrayId(
 					indexId));
 		}
 		if (index == null) {
-			try (CloseableIterator<Index> indices = new AccumuloIndexStore(
+			try (CloseableIterator<PrimaryIndex> indices = new AccumuloIndexStore(
 					oldNamespaceOperations).getIndices()) {
 				index = indices.next();
 			}

@@ -34,8 +34,8 @@ import mil.nga.giat.geowave.core.store.data.VisibilityWriter;
 import mil.nga.giat.geowave.core.store.data.visibility.UnconstrainedVisibilityHandler;
 import mil.nga.giat.geowave.core.store.data.visibility.UniformVisibilityWriter;
 import mil.nga.giat.geowave.core.store.filter.MultiIndexDedupeFilter;
-import mil.nga.giat.geowave.core.store.index.Index;
-import mil.nga.giat.geowave.core.store.index.IndexStore;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndexStore;
 import mil.nga.giat.geowave.core.store.query.Query;
 import mil.nga.giat.geowave.core.store.query.QueryOptions;
 import mil.nga.giat.geowave.datastore.accumulo.metadata.AccumuloAdapterStore;
@@ -92,7 +92,7 @@ public class AccumuloDataStore implements
 {
 	private final static Logger LOGGER = Logger.getLogger(AccumuloDataStore.class);
 
-	protected final IndexStore indexStore;
+	protected final PrimaryIndexStore indexStore;
 	protected final AdapterStore adapterStore;
 	protected final DataStatisticsStore statisticsStore;
 	protected final AccumuloOperations accumuloOperations;
@@ -125,7 +125,7 @@ public class AccumuloDataStore implements
 	}
 
 	public AccumuloDataStore(
-			final IndexStore indexStore,
+			final PrimaryIndexStore indexStore,
 			final AdapterStore adapterStore,
 			final DataStatisticsStore statisticsStore,
 			final AccumuloOperations accumuloOperations ) {
@@ -138,7 +138,7 @@ public class AccumuloDataStore implements
 	}
 
 	public AccumuloDataStore(
-			final IndexStore indexStore,
+			final PrimaryIndexStore indexStore,
 			final AdapterStore adapterStore,
 			final DataStatisticsStore statisticsStore,
 			final AccumuloOperations accumuloOperations,
@@ -152,7 +152,7 @@ public class AccumuloDataStore implements
 
 	@Override
 	public <T> IndexWriter createIndexWriter(
-			final Index index ) {
+			final PrimaryIndex index ) {
 		return new AccumuloIndexWriter(
 				index,
 				accumuloOperations,
@@ -176,7 +176,7 @@ public class AccumuloDataStore implements
 	@Override
 	public <T> List<ByteArrayId> ingest(
 			final WritableDataAdapter<T> writableAdapter,
-			final Index index,
+			final PrimaryIndex index,
 			final T entry ) {
 		return this.ingest(
 				writableAdapter,
@@ -189,7 +189,7 @@ public class AccumuloDataStore implements
 	@Override
 	public <T> List<ByteArrayId> ingest(
 			final WritableDataAdapter<T> writableAdapter,
-			final Index index,
+			final PrimaryIndex index,
 			final T entry,
 			final VisibilityWriter<T> customFieldVisibilityWriter ) {
 		if (writableAdapter instanceof IndexDependentDataAdapter) {
@@ -218,7 +218,7 @@ public class AccumuloDataStore implements
 
 	public <T> List<ByteArrayId> ingestInternal(
 			final WritableDataAdapter<T> writableAdapter,
-			final Index index,
+			final PrimaryIndex index,
 			final T entry,
 			final VisibilityWriter<T> customFieldVisibilityWriter ) {
 		store(writableAdapter);
@@ -348,7 +348,7 @@ public class AccumuloDataStore implements
 	}
 
 	protected synchronized void store(
-			final Index index ) {
+			final PrimaryIndex index ) {
 		if (accumuloOptions.isPersistIndex() && !indexStore.indexExists(index.getId())) {
 			indexStore.addIndex(index);
 		}
@@ -357,7 +357,7 @@ public class AccumuloDataStore implements
 	@Override
 	public <T> void ingest(
 			final WritableDataAdapter<T> dataWriter,
-			final Index index,
+			final PrimaryIndex index,
 			final Iterator<T> entryIterator ) {
 		ingest(
 				dataWriter,
@@ -371,7 +371,7 @@ public class AccumuloDataStore implements
 	@Override
 	public <T> void ingest(
 			final WritableDataAdapter<T> dataWriter,
-			final Index index,
+			final PrimaryIndex index,
 			final Iterator<T> entryIterator,
 			final IngestCallback<T> ingestCallback ) {
 		this.ingest(
@@ -386,7 +386,7 @@ public class AccumuloDataStore implements
 	@Override
 	public <T> void ingest(
 			final WritableDataAdapter<T> dataWriter,
-			final Index index,
+			final PrimaryIndex index,
 			final Iterator<T> entryIterator,
 			final IngestCallback<T> ingestCallback,
 			final VisibilityWriter<T> customFieldVisibilityWriter ) {
@@ -422,7 +422,7 @@ public class AccumuloDataStore implements
 
 	private <T> void ingestInternal(
 			final WritableDataAdapter<T> dataWriter,
-			final Index index,
+			final PrimaryIndex index,
 			final Iterator<T> entryIterator,
 			final IngestCallback<T> ingestCallback,
 			final VisibilityWriter<T> customFieldVisibilityWriter ) {
@@ -601,7 +601,7 @@ public class AccumuloDataStore implements
 	@Deprecated
 	@SuppressWarnings("unchecked")
 	public <T> T getEntry(
-			final Index index,
+			final PrimaryIndex index,
 			final ByteArrayId rowId ) {
 		final AccumuloRowIdQuery q = new AccumuloRowIdQuery(
 				index,
@@ -614,7 +614,7 @@ public class AccumuloDataStore implements
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getEntry(
-			final Index index,
+			final PrimaryIndex index,
 			final ByteArrayId dataId,
 			final ByteArrayId adapterId,
 			final String... additionalAuthorizations ) {
@@ -659,7 +659,7 @@ public class AccumuloDataStore implements
 
 	@Override
 	public boolean deleteEntry(
-			final Index index,
+			final PrimaryIndex index,
 			final ByteArrayId dataId,
 			final ByteArrayId adapterId,
 			final String... authorizations ) {
@@ -920,7 +920,7 @@ public class AccumuloDataStore implements
 
 	@Override
 	public CloseableIterator<?> getEntriesByPrefix(
-			final Index index,
+			final PrimaryIndex index,
 			final ByteArrayId rowPrefix,
 			final String... additionalAuthorizations ) {
 		final AccumuloRowPrefixQuery q = new AccumuloRowPrefixQuery(
@@ -945,7 +945,7 @@ public class AccumuloDataStore implements
 	@Override
 	public <T> CloseableIterator<T> query(
 			final DataAdapter<T> adapter,
-			final Index index,
+			final PrimaryIndex index,
 			final Query query,
 			final int limit,
 			final String... authorizations ) {
@@ -1020,7 +1020,7 @@ public class AccumuloDataStore implements
 			final Integer limit,
 			final ScanCallback<?> scanCallback,
 			final String... authorizations ) {
-		try (final CloseableIterator<Index> indices = indexStore.getIndices()) {
+		try (final CloseableIterator<PrimaryIndex> indices = indexStore.getIndices()) {
 			return query(
 					adapterIds,
 					query,
@@ -1048,7 +1048,7 @@ public class AccumuloDataStore implements
 	private CloseableIterator<?> query(
 			final List<ByteArrayId> adapterIds,
 			final Query query,
-			final CloseableIterator<Index> indices,
+			final CloseableIterator<PrimaryIndex> indices,
 			final AdapterStore adapterStore,
 			final Integer limit,
 			final ScanCallback<?> scanCallback,
@@ -1063,7 +1063,7 @@ public class AccumuloDataStore implements
 		// indices
 		final MultiIndexDedupeFilter clientDedupeFilter = new MultiIndexDedupeFilter();
 		while (indices.hasNext()) {
-			final Index index = indices.next();
+			final PrimaryIndex index = indices.next();
 			final AccumuloConstraintsQuery accumuloQuery;
 			if (query == null) {
 				accumuloQuery = new AccumuloConstraintsQuery(
@@ -1126,7 +1126,7 @@ public class AccumuloDataStore implements
 
 	@Override
 	public <T> CloseableIterator<T> query(
-			final Index index,
+			final PrimaryIndex index,
 			final Query query ) {
 		return query(
 				index,
@@ -1137,7 +1137,7 @@ public class AccumuloDataStore implements
 
 	@Override
 	public <T> CloseableIterator<T> query(
-			Index index,
+			PrimaryIndex index,
 			final Query query,
 			final QueryOptions queryOptions ) {
 		return query(
@@ -1149,7 +1149,7 @@ public class AccumuloDataStore implements
 
 	@Override
 	public <T> CloseableIterator<T> query(
-			final Index index,
+			final PrimaryIndex index,
 			final Query query,
 			final int limit ) {
 		return query(
@@ -1171,7 +1171,7 @@ public class AccumuloDataStore implements
 
 	@SuppressWarnings("unchecked")
 	private <T> CloseableIterator<T> query(
-			final Index index,
+			final PrimaryIndex index,
 			final Query query,
 			final Integer limit,
 			final QueryOptions queryOptions ) {
@@ -1184,7 +1184,7 @@ public class AccumuloDataStore implements
 				query,
 				new CloseableIterator.Wrapper(
 						Arrays.asList(
-								new Index[] {
+								new PrimaryIndex[] {
 									index
 								}).iterator()),
 				adapterStore,
@@ -1197,7 +1197,7 @@ public class AccumuloDataStore implements
 	@Override
 	public <T> CloseableIterator<T> query(
 			final DataAdapter<T> adapter,
-			final Index index,
+			final PrimaryIndex index,
 			final Query query,
 			final int limit ) {
 		return query(
@@ -1211,7 +1211,7 @@ public class AccumuloDataStore implements
 	@Override
 	public <T> CloseableIterator<T> query(
 			final DataAdapter<T> adapter,
-			final Index index,
+			final PrimaryIndex index,
 			final Query query ) {
 		return query(
 				adapter,
@@ -1225,7 +1225,7 @@ public class AccumuloDataStore implements
 	@SuppressWarnings("unchecked")
 	public <T> CloseableIterator<T> query(
 			final DataAdapter<T> adapter,
-			final Index index,
+			final PrimaryIndex index,
 			final Query query,
 			final Integer limit,
 			final ScanCallback<?> scanCallback,
@@ -1243,7 +1243,7 @@ public class AccumuloDataStore implements
 				query,
 				new CloseableIterator.Wrapper(
 						Arrays.asList(
-								new Index[] {
+								new PrimaryIndex[] {
 									index
 								}).iterator()),
 				new MemoryAdapterStore(
@@ -1258,7 +1258,7 @@ public class AccumuloDataStore implements
 
 	public <T> void deleteEntries(
 			final DataAdapter<T> adapter,
-			final Index index,
+			final PrimaryIndex index,
 			final String... additionalAuthorizations )
 			throws IOException {
 		final String tableName = index.getId().getString();
@@ -1387,7 +1387,7 @@ public class AccumuloDataStore implements
 	private DeleteRowObserver createDecodingDeleteObserver(
 			final StatsCompositionTool<Object> stats,
 			final DataAdapter<Object> adapter,
-			final Index index ) {
+			final PrimaryIndex index ) {
 
 		return stats.isPersisting() ? new DeleteRowObserver() {
 			// many rows can be associated with one entry.

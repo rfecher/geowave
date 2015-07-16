@@ -2,10 +2,11 @@ package mil.nga.giat.geowave.core.store.adapter.statistics;
 
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.store.DataStoreEntryInfo;
+import mil.nga.giat.geowave.core.store.EntryVisibilityHandler;
 import mil.nga.giat.geowave.core.store.DataStoreEntryInfo.FieldInfo;
 
 public class FieldIdStatisticVisibility<T> implements
-		DataStatisticsVisibilityHandler<T>
+		EntryVisibilityHandler<T>
 {
 	private final ByteArrayId fieldId;
 

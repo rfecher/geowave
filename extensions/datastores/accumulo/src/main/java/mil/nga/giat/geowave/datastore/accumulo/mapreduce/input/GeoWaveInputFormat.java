@@ -20,7 +20,7 @@ import mil.nga.giat.geowave.core.index.NumericIndexStrategy;
 import mil.nga.giat.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import mil.nga.giat.geowave.core.store.adapter.AdapterStore;
 import mil.nga.giat.geowave.core.store.adapter.DataAdapter;
-import mil.nga.giat.geowave.core.store.index.Index;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 import mil.nga.giat.geowave.core.store.query.DistributableQuery;
 import mil.nga.giat.geowave.core.store.query.QueryOptions;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloOperations;
@@ -166,7 +166,7 @@ public class GeoWaveInputFormat<T> extends
 
 	public static void addIndex(
 			final Configuration config,
-			final Index index ) {
+			final PrimaryIndex index ) {
 		JobContextIndexStore.addIndex(
 				config,
 				index);
@@ -232,7 +232,7 @@ public class GeoWaveInputFormat<T> extends
 				context);
 	}
 
-	protected static Index[] getIndices(
+	protected static PrimaryIndex[] getIndices(
 			final JobContext context ) {
 		return GeoWaveInputConfigurator.searchForIndices(
 				CLASS,
@@ -436,12 +436,12 @@ public class GeoWaveInputFormat<T> extends
 			final JobContext context,
 			final Integer maxSplits )
 			throws IOException {
-		final Index[] indices = getIndices(context);
+		final PrimaryIndex[] indices = getIndices(context);
 		final DistributableQuery query = getQuery(context);
 		final String tableNamespace = getTableNamespace(context);
 
 		final TreeSet<IntermediateSplitInfo> splits = new TreeSet<IntermediateSplitInfo>();
-		for (final Index index : indices) {
+		for (final PrimaryIndex index : indices) {
 			if ((query != null) && !query.isSupported(index)) {
 				continue;
 			}
@@ -537,7 +537,7 @@ public class GeoWaveInputFormat<T> extends
 				}
 				for (final Entry<KeyExtent, List<Range>> extentRanges : tserverBin.getValue().entrySet()) {
 					final Range keyExtent = extentRanges.getKey().toDataRange();
-					final Map<Index, List<RangeLocationPair>> splitInfo = new HashMap<Index, List<RangeLocationPair>>();
+					final Map<PrimaryIndex, List<RangeLocationPair>> splitInfo = new HashMap<PrimaryIndex, List<RangeLocationPair>>();
 					final List<RangeLocationPair> rangeList = new ArrayList<RangeLocationPair>();
 					for (final Range range : extentRanges.getValue()) {
 						rangeList.add(new RangeLocationPair(
@@ -561,11 +561,11 @@ public class GeoWaveInputFormat<T> extends
 		protected static class IndexRangeLocation
 		{
 			private final RangeLocationPair rangeLocationPair;
-			private final Index index;
+			private final PrimaryIndex index;
 
 			public IndexRangeLocation(
 					final RangeLocationPair rangeLocationPair,
-					final Index index ) {
+					final PrimaryIndex index ) {
 				this.rangeLocationPair = rangeLocationPair;
 				this.index = index;
 			}
@@ -606,18 +606,18 @@ public class GeoWaveInputFormat<T> extends
 			}
 		}
 
-		private final Map<Index, List<RangeLocationPair>> splitInfo;
+		private final Map<PrimaryIndex, List<RangeLocationPair>> splitInfo;
 		private final Map<Integer, BigInteger> totalRangePerCardinalityCache = new HashMap<Integer, BigInteger>();
 
 		public IntermediateSplitInfo(
-				final Map<Index, List<RangeLocationPair>> splitInfo ) {
+				final Map<PrimaryIndex, List<RangeLocationPair>> splitInfo ) {
 			this.splitInfo = splitInfo;
 		}
 
 		private synchronized void merge(
 				final IntermediateSplitInfo split ) {
 			clearCache();
-			for (final Entry<Index, List<RangeLocationPair>> e : split.splitInfo.entrySet()) {
+			for (final Entry<PrimaryIndex, List<RangeLocationPair>> e : split.splitInfo.entrySet()) {
 				List<RangeLocationPair> thisList = splitInfo.get(e.getKey());
 				if (thisList == null) {
 					thisList = new ArrayList<RangeLocationPair>();
@@ -666,7 +666,7 @@ public class GeoWaveInputFormat<T> extends
 							return retVal;
 						}
 					});
-			for (final Entry<Index, List<RangeLocationPair>> ranges : splitInfo.entrySet()) {
+			for (final Entry<PrimaryIndex, List<RangeLocationPair>> ranges : splitInfo.entrySet()) {
 				for (final RangeLocationPair p : ranges.getValue()) {
 					orderedSplits.add(new IndexRangeLocation(
 							p,
@@ -675,7 +675,7 @@ public class GeoWaveInputFormat<T> extends
 			}
 			IndexRangeLocation pairToSplit;
 			BigInteger targetRange = totalRange.divide(TWO);
-			final Map<Index, List<RangeLocationPair>> otherSplitInfo = new HashMap<Index, List<RangeLocationPair>>();
+			final Map<PrimaryIndex, List<RangeLocationPair>> otherSplitInfo = new HashMap<PrimaryIndex, List<RangeLocationPair>>();
 			do {
 				// this will get the least value at or above the target range
 				final BigInteger compareRange = targetRange;
@@ -796,11 +796,11 @@ public class GeoWaveInputFormat<T> extends
 
 		private IntermediateSplitInfo splitSingleRange(
 				final int maxCardinality ) {
-			final Map<Index, List<RangeLocationPair>> otherSplitInfo = new HashMap<Index, List<RangeLocationPair>>();
+			final Map<PrimaryIndex, List<RangeLocationPair>> otherSplitInfo = new HashMap<PrimaryIndex, List<RangeLocationPair>>();
 			final List<RangeLocationPair> otherRangeList = new ArrayList<RangeLocationPair>();
-			final Iterator<Entry<Index, List<RangeLocationPair>>> it = splitInfo.entrySet().iterator();
+			final Iterator<Entry<PrimaryIndex, List<RangeLocationPair>>> it = splitInfo.entrySet().iterator();
 			while (it.hasNext()) {
-				final Entry<Index, List<RangeLocationPair>> e = it.next();
+				final Entry<PrimaryIndex, List<RangeLocationPair>> e = it.next();
 				final List<RangeLocationPair> rangeList = e.getValue();
 				if (!rangeList.isEmpty()) {
 					final RangeLocationPair p = rangeList.remove(0);
@@ -859,9 +859,9 @@ public class GeoWaveInputFormat<T> extends
 		}
 
 		private synchronized GeoWaveInputSplit toFinalSplit() {
-			final Map<Index, List<Range>> rangesPerIndex = new HashMap<Index, List<Range>>();
+			final Map<PrimaryIndex, List<Range>> rangesPerIndex = new HashMap<PrimaryIndex, List<Range>>();
 			final Set<String> locations = new HashSet<String>();
-			for (final Entry<Index, List<RangeLocationPair>> entry : splitInfo.entrySet()) {
+			for (final Entry<PrimaryIndex, List<RangeLocationPair>> entry : splitInfo.entrySet()) {
 				final List<Range> ranges = new ArrayList<Range>(
 						entry.getValue().size());
 				for (final RangeLocationPair pair : entry.getValue()) {

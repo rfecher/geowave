@@ -17,7 +17,7 @@ import java.util.Set;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import mil.nga.giat.geowave.core.store.CloseableIterator;
 import mil.nga.giat.geowave.core.store.filter.QueryFilter;
-import mil.nga.giat.geowave.core.store.index.Index;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 import mil.nga.giat.geowave.core.store.query.DistributableQuery;
 import mil.nga.giat.geowave.core.store.query.QueryOptions;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloOperations;
@@ -52,11 +52,11 @@ public class GeoWaveRecordReader<T> extends
 	private static final class RangeIndexPair
 	{
 		private final Range range;
-		private final Index index;
+		private final PrimaryIndex index;
 
 		public RangeIndexPair(
 				final Range range,
-				final Index index ) {
+				final PrimaryIndex index ) {
 			this.range = range;
 			this.index = index;
 		}
@@ -155,8 +155,8 @@ public class GeoWaveRecordReader<T> extends
 			numKeysRead = 0;
 			final Map<RangeIndexPair, CloseableIterator<?>> iteratorsPerRange = new LinkedHashMap<RangeIndexPair, CloseableIterator<?>>();
 
-			final Set<Index> indices = split.getIndices();
-			for (final Index i : indices) {
+			final Set<PrimaryIndex> indices = split.getIndices();
+			for (final PrimaryIndex i : indices) {
 				final List<Range> ranges = split.getRanges(i);
 				List<QueryFilter> queryFilters = null;
 				if (query != null) {

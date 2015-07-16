@@ -13,27 +13,27 @@ import mil.nga.giat.geowave.core.store.CloseableIterator;
  * another storage mechanism such as an accumulo table.
  */
 public class MemoryIndexStore implements
-		IndexStore
+		PrimaryIndexStore
 {
-	private final Map<ByteArrayId, Index> indexMap = new HashMap<ByteArrayId, Index>();
+	private final Map<ByteArrayId, PrimaryIndex> indexMap = new HashMap<ByteArrayId, PrimaryIndex>();
 
 	public MemoryIndexStore(
-			final Index[] initialIndices ) {
-		for (final Index index : initialIndices) {
+			final PrimaryIndex[] initialIndices ) {
+		for (final PrimaryIndex index : initialIndices) {
 			addIndex(index);
 		}
 	}
 
 	@Override
 	public void addIndex(
-			final Index index ) {
+			final PrimaryIndex index ) {
 		indexMap.put(
 				index.getId(),
 				index);
 	}
 
 	@Override
-	public Index getIndex(
+	public PrimaryIndex getIndex(
 			final ByteArrayId indexId ) {
 		return indexMap.get(indexId);
 	}
@@ -45,9 +45,9 @@ public class MemoryIndexStore implements
 	}
 
 	@Override
-	public CloseableIterator<Index> getIndices() {
-		return new CloseableIterator.Wrapper<Index>(
-				new ArrayList<Index>(
+	public CloseableIterator<PrimaryIndex> getIndices() {
+		return new CloseableIterator.Wrapper<PrimaryIndex>(
+				new ArrayList<PrimaryIndex>(
 						indexMap.values()).iterator());
 	}
 

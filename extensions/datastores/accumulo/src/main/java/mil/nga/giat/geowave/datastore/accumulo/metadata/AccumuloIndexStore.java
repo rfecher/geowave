@@ -2,8 +2,8 @@ package mil.nga.giat.geowave.datastore.accumulo.metadata;
 
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.store.CloseableIterator;
-import mil.nga.giat.geowave.core.store.index.Index;
-import mil.nga.giat.geowave.core.store.index.IndexStore;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndexStore;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloOperations;
 
 /**
@@ -16,8 +16,8 @@ import mil.nga.giat.geowave.datastore.accumulo.AccumuloOperations;
  * 
  **/
 public class AccumuloIndexStore extends
-		AbstractAccumuloPersistence<Index> implements
-		IndexStore
+		AbstractAccumuloPersistence<PrimaryIndex> implements
+		PrimaryIndexStore
 {
 	private static final String INDEX_CF = "INDEX";
 
@@ -29,12 +29,12 @@ public class AccumuloIndexStore extends
 
 	@Override
 	public void addIndex(
-			final Index index ) {
+			final PrimaryIndex index ) {
 		addObject(index);
 	}
 
 	@Override
-	public Index getIndex(
+	public PrimaryIndex getIndex(
 			final ByteArrayId indexId ) {
 		return getObject(
 				indexId,
@@ -48,7 +48,7 @@ public class AccumuloIndexStore extends
 
 	@Override
 	protected ByteArrayId getPrimaryId(
-			final Index persistedObject ) {
+			final PrimaryIndex persistedObject ) {
 		return persistedObject.getId();
 	}
 
@@ -61,7 +61,7 @@ public class AccumuloIndexStore extends
 	}
 
 	@Override
-	public CloseableIterator<Index> getIndices() {
+	public CloseableIterator<PrimaryIndex> getIndices() {
 		return getObjects();
 	}
 

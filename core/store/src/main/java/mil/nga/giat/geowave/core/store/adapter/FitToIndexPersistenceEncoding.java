@@ -6,7 +6,7 @@ import java.util.List;
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.store.data.PersistentDataset;
 import mil.nga.giat.geowave.core.store.index.CommonIndexValue;
-import mil.nga.giat.geowave.core.store.index.Index;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 
 public class FitToIndexPersistenceEncoding extends
 		AdapterPersistenceEncoding
@@ -29,7 +29,7 @@ public class FitToIndexPersistenceEncoding extends
 
 	@Override
 	public List<ByteArrayId> getInsertionIds(
-			final Index index ) {
+			final PrimaryIndex index ) {
 		return insertionIds;
 	}
 

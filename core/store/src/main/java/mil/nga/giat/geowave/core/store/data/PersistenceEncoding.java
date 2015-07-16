@@ -10,9 +10,9 @@ import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.index.sfc.data.BasicNumericDataset;
 import mil.nga.giat.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import mil.nga.giat.geowave.core.index.sfc.data.NumericData;
-import mil.nga.giat.geowave.core.store.dimension.DimensionField;
+import mil.nga.giat.geowave.core.store.dimension.NumericDimensionField;
 import mil.nga.giat.geowave.core.store.index.CommonIndexValue;
-import mil.nga.giat.geowave.core.store.index.Index;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
@@ -85,7 +85,7 @@ public class PersistenceEncoding
 		"unchecked"
 	})
 	public MultiDimensionalNumericData getNumericData(
-			final DimensionField[] dimensions ) {
+			final NumericDimensionField[] dimensions ) {
 		final NumericData[] dataPerDimension = new NumericData[dimensions.length];
 		for (int d = 0; d < dimensions.length; d++) {
 			dataPerDimension[d] = dimensions[d].getNumericData(commonData.getValue(dimensions[d].getFieldId()));
@@ -96,13 +96,13 @@ public class PersistenceEncoding
 
 	private static class DimensionRangePair
 	{
-		DimensionField[] dimensions;
+		NumericDimensionField[] dimensions;
 		NumericData[] dataPerDimension;
 
 		DimensionRangePair(
-				final DimensionField field,
+				final NumericDimensionField field,
 				final NumericData data ) {
-			dimensions = new DimensionField[] {
+			dimensions = new NumericDimensionField[] {
 				field
 			};
 			dataPerDimension = new NumericData[] {
@@ -111,7 +111,7 @@ public class PersistenceEncoding
 		}
 
 		void add(
-				final DimensionField field,
+				final NumericDimensionField field,
 				final NumericData data ) {
 			dimensions = ArrayUtils.add(
 					dimensions,
@@ -127,9 +127,9 @@ public class PersistenceEncoding
 	// to avoid the extra cost of checking the result
 	protected boolean overlaps(
 			final NumericData[] insertTileRange,
-			final Index index ) {
+			final PrimaryIndex index ) {
 		@SuppressWarnings("rawtypes")
-		final DimensionField[] dimensions = index.getIndexModel().getDimensions();
+		final NumericDimensionField[] dimensions = index.getIndexModel().getDimensions();
 
 		// Recall that each numeric data instance is extracted by a {@link
 		// DimensionField}. More than one DimensionField
@@ -180,7 +180,7 @@ public class PersistenceEncoding
 	 * @return The insertions IDs for this object in the index
 	 */
 	public List<ByteArrayId> getInsertionIds(
-			final Index index ) {
+			final PrimaryIndex index ) {
 		final MultiDimensionalNumericData boxRangeData = getNumericData(index.getIndexModel().getDimensions());
 		final List<ByteArrayId> untrimmedResult = index.getIndexStrategy().getInsertionIds(
 				boxRangeData);

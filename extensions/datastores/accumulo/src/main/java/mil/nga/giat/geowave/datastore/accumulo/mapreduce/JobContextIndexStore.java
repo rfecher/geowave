@@ -5,8 +5,8 @@ import java.util.Map;
 
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.store.CloseableIterator;
-import mil.nga.giat.geowave.core.store.index.Index;
-import mil.nga.giat.geowave.core.store.index.IndexStore;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndexStore;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloOperations;
 import mil.nga.giat.geowave.datastore.accumulo.metadata.AccumuloIndexStore;
 import mil.nga.giat.geowave.datastore.accumulo.util.CloseableIteratorWrapper;
@@ -22,12 +22,12 @@ import org.apache.hadoop.mapreduce.JobContext;
  * check the metadata store if it cannot find an index in the job context.
  */
 public class JobContextIndexStore implements
-		IndexStore
+		PrimaryIndexStore
 {
 	private static final Class<?> CLASS = JobContextIndexStore.class;
 	private final JobContext context;
 	private final AccumuloOperations accumuloOperations;
-	private final Map<ByteArrayId, Index> indexCache = new HashMap<ByteArrayId, Index>();
+	private final Map<ByteArrayId, PrimaryIndex> indexCache = new HashMap<ByteArrayId, PrimaryIndex>();
 
 	public JobContextIndexStore(
 			final JobContext context,
@@ -39,16 +39,16 @@ public class JobContextIndexStore implements
 
 	@Override
 	public void addIndex(
-			final Index index ) {
+			final PrimaryIndex index ) {
 		indexCache.put(
 				index.getId(),
 				index);
 	}
 
 	@Override
-	public Index getIndex(
+	public PrimaryIndex getIndex(
 			final ByteArrayId indexId ) {
-		Index index = indexCache.get(indexId);
+		PrimaryIndex index = indexCache.get(indexId);
 		if (index == null) {
 			index = getIndexInternal(indexId);
 		}
@@ -61,14 +61,14 @@ public class JobContextIndexStore implements
 		if (indexCache.containsKey(indexId)) {
 			return true;
 		}
-		final Index index = getIndexInternal(indexId);
+		final PrimaryIndex index = getIndexInternal(indexId);
 		return index != null;
 	}
 
-	private Index getIndexInternal(
+	private PrimaryIndex getIndexInternal(
 			final ByteArrayId indexId ) {
 		// first try to get it from the job context
-		Index index = getIndex(
+		PrimaryIndex index = getIndex(
 				context,
 				indexId);
 		if (index == null) {
@@ -87,12 +87,12 @@ public class JobContextIndexStore implements
 	}
 
 	@Override
-	public CloseableIterator<Index> getIndices() {
+	public CloseableIterator<PrimaryIndex> getIndices() {
 		final AccumuloIndexStore indexStore = new AccumuloIndexStore(
 				accumuloOperations);
-		final CloseableIterator<Index> it = indexStore.getIndices();
+		final CloseableIterator<PrimaryIndex> it = indexStore.getIndices();
 		// cache any results
-		return new CloseableIteratorWrapper<Index>(
+		return new CloseableIteratorWrapper<PrimaryIndex>(
 				it,
 				IteratorUtils.transformedIterator(
 						it,
@@ -101,10 +101,10 @@ public class JobContextIndexStore implements
 							@Override
 							public Object transform(
 									final Object obj ) {
-								if (obj instanceof Index) {
+								if (obj instanceof PrimaryIndex) {
 									indexCache.put(
-											((Index) obj).getId(),
-											(Index) obj);
+											((PrimaryIndex) obj).getId(),
+											(PrimaryIndex) obj);
 								}
 								return obj;
 							}
@@ -113,14 +113,14 @@ public class JobContextIndexStore implements
 
 	public static void addIndex(
 			final Configuration config,
-			final Index index ) {
+			final PrimaryIndex index ) {
 		GeoWaveConfiguratorBase.addIndex(
 				CLASS,
 				config,
 				index);
 	}
 
-	protected static Index getIndex(
+	protected static PrimaryIndex getIndex(
 			final JobContext context,
 			final ByteArrayId indexId ) {
 		return GeoWaveConfiguratorBase.getIndex(
@@ -129,7 +129,7 @@ public class JobContextIndexStore implements
 				indexId);
 	}
 
-	public static Index[] getIndices(
+	public static PrimaryIndex[] getIndices(
 			final JobContext context ) {
 		return GeoWaveConfiguratorBase.getIndices(
 				CLASS,

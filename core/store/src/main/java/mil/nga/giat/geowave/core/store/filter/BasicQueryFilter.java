@@ -14,7 +14,7 @@ import mil.nga.giat.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import mil.nga.giat.geowave.core.index.sfc.data.NumericData;
 import mil.nga.giat.geowave.core.index.sfc.data.NumericRange;
 import mil.nga.giat.geowave.core.store.data.IndexedPersistenceEncoding;
-import mil.nga.giat.geowave.core.store.dimension.DimensionField;
+import mil.nga.giat.geowave.core.store.dimension.NumericDimensionField;
 
 /**
  * This filter can perform fine-grained acceptance testing on generic
@@ -26,7 +26,7 @@ public class BasicQueryFilter implements
 		DistributableQueryFilter
 {
 	protected Map<ByteArrayId, List<MultiDimensionalNumericData>> binnedConstraints;
-	protected DimensionField<?>[] dimensionFields;
+	protected NumericDimensionField<?>[] dimensionFields;
 	// this is referenced for serialization purposes only
 	protected MultiDimensionalNumericData constraints;
 
@@ -34,7 +34,7 @@ public class BasicQueryFilter implements
 
 	public BasicQueryFilter(
 			final MultiDimensionalNumericData constraints,
-			final DimensionField<?>[] dimensionFields ) {
+			final NumericDimensionField<?>[] dimensionFields ) {
 		init(
 				constraints,
 				dimensionFields);
@@ -42,7 +42,7 @@ public class BasicQueryFilter implements
 
 	private void init(
 			final MultiDimensionalNumericData constraints,
-			final DimensionField<?>[] dimensionFields ) {
+			final NumericDimensionField<?>[] dimensionFields ) {
 		this.dimensionFields = dimensionFields;
 
 		binnedConstraints = new HashMap<ByteArrayId, List<MultiDimensionalNumericData>>();
@@ -111,7 +111,7 @@ public class BasicQueryFilter implements
 				dimensions);
 		final NumericData[] dataPerDimension = constraints.getDataPerDimension();
 		for (int d = 0; d < dimensions; d++) {
-			final DimensionField<?> dimension = dimensionFields[d];
+			final NumericDimensionField<?> dimension = dimensionFields[d];
 			final NumericData data = dataPerDimension[d];
 			final byte[] dimensionBinary = PersistenceUtils.toBinary(dimension);
 			final int currentDimensionByteBufferLength = (20 + dimensionBinary.length);
@@ -137,7 +137,7 @@ public class BasicQueryFilter implements
 			final byte[] bytes ) {
 		final ByteBuffer buf = ByteBuffer.wrap(bytes);
 		final int numDimensions = buf.getInt();
-		dimensionFields = new DimensionField<?>[numDimensions];
+		dimensionFields = new NumericDimensionField<?>[numDimensions];
 		final NumericData[] data = new NumericData[numDimensions];
 		for (int d = 0; d < numDimensions; d++) {
 			final byte[] field = new byte[buf.getInt()];
@@ -147,7 +147,7 @@ public class BasicQueryFilter implements
 			buf.get(field);
 			dimensionFields[d] = PersistenceUtils.fromBinary(
 					field,
-					DimensionField.class);
+					NumericDimensionField.class);
 		}
 		constraints = new BasicNumericDataset(
 				data);

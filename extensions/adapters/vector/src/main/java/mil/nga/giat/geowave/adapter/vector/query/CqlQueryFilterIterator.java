@@ -18,7 +18,7 @@ import mil.nga.giat.geowave.core.store.data.field.FieldReader;
 import mil.nga.giat.geowave.core.store.filter.DistributableQueryFilter;
 import mil.nga.giat.geowave.core.store.index.CommonIndexModel;
 import mil.nga.giat.geowave.core.store.index.CommonIndexValue;
-import mil.nga.giat.geowave.core.store.index.Index;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 import mil.nga.giat.geowave.datastore.accumulo.AccumuloRowId;
 
 import org.apache.accumulo.core.data.Key;
@@ -158,7 +158,7 @@ public class CqlQueryFilterIterator extends
 			}
 			final SimpleFeature feature = dataAdapter.decode(
 					encoding,
-					new Index(
+					new PrimaryIndex(
 							null, // because we know the feature data adapter
 									// doesn't use the numeric index strategy
 									// and only the common index model to decode
