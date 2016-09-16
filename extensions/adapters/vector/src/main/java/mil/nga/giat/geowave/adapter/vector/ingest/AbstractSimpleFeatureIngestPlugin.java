@@ -60,10 +60,14 @@ abstract public class AbstractSimpleFeatureIngestPlugin<I> implements
 	public byte[] toBinary() {
 		final byte[] filterBinary = filterOptionProvider.toBinary();
 		final byte[] typeNameBinary = typeNameProvider.toBinary();
-		final ByteBuffer buf = ByteBuffer.allocate(filterBinary.length + typeNameBinary.length + 4);
-		buf.putInt(filterBinary.length);
-		buf.put(filterBinary);
-		buf.put(typeNameBinary);
+		final ByteBuffer buf = ByteBuffer.allocate(
+				filterBinary.length + typeNameBinary.length + 4);
+		buf.putInt(
+				filterBinary.length);
+		buf.put(
+				filterBinary);
+		buf.put(
+				typeNameBinary);
 		return ArrayUtils.addAll(
 				serializationFormatOptionProvider.toBinary(),
 				buf.array());
@@ -82,33 +86,38 @@ abstract public class AbstractSimpleFeatureIngestPlugin<I> implements
 		final byte[] kryoBytes = new byte[] {
 			bytes[0]
 		};
-		final ByteBuffer buf = ByteBuffer.wrap(otherBytes);
+		final ByteBuffer buf = ByteBuffer.wrap(
+				otherBytes);
 		final int filterBinaryLength = buf.getInt();
 		final byte[] filterBinary = new byte[filterBinaryLength];
 		final byte[] typeNameBinary = new byte[otherBytes.length - filterBinaryLength - 4];
-		buf.get(filterBinary);
-		buf.get(typeNameBinary);
+		buf.get(
+				filterBinary);
+		buf.get(
+				typeNameBinary);
 
 		serializationFormatOptionProvider = new FeatureSerializationOptionProvider();
-		serializationFormatOptionProvider.fromBinary(kryoBytes);
+		serializationFormatOptionProvider.fromBinary(
+				kryoBytes);
 
 		filterOptionProvider = new CQLFilterOptionProvider();
-		filterOptionProvider.fromBinary(filterBinary);
+		filterOptionProvider.fromBinary(
+				filterBinary);
 
 		typeNameProvider = new TypeNameOptionProvider();
-		typeNameProvider.fromBinary(typeNameBinary);
+		typeNameProvider.fromBinary(
+				typeNameBinary);
 	}
 
 	protected WritableDataAdapter<SimpleFeature> newAdapter(
 			final SimpleFeatureType type,
 			final FieldVisibilityHandler<SimpleFeature, Object> fieldVisiblityHandler ) {
-		if (serializationFormatOptionProvider.isAvro()) {
-			return new AvroFeatureDataAdapter(
-					type);
-		}
-		return new FeatureDataAdapter(
-				type,
-				fieldVisiblityHandler);
+		// if (serializationFormatOptionProvider.isAvro()) {
+		// return new AvroFeatureDataAdapter(
+		// type);
+		// }
+		return new WholeFeatureDataAdapter(
+				type);
 	}
 
 	abstract protected SimpleFeatureType[] getTypes();
@@ -116,9 +125,11 @@ abstract public class AbstractSimpleFeatureIngestPlugin<I> implements
 	@Override
 	public WritableDataAdapter<SimpleFeature>[] getDataAdapters(
 			final String globalVisibility ) {
-		final FieldVisibilityHandler<SimpleFeature, Object> fieldVisiblityHandler = ((globalVisibility != null) && !globalVisibility
-				.isEmpty()) ? new GlobalVisibilityHandler<SimpleFeature, Object>(
-				globalVisibility) : null;
+		final FieldVisibilityHandler<SimpleFeature, Object> fieldVisiblityHandler = ((globalVisibility != null)
+				&& !globalVisibility.isEmpty())
+						? new GlobalVisibilityHandler<SimpleFeature, Object>(
+								globalVisibility)
+						: null;
 		final SimpleFeatureType[] types = getTypes();
 		final WritableDataAdapter<SimpleFeature>[] retVal = new WritableDataAdapter[types.length];
 		for (int i = 0; i < types.length; i++) {
@@ -134,7 +145,8 @@ abstract public class AbstractSimpleFeatureIngestPlugin<I> implements
 			final File input,
 			final Collection<ByteArrayId> primaryIndexIds,
 			final String globalVisibility ) {
-		final I[] hdfsObjects = toAvroObjects(input);
+		final I[] hdfsObjects = toAvroObjects(
+				input);
 		final List<CloseableIterator<GeoWaveData<SimpleFeature>>> allData = new ArrayList<CloseableIterator<GeoWaveData<SimpleFeature>>>();
 
 		for (final I hdfsObject : hdfsObjects) {
@@ -142,10 +154,13 @@ abstract public class AbstractSimpleFeatureIngestPlugin<I> implements
 					hdfsObject,
 					primaryIndexIds,
 					globalVisibility);
-			allData.add(wrapIteratorWithFilters(geowaveData));
+			allData.add(
+					wrapIteratorWithFilters(
+							geowaveData));
 		}
 		return new CloseableIterator.Wrapper<GeoWaveData<SimpleFeature>>(
-				Iterators.concat(allData.iterator()));
+				Iterators.concat(
+						allData.iterator()));
 	}
 
 	protected CloseableIterator<GeoWaveData<SimpleFeature>> wrapIteratorWithFilters(
@@ -173,11 +188,12 @@ abstract public class AbstractSimpleFeatureIngestPlugin<I> implements
 						@Override
 						public boolean apply(
 								final GeoWaveData<SimpleFeature> input ) {
-							if ((internalTypeNameProvider != null)
-									&& internalTypeNameProvider.typeNameMatches(input.getAdapterId().getString())) {
+							if ((internalTypeNameProvider != null) && internalTypeNameProvider.typeNameMatches(
+									input.getAdapterId().getString())) {
 								return false;
 							}
-							if ((internalFilterProvider != null) && !internalFilterProvider.evaluate(input.getValue())) {
+							if ((internalFilterProvider != null) && !internalFilterProvider.evaluate(
+									input.getValue())) {
 								return false;
 							}
 							return true;
@@ -208,7 +224,8 @@ abstract public class AbstractSimpleFeatureIngestPlugin<I> implements
 		@Override
 		public WritableDataAdapter<SimpleFeature>[] getDataAdapters(
 				final String globalVisibility ) {
-			return parentPlugin.getDataAdapters(globalVisibility);
+			return parentPlugin.getDataAdapters(
+					globalVisibility);
 		}
 
 		@Override
@@ -216,10 +233,11 @@ abstract public class AbstractSimpleFeatureIngestPlugin<I> implements
 				final I input,
 				final Collection<ByteArrayId> primaryIndexIds,
 				final String globalVisibility ) {
-			return parentPlugin.wrapIteratorWithFilters(parentPlugin.toGeoWaveDataInternal(
-					input,
-					primaryIndexIds,
-					globalVisibility));
+			return parentPlugin.wrapIteratorWithFilters(
+					parentPlugin.toGeoWaveDataInternal(
+							input,
+							primaryIndexIds,
+							globalVisibility));
 		}
 
 		@Override
@@ -230,7 +248,8 @@ abstract public class AbstractSimpleFeatureIngestPlugin<I> implements
 		@Override
 		public void fromBinary(
 				final byte[] bytes ) {
-			parentPlugin.fromBinary(bytes);
+			parentPlugin.fromBinary(
+					bytes);
 		}
 
 		@Override
