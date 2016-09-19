@@ -50,7 +50,20 @@ public class ByteArrayId implements
 		}
 		return str.toString();
 	}
+	public String getHexString(int binLength) {
 
+		byte[] pre = new byte[ binLength];
+		byte[] post = new byte[id.length - binLength];
+		System.arraycopy(id, 0, pre, 0, binLength);
+		System.arraycopy(id, binLength, post, 0, post.length);
+		StringBuffer str = new StringBuffer("bin: " + StringUtils.stringFromBinary(pre)+ "; sfc: ");
+		for (byte b : post) {
+			str.append(String.format(
+					"%02X ",
+					b));
+		}
+		return str.toString();
+	}
 	@Override
 	public String toString() {
 		return "ByteArrayId [getString()=" + getString() + "]";

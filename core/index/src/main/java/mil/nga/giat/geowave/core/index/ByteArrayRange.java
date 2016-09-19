@@ -90,7 +90,7 @@ public class ByteArrayRange implements
 
 	public boolean intersects(
 			ByteArrayRange other ) {
-		return ((getStart().compareTo(other.getEnd())) <= 0 && (getEnd().compareTo(other.getStart())) >= 0);
+		return ((getStart().compareTo(other.getEnd())) <= 0 && (getEnd().compareTo(other.getStart())) > 0);
 	}
 
 	public ByteArrayRange intersection(
