@@ -47,7 +47,7 @@ public class RasterIngestRunnerTest
 
 		Landsat8BasicCommandLineOptions analyzeOptions = new Landsat8BasicCommandLineOptions();
 		analyzeOptions.setNBestScenes(1);
-		analyzeOptions.setCqlFilter("BBOX(shape,-76.6,42.34,-76.4,42.54) and band='BQA' and sizeMB < 1");
+		analyzeOptions.setCqlFilter("entityId='LC81060832014272LGN00' and band='B8'");
 		analyzeOptions.setUseCachedScenes(true);
 		analyzeOptions.setWorkspaceDir(Tests.WORKSPACE_DIR);
 
