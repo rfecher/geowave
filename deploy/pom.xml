@@ -30,6 +30,11 @@
 			<artifactId>geowave-adapter-raster</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>mil.nga.giat</groupId>
+			<artifactId>dimensionality-experiments</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
@@ -93,11 +98,6 @@
 				<dependency>
 					<groupId>mil.nga.giat</groupId>
 					<artifactId>geowave-datastore-hbase</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>mil.nga.giat</groupId>
-					<artifactId>geowave-cli-osm</artifactId>
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>

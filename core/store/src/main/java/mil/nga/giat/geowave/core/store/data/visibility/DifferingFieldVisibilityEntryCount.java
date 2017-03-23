@@ -64,6 +64,16 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 				statisticsId.getString());
 	}
 
+	public static ByteArrayId composeIdOldWay(
+			final ByteArrayId indexId ) {
+		return new ByteArrayId(
+				ArrayUtils.addAll(
+						ArrayUtils.addAll(
+								STATS_TYPE.getBytes(),
+								STATS_SEPARATOR.getBytes()),
+						indexId.getBytes()));
+	}
+
 	@Override
 	public DataStatistics<T> duplicate() {
 		return new DifferingFieldVisibilityEntryCount<>(

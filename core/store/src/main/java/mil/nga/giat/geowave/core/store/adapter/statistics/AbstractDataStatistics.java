@@ -135,6 +135,11 @@ abstract public class AbstractDataStatistics<T> implements
 		return jo;
 	}
 
+	public void setStatisticsId(
+			ByteArrayId statisticsId ) {
+		this.statisticsId = statisticsId;
+	}
+
 	@Override
 	public String toString() {
 		return "AbstractDataStatistics [dataAdapterId=" + dataAdapterId.getString() + ", statisticsId="

@@ -141,15 +141,17 @@ public class SpatialQueryFilter extends
 			public BasicQueryCompareOperation getBaseCompareOp() {
 				return BasicQueryCompareOperation.CROSSES;
 			}
-		},		
+		},
 		EQUALS {
 			@Override
 			public boolean compare(
 					final Geometry dataGeometry,
 					final PreparedGeometry constraintGeometry ) {
-				//This method is same as Geometry.equalsTopo which is computationally expensive.
-				//See equalsExact for quick structural equality
-				return constraintGeometry.getGeometry().equals(dataGeometry);
+				// This method is same as Geometry.equalsTopo which is
+				// computationally expensive.
+				// See equalsExact for quick structural equality
+				return constraintGeometry.getGeometry().equals(
+						dataGeometry);
 			}
 
 			@Override

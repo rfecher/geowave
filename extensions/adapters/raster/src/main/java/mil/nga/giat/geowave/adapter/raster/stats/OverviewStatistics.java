@@ -2,6 +2,7 @@ package mil.nga.giat.geowave.adapter.raster.stats;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -14,6 +15,8 @@ import mil.nga.giat.geowave.core.index.Mergeable;
 import mil.nga.giat.geowave.core.index.PersistenceUtils;
 import mil.nga.giat.geowave.core.store.adapter.statistics.AbstractDataStatistics;
 import mil.nga.giat.geowave.core.store.base.DataStoreEntryInfo;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 public class OverviewStatistics extends
 		AbstractDataStatistics<GridCoverage>
@@ -118,6 +121,11 @@ public class OverviewStatistics extends
 						((OverviewStatistics) statistics).getResolutions());
 			}
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "OverviewStatistics [resolutions=" + Arrays.toString(resolutions) + "]";
 	}
 
 	public Resolution[] getResolutions() {

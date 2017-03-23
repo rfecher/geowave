@@ -40,6 +40,11 @@ public class Resolution implements
 	}
 
 	@Override
+	public String toString() {
+		return "Resolution [resolutionPerDimension=" + Arrays.toString(resolutionPerDimension) + "]";
+	}
+
+	@Override
 	public boolean equals(
 			final Object obj ) {
 		if (this == obj) {

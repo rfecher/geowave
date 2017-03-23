@@ -239,6 +239,7 @@ public class RasterIngestRunner extends
 									JTS.transform(
 											geometry,
 											transform));
+
 							final double nodataValue = getNoDataValue(band);
 							params.parameter(
 									Crop.NODATA.getName().getCode()).setValue(

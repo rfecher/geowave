@@ -3,6 +3,8 @@ package mil.nga.giat.geowave.core.store.index;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.index.IndexMetaData;
 import mil.nga.giat.geowave.core.index.IndexStrategy;
@@ -52,6 +54,16 @@ public class IndexMetaDataSet<T> extends
 		return composeId(
 				STATS_TYPE.getString(),
 				statisticsId.getString());
+	}
+
+	public static ByteArrayId composeIdOldWay(
+			final ByteArrayId indexId ) {
+		return new ByteArrayId(
+				ArrayUtils.addAll(
+						ArrayUtils.addAll(
+								STATS_TYPE.getBytes(),
+								STATS_SEPARATOR.getBytes()),
+						indexId.getBytes()));
 	}
 
 	@Override

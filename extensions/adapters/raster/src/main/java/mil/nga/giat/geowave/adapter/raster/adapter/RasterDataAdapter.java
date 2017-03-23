@@ -19,6 +19,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -501,9 +502,13 @@ public class RasterDataAdapter implements
 			final double[] tileRangePerDimension = new double[bounds.getDimensionCount()];
 			final double[] maxValuesPerDimension = bounds.getMaxValuesPerDimension();
 			final double[] minValuesPerDimension = bounds.getMinValuesPerDimension();
+			double maxSpan = -Double.MAX_VALUE;
 			for (int d = 0; d < tileRangePerDimension.length; d++) {
 				tileRangePerDimension[d] = ((maxValuesPerDimension[d] - minValuesPerDimension[d]) * tileSize)
 						/ gridEnvelope.getSpan(d);
+				maxSpan = Math.max(
+						gridEnvelope.getSpan(d),
+						maxSpan);
 			}
 			final TreeMap<Double, SubStrategy> substrategyMap = new TreeMap<Double, SubStrategy>();
 			for (final SubStrategy pyramidLevel : indexStrategy.getSubStrategies()) {
@@ -536,12 +541,27 @@ public class RasterDataAdapter implements
 			final Entry<Double, SubStrategy> fullResEntry = substrategyMap.floorEntry(fullRes);
 			final List<SubStrategy> pyramidLevels = new ArrayList<SubStrategy>();
 			if (fullResEntry != null) {
-				pyramidLevels.add(fullResEntry.getValue());
+				// pyramidLevels.add(fullResEntry.getValue());
 			}
 			if (buildPyramid) {
 				NavigableMap<Double, SubStrategy> map = substrategyMap.tailMap(
 						fullRes,
 						false);
+				// final double toKey = maxSpan / tileSize;
+				// if (map.firstKey() <= toKey) {
+				// map = map.headMap(
+				// toKey,
+				// true);
+				Iterator<Entry<Double, SubStrategy>> it = map.entrySet().iterator();
+				while (it.hasNext()) {
+					Entry<Double, SubStrategy> e = it.next();
+					if (e.getValue().getPrefix()[0] < 7 || e.getValue().getPrefix()[0] > 10) {
+						it.remove();
+					}
+				}
+				// System.err.println(Arrays.toString(map.lastEntry().getValue().getPrefix()));
+				// pyramidLevels.addAll(map.values());
+				// }
 				pyramidLevels.addAll(map.values());
 			}
 			if (pyramidLevels.isEmpty()) {
@@ -563,6 +583,7 @@ public class RasterDataAdapter implements
 
 			for (int d = 0; d < tileRangePerDimension.length; d++) {
 				final double substrategyResToSampleSetRes = idRangePerDimension[d] / tileRangePerDimension[d];
+
 				maxSubstrategyResToSampleSetRes = Math.max(
 						maxSubstrategyResToSampleSetRes,
 						substrategyResToSampleSetRes);
@@ -1182,11 +1203,22 @@ public class RasterDataAdapter implements
 		final SampleModel sm = sampleModel.createCompatibleSampleModel(
 				tileSize,
 				tileSize);
-
-		return entry.getRenderedImage().copyData(
-				new InternalWritableRaster(
-						sm,
-						new Point()));
+		try {
+			// if(entry.getEnvelope().getSpan(0) > 10){
+			// System.err.println(entry.getEnvelope());
+			// return entry.getRenderedImage().copyData(
+			// new InternalWritableRaster(
+			// sm,
+			// new Point()));
+			// }
+			return entry.getRenderedImage().copyData(
+					new InternalWritableRaster(
+							sm,
+							new Point()));
+		}
+		catch (IllegalArgumentException e) {
+			throw e;
+		}
 	}
 
 	@Override
