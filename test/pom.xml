@@ -17,6 +17,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>mil.nga.giat</groupId>
+			<artifactId>dimensionality-experiments</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>mil.nga.giat</groupId>
 			<artifactId>geowave-service-client</artifactId>
 			<version>${project.version}</version>
 		</dependency>
