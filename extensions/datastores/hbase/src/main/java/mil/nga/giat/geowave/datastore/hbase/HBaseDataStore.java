@@ -4,20 +4,16 @@
 package mil.nga.giat.geowave.datastore.hbase;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.List;
 
-import org.apache.hadoop.hbase.security.visibility.CellVisibility;
-import org.apache.hadoop.hbase.security.visibility.CellVisibility;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.store.adapter.AdapterIndexMappingStore;
 import mil.nga.giat.geowave.core.store.adapter.AdapterStore;
 import mil.nga.giat.geowave.core.store.adapter.DataAdapter;
+import mil.nga.giat.geowave.core.store.adapter.RowMergingDataAdapter;
 import mil.nga.giat.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import mil.nga.giat.geowave.core.store.index.IndexStore;
 import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
@@ -27,26 +23,25 @@ import mil.nga.giat.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import mil.nga.giat.geowave.core.store.metadata.IndexStoreImpl;
 import mil.nga.giat.geowave.core.store.query.DistributableQuery;
 import mil.nga.giat.geowave.core.store.query.QueryOptions;
+import mil.nga.giat.geowave.core.store.server.ServerOpHelper;
+import mil.nga.giat.geowave.core.store.server.ServerSideOperations;
 import mil.nga.giat.geowave.datastore.hbase.cli.config.HBaseOptions;
 import mil.nga.giat.geowave.datastore.hbase.index.secondary.HBaseSecondaryIndexDataStore;
 import mil.nga.giat.geowave.datastore.hbase.mapreduce.HBaseSplitsProvider;
 import mil.nga.giat.geowave.datastore.hbase.operations.HBaseOperations;
+import mil.nga.giat.geowave.datastore.hbase.server.RowMergingServerOp;
+import mil.nga.giat.geowave.datastore.hbase.server.RowMergingVisibilityServerOp;
 import mil.nga.giat.geowave.mapreduce.BaseMapReduceDataStore;
 
 public class HBaseDataStore extends
 		BaseMapReduceDataStore
 {
-	private final static Logger LOGGER = Logger.getLogger(
-			HBaseDataStore.class);
-
 	private final static Logger LOGGER = LoggerFactory.getLogger(HBaseDataStore.class);
 
-	private final BasicHBaseOperations operations;
-	private final HBaseOptions options;
-
-	private final HBaseSplitsProvider splitsProvider = new HBaseSplitsProvider();
+	private final HBaseSplitsProvider splitsProvider;
 
 	public HBaseDataStore(
+			final HBaseSplitsProvider splitsProvider,
 			final HBaseOperations operations,
 			final HBaseOptions options ) {
 		this(
@@ -65,6 +60,7 @@ public class HBaseDataStore extends
 				new HBaseSecondaryIndexDataStore(
 						operations,
 						options),
+				splitsProvider,
 				operations,
 				options);
 	}
@@ -75,6 +71,7 @@ public class HBaseDataStore extends
 			final DataStatisticsStore statisticsStore,
 			final AdapterIndexMappingStore indexMappingStore,
 			final HBaseSecondaryIndexDataStore secondaryIndexDataStore,
+			final HBaseSplitsProvider splitsProvider,
 			final HBaseOperations operations,
 			final HBaseOptions options ) {
 		super(
@@ -86,55 +83,46 @@ public class HBaseDataStore extends
 				operations,
 				options);
 
-		this.operations = operations;
-		this.options = options;
-		secondaryIndexDataStore.setDataStore(
-				this);
+		secondaryIndexDataStore.setDataStore(this);
+
+		this.splitsProvider = splitsProvider;
 	}
 
 	@Override
 	protected void initOnIndexWriterCreate(
 			final DataAdapter adapter,
-			final PrimaryIndex index ) {}
+			final PrimaryIndex index ) {
+		final String indexName = index.getId().getString();
+		final String columnFamily = adapter.getAdapterId().getString();
+		final boolean rowMerging = adapter instanceof RowMergingDataAdapter;
+		if (rowMerging) {
+			if (!((HBaseOperations) baseOperations).isRowMergingEnabled(
+					adapter.getAdapterId(),
+					indexName)) {
+				if (baseOptions.isCreateTable()) {
+					((HBaseOperations) baseOperations).createTable(
+							index.getId(),
+							false,
+							adapter.getAdapterId());
+				}
+				if (baseOptions.isServerSideLibraryEnabled()) {
+					((HBaseOperations) baseOperations).ensureServerSideOperationsObserverAttached(index.getId());
+					ServerOpHelper.addServerSideRowMerging(
+							((RowMergingDataAdapter<?, ?>) adapter),
+							(ServerSideOperations) baseOperations,
+							RowMergingServerOp.class.getName(),
+							RowMergingVisibilityServerOp.class.getName(),
+							indexName);
+				}
 
-	protected boolean rowHasData(
-			final byte[] rowId,
-			final List<ByteArrayId> dataIds )
-			throws IOException {
-
-		final byte[] metadata = Arrays.copyOfRange(
-				rowId,
-				rowId.length - 12,
-				rowId.length);
-
-		final ByteBuffer metadataBuf = ByteBuffer.wrap(
-				metadata);
-		final int adapterIdLength = metadataBuf.getInt();
-		final int dataIdLength = metadataBuf.getInt();
-
-		final ByteBuffer buf = ByteBuffer.wrap(
-				rowId,
-				0,
-				rowId.length - 12);
-		final byte[] indexId = new byte[rowId.length - 12 - adapterIdLength - dataIdLength];
-		final byte[] rawAdapterId = new byte[adapterIdLength];
-		final byte[] rawDataId = new byte[dataIdLength];
-		buf.get(
-				indexId);
-		buf.get(
-				rawAdapterId);
-		buf.get(
-				rawDataId);
-
-		for (final ByteArrayId dataId : dataIds) {
-			if (Arrays.equals(
-					rawDataId,
-					dataId.getBytes())) {
-				return true;
+				((HBaseOperations) baseOperations).verifyColumnFamily(
+						columnFamily,
+						false,
+						indexName,
+						true);
 			}
 		}
 
-		return false;
 	}
 
 	@Override
@@ -142,6 +130,7 @@ public class HBaseDataStore extends
 			final DistributableQuery query,
 			final QueryOptions queryOptions,
 			final AdapterStore adapterStore,
+			final AdapterIndexMappingStore aimStore,
 			final DataStatisticsStore statsStore,
 			final IndexStore indexStore,
 			final Integer minSplits,
@@ -149,13 +138,13 @@ public class HBaseDataStore extends
 			throws IOException,
 			InterruptedException {
 		return splitsProvider.getSplits(
-				operations,
+				baseOperations,
 				query,
 				queryOptions,
 				adapterStore,
 				statsStore,
 				indexStore,
-				indexMappingStore,
+				aimStore,
 				minSplits,
 				maxSplits);
 	}

@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -492,7 +493,6 @@ public class QueryOptions implements
 				}
 			}
 			return adapters.toArray(new DataAdapter[adapters.size()]);
-
 		}
 		final List<DataAdapter> list = new ArrayList<DataAdapter>();
 		if (adapterStore != null && adapterStore.getAdapters() != null) {
@@ -520,6 +520,27 @@ public class QueryOptions implements
 			ids.addAll(adapterIds);
 		}
 		return ids;
+	}
+
+	public List<ByteArrayId> getValidAdapterIds(
+			final AdapterStore adapterStore,
+			final AdapterIndexMappingStore adapterIndexMappingStore )
+			throws IOException {
+		// Grab the list of adapter ids, either from the query (if included),
+		// Or the whole list from the adapter store...
+		final List<ByteArrayId> adapterIds = getAdapterIds(adapterStore);
+
+		// Then for each adapter, verify that it exists in the index-adapter
+		// mapping
+		Iterator<ByteArrayId> adapterIterator = adapterIds.iterator();
+		while (adapterIterator.hasNext()) {
+			AdapterToIndexMapping mapping = adapterIndexMappingStore.getIndicesForAdapter(adapterIterator.next());
+			if (!mapping.contains(indexId)) {
+				adapterIterator.remove();
+			}
+		}
+
+		return adapterIds;
 	}
 
 	/**

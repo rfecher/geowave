@@ -131,14 +131,7 @@ public class IngestRunner extends
 	protected void nextBand(
 			final SimpleFeature band,
 			final AnalysisInfo analysisInfo ) {
-		try {
-			bandWriter.write(band);
-		}
-		catch (IOException e) {
-			LOGGER.error(
-					"Unable to write next band",
-					e);
-		}
+		bandWriter.write(band);
 		super.nextBand(
 				band,
 				analysisInfo);

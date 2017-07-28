@@ -107,7 +107,7 @@ public class LandsatIT extends
 
 	}
 
-	@GeoWaveTestStore({
+	@GeoWaveTestStore(value = {
 		GeoWaveStoreType.ACCUMULO,
 		GeoWaveStoreType.BIGTABLE,
 		GeoWaveStoreType.HBASE
@@ -157,7 +157,6 @@ public class LandsatIT extends
 			throws Exception {
 		JAIExt.initJAIEXT();
 		MapProjection.SKIP_SANITY_CHECKS = true;
-		TestUtils.deleteAll(dataStoreOptions);
 		// just use the QA band as QA is the smallest, get the best cloud cover,
 		// but ensure it is before now so no recent collection affects the test
 		final Landsat8BasicCommandLineOptions analyzeOptions = new Landsat8BasicCommandLineOptions();

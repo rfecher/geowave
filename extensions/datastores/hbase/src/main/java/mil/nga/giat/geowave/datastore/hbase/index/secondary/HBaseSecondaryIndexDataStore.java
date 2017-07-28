@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2017 Contributors to the Eclipse Foundation
- * 
+ *
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  * All rights reserved. This program and the accompanying materials
@@ -32,10 +32,10 @@ public class HBaseSecondaryIndexDataStore extends
 		BaseSecondaryIndexDataStore
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(HBaseSecondaryIndexDataStore.class);
-	private final BasicHBaseOperations hbaseOperations;
+	private final HBaseOperations hbaseOperations;
 	@SuppressWarnings("unused")
 	private final HBaseOptions hbaseOptions;
-	private DataStore dataStore = null;
+	private final DataStore dataStore = null;
 
 	public HBaseSecondaryIndexDataStore(
 			final HBaseOperations hbaseOperations ) {
@@ -48,6 +48,8 @@ public class HBaseSecondaryIndexDataStore extends
 			final HBaseOperations hbaseOperations,
 			final HBaseOptions hbaseOptions ) {
 		super();
+		this.hbaseOperations = hbaseOperations;
+		this.hbaseOptions = hbaseOptions;
 	}
 
 	@Override

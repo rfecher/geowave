@@ -38,8 +38,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.ToolRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.geotools.data.DataStoreFinder;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -47,6 +45,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opengis.feature.simple.SimpleFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -87,6 +87,9 @@ import mil.nga.giat.geowave.test.basic.AbstractGeoWaveIT;
 public class BasicMapReduceIT extends
 		AbstractGeoWaveIT
 {
+	private final static Logger LOGGER = LoggerFactory.getLogger(BasicMapReduceIT.class);
+	private static final String TEST_EXPORT_DIRECTORY = "basicMapReduceIT-export";
+
 	protected static final String TEST_DATA_ZIP_RESOURCE_PATH = TestUtils.TEST_RESOURCE_PACKAGE
 			+ "mapreduce-testdata.zip";
 	protected static final String TEST_CASE_GENERAL_GPX_BASE = TestUtils.TEST_CASE_BASE + "general_gpx_test_case/";
@@ -127,16 +130,13 @@ public class BasicMapReduceIT extends
 		LOGGER.warn("-----------------------------------------");
 	}
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(BasicMapReduceIT.class);
-	private static final String TEST_EXPORT_DIRECTORY = "basicMapReduceIT-export";
-
 	public static enum ResultCounterType {
 		EXPECTED,
 		UNEXPECTED,
 		ERROR
 	}
 
-	@GeoWaveTestStore({
+	@GeoWaveTestStore(value = {
 		GeoWaveStoreType.ACCUMULO,
 		GeoWaveStoreType.BIGTABLE,
 		GeoWaveStoreType.HBASE,
@@ -236,20 +236,24 @@ public class BasicMapReduceIT extends
 					adapter.getAdapterId(),
 					TestUtils.getExpectedResults(geowaveStore.query(
 							new QueryOptions(
-									adapter),
+									adapter.getAdapterId(),
+									null),
 							new EverythingQuery())));
 		}
 
 		final List<DataAdapter<?>> firstTwoAdapters = new ArrayList<DataAdapter<?>>();
 		firstTwoAdapters.add(adapters[0]);
 		firstTwoAdapters.add(adapters[1]);
+
 		final ExpectedResults firstTwoAdaptersResults = TestUtils.getExpectedResults(geowaveStore.query(
 				new QueryOptions(
 						firstTwoAdapters),
 				new EverythingQuery()));
+
 		final ExpectedResults fullDataSetResults = TestUtils.getExpectedResults(geowaveStore.query(
 				new QueryOptions(),
 				new EverythingQuery()));
+
 		// just for sanity verify its greater than 0 (ie. that data was actually
 		// ingested in the first place)
 		Assert.assertTrue(
@@ -261,14 +265,21 @@ public class BasicMapReduceIT extends
 		testMapReduceExportAndReingest(DimensionalityType.ALL);
 		// first try each adapter individually
 		for (final WritableDataAdapter<SimpleFeature> adapter : adapters) {
-			runTestJob(
-					adapterIdToResultsMap.get(adapter.getAdapterId()),
-					null,
-					new DataAdapter[] {
-						adapter
-					},
-					null);
+			ExpectedResults expResults = adapterIdToResultsMap.get(adapter.getAdapterId());
+
+			if (expResults.count > 0) {
+				LOGGER.debug("Running test for adapter " + adapter.getAdapterId());
+
+				runTestJob(
+						expResults,
+						null,
+						new DataAdapter[] {
+							adapter
+						},
+						null);
+			}
 		}
+
 		// then try the first 2 adapters, and may as well try with both indices
 		// set (should be the default behavior anyways)
 		runTestJob(
@@ -369,15 +380,17 @@ public class BasicMapReduceIT extends
 			jobRunner.setQuery(query);
 		}
 		final QueryOptions options = new QueryOptions();
-		if ((adapters != null) && (adapters.length > 0)) {
-			options.setAdapters(Arrays.asList(adapters));
-		}
+
 		if ((index != null)) {
 			options.setIndex(index);
 		}
 		jobRunner.setQueryOptions(options);
 		final Configuration conf = MapReduceTestUtils.getConfiguration();
+
 		MapReduceTestUtils.filterConfiguration(conf);
+		if ((adapters != null) && (adapters.length > 0)) {
+			options.setAdapters(Arrays.asList(adapters));
+		}
 		final int res = ToolRunner.run(
 				conf,
 				jobRunner,
