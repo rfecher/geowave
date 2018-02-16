@@ -28,7 +28,6 @@ public class HBaseWriter implements
 	private final BufferedMutator mutator;
 	private final HBaseOperations operations;
 	private final String tableName;
-	private static final boolean PARTITION_CHECK = false;
 
 	public HBaseWriter(
 			final BufferedMutator mutator,

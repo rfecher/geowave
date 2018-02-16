@@ -2090,7 +2090,13 @@ public class RasterDataAdapter implements
 		}
 		return null;
 	}
-
+	@Override
+	public EntryVisibilityHandler<GridCoverage> getVisibilityHandler(
+			final CommonIndexModel indexModel,
+			final DataAdapter<GridCoverage> adapter,
+			final ByteArrayId statisticsId ) {
+		return visibilityHandler;
+	}
 	@Override
 	public EntryVisibilityHandler<GridCoverage> getVisibilityHandler(
 			final CommonIndexModel indexModel,
