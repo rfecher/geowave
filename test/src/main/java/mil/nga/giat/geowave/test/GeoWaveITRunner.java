@@ -381,7 +381,6 @@ public class GeoWaveITRunner extends
 		if (profileOptions == null) {
 			profileOptions = new String[1][];
 		}
-
 		return profileOptions;
 	}
 
@@ -530,7 +529,7 @@ public class GeoWaveITRunner extends
 			throws Exception {
 		synchronized (MUTEX) {
 			if (!DEFER_CLEANUP.get()) {
-				// Tearodwn in reverse
+				// Teardown in reverse
 				final List<TestEnvironment> envs = Arrays.asList(testEnvs);
 				final ListIterator<TestEnvironment> it = envs.listIterator(envs.size());
 				while (it.hasPrevious()) {

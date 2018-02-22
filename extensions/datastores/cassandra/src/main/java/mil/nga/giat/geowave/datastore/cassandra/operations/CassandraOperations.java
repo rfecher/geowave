@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,7 @@ import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.querybuilder.Delete;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
@@ -43,12 +45,13 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.spotify.futures.CompletableFuturesExtra;
 
 import mil.nga.giat.geowave.core.index.ByteArrayId;
-import mil.nga.giat.geowave.core.index.ByteArrayRange;
+import mil.nga.giat.geowave.core.index.SinglePartitionQueryRanges;
 import mil.nga.giat.geowave.core.store.BaseDataStoreOptions;
 import mil.nga.giat.geowave.core.store.CloseableIterator;
 import mil.nga.giat.geowave.core.store.CloseableIteratorWrapper;
 import mil.nga.giat.geowave.core.store.adapter.AdapterIndexMappingStore;
 import mil.nga.giat.geowave.core.store.adapter.AdapterStore;
+import mil.nga.giat.geowave.core.store.entities.GeoWaveRow;
 import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 import mil.nga.giat.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import mil.nga.giat.geowave.core.store.operations.Deleter;
@@ -107,7 +110,7 @@ public class CassandraOperations implements
 		state = KeyspaceStatePool.getInstance().getCachedState(
 				options.getContactPoint(),
 				gwNamespace);
-		this.options = options.getAdditionalOptions();
+		this.options = (CassandraOptions) options.getStoreOptions();
 		initKeyspace();
 	}
 
@@ -161,6 +164,13 @@ public class CassandraOperations implements
 				table);
 	}
 
+	public Delete getDelete(
+			final String table ) {
+		return QueryBuilder.delete().from(
+				gwNamespace,
+				table);
+	}
+
 	public Select getSelect(
 			final String table,
 			final String... columns ) {
@@ -205,7 +215,7 @@ public class CassandraOperations implements
 	public BatchedRangeRead getBatchedRangeRead(
 			final String tableName,
 			final List<ByteArrayId> adapterIds,
-			final List<ByteArrayRange> ranges ) {
+			final Collection<SinglePartitionQueryRanges> ranges ) {
 		PreparedStatement preparedRead;
 		synchronized (state.preparedRangeReadsPerTable) {
 			preparedRead = state.preparedRangeReadsPerTable.get(
@@ -250,18 +260,10 @@ public class CassandraOperations implements
 				ranges);
 	}
 
-	public BatchedRangeRead getBatchedRangeRead(
-			final String tableName,
-			final List<ByteArrayId> adapterIds ) {
-		return getBatchedRangeRead(
-				tableName,
-				adapterIds,
-				new ArrayList<>());
-	}
-
 	public RowRead getRowRead(
 			final String tableName,
-			final byte[] rowIdx,
+			final byte[] partitionKey,
+			final byte[] sortKey,
 			final ByteArrayId adapterId ) {
 		PreparedStatement preparedRead;
 		synchronized (state.preparedRowReadPerTable) {
@@ -297,20 +299,13 @@ public class CassandraOperations implements
 		return new RowRead(
 				preparedRead,
 				this,
-				rowIdx,
+				partitionKey,
+				sortKey,
 				adapterId == null ? null : adapterId.getBytes());
 
 	}
 
-	public RowRead getRowRead(
-			final String tableName ) {
-		return getRowRead(
-				tableName,
-				null,
-				null);
-	}
-
-	public CloseableIterator<CassandraRow> executeQueryAsync(
+	public CloseableIterator<GeoWaveRow> executeQueryAsync(
 			final Statement... statements ) {
 		// first create a list of asynchronous query executions
 		final List<ResultSetFuture> futures = Lists.newArrayListWithExpectedSize(
@@ -327,7 +322,7 @@ public class CassandraOperations implements
 		}
 		// convert the list of futures to an asynchronously as completed
 		// iterator on cassandra rows
-		final com.aol.cyclops.internal.react.stream.CloseableIterator<CassandraRow> results = new LazyReact()
+		final com.aol.cyclops.internal.react.stream.CloseableIterator results = new LazyReact()
 				.fromStreamFutures(
 						Lists.transform(
 								futures,
@@ -342,7 +337,7 @@ public class CassandraOperations implements
 				.iterator();
 		// now convert cyclops-react closeable iterator to a geowave closeable
 		// iterator
-		return new CloseableIteratorWrapper<CassandraRow>(
+		return new CloseableIteratorWrapper<GeoWaveRow>(
 				new Closeable() {
 					@Override
 					public void close()
@@ -353,9 +348,9 @@ public class CassandraOperations implements
 				results);
 	}
 
-	public CloseableIterator<CassandraRow> executeQuery(
+	public CloseableIterator<GeoWaveRow> executeQuery(
 			final Statement... statements ) {
-		final List<CassandraRow> rows = new ArrayList<>();
+		final List<GeoWaveRow> rows = new ArrayList<>();
 		for (final Statement s : statements) {
 			final ResultSet r = session.execute(
 					s);
@@ -365,7 +360,7 @@ public class CassandraOperations implements
 								row));
 			}
 		}
-		return new CloseableIterator.Wrapper<CassandraRow>(
+		return new CloseableIterator.Wrapper<GeoWaveRow>(
 				rows.iterator());
 	}
 
@@ -421,7 +416,7 @@ public class CassandraOperations implements
 		return true;
 	}
 
-	public CloseableIterator<CassandraRow> getRows(
+	public CloseableIterator<GeoWaveRow> getRows(
 			final String tableName,
 			final byte[][] dataIds,
 			final byte[] adapterId,
@@ -435,19 +430,19 @@ public class CassandraOperations implements
 					new ByteArrayId(
 							dataIds[i]));
 		}
-		final CloseableIterator<CassandraRow> everything = executeQuery(
+		final CloseableIterator<GeoWaveRow> everything = executeQuery(
 				QueryBuilder.select().from(
 						gwNamespace,
 						tableName).allowFiltering());
-		return new CloseableIteratorWrapper<CassandraRow>(
+		return new CloseableIteratorWrapper<GeoWaveRow>(
 				everything,
 				Iterators.filter(
 						everything,
-						new Predicate<CassandraRow>() {
+						new Predicate<GeoWaveRow>() {
 
 							@Override
 							public boolean apply(
-									final CassandraRow input ) {
+									final GeoWaveRow input ) {
 								return dataIdsSet.contains(
 										new ByteArrayId(
 												input.getDataId()))
@@ -460,9 +455,9 @@ public class CassandraOperations implements
 
 	public boolean deleteRow(
 			final String tableName,
-			final CassandraRow row,
+			final GeoWaveRow row,
 			final String... additionalAuthorizations ) {
-		session.execute(
+		final ResultSet rs = session.execute(
 				QueryBuilder
 						.delete()
 						.from(
@@ -484,7 +479,7 @@ public class CassandraOperations implements
 										ByteBuffer.wrap(
 												row.getAdapterId()))));
 
-		return true;
+		return !rs.isExhausted();
 	}
 
 	private static class ListenableFutureToCompletableFuture implements
@@ -617,58 +612,72 @@ public class CassandraOperations implements
 	@Override
 	public MetadataWriter createMetadataWriter(
 			final MetadataType metadataType ) {
+		final String tableName = getMetadataTableName(
+				metadataType);
 		if (options.isCreateTable()) {
 			// this checks for existence prior to create
 			synchronized (CREATE_TABLE_MUTEX) {
-				final String tableName = AbstractGeoWavePersistence.METADATA_TABLE + "_" + metadataType;
-				if (!indexExists(
-						new ByteArrayId(
-								tableName))) {
-					// create table
-					final Create create = getCreateTable(
-							tableName);
-					create.addPartitionKey(
-							PRIMARY_ID_KEY,
-							DataType.blob());
-					if (MetadataType.STATS.equals(
-							metadataType)) {
-						create.addClusteringColumn(
-								SECONDARY_ID_KEY,
+				try {
+					if (!indexExists(
+							new ByteArrayId(
+									tableName))) {
+						// create table
+						final Create create = getCreateTable(
+								tableName);
+						create.addPartitionKey(
+								PRIMARY_ID_KEY,
 								DataType.blob());
-						create.addClusteringColumn(
-								TIMESTAMP_ID_KEY,
-								DataType.timeuuid());
+						if (MetadataType.STATS.equals(
+								metadataType)) {
+							create.addClusteringColumn(
+									SECONDARY_ID_KEY,
+									DataType.blob());
+							create.addClusteringColumn(
+									TIMESTAMP_ID_KEY,
+									DataType.timeuuid());
+						}
+						create.addColumn(
+								VALUE_KEY,
+								DataType.blob());
+						executeCreateTable(
+								create,
+								tableName);
 					}
-					create.addColumn(
-							VALUE_KEY,
-							DataType.blob());
-					executeCreateTable(
-							create,
-							tableName);
+				}
+				catch (final IOException e) {
+					LOGGER.warn(
+							"Unable to check if table exists",
+							e);
 				}
 			}
 		}
-		return null;
+		return new CassandraMetadataWriter(
+				this,
+				tableName);
 	}
 
 	@Override
 	public MetadataReader createMetadataReader(
 			final MetadataType metadataType ) {
-		// TODO Auto-generated method stub
-		return null;
+		return new CassandraMetadataReader(
+				this,
+				metadataType);
 	}
 
 	@Override
 	public MetadataDeleter createMetadataDeleter(
 			final MetadataType metadataType ) {
-		// TODO Auto-generated method stub
-		return null;
+		return new CassandraMetadataDeleter(
+				this,
+				metadataType);
 	}
 
 	@Override
 	public Reader createReader(
 			final ReaderParams readerParams ) {
-		return null;
+		return new CassandraReader(
+				readerParams,
+				this);
 	}
 
 	@Override
@@ -676,8 +685,9 @@ public class CassandraOperations implements
 			final ByteArrayId indexId,
 			final String... authorizations )
 			throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return new CassandraDeleter(
+				this,
+				indexId.getString());
 	}
 
 	@Override
@@ -691,8 +701,25 @@ public class CassandraOperations implements
 
 	@Override
 	public Reader createReader(
-			final RecordReaderParams readerParams ) {
-		// TODO Auto-generated method stub
-		return null;
+			final RecordReaderParams recordReaderParams ) {
+		return new CassandraReader(
+				recordReaderParams,
+				this);
+	}
+
+	@Override
+	public boolean metadataExists(
+			final MetadataType metadataType )
+			throws IOException {
+		return indexExists(
+				new ByteArrayId(
+						getMetadataTableName(
+								metadataType)));
+	}
+
+	public String getMetadataTableName(
+			final MetadataType metadataType ) {
+		final String tableName = metadataType.name() + "_" + AbstractGeoWavePersistence.METADATA_TABLE;
+		return tableName;
 	}
 }

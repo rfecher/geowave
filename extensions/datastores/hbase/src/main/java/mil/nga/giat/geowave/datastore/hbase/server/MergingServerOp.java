@@ -36,8 +36,7 @@ public class MergingServerOp implements
 	protected Mergeable getMergeable(
 			final Cell cell,
 			final byte[] bytes ) {
-		return (Mergeable) PersistenceUtils.fromBinary(
-				bytes);
+		return (Mergeable) PersistenceUtils.fromBinary(bytes);
 	}
 
 	protected byte[] getBinary(
@@ -53,6 +52,7 @@ public class MergingServerOp implements
 			do {
 				// a reference variable to all the current cells
 				final List<Cell> rowCells = rowScanner.currentCellsInRow();
+
 				if (rowCells.size() > 1) {
 					Integer maxVersions = null;
 					if (rowScanner.getScan() != null) {
@@ -253,4 +253,13 @@ public class MergingServerOp implements
 		}
 		scan.setMaxVersions();
 	}
+
+	@Override
+	public byte[] toBinary() {
+		return new byte[] {};
+	}
+
+	@Override
+	public void fromBinary(
+			byte[] bytes ) {}
 }
