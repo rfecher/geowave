@@ -19,7 +19,7 @@ import mil.nga.giat.geowave.core.store.filter.DistributableQueryFilter;
 public class IndexOnlySpatialQuery extends
 		SpatialQuery
 {
-	protected IndexOnlySpatialQuery() {
+	public IndexOnlySpatialQuery() {
 		super();
 	}
 

@@ -40,14 +40,15 @@ public class BigtableStoreTestEnvironment extends
 
 	// Set to false if you're running an emulator elsewhere.
 	// To run externally, see https://cloud.google.com/bigtable/docs/emulator
-	private boolean internalEmulator = false;
+	private boolean internalEmulator = true;
 
 	// Default host:port
 	private String emulatorHostPort = "127.0.0.1:8086";
 
 	// Default download location
 	private String sdkDownloadUrl = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads";
-	private String sdkTarFile = "google-cloud-sdk-183.0.0-linux-x86_64.tar.gz";
+	private String sdkFile = "google-cloud-sdk-183.0.0-linux-x86_64.tar.gz";
+	private boolean environmentInitialized = false;
 
 	private BigtableStoreTestEnvironment() {}
 
@@ -67,32 +68,8 @@ public class BigtableStoreTestEnvironment extends
 
 	@Override
 	public void setup() {
-		String internalEmulatorProp = System.getProperty(BigtableEmulator.INTERNAL_PROPERTY);
-		if (TestUtils.isSet(internalEmulatorProp)) {
-			internalEmulator = Boolean.parseBoolean(internalEmulatorProp);
-			LOGGER.warn("Bigtable internal emulator enabled: " + internalEmulator);
-		}
-		else {
-			LOGGER.warn("Bigtable internal emulator disabled by default");
-		}
-
-		String hostPortProp = System.getProperty(BigtableEmulator.HOST_PORT_PROPERTY);
-		if (TestUtils.isSet(hostPortProp)) {
-			emulatorHostPort = hostPortProp;
-			LOGGER.warn("Bigtable emulator will run at: " + emulatorHostPort);
-		}
-		else {
-			LOGGER.warn("Bigtable emulator will run at default location: " + emulatorHostPort);
-		}
-
-		// Set the host:port property in the junit env, even if external gcloud
-		// emulator
-		EnvironmentVariables environmentVariables = new EnvironmentVariables();
-		environmentVariables.set(
-				"BIGTABLE_EMULATOR_HOST",
-				emulatorHostPort);
-
-		if (internalEmulator) {
+		initEnv();
+		if (internalEmulator && emulator == null) {
 			String downloadUrlProp = System.getProperty(BigtableEmulator.DOWNLOAD_URL_PROPERTY);
 			if (TestUtils.isSet(downloadUrlProp)) {
 				sdkDownloadUrl = downloadUrlProp;
@@ -104,19 +81,17 @@ public class BigtableStoreTestEnvironment extends
 
 			String downloadFileProp = System.getProperty(BigtableEmulator.DOWNLOAD_FILE_PROPERTY);
 			if (TestUtils.isSet(downloadFileProp)) {
-				sdkTarFile = downloadFileProp;
-				LOGGER.warn("Bigtable SDK tar file: " + sdkTarFile);
+				sdkFile = downloadFileProp;
+				LOGGER.warn("Bigtable SDK file: " + sdkFile);
 			}
 			else {
-				LOGGER.warn("Bigtable SDK tar file (default): " + sdkTarFile);
+				LOGGER.warn("Bigtable SDK file (default): " + sdkFile);
 			}
 
-			if (emulator == null) {
-				emulator = new BigtableEmulator(
-						null, // null uses tmp dir
-						sdkDownloadUrl,
-						sdkTarFile);
-			}
+			emulator = new BigtableEmulator(
+					null, // null uses tmp dir
+					sdkDownloadUrl,
+					sdkFile);
 
 			// Make sure we clean up any old processes first
 			if (emulator.isRunning()) {
@@ -129,11 +104,42 @@ public class BigtableStoreTestEnvironment extends
 		}
 	}
 
+	private void initEnv() {
+		if (!environmentInitialized) {
+			String internalEmulatorProp = System.getProperty(BigtableEmulator.INTERNAL_PROPERTY);
+			if (TestUtils.isSet(internalEmulatorProp)) {
+				internalEmulator = Boolean.parseBoolean(internalEmulatorProp);
+				LOGGER.warn("Bigtable internal emulator enabled: " + internalEmulator);
+			}
+			else {
+				LOGGER.warn("Bigtable internal emulator disabled by default");
+			}
+
+			String hostPortProp = System.getProperty(BigtableEmulator.HOST_PORT_PROPERTY);
+			if (TestUtils.isSet(hostPortProp)) {
+				emulatorHostPort = hostPortProp;
+				LOGGER.warn("Bigtable emulator will run at: " + emulatorHostPort);
+			}
+			else {
+				LOGGER.warn("Bigtable emulator will run at default location: " + emulatorHostPort);
+			}
+
+			// Set the host:port property in the junit env, even if external
+			// gcloud emulator
+			EnvironmentVariables environmentVariables = new EnvironmentVariables();
+			environmentVariables.set(
+					"BIGTABLE_EMULATOR_HOST",
+					emulatorHostPort);
+			environmentInitialized = true;
+		}
+	}
+
 	@Override
 	public void tearDown() {
 		if (internalEmulator) {
 			if (emulator != null) {
 				emulator.stop();
+				emulator = null;
 			}
 		}
 	}

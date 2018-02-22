@@ -1,9 +1,6 @@
-package mil.nga.giat.geowave.datastore.dynamodb.util;
+package mil.nga.giat.geowave.datastore.cassandra.operations;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import java.io.IOException;
 
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.index.persist.PersistenceUtils;
@@ -11,14 +8,14 @@ import mil.nga.giat.geowave.core.store.CloseableIterator;
 import mil.nga.giat.geowave.core.store.adapter.statistics.DataStatistics;
 import mil.nga.giat.geowave.core.store.entities.GeoWaveMetadata;
 
-public class DynamoDBStatisticsIterator implements
+public class CassandraStatisticsIterator implements
 		CloseableIterator<GeoWaveMetadata>
 {
-	final private Iterator<Map<String, AttributeValue>> it;
+	final private CloseableIterator<GeoWaveMetadata> it;
 	private DataStatistics<?> nextVal = null;
 
-	public DynamoDBStatisticsIterator(
-			final Iterator<Map<String, AttributeValue>> resultIterator ) {
+	public CassandraStatisticsIterator(
+			final CloseableIterator<GeoWaveMetadata> resultIterator ) {
 		it = resultIterator;
 	}
 
@@ -33,18 +30,21 @@ public class DynamoDBStatisticsIterator implements
 
 		nextVal = null;
 		while (it.hasNext()) {
-			final Map<String, AttributeValue> row = it.next();
+			final GeoWaveMetadata row = it.next();
 
-			final DataStatistics<?> statEntry = entryToValue(row);
+			final DataStatistics<?> statEntry = entryToValue(
+					row);
 
 			if (currentStatistics == null) {
 				currentStatistics = statEntry;
 			}
 			else {
 				if (statEntry.getStatisticsId().equals(
-						currentStatistics.getStatisticsId()) && statEntry.getDataAdapterId().equals(
-						currentStatistics.getDataAdapterId())) {
-					currentStatistics.merge(statEntry);
+						currentStatistics.getStatisticsId())
+						&& statEntry.getDataAdapterId().equals(
+								currentStatistics.getDataAdapterId())) {
+					currentStatistics.merge(
+							statEntry);
 				}
 				else {
 					nextVal = statEntry;
@@ -53,32 +53,37 @@ public class DynamoDBStatisticsIterator implements
 			}
 		}
 
-		return statsToMetadata(currentStatistics);
-	}
-
-	@Override
-	public void close() {
-		// Close is a no-op for dynamodb client
+		return statsToMetadata(
+				currentStatistics);
 	}
 
 	protected DataStatistics<?> entryToValue(
-			final Map<String, AttributeValue> entry ) {
-		final DataStatistics<?> stats = (DataStatistics<?>) PersistenceUtils.fromBinary(DynamoDBUtils.getValue(entry));
+			final GeoWaveMetadata entry ) {
+		final DataStatistics<?> stats = (DataStatistics<?>) PersistenceUtils.fromBinary(
+				entry.getValue());
 
 		if (stats != null) {
-			stats.setDataAdapterId(new ByteArrayId(
-					DynamoDBUtils.getSecondaryId(entry)));
+			stats.setDataAdapterId(
+					new ByteArrayId(
+							entry.getSecondaryId()));
 		}
 
 		return stats;
 	}
 
 	protected GeoWaveMetadata statsToMetadata(
-			DataStatistics<?> stats ) {
+			final DataStatistics<?> stats ) {
 		return new GeoWaveMetadata(
 				stats.getStatisticsId().getBytes(),
 				stats.getDataAdapterId().getBytes(),
 				null,
-				PersistenceUtils.toBinary(stats));
+				PersistenceUtils.toBinary(
+						stats));
+	}
+
+	@Override
+	public void close()
+			throws IOException {
+		it.close();
 	}
 }
