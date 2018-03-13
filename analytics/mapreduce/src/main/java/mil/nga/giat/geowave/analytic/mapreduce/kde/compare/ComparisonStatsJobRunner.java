@@ -35,8 +35,8 @@ import mil.nga.giat.geowave.core.cli.parser.CommandLineOperationParams;
 import mil.nga.giat.geowave.core.cli.parser.OperationParser;
 import mil.nga.giat.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import mil.nga.giat.geowave.core.geotime.ingest.SpatialOptions;
-import mil.nga.giat.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import mil.nga.giat.geowave.mapreduce.output.GeoWaveOutputFormat;
+import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
+import mil.nga.giat.geowave.core.store.cli.remote.options.DataStorePluginOptionsimport mil.nga.giat.geowave.mapreduce.output.GeoWaveOutputFormat;
 import mil.nga.giat.geowave.mapreduce.output.GeoWaveOutputKey;
 
 public class ComparisonStatsJobRunner extends
@@ -49,12 +49,14 @@ public class ComparisonStatsJobRunner extends
 			final KDECommandLineOptions kdeCommandLineOptions,
 			final DataStorePluginOptions inputDataStoreOptions,
 			final DataStorePluginOptions outputDataStoreOptions,
-			final File configFile ) {
+			final File configFile,
+			final PrimaryIndex outputIndex ) {
 		super(
 				kdeCommandLineOptions,
 				inputDataStoreOptions,
 				outputDataStoreOptions,
-				configFile);
+				configFile,
+				outputIndex);
 		timeAttribute = inputOptions.getTimeAttribute();
 	}
 
@@ -87,7 +89,8 @@ public class ComparisonStatsJobRunner extends
 				kdeCommand.getKdeOptions(),
 				kdeCommand.getInputStoreOptions(),
 				kdeCommand.getOutputStoreOptions(),
-				configFile);
+				configFile,
+				null);
 
 		final int res = ToolRunner.run(
 				new Configuration(),
@@ -288,7 +291,8 @@ public class ComparisonStatsJobRunner extends
 			final Configuration conf,
 			final Job statsReducer,
 			final String statsNamespace,
-			final String coverageName )
+			final String coverageName,
+			final PrimaryIndex index )
 			throws Exception {
 		FileOutputFormat.setOutputPath(
 				statsReducer,

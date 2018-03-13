@@ -31,9 +31,7 @@ SKIP_EXTRA="-Dfindbugs.skip -Dformatter.skip -DskipTests"
 cd "$SCRIPT_DIR/../../.."
 WORKSPACE="$(pwd)"
 DOCKER_ROOT=$WORKSPACE/docker-root
-GEOSERVER_VERSION=geoserver-2.10.0-bin.zip
-GEOSERVER_ARTIFACT=$WORKSPACE/deploy/packaging/rpm/centos/6/SOURCES/geoserver.zip
-LOCAL_REPO_DIR=/var/www/geowave-efs/html/repos/snapshots
+LOCAL_REPO_DIR="${LOCAL_REPO_DIR:-/var/www/geowave-efs/html/repos/snapshots}"
 LOCK_DIR=/var/lock/subsys
 
 if [ -z $GEOSERVER_DOWNLOAD_BASE ]; then

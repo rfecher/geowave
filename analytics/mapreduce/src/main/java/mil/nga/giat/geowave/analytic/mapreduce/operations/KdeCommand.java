@@ -11,8 +11,12 @@
 package mil.nga.giat.geowave.analytic.mapreduce.operations;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -35,7 +39,7 @@ public class KdeCommand extends
 		DefaultOperation implements
 		Command
 {
-
+	private final static Logger LOGGER = LoggerFactory.getLogger(KdeCommand.class);
 	@Parameter(description = "<input storename> <output storename>")
 	private List<String> parameters = new ArrayList<String>();
 
@@ -45,6 +49,8 @@ public class KdeCommand extends
 	private DataStorePluginOptions inputStoreOptions = null;
 
 	private DataStorePluginOptions outputStoreOptions = null;
+
+	private List<IndexPluginOptions> outputIndexOptions = null;
 
 	@Override
 	public void execute(
@@ -59,7 +65,8 @@ public class KdeCommand extends
 	}
 
 	public KDEJobRunner createRunner(
-			OperationParams params ) {
+			final OperationParams params )
+			throws IOException {
 		// Ensure we have all the required arguments
 		if (parameters.size() != 2) {
 			throw new ParameterException(
@@ -71,6 +78,7 @@ public class KdeCommand extends
 		// Config file
 		File configFile = (File) params.getContext().get(
 				ConfigOptions.PROPERTIES_FILE_CONTEXT);
+		PrimaryIndex outputPrimaryIndex = null;
 
 		// Attempt to load input store.
 		if (inputStoreOptions == null) {
@@ -93,11 +101,46 @@ public class KdeCommand extends
 			}
 			outputStoreOptions = outputStoreLoader.getDataStorePlugin();
 		}
+		if ((kdeOptions.getOutputIndex() != null) && !kdeOptions.getOutputIndex().trim().isEmpty()) {
+			if (outputIndexOptions == null) {
+				String outputIndex = kdeOptions.getOutputIndex();
 
-		KDEJobRunner runner = new KDEJobRunner(
+				// Load the Indices
+				final IndexLoader indexLoader = new IndexLoader(
+						outputIndex);
+				if (!indexLoader.loadFromConfig(configFile)) {
+					throw new ParameterException(
+							"Cannot find index(s) by name: " + outputIndex);
+				}
+				outputIndexOptions = indexLoader.getLoadedIndexes();
+			}
+
+			for (final IndexPluginOptions dimensionType : outputIndexOptions) {
+				if (dimensionType.getType().equals(
+						"spatial")) {
+					final PrimaryIndex primaryIndex = dimensionType.createPrimaryIndex();
+					if (primaryIndex == null) {
+						LOGGER.error("Could not get index instance, getIndex() returned null;");
+						throw new IOException(
+								"Could not get index instance, getIndex() returned null");
+					}
+					outputPrimaryIndex = primaryIndex;
+				}
+				else {
+					LOGGER
+							.error("spatial temporal is not supported for output index. Only spatial index is supported.");
+					throw new IOException(
+							"spatial temporal is not supported for output index. Only spatial index is supported.");
+				}
+			}
+		}
+
+		final KDEJobRunner runner = new KDEJobRunner(
 				kdeOptions,
 				inputStoreOptions,
-				outputStoreOptions);
+				outputStoreOptions,
+				configFile,
+				outputPrimaryIndex);
 		return runner;
 	}
 
@@ -138,5 +181,27 @@ public class KdeCommand extends
 	public void setOutputStoreOptions(
 			DataStorePluginOptions outputStoreOptions ) {
 		this.outputStoreOptions = outputStoreOptions;
+	}
+
+	public List<IndexPluginOptions> getOutputIndexOptions() {
+		return outputIndexOptions;
+	}
+
+	public void setOutputIndexOptions(
+			List<IndexPluginOptions> outputIndexOptions ) {
+		this.outputIndexOptions = outputIndexOptions;
+	}
+
+	@Override
+	public Void computeResults(
+			final OperationParams params )
+			throws Exception {
+		final KDEJobRunner runner = createRunner(params);
+		final int status = runner.runJob();
+		if (status != 0) {
+			throw new RuntimeException(
+					"Failed to execute: " + status);
+		}
+		return null;
 	}
 }

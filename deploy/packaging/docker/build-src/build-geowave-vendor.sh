@@ -16,7 +16,7 @@
 # This script runs with a volume mount to $WORKSPACE, this ensures that any signal failure will leave all of the files $WORKSPACE editable by the host  
 trap 'chmod -R 777 $WORKSPACE' EXIT
 
-GEOWAVE_VERSION=$(mvn -q -o -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive -f $WORKSPACE/pom.xml exec:exec | sed -e 's/"//g' -e 's/-SNAPSHOT//g')
+GEOWAVE_VERSION=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive -f $WORKSPACE/pom.xml exec:exec $BUILD_ARGS "$@" | sed -e 's/"//g' -e 's/-SNAPSHOT//g')
 # Set a default version
 VENDOR_VERSION=apache
 
@@ -33,6 +33,23 @@ echo "---------------------------------------------------------------"
 
 # Throughout the build, capture jace artifacts to support testing
 mkdir -p $WORKSPACE/deploy/target/geowave-c++/bin
+
+GEOSERVER_VERSION="$(mvn -q -Dexec.executable="echo" -Dexec.args='${geoserver.version}' --non-recursive -f $WORKSPACE/pom.xml exec:exec $BUILD_ARGS)"
+echo $GEOSERVER_VERSION > $WORKSPACE/deploy/target/geoserver_version.txt
+
+GEOWAVE_VERSION_STR="$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive -f $WORKSPACE/pom.xml exec:exec)"
+GEOWAVE_VERSION="$(echo ${GEOWAVE_VERSION_STR} | sed -e 's/"//g' -e 's/-SNAPSHOT//g')"
+echo $GEOWAVE_VERSION > $WORKSPACE/deploy/target/version.txt
+if [[ "$GEOWAVE_VERSION_STR" =~ "-SNAPSHOT" ]]
+then
+  #its a dev/latest build
+  echo "dev" > $WORKSPACE/deploy/target/build-type.txt
+  echo "latest" > $WORKSPACE/deploy/target/version-url.txt
+else
+  #its a release
+  echo "release" > $WORKSPACE/deploy/target/build-type.txt
+  echo $GEOWAVE_VERSION_STR > $WORKSPACE/deploy/target/version-url.txt
+fi
 
 # Build each of the "fat jar" artifacts and rename to remove any version strings in the file name
 

@@ -45,10 +45,9 @@ public class SetCommand extends
 
 	@Parameter(names = {
 		"--password"
-	}, description = "boolean (true|false) - specify if the value being set is a password and should be encrypted in the configurations")
-	private String password = null;
+	}, description = "Specify if the value being set is a password and should be encrypted in the configurations")
+	private Boolean password = false;
 
-	private boolean isPassword;
 
 	@Override
 	public boolean prepare(
@@ -90,7 +89,7 @@ public class SetCommand extends
 					"Requires: <name> <value>");
 		}
 
-		if (isPassword) {
+		if (password) {
 			// check if encryption is enabled in configuration
 			if (Boolean.parseBoolean(existingProps.getProperty(
 					Constants.ENCRYPTION_ENABLED_KEY,
