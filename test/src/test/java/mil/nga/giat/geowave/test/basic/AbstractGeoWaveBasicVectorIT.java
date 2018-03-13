@@ -54,27 +54,24 @@ import mil.nga.giat.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import mil.nga.giat.geowave.core.store.adapter.statistics.DuplicateEntryCount;
 import mil.nga.giat.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
 import mil.nga.giat.geowave.core.store.adapter.statistics.StatisticsProvider;
-import mil.nga.giat.geowave.core.store.base.DataStoreEntryInfo;
 import mil.nga.giat.geowave.core.store.callback.IngestCallback;
 import mil.nga.giat.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
-import mil.nga.giat.geowave.core.store.data.visibility.GlobalVisibilityHandler;
-import mil.nga.giat.geowave.core.store.data.visibility.UniformVisibilityWriter;
+import mil.nga.giat.geowave.core.store.entities.GeoWaveRow;
 import mil.nga.giat.geowave.core.store.index.IndexMetaDataSet;
 import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 import mil.nga.giat.geowave.core.store.memory.MemoryAdapterStore;
-import mil.nga.giat.geowave.core.store.operations.remote.options.DataStorePluginOptions;
 import mil.nga.giat.geowave.core.store.query.DataIdQuery;
 import mil.nga.giat.geowave.core.store.query.DistributableQuery;
 import mil.nga.giat.geowave.core.store.query.Query;
 import mil.nga.giat.geowave.core.store.query.QueryOptions;
 import mil.nga.giat.geowave.core.store.query.aggregate.CountAggregation;
 import mil.nga.giat.geowave.core.store.query.aggregate.CountResult;
-import mil.nga.giat.geowave.core.store.util.DataStoreUtils;
 import mil.nga.giat.geowave.format.geotools.vector.GeoToolsVectorDataStoreIngestPlugin;
 import mil.nga.giat.geowave.test.TestUtils;
 import mil.nga.giat.geowave.test.TestUtils.ExpectedResults;
 
-abstract public class AbstractGeoWaveBasicVectorIT
+abstract public class AbstractGeoWaveBasicVectorIT extends
+		AbstractGeoWaveIT
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(AbstractGeoWaveBasicVectorIT.class);
 	protected static final String TEST_DATA_ZIP_RESOURCE_PATH = TestUtils.TEST_RESOURCE_PACKAGE + "basic-testdata.zip";
@@ -109,8 +106,6 @@ abstract public class AbstractGeoWaveBasicVectorIT
 				queryDescription);
 	}
 
-	abstract protected DataStorePluginOptions getDataStorePluginOptions();
-
 	protected void testQuery(
 			final URL savedFilterResource,
 			final URL[] expectedResultsResources,
@@ -133,7 +128,6 @@ abstract public class AbstractGeoWaveBasicVectorIT
 			CoordinateReferenceSystem crs )
 			throws Exception {
 		LOGGER.info("querying " + queryDescription);
-		System.out.println("querying " + queryDescription);
 		final mil.nga.giat.geowave.core.store.DataStore geowaveStore = getDataStorePluginOptions().createDataStore();
 		// this file is the filtered dataset (using the previous file as a
 		// filter) so use it to ensure the query worked
@@ -213,7 +207,7 @@ abstract public class AbstractGeoWaveBasicVectorIT
 			final URL savedFilterResource,
 			final PrimaryIndex index )
 			throws Exception {
-		LOGGER.warn("deleting by data ID from " + index.getId() + " index");
+		LOGGER.warn("deleting by data ID from " + index.getId().getString() + " index");
 
 		boolean success = false;
 		final mil.nga.giat.geowave.core.store.DataStore geowaveStore = getDataStorePluginOptions().createDataStore();
@@ -248,7 +242,6 @@ abstract public class AbstractGeoWaveBasicVectorIT
 							adapterId,
 							index.getId()),
 					new DataIdQuery(
-							adapterId,
 							dataId))) {
 
 				success = !hasAtLeastOne(geowaveStore.query(
@@ -256,7 +249,6 @@ abstract public class AbstractGeoWaveBasicVectorIT
 								adapterId,
 								index.getId()),
 						new DataIdQuery(
-								adapterId,
 								dataId)));
 			}
 		}
@@ -433,8 +425,7 @@ abstract public class AbstractGeoWaveBasicVectorIT
 			final boolean multithreaded,
 			CoordinateReferenceSystem crs ) {
 		// In the multithreaded case, only test min/max and count. Stats will be
-		// ingested
-		// in a different order and will not match.
+		// ingested/ in a different order and will not match.
 		final LocalFileIngestPlugin<SimpleFeature> localFileIngest = new GeoToolsVectorDataStoreIngestPlugin(
 				Filter.INCLUDE);
 		final Map<ByteArrayId, StatisticsCache> statsCache = new HashMap<ByteArrayId, StatisticsCache>();
@@ -467,23 +458,12 @@ abstract public class AbstractGeoWaveBasicVectorIT
 									adapter.getAdapterId(),
 									cachedValues);
 						}
-						final DataStoreEntryInfo entryInfo = DataStoreUtils.getIngestInfo(
-								adapter,
-								index,
+						cachedValues.entryIngested(mathTransform != null ? FeatureDataUtils.crsTransform(
 								data.getValue(),
-								new UniformVisibilityWriter<SimpleFeature>(
-										new GlobalVisibilityHandler<SimpleFeature, Object>(
-												"")));
-						// transform data.getValue here using this code:
-
-						cachedValues.entryIngested(
-								entryInfo,
-								mathTransform != null ? FeatureDataUtils.crsTransform(
-										data.getValue(),
-										SimpleFeatureTypeBuilder.retype(
-												data.getValue().getFeatureType(),
-												crs),
-										mathTransform) : data.getValue());
+								SimpleFeatureTypeBuilder.retype(
+										data.getValue().getFeatureType(),
+										crs),
+								mathTransform) : data.getValue());
 					}
 				}
 			}
@@ -528,8 +508,7 @@ abstract public class AbstractGeoWaveBasicVectorIT
 							expectedStat.getStatisticsId());
 
 					// Only test RANGE and COUNT in the multithreaded case. None
-					// of the other
-					// statistics will match!
+					// of the other statistics will match!
 					if (multithreaded) {
 						if (!(expectedStat.getStatisticsId().getString().startsWith(
 								FeatureNumericRangeStatistics.STATS_TYPE.getString() + "#")
@@ -619,12 +598,12 @@ abstract public class AbstractGeoWaveBasicVectorIT
 
 		@Override
 		public void entryIngested(
-				final DataStoreEntryInfo entryInfo,
-				final SimpleFeature entry ) {
+				final SimpleFeature entry,
+				final GeoWaveRow... geowaveRows ) {
 			for (final DataStatistics<SimpleFeature> stats : statsCache.values()) {
 				stats.entryIngested(
-						entryInfo,
-						entry);
+						entry,
+						geowaveRows);
 			}
 			final Geometry geometry = ((Geometry) entry.getDefaultGeometry());
 			if ((geometry != null) && !geometry.isEmpty()) {

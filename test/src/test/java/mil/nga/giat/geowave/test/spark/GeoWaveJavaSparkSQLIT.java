@@ -22,7 +22,7 @@ import mil.nga.giat.geowave.analytic.spark.GeoWaveRDD;
 import mil.nga.giat.geowave.analytic.spark.sparksql.SimpleFeatureDataFrame;
 import mil.nga.giat.geowave.analytic.spark.sparksql.SqlResultsWriter;
 import mil.nga.giat.geowave.core.geotime.store.query.SpatialQuery;
-import mil.nga.giat.geowave.core.store.operations.remote.options.DataStorePluginOptions;
+import mil.nga.giat.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import mil.nga.giat.geowave.mapreduce.input.GeoWaveInputKey;
 import mil.nga.giat.geowave.test.GeoWaveITRunner;
 import mil.nga.giat.geowave.test.TestUtils;

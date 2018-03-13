@@ -19,13 +19,13 @@ import net.sf.json.JSONObject;
 
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.index.Mergeable;
-import mil.nga.giat.geowave.core.store.base.DataStoreEntryInfo;
 import mil.nga.giat.geowave.core.store.callback.DeleteCallback;
+import mil.nga.giat.geowave.core.store.entities.GeoWaveRow;
 import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 
 public class DuplicateEntryCount<T> extends
 		AbstractDataStatistics<T> implements
-		DeleteCallback<T>
+		DeleteCallback<T, GeoWaveRow>
 {
 	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
 			"DUPLICATE_ENTRY_COUNT");
@@ -95,19 +95,23 @@ public class DuplicateEntryCount<T> extends
 
 	@Override
 	public void entryIngested(
-			final DataStoreEntryInfo entryInfo,
-			final T entry ) {
-		if (entryHasDuplicates(entryInfo)) {
-			entriesWithDuplicates++;
+			final T entry,
+			final GeoWaveRow... kvs ) {
+		if (kvs.length > 0) {
+			if (entryHasDuplicates(kvs[0])) {
+				entriesWithDuplicates++;
+			}
 		}
 	}
 
 	@Override
 	public void entryDeleted(
-			final DataStoreEntryInfo entryInfo,
-			final T entry ) {
-		if (entryHasDuplicates(entryInfo)) {
-			entriesWithDuplicates--;
+			final T entry,
+			final GeoWaveRow... kvs ) {
+		if (kvs.length > 0) {
+			if (entryHasDuplicates(kvs[0])) {
+				entriesWithDuplicates--;
+			}
 		}
 	}
 
@@ -120,11 +124,8 @@ public class DuplicateEntryCount<T> extends
 	}
 
 	private static boolean entryHasDuplicates(
-			final DataStoreEntryInfo entryInfo ) {
-		if ((entryInfo != null) && (entryInfo.getRowIds() != null)) {
-			return entryInfo.getRowIds().size() > 1;
-		}
-		return false;
+			final GeoWaveRow kv ) {
+		return kv.getNumberOfDuplicates() > 0;
 	}
 
 	public static DuplicateEntryCount getDuplicateCounts(

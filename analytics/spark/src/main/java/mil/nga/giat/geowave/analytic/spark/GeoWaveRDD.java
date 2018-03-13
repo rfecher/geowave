@@ -18,7 +18,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
 import mil.nga.giat.geowave.core.geotime.store.query.ScaledTemporalRange;
-import mil.nga.giat.geowave.core.store.operations.remote.options.DataStorePluginOptions;
+import mil.nga.giat.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import mil.nga.giat.geowave.core.store.query.DistributableQuery;
 import mil.nga.giat.geowave.core.store.query.QueryOptions;
 import mil.nga.giat.geowave.mapreduce.input.GeoWaveInputFormat;

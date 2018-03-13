@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import mil.nga.giat.geowave.cli.osm.operations.IngestOSMToGeoWaveCommand;
 import mil.nga.giat.geowave.cli.osm.operations.StageOSMToHDFSCommand;
 import mil.nga.giat.geowave.core.cli.parser.ManualOperationParams;
-import mil.nga.giat.geowave.core.store.operations.remote.options.DataStorePluginOptions;
-import mil.nga.giat.geowave.datastore.accumulo.operations.config.AccumuloRequiredOptions;
+import mil.nga.giat.geowave.core.store.cli.remote.options.DataStorePluginOptions;
+import mil.nga.giat.geowave.datastore.accumulo.cli.config.AccumuloRequiredOptions;
 import mil.nga.giat.geowave.test.AccumuloStoreTestEnvironment;
 import mil.nga.giat.geowave.test.GeoWaveITRunner;
 import mil.nga.giat.geowave.test.TestUtils;
@@ -56,8 +56,8 @@ public class MapReduceIT
 
 	@GeoWaveTestStore({
 		GeoWaveStoreType.ACCUMULO,
-		GeoWaveStoreType.BIGTABLE,
-		GeoWaveStoreType.HBASE
+	// GeoWaveStoreType.BIGTABLE,
+	// GeoWaveStoreType.HBASE
 	})
 	protected DataStorePluginOptions dataStoreOptions;
 
