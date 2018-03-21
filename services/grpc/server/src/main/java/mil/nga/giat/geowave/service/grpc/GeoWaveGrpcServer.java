@@ -1,6 +1,8 @@
 package mil.nga.giat.geowave.service.grpc;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,51 +17,8 @@ public class GeoWaveGrpcServer
 	private final int port;
 	private final Server server;
 
-	public static void main(
-			String[] args )
-			throws InterruptedException {
-
-		LOGGER.info("Starting gRPC server");
-		GeoWaveGrpcServer server = null;
-		// default to port 8090 unless there is a command line argument
-		int port = 8090;
-		if (args.length > 0) {
-			try {
-				port = Integer.parseInt(args[0]);
-			}
-			catch (NumberFormatException e) {
-				LOGGER.error(
-						"Exception encountered: Argument" + args[0] + " must be an integer.",
-						e);
-				return;
-			}
-		}
-
-		try {
-			server = new GeoWaveGrpcServer(
-					port);
-		}
-		catch (final IOException e) {
-			LOGGER.error(
-					"Exception encountered instantiating gRPC server",
-					e);
-		}
-
-		try {
-			server.start();
-			// HP Fortify "NULL Pointer Dereference" false positive
-			// NullPointerExceptions are being caught
-			server.blockUntilShutdown();
-		}
-		catch (final IOException | NullPointerException e) {
-			LOGGER.error(
-					"Exception encountered starting gRPC server",
-					e);
-		}
-	}
-
 	public GeoWaveGrpcServer(
-			int port )
+			final int port )
 			throws IOException {
 		this.port = port;
 
@@ -99,7 +58,7 @@ public class GeoWaveGrpcServer
 	 * Await termination on the main thread since the grpc library uses daemon
 	 * threads.
 	 */
-	private void blockUntilShutdown()
+	public void blockUntilShutdown()
 			throws InterruptedException {
 		if (server != null) {
 			server.awaitTermination();

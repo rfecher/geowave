@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.protobuf.generated.VisibilityLabelsProtos.VisibilityLabelsResponse;
+import org.apache.hadoop.hbase.replication.master.ReplicationLogCleaner;
 import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.hbase.security.visibility.ScanLabelGenerator;
 import org.apache.hadoop.hbase.security.visibility.SimpleScanLabelGenerator;
@@ -117,6 +119,9 @@ public class HBaseStoreTestEnvironment extends
 					conf.set(
 							"hbase.online.schema.update.enable",
 							"true");
+					conf.set(
+							HConstants.HBASE_MASTER_LOGCLEANER_PLUGINS,
+							ReplicationLogCleaner.class.getCanonicalName());
 
 					if (enableVisibility) {
 						conf.set(

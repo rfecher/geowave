@@ -3,6 +3,7 @@ package mil.nga.giat.geowave.service.grpc;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.store.ContentFeatureCollection;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.ParameterException;
+import com.google.protoshadebuf3.util.Timestamps;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTReader;
 
@@ -306,16 +308,9 @@ public class GeoWaveGrpcVectorQueryService extends
 		for (int i = 0; i < constraintCount; i++) {
 			final TemporalConstraints t = request.getTemporalConstraints(i);
 
-			try {
 				temporalRanges.add(new TemporalRange(
-						DateUtilities.parseISO(t.getStartTime()),
-						DateUtilities.parseISO(t.getEndTime())));
-			}
-			catch (final ParseException e) {
-				LOGGER.error(
-						"Exception encountered parsing date",
-						e);
-			}
+						new Date(Timestamps.toMillis(t.getStartTime())),
+						new Date(Timestamps.toMillis(t.getEndTime()))));
 		}
 
 		final String geomDefinition = request.getSpatialParams().getGeometry();

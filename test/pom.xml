@@ -14,7 +14,8 @@
 	<artifactId>geowave-test</artifactId>
 	<name>GeoWave Integration Tests</name>
 	<description>A module for integration and functional tests of GeoWave</description>
-	<dependencies>
+	<dependencies><dependency>   <groupId>org.apache.hbase</groupId>
+    <artifactId>hbase-testing-util</artifactId><version>${hbase.version}</version></dependency>
 		<dependency>
 			<groupId>mil.nga.giat</groupId>
 			<artifactId>geowave-analytic-spark</artifactId>
@@ -595,7 +596,6 @@
 			<id>cassandra-it</id>
 			<properties>
 				<skipITs>false</skipITs>
-				<guava.version>19.0</guava.version>
 				<testStoreType>CASSANDRA</testStoreType>
 			</properties>
 		</profile>

@@ -73,7 +73,7 @@ public class CQLDelete extends
 					org.apache.log4j.Level.DEBUG);
 		}
 
-		final Stopwatch stopWatch = new Stopwatch();
+		final Stopwatch stopWatch = Stopwatch.createUnstarted();
 
 		// Ensure we have all the required arguments
 		if (parameters.size() != 1) {

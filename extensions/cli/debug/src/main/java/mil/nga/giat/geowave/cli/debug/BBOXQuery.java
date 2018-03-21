@@ -86,7 +86,7 @@ public class BBOXQuery extends
 			final ByteArrayId indexId,
 			final DataStore dataStore,
 			final boolean debug ) {
-		final Stopwatch stopWatch = new Stopwatch();
+		final Stopwatch stopWatch = Stopwatch.createUnstarted();
 
 		getBoxGeom();
 

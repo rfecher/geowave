@@ -61,7 +61,7 @@ public class MinimalFullTable extends
 	public void execute(
 			final OperationParams params )
 			throws ParseException {
-		final Stopwatch stopWatch = new Stopwatch();
+		final Stopwatch stopWatch = Stopwatch.createUnstarted();
 
 		// Ensure we have all the required arguments
 		if (parameters.size() != 1) {
