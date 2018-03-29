@@ -60,7 +60,9 @@ import mil.nga.giat.geowave.test.annotation.NamespaceOverride;
 @GeoWaveTestStore(value = {
 	GeoWaveStoreType.ACCUMULO,
 	// GeoWaveStoreType.BIGTABLE,
-	GeoWaveStoreType.HBASE
+	GeoWaveStoreType.CASSANDRA,
+	GeoWaveStoreType.HBASE,
+	GeoWaveStoreType.DYNAMODB
 })
 public class KDERasterResizeIT
 {
