@@ -73,22 +73,29 @@ public class GeoWaveFeatureReaderTest extends
 		type = DataUtilities.createType(
 				"GeoWaveFeatureReaderTest",
 				"geometry:Geometry:srid=4326,start:Date,end:Date,pop:java.lang.Long,pid:String");
-		((GeoWaveGTDataStore)dataStore).getIndexStore().addIndex(new SpatialIndexBuilder().createIndex());
-		((GeoWaveGTDataStore)dataStore).getIndexStore().addIndex(new SpatialTemporalIndexBuilder().createIndex());
-		dataStore.createSchema(type);
+		((GeoWaveGTDataStore) dataStore).getIndexStore().addIndex(
+				new SpatialIndexBuilder().createIndex());
+		((GeoWaveGTDataStore) dataStore).getIndexStore().addIndex(
+				new SpatialTemporalIndexBuilder().createIndex());
+		dataStore.createSchema(
+				type);
 
-		stime = DateUtilities.parseISO("2005-05-15T20:32:56Z");
-		etime = DateUtilities.parseISO("2005-05-20T20:32:56Z");
+		stime = DateUtilities.parseISO(
+				"2005-05-15T20:32:56Z");
+		etime = DateUtilities.parseISO(
+				"2005-05-20T20:32:56Z");
 
 		final Transaction transaction1 = new DefaultTransaction();
 		final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter(
 				type.getTypeName(),
 				transaction1);
-		assertFalse(writer.hasNext());
+		assertFalse(
+				writer.hasNext());
 		SimpleFeature newFeature = writer.next();
 		newFeature.setAttribute(
 				"pop",
-				Long.valueOf(100));
+				Long.valueOf(
+						100));
 		newFeature.setAttribute(
 				"pid",
 				"a" + UUID.randomUUID().toString());
@@ -100,31 +107,41 @@ public class GeoWaveFeatureReaderTest extends
 				etime);
 		newFeature.setAttribute(
 				"geometry",
-				factory.createPoint(new Coordinate(
-						27.25,
-						41.25)));
-		fids.add(newFeature.getID());
-		pids.add(newFeature.getAttribute(
-				"pid").toString());
+				factory.createPoint(
+						new Coordinate(
+								27.25,
+								41.25)));
+		fids.add(
+				newFeature.getID());
+		pids.add(
+				newFeature.getAttribute(
+						"pid").toString());
 		writer.write();
 		newFeature = writer.next();
 		newFeature.setAttribute(
 				"pop",
-				Long.valueOf(101));
+				Long.valueOf(
+						101));
 		newFeature.setAttribute(
 				"pid",
 				"b" + UUID.randomUUID().toString());
 		newFeature.setAttribute(
 				"start",
+				stime);
+		newFeature.setAttribute(
+				"end",
 				etime);
 		newFeature.setAttribute(
 				"geometry",
-				factory.createPoint(new Coordinate(
-						28.25,
-						41.25)));
-		fids.add(newFeature.getID());
-		pids.add(newFeature.getAttribute(
-				"pid").toString());
+				factory.createPoint(
+						new Coordinate(
+								28.25,
+								41.25)));
+		fids.add(
+				newFeature.getID());
+		pids.add(
+				newFeature.getAttribute(
+						"pid").toString());
 		writer.write();
 		writer.close();
 		transaction1.commit();
@@ -132,7 +149,9 @@ public class GeoWaveFeatureReaderTest extends
 
 		query = new Query(
 				"GeoWaveFeatureReaderTest",
-				ECQL.toFilter("IN ('" + fids.get(0) + "')"),
+				ECQL.toFilter(
+						"IN ('" + fids.get(
+								0) + "')"),
 				new String[] {
 					"geometry",
 					"pid"
@@ -152,10 +171,13 @@ public class GeoWaveFeatureReaderTest extends
 		int count = 0;
 		while (reader.hasNext()) {
 			final SimpleFeature feature = reader.next();
-			assertTrue(fids.contains(feature.getID()));
+			assertTrue(
+					fids.contains(
+							feature.getID()));
 			count++;
 		}
-		assertTrue(count > 0);
+		assertTrue(
+				count > 0);
 	}
 
 	@Test
@@ -184,12 +206,17 @@ public class GeoWaveFeatureReaderTest extends
 		int count = 0;
 		while (reader.hasNext()) {
 			final SimpleFeature feature = reader.next();
-			assertTrue(fids.contains(feature.getID()));
+			assertTrue(
+					fids.contains(
+							feature.getID()));
 			count++;
 		}
-		assertEquals(1, count);
+		assertEquals(
+				1,
+				count);
 
 	}
+
 	@Test
 	public void testBBOX()
 			throws IllegalArgumentException,
@@ -216,10 +243,13 @@ public class GeoWaveFeatureReaderTest extends
 		int count = 0;
 		while (reader.hasNext()) {
 			final SimpleFeature feature = reader.next();
-			assertTrue(fids.contains(feature.getID()));
+			assertTrue(
+					fids.contains(
+							feature.getID()));
 			count++;
 		}
-		assertTrue(count > 0);
+		assertTrue(
+				count > 0);
 
 	}
 
@@ -234,7 +264,9 @@ public class GeoWaveFeatureReaderTest extends
 		int count = 0;
 		while (reader.hasNext()) {
 			final SimpleFeature feature = reader.next();
-			assertTrue(fids.contains(feature.getID()));
+			assertTrue(
+					fids.contains(
+							feature.getID()));
 			count++;
 		}
 		assertEquals(
@@ -249,13 +281,16 @@ public class GeoWaveFeatureReaderTest extends
 			NoSuchElementException,
 			IOException,
 			CQLException {
-		System.out.println(pids);
+		System.out.println(
+				pids);
 		final Query query = new Query(
 				"GeoWaveFeatureReaderTest",
-				ECQL.toFilter("pid like '" + pids.get(
-						0).substring(
-						0,
-						1) + "%'"),
+				ECQL.toFilter(
+						"pid like '" + pids.get(
+								0).substring(
+										0,
+										1)
+								+ "%'"),
 				new String[] {
 					"geometry",
 					"pid"
@@ -266,7 +301,9 @@ public class GeoWaveFeatureReaderTest extends
 		int count = 0;
 		while (reader.hasNext()) {
 			final SimpleFeature feature = reader.next();
-			assertTrue(fids.contains(feature.getID()));
+			assertTrue(
+					fids.contains(
+							feature.getID()));
 			count++;
 		}
 		assertEquals(
@@ -288,10 +325,11 @@ public class GeoWaveFeatureReaderTest extends
 				type);
 		unwrapDelegatingFeatureReader(
 				reader).getFeatureCollection().accepts(
-				visitor,
-				null);
-		assertTrue(visitor.getMax().equals(
-				etime));
+						visitor,
+						null);
+		assertTrue(
+				visitor.getMax().equals(
+						etime));
 
 	}
 
@@ -308,10 +346,11 @@ public class GeoWaveFeatureReaderTest extends
 				type);
 		unwrapDelegatingFeatureReader(
 				reader).getFeatureCollection().accepts(
-				visitor,
-				null);
-		assertTrue(visitor.getMin().equals(
-				stime));
+						visitor,
+						null);
+		assertTrue(
+				visitor.getMin().equals(
+						stime));
 
 	}
 
