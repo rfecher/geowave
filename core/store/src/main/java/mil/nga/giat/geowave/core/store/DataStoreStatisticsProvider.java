@@ -54,22 +54,22 @@ public class DataStoreStatisticsProvider<T> implements
 
 		final ByteArrayId[] newSet = Arrays.copyOf(
 				idsFromAdapter,
-				idsFromAdapter.length + 4);
-		newSet[idsFromAdapter.length] = RowRangeHistogramStatistics.STATS_TYPE;
-		newSet[idsFromAdapter.length + 1] = IndexMetaDataSet.STATS_TYPE;
-		newSet[idsFromAdapter.length + 2] = DifferingFieldVisibilityEntryCount.STATS_TYPE;
-		newSet[idsFromAdapter.length + 3] = DuplicateEntryCount.STATS_TYPE;
+				idsFromAdapter.length + 3);
+//		newSet[idsFromAdapter.length] = RowRangeHistogramStatistics.STATS_TYPE;
+		newSet[idsFromAdapter.length ] = IndexMetaDataSet.STATS_TYPE;
+		newSet[idsFromAdapter.length + 1] = DifferingFieldVisibilityEntryCount.STATS_TYPE;
+		newSet[idsFromAdapter.length + 2] = DuplicateEntryCount.STATS_TYPE;
 		return newSet;
 	}
 
 	@Override
 	public DataStatistics<T> createDataStatistics(
 			final ByteArrayId statisticsType ) {
-		if (statisticsType.equals(RowRangeHistogramStatistics.STATS_TYPE)) {
-			return new RowRangeHistogramStatistics(
-					adapter.getAdapterId(),
-					index.getId());
-		}
+//		if (statisticsType.equals(RowRangeHistogramStatistics.STATS_TYPE)) {
+//			return new RowRangeHistogramStatistics(
+//					adapter.getAdapterId(),
+//					index.getId());
+//		}
 		if (statisticsType.equals(IndexMetaDataSet.STATS_TYPE)) {
 			return new IndexMetaDataSet(
 					adapter.getAdapterId(),
