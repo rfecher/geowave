@@ -308,9 +308,11 @@ public class GeoWaveGrpcVectorQueryService extends
 		for (int i = 0; i < constraintCount; i++) {
 			final TemporalConstraints t = request.getTemporalConstraints(i);
 
-				temporalRanges.add(new TemporalRange(
-						new Date(Timestamps.toMillis(t.getStartTime())),
-						new Date(Timestamps.toMillis(t.getEndTime()))));
+			temporalRanges.add(new TemporalRange(
+					new Date(
+							Timestamps.toMillis(t.getStartTime())),
+					new Date(
+							Timestamps.toMillis(t.getEndTime()))));
 		}
 
 		final String geomDefinition = request.getSpatialParams().getGeometry();
