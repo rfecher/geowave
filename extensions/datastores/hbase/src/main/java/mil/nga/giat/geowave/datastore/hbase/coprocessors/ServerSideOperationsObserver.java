@@ -19,6 +19,7 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScanType;
+import org.apache.hadoop.hbase.regionserver.ScannerContextRowScanner;
 import org.apache.hadoop.hbase.regionserver.Store;
 import org.apache.hadoop.hbase.regionserver.compactions.CompactionRequest;
 import org.apache.log4j.Logger;
@@ -37,6 +38,17 @@ public class ServerSideOperationsObserver extends
 		BaseRegionObserver
 {
 	private final static Logger LOGGER = Logger.getLogger(ServerSideOperationsObserver.class);
+	static {
+		try {
+			ServerSideOperationsObserver.class.getClassLoader().loadClass(
+					ScannerContextRowScanner.class.getCanonicalName());
+		}
+		catch (ClassNotFoundException e) {
+			LOGGER.error(
+					"Unavble to load GeoWave's ScannerContextRowScanner.",
+					e);
+		}
+	}
 	public static final String SERVER_OP_PREFIX = "serverop";
 	public static final String SERVER_OP_SCOPES_KEY = "scopes";
 	public static final String SERVER_OP_OPTIONS_PREFIX = "options";
