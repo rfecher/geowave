@@ -27,7 +27,8 @@ import mil.nga.giat.geowave.datastore.hbase.util.HBaseUtils.ScannerClosableWrapp
 public class HBaseMetadataReader implements
 		MetadataReader
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(HBaseMetadataReader.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(
+			HBaseMetadataReader.class);
 	private final HBaseOperations operations;
 	private final DataStoreOptions options;
 	private final MetadataType metadataType;
@@ -47,7 +48,8 @@ public class HBaseMetadataReader implements
 		final Scan scanner = new Scan();
 
 		try {
-			final byte[] columnFamily = StringUtils.stringToBinary(metadataType.name());
+			final byte[] columnFamily = StringUtils.stringToBinary(
+					metadataType.name());
 			final byte[] columnQualifier = query.getSecondaryId();
 
 			if (columnQualifier != null) {
@@ -56,12 +58,15 @@ public class HBaseMetadataReader implements
 						columnQualifier);
 			}
 			else {
-				scanner.addFamily(columnFamily);
+				scanner.addFamily(
+						columnFamily);
 			}
 
 			if (query.hasPrimaryId()) {
-				scanner.setStartRow(query.getPrimaryId());
-				scanner.setStopRow(query.getPrimaryId());
+				scanner.setStartRow(
+						query.getPrimaryId());
+				scanner.setStopRow(
+						query.getPrimaryId());
 			}
 			final boolean clientsideStatsMerge = (metadataType == MetadataType.STATS)
 					&& !options.isServerSideLibraryEnabled();
@@ -69,43 +74,50 @@ public class HBaseMetadataReader implements
 				scanner.setMaxVersions(); // Get all versions
 			}
 
-			final ResultScanner rS = operations.getScannedResults(
+			final Iterable<Result> rS = operations.getScannedResults(
 					scanner,
 					AbstractGeoWavePersistence.METADATA_TABLE,
 					query.getAuthorizations());
 			final Iterator<Result> it = rS.iterator();
-
-			return new CloseableIteratorWrapper<>(
-					new ScannerClosableWrapper(
-							rS),
-					Iterators.transform(
-							it,
-							new com.google.common.base.Function<Result, GeoWaveMetadata>() {
-								@Override
-								public GeoWaveMetadata apply(
-										final Result result ) {
-									byte[] resultantCQ;
-									if (columnQualifier == null) {
-										NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(columnFamily);
-										if (familyMap != null && !familyMap.isEmpty()) {
-											resultantCQ = familyMap.firstKey();
-										}
-										else {
-											resultantCQ = new byte[0];
-										}
-									}
-									else {
-										resultantCQ = columnQualifier;
-									}
-									return new GeoWaveMetadata(
-											result.getRow(),
-											resultantCQ,
-											null,
-											getMergedStats(
-													result,
-													clientsideStatsMerge));
+			final Iterator<GeoWaveMetadata> transformedIt = Iterators.transform(
+					it,
+					new com.google.common.base.Function<Result, GeoWaveMetadata>() {
+						@Override
+						public GeoWaveMetadata apply(
+								final Result result ) {
+							byte[] resultantCQ;
+							if (columnQualifier == null) {
+								final NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(
+										columnFamily);
+								if ((familyMap != null) && !familyMap.isEmpty()) {
+									resultantCQ = familyMap.firstKey();
 								}
-							}));
+								else {
+									resultantCQ = new byte[0];
+								}
+							}
+							else {
+								resultantCQ = columnQualifier;
+							}
+							return new GeoWaveMetadata(
+									result.getRow(),
+									resultantCQ,
+									null,
+									getMergedStats(
+											result,
+											clientsideStatsMerge));
+						}
+					});
+			if (rS instanceof ResultScanner) {
+				return new CloseableIteratorWrapper<>(
+						new ScannerClosableWrapper(
+								(ResultScanner) rS),
+						transformedIt);
+			}
+			else {
+				return new CloseableIterator.Wrapper<>(
+						transformedIt);
+			}
 
 		}
 		catch (final Exception e) {
@@ -124,6 +136,8 @@ public class HBaseMetadataReader implements
 			return result.value();
 		}
 
-		return PersistenceUtils.toBinary(HBaseUtils.getMergedStats(result.listCells()));
+		return PersistenceUtils.toBinary(
+				HBaseUtils.getMergedStats(
+						result.listCells()));
 	}
 }

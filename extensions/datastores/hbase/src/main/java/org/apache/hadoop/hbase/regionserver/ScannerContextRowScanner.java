@@ -44,9 +44,13 @@ public class ScannerContextRowScanner implements
 		if ((scannerContext == null) || done) {
 			return false;
 		}
-		return scannerContext.partialResultFormed();
+		return partialResultFormed();
 	}
 
+	private boolean partialResultFormed(){
+    return  scannerContext.scannerState == NextState.SIZE_LIMIT_REACHED_MID_ROW
+        ||  scannerContext.scannerState == NextState.TIME_LIMIT_REACHED_MID_ROW;
+	}
 	@Override
 	public List<Cell> nextCellsInRow()
 			throws IOException {

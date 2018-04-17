@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2017 Contributors to the Eclipse Foundation
- * 
+ *
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  * All rights reserved. This program and the accompanying materials
@@ -14,6 +14,7 @@ import org.apache.hadoop.hbase.HConstants;
 
 import com.beust.jcommander.Parameter;
 
+import mil.nga.giat.geowave.core.cli.VersionUtils;
 import mil.nga.giat.geowave.core.store.BaseDataStoreOptions;
 
 public class HBaseOptions extends
@@ -34,11 +35,38 @@ public class HBaseOptions extends
 	}, description = "Path (HDFS URL) to the jar containing coprocessor classes")
 	private String coprocessorJar;
 
+	public HBaseOptions() {
+		super();
+		setServerSideLibraryEnabled(isDefaultServerSide());
+	}
+
+	private static boolean isDefaultServerSide() {
+		final String buildArgs = (String) VersionUtils.getBuildProperties().get(
+				"project.build.args");
+		if ((buildArgs != null) && !buildArgs.isEmpty()) {
+			if (buildArgs.toLowerCase().contains(
+					"cdh")
+					|| buildArgs.toLowerCase().contains(
+							"hdp")
+					|| buildArgs.toLowerCase().contains(
+							"cloudera")
+					|| buildArgs.toLowerCase().contains(
+							"hortonworks")) {
+				// for now let's assume if its CDH or HDP it doesn't use
+				// server-side
+				// by default, because GeoWave serversideoperations is only
+				// available for hbase 1.4.x
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void setBigTable(
 			final boolean bigTable ) {
 		this.bigTable = bigTable;
 		if (bigTable) {
-			this.enableServerSideLibrary = false;
+			enableServerSideLibrary = false;
 		}
 	}
 
