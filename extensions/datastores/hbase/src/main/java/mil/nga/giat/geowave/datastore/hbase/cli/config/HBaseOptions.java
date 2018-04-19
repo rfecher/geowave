@@ -45,13 +45,10 @@ public class HBaseOptions extends
 				"project.build.args");
 		if ((buildArgs != null) && !buildArgs.isEmpty()) {
 			if (buildArgs.toLowerCase().contains(
-					"cdh")
-					|| buildArgs.toLowerCase().contains(
-							"hdp")
-					|| buildArgs.toLowerCase().contains(
-							"cloudera")
-					|| buildArgs.toLowerCase().contains(
-							"hortonworks")) {
+					"cdh") || buildArgs.toLowerCase().contains(
+					"hdp") || buildArgs.toLowerCase().contains(
+					"cloudera") || buildArgs.toLowerCase().contains(
+					"hortonworks")) {
 				// for now let's assume if its CDH or HDP it doesn't use
 				// server-side
 				// by default, because GeoWave serversideoperations is only

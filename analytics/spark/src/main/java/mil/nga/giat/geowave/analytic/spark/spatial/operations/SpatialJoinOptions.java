@@ -33,7 +33,7 @@ public class SpatialJoinOptions
 		"--leftAdapter"
 	}, description = "Feature type name (adapter ID) of left Store to use in join")
 	private String leftAdapterId = null;
-	
+
 	@Parameter(names = {
 		"-ol",
 		"--outLeftAdapter"
@@ -45,7 +45,7 @@ public class SpatialJoinOptions
 		"--rightAdapter"
 	}, description = "Feature type name (adapter ID) of right Store to use in join")
 	private String rightAdapterId = null;
-	
+
 	@Parameter(names = {
 		"-or",
 		"--outRightAdapter"
@@ -56,7 +56,7 @@ public class SpatialJoinOptions
 		"-p",
 		"--predicate"
 	}, description = "Name of the UDF function to use when performing Spatial Join")
-	private String predicate = "GeomIntersects";
+	private String preah, edicate = "GeomIntersects";
 
 	@Parameter(names = {
 		"-r",

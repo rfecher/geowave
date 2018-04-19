@@ -1,4 +1,4 @@
-package org.apache.hadoop.hbase.regionserver;
+package mil.nga.giat.geowave.datastore.hbase.server;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -8,9 +8,9 @@ import java.util.Map;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.regionserver.ScannerContext.NextState;
-
-import mil.nga.giat.geowave.datastore.hbase.server.RowScanner;
+import org.apache.hadoop.hbase.regionserver.InternalScanner;
+import org.apache.hadoop.hbase.regionserver.ScannerContext;
+import org.apache.hadoop.hbase.regionserver.ServerSideOperationsObserver;
 
 /**
  * this is required to be in org.apache.hadoop.hbase.regionserver because it
@@ -44,21 +44,16 @@ public class ScannerContextRowScanner implements
 		if ((scannerContext == null) || done) {
 			return false;
 		}
-		return partialResultFormed();
+		return ServerSideOperationsObserver.isPartialResultFormed(scannerContext);
 	}
 
-	private boolean partialResultFormed(){
-    return  scannerContext.scannerState == NextState.SIZE_LIMIT_REACHED_MID_ROW
-        ||  scannerContext.scannerState == NextState.TIME_LIMIT_REACHED_MID_ROW;
-	}
 	@Override
 	public List<Cell> nextCellsInRow()
 			throws IOException {
 		if (!isMidRow()) {
 			return Collections.EMPTY_LIST;
 		}
-		scannerContext.clearProgress();
-		scannerContext.setScannerState(NextState.MORE_VALUES);
+		ServerSideOperationsObserver.resetProgress(scannerContext);
 		done = !scanner.next(
 				cells,
 				scannerContext);

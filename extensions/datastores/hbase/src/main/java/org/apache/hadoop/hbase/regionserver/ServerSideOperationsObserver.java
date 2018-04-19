@@ -1,4 +1,4 @@
-package mil.nga.giat.geowave.datastore.hbase.coprocessors;
+package org.apache.hadoop.hbase.regionserver;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,10 +16,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
-import org.apache.hadoop.hbase.regionserver.InternalScanner;
-import org.apache.hadoop.hbase.regionserver.RegionScanner;
-import org.apache.hadoop.hbase.regionserver.ScanType;
-import org.apache.hadoop.hbase.regionserver.Store;
+import org.apache.hadoop.hbase.regionserver.ScannerContext.NextState;
 import org.apache.hadoop.hbase.regionserver.compactions.CompactionRequest;
 import org.apache.log4j.Logger;
 
@@ -33,6 +30,15 @@ import mil.nga.giat.geowave.datastore.hbase.server.ServerOpRegionScannerWrapper;
 import mil.nga.giat.geowave.datastore.hbase.server.ServerSideOperationStore;
 import mil.nga.giat.geowave.datastore.hbase.util.HBaseUtils;
 
+/**
+ * This is specifically in the or.apache.hadoop.hbase.regionserver package so
+ * that we can access a few package private methods within
+ * ScannerContextRowScanner also, it needs to be the coprocessor and not any of
+ * its dependent classes that is in this package due to CoprocessorClassLoader
+ * exclusion lists and it can be included within HBase 1.4.x using a specific
+ * inclusion rule (HBASE-15686)
+ *
+ */
 public class ServerSideOperationsObserver extends
 		BaseRegionObserver
 {
@@ -288,5 +294,17 @@ public class ServerSideOperationsObserver extends
 					optionsMap);
 		}
 		super.start(e);
+	}
+
+	public static boolean isPartialResultFormed(
+			final ScannerContext scannerContext ) {
+		return (scannerContext.scannerState == NextState.SIZE_LIMIT_REACHED_MID_ROW)
+				|| (scannerContext.scannerState == NextState.TIME_LIMIT_REACHED_MID_ROW);
+	}
+
+	public static void resetProgress(
+			final ScannerContext scannerContext ) {
+		scannerContext.clearProgress();
+		scannerContext.setScannerState(NextState.MORE_VALUES);
 	}
 }
