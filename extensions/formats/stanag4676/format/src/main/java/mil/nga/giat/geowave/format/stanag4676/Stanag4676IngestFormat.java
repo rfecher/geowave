@@ -10,6 +10,8 @@
  ******************************************************************************/
 package mil.nga.giat.geowave.format.stanag4676;
 
+import java.util.Map;
+
 import mil.nga.giat.geowave.core.ingest.avro.AvroFormatPlugin;
 import mil.nga.giat.geowave.core.ingest.avro.WholeFile;
 import mil.nga.giat.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
@@ -21,33 +23,54 @@ public class Stanag4676IngestFormat implements
 		IngestFormatPluginProviderSpi<WholeFile, Object>
 {
 	private static Stanag4676IngestPlugin singletonInstance;
+	private static Stanag4676IngestPlugin singletonInstanceNoImageChips;
+
+	private static Stanag4676IngestPlugin getSingletonInstance(
+			IngestFormatOptionProvider options ) {
+		if (options instanceof Stanag4676Options && ((Stanag4676Options) options).isDisableImageChips()) {
+			return getSingletonInstanceNoImageChips();
+		}
+		else {
+			return getSingletonInstance();
+		}
+	}
 
 	private static synchronized Stanag4676IngestPlugin getSingletonInstance() {
 		if (singletonInstance == null) {
-			singletonInstance = new Stanag4676IngestPlugin();
+			singletonInstance = new Stanag4676IngestPlugin(
+					false);
 		}
 		return singletonInstance;
+	}
+
+	private static synchronized Stanag4676IngestPlugin getSingletonInstanceNoImageChips() {
+		if (singletonInstanceNoImageChips == null) {
+			singletonInstanceNoImageChips = new Stanag4676IngestPlugin(
+					true);
+		}
+		return singletonInstanceNoImageChips;
+
 	}
 
 	@Override
 	public AvroFormatPlugin<WholeFile, Object> createAvroFormatPlugin(
 			IngestFormatOptionProvider options )
 			throws UnsupportedOperationException {
-		return getSingletonInstance();
+		return getSingletonInstance(options);
 	}
 
 	@Override
 	public IngestFromHdfsPlugin<WholeFile, Object> createIngestFromHdfsPlugin(
 			IngestFormatOptionProvider options )
 			throws UnsupportedOperationException {
-		return getSingletonInstance();
+		return getSingletonInstance(options);
 	}
 
 	@Override
 	public LocalFileIngestPlugin<Object> createLocalFileIngestPlugin(
 			IngestFormatOptionProvider options )
 			throws UnsupportedOperationException {
-		return getSingletonInstance();
+		return getSingletonInstance(options);
 	}
 
 	@Override
@@ -62,8 +85,7 @@ public class Stanag4676IngestFormat implements
 
 	@Override
 	public IngestFormatOptionProvider createOptionsInstances() {
-		// for now don't support filtering
-		return null;
+		return new Stanag4676Options();
 	}
 
 }

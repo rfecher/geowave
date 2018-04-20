@@ -89,8 +89,17 @@ public class Stanag4676IngestPlugin extends
 		};
 	}
 
+	private boolean disableImageChips = false;
+
 	public Stanag4676IngestPlugin() {
+		this(
+				false);
+	}
+
+	public Stanag4676IngestPlugin(
+			boolean disableImageChips ) {
 		super();
+		this.disableImageChips = disableImageChips;
 	}
 
 	@Override
@@ -168,7 +177,15 @@ public class Stanag4676IngestPlugin extends
 
 		private final SimpleFeatureType missionFrameType;
 
+		private boolean disableImageChips;
+
 		public IngestWithReducerImpl() {
+			this(
+					false);
+		}
+
+		public IngestWithReducerImpl(
+				boolean disableImageChips ) {
 			pointType = Stanag4676Utils.createPointDataType();
 
 			motionPointType = Stanag4676Utils.createMotionDataType();
@@ -193,6 +210,7 @@ public class Stanag4676IngestPlugin extends
 
 			missionFrameBuilder = new SimpleFeatureBuilder(
 					missionFrameType);
+			this.disableImageChips = disableImageChips;
 		}
 
 		@Override
@@ -209,36 +227,61 @@ public class Stanag4676IngestPlugin extends
 			final FieldVisibilityHandler fieldVisiblityHandler = ((globalVisibility != null) && !globalVisibility
 					.isEmpty()) ? new GlobalVisibilityHandler(
 					globalVisibility) : null;
+			if (disableImageChips) {
 
-			return new WritableDataAdapter[] {
-				new FeatureDataAdapter(
-						pointType,
-						fieldVisiblityHandler),
-				new FeatureDataAdapter(
-						motionPointType,
-						fieldVisiblityHandler),
-				new FeatureDataAdapter(
-						trackType,
-						fieldVisiblityHandler),
-				new FeatureDataAdapter(
-						missionSummaryType,
-						fieldVisiblityHandler),
-				new FeatureDataAdapter(
-						missionFrameType,
-						fieldVisiblityHandler),
-				new ImageChipDataAdapter(
-						fieldVisiblityHandler)
-			};
+				return new WritableDataAdapter[] {
+					new FeatureDataAdapter(
+							pointType,
+							fieldVisiblityHandler),
+					new FeatureDataAdapter(
+							motionPointType,
+							fieldVisiblityHandler),
+					new FeatureDataAdapter(
+							trackType,
+							fieldVisiblityHandler),
+					new FeatureDataAdapter(
+							missionSummaryType,
+							fieldVisiblityHandler),
+					new FeatureDataAdapter(
+							missionFrameType,
+							fieldVisiblityHandler)
+				};
+			}
+			else {
+				return new WritableDataAdapter[] {
+					new FeatureDataAdapter(
+							pointType,
+							fieldVisiblityHandler),
+					new FeatureDataAdapter(
+							motionPointType,
+							fieldVisiblityHandler),
+					new FeatureDataAdapter(
+							trackType,
+							fieldVisiblityHandler),
+					new FeatureDataAdapter(
+							missionSummaryType,
+							fieldVisiblityHandler),
+					new FeatureDataAdapter(
+							missionFrameType,
+							fieldVisiblityHandler),
+					new ImageChipDataAdapter(
+							fieldVisiblityHandler)
+				};
+			}
 		}
 
 		@Override
 		public byte[] toBinary() {
-			return new byte[] {};
+			return new byte[] {
+				disableImageChips ? (byte) 1 : (byte) 0
+			};
 		}
 
 		@Override
 		public void fromBinary(
-				final byte[] bytes ) {}
+				final byte[] bytes ) {
+			disableImageChips = bytes[0] > 0;
+		}
 
 		@Override
 		public CloseableIterator<KeyValueData<Text, Stanag4676EventWritable>> toIntermediateMapReduceData(
@@ -526,7 +569,7 @@ public class Stanag4676IngestPlugin extends
 							primaryIndexIds,
 							missionSummaryBuilder.buildFeature(UUID.randomUUID().toString())));
 				}
-				if (event.Image != null) {
+				if (!disableImageChips && event.Image != null) {
 					final byte[] imageBytes = event.Image.getBytes();
 					if ((imageBytes != null) && (imageBytes.length > 0)) {
 						geowaveData.add(new GeoWaveData(
@@ -678,9 +721,14 @@ public class Stanag4676IngestPlugin extends
 
 	@Override
 	public PrimaryIndex[] getRequiredIndices() {
-		return new PrimaryIndex[] {
-			IMAGE_CHIP_INDEX
-		};
+		if (disableImageChips) {
+			return new PrimaryIndex[] {};
+		}
+		else {
+			return new PrimaryIndex[] {
+				IMAGE_CHIP_INDEX
+			};
+		}
 	}
 
 	@Override
