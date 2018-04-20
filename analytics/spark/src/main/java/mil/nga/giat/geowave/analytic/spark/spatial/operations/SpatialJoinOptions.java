@@ -56,7 +56,7 @@ public class SpatialJoinOptions
 		"-p",
 		"--predicate"
 	}, description = "Name of the UDF function to use when performing Spatial Join")
-	private String preah, edicate = "GeomIntersects";
+	private String predicate = "GeomIntersects";
 
 	@Parameter(names = {
 		"-r",
