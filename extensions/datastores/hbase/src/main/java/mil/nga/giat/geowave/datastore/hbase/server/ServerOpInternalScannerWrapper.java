@@ -8,7 +8,6 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
-import org.apache.hadoop.hbase.regionserver.ScannerContextRowScanner;
 
 import mil.nga.giat.geowave.datastore.hbase.coprocessors.ServerSideOperationsObserver;
 
@@ -51,11 +50,6 @@ public class ServerOpInternalScannerWrapper implements
 			final List<Cell> rowCells,
 			final ScannerContext scannerContext )
 			throws IOException {
-		if (!ServerSideOperationsObserver.scannerContextRowScannerLoaded) {
-			// TODO need to inject at a higher level
-			// NoLimitScannerContext.getInstance()
-			return internalNextRow(rowCells);
-		}
 		return internalNextRow(new ScannerContextRowScanner(
 				delegate,
 				rowCells,

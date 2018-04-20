@@ -46,8 +46,7 @@ public class BigTableOperations extends
 	public RegionLocator getRegionLocator(
 			final String tableName )
 			throws IOException {
-		final BigtableRegionLocator regionLocator = (BigtableRegionLocator) super.getRegionLocator(
-				tableName);
+		final BigtableRegionLocator regionLocator = (BigtableRegionLocator) super.getRegionLocator(tableName);
 
 		if (regionLocator != null) {
 			// Force region update
@@ -74,18 +73,15 @@ public class BigTableOperations extends
 			throws IOException {
 
 		// Check the local cache
-		boolean tableAvailable = tableCache.contains(
-				tableName);
+		boolean tableAvailable = tableCache.contains(tableName);
 
 		// No local cache. Check the server and update cache
 		if (!tableAvailable) {
-			if (indexExists(
-					new ByteArrayId(
-							tableName))) {
+			if (indexExists(new ByteArrayId(
+					tableName))) {
 				tableAvailable = true;
 
-				tableCache.add(
-						tableName);
+				tableCache.add(tableName);
 			}
 		}
 
