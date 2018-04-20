@@ -125,6 +125,7 @@ public class HBaseOperations implements
 	private final static Map<String, String> SERVER_OP_CONFIG = Collections.singletonMap(
 			"hbase.coprocessor.classloader.included.classes",
 			ServerSideOperationsObserver.class.getName());
+
 	private boolean iteratorsAttached;
 	protected static final String DEFAULT_TABLE_NAMESPACE = "";
 	public static final Object ADMIN_MUTEX = new Object();
@@ -677,6 +678,12 @@ public class HBaseOperations implements
 									hdfsJarPath,
 									Coprocessor.PRIORITY_USER,
 									extraConfig);
+							// this is because the sanity check does not use
+							// "hbase.coprocessor.classloader.included.classes"
+							// for some reason, so it needs to be disabled
+							td.setConfiguration(
+									"hbase.table.sanity.checks",
+									"false");
 						}
 						LOGGER.debug("- modify table...");
 						admin.modifyTable(

@@ -25,8 +25,9 @@ import com.google.common.collect.ImmutableSet;
 import mil.nga.giat.geowave.core.index.ByteArrayUtils;
 import mil.nga.giat.geowave.core.store.server.ServerOpConfig.ServerOpScope;
 import mil.nga.giat.geowave.datastore.hbase.server.HBaseServerOp;
-import mil.nga.giat.geowave.datastore.hbase.server.ServerOpInternalScannerWrapper;
-import mil.nga.giat.geowave.datastore.hbase.server.ServerOpRegionScannerWrapper;
+import mil.nga.giat.geowave.datastore.hbase.server.ScannerWrapperFactory;
+import mil.nga.giat.geowave.datastore.hbase.server.ScannerWrapperFactory.InternalScannerWrapperFactory;
+import mil.nga.giat.geowave.datastore.hbase.server.ScannerWrapperFactory.RegionScannerWrapperFactory;
 import mil.nga.giat.geowave.datastore.hbase.server.ServerSideOperationStore;
 import mil.nga.giat.geowave.datastore.hbase.util.HBaseUtils;
 
@@ -37,6 +38,12 @@ import mil.nga.giat.geowave.datastore.hbase.util.HBaseUtils;
  * its dependent classes that is in this package due to CoprocessorClassLoader
  * exclusion lists and it can be included within HBase 1.4.x using a specific
  * inclusion rule (HBASE-15686)
+ * 
+ * However, for the inclusion list to work, table sanity checks need to be
+ * disabled (because sanity checks for some reason do not use the inclusion
+ * list), and this class cannot have any internal classes (the only class that
+ * will be loaded with the inclusion list is the coprocessor).
+ * 
  *
  */
 public class ServerSideOperationsObserver extends
@@ -51,48 +58,9 @@ public class ServerSideOperationsObserver extends
 	private static final int SERVER_OP_OPTIONS_PREFIX_LENGTH = SERVER_OP_OPTIONS_PREFIX.length();
 
 	private ServerSideOperationStore opStore = null;
+
 	private static final RegionScannerWrapperFactory REGION_SCANNER_FACTORY = new RegionScannerWrapperFactory();
 	private static final InternalScannerWrapperFactory INTERNAL_SCANNER_FACTORY = new InternalScannerWrapperFactory();
-
-	private static interface ScannerWrapperFactory<T extends InternalScanner>
-	{
-		public T createScannerWrapper(
-				Collection<HBaseServerOp> orderedServerOps,
-				T delegate,
-				Scan scan );
-	}
-
-	private static class RegionScannerWrapperFactory implements
-			ScannerWrapperFactory<RegionScanner>
-	{
-
-		@Override
-		public RegionScanner createScannerWrapper(
-				final Collection<HBaseServerOp> orderedServerOps,
-				final RegionScanner delegate,
-				final Scan scan ) {
-			return new ServerOpRegionScannerWrapper(
-					orderedServerOps,
-					delegate,
-					scan);
-		}
-	}
-
-	private static class InternalScannerWrapperFactory implements
-			ScannerWrapperFactory<InternalScanner>
-	{
-
-		@Override
-		public InternalScanner createScannerWrapper(
-				final Collection<HBaseServerOp> orderedServerOps,
-				final InternalScanner delegate,
-				final Scan scan ) {
-			return new ServerOpInternalScannerWrapper(
-					orderedServerOps,
-					delegate,
-					scan);
-		}
-	}
 
 	@Override
 	public InternalScanner preFlush(
