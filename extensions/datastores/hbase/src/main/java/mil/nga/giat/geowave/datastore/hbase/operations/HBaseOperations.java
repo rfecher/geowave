@@ -10,12 +10,10 @@
  ******************************************************************************/
 package mil.nga.giat.geowave.datastore.hbase.operations;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,7 +52,6 @@ import org.apache.hadoop.hbase.client.coprocessor.Batch;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter.RowRange;
 import org.apache.hadoop.hbase.ipc.BlockingRpcCallback;
-import org.apache.hadoop.hbase.regionserver.ScannerContextRowScanner;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,20 +117,12 @@ public class HBaseOperations implements
 		MapReduceDataStoreOperations,
 		ServerSideOperations
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(
-			HBaseOperations.class);
-	// hbase.coprocessor.classloader.included.classes can be replaced by
-	// HConstants.CP_HTD_ATTR_INCLUSION_KEY when we are always compiling again
-	// 1.4.x (hdp and cdh default versions)
-	private final static Map<String, String> SERVER_OP_CONFIG = Collections.singletonMap(
-			"hbase.coprocessor.classloader.included.classes",
-			ScannerContextRowScanner.class.getName());
+	private final static Logger LOGGER = LoggerFactory.getLogger(HBaseOperations.class);
 	private boolean iteratorsAttached;
 	protected static final String DEFAULT_TABLE_NAMESPACE = "";
 	public static final Object ADMIN_MUTEX = new Object();
 	private static final long SLEEP_INTERVAL = HConstants.DEFAULT_HBASE_SERVER_PAUSE;
-	private static final String SPLIT_STRING = Pattern.quote(
-			".");
+	private static final String SPLIT_STRING = Pattern.quote(".");
 
 	protected final Connection conn;
 
@@ -236,9 +225,7 @@ public class HBaseOperations implements
 
 	public TableName getTableName(
 			final String tableName ) {
-		return TableName.valueOf(
-				getQualifiedTableName(
-						tableName));
+		return TableName.valueOf(getQualifiedTableName(tableName));
 	}
 
 	public HBaseWriter createWriter(
@@ -259,8 +246,7 @@ public class HBaseOperations implements
 			final boolean createTable,
 			final Set<ByteArrayId> splits )
 			throws IOException {
-		final TableName tableName = getTableName(
-				sTableName);
+		final TableName tableName = getTableName(sTableName);
 
 		if (createTable) {
 			createTable(
@@ -276,8 +262,7 @@ public class HBaseOperations implements
 				true);
 
 		return new HBaseWriter(
-				getBufferedMutator(
-						tableName),
+				getBufferedMutator(tableName),
 				this,
 				sTableName);
 	}
@@ -288,8 +273,7 @@ public class HBaseOperations implements
 			throws IOException {
 		synchronized (ADMIN_MUTEX) {
 			try (Admin admin = conn.getAdmin()) {
-				if (!admin.isTableAvailable(
-						tableName)) {
+				if (!admin.isTableAvailable(tableName)) {
 					final HTableDescriptor desc = new HTableDescriptor(
 							tableName);
 
@@ -299,14 +283,11 @@ public class HBaseOperations implements
 						final HColumnDescriptor column = new HColumnDescriptor(
 								columnFamilyAndVersioning.getLeft());
 						if (!columnFamilyAndVersioning.getRight()) {
-							column.setMaxVersions(
-									Integer.MAX_VALUE);
+							column.setMaxVersions(Integer.MAX_VALUE);
 						}
-						desc.addFamily(
-								column);
+						desc.addFamily(column);
 
-						cfSet.add(
-								columnFamilyAndVersioning.getLeft());
+						cfSet.add(columnFamilyAndVersioning.getLeft());
 					}
 
 					cfCache.put(
@@ -314,8 +295,7 @@ public class HBaseOperations implements
 							cfSet);
 
 					try {
-						admin.createTable(
-								desc);
+						admin.createTable(desc);
 					}
 					catch (final Exception e) {
 						// We can ignore TableExists on create
@@ -351,8 +331,7 @@ public class HBaseOperations implements
 			final boolean enableVersioning,
 			final String tableNameStr,
 			final boolean addIfNotExist ) {
-		final TableName tableName = getTableName(
-				tableNameStr);
+		final TableName tableName = getTableName(tableNameStr);
 
 		final String[] columnFamilies = new String[1];
 		columnFamilies[0] = columnFamily;
@@ -380,8 +359,7 @@ public class HBaseOperations implements
 			final boolean addIfNotExist )
 			throws IOException {
 		// Check the cache first and create the update list
-		Set<String> cfCacheSet = cfCache.get(
-				tableName);
+		Set<String> cfCacheSet = cfCache.get(tableName);
 
 		if (cfCacheSet == null) {
 			cfCacheSet = new HashSet<>();
@@ -392,10 +370,8 @@ public class HBaseOperations implements
 
 		final HashSet<String> newCFs = new HashSet<>();
 		for (final String columnFamily : columnFamilies) {
-			if (!cfCacheSet.contains(
-					columnFamily)) {
-				newCFs.add(
-						columnFamily);
+			if (!cfCacheSet.contains(columnFamily)) {
+				newCFs.add(columnFamily);
 			}
 		}
 		// Nothing to add
@@ -407,20 +383,15 @@ public class HBaseOperations implements
 		final List<String> newColumnFamilies = new ArrayList<>();
 		synchronized (ADMIN_MUTEX) {
 			try (Admin admin = conn.getAdmin()) {
-				if (admin.isTableAvailable(
-						tableName)) {
-					final HTableDescriptor existingTableDescriptor = admin.getTableDescriptor(
-							tableName);
+				if (admin.isTableAvailable(tableName)) {
+					final HTableDescriptor existingTableDescriptor = admin.getTableDescriptor(tableName);
 					final HColumnDescriptor[] existingColumnDescriptors = existingTableDescriptor.getColumnFamilies();
 					for (final HColumnDescriptor hColumnDescriptor : existingColumnDescriptors) {
-						existingColumnFamilies.add(
-								hColumnDescriptor.getNameAsString());
+						existingColumnFamilies.add(hColumnDescriptor.getNameAsString());
 					}
 					for (final String columnFamily : newCFs) {
-						if (!existingColumnFamilies.contains(
-								columnFamily)) {
-							newColumnFamilies.add(
-									columnFamily);
+						if (!existingColumnFamilies.contains(columnFamily)) {
+							newColumnFamilies.add(columnFamily);
 						}
 					}
 
@@ -428,24 +399,20 @@ public class HBaseOperations implements
 						if (!addIfNotExist) {
 							return false;
 						}
-						admin.disableTable(
-								tableName);
+						admin.disableTable(tableName);
 						for (final String newColumnFamily : newColumnFamilies) {
 							final HColumnDescriptor column = new HColumnDescriptor(
 									newColumnFamily);
 							if (!enableVersioning) {
-								column.setMaxVersions(
-										Integer.MAX_VALUE);
+								column.setMaxVersions(Integer.MAX_VALUE);
 							}
 							admin.addColumn(
 									tableName,
 									column);
-							cfCacheSet.add(
-									newColumnFamily);
+							cfCacheSet.add(newColumnFamily);
 						}
 
-						admin.enableTable(
-								tableName);
+						admin.enableTable(tableName);
 						waitForUpdate(
 								admin,
 								tableName,
@@ -469,8 +436,7 @@ public class HBaseOperations implements
 			while (admin.getAlterStatus(
 					tableName).getFirst() > 0) {
 
-				Thread.sleep(
-						sleepTimeMs);
+				Thread.sleep(sleepTimeMs);
 			}
 		}
 		catch (final Exception e) {
@@ -496,12 +462,9 @@ public class HBaseOperations implements
 				if ((tableNamespace == null) || tableName.getNameAsString().startsWith(
 						tableNamespace)) {
 					synchronized (ADMIN_MUTEX) {
-						if (admin.isTableAvailable(
-								tableName)) {
-							admin.disableTable(
-									tableName);
-							admin.deleteTable(
-									tableName);
+						if (admin.isTableAvailable(tableName)) {
+							admin.disableTable(tableName);
+							admin.deleteTable(tableName);
 						}
 					}
 				}
@@ -525,8 +488,7 @@ public class HBaseOperations implements
 		if ((tableNamespace == null) || tableNamespace.isEmpty()) {
 			return name;
 		}
-		return name.substring(
-				tableNamespace.length() + 1);
+		return name.substring(tableNamespace.length() + 1);
 	}
 
 	public boolean isRowMergingEnabled(
@@ -536,8 +498,8 @@ public class HBaseOperations implements
 				RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID,
 				tableNamespace,
 				HBaseStoreFactoryFamily.TYPE).add(
-						adapterId,
-						indexId);
+				adapterId,
+				indexId);
 	}
 
 	@Override
@@ -555,37 +517,32 @@ public class HBaseOperations implements
 			PrimaryIndex index = null;
 			try (final CloseableIterator<GeoWaveMetadata> it = createMetadataReader(
 					MetadataType.ADAPTER).query(
-							new MetadataQuery(
-									adapterId.getBytes(),
-									null,
-									additionalAuthorizations))) {
+					new MetadataQuery(
+							adapterId.getBytes(),
+							null,
+							additionalAuthorizations))) {
 				if (!it.hasNext()) {
-					LOGGER.warn(
-							"Unable to find adapter to delete");
+					LOGGER.warn("Unable to find adapter to delete");
 					return false;
 				}
 				final GeoWaveMetadata adapterMd = it.next();
-				adapter = (DataAdapter<?>) PersistenceUtils.fromBinary(
-						adapterMd.getValue());
+				adapter = (DataAdapter<?>) PersistenceUtils.fromBinary(adapterMd.getValue());
 			}
 			try (final CloseableIterator<GeoWaveMetadata> it = createMetadataReader(
 					MetadataType.INDEX).query(
-							new MetadataQuery(
-									indexId.getBytes(),
-									null,
-									additionalAuthorizations))) {
+					new MetadataQuery(
+							indexId.getBytes(),
+							null,
+							additionalAuthorizations))) {
 				if (!it.hasNext()) {
-					LOGGER.warn(
-							"Unable to find index to delete");
+					LOGGER.warn("Unable to find index to delete");
 					return false;
 				}
 				final GeoWaveMetadata indexMd = it.next();
-				index = (PrimaryIndex) PersistenceUtils.fromBinary(
-						indexMd.getValue());
+				index = (PrimaryIndex) PersistenceUtils.fromBinary(indexMd.getValue());
 			}
 			final Scan scan = new Scan();
-			scan.addFamily(
-					adapterId.getBytes());
+			scan.addFamily(adapterId.getBytes());
 			scanner = getScannedResults(
 					scan,
 					indexId.getString(),
@@ -628,17 +585,13 @@ public class HBaseOperations implements
 			final String... authorizations )
 			throws IOException {
 		if ((authorizations != null) && (authorizations.length > 0)) {
-			scanner.setAuthorizations(
-					new Authorizations(
-							authorizations));
+			scanner.setAuthorizations(new Authorizations(
+					authorizations));
 		}
 
-		final Table table = conn.getTable(
-				getTableName(
-						tableName));
+		final Table table = conn.getTable(getTableName(tableName));
 
-		final ResultScanner results = table.getScanner(
-				scanner);
+		final ResultScanner results = table.getScanner(scanner);
 
 		table.close();
 
@@ -648,31 +601,24 @@ public class HBaseOperations implements
 	public RegionLocator getRegionLocator(
 			final String tableName )
 			throws IOException {
-		return conn.getRegionLocator(
-				getTableName(
-						tableName));
+		return conn.getRegionLocator(getTableName(tableName));
 	}
 
 	public Table getTable(
 			final String tableName )
 			throws IOException {
-		return conn.getTable(
-				getTableName(
-						tableName));
+		return conn.getTable(getTableName(tableName));
 	}
 
 	public boolean verifyCoprocessor(
 			final String tableNameStr,
 			final String coprocessorName,
-			final String coprocessorJar,
-			Map<String, String> extraConfig ) {
+			final String coprocessorJar ) {
 		try {
 			// Check the cache first
-			final List<String> checkList = coprocessorCache.get(
-					tableNameStr);
+			final List<String> checkList = coprocessorCache.get(tableNameStr);
 			if (checkList != null) {
-				if (checkList.contains(
-						coprocessorName)) {
+				if (checkList.contains(coprocessorName)) {
 					return true;
 				}
 			}
@@ -684,23 +630,16 @@ public class HBaseOperations implements
 
 			synchronized (ADMIN_MUTEX) {
 				try (Admin admin = conn.getAdmin()) {
-					final TableName tableName = getTableName(
-							tableNameStr);
-					final HTableDescriptor td = admin.getTableDescriptor(
-							tableName);
+					final TableName tableName = getTableName(tableNameStr);
+					final HTableDescriptor td = admin.getTableDescriptor(tableName);
 
-					if (!td.hasCoprocessor(
-							coprocessorName)) {
-						LOGGER.debug(
-								tableNameStr + " does not have coprocessor. Adding " + coprocessorName);
+					if (!td.hasCoprocessor(coprocessorName)) {
+						LOGGER.debug(tableNameStr + " does not have coprocessor. Adding " + coprocessorName);
 
-						LOGGER.debug(
-								"- disable table...");
-						admin.disableTable(
-								tableName);
+						LOGGER.debug("- disable table...");
+						admin.disableTable(tableName);
 
-						LOGGER.debug(
-								"- add coprocessor...");
+						LOGGER.debug("- add coprocessor...");
 
 						// Retrieve coprocessor jar path from config
 						Path hdfsJarPath = null;
@@ -720,12 +659,10 @@ public class HBaseOperations implements
 						}
 
 						if (hdfsJarPath == null) {
-							td.addCoprocessor(
-									coprocessorName);
+							td.addCoprocessor(coprocessorName);
 						}
 						else {
-							LOGGER.debug(
-									"Coprocessor jar path: " + hdfsJarPath.toString());
+							LOGGER.debug("Coprocessor jar path: " + hdfsJarPath.toString());
 
 							td.addCoprocessor(
 									coprocessorName,
@@ -733,16 +670,13 @@ public class HBaseOperations implements
 									Coprocessor.PRIORITY_USER,
 									null);
 						}
-						LOGGER.debug(
-								"- modify table...");
+						LOGGER.debug("- modify table...");
 						admin.modifyTable(
 								tableName,
 								td);
 
-						LOGGER.debug(
-								"- enable table...");
-						admin.enableTable(
-								tableName);
+						LOGGER.debug("- enable table...");
+						admin.enableTable(tableName);
 
 						waitForUpdate(
 								admin,
@@ -750,16 +684,15 @@ public class HBaseOperations implements
 								SLEEP_INTERVAL);
 					}
 
-					LOGGER.debug(
-							"Successfully added coprocessor");
+					LOGGER.debug("Successfully added coprocessor");
 
 					coprocessorCache.get(
 							tableNameStr).add(
-									coprocessorName);
+							coprocessorName);
 
 					coprocessorCache.get(
 							tableNameStr).add(
-									coprocessorName);
+							coprocessorName);
 				}
 			}
 		}
@@ -782,22 +715,18 @@ public class HBaseOperations implements
 		final File f = new File(
 				"/etc/hbase/conf/hbase-site.xml");
 		if (f.exists()) {
-			conf.addResource(
-					f.toURI().toURL());
+			conf.addResource(f.toURI().toURL());
 		}
-		final String remotePath = conf.get(
-				"hbase.dynamic.jars.dir");
+		final String remotePath = conf.get("hbase.dynamic.jars.dir");
 		if (remotePath == null) {
 			return null;
 		}
 		final Path remoteDir = new Path(
 				remotePath);
 
-		final FileSystem remoteDirFs = remoteDir.getFileSystem(
-				conf);
+		final FileSystem remoteDirFs = remoteDir.getFileSystem(conf);
 
-		final FileStatus[] statuses = remoteDirFs.listStatus(
-				remoteDir);
+		final FileStatus[] statuses = remoteDirFs.listStatus(remoteDir);
 		if ((statuses == null) || (statuses.length == 0)) {
 			return null; // no remote files at all
 		}
@@ -809,14 +738,9 @@ public class HBaseOperations implements
 			final Path path = status.getPath();
 			final String fileName = path.getName();
 
-			if (fileName.endsWith(
-					".jar")) {
-				if (fileName.contains(
-						"geowave")
-						&& fileName.contains(
-								"hbase")) {
-					LOGGER.info(
-							"inferring " + status.getPath().toString() + " as the library for this coprocesor");
+			if (fileName.endsWith(".jar")) {
+				if (fileName.contains("geowave") && fileName.contains("hbase")) {
+					LOGGER.info("inferring " + status.getPath().toString() + " as the library for this coprocesor");
 					// this is the best guess at the right jar if there are
 					// multiple
 					return status.getPath();
@@ -825,8 +749,7 @@ public class HBaseOperations implements
 			}
 		}
 		if (retVal != null) {
-			LOGGER.info(
-					"inferring " + retVal.toString() + " as the library for this coprocesor");
+			LOGGER.info("inferring " + retVal.toString() + " as the library for this coprocesor");
 		}
 		return retVal;
 	}
@@ -837,9 +760,7 @@ public class HBaseOperations implements
 			throws IOException {
 		synchronized (ADMIN_MUTEX) {
 			try (Admin admin = conn.getAdmin()) {
-				return admin.isTableAvailable(
-						getTableName(
-								indexId.getString()));
+				return admin.isTableAvailable(getTableName(indexId.getString()));
 			}
 		}
 	}
@@ -857,8 +778,7 @@ public class HBaseOperations implements
 		// but we can consider blocking and waiting for completion
 		try {
 			conn.getAdmin().compact(
-					getTableName(
-							index.getId().getString()));
+					getTableName(index.getId().getString()));
 		}
 		catch (final IOException e) {
 			LOGGER.error(
@@ -872,23 +792,19 @@ public class HBaseOperations implements
 	public void insurePartition(
 			final ByteArrayId partition,
 			final String tableNameStr ) {
-		final TableName tableName = getTableName(
-				tableNameStr);
-		Set<ByteArrayId> existingPartitions = partitionCache.get(
-				tableName);
+		final TableName tableName = getTableName(tableNameStr);
+		Set<ByteArrayId> existingPartitions = partitionCache.get(tableName);
 
 		try {
 			synchronized (partitionCache) {
 				if (existingPartitions == null) {
-					try (RegionLocator regionLocator = getRegionLocator(
-							tableNameStr)) {
+					try (RegionLocator regionLocator = getRegionLocator(tableNameStr)) {
 						existingPartitions = new HashSet<>();
 
 						for (final byte[] startKey : regionLocator.getStartKeys()) {
 							if (startKey.length > 0) {
-								existingPartitions.add(
-										new ByteArrayId(
-												startKey));
+								existingPartitions.add(new ByteArrayId(
+										startKey));
 							}
 						}
 					}
@@ -898,13 +814,10 @@ public class HBaseOperations implements
 							existingPartitions);
 				}
 
-				if (!existingPartitions.contains(
-						partition)) {
-					existingPartitions.add(
-							partition);
+				if (!existingPartitions.contains(partition)) {
+					existingPartitions.add(partition);
 
-					LOGGER.debug(
-							"> Splitting: " + partition.getHexString());
+					LOGGER.debug("> Splitting: " + partition.getHexString());
 
 					try (Admin admin = conn.getAdmin()) {
 						admin.split(
@@ -917,14 +830,12 @@ public class HBaseOperations implements
 						// 100L);
 					}
 
-					LOGGER.debug(
-							"> Split complete: " + partition.getHexString());
+					LOGGER.debug("> Split complete: " + partition.getHexString());
 				}
 			}
 		}
 		catch (final IOException e) {
-			LOGGER.error(
-					"Error accessing region info: " + e.getMessage());
+			LOGGER.error("Error accessing region info: " + e.getMessage());
 		}
 	}
 
@@ -941,16 +852,14 @@ public class HBaseOperations implements
 		verifyCoprocessor(
 				indexId.getString(),
 				ServerSideOperationsObserver.class.getName(),
-				options.getCoprocessorJar(),
-				SERVER_OP_CONFIG);
+				options.getCoprocessorJar());
 	}
 
 	public void createTable(
 			final ByteArrayId indexId,
 			final boolean enableVersioning,
 			final ByteArrayId adapterId ) {
-		final TableName tableName = getTableName(
-				indexId.getString());
+		final TableName tableName = getTableName(indexId.getString());
 
 		final String[] columnFamilies = new String[1];
 		columnFamilies[0] = adapterId.getString();
@@ -971,8 +880,7 @@ public class HBaseOperations implements
 	public Writer createWriter(
 			final ByteArrayId indexId,
 			final ByteArrayId adapterId ) {
-		final TableName tableName = getTableName(
-				indexId.getString());
+		final TableName tableName = getTableName(indexId.getString());
 		try {
 			final String[] columnFamilies = new String[1];
 			columnFamilies[0] = adapterId.getString();
@@ -991,8 +899,7 @@ public class HBaseOperations implements
 					true);
 
 			return new HBaseWriter(
-					getBufferedMutator(
-							tableName),
+					getBufferedMutator(tableName),
 					this,
 					indexId.getString());
 		}
@@ -1013,25 +920,22 @@ public class HBaseOperations implements
 	@Override
 	public MetadataWriter createMetadataWriter(
 			final MetadataType metadataType ) {
-		final TableName tableName = getTableName(
-				AbstractGeoWavePersistence.METADATA_TABLE);
+		final TableName tableName = getTableName(AbstractGeoWavePersistence.METADATA_TABLE);
 		try {
 			if (options.isCreateTable()) {
 				createTable(
 						METADATA_CFS_VERSIONING,
 						tableName);
 			}
-			if (MetadataType.STATS.equals(
-					metadataType) && options.isServerSideLibraryEnabled()) {
+			if (MetadataType.STATS.equals(metadataType) && options.isServerSideLibraryEnabled()) {
 				synchronized (this) {
 					if (!iteratorsAttached) {
 						iteratorsAttached = true;
 
 						final BasicOptionProvider optionProvider = new BasicOptionProvider(
 								new HashMap<>());
-						ensureServerSideOperationsObserverAttached(
-								new ByteArrayId(
-										AbstractGeoWavePersistence.METADATA_TABLE));
+						ensureServerSideOperationsObserverAttached(new ByteArrayId(
+								AbstractGeoWavePersistence.METADATA_TABLE));
 						ServerOpHelper.addServerSideMerging(
 								this,
 								DataStatisticsStoreImpl.STATISTICS_COMBINER_NAME,
@@ -1044,8 +948,7 @@ public class HBaseOperations implements
 				}
 			}
 			return new HBaseMetadataWriter(
-					getBufferedMutator(
-							tableName),
+					getBufferedMutator(tableName),
 					metadataType);
 		}
 		catch (final IOException e) {
@@ -1097,12 +1000,10 @@ public class HBaseOperations implements
 			final ByteArrayId indexId,
 			final String... authorizations )
 			throws Exception {
-		final TableName tableName = getTableName(
-				indexId.getString());
+		final TableName tableName = getTableName(indexId.getString());
 
 		return new HBaseDeleter(
-				getBufferedMutator(
-						tableName));
+				getBufferedMutator(tableName));
 	}
 
 	public BufferedMutator getBufferedMutator(
@@ -1111,8 +1012,7 @@ public class HBaseOperations implements
 		final BufferedMutatorParams params = new BufferedMutatorParams(
 				tableName);
 
-		return conn.getBufferedMutator(
-				params);
+		return conn.getBufferedMutator(params);
 	}
 
 	public MultiRowRangeFilter getMultiRowRangeFilter(
@@ -1120,12 +1020,11 @@ public class HBaseOperations implements
 		// create the multi-row filter
 		final List<RowRange> rowRanges = new ArrayList<RowRange>();
 		if ((ranges == null) || ranges.isEmpty()) {
-			rowRanges.add(
-					new RowRange(
-							HConstants.EMPTY_BYTE_ARRAY,
-							true,
-							HConstants.EMPTY_BYTE_ARRAY,
-							false));
+			rowRanges.add(new RowRange(
+					HConstants.EMPTY_BYTE_ARRAY,
+					true,
+					HConstants.EMPTY_BYTE_ARRAY,
+					false));
 		}
 		else {
 			for (final ByteArrayRange range : ranges) {
@@ -1145,8 +1044,7 @@ public class HBaseOperations implements
 							stopRow,
 							false);
 
-					rowRanges.add(
-							rowRange);
+					rowRanges.add(rowRange);
 				}
 			}
 		}
@@ -1174,118 +1072,94 @@ public class HBaseOperations implements
 				verifyCoprocessor(
 						tableName,
 						AggregationEndpoint.class.getName(),
-						options.getCoprocessorJar(),
-						null);
+						options.getCoprocessorJar());
 			}
 
 			final Aggregation aggregation = readerParams.getAggregation().getRight();
 
 			final AggregationProtos.AggregationType.Builder aggregationBuilder = AggregationProtos.AggregationType
 					.newBuilder();
-			aggregationBuilder.setClassId(
-					ByteString.copyFrom(
-							PersistenceUtils.toClassId(
-									aggregation)));
+			aggregationBuilder.setClassId(ByteString.copyFrom(PersistenceUtils.toClassId(aggregation)));
 
 			if (aggregation.getParameters() != null) {
-				final byte[] paramBytes = PersistenceUtils.toBinary(
-						aggregation.getParameters());
-				aggregationBuilder.setParams(
-						ByteString.copyFrom(
-								paramBytes));
+				final byte[] paramBytes = PersistenceUtils.toBinary(aggregation.getParameters());
+				aggregationBuilder.setParams(ByteString.copyFrom(paramBytes));
 			}
 
 			final AggregationProtos.AggregationRequest.Builder requestBuilder = AggregationProtos.AggregationRequest
 					.newBuilder();
-			requestBuilder.setAggregation(
-					aggregationBuilder.build());
+			requestBuilder.setAggregation(aggregationBuilder.build());
 			if (readerParams.getFilter() != null) {
 				final List<DistributableQueryFilter> distFilters = new ArrayList();
-				distFilters.add(
-						readerParams.getFilter());
+				distFilters.add(readerParams.getFilter());
 
-				final byte[] filterBytes = PersistenceUtils.toBinary(
-						distFilters);
-				final ByteString filterByteString = ByteString.copyFrom(
-						filterBytes);
-				requestBuilder.setFilter(
-						filterByteString);
+				final byte[] filterBytes = PersistenceUtils.toBinary(distFilters);
+				final ByteString filterByteString = ByteString.copyFrom(filterBytes);
+				requestBuilder.setFilter(filterByteString);
 			}
 			else {
 				final List<MultiDimensionalCoordinateRangesArray> coords = readerParams.getCoordinateRanges();
 				if (!coords.isEmpty()) {
 					final byte[] filterBytes = new HBaseNumericIndexStrategyFilter(
 							readerParams.getIndex().getIndexStrategy(),
-							coords.toArray(
-									new MultiDimensionalCoordinateRangesArray[] {})).toByteArray();
+							coords.toArray(new MultiDimensionalCoordinateRangesArray[] {})).toByteArray();
 					final ByteString filterByteString = ByteString.copyFrom(
 							new byte[] {
 								0
 							}).concat(
-									ByteString.copyFrom(
-											filterBytes));
+							ByteString.copyFrom(filterBytes));
 
-					requestBuilder.setNumericIndexStrategyFilter(
-							filterByteString);
+					requestBuilder.setNumericIndexStrategyFilter(filterByteString);
 				}
 			}
-			requestBuilder.setModel(
-					ByteString.copyFrom(
-							PersistenceUtils.toBinary(
-									readerParams.getIndex().getIndexModel())));
+			requestBuilder.setModel(ByteString.copyFrom(PersistenceUtils.toBinary(readerParams
+					.getIndex()
+					.getIndexModel())));
 
-			final MultiRowRangeFilter multiFilter = getMultiRowRangeFilter(
-					DataStoreUtils.constraintsToQueryRanges(
-							readerParams.getConstraints(),
-							readerParams.getIndex().getIndexStrategy(),
-							BaseDataStoreUtils.MAX_RANGE_DECOMPOSITION).getCompositeQueryRanges());
+			final MultiRowRangeFilter multiFilter = getMultiRowRangeFilter(DataStoreUtils.constraintsToQueryRanges(
+					readerParams.getConstraints(),
+					readerParams.getIndex().getIndexStrategy(),
+					BaseDataStoreUtils.MAX_RANGE_DECOMPOSITION).getCompositeQueryRanges());
 			if (multiFilter != null) {
-				requestBuilder.setRangeFilter(
-						ByteString.copyFrom(
-								multiFilter.toByteArray()));
+				requestBuilder.setRangeFilter(ByteString.copyFrom(multiFilter.toByteArray()));
 			}
 			if (readerParams.getAggregation().getLeft() != null) {
 				if (readerParams.getAggregation().getRight() instanceof CommonIndexAggregation) {
-					requestBuilder.setAdapterId(
-							ByteString.copyFrom(
-									readerParams.getAggregation().getLeft().getAdapterId().getBytes()));
+					requestBuilder.setAdapterId(ByteString.copyFrom(readerParams
+							.getAggregation()
+							.getLeft()
+							.getAdapterId()
+							.getBytes()));
 				}
 				else {
-					requestBuilder.setAdapter(
-							ByteString.copyFrom(
-									PersistenceUtils.toBinary(
-											readerParams.getAggregation().getLeft())));
+					requestBuilder.setAdapter(ByteString.copyFrom(PersistenceUtils.toBinary(readerParams
+							.getAggregation()
+							.getLeft())));
 				}
 			}
 
 			if ((readerParams.getAdditionalAuthorizations() != null)
 					&& (readerParams.getAdditionalAuthorizations().length > 0)) {
-				requestBuilder.setVisLabels(
-						ByteString.copyFrom(
-								StringUtils.stringsToBinary(
-										readerParams.getAdditionalAuthorizations())));
+				requestBuilder.setVisLabels(ByteString.copyFrom(StringUtils.stringsToBinary(readerParams
+						.getAdditionalAuthorizations())));
 			}
 
 			if (readerParams.isMixedVisibility()) {
-				requestBuilder.setWholeRowFilter(
-						true);
+				requestBuilder.setWholeRowFilter(true);
 			}
 
-			requestBuilder.setPartitionKeyLength(
-					readerParams.getIndex().getIndexStrategy().getPartitionKeyLength());
+			requestBuilder.setPartitionKeyLength(readerParams.getIndex().getIndexStrategy().getPartitionKeyLength());
 
 			final AggregationProtos.AggregationRequest request = requestBuilder.build();
 
-			final Table table = getTable(
-					tableName);
+			final Table table = getTable(tableName);
 
 			byte[] startRow = null;
 			byte[] endRow = null;
 
 			final List<ByteArrayRange> ranges = readerParams.getQueryRanges().getCompositeQueryRanges();
 			if ((ranges != null) && !ranges.isEmpty()) {
-				final ByteArrayRange aggRange = getSingleRange(
-						ranges);
+				final ByteArrayRange aggRange = getSingleRange(ranges);
 				startRow = aggRange.getStart().getBytes();
 				endRow = aggRange.getEnd().getBytes();
 			}
@@ -1318,23 +1192,19 @@ public class HBaseOperations implements
 				final ByteString value = entry.getValue();
 				if ((value != null) && !value.isEmpty()) {
 					final byte[] bvalue = value.toByteArray();
-					final Mergeable mvalue = (Mergeable) PersistenceUtils.fromBinary(
-							bvalue);
+					final Mergeable mvalue = (Mergeable) PersistenceUtils.fromBinary(bvalue);
 
-					LOGGER.debug(
-							"Value from region " + regionCount + " is " + mvalue);
+					LOGGER.debug("Value from region " + regionCount + " is " + mvalue);
 
 					if (total == null) {
 						total = mvalue;
 					}
 					else {
-						total.merge(
-								mvalue);
+						total.merge(mvalue);
 					}
 				}
 				else {
-					LOGGER.debug(
-							"Empty response for region " + regionCount);
+					LOGGER.debug("Empty response for region " + regionCount);
 				}
 			}
 
@@ -1379,12 +1249,10 @@ public class HBaseOperations implements
 		final ArrayList<ByteArrayId> regionIdList = new ArrayList();
 
 		try {
-			final RegionLocator locator = getRegionLocator(
-					tableNameStr);
+			final RegionLocator locator = getRegionLocator(tableNameStr);
 			for (final HRegionLocation regionLocation : locator.getAllRegionLocations()) {
-				regionIdList.add(
-						new ByteArrayId(
-								regionLocation.getRegionInfo().getRegionName()));
+				regionIdList.add(new ByteArrayId(
+						regionLocation.getRegionInfo().getRegionName()));
 			}
 		}
 		catch (final IOException e) {
@@ -1401,8 +1269,7 @@ public class HBaseOperations implements
 			final String index ) {
 		final Map<String, ImmutableSet<ServerOpScope>> map = new HashMap<>();
 		try {
-			final TableName tableName = getTableName(
-					index);
+			final TableName tableName = getTableName(index);
 			final String namespace = tableName.getNamespaceAsString();
 			final String qualifier = tableName.getQualifierAsString();
 			final HTableDescriptor desc = conn.getAdmin().getTableDescriptor(
@@ -1414,16 +1281,11 @@ public class HBaseOperations implements
 						ServerSideOperationsObserver.SERVER_OP_PREFIX)) {
 					final String[] parts = e.getKey().split(
 							SPLIT_STRING);
-					if ((parts.length == 5) && parts[1].equals(
-							namespace)
-							&& parts[2].equals(
-									qualifier)
-							&& parts[4].equals(
-									ServerSideOperationsObserver.SERVER_OP_SCOPES_KEY)) {
+					if ((parts.length == 5) && parts[1].equals(namespace) && parts[2].equals(qualifier)
+							&& parts[4].equals(ServerSideOperationsObserver.SERVER_OP_SCOPES_KEY)) {
 						map.put(
 								parts[3],
-								HBaseUtils.stringToScopes(
-										e.getValue()));
+								HBaseUtils.stringToScopes(e.getValue()));
 					}
 				}
 			}
@@ -1443,8 +1305,7 @@ public class HBaseOperations implements
 			final ServerOpScope scope ) {
 		final Map<String, String> map = new HashMap<>();
 		try {
-			final TableName tableName = getTableName(
-					index);
+			final TableName tableName = getTableName(index);
 			final String namespace = tableName.getNamespaceAsString();
 			final String qualifier = tableName.getQualifierAsString();
 			final HTableDescriptor desc = conn.getAdmin().getTableDescriptor(
@@ -1456,14 +1317,9 @@ public class HBaseOperations implements
 						ServerSideOperationsObserver.SERVER_OP_PREFIX)) {
 					final String[] parts = e.getKey().split(
 							SPLIT_STRING);
-					if ((parts.length == 6) && parts[1].equals(
-							namespace)
-							&& parts[2].equals(
-									qualifier)
-							&& parts[3].equals(
-									serverOpName)
-							&& parts[4].equals(
-									ServerSideOperationsObserver.SERVER_OP_OPTIONS_PREFIX)) {
+					if ((parts.length == 6) && parts[1].equals(namespace) && parts[2].equals(qualifier)
+							&& parts[3].equals(serverOpName)
+							&& parts[4].equals(ServerSideOperationsObserver.SERVER_OP_OPTIONS_PREFIX)) {
 						map.put(
 								parts[5],
 								e.getValue());
@@ -1484,8 +1340,7 @@ public class HBaseOperations implements
 			final String index,
 			final String serverOpName,
 			final ImmutableSet<ServerOpScope> scopes ) {
-		final TableName table = getTableName(
-				index);
+		final TableName table = getTableName(index);
 		try {
 			final HTableDescriptor desc = conn.getAdmin().getTableDescriptor(
 					table);
@@ -1524,15 +1379,10 @@ public class HBaseOperations implements
 					ServerSideOperationsObserver.SERVER_OP_PREFIX)) {
 				final String[] parts = e.getKey().split(
 						SPLIT_STRING);
-				if ((parts.length >= 5) && parts[1].equals(
-						namespace)
-						&& parts[2].equals(
-								qualifier)
-						&& parts[3].equals(
-								serverOpName)) {
+				if ((parts.length >= 5) && parts[1].equals(namespace) && parts[2].equals(qualifier)
+						&& parts[3].equals(serverOpName)) {
 					changed = true;
-					desc.removeConfiguration(
-							e.getKey());
+					desc.removeConfiguration(e.getKey());
 				}
 			}
 		}
@@ -1599,8 +1449,7 @@ public class HBaseOperations implements
 			final String operationClass,
 			final Map<String, String> properties,
 			final ImmutableSet<ServerOpScope> configuredScopes ) {
-		final TableName table = getTableName(
-				index);
+		final TableName table = getTableName(index);
 		try {
 			final HTableDescriptor desc = conn.getAdmin().getTableDescriptor(
 					table);
@@ -1638,8 +1487,7 @@ public class HBaseOperations implements
 			final Map<String, String> properties,
 			final ImmutableSet<ServerOpScope> currentScopes,
 			final ImmutableSet<ServerOpScope> newScopes ) {
-		final TableName table = getTableName(
-				index);
+		final TableName table = getTableName(index);
 		try {
 			final HTableDescriptor desc = conn.getAdmin().getTableDescriptor(
 					table);
@@ -1681,9 +1529,7 @@ public class HBaseOperations implements
 			throws IOException {
 		synchronized (ADMIN_MUTEX) {
 			try (Admin admin = conn.getAdmin()) {
-				return admin.isTableAvailable(
-						getTableName(
-								AbstractGeoWavePersistence.METADATA_TABLE));
+				return admin.isTableAvailable(getTableName(AbstractGeoWavePersistence.METADATA_TABLE));
 			}
 		}
 	}
@@ -1693,18 +1539,14 @@ public class HBaseOperations implements
 		String version = null;
 
 		if ((options == null) || !options.isServerSideLibraryEnabled()) {
-			LOGGER.warn(
-					"Serverside library not enabled, serverside version is irrelevant");
+			LOGGER.warn("Serverside library not enabled, serverside version is irrelevant");
 			return null;
 		}
 		try {
-			if (!indexExists(
-					AbstractGeoWavePersistence.METADATA_INDEX_ID)) {
+			if (!indexExists(AbstractGeoWavePersistence.METADATA_INDEX_ID)) {
 				createTable(
 						HBaseOperations.METADATA_CFS_VERSIONING,
-						getTableName(
-								getQualifiedTableName(
-										AbstractGeoWavePersistence.METADATA_TABLE)));
+						getTableName(getQualifiedTableName(AbstractGeoWavePersistence.METADATA_TABLE)));
 			}
 
 			// Use the row count coprocessor
@@ -1712,11 +1554,9 @@ public class HBaseOperations implements
 				verifyCoprocessor(
 						AbstractGeoWavePersistence.METADATA_TABLE,
 						VersionEndpoint.class.getName(),
-						options.getCoprocessorJar(),
-						null);
+						options.getCoprocessorJar());
 			}
-			final Table table = getTable(
-					AbstractGeoWavePersistence.METADATA_TABLE);
+			final Table table = getTable(AbstractGeoWavePersistence.METADATA_TABLE);
 			final Map<byte[], List<String>> versionInfoResponse = table.coprocessorService(
 					VersionProtos.VersionService.class,
 					null,
@@ -1736,8 +1576,7 @@ public class HBaseOperations implements
 						}
 					});
 			if ((versionInfoResponse == null) || versionInfoResponse.isEmpty()) {
-				LOGGER.error(
-						"No response from version coprocessor");
+				LOGGER.error("No response from version coprocessor");
 			}
 			else {
 				final Iterator<List<String>> values = versionInfoResponse.values().iterator();
@@ -1745,18 +1584,16 @@ public class HBaseOperations implements
 				final List<String> value = values.next();
 				while (values.hasNext()) {
 					final List<String> newValue = values.next();
-					if (!value.equals(
-							newValue)) {
-						LOGGER.error(
-								"Version Info '" + Arrays.toString(
-										value.toArray()) + "' and '"
-										+ Arrays.toString(
-												newValue.toArray())
+					if (!value.equals(newValue)) {
+						LOGGER
+								.error("Version Info '"
+										+ Arrays.toString(value.toArray())
+										+ "' and '"
+										+ Arrays.toString(newValue.toArray())
 										+ "' differ.  This may mean that different regions are using different versions of GeoWave.");
 					}
 				}
-				version = VersionUtils.asLineDelimitedString(
-						value);
+				version = VersionUtils.asLineDelimitedString(value);
 			}
 		}
 		catch (final Throwable e) {

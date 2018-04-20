@@ -1,6 +1,8 @@
 package mil.nga.giat.geowave.datastore.hbase.coprocessors;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +23,7 @@ import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScanType;
 import org.apache.hadoop.hbase.regionserver.Store;
 import org.apache.hadoop.hbase.regionserver.compactions.CompactionRequest;
+import org.apache.hadoop.hbase.util.CoprocessorClassLoader;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.ImmutableSet;
@@ -36,7 +39,33 @@ import mil.nga.giat.geowave.datastore.hbase.util.HBaseUtils;
 public class ServerSideOperationsObserver extends
 		BaseRegionObserver
 {
+
 	private final static Logger LOGGER = Logger.getLogger(ServerSideOperationsObserver.class);
+	public static boolean scannerContextRowScannerLoaded = false;
+	static {
+		ClassLoader cl = ServerSideOperationsObserver.class.getClassLoader();
+		if (cl instanceof CoprocessorClassLoader) {
+			try {
+				Method m = CoprocessorClassLoader.class.getMethod(
+						"loadClass",
+						String.class,
+						String[].class);
+				m.invoke(
+						cl,
+						"org.apache.hadoop.hbase.regionserver.ScannerContextRowScanner",
+						new String[] {
+							"org.apache.hadoop.hbase.regionserver.ScannerContextRowScanner"
+						});
+				scannerContextRowScannerLoaded = true;
+			}
+			catch (Exception e) {
+				LOGGER.error(
+						"must not be using hbase 1.4.x",
+						e);
+				scannerContextRowScannerLoaded = false;
+			}
+		}
+	}
 	public static final String SERVER_OP_PREFIX = "serverop";
 	public static final String SERVER_OP_SCOPES_KEY = "scopes";
 	public static final String SERVER_OP_OPTIONS_PREFIX = "options";
