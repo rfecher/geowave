@@ -25,17 +25,22 @@ import org.apache.log4j.Logger;
 public class ScannerContextRowScanner implements
 		RowScanner
 {
-	private final static Logger LOGGER = Logger.getLogger(ScannerContextRowScanner.class);
+	private final static Logger LOGGER = Logger.getLogger(
+			ScannerContextRowScanner.class);
+	private static ReflectionParams INSTANCE;
 	private final InternalScanner scanner;
 	private final ScannerContext scannerContext;
 	private final List<Cell> cells;
 	private boolean done = false;
 	private final Scan scan;
 	private Map<String, Object> hints;
-	private Method clearProgress;
-	private Method setScannerState;
-	private Field scannerState;
-	private boolean exception = false;
+
+	private static synchronized ReflectionParams getReflectionInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new ReflectionParams();
+		}
+		return INSTANCE;
+	}
 
 	public ScannerContextRowScanner(
 			final InternalScanner scanner,
@@ -46,24 +51,7 @@ public class ScannerContextRowScanner implements
 		this.cells = cells;
 		this.scannerContext = scannerContext;
 		this.scan = scan;
-		try {
-			scannerState = scannerContext.getClass().getField(
-					"scannerState");
-			scannerState.setAccessible(true);
-			clearProgress = scannerContext.getClass().getMethod(
-					"clearProgress");
-			clearProgress.setAccessible(true);
-			setScannerState = scannerContext.getClass().getMethod(
-					"setScannerState",
-					NextState.class);
-			setScannerState.setAccessible(true);
-		}
-		catch (NoSuchFieldException | SecurityException | NoSuchMethodException e) {
-			LOGGER.warn(
-					"Unable to get accessible methods for ScannerContextRowScanner",
-					e);
-			exception = true;
-		}
+
 	}
 
 	@Override
@@ -75,21 +63,10 @@ public class ScannerContextRowScanner implements
 	}
 
 	private boolean partialResultFormed() {
-		if (exception) {
-			return false;
-		}
-		NextState state;
-		try {
-			state = (NextState) scannerState.get(scannerContext);
-			return (state == NextState.SIZE_LIMIT_REACHED_MID_ROW) || (state == NextState.TIME_LIMIT_REACHED_MID_ROW);
-		}
-		catch (IllegalArgumentException | IllegalAccessException e) {
-			LOGGER.warn(
-					"Unable to check partial result of scanner context",
-					e);
-			exception = true;
-			return false;
-		}
+		final NextState state = getReflectionInstance().getScannerState(
+				scannerContext);
+		return (state == NextState.SIZE_LIMIT_REACHED_MID_ROW) || (state == NextState.TIME_LIMIT_REACHED_MID_ROW);
+
 	}
 
 	@Override
@@ -98,21 +75,8 @@ public class ScannerContextRowScanner implements
 		if (!isMidRow()) {
 			return Collections.EMPTY_LIST;
 		}
-		if (!exception) {
-			try {
-				clearProgress.invoke(scannerContext);
-
-				setScannerState.invoke(
-						scannerContext,
-						NextState.MORE_VALUES);
-			}
-			catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				LOGGER.warn(
-						"Unable to invoke reset of scanner context",
-						e);
-				exception = true;
-			}
-		}
+		getReflectionInstance().reset(
+				scannerContext);
 		done = !scanner.next(
 				cells,
 				scannerContext);
@@ -141,5 +105,76 @@ public class ScannerContextRowScanner implements
 	@Override
 	public Scan getScan() {
 		return scan;
+	}
+
+	private static class ReflectionParams
+	{
+		// if we ever encounter an exception
+		private boolean exception = false;
+
+		private Method clearProgress;
+		private Method setScannerState;
+		private Field scannerState;
+
+		public ReflectionParams() {
+			try {
+				scannerState = ScannerContext.class.getField(
+						"scannerState");
+				scannerState.setAccessible(
+						true);
+				clearProgress = ScannerContext.class.getMethod(
+						"clearProgress");
+				clearProgress.setAccessible(
+						true);
+				setScannerState = ScannerContext.class.getMethod(
+						"setScannerState",
+						NextState.class);
+				setScannerState.setAccessible(
+						true);
+			}
+			catch (final Exception e) {
+				LOGGER.warn(
+						"Unable to get accessible methods for ScannerContextRowScanner",
+						e);
+				exception = true;
+			}
+		}
+
+		public NextState getScannerState(
+				final ScannerContext instance ) {
+			if (!exception) {
+				try {
+					return (NextState) scannerState.get(
+							instance);
+				}
+				catch (final Exception e) {
+					LOGGER.warn(
+							"Unable to check partial result of scanner context",
+							e);
+					exception = true;
+				}
+			}
+			return NextState.MORE_VALUES;
+		}
+
+		public void reset(
+				final ScannerContext instance ) {
+			if (!exception) {
+				try {
+					clearProgress.invoke(
+							instance);
+
+					setScannerState.invoke(
+							instance,
+							NextState.MORE_VALUES);
+				}
+				catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+					LOGGER.warn(
+							"Unable to invoke reset of scanner context",
+							e);
+					exception = true;
+				}
+			}
+		}
 	}
 }
