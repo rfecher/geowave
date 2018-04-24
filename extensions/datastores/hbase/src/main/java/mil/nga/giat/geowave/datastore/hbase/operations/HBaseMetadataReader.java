@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Iterators;
 
 import mil.nga.giat.geowave.core.index.StringUtils;
-import mil.nga.giat.geowave.core.index.persist.PersistenceUtils;
 import mil.nga.giat.geowave.core.store.CloseableIterator;
 import mil.nga.giat.geowave.core.store.CloseableIteratorWrapper;
 import mil.nga.giat.geowave.core.store.DataStoreOptions;
@@ -23,6 +22,7 @@ import mil.nga.giat.geowave.core.store.operations.MetadataReader;
 import mil.nga.giat.geowave.core.store.operations.MetadataType;
 import mil.nga.giat.geowave.datastore.hbase.util.HBaseUtils;
 import mil.nga.giat.geowave.datastore.hbase.util.HBaseUtils.ScannerClosableWrapper;
+import mil.nga.giat.geowave.mapreduce.URLClassloaderUtils;
 
 public class HBaseMetadataReader implements
 		MetadataReader
@@ -130,6 +130,6 @@ public class HBaseMetadataReader implements
 			return result.value();
 		}
 
-		return PersistenceUtils.toBinary(HBaseUtils.getMergedStats(result.listCells()));
+		return URLClassloaderUtils.toBinary(HBaseUtils.getMergedStats(result.listCells()));
 	}
 }

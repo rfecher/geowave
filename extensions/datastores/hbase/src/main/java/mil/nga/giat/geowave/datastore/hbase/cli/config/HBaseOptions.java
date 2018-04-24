@@ -38,7 +38,6 @@ public class HBaseOptions extends
 		super();
 	}
 
-
 	public void setBigTable(
 			final boolean bigTable ) {
 		this.bigTable = bigTable;

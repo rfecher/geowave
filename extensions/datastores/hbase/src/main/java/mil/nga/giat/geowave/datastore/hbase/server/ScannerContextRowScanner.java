@@ -25,8 +25,7 @@ import org.apache.log4j.Logger;
 public class ScannerContextRowScanner implements
 		RowScanner
 {
-	private final static Logger LOGGER = Logger.getLogger(
-			ScannerContextRowScanner.class);
+	private final static Logger LOGGER = Logger.getLogger(ScannerContextRowScanner.class);
 	private static ReflectionParams INSTANCE;
 	private final InternalScanner scanner;
 	private final ScannerContext scannerContext;
@@ -118,19 +117,14 @@ public class ScannerContextRowScanner implements
 
 		public ReflectionParams() {
 			try {
-				scannerState = ScannerContext.class.getField(
-						"scannerState");
-				scannerState.setAccessible(
-						true);
-				clearProgress = ScannerContext.class.getMethod(
-						"clearProgress");
-				clearProgress.setAccessible(
-						true);
+				scannerState = ScannerContext.class.getField("scannerState");
+				scannerState.setAccessible(true);
+				clearProgress = ScannerContext.class.getMethod("clearProgress");
+				clearProgress.setAccessible(true);
 				setScannerState = ScannerContext.class.getMethod(
 						"setScannerState",
 						NextState.class);
-				setScannerState.setAccessible(
-						true);
+				setScannerState.setAccessible(true);
 			}
 			catch (final Exception e) {
 				LOGGER.warn(
@@ -144,8 +138,7 @@ public class ScannerContextRowScanner implements
 				final ScannerContext instance ) {
 			if (!exception) {
 				try {
-					return (NextState) scannerState.get(
-							instance);
+					return (NextState) scannerState.get(instance);
 				}
 				catch (final Exception e) {
 					LOGGER.warn(
@@ -161,8 +154,7 @@ public class ScannerContextRowScanner implements
 				final ScannerContext instance ) {
 			if (!exception) {
 				try {
-					clearProgress.invoke(
-							instance);
+					clearProgress.invoke(instance);
 
 					setScannerState.invoke(
 							instance,

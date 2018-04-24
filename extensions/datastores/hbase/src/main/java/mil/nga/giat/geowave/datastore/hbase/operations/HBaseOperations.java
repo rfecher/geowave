@@ -66,7 +66,6 @@ import mil.nga.giat.geowave.core.index.ByteArrayUtils;
 import mil.nga.giat.geowave.core.index.Mergeable;
 import mil.nga.giat.geowave.core.index.MultiDimensionalCoordinateRangesArray;
 import mil.nga.giat.geowave.core.index.StringUtils;
-import mil.nga.giat.geowave.core.index.persist.PersistenceUtils;
 import mil.nga.giat.geowave.core.store.CloseableIterator;
 import mil.nga.giat.geowave.core.store.adapter.AdapterIndexMappingStore;
 import mil.nga.giat.geowave.core.store.adapter.AdapterStore;
@@ -111,6 +110,7 @@ import mil.nga.giat.geowave.datastore.hbase.server.MergingVisibilityServerOp;
 import mil.nga.giat.geowave.datastore.hbase.util.ConnectionPool;
 import mil.nga.giat.geowave.datastore.hbase.util.HBaseUtils;
 import mil.nga.giat.geowave.mapreduce.MapReduceDataStoreOperations;
+import mil.nga.giat.geowave.mapreduce.URLClassloaderUtils;
 import mil.nga.giat.geowave.mapreduce.splits.RecordReaderParams;
 
 public class HBaseOperations implements
@@ -526,7 +526,7 @@ public class HBaseOperations implements
 					return false;
 				}
 				final GeoWaveMetadata adapterMd = it.next();
-				adapter = (DataAdapter<?>) PersistenceUtils.fromBinary(adapterMd.getValue());
+				adapter = (DataAdapter<?>) URLClassloaderUtils.fromBinary(adapterMd.getValue());
 			}
 			try (final CloseableIterator<GeoWaveMetadata> it = createMetadataReader(
 					MetadataType.INDEX).query(
@@ -539,7 +539,7 @@ public class HBaseOperations implements
 					return false;
 				}
 				final GeoWaveMetadata indexMd = it.next();
-				index = (PrimaryIndex) PersistenceUtils.fromBinary(indexMd.getValue());
+				index = (PrimaryIndex) URLClassloaderUtils.fromBinary(indexMd.getValue());
 			}
 			final Scan scan = new Scan();
 			scan.addFamily(adapterId.getBytes());
@@ -1079,10 +1079,10 @@ public class HBaseOperations implements
 
 			final AggregationProtos.AggregationType.Builder aggregationBuilder = AggregationProtos.AggregationType
 					.newBuilder();
-			aggregationBuilder.setClassId(ByteString.copyFrom(PersistenceUtils.toClassId(aggregation)));
+			aggregationBuilder.setClassId(ByteString.copyFrom(URLClassloaderUtils.toClassId(aggregation)));
 
 			if (aggregation.getParameters() != null) {
-				final byte[] paramBytes = PersistenceUtils.toBinary(aggregation.getParameters());
+				final byte[] paramBytes = URLClassloaderUtils.toBinary(aggregation.getParameters());
 				aggregationBuilder.setParams(ByteString.copyFrom(paramBytes));
 			}
 
@@ -1093,7 +1093,7 @@ public class HBaseOperations implements
 				final List<DistributableQueryFilter> distFilters = new ArrayList();
 				distFilters.add(readerParams.getFilter());
 
-				final byte[] filterBytes = PersistenceUtils.toBinary(distFilters);
+				final byte[] filterBytes = URLClassloaderUtils.toBinary(distFilters);
 				final ByteString filterByteString = ByteString.copyFrom(filterBytes);
 				requestBuilder.setFilter(filterByteString);
 			}
@@ -1112,7 +1112,7 @@ public class HBaseOperations implements
 					requestBuilder.setNumericIndexStrategyFilter(filterByteString);
 				}
 			}
-			requestBuilder.setModel(ByteString.copyFrom(PersistenceUtils.toBinary(readerParams
+			requestBuilder.setModel(ByteString.copyFrom(URLClassloaderUtils.toBinary(readerParams
 					.getIndex()
 					.getIndexModel())));
 
@@ -1132,7 +1132,7 @@ public class HBaseOperations implements
 							.getBytes()));
 				}
 				else {
-					requestBuilder.setAdapter(ByteString.copyFrom(PersistenceUtils.toBinary(readerParams
+					requestBuilder.setAdapter(ByteString.copyFrom(URLClassloaderUtils.toBinary(readerParams
 							.getAggregation()
 							.getLeft())));
 				}
@@ -1192,7 +1192,7 @@ public class HBaseOperations implements
 				final ByteString value = entry.getValue();
 				if ((value != null) && !value.isEmpty()) {
 					final byte[] bvalue = value.toByteArray();
-					final Mergeable mvalue = (Mergeable) PersistenceUtils.fromBinary(bvalue);
+					final Mergeable mvalue = (Mergeable) URLClassloaderUtils.fromBinary(bvalue);
 
 					LOGGER.debug("Value from region " + regionCount + " is " + mvalue);
 
@@ -1419,7 +1419,7 @@ public class HBaseOperations implements
 		desc.setConfiguration(
 				basePrefix + ServerSideOperationsObserver.SERVER_OP_CLASS_KEY,
 				ByteArrayUtils.byteArrayToString(
-						PersistenceUtils.toClassId(
+						URLClassloaderUtils.toClassId(
 								operationClassName)));
 		desc.setConfiguration(
 				basePrefix + ServerSideOperationsObserver.SERVER_OP_PRIORITY_KEY,

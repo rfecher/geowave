@@ -7,10 +7,7 @@ import java.util.List;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
-import org.apache.hadoop.hbase.regionserver.NoLimitScannerContext;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
-
-import mil.nga.giat.geowave.datastore.hbase.coprocessors.ServerSideOperationsObserver;
 
 public class ServerOpInternalScannerWrapper implements
 		InternalScanner
@@ -51,8 +48,10 @@ public class ServerOpInternalScannerWrapper implements
 			final List<Cell> rowCells,
 			final ScannerContext scannerContext )
 			throws IOException {
-		return internalNextRow(new BasicRowScanner(
+		return internalNextRow(new ScannerContextRowScanner(
+				delegate,
 				rowCells,
+				scannerContext,
 				scan));
 	}
 
@@ -74,10 +73,10 @@ public class ServerOpInternalScannerWrapper implements
 			throws IOException {
 		final boolean retVal = delegate.next(
 				rowCells,
-				NoLimitScannerContext.getInstance());
+				scannerContext);
 		if (!internalNextRow(
 				rowCells,
-				NoLimitScannerContext.getInstance())) {
+				scannerContext)) {
 			return false;
 		}
 		return retVal;
