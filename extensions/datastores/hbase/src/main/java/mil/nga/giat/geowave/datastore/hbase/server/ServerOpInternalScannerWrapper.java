@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
+import org.apache.hadoop.hbase.regionserver.NoLimitScannerContext;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
 
 public class ServerOpInternalScannerWrapper implements
@@ -48,10 +49,8 @@ public class ServerOpInternalScannerWrapper implements
 			final List<Cell> rowCells,
 			final ScannerContext scannerContext )
 			throws IOException {
-		return internalNextRow(new ScannerContextRowScanner(
-				delegate,
+		return internalNextRow(new BasicRowScanner(
 				rowCells,
-				scannerContext,
 				scan));
 	}
 
@@ -73,10 +72,10 @@ public class ServerOpInternalScannerWrapper implements
 			throws IOException {
 		final boolean retVal = delegate.next(
 				rowCells,
-				scannerContext);
+				NoLimitScannerContext.getInstance());
 		if (!internalNextRow(
 				rowCells,
-				scannerContext)) {
+				NoLimitScannerContext.getInstance())) {
 			return false;
 		}
 		return retVal;
