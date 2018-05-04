@@ -55,17 +55,6 @@ public class StatsCompositionTool<T> implements
 
 	public StatsCompositionTool(
 			final StatisticsProvider<T> statisticsProvider,
-			final PrimaryIndex index,
-			final DataAdapter<T> adapter ) {
-		this.statisticsStore = null;
-		this.init(
-				index,
-				adapter,
-				statisticsProvider);
-	}
-
-	public StatsCompositionTool(
-			final StatisticsProvider<T> statisticsProvider,
 			final DataStatisticsStore statisticsStore,
 			final PrimaryIndex index,
 			final DataAdapter<T> adapter ) {

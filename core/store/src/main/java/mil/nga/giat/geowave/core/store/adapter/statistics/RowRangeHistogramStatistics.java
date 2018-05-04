@@ -40,7 +40,8 @@ public class RowRangeHistogramStatistics<T> extends
 	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
 			"ROW_RANGE_HISTOGRAM");
 	private static final NumericHistogramFactory HistFactory = new MinimalBinDistanceHistogramFactory();
-	private Map<ByteArrayId, NumericHistogram> histogramPerPartition = new HashMap<ByteArrayId, NumericHistogram>();
+	private NumericHistogram histogram;
+	private ByteArrayId partitionKey;
 
 	public RowRangeHistogramStatistics() {
 		super();
@@ -48,10 +49,12 @@ public class RowRangeHistogramStatistics<T> extends
 
 	public RowRangeHistogramStatistics(
 			final ByteArrayId dataAdapterId,
-			final ByteArrayId statisticsId ) {
+			final ByteArrayId indexId,
+			final ByteArrayId partitionKey ) {
 		super(
 				dataAdapterId,
-				composeId(statisticsId));
+				composeId(indexId));
+		this.partitionKey = partitionKey;
 	}
 
 	private static NumericHistogram createHistogram() {
@@ -87,15 +90,6 @@ public class RowRangeHistogramStatistics<T> extends
 				idLength);
 		return new ByteArrayId(
 				idBytes);
-	}
-
-	public boolean isSet() {
-		return false;
-	}
-
-	public TreeSet<ByteArrayId> getPartitionKeys() {
-		return new TreeSet<>(
-				histogramPerPartition.keySet());
 	}
 
 	private synchronized NumericHistogram getHistogram(
