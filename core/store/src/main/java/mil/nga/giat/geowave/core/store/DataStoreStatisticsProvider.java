@@ -17,7 +17,9 @@ import mil.nga.giat.geowave.core.store.adapter.DataAdapter;
 import mil.nga.giat.geowave.core.store.adapter.statistics.DataStatistics;
 import mil.nga.giat.geowave.core.store.adapter.statistics.DuplicateEntryCount;
 import mil.nga.giat.geowave.core.store.adapter.statistics.EmptyStatisticVisibility;
+import mil.nga.giat.geowave.core.store.adapter.statistics.PartitionStatistics;
 import mil.nga.giat.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
+import mil.nga.giat.geowave.core.store.adapter.statistics.RowRangeHistogramStatisticsSet;
 import mil.nga.giat.geowave.core.store.adapter.statistics.StatisticsProvider;
 import mil.nga.giat.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import mil.nga.giat.geowave.core.store.index.CommonIndexModel;
@@ -66,7 +68,12 @@ public class DataStoreStatisticsProvider<T> implements
 	public DataStatistics<T> createDataStatistics(
 			final ByteArrayId statisticsType ) {
 		if (statisticsType.equals(RowRangeHistogramStatistics.STATS_TYPE)) {
-			return new RowRangeHistogramStatistics(
+			return new RowRangeHistogramStatisticsSet(
+					adapter.getAdapterId(),
+					index.getId());
+		}
+		if (statisticsType.equals(PartitionStatistics.STATS_TYPE)) {
+			return new PartitionStatistics(
 					adapter.getAdapterId(),
 					index.getId());
 		}
