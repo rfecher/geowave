@@ -118,6 +118,7 @@ public class BaseConstraintsQuery extends
 		// operations, use the supplied client dedupe filter if possible
 		if (clientDedupeFilter != null) {
 			clientFilters.add(
+					0,
 					clientDedupeFilter);
 		}
 		this.clientFilters = clientFilters;
