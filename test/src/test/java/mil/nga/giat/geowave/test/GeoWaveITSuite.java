@@ -39,27 +39,27 @@ import mil.nga.giat.geowave.test.spark.GeoWaveSparkSpatialJoinIT;
 
 @RunWith(GeoWaveITSuiteRunner.class)
 @SuiteClasses({
-	GeoWaveBasicSpatialVectorIT.class,
-	GeowaveCustomCRSSpatialVectorIT.class,
-	GeoWaveBasicSpatialTemporalVectorIT.class,
-	GeoWaveVectorSerializationIT.class,
-	BasicKafkaIT.class,
-	BasicMapReduceIT.class,
-	LandsatIT.class,
-	GeoWaveVisibilityIT.class,
-	GeoWaveBasicRasterIT.class,
-	KDERasterResizeIT.class,
-	BulkIngestInputGenerationIT.class,
-	GeoWaveNNIT.class,
-	AttributesSubsetQueryIT.class,
+//	GeoWaveBasicSpatialVectorIT.class,
+//	GeowaveCustomCRSSpatialVectorIT.class,
+//	GeoWaveBasicSpatialTemporalVectorIT.class,
+//	GeoWaveVectorSerializationIT.class,
+//	BasicKafkaIT.class,
+//	BasicMapReduceIT.class,
+//	LandsatIT.class,
+//	GeoWaveVisibilityIT.class,
+//	GeoWaveBasicRasterIT.class,
+//	KDERasterResizeIT.class,
+//	BulkIngestInputGenerationIT.class,
+//	GeoWaveNNIT.class,
+//	AttributesSubsetQueryIT.class,
 	SpatialTemporalQueryIT.class,
-	PolygonDataIdQueryIT.class,
-	ConfigCacheIT.class,
-	DBScanIT.class,
-	GeoWaveJavaSparkIT.class,
-	GeoWaveJavaSparkKMeansIT.class,
-	GeoWaveJavaSparkSQLIT.class,
-	GeoWaveSparkSpatialJoinIT.class
+//	PolygonDataIdQueryIT.class,
+//	ConfigCacheIT.class,
+//	DBScanIT.class,
+//	GeoWaveJavaSparkIT.class,
+//	GeoWaveJavaSparkKMeansIT.class,
+//	GeoWaveJavaSparkSQLIT.class,
+//	GeoWaveSparkSpatialJoinIT.class
 })
 public class GeoWaveITSuite
 {
