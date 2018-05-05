@@ -117,7 +117,9 @@ public class BaseConstraintsQuery extends
 		// de-duplication is performed before any more complex filtering
 		// operations, use the supplied client dedupe filter if possible
 		if (clientDedupeFilter != null) {
-			clientFilters.add(clientDedupeFilter);
+			clientFilters.add(
+					0,
+					clientDedupeFilter);
 		}
 		this.clientFilters = clientFilters;
 		distributableFilters = lists.distributableFilters;

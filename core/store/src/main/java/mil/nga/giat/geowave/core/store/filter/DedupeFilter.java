@@ -40,31 +40,31 @@ public class DedupeFilter implements
 	public boolean accept(
 			final CommonIndexModel indexModel,
 			final IndexedPersistenceEncoding<?> persistenceEncoding ) {
-//		if (!persistenceEncoding.isDeduplicationEnabled()) {
-//			// certain types of data such as raster do not intend to be
-//			// duplicated
-//			// short circuit this check if the row is does not support
-//			// deduplication
-//			return true;
-//		}
-//		if (!isDedupAcrossIndices() && !persistenceEncoding.isDuplicated()) {
-//			// short circuit this check if the row is not duplicated anywhere
-//			// and this is only intended to support a single index
-//			return true;
-//		}
-//		final ByteArrayId adapterId = persistenceEncoding.getAdapterId();
-//		final ByteArrayId dataId = persistenceEncoding.getDataId();
-//		Set<ByteArrayId> visitedDataIds = adapterIdToVisitedDataIdMap.get(adapterId);
-//		if (visitedDataIds == null) {
-//			visitedDataIds = new HashSet<ByteArrayId>();
-//			adapterIdToVisitedDataIdMap.put(
-//					adapterId,
-//					visitedDataIds);
-//		}
-//		else if (visitedDataIds.contains(dataId)) {
-//			return false;
-//		}
-//		visitedDataIds.add(dataId);
+		if (!persistenceEncoding.isDeduplicationEnabled()) {
+			// certain types of data such as raster do not intend to be
+			// duplicated
+			// short circuit this check if the row is does not support
+			// deduplication
+			return true;
+		}
+		if (!isDedupAcrossIndices() && !persistenceEncoding.isDuplicated()) {
+			// short circuit this check if the row is not duplicated anywhere
+			// and this is only intended to support a single index
+			return true;
+		}
+		final ByteArrayId adapterId = persistenceEncoding.getAdapterId();
+		final ByteArrayId dataId = persistenceEncoding.getDataId();
+		Set<ByteArrayId> visitedDataIds = adapterIdToVisitedDataIdMap.get(adapterId);
+		if (visitedDataIds == null) {
+			visitedDataIds = new HashSet<ByteArrayId>();
+			adapterIdToVisitedDataIdMap.put(
+					adapterId,
+					visitedDataIds);
+		}
+		else if (visitedDataIds.contains(dataId)) {
+			return false;
+		}
+		visitedDataIds.add(dataId);
 		return true;
 	}
 
