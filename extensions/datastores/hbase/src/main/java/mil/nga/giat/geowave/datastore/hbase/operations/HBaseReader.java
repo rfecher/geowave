@@ -235,9 +235,9 @@ public class HBaseReader implements
 			}
 		}
 
-//		setLimit(
-//				readerParams,
-//				filterList);
+		setLimit(
+				readerParams,
+				filterList);
 		if (!filterList.getFilters().isEmpty()) {
 			multiScanner.setFilter(filterList);
 		}
