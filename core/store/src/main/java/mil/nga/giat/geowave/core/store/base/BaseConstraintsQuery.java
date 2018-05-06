@@ -246,11 +246,11 @@ public class BaseConstraintsQuery extends
 		else {
 			// Without custom filters, we need all the filters on the client
 			// side
-			for (final QueryFilter distributable : distributableFilters) {
-				if (!clientFilters.contains(distributable)) {
-					clientFilters.add(distributable);
-				}
-			}
+//			for (final QueryFilter distributable : distributableFilters) {
+//				if (!clientFilters.contains(distributable)) {
+//					clientFilters.add(distributable);
+//				}
+//			}
 		}
 		return clientFilters;
 	}
