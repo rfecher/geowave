@@ -188,7 +188,12 @@ public class HBaseReader implements
 				recordReaderParams,
 				filterList);
 		if (!filterList.getFilters().isEmpty()) {
-			rscanner.setFilter(filterList);
+			if (filterList.getFilters().size() > 1){
+				rscanner.setFilter(filterList);
+			}
+			else{
+				rscanner.setFilter(filterList.getFilters().get(0));
+			}
 		}
 		try {
 			Iterable<Result> iterable = operations.getScannedResults(
@@ -235,11 +240,16 @@ public class HBaseReader implements
 			}
 		}
 
-//		setLimit(
-//				readerParams,
-//				filterList);
+		setLimit(
+				readerParams,
+				filterList);
 		if (!filterList.getFilters().isEmpty()) {
-			multiScanner.setFilter(filterList);
+			if (filterList.getFilters().size() > 1){
+				multiScanner.setFilter(filterList);
+			}
+			else{
+				multiScanner.setFilter(filterList.getFilters().get(0));
+			}
 		}
 
 		try {
