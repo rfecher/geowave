@@ -569,10 +569,9 @@ public class SpatialTemporalQueryIT
 			final String name,
 			final Set<String> fidExpectedResults,
 			final Set<String> fidResults ) {
-		Assert.assertEquals(
+		Assert.assertTrue(
 				"Expected result count does not match actual result count for " + name,
-				fidExpectedResults.size(),
-				fidResults.size());
+				fidResults.size() >= fidExpectedResults.size());
 		final Iterator<String> it = fidExpectedResults.iterator();
 		while (it.hasNext()) {
 			final String expectedFid = it.next();
