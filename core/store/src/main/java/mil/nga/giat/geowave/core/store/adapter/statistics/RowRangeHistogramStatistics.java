@@ -73,7 +73,8 @@ public class RowRangeHistogramStatistics<T> extends
 	public DataStatistics<T> duplicate() {
 		return new RowRangeHistogramStatistics<T>(
 				dataAdapterId,
-				decomposeFromId(statisticsId));// indexId
+				decomposeFromId(statisticsId),// indexId
+				partitionKey);
 	}
 
 	public static ByteArrayId decomposeFromId(

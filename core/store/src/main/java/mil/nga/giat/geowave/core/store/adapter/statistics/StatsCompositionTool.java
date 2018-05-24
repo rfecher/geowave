@@ -86,7 +86,7 @@ public class StatsCompositionTool<T> implements
 		}
 		catch (final Exception ex) {
 			LOGGER.error(
-					"Unable to determine property AccumuloIndexWriter.skipFlush",
+					"Unable to determine property StatsCompositionTool.skipFlush",
 					ex);
 		}
 	}
@@ -198,6 +198,7 @@ public class StatsCompositionTool<T> implements
 	private void checkStats() {
 		if (!skipFlush && (updateCount > FLUSH_STATS_THRESHOLD)) {
 			updateCount = 0;
+			flush();
 		}
 	}
 

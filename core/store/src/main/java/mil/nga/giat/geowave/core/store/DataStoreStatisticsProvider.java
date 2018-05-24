@@ -67,7 +67,7 @@ public class DataStoreStatisticsProvider<T> implements
 	public DataStatistics<T> createDataStatistics(
 			final ByteArrayId statisticsType ) {
 		if (statisticsType.equals(RowRangeHistogramStatistics.STATS_TYPE)) {
-			return new RowRangeHistogramStatistics(
+			return new RowRangeHistogramStatisticsSet(
 					adapter.getAdapterId(),
 					index.getId());
 		}
