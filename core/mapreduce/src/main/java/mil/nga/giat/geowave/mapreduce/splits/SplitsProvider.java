@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -33,6 +34,7 @@ import mil.nga.giat.geowave.core.store.adapter.AdapterIndexMappingStore;
 import mil.nga.giat.geowave.core.store.adapter.AdapterStore;
 import mil.nga.giat.geowave.core.store.adapter.DataAdapter;
 import mil.nga.giat.geowave.core.store.adapter.statistics.DataStatisticsStore;
+import mil.nga.giat.geowave.core.store.adapter.statistics.PartitionStatistics;
 import mil.nga.giat.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
 import mil.nga.giat.geowave.core.store.index.IndexStore;
 import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
@@ -44,9 +46,11 @@ import mil.nga.giat.geowave.mapreduce.MapReduceUtils;
 
 public class SplitsProvider
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(SplitsProvider.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(
+			SplitsProvider.class);
 
-	private static final BigInteger TWO = BigInteger.valueOf(2);
+	private static final BigInteger TWO = BigInteger.valueOf(
+			2);
 
 	public SplitsProvider() {}
 
@@ -66,7 +70,7 @@ public class SplitsProvider
 			throws IOException,
 			InterruptedException {
 
-		final Map<PrimaryIndex, RowRangeHistogramStatistics<?>> statsCache = new HashMap<PrimaryIndex, RowRangeHistogramStatistics<?>>();
+		final Map<Pair<PrimaryIndex, ByteArrayId>, RowRangeHistogramStatistics<?>> statsCache = new HashMap<Pair<PrimaryIndex, ByteArrayId>, RowRangeHistogramStatistics<?>>();
 
 		final List<InputSplit> retVal = new ArrayList<InputSplit>();
 		final TreeSet<IntermediateSplitInfo> splits = new TreeSet<IntermediateSplitInfo>();
@@ -78,7 +82,8 @@ public class SplitsProvider
 						indexStore)) {
 			indexIdToAdaptersMap.put(
 					indexAdapterPair.getKey().getId(),
-					MapReduceUtils.idsFromAdapters(indexAdapterPair.getValue()));
+					MapReduceUtils.idsFromAdapters(
+							indexAdapterPair.getValue()));
 			populateIntermediateSplits(
 					splits,
 					operations,
@@ -105,13 +110,17 @@ public class SplitsProvider
 				// back,
 				// increasing the size by 1
 				final IntermediateSplitInfo highestSplit = splits.pollLast();
-				final IntermediateSplitInfo otherSplit = highestSplit.split(statsCache);
-				splits.add(highestSplit);
+				final IntermediateSplitInfo otherSplit = highestSplit.split(
+						statsCache);
+				splits.add(
+						highestSplit);
 				if (otherSplit == null) {
-					LOGGER.warn("Cannot meet minimum splits");
+					LOGGER.warn(
+							"Cannot meet minimum splits");
 					break;
 				}
-				splits.add(otherSplit);
+				splits.add(
+						otherSplit);
 			}
 			while (splits.size() < minSplits);
 		}
@@ -126,17 +135,20 @@ public class SplitsProvider
 				// the number of locations/indices
 				final IntermediateSplitInfo lowestSplit = splits.pollFirst();
 				final IntermediateSplitInfo nextLowestSplit = splits.pollFirst();
-				lowestSplit.merge(nextLowestSplit);
-				splits.add(lowestSplit);
+				lowestSplit.merge(
+						nextLowestSplit);
+				splits.add(
+						lowestSplit);
 			}
 			while (splits.size() > maxSplits);
 		}
 
 		for (final IntermediateSplitInfo split : splits) {
-			retVal.add(split.toFinalSplit(
-					statsStore,
-					indexIdToAdaptersMap,
-					queryOptions.getAuthorizations()));
+			retVal.add(
+					split.toFinalSplit(
+							statsStore,
+							indexIdToAdaptersMap,
+							queryOptions.getAuthorizations()));
 		}
 		return retVal;
 	}
@@ -146,14 +158,15 @@ public class SplitsProvider
 			final DataStoreOperations operations,
 			final PrimaryIndex index,
 			final List<DataAdapter<Object>> adapters,
-			final Map<PrimaryIndex, RowRangeHistogramStatistics<?>> statsCache,
+			final Map<Pair<PrimaryIndex, ByteArrayId>, RowRangeHistogramStatistics<?>> statsCache,
 			final AdapterStore adapterStore,
 			final DataStatisticsStore statsStore,
 			final Integer maxSplits,
 			final DistributableQuery query,
 			final String[] authorizations )
 			throws IOException {
-		if ((query != null) && !query.isSupported(index)) {
+		if ((query != null) && !query.isSupported(
+				index)) {
 			return splits;
 		}
 
@@ -163,7 +176,8 @@ public class SplitsProvider
 		// Build list of row ranges from query
 		List<ByteArrayRange> ranges = null;
 		if (query != null) {
-			final List<MultiDimensionalNumericData> indexConstraints = query.getIndexConstraints(index);
+			final List<MultiDimensionalNumericData> indexConstraints = query.getIndexConstraints(
+					index);
 			if ((maxSplits != null) && (maxSplits > 0)) {
 				ranges = DataStoreUtils.constraintsToQueryRanges(
 						indexConstraints,
@@ -178,19 +192,18 @@ public class SplitsProvider
 			}
 		}
 
-		RowRangeHistogramStatistics<?> statistics = getHistStats(
+		final PartitionStatistics<?> statistics = getPartitionStats(
 				index,
 				adapters,
 				adapterStore,
 				statsStore,
-				statsCache,
 				authorizations);
 
 		final List<RangeLocationPair> rangeList = new ArrayList<RangeLocationPair>();
 		if (ranges == null) {
 			// Try to get ranges from histogram statistics
-			TreeSet<ByteArrayId> partitionKeys = statistics.getPartitionKeys();
-			for (ByteArrayId partitionKey : partitionKeys) {
+			final Set<ByteArrayId> partitionKeys = statistics.getPartitionKeys();
+			for (final ByteArrayId partitionKey : partitionKeys) {
 				final GeoWaveRowRange gwRange = new GeoWaveRowRange(
 						partitionKey.getBytes(),
 						null,
@@ -198,12 +211,19 @@ public class SplitsProvider
 						true,
 						true);
 				final double cardinality = getCardinality(
-						statistics,
-						gwRange,
-						index.getIndexStrategy().getPartitionKeyLength());
-				rangeList.add(new RangeLocationPair(
-						gwRange,
-						cardinality < 1 ? 1.0 : cardinality));
+						getHistStats(
+								index,
+								adapters,
+								adapterStore,
+								statsStore,
+								statsCache,
+								partitionKey,
+								authorizations),
+						gwRange);
+				rangeList.add(
+						new RangeLocationPair(
+								gwRange,
+								cardinality < 1 ? 1.0 : cardinality));
 			}
 		}
 		else {
@@ -213,13 +233,20 @@ public class SplitsProvider
 						partitionKeyLength);
 
 				final double cardinality = getCardinality(
-						statistics,
-						gwRange,
-						index.getIndexStrategy().getPartitionKeyLength());
+						getHistStats(
+								index,
+								adapters,
+								adapterStore,
+								statsStore,
+								statsCache,
+								new ByteArrayId(gwRange.getPartitionKey()),
+								authorizations),
+						gwRange);
 
-				rangeList.add(new RangeLocationPair(
-						gwRange,
-						cardinality < 1 ? 1.0 : cardinality));
+				rangeList.add(
+						new RangeLocationPair(
+								gwRange,
+								cardinality < 1 ? 1.0 : cardinality));
 			}
 		}
 
@@ -231,9 +258,10 @@ public class SplitsProvider
 					new SplitInfo(
 							index,
 							rangeList));
-			splits.add(new IntermediateSplitInfo(
-					splitInfo,
-					this));
+			splits.add(
+					new IntermediateSplitInfo(
+							splitInfo,
+							this));
 		}
 
 		return splits;
@@ -241,8 +269,7 @@ public class SplitsProvider
 
 	protected double getCardinality(
 			final RowRangeHistogramStatistics<?> rangeStats,
-			final GeoWaveRowRange range,
-			final int partitionKeyLength ) {
+			final GeoWaveRowRange range ) {
 		if (range == null) {
 			if (rangeStats != null) {
 				return rangeStats.totalSampleSize();
@@ -253,16 +280,11 @@ public class SplitsProvider
 				return 1;
 			}
 		}
-		return rangeStats == null ? getRangeLength(range) : rangeStats.cardinality(
-				range.getPartitionKey(),
-				range.getStartSortKey() == null ? null : ArrayUtils.subarray(
+		return rangeStats == null ? getRangeLength(
+				range)
+				: rangeStats.cardinality(
 						range.getStartSortKey(),
-						partitionKeyLength,
-						range.getStartSortKey().length),
-				range.getEndSortKey() == null ? null : ArrayUtils.subarray(
-						range.getEndSortKey(),
-						partitionKeyLength,
-						range.getEndSortKey().length));
+						range.getEndSortKey());
 	}
 
 	protected RowRangeHistogramStatistics<?> getHistStats(
@@ -270,10 +292,12 @@ public class SplitsProvider
 			final List<DataAdapter<Object>> adapters,
 			final AdapterStore adapterStore,
 			final DataStatisticsStore statsStore,
-			final Map<PrimaryIndex, RowRangeHistogramStatistics<?>> statsCache,
+			final Map<Pair<PrimaryIndex, ByteArrayId>, RowRangeHistogramStatistics<?>> statsCache,
+			final ByteArrayId partitionKey,
 			final String[] authorizations )
 			throws IOException {
-		RowRangeHistogramStatistics<?> rangeStats = statsCache.get(index);
+		RowRangeHistogramStatistics<?> rangeStats = statsCache.get(
+				index);
 
 		if (rangeStats == null) {
 			try {
@@ -282,6 +306,7 @@ public class SplitsProvider
 						adapters,
 						adapterStore,
 						statsStore,
+						partitionKey,
 						authorizations);
 			}
 			catch (final Exception e) {
@@ -303,7 +328,8 @@ public class SplitsProvider
 		// TODO: does this account for the two extra bytes on BigInteger?
 		final byte[] valueBytes = value.toByteArray();
 		final byte[] bytes = new byte[numBytes];
-		final int pos = Math.abs(numBytes - valueBytes.length);
+		final int pos = Math.abs(
+				numBytes - valueBytes.length);
 		System.arraycopy(
 				valueBytes,
 				0,
@@ -320,18 +346,47 @@ public class SplitsProvider
 			final List<DataAdapter<Object>> adapters,
 			final AdapterStore adapterStore,
 			final DataStatisticsStore store,
+			final ByteArrayId partitionKey,
 			final String[] authorizations ) {
 		RowRangeHistogramStatistics<?> singleStats = null;
 		for (final DataAdapter<?> adapter : adapters) {
 			final RowRangeHistogramStatistics<?> rowStat = (RowRangeHistogramStatistics<?>) store.getDataStatistics(
 					adapter.getAdapterId(),
-					RowRangeHistogramStatistics.composeId(index.getId()),
+					RowRangeHistogramStatistics.composeId(
+							index.getId(),
+							partitionKey),
 					authorizations);
 			if (singleStats == null) {
 				singleStats = rowStat;
 			}
 			else {
-				singleStats.merge(rowStat);
+				singleStats.merge(
+						rowStat);
+			}
+		}
+
+		return singleStats;
+	}
+
+	private PartitionStatistics<?> getPartitionStats(
+			final PrimaryIndex index,
+			final List<DataAdapter<Object>> adapters,
+			final AdapterStore adapterStore,
+			final DataStatisticsStore store,
+			final String[] authorizations ) {
+		PartitionStatistics<?> singleStats = null;
+		for (final DataAdapter<?> adapter : adapters) {
+			final PartitionStatistics<?> rowStat = (PartitionStatistics<?>) store.getDataStatistics(
+					adapter.getAdapterId(),
+					PartitionStatistics.composeId(
+							index.getId()),
+					authorizations);
+			if (singleStats == null) {
+				singleStats = rowStat;
+			}
+			else {
+				singleStats.merge(
+						rowStat);
 			}
 		}
 
@@ -344,9 +399,9 @@ public class SplitsProvider
 		return getEnd(
 				range,
 				cardinality).subtract(
-				getStart(
-						range,
-						cardinality));
+						getStart(
+								range,
+								cardinality));
 	}
 
 	protected static BigInteger getStart(
@@ -436,13 +491,20 @@ public class SplitsProvider
 				extractBytes(
 						end,
 						maxDepth));
-		final BigInteger rangeBI = endBI.subtract(startBI);
-		if (rangeBI.equals(BigInteger.ZERO) || rangeBI.equals(BigInteger.ONE)) {
+		final BigInteger rangeBI = endBI.subtract(
+				startBI);
+		if (rangeBI.equals(
+				BigInteger.ZERO)
+				|| rangeBI.equals(
+						BigInteger.ONE)) {
 			return end;
 		}
-		final byte[] valueBytes = rangeBI.divide(
-				TWO).add(
-				startBI).toByteArray();
+		final byte[] valueBytes = rangeBI
+				.divide(
+						TWO)
+				.add(
+						startBI)
+				.toByteArray();
 		final byte[] bytes = new byte[valueBytes.length - 2];
 		System.arraycopy(
 				valueBytes,
@@ -537,11 +599,12 @@ public class SplitsProvider
 							startRow,
 							partitionKeyLength,
 							startRow.length)),
-					partitionKeyDiffers ? null : (stopRow == null ? null : (partitionKeyLength == stopRow.length ? null
-							: ArrayUtils.subarray(
-									stopRow,
-									partitionKeyLength,
-									stopRow.length))),
+					partitionKeyDiffers ? null
+							: (stopRow == null ? null
+									: (partitionKeyLength == stopRow.length ? null : ArrayUtils.subarray(
+											stopRow,
+											partitionKeyLength,
+											stopRow.length))),
 					true,
 					partitionKeyDiffers);
 
@@ -566,7 +629,8 @@ public class SplitsProvider
 					range.getPartitionKey(),
 					range.getStartSortKey());
 
-			final byte[] endKey = (range.getEndSortKey() == null) ? ByteArrayId.getNextPrefix(range.getPartitionKey())
+			final byte[] endKey = (range.getEndSortKey() == null) ? ByteArrayId.getNextPrefix(
+					range.getPartitionKey())
 					: ArrayUtils.addAll(
 							range.getPartitionKey(),
 							range.getEndSortKey());

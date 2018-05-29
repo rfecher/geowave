@@ -548,7 +548,7 @@ public class AccumuloDataStoreStatsTest
 
 		RowRangeHistogramStatistics<?> histogramStats = (RowRangeHistogramStatistics<?>) statsStore.getDataStatistics(
 				adapter.getAdapterId(),
-				RowRangeHistogramStatistics.composeId(index.getId()),
+				RowRangeHistogramStatistics.composeId(null, index.getId()),
 				"bbb");
 
 		assertTrue(histogramStats != null);
@@ -564,7 +564,7 @@ public class AccumuloDataStoreStatsTest
 
 		histogramStats = (RowRangeHistogramStatistics<?>) statsStore.getDataStatistics(
 				adapter.getAdapterId(),
-				RowRangeHistogramStatistics.composeId(index.getId()),
+				RowRangeHistogramStatistics.composeId(null, index.getId()),
 				"bbb");
 
 		assertNull(histogramStats);
