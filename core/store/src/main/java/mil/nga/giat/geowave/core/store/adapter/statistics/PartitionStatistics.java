@@ -89,7 +89,7 @@ public class PartitionStatistics<T> extends
 			// we know each partition is constant size, so start with the size
 			// of the partition keys
 			ByteArrayId first = partitions.iterator().next();
-			if (first == null || first.getBytes() == null) {
+			if (first != null && first.getBytes() != null) {
 				final ByteBuffer buffer = super.binaryBuffer((first.getBytes().length * partitions.size()) + 1);
 				buffer.put((byte) first.getBytes().length);
 				for (final ByteArrayId e : partitions) {

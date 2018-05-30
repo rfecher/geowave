@@ -11,6 +11,7 @@
 package mil.nga.giat.geowave.core.store.adapter.statistics;
 
 import java.nio.ByteBuffer;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import mil.nga.giat.geowave.core.index.ByteArrayId;
@@ -51,26 +52,28 @@ public class RowRangeHistogramStatistics<T> extends
 				composeId(
 						indexId,
 						partitionKey));
+		histogram = createHistogram();
 	}
 
 	private static NumericHistogram createHistogram() {
-		return HistFactory.create(
-				1024);
+		return HistFactory.create(1024);
 	}
 
 	public static ByteArrayId composeId(
 			final ByteArrayId indexId,
 			final ByteArrayId partitionKey ) {
+		if ((partitionKey == null) || (partitionKey.getBytes() == null) || (partitionKey.getBytes().length == 0)) {
+			return new ByteArrayId(
+					STATS_TYPE.getString() + STATS_SEPARATOR.getString() + indexId.getString());
+		}
 		return AbstractDataStatistics.composeId(
-				STATS_TYPE + STATS_SEPARATOR.getString() + indexId.getString(),
-				ByteArrayUtils.byteArrayToString(
-						partitionKey.getBytes()));
+				STATS_TYPE.getString() + STATS_SEPARATOR.getString() + indexId.getString(),
+				ByteArrayUtils.byteArrayToString(partitionKey.getBytes()));
 	}
 
 	@Override
 	public DataStatistics<T> duplicate() {
-		Pair<ByteArrayId, ByteArrayId> pair = decomposeIndexAndPartitionFromId(
-				statisticsId);
+		final Pair<ByteArrayId, ByteArrayId> pair = decomposeIndexAndPartitionFromId(statisticsId);
 		return new RowRangeHistogramStatistics<T>(
 				dataAdapterId,
 				pair.getLeft(), // indexId
@@ -90,33 +93,30 @@ public class RowRangeHistogramStatistics<T> extends
 				0,
 				idLength);
 		final String idString = id.getString();
-		final int pos = idString.lastIndexOf(
-				STATS_ID_SEPARATOR);
-
+		final int pos = idString.lastIndexOf(STATS_ID_SEPARATOR);
+		if (pos < 0) {
+			return Pair.of(
+					new ByteArrayId(
+							idString),
+					null);
+		}
 		return Pair.of(
 				new ByteArrayId(
 						idString.substring(
 								0,
 								pos)),
 				new ByteArrayId(
-						ByteArrayUtils.byteArrayFromString(
-								idString.substring(
-										pos + 1))));
+						ByteArrayUtils.byteArrayFromString(idString.substring(pos + 1))));
 	}
 
 	public double cardinality(
 			final byte[] start,
 			final byte[] end ) {
-		return ((end == null ? histogram.getTotalCount()
-				: histogram.sum(
-						ByteUtils.toDouble(
-								end),
-						true))
-				- (start == null ? 0
-						: histogram.sum(
-								ByteUtils.toDouble(
-										start),
-								false)));
+		return ((end == null ? histogram.getTotalCount() : histogram.sum(
+				ByteUtils.toDouble(end),
+				true)) - (start == null ? 0 : histogram.sum(
+				ByteUtils.toDouble(start),
+				false)));
 	}
 
 	public double[] quantile(
@@ -124,46 +124,37 @@ public class RowRangeHistogramStatistics<T> extends
 		final double[] result = new double[bins];
 		final double binSize = 1.0 / bins;
 		for (int bin = 0; bin < bins; bin++) {
-			result[bin] = quantile(
-					binSize * (bin + 1));
+			result[bin] = quantile(binSize * (bin + 1));
 		}
 		return result;
 	}
 
 	public long[] count(
 			final int bins ) {
-		return histogram.count(
-				bins);
+		return histogram.count(bins);
 	}
 
 	public double cdf(
 			final byte[] id ) {
-		return histogram.cdf(
-				ByteUtils.toDouble(
-						id));
+		return histogram.cdf(ByteUtils.toDouble(id));
 	}
 
 	public double quantile(
 			final double percentage ) {
-		return histogram.quantile(
-				(percentage));
+		return histogram.quantile((percentage));
 	}
 
 	public double percentPopulationOverRange(
 			final byte[] start,
 			final byte[] stop ) {
-		return cdf(
-				stop)
-				- cdf(
-						start);
+		return cdf(stop) - cdf(start);
 	}
 
 	public long getLeftMostCount(
 			final ByteArrayId partition ) {
-		return (long) Math.ceil(
-				histogram.sum(
-						histogram.getMinValue(),
-						true));
+		return (long) Math.ceil(histogram.sum(
+				histogram.getMinValue(),
+				true));
 	}
 
 	public long totalSampleSize() {
@@ -174,22 +165,20 @@ public class RowRangeHistogramStatistics<T> extends
 	public void merge(
 			final Mergeable mergeable ) {
 		if (mergeable instanceof RowRangeHistogramStatistics) {
-			NumericHistogram otherHistogram = ((RowRangeHistogramStatistics) mergeable).histogram;
+			final NumericHistogram otherHistogram = ((RowRangeHistogramStatistics) mergeable).histogram;
 			if (histogram == null) {
 				histogram = otherHistogram;
 			}
 			else if (otherHistogram != null) {
-				histogram.merge(
-						otherHistogram);
+				histogram.merge(otherHistogram);
 			}
 		}
 	}
 
 	@Override
 	public byte[] toBinary() {
-		int bufferSize = histogram != null ? histogram.bufferSize() : 0;
-		final ByteBuffer buffer = super.binaryBuffer(
-				bufferSize);
+		final int bufferSize = histogram != null ? histogram.bufferSize() : 0;
+		final ByteBuffer buffer = super.binaryBuffer(bufferSize);
 		if (histogram != null) {
 			histogram.toBinary(buffer);
 		}
@@ -199,12 +188,10 @@ public class RowRangeHistogramStatistics<T> extends
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buffer = super.binaryBuffer(bytes);
 		if (buffer.hasRemaining()) {
 			final NumericHistogram histogram = createHistogram();
-			histogram.fromBinary(
-					buffer);
+			histogram.fromBinary(buffer);
 		}
 	}
 
@@ -214,13 +201,11 @@ public class RowRangeHistogramStatistics<T> extends
 			final GeoWaveRow... kvs ) {
 		for (final GeoWaveRow kv : kvs) {
 			final byte[] idBytes = kv.getSortKey();
-			add(
-					ByteUtils.toDouble(
-							idBytes));
+			add(ByteUtils.toDouble(idBytes));
 
 		}
 	}
-	
+
 	protected void add(
 			final double num ) {
 		histogram.add(
@@ -231,48 +216,34 @@ public class RowRangeHistogramStatistics<T> extends
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		Pair<ByteArrayId, ByteArrayId> indexAndPartition = decomposeIndexAndPartitionFromId(
-				statisticsId);
-		buffer
-				.append(
-						"histogram[index=")
-				.append(
-						indexAndPartition.getLeft().getString());
-		buffer
-				.append(
-						", partitionAsHex=")
-				.append(
-						indexAndPartition.getRight().getHexString());
-		if (histogram != null) {
+		final Pair<ByteArrayId, ByteArrayId> indexAndPartition = decomposeIndexAndPartitionFromId(statisticsId);
+		buffer.append(
+				"histogram[index=").append(
+				indexAndPartition.getLeft().getString());
+		if (indexAndPartition.getRight() != null && indexAndPartition.getRight().getBytes() != null
+				&& indexAndPartition.getRight().getBytes().length > 0) {
 			buffer.append(
-					", bins={");
-			for (final double v : histogram.quantile(
-					10)) {
+					", partitionAsHex=").append(
+					indexAndPartition.getRight().getHexString());
+		}
+		if (histogram != null) {
+			buffer.append(", bins={");
+			for (final double v : histogram.quantile(10)) {
+				buffer.append(v);
+				buffer.append(' ');
+			}
+			buffer.deleteCharAt(buffer.length() - 1);
+			buffer.append("}, counts={");
+			for (final long v : histogram.count(10)) {
 				buffer.append(
-						v);
-				buffer.append(
+						v).append(
 						' ');
 			}
-			buffer.deleteCharAt(
-					buffer.length() - 1);
-			buffer.append(
-					"}, counts={");
-			for (final long v : histogram.count(
-					10)) {
-				buffer
-						.append(
-								v)
-						.append(
-								' ');
-			}
 
-			buffer.deleteCharAt(
-					buffer.length() - 1);
-			buffer.append(
-					"}]");
+			buffer.deleteCharAt(buffer.length() - 1);
+			buffer.append("}]");
 		}
-		buffer.append(
-				"]");
+		buffer.append("]");
 		return buffer.toString();
 	}
 
@@ -287,8 +258,7 @@ public class RowRangeHistogramStatistics<T> extends
 		jo.put(
 				"type",
 				STATS_TYPE.getString());
-		Pair<ByteArrayId, ByteArrayId> indexAndPartition = decomposeIndexAndPartitionFromId(
-				statisticsId);
+		final Pair<ByteArrayId, ByteArrayId> indexAndPartition = decomposeIndexAndPartitionFromId(statisticsId);
 		jo.put(
 				"index",
 				indexAndPartition.getLeft().getString());
@@ -310,20 +280,16 @@ public class RowRangeHistogramStatistics<T> extends
 					"totalCount",
 					histogram.getTotalCount());
 			final JSONArray binsArray = new JSONArray();
-			for (final double v : histogram.quantile(
-					10)) {
-				binsArray.add(
-						v);
+			for (final double v : histogram.quantile(10)) {
+				binsArray.add(v);
 			}
 			histogramJson.put(
 					"bins",
 					binsArray);
 
 			final JSONArray countsArray = new JSONArray();
-			for (final long v : histogram.count(
-					10)) {
-				countsArray.add(
-						v);
+			for (final long v : histogram.count(10)) {
+				countsArray.add(v);
 			}
 			histogramJson.put(
 					"counts",

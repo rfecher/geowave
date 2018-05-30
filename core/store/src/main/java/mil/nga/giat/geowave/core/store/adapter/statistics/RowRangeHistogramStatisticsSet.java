@@ -42,13 +42,15 @@ public class RowRangeHistogramStatisticsSet<T> extends
 
 	private synchronized RowRangeHistogramStatistics<T> getPartitionStatistic(
 			final ByteArrayId partitionKey ) {
-		RowRangeHistogramStatistics<T> histogram = histogramPerPartition.get(
-				partitionKey);
+		RowRangeHistogramStatistics<T> histogram = histogramPerPartition.get(partitionKey);
 		if (histogram == null) {
 			histogram = new RowRangeHistogramStatistics<>(
 					dataAdapterId,
 					statisticsId,
 					partitionKey);
+			histogramPerPartition.put(
+					partitionKey,
+					histogram);
 		}
 		return histogram;
 	}
@@ -81,35 +83,31 @@ public class RowRangeHistogramStatisticsSet<T> extends
 			if (rows.length == 1) {
 				// if there's only one row its simple
 				getPartitionStatistic(
-						getPartitionKey(
-								rows[0].getPartitionKey())).entryIngested(
-										entry,
-										rows);
+						getPartitionKey(rows[0].getPartitionKey())).entryIngested(
+						entry,
+						rows);
 			}
 			else {
 				// otherwise we keep a map per partition to call ingested once
 				// per partition on each partition's individual statistic
 				Map<ByteArrayId, List<GeoWaveRow>> rowsPerPartition = new HashMap<>();
 				for (final GeoWaveRow row : rows) {
-					ByteArrayId p = getPartitionKey(
-							row.getPartitionKey());
-					List<GeoWaveRow> r = rowsPerPartition.get(
-							p);
+					ByteArrayId p = getPartitionKey(row.getPartitionKey());
+					List<GeoWaveRow> r = rowsPerPartition.get(p);
 					if (r == null) {
 						r = new ArrayList<>();
 						rowsPerPartition.put(
 								p,
 								r);
 					}
-					r.add(
-							row);
+					r.add(row);
 				}
 				for (Entry<ByteArrayId, List<GeoWaveRow>> e : rowsPerPartition.entrySet()) {
 					getPartitionStatistic(
 							e.getKey()).entryIngested(
-									entry,
-									e.getValue().toArray(
-											new GeoWaveRow[e.getValue().size()]));
+							entry,
+							e.getValue().toArray(
+									new GeoWaveRow[e.getValue().size()]));
 				}
 			}
 		}
@@ -123,9 +121,8 @@ public class RowRangeHistogramStatisticsSet<T> extends
 
 	protected static ByteArrayId getPartitionKey(
 			final byte[] partitionBytes ) {
-		return ((partitionBytes == null) || (partitionBytes.length == 0)) ? null
-				: new ByteArrayId(
-						partitionBytes);
+		return ((partitionBytes == null) || (partitionBytes.length == 0)) ? null : new ByteArrayId(
+				partitionBytes);
 	}
 
 }
