@@ -152,7 +152,7 @@ public class BasicMapReduceIT extends
 		return dataStorePluginOptions;
 	}
 
-	@Test
+//	@Test
 	public void testIngestAndQueryGeneralGpx()
 			throws Exception {
 		TestUtils.deleteAll(dataStorePluginOptions);
