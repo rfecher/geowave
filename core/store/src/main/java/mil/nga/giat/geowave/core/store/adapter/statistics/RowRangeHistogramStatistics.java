@@ -189,10 +189,11 @@ public class RowRangeHistogramStatistics<T> extends
 	public void fromBinary(
 			final byte[] bytes ) {
 		final ByteBuffer buffer = super.binaryBuffer(bytes);
+		final NumericHistogram histogram = createHistogram();
 		if (buffer.hasRemaining()) {
-			final NumericHistogram histogram = createHistogram();
 			histogram.fromBinary(buffer);
 		}
+		this.histogram = histogram;
 	}
 
 	@Override
@@ -202,7 +203,6 @@ public class RowRangeHistogramStatistics<T> extends
 		for (final GeoWaveRow kv : kvs) {
 			final byte[] idBytes = kv.getSortKey();
 			add(ByteUtils.toDouble(idBytes));
-
 		}
 	}
 
