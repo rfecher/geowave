@@ -47,8 +47,7 @@ public class DataStoreStatisticsProvider<T> implements
 	public ByteArrayId[] getSupportedStatisticsTypes() {
 		final ByteArrayId[] idsFromAdapter;
 		if ((adapter instanceof StatisticsProvider) && includeAdapterStats) {
-			adapter.init(
-					index);
+			adapter.init(index);
 			idsFromAdapter = ((StatisticsProvider) adapter).getSupportedStatisticsTypes();
 		}
 		else {
@@ -69,39 +68,34 @@ public class DataStoreStatisticsProvider<T> implements
 	@Override
 	public DataStatistics<T> createDataStatistics(
 			final ByteArrayId statisticsType ) {
-		if (statisticsType.equals(
-				RowRangeHistogramStatistics.STATS_TYPE)) {
+		if (statisticsType.equals(RowRangeHistogramStatistics.STATS_TYPE)) {
 			return new RowRangeHistogramStatisticsSet(
 					adapter.getAdapterId(),
 					index.getId());
 		}
-		if (statisticsType.equals(
-				PartitionStatistics.STATS_TYPE)) {
+		if (statisticsType.equals(PartitionStatistics.STATS_TYPE)) {
 			return new PartitionStatistics(
 					adapter.getAdapterId(),
 					index.getId());
 		}
-		if (statisticsType.equals(
-				IndexMetaDataSet.STATS_TYPE)) {
+		if (statisticsType.equals(IndexMetaDataSet.STATS_TYPE)) {
 			return new IndexMetaDataSet(
 					adapter.getAdapterId(),
 					index.getId(),
 					index.getIndexStrategy());
 		}
-		if (statisticsType.equals(
-				DifferingFieldVisibilityEntryCount.STATS_TYPE)) {
+		if (statisticsType.equals(DifferingFieldVisibilityEntryCount.STATS_TYPE)) {
 			return new DifferingFieldVisibilityEntryCount<>(
 					adapter.getAdapterId(),
 					index.getId());
 		}
-		if (statisticsType.equals(
-				DuplicateEntryCount.STATS_TYPE)) {
+		if (statisticsType.equals(DuplicateEntryCount.STATS_TYPE)) {
 			return new DuplicateEntryCount<>(
 					adapter.getAdapterId(),
 					index.getId());
 		}
-		return (adapter instanceof StatisticsProvider) ? ((StatisticsProvider) adapter).createDataStatistics(
-				statisticsType) : null;
+		return (adapter instanceof StatisticsProvider) ? ((StatisticsProvider) adapter)
+				.createDataStatistics(statisticsType) : null;
 	}
 
 	@Override
