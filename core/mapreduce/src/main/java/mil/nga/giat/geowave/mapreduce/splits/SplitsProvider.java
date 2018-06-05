@@ -191,38 +191,51 @@ public class SplitsProvider
 						-1).getCompositeQueryRanges();
 			}
 		}
-
-		final PartitionStatistics<?> statistics = getPartitionStats(
-				index,
-				adapters,
-				adapterStore,
-				statsStore,
-				authorizations);
-
 		final List<RangeLocationPair> rangeList = new ArrayList<RangeLocationPair>();
 		if (ranges == null) {
+
+			final PartitionStatistics<?> statistics = getPartitionStats(
+					index,
+					adapters,
+					adapterStore,
+					statsStore,
+					authorizations);
+
 			// Try to get ranges from histogram statistics
-			final Set<ByteArrayId> partitionKeys = statistics.getPartitionKeys();
-			for (final ByteArrayId partitionKey : partitionKeys) {
-				final GeoWaveRowRange gwRange = new GeoWaveRowRange(
-						partitionKey.getBytes(),
-						null,
-						null,
-						true,
-						true);
-				final double cardinality = getCardinality(
-						getHistStats(
-								index,
-								adapters,
-								adapterStore,
-								statsStore,
-								statsCache,
-								partitionKey,
-								authorizations),
-						gwRange);
+			if (statistics != null) {
+				final Set<ByteArrayId> partitionKeys = statistics.getPartitionKeys();
+				for (final ByteArrayId partitionKey : partitionKeys) {
+					final GeoWaveRowRange gwRange = new GeoWaveRowRange(
+							partitionKey.getBytes(),
+							null,
+							null,
+							true,
+							true);
+					final double cardinality = getCardinality(
+							getHistStats(
+									index,
+									adapters,
+									adapterStore,
+									statsStore,
+									statsCache,
+									partitionKey,
+									authorizations),
+							gwRange);
+					rangeList.add(new RangeLocationPair(
+							gwRange,
+							cardinality < 1 ? 1.0 : cardinality));
+				}
+			}
+			else {
+				// add one all-inclusive range
 				rangeList.add(new RangeLocationPair(
-						gwRange,
-						cardinality < 1 ? 1.0 : cardinality));
+						new GeoWaveRowRange(
+								null,
+								null,
+								null,
+								true,
+								false),
+						1.0));
 			}
 		}
 		else {

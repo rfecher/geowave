@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2017 Contributors to the Eclipse Foundation
- * 
+ *
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  * All rights reserved. This program and the accompanying materials
@@ -56,11 +56,12 @@ public class DataStoreStatisticsProvider<T> implements
 
 		final ByteArrayId[] newSet = Arrays.copyOf(
 				idsFromAdapter,
-				idsFromAdapter.length + 4);
+				idsFromAdapter.length + 5);
 		newSet[idsFromAdapter.length] = RowRangeHistogramStatistics.STATS_TYPE;
 		newSet[idsFromAdapter.length + 1] = IndexMetaDataSet.STATS_TYPE;
 		newSet[idsFromAdapter.length + 2] = DifferingFieldVisibilityEntryCount.STATS_TYPE;
 		newSet[idsFromAdapter.length + 3] = DuplicateEntryCount.STATS_TYPE;
+		newSet[idsFromAdapter.length + 4] = PartitionStatistics.STATS_TYPE;
 		return newSet;
 	}
 

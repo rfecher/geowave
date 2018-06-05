@@ -1,27 +1,23 @@
 package mil.nga.giat.geowave.core.store.adapter.statistics;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.Map.Entry;
 import java.util.Set;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import mil.nga.giat.geowave.core.index.ByteArrayId;
 import mil.nga.giat.geowave.core.index.Mergeable;
-import mil.nga.giat.geowave.core.index.StringUtils;
-import mil.nga.giat.geowave.core.store.adapter.statistics.histogram.ByteUtils;
-import mil.nga.giat.geowave.core.store.adapter.statistics.histogram.NumericHistogram;
-import mil.nga.giat.geowave.core.store.adapter.statistics.histogram.NumericHistogramFactory;
-import mil.nga.giat.geowave.core.store.adapter.statistics.histogram.MinimalBinDistanceHistogram.MinimalBinDistanceHistogramFactory;
 import mil.nga.giat.geowave.core.store.entities.GeoWaveRow;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+/**
+ * This class is responsible for maintaining all unique Partition IDs that are
+ * being used within a dataset.
+ *
+ * @param <T>
+ *            The type of the row to keep statistics on
+ */
 public class PartitionStatistics<T> extends
 		AbstractDataStatistics<T>
 {
