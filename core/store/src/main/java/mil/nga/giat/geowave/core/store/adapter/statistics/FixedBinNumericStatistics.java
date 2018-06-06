@@ -47,7 +47,8 @@ public abstract class FixedBinNumericStatistics<T> extends
 {
 	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
 			"FIXED_BIN_NUMERIC_HISTOGRAM");
-	FixedBinNumericHistogram histogram = new FixedBinNumericHistogram(1024);
+	FixedBinNumericHistogram histogram = new FixedBinNumericHistogram(
+			1024);
 
 	protected FixedBinNumericStatistics() {
 		super();
@@ -68,7 +69,8 @@ public abstract class FixedBinNumericStatistics<T> extends
 		super(
 				adapterId,
 				statisticsId);
-		histogram = new FixedBinNumericHistogram(bins);
+		histogram = new FixedBinNumericHistogram(
+				bins);
 	}
 
 	public FixedBinNumericStatistics(

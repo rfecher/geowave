@@ -137,8 +137,7 @@ public class MinimalBinDistanceHistogram implements
 			bins = new ArrayList<Bin>(
 					myTypeOfHist.bins.size());
 			for (final Bin coord : myTypeOfHist.bins) {
-				bins.add(
-						coord);
+				bins.add(coord);
 			}
 			// the constrained bin sizes may not match
 			trim();
@@ -150,16 +149,13 @@ public class MinimalBinDistanceHistogram implements
 
 			final ArrayList<Bin> mergedBins = new ArrayList<Bin>(
 					getNumBins() + myTypeOfHist.getNumBins());
-			mergedBins.addAll(
-					bins);
+			mergedBins.addAll(bins);
 			for (final Bin oldBin : myTypeOfHist.bins) {
-				mergedBins.add(
-						new Bin(
-								oldBin.lowerBound,
-								oldBin.count));
+				mergedBins.add(new Bin(
+						oldBin.lowerBound,
+						oldBin.count));
 			}
-			Collections.sort(
-					mergedBins);
+			Collections.sort(mergedBins);
 
 			bins = mergedBins;
 
@@ -205,13 +201,11 @@ public class MinimalBinDistanceHistogram implements
 		int bin = 0;
 		for (int l = 0, r = bins.size(); l < r;) {
 			bin = (l + r) / 2;
-			if (bins.get(
-					bin).lowerBound > v) {
+			if (bins.get(bin).lowerBound > v) {
 				r = bin;
 			}
 			else {
-				if (bins.get(
-						bin).lowerBound < v) {
+				if (bins.get(bin).lowerBound < v) {
 					l = ++bin;
 				}
 				else {
@@ -231,11 +225,8 @@ public class MinimalBinDistanceHistogram implements
 		// just increment 'bin'. This is not done now because we don't want to
 		// make any
 		// assumptions about the range of numeric data being analyzed.
-		if ((bin < bins.size()) && (Math.abs(
-				bins.get(
-						bin).lowerBound - v) < 1E-12)) {
-			bins.get(
-					bin).count += count;
+		if ((bin < bins.size()) && (Math.abs(bins.get(bin).lowerBound - v) < 1E-12)) {
+			bins.get(bin).count += count;
 		}
 		else {
 			bins.add(
@@ -261,17 +252,11 @@ public class MinimalBinDistanceHistogram implements
 		while (bins.size() > nbins) {
 			// Find the closest pair of bins in terms of x coordinates. Break
 			// ties randomly.
-			double smallestdiff = bins.get(
-					1).lowerBound
-					- bins.get(
-							0).lowerBound;
+			double smallestdiff = bins.get(1).lowerBound - bins.get(0).lowerBound;
 			int smallestdiffloc = 0, smallestdiffcount = 1;
 			final int s = bins.size() - 1;
 			for (int i = 1; i < s; i++) {
-				final double diff = bins.get(
-						i + 1).lowerBound
-						- bins.get(
-								i).lowerBound;
+				final double diff = bins.get(i + 1).lowerBound - bins.get(i).lowerBound;
 				if (diff < smallestdiff) {
 					smallestdiff = diff;
 					smallestdiffloc = i;
@@ -292,19 +277,14 @@ public class MinimalBinDistanceHistogram implements
 			// The height of the new bin is the sum of the heights of the old
 			// bins.
 
-			final Bin smallestdiffbin = bins.get(
-					smallestdiffloc);
-			final double d = smallestdiffbin.count + bins.get(
-					smallestdiffloc + 1).count;
+			final Bin smallestdiffbin = bins.get(smallestdiffloc);
+			final double d = smallestdiffbin.count + bins.get(smallestdiffloc + 1).count;
 			smallestdiffbin.lowerBound *= smallestdiffbin.count / d;
-			smallestdiffbin.lowerBound += (bins.get(
-					smallestdiffloc + 1).lowerBound / d)
-					* bins.get(
-							smallestdiffloc + 1).count;
+			smallestdiffbin.lowerBound += (bins.get(smallestdiffloc + 1).lowerBound / d)
+					* bins.get(smallestdiffloc + 1).count;
 			smallestdiffbin.count = d;
 			// Shift the remaining bins left one position
-			bins.remove(
-					smallestdiffloc + 1);
+			bins.remove(smallestdiffloc + 1);
 		}
 	}
 
@@ -318,8 +298,7 @@ public class MinimalBinDistanceHistogram implements
 		final double[] result = new double[bins];
 		double val = increment;
 		for (int i = 0; i < bins; i++, val += increment) {
-			result[i] = quantile(
-					val);
+			result[i] = quantile(val);
 		}
 		return result;
 	}
@@ -339,24 +318,16 @@ public class MinimalBinDistanceHistogram implements
 		double csum = 0;
 		final int binsCount = bins.size();
 		for (int b = 0; b < binsCount; b++) {
-			csum += bins.get(
-					b).count;
+			csum += bins.get(b).count;
 			if ((csum / totalCount) >= q) {
 				if (b == 0) {
-					return bins.get(
-							b).lowerBound;
+					return bins.get(b).lowerBound;
 				}
 
-				csum -= bins.get(
-						b).count;
-				final double r = bins.get(
-						b - 1).lowerBound
-						+ ((((q * totalCount) - csum) * (bins.get(
-								b).lowerBound
-								- bins.get(
-										b - 1).lowerBound))
-								/ (bins.get(
-										b).count));
+				csum -= bins.get(b).count;
+				final double r = bins.get(b - 1).lowerBound
+						+ ((((q * totalCount) - csum) * (bins.get(b).lowerBound - bins.get(b - 1).lowerBound)) / (bins
+								.get(b).count));
 				return r;
 			}
 		}
@@ -376,8 +347,7 @@ public class MinimalBinDistanceHistogram implements
 			return 0.0;
 		}
 
-		final double minValue = bins.get(
-				0).lowerBound;
+		final double minValue = bins.get(0).lowerBound;
 		final double range = maxValue - minValue;
 		// one value
 
@@ -400,14 +370,10 @@ public class MinimalBinDistanceHistogram implements
 			i++;
 		}
 
-		final double upperBoundary = (i < getNumBins()) ? bins.get(
-				i).lowerBound : maxValue;
-		final double lowerBoundary = i > 0 ? bins.get(
-				i - 1).lowerBound : 0.0;
-		final double upperCount = (i < getNumBins()) ? bins.get(
-				i).count : 0;
-		final double lowerCount = i > 0 ? bins.get(
-				i - 1).count : 0;
+		final double upperBoundary = (i < getNumBins()) ? bins.get(i).lowerBound : maxValue;
+		final double lowerBoundary = i > 0 ? bins.get(i - 1).lowerBound : 0.0;
+		final double upperCount = (i < getNumBins()) ? bins.get(i).count : 0;
+		final double lowerCount = i > 0 ? bins.get(i - 1).count : 0;
 		foundCount -= lowerCount;
 
 		// from paper 'sum' procedure
@@ -439,10 +405,9 @@ public class MinimalBinDistanceHistogram implements
 		start += increment;
 		long last = 0;
 		for (int bin = 0; bin < bins; bin++, start += increment) {
-			final long aggSum = (long) Math.ceil(
-					sum(
-							start,
-							false));
+			final long aggSum = (long) Math.ceil(sum(
+					start,
+					false));
 			result[bin] = aggSum - last;
 			last = aggSum;
 		}
@@ -459,17 +424,12 @@ public class MinimalBinDistanceHistogram implements
 	@Override
 	public void toBinary(
 			final ByteBuffer buffer ) {
-		buffer.putLong(
-				totalCount);
-		buffer.putDouble(
-				maxValue);
-		buffer.putInt(
-				nbins);
-		buffer.putInt(
-				bins.size());
+		buffer.putLong(totalCount);
+		buffer.putDouble(maxValue);
+		buffer.putInt(nbins);
+		buffer.putInt(bins.size());
 		for (final Bin bin : bins) {
-			bin.toBuffer(
-					buffer);
+			bin.toBuffer(buffer);
 		}
 	}
 
@@ -481,12 +441,9 @@ public class MinimalBinDistanceHistogram implements
 		nbins = buffer.getInt();
 		final int usedBinCount = buffer.getInt();
 		bins.clear();
-		bins.ensureCapacity(
-				nbins);
+		bins.ensureCapacity(nbins);
 		for (int i = 0; i < usedBinCount; i++) {
-			bins.add(
-					new Bin().fromBuffer(
-							buffer));
+			bins.add(new Bin().fromBuffer(buffer));
 		}
 	}
 
@@ -522,10 +479,8 @@ public class MinimalBinDistanceHistogram implements
 
 		public void toBuffer(
 				final ByteBuffer buffer ) {
-			buffer.putDouble(
-					lowerBound);
-			buffer.putDouble(
-					count);
+			buffer.putDouble(lowerBound);
+			buffer.putDouble(count);
 		}
 
 		public Bin fromBuffer(
@@ -544,11 +499,9 @@ public class MinimalBinDistanceHistogram implements
 			final int prime = 31;
 			int result = 1;
 			long temp;
-			temp = Double.doubleToLongBits(
-					count);
+			temp = Double.doubleToLongBits(count);
 			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(
-					lowerBound);
+			temp = Double.doubleToLongBits(lowerBound);
 			result = (prime * result) + (int) (temp ^ (temp >>> 32));
 			return result;
 		}
@@ -566,14 +519,10 @@ public class MinimalBinDistanceHistogram implements
 				return false;
 			}
 			final Bin other = (Bin) obj;
-			if (Double.doubleToLongBits(
-					count) != Double.doubleToLongBits(
-							other.count)) {
+			if (Double.doubleToLongBits(count) != Double.doubleToLongBits(other.count)) {
 				return false;
 			}
-			if (Double.doubleToLongBits(
-					lowerBound) != Double.doubleToLongBits(
-							other.lowerBound)) {
+			if (Double.doubleToLongBits(lowerBound) != Double.doubleToLongBits(other.lowerBound)) {
 				return false;
 			}
 			return true;
@@ -587,8 +536,7 @@ public class MinimalBinDistanceHistogram implements
 
 	@Override
 	public double getMinValue() {
-		return !bins.isEmpty() ? bins.get(
-				0).lowerBound : 0.0;
+		return !bins.isEmpty() ? bins.get(0).lowerBound : 0.0;
 	};
 
 	public static class MinimalBinDistanceHistogramFactory implements
@@ -610,13 +558,5 @@ public class MinimalBinDistanceHistogram implements
 			return new MinimalBinDistanceHistogram(
 					bins);
 		}
-	}
-
-	@Override
-	public double sum(
-			final double val ) {
-		return sum(
-				val,
-				true);
 	}
 }

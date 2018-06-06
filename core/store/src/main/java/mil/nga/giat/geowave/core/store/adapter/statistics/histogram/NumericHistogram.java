@@ -52,7 +52,8 @@ public interface NumericHistogram
 	 * @return the number of estimated points
 	 */
 	public double sum(
-			final double val, boolean inclusive);
+			final double val,
+			boolean inclusive );
 
 	/**
 	 *
