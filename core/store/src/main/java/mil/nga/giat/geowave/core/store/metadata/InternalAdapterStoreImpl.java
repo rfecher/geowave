@@ -210,6 +210,7 @@ public class InternalAdapterStoreImpl implements
 			try (final MetadataWriter writer = operations.createMetadataWriter(MetadataType.INTERNAL_ADAPTER)) {
 				if (writer != null) {
 					final byte[] internalAdapterIdBytes = ByteArrayUtils.shortToByteArray(internalAdapterId);
+					System.err.println("INTERNAL ADAPTER ID: " + internalAdapterId);
 					writer.write(new GeoWaveMetadata(
 							adapterId.getBytes(),
 							EXTERNAL_TO_INTERNAL_ID,
