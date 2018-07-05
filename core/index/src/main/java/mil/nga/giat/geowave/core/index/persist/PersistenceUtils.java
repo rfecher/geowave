@@ -139,7 +139,7 @@ public class PersistenceUtils
 		}
 		final ByteBuffer buf = ByteBuffer.wrap(bytes);
 		final short classId = buf.getShort();
-
+		System.err.println("class ID: " + classId);
 		final Persistable retVal = PersistableFactory.getInstance().newInstance(
 				classId);
 
