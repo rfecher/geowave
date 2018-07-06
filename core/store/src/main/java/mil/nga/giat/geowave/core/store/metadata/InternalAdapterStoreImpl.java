@@ -3,6 +3,7 @@ package mil.nga.giat.geowave.core.store.metadata;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,7 +154,7 @@ public class InternalAdapterStoreImpl implements
 			return null;
 		}
 		try (CloseableIterator<GeoWaveMetadata> it = reader.query(new MetadataQuery(
-				adapterId.getBytes(),
+				ArrayUtils.add(adapterId.getBytes(), (byte)1),
 				EXTERNAL_TO_INTERNAL_ID))) {
 			if (!it.hasNext()) {
 				if (warnIfNotExist) {
@@ -215,7 +216,7 @@ public class InternalAdapterStoreImpl implements
 				if (writer != null) {
 					final byte[] internalAdapterIdBytes = ByteArrayUtils.shortToByteArray(internalAdapterId);
 					writer.write(new GeoWaveMetadata(
-							adapterId.getBytes(),
+							ArrayUtils.add(adapterId.getBytes(), (byte)1),
 							EXTERNAL_TO_INTERNAL_ID,
 							null,
 							internalAdapterIdBytes));
