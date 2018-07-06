@@ -1,5 +1,7 @@
 package mil.nga.giat.geowave.core.store.metadata;
 
+import java.nio.ByteBuffer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +64,7 @@ public class AdapterStoreImpl extends
 	@Override
 	protected InternalDataAdapter<?> fromValue(
 			final GeoWaveMetadata entry ) {
-		System.err.println("adapter class ID " + ByteArrayUtils.byteArrayToShort(entry.getValue()));
+		System.err.println("adapter class ID " +ByteBuffer.wrap(entry.getValue()).getShort());
 		final WritableDataAdapter<?> adapter = (WritableDataAdapter<?>) PersistenceUtils.fromBinary(entry.getValue());
 		return new InternalDataAdapterWrapper<>(
 				adapter,
