@@ -142,7 +142,7 @@ public class PersistenceUtils
 
 		final Persistable retVal = PersistableFactory.getInstance().newInstance(
 				classId);
-
+		
 		final byte[] persistableBinary = new byte[bytes.length - 2];
 		buf.get(persistableBinary);
 		retVal.fromBinary(persistableBinary);

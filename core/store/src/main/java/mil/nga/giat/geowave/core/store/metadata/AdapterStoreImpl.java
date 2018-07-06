@@ -62,6 +62,7 @@ public class AdapterStoreImpl extends
 	@Override
 	protected InternalDataAdapter<?> fromValue(
 			final GeoWaveMetadata entry ) {
+		System.err.println("adapter class ID " + ByteArrayUtils.byteArrayToShort(entry.getValue()));
 		final WritableDataAdapter<?> adapter = (WritableDataAdapter<?>) PersistenceUtils.fromBinary(entry.getValue());
 		return new InternalDataAdapterWrapper<>(
 				adapter,

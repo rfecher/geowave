@@ -149,8 +149,6 @@ public class InternalAdapterStoreImpl implements
 			if (warnIfNotExist) {
 				LOGGER.warn("Adapter '" + adapterId.getString() + "' not found. '"
 						+ AbstractGeoWavePersistence.METADATA_TABLE + "' table does not exist");
-				getReader(warnIfNotExist);
-
 			}
 			return null;
 		}
@@ -212,6 +210,7 @@ public class InternalAdapterStoreImpl implements
 			while (internalAdapterIdExists(internalAdapterId)) {
 				internalAdapterId++;
 			}
+			System.err.println("Internal Adapter ID for adapter " + adapterId.getString() + ": " + internalAdapterId);
 			try (final MetadataWriter writer = operations.createMetadataWriter(MetadataType.INTERNAL_ADAPTER)) {
 				if (writer != null) {
 					final byte[] internalAdapterIdBytes = ByteArrayUtils.shortToByteArray(internalAdapterId);
