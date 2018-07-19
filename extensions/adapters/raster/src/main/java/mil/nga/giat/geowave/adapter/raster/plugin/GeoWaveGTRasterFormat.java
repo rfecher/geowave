@@ -86,7 +86,7 @@ public class GeoWaveGTRasterFormat extends
 				"https://github.com/locationtech/geowave");
 		info.put(
 				"version",
-				"0.9.2");
+				"0.9.8");
 		mInfo = info;
 
 		// reading parameters
