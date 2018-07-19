@@ -80,7 +80,7 @@
 
 	<profiles>
 		<profile>
-			<id>geowave-tools-singlejar</id>
+			<id>geowave-tools-singlejar</id><properties><guava.version>19.0</guava.version></properties>
 			<dependencies>
 				<dependency>
 					<groupId>mil.nga.giat</groupId>
@@ -94,17 +94,12 @@
 				</dependency>
 				<dependency>
 					<groupId>mil.nga.giat</groupId>
-					<artifactId>geowave-datastore-accumulo</artifactId>
+					<artifactId>geowave-datastore-cassandra</artifactId>
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>
 					<groupId>mil.nga.giat</groupId>
-					<artifactId>geowave-datastore-hbase</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>mil.nga.giat</groupId>
-					<artifactId>geowave-datastore-bigtable</artifactId>
+					<artifactId>geowave-cli-debug</artifactId>
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>
@@ -249,23 +244,9 @@
 			<properties>
 				<geotools.scope>provided</geotools.scope>
 				<container.extension>-geotools-container</container.extension>
+				<guava.version>19.0</guava.version>
 			</properties>
 			<dependencies>
-				<dependency>
-					<groupId>mil.nga.giat</groupId>
-					<artifactId>geowave-datastore-accumulo</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>mil.nga.giat</groupId>
-					<artifactId>geowave-datastore-hbase</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>mil.nga.giat</groupId>
-					<artifactId>geowave-datastore-bigtable</artifactId>
-					<version>${project.version}</version>
-				</dependency>
 				<dependency>
 					<groupId>mil.nga.giat</groupId>
 					<artifactId>geowave-datastore-cassandra</artifactId>
