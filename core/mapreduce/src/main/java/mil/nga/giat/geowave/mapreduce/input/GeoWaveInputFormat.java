@@ -314,6 +314,7 @@ public class GeoWaveInputFormat<T> extends
 					getJobContextAdapterIndexMappingStore(context),
 					getJobContextDataStatisticsStore(context),
 					getJobContextIndexStore(context),
+					context,
 					getMinimumSplitCount(context),
 					getMaximumSplitCount(context));
 		}
