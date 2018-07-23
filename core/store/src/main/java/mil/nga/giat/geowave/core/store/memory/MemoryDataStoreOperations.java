@@ -867,4 +867,11 @@ public class MemoryDataStoreOperations implements
 			throws IOException {
 		return true;
 	}
+
+	@Override
+	public boolean createIndex(
+			PrimaryIndex index )
+			throws IOException {
+		return true;
+	}
 }

@@ -235,11 +235,13 @@ public class GeoWaveOperationServiceWrapper<T> extends
 								strValue.toUpperCase());
 					}
 					else if (ParameterRestFieldValue.class.isAssignableFrom(f.getClass())) {
-						Field field = ((ParameterRestFieldValue) f).getField();		
-						if (field.isAnnotationPresent(Parameter.class)){
-							Class<? extends IStringConverter<?>> converter = field.getAnnotation(Parameter.class).converter();
+						Field field = ((ParameterRestFieldValue) f).getField();
+						if (field.isAnnotationPresent(Parameter.class)) {
+							Class<? extends IStringConverter<?>> converter = field.getAnnotation(
+									Parameter.class).converter();
 							if (converter != NoConverter.class) {
-								objValue = converter.newInstance().convert(strValue);
+								objValue = converter.newInstance().convert(
+										strValue);
 							}
 						}
 					}

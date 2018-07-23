@@ -107,16 +107,15 @@ public class BaseMapReduceDataStore extends
 			final Integer maxSplits )
 			throws IOException,
 			InterruptedException {
-		return splitsProvider
-				.getSplits(
-						baseOperations,
-						query,
-						queryOptions,
-						adapterStore,
-						statsStore,
-						indexStore,
-						indexMappingStore,
-						minSplits,
-						maxSplits);
+		return splitsProvider.getSplits(
+				baseOperations,
+				query,
+				queryOptions,
+				adapterStore,
+				statsStore,
+				indexStore,
+				indexMappingStore,
+				minSplits,
+				maxSplits);
 	}
 }

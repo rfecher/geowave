@@ -14,6 +14,10 @@ public interface DataStoreOperations
 			ByteArrayId indexId )
 			throws IOException;
 
+	public boolean createIndex(
+			PrimaryIndex index )
+			throws IOException;
+
 	public boolean metadataExists(
 			MetadataType type )
 			throws IOException;

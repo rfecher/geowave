@@ -189,6 +189,24 @@ abstract public class AbstractMapReduceIngest<T extends Persistable & DataAdapte
 					dataStoreOptions.createIndexStore().addIndex(
 							index);
 				}
+				if (dataStoreOptions.getFactoryOptions().getStoreOptions().isCreateTable()) {
+					dataStoreOptions.createDataStoreOperations().createIndex(
+							index);
+				}
+			}
+			if (indexesArray.length > 0) {
+				for (MetadataType type : MetadataType.values()) {
+					// stats and index metadata writers are created elsewhere
+					if (!MetadataType.INDEX.equals(type)
+							&& !MetadataType.STATS.equals(type)
+							&& !(MetadataType.ADAPTER.equals(type) && !dataStoreOptions
+									.getFactoryOptions()
+									.getStoreOptions()
+									.isPersistAdapter())) {
+						dataStoreOptions.createDataStoreOperations().createMetadataWriter(
+								type).close();
+					}
+				}
 			}
 		}
 		// this is done primarily to ensure stats merging is enabled before the

@@ -583,6 +583,14 @@ public class CassandraOperations implements
 	public Writer createWriter(
 			final ByteArrayId indexId,
 			final ByteArrayId adapterId ) {
+		createTable(indexId);
+		return new CassandraWriter(
+				indexId.getString(),
+				this);
+	}
+
+	private boolean createTable(
+			ByteArrayId indexId ) {
 		if (options.isCreateTable()) {
 			synchronized (CREATE_TABLE_MUTEX) {
 				try {
@@ -595,6 +603,7 @@ public class CassandraOperations implements
 						executeCreateTable(
 								create,
 								tableName);
+						return true;
 					}
 				}
 				catch (final IOException e) {
@@ -604,9 +613,7 @@ public class CassandraOperations implements
 				}
 			}
 		}
-		return new CassandraWriter(
-				indexId.getString(),
-				this);
+		return false;
 	}
 
 	@Override
@@ -715,5 +722,12 @@ public class CassandraOperations implements
 			final MetadataType metadataType ) {
 		final String tableName = metadataType.name() + "_" + AbstractGeoWavePersistence.METADATA_TABLE;
 		return tableName;
+	}
+
+	@Override
+	public boolean createIndex(
+			PrimaryIndex index )
+			throws IOException {
+		return createTable(index.getId());
 	}
 }

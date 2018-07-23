@@ -324,9 +324,10 @@ public class HBaseOperations implements
 						.stream(
 								columnFamilies)
 						.map(
-								cf -> ImmutablePair.of(
-										cf,
-										enableVersioning))
+								cf -> ImmutablePair
+										.of(
+												cf,
+												enableVersioning))
 						.toArray(
 								Pair[]::new),
 				tableName);
@@ -1483,11 +1484,15 @@ public class HBaseOperations implements
 						.append(
 								".")
 						.append(
-								HBaseUtils.writeTableNameAsConfigSafe(namespace))
+								HBaseUtils
+										.writeTableNameAsConfigSafe(
+												namespace))
 						.append(
 								".")
 						.append(
-								HBaseUtils.writeTableNameAsConfigSafe(qualifier))
+								HBaseUtils
+										.writeTableNameAsConfigSafe(
+												qualifier))
 						.append(
 								".")
 						.append(
@@ -1496,28 +1501,40 @@ public class HBaseOperations implements
 								".")
 						.toString();
 
-		desc.setConfiguration(
-				basePrefix + ServerSideOperationsObserver.SERVER_OP_CLASS_KEY,
-				ByteArrayUtils.byteArrayToString(
-						URLClassloaderUtils.toClassId(
-								operationClassName)));
-		desc.setConfiguration(
-				basePrefix + ServerSideOperationsObserver.SERVER_OP_PRIORITY_KEY,
-				Integer.toString(
-						priority));
+		desc
+				.setConfiguration(
+						basePrefix + ServerSideOperationsObserver.SERVER_OP_CLASS_KEY,
+						ByteArrayUtils
+								.byteArrayToString(
+										URLClassloaderUtils
+												.toClassId(
+														operationClassName)));
+		desc
+				.setConfiguration(
+						basePrefix + ServerSideOperationsObserver.SERVER_OP_PRIORITY_KEY,
+						Integer
+								.toString(
+										priority));
 
-		desc.setConfiguration(
-				basePrefix + ServerSideOperationsObserver.SERVER_OP_SCOPES_KEY,
-				scopes.stream().map(
-						ServerOpScope::name).collect(
-								Collectors.joining(
-										",")));
-		final String optionsPrefix = String.format(
-				basePrefix + ServerSideOperationsObserver.SERVER_OP_OPTIONS_PREFIX + ".");
+		desc
+				.setConfiguration(
+						basePrefix + ServerSideOperationsObserver.SERVER_OP_SCOPES_KEY,
+						scopes
+								.stream()
+								.map(
+										ServerOpScope::name)
+								.collect(
+										Collectors
+												.joining(
+														",")));
+		final String optionsPrefix = String
+				.format(
+						basePrefix + ServerSideOperationsObserver.SERVER_OP_OPTIONS_PREFIX + ".");
 		for (final Entry<String, String> e : properties.entrySet()) {
-			desc.setConfiguration(
-					optionsPrefix + e.getKey(),
-					e.getValue());
+			desc
+					.setConfiguration(
+							optionsPrefix + e.getKey(),
+							e.getValue());
 		}
 	}
 
@@ -1681,5 +1698,16 @@ public class HBaseOperations implements
 					e);
 		}
 		return version;
+	}
+
+	@Override
+	public boolean createIndex(
+			PrimaryIndex index )
+			throws IOException {
+		createTable(
+				new String[0],
+				options.isServerSideLibraryEnabled(),
+				getTableName(index.getId().getString()));
+		return true;
 	}
 }
