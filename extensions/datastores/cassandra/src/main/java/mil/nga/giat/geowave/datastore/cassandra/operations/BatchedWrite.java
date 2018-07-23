@@ -22,7 +22,7 @@ public class BatchedWrite extends
 	// to gain some efficiencies for bulk ingests with batches if done
 	// correctly, while other recommendations contradict this article and
 	// suggest don't use batching as a performance optimization
-	private static final boolean ASYNC = false;
+	private static final boolean ASYNC = true;
 	private final int batchSize;
 	private final PreparedStatement preparedInsert;
 
