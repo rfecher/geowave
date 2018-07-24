@@ -477,6 +477,10 @@ public class KDEJobRunner extends
 			final Configuration conf )
 			throws IOException {
 		for (int l = kdeCommandLineOptions.getMinLevel(); l <= kdeCommandLineOptions.getMaxLevel(); l++) {
+			System.err.println("Entries per level " + l + ": " + 
+					job1.getCounters().getGroup(
+							"Entries per level").findCounter(
+							"level " + Long.valueOf(l)).getValue());
 			conf.setLong(
 					"Entries per level.level" + l,
 					job1.getCounters().getGroup(
