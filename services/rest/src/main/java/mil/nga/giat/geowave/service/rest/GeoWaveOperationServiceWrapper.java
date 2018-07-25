@@ -2,6 +2,7 @@ package mil.nga.giat.geowave.service.rest;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +31,10 @@ import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.converters.NoConverter;
 
 import mil.nga.giat.geowave.core.cli.api.OperationParams;
 import mil.nga.giat.geowave.core.cli.api.ServiceEnabledCommand;
@@ -40,6 +44,7 @@ import mil.nga.giat.geowave.core.cli.exceptions.TargetNotFoundException;
 import mil.nga.giat.geowave.core.cli.operations.config.options.ConfigOptions;
 import mil.nga.giat.geowave.core.cli.parser.ManualOperationParams;
 import mil.nga.giat.geowave.service.rest.exceptions.MissingArgumentException;
+import mil.nga.giat.geowave.service.rest.field.ParameterRestFieldValue;
 import mil.nga.giat.geowave.service.rest.field.RequestParameters;
 import mil.nga.giat.geowave.service.rest.field.RequestParametersForm;
 import mil.nga.giat.geowave.service.rest.field.RequestParametersJson;
@@ -184,54 +189,73 @@ public class GeoWaveOperationServiceWrapper<T> extends
 
 			Object objValue = null;
 			Class<?> type = f.getType();
-
-			if (List.class.isAssignableFrom(type)) {
-				objValue = requestParameters.getList(f.getName());
-			}
-			else if (type.isArray()) {
-				objValue = requestParameters.getArray(f.getName());
-				if (objValue != null) {
-					objValue = Arrays.copyOf(
-							(Object[]) objValue,
-							((Object[]) objValue).length,
-							f.getType());
+			Field field = f.getField();
+			final String strValue = (String) requestParameters.getString(f.getName());
+			
+			if (field.isAnnotationPresent(Parameter.class)) {
+				Class<? extends IStringConverter<?>> converter = field.getAnnotation(
+						Parameter.class).converter();
+				if(converter != null) {
+					if (converter != NoConverter.class && strValue != null) {
+						try {
+							objValue = converter.newInstance().convert(
+								strValue);
+						}
+						catch(InstantiationException e) {
+							LOGGER.warn("Cannot convert parameter since converter does not have zero argument constructor");	
+						}
+					}
 				}
 			}
-			else {
-				final String strValue = (String) requestParameters.getString(f.getName());
-				if (strValue != null) {
-					if (Long.class.isAssignableFrom(type) || long.class.isAssignableFrom(type)) {
-						objValue = Long.valueOf(strValue);
+			
+			if (objValue == null) {
+				if (List.class.isAssignableFrom(type)) {
+					objValue = requestParameters.getList(f.getName());
+				}
+				else if (type.isArray()) {
+					objValue = requestParameters.getArray(f.getName());
+					if (objValue != null) {
+						objValue = Arrays.copyOf(
+								(Object[]) objValue,
+								((Object[]) objValue).length,
+								f.getType());
 					}
-					else if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type)) {
-						objValue = Integer.valueOf(strValue);
-					}
-					else if (Short.class.isAssignableFrom(type) || short.class.isAssignableFrom(type)) {
-						objValue = Short.valueOf(strValue);
-					}
-					else if (Byte.class.isAssignableFrom(type) || byte.class.isAssignableFrom(type)) {
-						objValue = Byte.valueOf(strValue);
-					}
-					else if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type)) {
-						objValue = Double.valueOf(strValue);
-					}
-					else if (Float.class.isAssignableFrom(type) || float.class.isAssignableFrom(type)) {
-						objValue = Float.valueOf(strValue);
-					}
-					else if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type)) {
-						objValue = Boolean.valueOf(strValue);
-					}
-					else if (String.class.isAssignableFrom(type)) {
-						objValue = strValue;
-					}
-					else if (Enum.class.isAssignableFrom(type)) {
-						objValue = Enum.valueOf(
-								(Class<Enum>) type,
-								strValue);
-					}
-					else {
-						throw new RuntimeException(
-								"Unsupported format on field " + f.getType());
+				}
+				else {
+					if (strValue != null) {
+						if (Long.class.isAssignableFrom(type) || long.class.isAssignableFrom(type)) {
+							objValue = Long.valueOf(strValue);
+						}
+						else if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type)) {
+							objValue = Integer.valueOf(strValue);
+						}
+						else if (Short.class.isAssignableFrom(type) || short.class.isAssignableFrom(type)) {
+							objValue = Short.valueOf(strValue);
+						}
+						else if (Byte.class.isAssignableFrom(type) || byte.class.isAssignableFrom(type)) {
+							objValue = Byte.valueOf(strValue);
+						}
+						else if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type)) {
+							objValue = Double.valueOf(strValue);
+						}
+						else if (Float.class.isAssignableFrom(type) || float.class.isAssignableFrom(type)) {
+							objValue = Float.valueOf(strValue);
+						}
+						else if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type)) {
+							objValue = Boolean.valueOf(strValue);
+						}
+						else if (String.class.isAssignableFrom(type)) {
+							objValue = strValue;
+						}
+						else if (Enum.class.isAssignableFrom(type)) {
+							objValue = Enum.valueOf(
+									(Class<Enum>) type,
+									strValue.toUpperCase());
+						}
+						else {
+							throw new RuntimeException(
+									"Unsupported format on field " + f.getType());
+						}
 					}
 				}
 			}
@@ -281,6 +305,25 @@ public class GeoWaveOperationServiceWrapper<T> extends
 
 		try {
 			operation.prepare(params);
+			
+			try {
+				injectParameters(
+						parameters,
+						operation);
+			}
+			catch (final Exception e) {
+				LOGGER.error("Entered an error handling a request.", e.getMessage());
+				setStatus(
+						Status.CLIENT_ERROR_BAD_REQUEST,
+						e);
+				final RestOperationStatusMessage rm = new RestOperationStatusMessage();
+				rm.status = RestOperationStatusMessage.StatusType.ERROR;
+				rm.message = "exception occurred";
+				rm.data = e;
+				final JacksonRepresentation<RestOperationStatusMessage> rep = new JacksonRepresentation<RestOperationStatusMessage>(rm);
+				return rep;
+			}
+			
 			final RestOperationStatusMessage rm = new RestOperationStatusMessage();	
 			
 			if(operation.runAsync()) {

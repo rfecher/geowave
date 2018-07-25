@@ -43,7 +43,7 @@ public class NativeEntryIteratorWrapper<T> extends
 
 		initializeBitPosition(maxResolutionSubsamplingPerDimension);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected T decodeRow(
@@ -62,7 +62,8 @@ public class NativeEntryIteratorWrapper<T> extends
 						scanCallback,
 						fieldSubsetBitmask,
 						decodePersistenceEncoding);
-			} catch (AdapterException e) {
+			}
+			catch (AdapterException e) {
 				adapterValid = false;
 				// Attempting to decode future rows with the same adapter is
 				// pointless.
