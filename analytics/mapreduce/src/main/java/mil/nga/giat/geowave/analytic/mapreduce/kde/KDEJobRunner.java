@@ -185,27 +185,31 @@ public class KDEJobRunner extends
 		String kdeCoverageName;
 		// so we don't need a no data merge strategy, use 1 for the tile size of
 		// the KDE output and then run a resize operation
-//		if ((kdeCommandLineOptions.getTileSize() > 1)) {
-//			// this is the ending data store options after resize, the KDE will
-//			// need to output to a temporary namespace, a resize operation
-//			// will use the outputDataStoreOptions
-//			rasterResizeOutputDataStoreOptions = outputDataStoreOptions;
-//
-//			// first clone the outputDataStoreOptions, then set it to a tmp
-//			// namespace
-//			final Map<String, String> configOptions = outputDataStoreOptions.getOptionsAsMap();
-//			final StoreFactoryOptions options = ConfigUtils.populateOptionsFromList(
-//					outputDataStoreOptions.getFactoryFamily().getDataStoreFactory().createOptionsInstance(),
-//					configOptions);
-//			options.setGeowaveNamespace(outputDataStoreOptions.getGeowaveNamespace() + "_tmp");
-//			outputDataStoreOptions = new DataStorePluginOptions(
-//					options);
-//			kdeCoverageName = kdeCommandLineOptions.getCoverageName() + TMP_COVERAGE_SUFFIX;
-//		}
-//		else {
-			rasterResizeOutputDataStoreOptions = null;
-			kdeCoverageName = kdeCommandLineOptions.getCoverageName();
-//		}
+		// if ((kdeCommandLineOptions.getTileSize() > 1)) {
+		// // this is the ending data store options after resize, the KDE will
+		// // need to output to a temporary namespace, a resize operation
+		// // will use the outputDataStoreOptions
+		// rasterResizeOutputDataStoreOptions = outputDataStoreOptions;
+		//
+		// // first clone the outputDataStoreOptions, then set it to a tmp
+		// // namespace
+		// final Map<String, String> configOptions =
+		// outputDataStoreOptions.getOptionsAsMap();
+		// final StoreFactoryOptions options =
+		// ConfigUtils.populateOptionsFromList(
+		// outputDataStoreOptions.getFactoryFamily().getDataStoreFactory().createOptionsInstance(),
+		// configOptions);
+		// options.setGeowaveNamespace(outputDataStoreOptions.getGeowaveNamespace()
+		// + "_tmp");
+		// outputDataStoreOptions = new DataStorePluginOptions(
+		// options);
+		// kdeCoverageName = kdeCommandLineOptions.getCoverageName() +
+		// TMP_COVERAGE_SUFFIX;
+		// }
+		// else {
+		rasterResizeOutputDataStoreOptions = null;
+		kdeCoverageName = kdeCommandLineOptions.getCoverageName();
+		// }
 
 		if (kdeCommandLineOptions.getHdfsHostPort() == null) {
 			Properties configProperties = ConfigOptions.loadProperties(configFile);
@@ -400,62 +404,64 @@ public class KDEJobRunner extends
 				job2Success = false;
 			}
 
-			if (rasterResizeOutputDataStoreOptions != null) {
-				// delegate to resize command to wrap it up with the correctly
-				// requested tile size
-
-				final ResizeCommand resizeCommand = new ResizeCommand();
-				File configFile = File.createTempFile(
-						"temp-config",
-						null);
-				ManualOperationParams params = new ManualOperationParams();
-
-				params.getContext().put(
-						ConfigOptions.PROPERTIES_FILE_CONTEXT,
-						configFile);
-				AddStoreCommand addStore = new AddStoreCommand();
-				addStore.setParameters("temp-out");
-				addStore.setPluginOptions(outputDataStoreOptions);
-				addStore.execute(params);
-				addStore.setParameters("temp-raster-out");
-				addStore.setPluginOptions(rasterResizeOutputDataStoreOptions);
-				addStore.execute(params);
-				// We're going to override these anyway.
-				resizeCommand.setParameters(
-						"temp-out",
-						"temp-raster-out");
-
-				resizeCommand.getOptions().setInputCoverageName(
-						kdeCoverageName);
-				resizeCommand.getOptions().setMinSplits(
-						kdeCommandLineOptions.getMinSplits());
-				resizeCommand.getOptions().setMaxSplits(
-						kdeCommandLineOptions.getMaxSplits());
-				resizeCommand.getOptions().setHdfsHostPort(
-						kdeCommandLineOptions.getHdfsHostPort());
-				resizeCommand.getOptions().setJobTrackerOrResourceManHostPort(
-						kdeCommandLineOptions.getJobTrackerOrResourceManHostPort());
-				resizeCommand.getOptions().setOutputCoverageName(
-						kdeCommandLineOptions.getCoverageName());
-
-				resizeCommand.getOptions().setOutputTileSize(
-						kdeCommandLineOptions.getTileSize());
-
-				final int resizeStatus = ToolRunner.run(
-						resizeCommand.createRunner(params),
-						new String[] {});
-				if (resizeStatus == 0) {
-					// delegate to clear command to clean up with tmp namespace
-					// after successful resize
-					final ClearCommand clearCommand = new ClearCommand();
-					clearCommand.setParameters("temp-out");
-					clearCommand.execute(params);
-				}
-				else {
-					LOGGER.warn("Resize command error code '" + resizeStatus + "'.  Retaining temporary namespace '"
-							+ outputDataStoreOptions.getGeowaveNamespace() + "' with tile size of 1.");
-				}
-			}
+			// if (rasterResizeOutputDataStoreOptions != null) {
+			// // delegate to resize command to wrap it up with the correctly
+			// // requested tile size
+			//
+			// final ResizeCommand resizeCommand = new ResizeCommand();
+			// File configFile = File.createTempFile(
+			// "temp-config",
+			// null);
+			// ManualOperationParams params = new ManualOperationParams();
+			//
+			// params.getContext().put(
+			// ConfigOptions.PROPERTIES_FILE_CONTEXT,
+			// configFile);
+			// AddStoreCommand addStore = new AddStoreCommand();
+			// addStore.setParameters("temp-out");
+			// addStore.setPluginOptions(outputDataStoreOptions);
+			// addStore.execute(params);
+			// addStore.setParameters("temp-raster-out");
+			// addStore.setPluginOptions(rasterResizeOutputDataStoreOptions);
+			// addStore.execute(params);
+			// // We're going to override these anyway.
+			// resizeCommand.setParameters(
+			// "temp-out",
+			// "temp-raster-out");
+			//
+			// resizeCommand.getOptions().setInputCoverageName(
+			// kdeCoverageName);
+			// resizeCommand.getOptions().setMinSplits(
+			// kdeCommandLineOptions.getMinSplits());
+			// resizeCommand.getOptions().setMaxSplits(
+			// kdeCommandLineOptions.getMaxSplits());
+			// resizeCommand.getOptions().setHdfsHostPort(
+			// kdeCommandLineOptions.getHdfsHostPort());
+			// resizeCommand.getOptions().setJobTrackerOrResourceManHostPort(
+			// kdeCommandLineOptions.getJobTrackerOrResourceManHostPort());
+			// resizeCommand.getOptions().setOutputCoverageName(
+			// kdeCommandLineOptions.getCoverageName());
+			//
+			// resizeCommand.getOptions().setOutputTileSize(
+			// kdeCommandLineOptions.getTileSize());
+			//
+			// final int resizeStatus = ToolRunner.run(
+			// resizeCommand.createRunner(params),
+			// new String[] {});
+			// if (resizeStatus == 0) {
+			// // delegate to clear command to clean up with tmp namespace
+			// // after successful resize
+			// final ClearCommand clearCommand = new ClearCommand();
+			// clearCommand.setParameters("temp-out");
+			// clearCommand.execute(params);
+			// }
+			// else {
+			// LOGGER.warn("Resize command error code '" + resizeStatus +
+			// "'.  Retaining temporary namespace '"
+			// + outputDataStoreOptions.getGeowaveNamespace() +
+			// "' with tile size of 1.");
+			// }
+			// }
 
 			fs.delete(
 					new Path(
