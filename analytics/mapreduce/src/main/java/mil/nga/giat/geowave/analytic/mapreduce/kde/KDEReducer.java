@@ -171,11 +171,11 @@ public class KDEReducer extends
 						1,
 						normalizedValue);
 
-				raster.setSample(
-						tileInfo.x,
-						tileInfo.y,
-						2,
-						percentile);
+//				raster.setSample(
+//						tileInfo.x,
+//						tileInfo.y,
+//						2,
+//						percentile);
 				context.write(
 						new GeoWaveOutputKey(
 								new ByteArrayId(
