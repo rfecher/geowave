@@ -185,27 +185,27 @@ public class KDEJobRunner extends
 		String kdeCoverageName;
 		// so we don't need a no data merge strategy, use 1 for the tile size of
 		// the KDE output and then run a resize operation
-		if ((kdeCommandLineOptions.getTileSize() > 1)) {
-			// this is the ending data store options after resize, the KDE will
-			// need to output to a temporary namespace, a resize operation
-			// will use the outputDataStoreOptions
-			rasterResizeOutputDataStoreOptions = outputDataStoreOptions;
-
-			// first clone the outputDataStoreOptions, then set it to a tmp
-			// namespace
-			final Map<String, String> configOptions = outputDataStoreOptions.getOptionsAsMap();
-			final StoreFactoryOptions options = ConfigUtils.populateOptionsFromList(
-					outputDataStoreOptions.getFactoryFamily().getDataStoreFactory().createOptionsInstance(),
-					configOptions);
-			options.setGeowaveNamespace(outputDataStoreOptions.getGeowaveNamespace() + "_tmp");
-			outputDataStoreOptions = new DataStorePluginOptions(
-					options);
-			kdeCoverageName = kdeCommandLineOptions.getCoverageName() + TMP_COVERAGE_SUFFIX;
-		}
-		else {
+//		if ((kdeCommandLineOptions.getTileSize() > 1)) {
+//			// this is the ending data store options after resize, the KDE will
+//			// need to output to a temporary namespace, a resize operation
+//			// will use the outputDataStoreOptions
+//			rasterResizeOutputDataStoreOptions = outputDataStoreOptions;
+//
+//			// first clone the outputDataStoreOptions, then set it to a tmp
+//			// namespace
+//			final Map<String, String> configOptions = outputDataStoreOptions.getOptionsAsMap();
+//			final StoreFactoryOptions options = ConfigUtils.populateOptionsFromList(
+//					outputDataStoreOptions.getFactoryFamily().getDataStoreFactory().createOptionsInstance(),
+//					configOptions);
+//			options.setGeowaveNamespace(outputDataStoreOptions.getGeowaveNamespace() + "_tmp");
+//			outputDataStoreOptions = new DataStorePluginOptions(
+//					options);
+//			kdeCoverageName = kdeCommandLineOptions.getCoverageName() + TMP_COVERAGE_SUFFIX;
+//		}
+//		else {
 			rasterResizeOutputDataStoreOptions = null;
 			kdeCoverageName = kdeCommandLineOptions.getCoverageName();
-		}
+//		}
 
 		if (kdeCommandLineOptions.getHdfsHostPort() == null) {
 			Properties configProperties = ConfigOptions.loadProperties(configFile);
@@ -477,10 +477,9 @@ public class KDEJobRunner extends
 			final Configuration conf )
 			throws IOException {
 		for (int l = kdeCommandLineOptions.getMinLevel(); l <= kdeCommandLineOptions.getMaxLevel(); l++) {
-			System.err.println("Entries per level " + l + ": " + 
-					job1.getCounters().getGroup(
-							"Entries per level").findCounter(
-							"level " + Long.valueOf(l)).getValue());
+			System.err.println("Entries per level " + l + ": " + job1.getCounters().getGroup(
+					"Entries per level").findCounter(
+					"level " + Long.valueOf(l)).getValue());
 			conf.setLong(
 					"Entries per level.level" + l,
 					job1.getCounters().getGroup(
@@ -515,7 +514,7 @@ public class KDEJobRunner extends
 	}
 
 	protected Class<? extends Reducer<?, ?, ?, ?>> getJob2Reducer() {
-		return AccumuloKDEReducer.class;
+		return KDEReducer.class;
 	}
 
 	protected Class<? extends Partitioner<?, ?>> getJob2Partitioner() {
@@ -556,11 +555,11 @@ public class KDEJobRunner extends
 			throws Exception {
 		final WritableDataAdapter<?> adapter = RasterUtils.createDataAdapterTypeDouble(
 				coverageName,
-				AccumuloKDEReducer.NUM_BANDS,
+				KDEReducer.NUM_BANDS,
 				TILE_SIZE,
-				AccumuloKDEReducer.MINS_PER_BAND,
-				AccumuloKDEReducer.MAXES_PER_BAND,
-				AccumuloKDEReducer.NAME_PER_BAND,
+				KDEReducer.MINS_PER_BAND,
+				KDEReducer.MAXES_PER_BAND,
+				KDEReducer.NAME_PER_BAND,
 				null);
 		setup(
 				statsReducer,

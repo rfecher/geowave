@@ -29,7 +29,7 @@ import mil.nga.giat.geowave.core.store.index.PrimaryIndex;
 import mil.nga.giat.geowave.mapreduce.JobContextIndexStore;
 import mil.nga.giat.geowave.mapreduce.output.GeoWaveOutputKey;
 
-public class AccumuloKDEReducer extends
+public class KDEReducer extends
 		Reducer<DoubleWritable, LongWritable, GeoWaveOutputKey, GridCoverage>
 {
 	private static final class TileInfo
