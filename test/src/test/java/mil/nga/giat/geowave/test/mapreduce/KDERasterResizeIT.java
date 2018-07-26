@@ -79,7 +79,7 @@ public class KDERasterResizeIT
 	private static final double TARGET_DECIMAL_DEGREES_SIZE = 0.132;
 	private static final String KDE_FEATURE_TYPE_NAME = "kde-test";
 	private static final int MIN_TILE_SIZE_POWER_OF_2 = 0;
-	private static final int MAX_TILE_SIZE_POWER_OF_2 = 4;
+	private static final int MAX_TILE_SIZE_POWER_OF_2 = 16;
 	private static final int INCREMENT = 4;
 	private static final int BASE_MIN_LEVEL = 15;
 	private static final int BASE_MAX_LEVEL = 17;
