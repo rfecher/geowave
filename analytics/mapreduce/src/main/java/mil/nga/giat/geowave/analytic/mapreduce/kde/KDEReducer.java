@@ -126,7 +126,7 @@ public class KDEReducer extends
 		}
 	}
 
-	public static final int NUM_BANDS = 2;
+	public static final int NUM_BANDS = 3;
 	protected static final String[] NAME_PER_BAND = new String[] {
 		"Weight",
 		"Normalized",
