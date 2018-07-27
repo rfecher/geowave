@@ -105,18 +105,18 @@ public class KDEReducer extends
 	protected static final String[] NAME_PER_BAND = new String[] {
 		"Weight",
 		"Normalized",
-	// "Percentile"
+	 "Percentile"
 	};
 
 	protected static final double[] MINS_PER_BAND = new double[] {
 		0,
 		0,
-	// 0
+	 0
 	};
 	protected static final double[] MAXES_PER_BAND = new double[] {
 		Double.MAX_VALUE,
 		1,
-	// 1
+	 1
 	};
 	private double max = -Double.MAX_VALUE;
 	private long currentKey = 0;
@@ -152,6 +152,8 @@ public class KDEReducer extends
 			final double normalizedValue = value / max;
 			// for consistency give all cells with matching weight the same
 			// percentile
+			final double percentile = (currentKey + 1.0) / totalKeys;
+			
 			// calculate weights for this key
 			for (final LongWritable v : values) {
 				final long cellIndex = v.get() / numLevels;
@@ -170,11 +172,11 @@ public class KDEReducer extends
 						1,
 						normalizedValue);
 
-				// raster.setSample(
-				// tileInfo.x,
-				// tileInfo.y,
-				// 2,
-				// percentile);
+				 raster.setSample(
+				 tileInfo.x,
+				 tileInfo.y,
+				 2,
+				 percentile);
 				context.write(
 						new GeoWaveOutputKey(
 								new ByteArrayId(
@@ -279,6 +281,7 @@ public class KDEReducer extends
 		totalKeys = context.getConfiguration().getLong(
 				"Entries per level.level" + level,
 				10);
+		System.err.println(totalKeys + " for level " + level);
 		final PrimaryIndex[] indices = JobContextIndexStore.getIndices(context);
 		indexList = new ArrayList<ByteArrayId>();
 		if ((indices != null) && (indices.length > 0)) {
