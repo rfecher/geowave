@@ -22,7 +22,7 @@ public class BaseDataStoreOptions implements
 	protected boolean persistIndex = true;
 
 	@Parameter(names = "--persistDataStatistics", hidden = true, arity = 1)
-	protected boolean persistDataStatistics = true;
+	protected boolean persistDataStatistics = false;
 
 	@Parameter(names = "--createTable", hidden = true, arity = 1)
 	protected boolean createTable = true;
