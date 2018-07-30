@@ -27,17 +27,29 @@ public class DownloadRunnerTest
 		JAIExt.initJAIEXT();
 
 		Landsat8BasicCommandLineOptions analyzeOptions = new Landsat8BasicCommandLineOptions();
-		analyzeOptions.setWorkspaceDir(Tests.WORKSPACE_DIR);
-		analyzeOptions.setUseCachedScenes(true);
-		analyzeOptions.setNBestScenes(1);
-		analyzeOptions.setCqlFilter("BBOX(shape,-76.6,42.34,-76.4,42.54) and band='BQA' and sizeMB < 1");
+		analyzeOptions
+				.setWorkspaceDir(
+						Tests.WORKSPACE_DIR);
+		analyzeOptions
+				.setUseCachedScenes(
+						true);
+		analyzeOptions
+				.setNBestScenes(
+						1);
+		analyzeOptions
+				.setCqlFilter(
+						"BBOX(shape,-76.6,42.34,-76.4,42.54) and band='BQA' and sizeMB < 1");
 
 		Landsat8DownloadCommandLineOptions downloadOptions = new Landsat8DownloadCommandLineOptions();
-		downloadOptions.setOverwriteIfExists(false);
+		downloadOptions
+				.setOverwriteIfExists(
+						false);
 
 		new DownloadRunner(
 				analyzeOptions,
-				downloadOptions).runInternal(new ManualOperationParams());
+				downloadOptions)
+						.runInternal(
+								new ManualOperationParams());
 
 		assertTrue(
 				"images directory exists",
@@ -48,8 +60,8 @@ public class DownloadRunnerTest
 				new File(
 						Tests.WORKSPACE_DIR + "/scenes").isDirectory());
 		assertTrue(
-				"wrs2_asc_desc directory exists",
+				WRS2GeometryStore.WRS2_SHAPE_DIRECTORY + " directory exists",
 				new File(
-						Tests.WORKSPACE_DIR + "/wrs2_asc_desc").isDirectory());
+						Tests.WORKSPACE_DIR + "/" + WRS2GeometryStore.WRS2_SHAPE_DIRECTORY).isDirectory());
 	}
 }

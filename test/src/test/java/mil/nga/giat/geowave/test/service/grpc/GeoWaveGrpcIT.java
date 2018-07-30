@@ -38,11 +38,7 @@ import mil.nga.giat.geowave.test.annotation.GeoWaveTestStore;
 import mil.nga.giat.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
 import mil.nga.giat.geowave.test.basic.AbstractGeoWaveBasicVectorIT;
 import mil.nga.giat.geowave.test.kafka.BasicKafkaIT;
-import mil.nga.giat.geowave.test.kafka.KafkaTestUtils;
-import mil.nga.giat.geowave.test.mapreduce.MapReduceTestEnvironment;
-import mil.nga.giat.geowave.test.mapreduce.MapReduceTestUtils;
 import mil.nga.giat.geowave.test.service.grpc.GeoWaveGrpcTestClient;
-import mil.nga.giat.geowave.test.service.grpc.GeoWaveGrpcTestServer;
 
 @RunWith(GeoWaveITRunner.class)
 @Environments({
