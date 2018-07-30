@@ -27,29 +27,17 @@ public class DownloadRunnerTest
 		JAIExt.initJAIEXT();
 
 		Landsat8BasicCommandLineOptions analyzeOptions = new Landsat8BasicCommandLineOptions();
-		analyzeOptions
-				.setWorkspaceDir(
-						Tests.WORKSPACE_DIR);
-		analyzeOptions
-				.setUseCachedScenes(
-						true);
-		analyzeOptions
-				.setNBestScenes(
-						1);
-		analyzeOptions
-				.setCqlFilter(
-						"BBOX(shape,-76.6,42.34,-76.4,42.54) and band='BQA' and sizeMB < 1");
+		analyzeOptions.setWorkspaceDir(Tests.WORKSPACE_DIR);
+		analyzeOptions.setUseCachedScenes(true);
+		analyzeOptions.setNBestScenes(1);
+		analyzeOptions.setCqlFilter("BBOX(shape,-76.6,42.34,-76.4,42.54) and band='BQA' and sizeMB < 1");
 
 		Landsat8DownloadCommandLineOptions downloadOptions = new Landsat8DownloadCommandLineOptions();
-		downloadOptions
-				.setOverwriteIfExists(
-						false);
+		downloadOptions.setOverwriteIfExists(false);
 
 		new DownloadRunner(
 				analyzeOptions,
-				downloadOptions)
-						.runInternal(
-								new ManualOperationParams());
+				downloadOptions).runInternal(new ManualOperationParams());
 
 		assertTrue(
 				"images directory exists",

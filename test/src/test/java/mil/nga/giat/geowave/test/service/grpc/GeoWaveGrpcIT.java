@@ -134,10 +134,10 @@ public class GeoWaveGrpcIT extends
 		Assert.assertTrue(client.LocalToKafkaCommand());
 		Assert.assertTrue(client.KafkaToGeowaveCommand());
 		Assert.assertTrue(client.MapReduceToGeowaveCommand());
-		List<String> plugins = client.ListPluginsCommand();
-		Assert.assertNotEquals(
-				0,
-				plugins.size());
+		String plugins = client.ListPluginsCommand();
+		Assert.assertTrue(
+				"several plugins expected",
+				countLines(plugins) > 10);
 		Assert.assertTrue(client.LocalToMapReduceToGeowaveCommand());
 		Assert.assertTrue(client.SparkToGeowaveCommand());
 
@@ -255,6 +255,12 @@ public class GeoWaveGrpcIT extends
 				result);
 
 		TestUtils.deleteAll(dataStore);
+	}
+
+	private static int countLines(
+			String str ) {
+		String[] lines = str.split("\r\n|\r|\n");
+		return lines.length;
 	}
 
 	@Override
