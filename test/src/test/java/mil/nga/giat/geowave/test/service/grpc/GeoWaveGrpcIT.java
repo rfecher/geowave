@@ -222,23 +222,60 @@ public class GeoWaveGrpcIT extends
 				180,
 				5,
 				5);
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED vectorIngest  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertNotEquals(
 				0,
 				client.numFeaturesProcessed);
 
 		ArrayList<Feature> features = client.vectorQuery();
+
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED vectorQuery  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertNotEquals(
 				0,
 				features.size());
 
 		features.clear();
 		features = client.cqlQuery();
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED cqlQuery  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertNotEquals(
 				0,
 				features.size());
 
 		features.clear();
 		features = client.spatialQuery();
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED spatialQuery  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertNotEquals(
 				0,
 				features.size());
@@ -249,6 +286,15 @@ public class GeoWaveGrpcIT extends
 		// geometry borders will be discarded
 		features.clear();
 		features = client.spatialTemporalQuery();
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED spatialTemporalQuery  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertNotEquals(
 				0,
 				features.size());
