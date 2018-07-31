@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Level;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -127,19 +128,91 @@ public class GeoWaveGrpcIT extends
 		Assert.assertEquals(
 				GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfs(),
 				map.get("hdfs.defaultFS.url"));
-
+		org.apache.log4j.Logger.getRootLogger().setLevel(
+				Level.WARN);
 		// Core Ingest Tests
 		Assert.assertTrue(client.LocalToHdfsCommand());
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED LocalToHdfsCommand  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertTrue(client.LocalToGeowaveCommand());
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED LocalToGeowaveCommand  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertTrue(client.LocalToKafkaCommand());
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED LocalToKafkaCommand  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertTrue(client.KafkaToGeowaveCommand());
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED KafkaToGeowaveCommand  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertTrue(client.MapReduceToGeowaveCommand());
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED MapReduceToGeowaveCommand  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		String plugins = client.ListPluginsCommand();
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED ListPluginsCommand  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertTrue(
 				"several plugins expected",
 				countLines(plugins) > 10);
 		Assert.assertTrue(client.LocalToMapReduceToGeowaveCommand());
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED LocalToMapReduceToGeowaveCommand  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 		Assert.assertTrue(client.SparkToGeowaveCommand());
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED SparkToGeowaveCommand  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 
 		// Vector Service Tests
 		client.vectorIngest(
@@ -270,6 +343,8 @@ public class GeoWaveGrpcIT extends
 
 	protected void init()
 			throws Exception {
+		org.apache.log4j.Logger.getRootLogger().setLevel(
+				Level.WARN);
 		ZipUtils.unZipFile(
 				new File(
 						BasicKafkaIT.class.getClassLoader().getResource(
@@ -330,6 +405,15 @@ public class GeoWaveGrpcIT extends
 		client = new GeoWaveGrpcTestClient(
 				GeoWaveGrpcServiceOptions.host,
 				GeoWaveGrpcServiceOptions.port);
+
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED Init  *");
+		LOGGER
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	static protected void shutdown() {
