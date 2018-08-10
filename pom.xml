@@ -1152,6 +1152,7 @@
 		<module>extensions</module>
 		<module>services</module>
 		<module>test</module>
+		<module>test/pom-hbase-server.xml</module>
 	</modules>
 	<repositories>
 		<repository>

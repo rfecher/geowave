@@ -10,23 +10,15 @@
  ******************************************************************************/
 package mil.nga.giat.geowave.test;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.PrivilegedExceptionAction;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HBaseTestingUtility;
-import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.protobuf.generated.VisibilityLabelsProtos.VisibilityLabelsResponse;
-import org.apache.hadoop.hbase.security.User;
-import org.apache.hadoop.hbase.security.visibility.ScanLabelGenerator;
-import org.apache.hadoop.hbase.security.visibility.SimpleScanLabelGenerator;
-import org.apache.hadoop.hbase.security.visibility.VisibilityClient;
-import org.apache.hadoop.hbase.security.visibility.VisibilityLabelService;
-import org.apache.hadoop.hbase.security.visibility.VisibilityLabelServiceManager;
-import org.apache.hadoop.hbase.security.visibility.VisibilityTestUtil;
-import org.apache.hadoop.hbase.security.visibility.VisibilityUtils;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +55,9 @@ public class HBaseStoreTestEnvironment extends
 	public static final String DEFAULT_HBASE_TEMP_DIR = "./target/hbase_temp";
 	protected String zookeeper;
 
-	private HBaseTestingUtility hbaseLocalCluster;
+	private Object hbaseLocalCluster;
 
-	private HBaseStoreTestEnvironment() {}
+	public HBaseStoreTestEnvironment() {}
 
 	// VisibilityTest valid authorizations
 	private static String[] auths = new String[] {
@@ -75,7 +67,7 @@ public class HBaseStoreTestEnvironment extends
 		"z"
 	};
 
-	protected User SUPERUSER;
+	// protected User SUPERUSER;
 
 	@Override
 	protected void initOptions(
@@ -83,6 +75,9 @@ public class HBaseStoreTestEnvironment extends
 		HBaseRequiredOptions hbaseRequiredOptions = (HBaseRequiredOptions) options;
 		hbaseRequiredOptions.setZookeeper(zookeeper);
 	}
+
+	public static ClassLoader newCl = new DirectoryBasedParentLastClassLoader(
+			"target/hbase/lib");
 
 	@Override
 	protected GenericStoreFactory<DataStore> getDataStoreFactory() {
@@ -101,54 +96,174 @@ public class HBaseStoreTestEnvironment extends
 					LOGGER.debug("Using local zookeeper URL: " + zookeeper);
 				}
 			}
-
+			// DirectoryBasedParentLastClassLoader newCl =
+			Thread.currentThread().setContextClassLoader(
+					newCl);
+			// try {
+			// Class.forName(
+			// "org.apache.hadoop.hbase.HBaseTestingUtility",
+			// true,
+			// newCl);
+			// Class.forName(
+			// "org.apache.hadoop.hbase.util.JVMClusterUtil",
+			// true,
+			// newCl);
+			// Class.forName(
+			// "org.apache.hadoop.hbase.master.HMaster",
+			// true,
+			// newCl);
+			// Class.forName(
+			// "org.apache.hadoop.hbase.test.MetricsAssertHelper",
+			// true,
+			// newCl);
+			// Class.forName(
+			// "org.apache.hadoop.hbase.test.MetricsAssertHelperImpl",
+			// true,
+			// newCl);
+			// Class.forName(
+			// "org.apache.hadoop.metrics2.lib.DynamicMetricsRegistry",
+			// true,
+			// newCl);
+			// //
+			// System.err.println(newCl.loadClass("org.apache.hadoop.hbase.test.MetricsAssertHelper").getClassLoader());
+			// // System.err.println(
+			// //
+			// newCl.loadClass("org.apache.hadoop.hbase.test.MetricsAssertHelperImpl").getClassLoader());
+			// }
+			// catch (ClassNotFoundException e1) {
+			// // TODO Auto-generated catch block
+			// e1.printStackTrace();
+			// }
+			// File[] files = new File(
+			// "target/hbase/lib").listFiles();
+			// URL[] urls = new URL[files.length];
+			// for (int i = 0; i < files.length; i++) {
+			// try {
+			// urls[i] = files[i].toURI().toURL();
+			// }
+			// catch (MalformedURLException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// }
+			// ClassLoader newCl = new DirectoryBasedParentLastClassLoader(
+			// "target/hbase/lib");
+			// Thread.currentThread().setContextClassLoader(
+			// newCl);
+			try {
+				Class.forName(
+						"org.apache.hadoop.hbase.HBaseTestingUtility",
+						true,
+						newCl);
+				Class.forName(
+						"org.apache.hadoop.hbase.util.JVMClusterUtil",
+						true,
+						newCl);
+				Class.forName(
+						"org.apache.hadoop.hbase.master.HMaster",
+						true,
+						newCl);
+				Class.forName(
+						"org.apache.hadoop.hbase.CoordinatedStateManager",
+						true,
+						newCl);
+				Class.forName(
+						"org.apache.hadoop.hbase.coordination.ZkCoordinatedStateManager",
+						true,
+						newCl);
+			}
+			catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			if (!TestUtils.isSet(System.getProperty(ZookeeperTestEnvironment.ZK_PROPERTY_NAME))) {
 				try {
-					final Configuration conf = HBaseConfiguration.create();
+					// hbaseLocalCluster = (HBaseTestingUtility)
+					// newCl.loadClass(
+					// HBaseTestingUtility.class.getName()).newInstance();
+					hbaseLocalCluster = Class.forName(
+							"org.apache.hadoop.hbase.HBaseTestingUtility",
+							true,
+							newCl).newInstance();
+					System.err.println(hbaseLocalCluster.getClass().getClassLoader());
+					final Object conf = hbaseLocalCluster.getClass().getMethod(
+							"getConfiguration").invoke(
+							hbaseLocalCluster);
 					System.setProperty(
-							HBaseTestingUtility.BASE_TEST_DIRECTORY_KEY,
-							HBaseConfiguration.create().get(
-									"hbase.root.dir",
-									DEFAULT_HBASE_TEMP_DIR));
-					conf.set(
+							// HBaseTestingUtility.BASE_TEST_DIRECTORY_KEY,
+							"test.build.data.basedirectory",
+							DEFAULT_HBASE_TEMP_DIR);
+					conf.getClass().getMethod(
+							"set",
+							String.class,
+							String.class).invoke(
+							conf,
 							"hbase.online.schema.update.enable",
 							"true");
 
 					if (enableVisibility) {
-						conf.set(
+						conf.getClass().getMethod(
+								"set",
+								String.class,
+								String.class).invoke(
+								conf,
 								"hbase.superuser",
 								"admin");
 
-						conf.setBoolean(
+						conf.getClass().getMethod(
+								"setBoolean",
+								String.class,
+								Boolean.TYPE).invoke(
+								conf,
 								"hbase.security.authorization",
 								true);
 
-						conf.setBoolean(
+						conf.getClass().getMethod(
+								"setBoolean",
+								String.class,
+								Boolean.TYPE).invoke(
+								conf,
 								"hbase.security.visibility.mutations.checkauths",
 								true);
 
-						// setup vis IT configuration
-						conf.setClass(
-								VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS,
-								SimpleScanLabelGenerator.class,
-								ScanLabelGenerator.class);
-
-						conf.setClass(
-								VisibilityLabelServiceManager.VISIBILITY_LABEL_SERVICE_CLASS,
-								// DefaultVisibilityLabelServiceImpl.class,
-								HBaseTestVisibilityLabelServiceImpl.class,
-								VisibilityLabelService.class);
+						// // setup vis IT configuration
+						// conf.getClass().getMethod(
+						// "setClass",
+						// String.class,
+						// Class.class,
+						// Class.class).invoke(
+						// conf,
+						// VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS,
+						// SimpleScanLabelGenerator.class,
+						// ScanLabelGenerator.class);
+						//
+						// conf.getClass().getMethod(
+						// "setClass",
+						// String.class,
+						// Class.class,
+						// Class.class).invoke(
+						// conf,
+						// VisibilityLabelServiceManager.VISIBILITY_LABEL_SERVICE_CLASS,
+						// // DefaultVisibilityLabelServiceImpl.class,
+						// HBaseTestVisibilityLabelServiceImpl.class,
+						// VisibilityLabelService.class);
 
 						// Install the VisibilityController as a system
 						// processor
-						VisibilityTestUtil.enableVisiblityLabels(conf);
+						// VisibilityTestUtil.enableVisiblityLabels(conf);
 					}
 					// Start the cluster
-					hbaseLocalCluster = new HBaseTestingUtility(
-							conf);
-					hbaseLocalCluster.startMiniHBaseCluster(
+					// hbaseLocalCluster = new HBaseTestingUtility(
+					// conf);
+					hbaseLocalCluster.getClass().getMethod(
+							"startMiniHBaseCluster",
+							Integer.TYPE,
+							Integer.TYPE).invoke(
+							hbaseLocalCluster,
 							1,
 							NUM_REGION_SERVERS);
+					// 1,
+					// NUM_REGION_SERVERS);
 
 					if (enableVisibility) {
 
@@ -156,18 +271,18 @@ public class HBaseStoreTestEnvironment extends
 						final Connection conn = ConnectionPool.getInstance().getConnection(
 								zookeeper);
 						try {
-							SUPERUSER = User.createUserForTesting(
-									conf,
-									"admin",
-									new String[] {
-										"supergroup"
-									});
+							// SUPERUSER = User.createUserForTesting(
+							// conf,
+							// "admin",
+							// new String[] {
+							// "supergroup"
+							// });
 
 							// Set up valid visibilities for the user
-							addLabels(
-									conn.getConfiguration(),
-									auths,
-									User.getCurrent().getName());
+							// addLabels(
+							// conn.getConfiguration(),
+							// auths,
+							// User.getCurrent().getName());
 
 							// Verify hfile version
 							final String hfileVersionStr = conn.getAdmin().getConfiguration().get(
@@ -193,41 +308,47 @@ public class HBaseStoreTestEnvironment extends
 		}
 	}
 
-	private void addLabels(
-			final Configuration conf,
-			final String[] labels,
-			final String user )
-			throws Exception {
-		final PrivilegedExceptionAction<VisibilityLabelsResponse> action = new PrivilegedExceptionAction<VisibilityLabelsResponse>() {
-			@Override
-			public VisibilityLabelsResponse run()
-					throws Exception {
-				try {
-					VisibilityClient.addLabels(
-							conf,
-							labels);
-
-					VisibilityClient.setAuths(
-							conf,
-							labels,
-							user);
-				}
-				catch (final Throwable t) {
-					throw new IOException(
-							t);
-				}
-				return null;
-			}
-		};
-
-		SUPERUSER.runAs(action);
-	}
+	// private void addLabels(
+	// final Configuration conf,
+	// final String[] labels,
+	// final String user )
+	// throws Exception {
+	// final PrivilegedExceptionAction<VisibilityLabelsResponse> action = new
+	// PrivilegedExceptionAction<VisibilityLabelsResponse>() {
+	// @Override
+	// public VisibilityLabelsResponse run()
+	// throws Exception {
+	// try {
+	// VisibilityClient.addLabels(
+	// conf,
+	// labels);
+	//
+	// VisibilityClient.setAuths(
+	// conf,
+	// labels,
+	// user);
+	// }
+	// catch (final Throwable t) {
+	// throw new IOException(
+	// t);
+	// }
+	// return null;
+	// }
+	// };
+	//
+	// SUPERUSER.runAs(action);
+	// }
 
 	@Override
 	public void tearDown() {
 		try {
-			hbaseLocalCluster.shutdownMiniCluster();
-			if (!hbaseLocalCluster.cleanupTestDir()) {
+			hbaseLocalCluster.getClass().getMethod(
+					"shutdownMiniCluster").invoke(
+					hbaseLocalCluster);
+			// if (!hbaseLocalCluster.cleanupTestDir()) {
+			if (!(Boolean) hbaseLocalCluster.getClass().getMethod(
+					"shutdownMiniCluster").invoke(
+					hbaseLocalCluster)) {
 				LOGGER.warn("Unable to delete mini hbase temporary directory");
 			}
 			hbaseLocalCluster = null;
