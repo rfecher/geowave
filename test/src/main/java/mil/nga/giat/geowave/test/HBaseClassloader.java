@@ -1,8 +1,14 @@
 package mil.nga.giat.geowave.test;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.regex.Pattern;
+
+import mil.nga.giat.geowave.core.store.util.ClasspathUtils;
 
 public class HBaseClassloader extends
 		URLClassLoader
@@ -57,11 +63,49 @@ public class HBaseClassloader extends
 	 * Creates a JarClassLoader that loads classes from the given paths.
 	 */
 	public HBaseClassloader(
-			URL[] urls,
 			ClassLoader parent ) {
 		super(
-				urls,
+				new URL[] {},
 				parent);
+		// search for JAR files in the given directory
+		FileFilter jarFilter = new FileFilter() {
+			public boolean accept(
+					File pathname ) {
+				return pathname.getName().endsWith(
+						".jar");
+			}
+		};
+
+		// create URL for each JAR file found
+		File[] jarFiles = new File(
+				"target/hbase/lib").listFiles(jarFilter);
+		URL[] urls;
+
+		if (null != jarFiles) {
+			urls = new URL[jarFiles.length];
+
+			for (int i = 0; i < jarFiles.length; i++) {
+				try {
+					addURL(jarFiles[i].toURI().toURL());
+				}
+				catch (MalformedURLException e) {
+					throw new RuntimeException(
+							"Could not get URL for JAR file: " + jarFiles[i],
+							e);
+				}
+			}
+
+		}
+		try {
+			final String jarPath = ClasspathUtils.setupPathingJarClassPath(
+					new File("target/hbase/lib3"),
+					HBaseClassloader.class);
+			addURL(new File(jarPath).toURI().toURL());
+		}
+		catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 	@Override

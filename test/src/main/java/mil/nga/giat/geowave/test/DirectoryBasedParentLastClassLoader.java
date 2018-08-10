@@ -2,9 +2,12 @@ package mil.nga.giat.geowave.test;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import mil.nga.giat.geowave.core.store.util.ClasspathUtils;
 
 /**
  * A parent-last classloader that will try the child classloader first and then
@@ -52,21 +55,21 @@ public class DirectoryBasedParentLastClassLoader extends
 			// return realParent.loadClass(name);
 			// }
 
-			if (name.contains("CoordinatedStateManager")) {
+			if (name.contains("HashFunction")) {
 				System.err.println("find class " + name);
 			}
 			try {
 				// first try to use the URLClassLoader findClass
-				if (findLoadedClass(name) != null
-						&& (!name.startsWith("org.apache.hadoop.hbase") || (name.contains("CoordinatedStateManager")))) {
-					return findLoadedClass(name);
-				}
+//				if (findLoadedClass(name) != null
+//						&& (!name.startsWith("org.apache.hadoop.hbase") || (name.contains("CoordinatedStateManager")))) {
+//					return findLoadedClass(name);
+//				}
 				return super.findClass(name);
 			}
 			catch (ClassNotFoundException e) {
 				// if that fails, ask real parent classloader to load the
 				// class (give up)
-				if (name.contains("CoordinatedStateManager")) {
+				if (name.contains("HashFunction")) {
 					System.err.println("parent find class " + name);
 				}
 				return realParent.loadClass(name);
@@ -82,7 +85,7 @@ public class DirectoryBasedParentLastClassLoader extends
 				catch (Exception e) {
 					// if that fails, ask real parent classloader to load the
 					// class (give up)
-					if (name.contains("CoordinatedStateManager")) {
+					if (name.contains("HashFunction")) {
 						System.err.println("parent find class " + name);
 					}
 					return realParent.getResource(name);
@@ -96,6 +99,39 @@ public class DirectoryBasedParentLastClassLoader extends
 				Thread.currentThread().getContextClassLoader());
 
 		// search for JAR files in the given directory
+//		FileFilter jarFilter = new FileFilter() {
+//			public boolean accept(
+//					File pathname ) {
+//				return pathname.getName().endsWith(
+//						".jar");
+//			}
+//		};
+//
+//		// create URL for each JAR file found
+//		File[] jarFiles = new File(
+//				jarDir).listFiles(jarFilter);
+//		URL[] urls;
+//
+//		if (null != jarFiles) {
+//			urls = new URL[jarFiles.length];
+//
+//			for (int i = 0; i < jarFiles.length; i++) {
+//				try {
+//					urls[i] = jarFiles[i].toURI().toURL();
+//				}
+//				catch (MalformedURLException e) {
+//					throw new RuntimeException(
+//							"Could not get URL for JAR file: " + jarFiles[i],
+//							e);
+//				}
+//			}
+//
+//		}
+//		else {
+//			// no JAR files found
+//			urls = new URL[0];
+//		}
+		// search for JAR files in the given directory
 		FileFilter jarFilter = new FileFilter() {
 			public boolean accept(
 					File pathname ) {
@@ -106,11 +142,11 @@ public class DirectoryBasedParentLastClassLoader extends
 
 		// create URL for each JAR file found
 		File[] jarFiles = new File(
-				jarDir).listFiles(jarFilter);
+				"target/hbase/lib").listFiles(jarFilter);
 		URL[] urls;
 
 		if (null != jarFiles) {
-			urls = new URL[jarFiles.length];
+			urls = new URL[jarFiles.length + 1];
 
 			for (int i = 0; i < jarFiles.length; i++) {
 				try {
@@ -123,15 +159,20 @@ public class DirectoryBasedParentLastClassLoader extends
 				}
 			}
 
+			try {
+				final String jarPath = ClasspathUtils.setupPathingJarClassPath(
+						new File("target/hbase/lib3"),
+						HBaseClassloader.class);
+				urls[urls.length -1 ] = new File(jarPath).toURI().toURL();
+			}
+			catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			childClassLoader = new ChildURLClassLoader(
+					urls,
+					this.getParent());
 		}
-		else {
-			// no JAR files found
-			urls = new URL[0];
-		}
-
-		childClassLoader = new ChildURLClassLoader(
-				urls,
-				this.getParent());
 	}
 
 	@Override
@@ -139,7 +180,7 @@ public class DirectoryBasedParentLastClassLoader extends
 			String name,
 			boolean resolve )
 			throws ClassNotFoundException {
-		if (name.contains("CoordinatedStateManager")) {
+		if (name.contains("HashFunction")) {
 			System.err.println(name);
 		}
 		// else if (name.contains("HMaster")) {
@@ -165,7 +206,7 @@ public class DirectoryBasedParentLastClassLoader extends
 		}
 		catch (ClassNotFoundException e) {
 			// didn't find it, try the parent
-			if (name.contains("CoordinatedStateManager")) {
+			if (name.contains("HashFunction")) {
 				System.err.println("parent " + name);
 			}
 			return super.loadClass(

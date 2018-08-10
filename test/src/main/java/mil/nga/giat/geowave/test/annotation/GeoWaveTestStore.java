@@ -15,11 +15,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 import mil.nga.giat.geowave.test.AccumuloStoreTestEnvironment;
 import mil.nga.giat.geowave.test.DynamoDBTestEnvironment;
+import mil.nga.giat.geowave.test.HBaseClassloader;
 import mil.nga.giat.geowave.test.BigtableStoreTestEnvironment;
 import mil.nga.giat.geowave.test.CassandraStoreTestEnvironment;
-import mil.nga.giat.geowave.test.HBaseStoreTestEnvironment;
+import mil.nga.giat.geowave.test.DirectoryBasedParentLastClassLoader;
 import mil.nga.giat.geowave.test.StoreTestEnvironment;
 import mil.nga.giat.geowave.test.TestUtils;
 
@@ -60,7 +62,7 @@ public @interface GeoWaveTestStore {
 		CASSANDRA(
 				CassandraStoreTestEnvironment.getInstance()),
 		HBASE(
-				HBaseStoreTestEnvironment.getInstance());
+				newHBaseEnvironment());
 		private final StoreTestEnvironment testEnvironment;
 
 		private GeoWaveStoreType(
@@ -70,6 +72,45 @@ public @interface GeoWaveTestStore {
 
 		public StoreTestEnvironment getTestEnvironment() {
 			return testEnvironment;
+		}
+
+		private static StoreTestEnvironment newHBaseEnvironment() {
+			DirectoryBasedParentLastClassLoader newCl = new DirectoryBasedParentLastClassLoader(
+					"target/hbase/lib");
+//			HBaseClassloader newCl = new HBaseClassloader(Thread.currentThread().getContextClassLoader());
+			try {
+//				try {
+//					Class.forName(
+//							"org.apache.hadoop.hbase.HBaseTestingUtility",
+//							true,
+//							newCl);
+//					Class.forName(
+//							"org.apache.hadoop.hbase.util.JVMClusterUtil",
+//							true,
+//							newCl);
+//					Class.forName(
+//							"org.apache.hadoop.hbase.master.HMaster",
+//							true,
+//							newCl);
+//				}
+//				catch (ClassNotFoundException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+				Class.forName("com.google.common.hash.HashFunction", true,newCl);
+				Class.forName("com.google.common.hash.Hashing", true,newCl);
+				Thread.currentThread().setContextClassLoader(
+						newCl);
+				return (StoreTestEnvironment) Class.forName(
+						"mil.nga.giat.geowave.test.HBaseStoreTestEnvironment",
+						true,
+						newCl).newInstance();
+			}
+			catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
 		}
 	}
 }
