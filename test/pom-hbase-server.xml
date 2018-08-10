@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<!-- we can't inherit from the parent pom because we explicitly don't want 
+		to inherit the dependency management with all the overridden dependencies 
+		within GeoWave, we want to get hbase-server and its transitive dependencies 
+		as is -->
+	<groupId>mil.nga.giat</groupId>
+	<version>0.9.8-SNAPSHOT</version>
+	<artifactId>geowave-test-hbase-server</artifactId>
+	<name>GeoWave HBase Server Integration Tests</name>
+	<description>A module for preparing HBase server libraries for integration and functional tests of GeoWave</description>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-server</artifactId>
+			<version>1.4.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-testing-util</artifactId>
+			<version>1.4.4</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<sourceDirectory>/bogus-src</sourceDirectory>
+		<testSourceDirectory>/bogus-test-src</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.9</version>
+				<executions>
+					<execution>
+						<id>setup-hbase</id>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<phase>pre-integration-test</phase>
+						<configuration>
+							<outputDirectory>${project.build.directory}/hbase/lib</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
