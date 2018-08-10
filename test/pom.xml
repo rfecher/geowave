@@ -324,6 +324,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+											<groupId>org.apache.hadoop</groupId>
+											<artifactId>hadoop-minikdc</artifactId>
+											<version>${hadoop.version}</version></dependency>
+		<dependency>
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>cassandra-maven-plugin</artifactId>
 			<version>3.6</version>

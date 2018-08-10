@@ -38,14 +38,15 @@ public @interface Environments {
 	public Environment[] value();
 
 	public static enum Environment {
-		MAP_REDUCE(
-				MapReduceTestEnvironment.getInstance()),
-		KAFKA(
-				KafkaTestEnvironment.getInstance()),
-		SERVICES(
-				ServicesTestEnvironment.getInstance()),
-		SPARK(
-				SparkTestEnvironment.getInstance());
+//		MAP_REDUCE(
+//				MapReduceTestEnvironment.getInstance()),
+//		KAFKA(
+//				KafkaTestEnvironment.getInstance()),
+//		SERVICES(
+//				ServicesTestEnvironment.getInstance()),
+//		SPARK(
+//				SparkTestEnvironment.getInstance());
+		;
 		private final TestEnvironment testEnvironment;
 
 		private Environment(

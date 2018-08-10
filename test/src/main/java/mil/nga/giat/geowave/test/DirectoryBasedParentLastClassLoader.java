@@ -60,10 +60,10 @@ public class DirectoryBasedParentLastClassLoader extends
 			}
 			try {
 				// first try to use the URLClassLoader findClass
-//				if (findLoadedClass(name) != null
-//						&& (!name.startsWith("org.apache.hadoop.hbase") || (name.contains("CoordinatedStateManager")))) {
-//					return findLoadedClass(name);
-//				}
+				if (findLoadedClass(name) != null
+						&& (!name.startsWith("org.apache.hadoop.security") || (name.contains("CoordinatedStateManager")))) {
+					return findLoadedClass(name);
+				}
 				return super.findClass(name);
 			}
 			catch (ClassNotFoundException e) {

@@ -38,6 +38,15 @@ public class HBaseClassloader extends
 		// "org.apache.hadoop.HadoopIllegalArgumentException",
 		"org.apache.hadoop.conf",
 		"org.apache.hadoop.fs",
+//		"org.apache.hadoop.hbase.test.MetricsAssertHelper",
+//		"org.apache.hadoop.hbase.ipc.MetricsHBaseServerSourceFactory",
+//		"org.apache.hadoop.hbase.ipc.MetricsHBaseServer",
+//		"org.apache.hadoop.hbase.ipc.RpcServer",
+//		"org.apache.xerces",
+//		"org.apache.hadoop.hbase.http",
+//		"org.mortbay.jetty",
+//		"org.apache.jasper",
+//		"org.apache.hadoop.hbase.regionserver.RegionServerAbortedException",
 		// "org.apache.hadoop.http",
 		// "org.apache.hadoop.io",
 		// "org.apache.hadoop.ipc",
@@ -121,6 +130,9 @@ public class HBaseClassloader extends
 		synchronized (getClassLoadingLock(name)) {
 			// Check whether the class has already been loaded:
 			Class<?> clasz = findLoadedClass(name);
+			if (clasz != null) {
+				return clasz;
+			}
 			try {
 				// Try to find this class using the URLs passed to this
 				// ClassLoader
