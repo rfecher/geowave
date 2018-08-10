@@ -38,15 +38,15 @@ public class HBaseClassloader extends
 		// "org.apache.hadoop.HadoopIllegalArgumentException",
 		"org.apache.hadoop.conf",
 		"org.apache.hadoop.fs",
-//		"org.apache.hadoop.hbase.test.MetricsAssertHelper",
-//		"org.apache.hadoop.hbase.ipc.MetricsHBaseServerSourceFactory",
-//		"org.apache.hadoop.hbase.ipc.MetricsHBaseServer",
-//		"org.apache.hadoop.hbase.ipc.RpcServer",
-//		"org.apache.xerces",
-//		"org.apache.hadoop.hbase.http",
-//		"org.mortbay.jetty",
-//		"org.apache.jasper",
-//		"org.apache.hadoop.hbase.regionserver.RegionServerAbortedException",
+		// "org.apache.hadoop.hbase.test.MetricsAssertHelper",
+		// "org.apache.hadoop.hbase.ipc.MetricsHBaseServerSourceFactory",
+		// "org.apache.hadoop.hbase.ipc.MetricsHBaseServer",
+		// "org.apache.hadoop.hbase.ipc.RpcServer",
+		// "org.apache.xerces",
+		// "org.apache.hadoop.hbase.http",
+		// "org.mortbay.jetty",
+		// "org.apache.jasper",
+		// "org.apache.hadoop.hbase.regionserver.RegionServerAbortedException",
 		// "org.apache.hadoop.http",
 		// "org.apache.hadoop.io",
 		// "org.apache.hadoop.ipc",
@@ -107,9 +107,11 @@ public class HBaseClassloader extends
 		}
 		try {
 			final String jarPath = ClasspathUtils.setupPathingJarClassPath(
-					new File("target/hbase/lib3"),
+					new File(
+							"target/hbase/lib3"),
 					HBaseClassloader.class);
-			addURL(new File(jarPath).toURI().toURL());
+			addURL(new File(
+					jarPath).toURI().toURL());
 		}
 		catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -121,6 +123,9 @@ public class HBaseClassloader extends
 	public Class<?> loadClass(
 			String name )
 			throws ClassNotFoundException {
+		if (name.contains("ByteString")) {
+			System.err.println(name);
+		}
 		if (isClassExempt(
 				name,
 				null)) {

@@ -44,8 +44,8 @@ public class ZookeeperTestEnvironment implements
 			zookeeper = System.getProperty(ZK_PROPERTY_NAME);
 
 			if (!TestUtils.isSet(zookeeper)) {
-//				Thread.currentThread().setContextClassLoader(
-//						HBaseStoreTestEnvironment.newCl);
+				// Thread.currentThread().setContextClassLoader(
+				// HBaseStoreTestEnvironment.newCl);
 				try {
 					System.setProperty(
 							"test.build.data.basedirectory",

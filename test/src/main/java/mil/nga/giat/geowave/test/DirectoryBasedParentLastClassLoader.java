@@ -78,18 +78,19 @@ public class DirectoryBasedParentLastClassLoader extends
 
 		@Override
 		public URL findResource(
-				String name ) {try {
-					// first try to use the URLClassLoader findClass
-					return super.findResource(name);
+				String name ) {
+			try {
+				// first try to use the URLClassLoader findClass
+				return super.findResource(name);
+			}
+			catch (Exception e) {
+				// if that fails, ask real parent classloader to load the
+				// class (give up)
+				if (name.contains("HashFunction")) {
+					System.err.println("parent find class " + name);
 				}
-				catch (Exception e) {
-					// if that fails, ask real parent classloader to load the
-					// class (give up)
-					if (name.contains("HashFunction")) {
-						System.err.println("parent find class " + name);
-					}
-					return realParent.getResource(name);
-				}
+				return realParent.getResource(name);
+			}
 		}
 	}
 
@@ -99,38 +100,38 @@ public class DirectoryBasedParentLastClassLoader extends
 				Thread.currentThread().getContextClassLoader());
 
 		// search for JAR files in the given directory
-//		FileFilter jarFilter = new FileFilter() {
-//			public boolean accept(
-//					File pathname ) {
-//				return pathname.getName().endsWith(
-//						".jar");
-//			}
-//		};
-//
-//		// create URL for each JAR file found
-//		File[] jarFiles = new File(
-//				jarDir).listFiles(jarFilter);
-//		URL[] urls;
-//
-//		if (null != jarFiles) {
-//			urls = new URL[jarFiles.length];
-//
-//			for (int i = 0; i < jarFiles.length; i++) {
-//				try {
-//					urls[i] = jarFiles[i].toURI().toURL();
-//				}
-//				catch (MalformedURLException e) {
-//					throw new RuntimeException(
-//							"Could not get URL for JAR file: " + jarFiles[i],
-//							e);
-//				}
-//			}
-//
-//		}
-//		else {
-//			// no JAR files found
-//			urls = new URL[0];
-//		}
+		// FileFilter jarFilter = new FileFilter() {
+		// public boolean accept(
+		// File pathname ) {
+		// return pathname.getName().endsWith(
+		// ".jar");
+		// }
+		// };
+		//
+		// // create URL for each JAR file found
+		// File[] jarFiles = new File(
+		// jarDir).listFiles(jarFilter);
+		// URL[] urls;
+		//
+		// if (null != jarFiles) {
+		// urls = new URL[jarFiles.length];
+		//
+		// for (int i = 0; i < jarFiles.length; i++) {
+		// try {
+		// urls[i] = jarFiles[i].toURI().toURL();
+		// }
+		// catch (MalformedURLException e) {
+		// throw new RuntimeException(
+		// "Could not get URL for JAR file: " + jarFiles[i],
+		// e);
+		// }
+		// }
+		//
+		// }
+		// else {
+		// // no JAR files found
+		// urls = new URL[0];
+		// }
 		// search for JAR files in the given directory
 		FileFilter jarFilter = new FileFilter() {
 			public boolean accept(
@@ -161,9 +162,11 @@ public class DirectoryBasedParentLastClassLoader extends
 
 			try {
 				final String jarPath = ClasspathUtils.setupPathingJarClassPath(
-						new File("target/hbase/lib3"),
+						new File(
+								"target/hbase/lib3"),
 						HBaseClassloader.class);
-				urls[urls.length -1 ] = new File(jarPath).toURI().toURL();
+				urls[urls.length - 1] = new File(
+						jarPath).toURI().toURL();
 			}
 			catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -217,13 +220,13 @@ public class DirectoryBasedParentLastClassLoader extends
 
 	@Override
 	public URL getResource(
-			String name ) {try {
-				// first try to find a class inside the child classloader
-				return childClassLoader.findResource(name);
-			}
-			catch (Exception e) {
-				return super.getResource(
-						name);
-			}
+			String name ) {
+		try {
+			// first try to find a class inside the child classloader
+			return childClassLoader.findResource(name);
+		}
+		catch (Exception e) {
+			return super.getResource(name);
+		}
 	}
 }

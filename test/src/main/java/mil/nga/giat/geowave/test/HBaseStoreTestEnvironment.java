@@ -68,7 +68,8 @@ public class HBaseStoreTestEnvironment extends
 		hbaseRequiredOptions.setZookeeper(zookeeper);
 	}
 
-	public static ClassLoader newCl = new HBaseClassloader(Thread.currentThread().getContextClassLoader());
+	public static ClassLoader newCl = new HBaseClassloader(
+			Thread.currentThread().getContextClassLoader());
 
 	@Override
 	protected GenericStoreFactory<DataStore> getDataStoreFactory() {
@@ -161,6 +162,10 @@ public class HBaseStoreTestEnvironment extends
 						newCl);
 				Class.forName(
 						"org.apache.hadoop.hbase.coordination.ZkCoordinatedStateManager",
+						true,
+						newCl);
+				Class.forName(
+						"org.apache.hadoop.hbase.util.ByteStringer",
 						true,
 						newCl);
 			}
@@ -297,6 +302,13 @@ public class HBaseStoreTestEnvironment extends
 					Assert.fail();
 				}
 			}
+//			try {
+//				Thread.sleep(10000);
+//			}
+//			catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			Thread.currentThread().setContextClassLoader(
 					prev);
 		}
