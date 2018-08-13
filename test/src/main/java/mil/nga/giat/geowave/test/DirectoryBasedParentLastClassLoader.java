@@ -44,20 +44,6 @@ public class DirectoryBasedParentLastClassLoader extends
 		public Class<?> findClass(
 				String name )
 				throws ClassNotFoundException {
-			// if (name.startsWith("org.apache.hadoop.fs") ||
-			// name.contains("DistributedFileSystem")
-			// || name.startsWith("org.apache.hadoop.conf") ||
-			// name.startsWith("org.apache.hadoop.security") ||
-			// name.startsWith("org.apache.hadoop.hbase.http")||name.startsWith("org.apache.hadoop.metrics2")||name.startsWith("org.apache.hadoop.hbase.metrics"))
-			// {
-			// System.err.println("child delegate " + name);
-			//
-			// return realParent.loadClass(name);
-			// }
-
-			if (name.contains("HashFunction")) {
-				System.err.println("find class " + name);
-			}
 			try {
 				// first try to use the URLClassLoader findClass
 				if (findLoadedClass(name) != null
@@ -99,39 +85,6 @@ public class DirectoryBasedParentLastClassLoader extends
 		super(
 				Thread.currentThread().getContextClassLoader());
 
-		// search for JAR files in the given directory
-		// FileFilter jarFilter = new FileFilter() {
-		// public boolean accept(
-		// File pathname ) {
-		// return pathname.getName().endsWith(
-		// ".jar");
-		// }
-		// };
-		//
-		// // create URL for each JAR file found
-		// File[] jarFiles = new File(
-		// jarDir).listFiles(jarFilter);
-		// URL[] urls;
-		//
-		// if (null != jarFiles) {
-		// urls = new URL[jarFiles.length];
-		//
-		// for (int i = 0; i < jarFiles.length; i++) {
-		// try {
-		// urls[i] = jarFiles[i].toURI().toURL();
-		// }
-		// catch (MalformedURLException e) {
-		// throw new RuntimeException(
-		// "Could not get URL for JAR file: " + jarFiles[i],
-		// e);
-		// }
-		// }
-		//
-		// }
-		// else {
-		// // no JAR files found
-		// urls = new URL[0];
-		// }
 		// search for JAR files in the given directory
 		FileFilter jarFilter = new FileFilter() {
 			public boolean accept(

@@ -34,29 +34,9 @@ public class HBaseClassloader extends
 		"org.apache.log4j",
 		"com.hadoop",
 		// Hadoop/HBase/ZK:
-		"org.apache.hadoop.security",
-		// "org.apache.hadoop.HadoopIllegalArgumentException",
 		"org.apache.hadoop.conf",
 		"org.apache.hadoop.fs",
-		// "org.apache.hadoop.hbase.test.MetricsAssertHelper",
-		// "org.apache.hadoop.hbase.ipc.MetricsHBaseServerSourceFactory",
-		// "org.apache.hadoop.hbase.ipc.MetricsHBaseServer",
-		// "org.apache.hadoop.hbase.ipc.RpcServer",
-		// "org.apache.xerces",
-		// "org.apache.hadoop.hbase.http",
-		// "org.mortbay.jetty",
-		// "org.apache.jasper",
-		// "org.apache.hadoop.hbase.regionserver.RegionServerAbortedException",
-		// "org.apache.hadoop.http",
-		// "org.apache.hadoop.io",
-		// "org.apache.hadoop.ipc",
-		// "org.apache.hadoop.metrics",
-		// "org.apache.hadoop.metrics2",
-		// "org.apache.hadoop.net",
 		"org.apache.hadoop.util",
-	// "org.apache.hadoop.hdfs",
-	// "org.apache.hadoop.hbase",
-	// "org.apache.zookeeper",
 	};
 	/**
 	 * If the resource being loaded matches any of these patterns, we will first
@@ -123,9 +103,6 @@ public class HBaseClassloader extends
 	public Class<?> loadClass(
 			String name )
 			throws ClassNotFoundException {
-		if (name.contains("ByteString")) {
-			System.err.println(name);
-		}
 		if (isClassExempt(
 				name,
 				null)) {

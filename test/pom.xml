@@ -154,25 +154,6 @@
 		</dependency>
 		<dependency>
 			<groupId>mil.nga.giat</groupId>
-			<artifactId>geowave-datastore-hbase</artifactId>
-			<version>${project.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.codehaus.jackson</groupId>
-					<artifactId>jackson-jaxrs</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>mil.nga.giat</groupId>
 			<artifactId>geowave-datastore-cassandra</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -277,6 +258,25 @@
 			<artifactId>hbase-protocol</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>mil.nga.giat</groupId>
+			<artifactId>geowave-datastore-hbase</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>jersey-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>jersey-server</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.jackson</groupId>
+					<artifactId>jackson-jaxrs</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.accumulo</groupId>
 			<artifactId>accumulo-minicluster</artifactId>
 			<exclusions>
@@ -330,27 +330,19 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-											<groupId>org.apache.hadoop</groupId>
-											<artifactId>hadoop-minikdc</artifactId>
-											<version>${hadoop.version}</version>
-											<exclusions>
-												<exclusion>
-													<groupId>
-														org.apache.directory.server
-													</groupId>
-													<artifactId>
-														apacheds-protocol-ldap
-													</artifactId>
-												</exclusion>
-												<exclusion>
-													<groupId>
-														org.apache.directory.server
-													</groupId>
-													<artifactId>
-														apacheds-jdbm-partition
-													</artifactId>
-												</exclusion>
-											</exclusions>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-minikdc</artifactId>
+			<version>${hadoop.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.directory.server</groupId>
+					<artifactId>apacheds-protocol-ldap</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.directory.server</groupId>
+					<artifactId>apacheds-jdbm-partition</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.mojo</groupId>
