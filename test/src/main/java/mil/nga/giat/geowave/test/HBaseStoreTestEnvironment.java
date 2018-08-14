@@ -68,7 +68,7 @@ public class HBaseStoreTestEnvironment extends
 		hbaseRequiredOptions.setZookeeper(zookeeper);
 	}
 
-	public static ClassLoader newCl = new HBaseClassloader(
+	public static ClassLoader newCl = new HBaseMiniClusterClassLoader(
 			Thread.currentThread().getContextClassLoader());
 
 	@Override
@@ -88,101 +88,15 @@ public class HBaseStoreTestEnvironment extends
 					LOGGER.debug("Using local zookeeper URL: " + zookeeper);
 				}
 			}
-			// DirectoryBasedParentLastClassLoader newCl =
 			ClassLoader prev = Thread.currentThread().getContextClassLoader();
 			Thread.currentThread().setContextClassLoader(
 					newCl);
-			// try {
-			// Class.forName(
-			// "org.apache.hadoop.hbase.HBaseTestingUtility",
-			// true,
-			// newCl);
-			// Class.forName(
-			// "org.apache.hadoop.hbase.util.JVMClusterUtil",
-			// true,
-			// newCl);
-			// Class.forName(
-			// "org.apache.hadoop.hbase.master.HMaster",
-			// true,
-			// newCl);
-			// Class.forName(
-			// "org.apache.hadoop.hbase.test.MetricsAssertHelper",
-			// true,
-			// newCl);
-			// Class.forName(
-			// "org.apache.hadoop.hbase.test.MetricsAssertHelperImpl",
-			// true,
-			// newCl);
-			// Class.forName(
-			// "org.apache.hadoop.metrics2.lib.DynamicMetricsRegistry",
-			// true,
-			// newCl);
-			// //
-			// System.err.println(newCl.loadClass("org.apache.hadoop.hbase.test.MetricsAssertHelper").getClassLoader());
-			// // System.err.println(
-			// //
-			// newCl.loadClass("org.apache.hadoop.hbase.test.MetricsAssertHelperImpl").getClassLoader());
-			// }
-			// catch (ClassNotFoundException e1) {
-			// // TODO Auto-generated catch block
-			// e1.printStackTrace();
-			// }
-			// File[] files = new File(
-			// "target/hbase/lib").listFiles();
-			// URL[] urls = new URL[files.length];
-			// for (int i = 0; i < files.length; i++) {
-			// try {
-			// urls[i] = files[i].toURI().toURL();
-			// }
-			// catch (MalformedURLException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			// }
-			// ClassLoader newCl = new DirectoryBasedParentLastClassLoader(
-			// "target/hbase/lib");
-			// Thread.currentThread().setContextClassLoader(
-			// newCl);
-			try {
-				Class.forName(
-						"org.apache.hadoop.hbase.HBaseTestingUtility",
-						true,
-						newCl);
-				Class.forName(
-						"org.apache.hadoop.hbase.util.JVMClusterUtil",
-						true,
-						newCl);
-				Class.forName(
-						"org.apache.hadoop.hbase.master.HMaster",
-						true,
-						newCl);
-				Class.forName(
-						"org.apache.hadoop.hbase.CoordinatedStateManager",
-						true,
-						newCl);
-				Class.forName(
-						"org.apache.hadoop.hbase.coordination.ZkCoordinatedStateManager",
-						true,
-						newCl);
-				Class.forName(
-						"org.apache.hadoop.hbase.util.ByteStringer",
-						true,
-						newCl);
-			}
-			catch (ClassNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 			if (!TestUtils.isSet(System.getProperty(ZookeeperTestEnvironment.ZK_PROPERTY_NAME))) {
 				try {
-					// hbaseLocalCluster = (HBaseTestingUtility)
-					// newCl.loadClass(
-					// HBaseTestingUtility.class.getName()).newInstance();
 					hbaseLocalCluster = Class.forName(
 							"org.apache.hadoop.hbase.HBaseTestingUtility",
 							true,
 							newCl).newInstance();
-					System.err.println(hbaseLocalCluster.getClass().getClassLoader());
 					final Object conf = hbaseLocalCluster.getClass().getMethod(
 							"getConfiguration").invoke(
 							hbaseLocalCluster);

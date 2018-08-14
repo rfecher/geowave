@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 import mil.nga.giat.geowave.core.store.util.ClasspathUtils;
 
-public class HBaseClassloader extends
+public class HBaseMiniClusterClassLoader extends
 		URLClassLoader
 {
 
@@ -29,29 +29,21 @@ public class HBaseClassloader extends
 		"org.w3c",
 		"org.xml",
 		"sunw.",
-		// logging
+		// logging		
 		"org.apache.commons.logging",
 		"org.apache.log4j",
 		"com.hadoop",
 		// Hadoop/HBase/ZK:
+		"org.apache.hadoop.security",
 		"org.apache.hadoop.conf",
 		"org.apache.hadoop.fs",
 		"org.apache.hadoop.util",
 	};
-	/**
-	 * If the resource being loaded matches any of these patterns, we will first
-	 * attempt to load the resource with the parent ClassLoader. Only if the
-	 * resource is not found by the parent do we attempt to load it from the
-	 * coprocessor jar.
-	 */
-	private static final Pattern[] RESOURCE_LOAD_PARENT_FIRST_PATTERNS = new Pattern[] {
-		Pattern.compile("^[^-]+-default\\.xml$")
-	};
-
+	
 	/**
 	 * Creates a JarClassLoader that loads classes from the given paths.
 	 */
-	public HBaseClassloader(
+	public HBaseMiniClusterClassLoader(
 			ClassLoader parent ) {
 		super(
 				new URL[] {},
@@ -68,10 +60,8 @@ public class HBaseClassloader extends
 		// create URL for each JAR file found
 		File[] jarFiles = new File(
 				"target/hbase/lib").listFiles(jarFilter);
-		URL[] urls;
 
 		if (null != jarFiles) {
-			urls = new URL[jarFiles.length];
 
 			for (int i = 0; i < jarFiles.length; i++) {
 				try {
@@ -88,8 +78,8 @@ public class HBaseClassloader extends
 		try {
 			final String jarPath = ClasspathUtils.setupPathingJarClassPath(
 					new File(
-							"target/hbase/lib3"),
-					HBaseClassloader.class);
+							"target/hbase/lib"),
+					HBaseMiniClusterClassLoader.class);
 			addURL(new File(
 					jarPath).toURI().toURL());
 		}
@@ -138,30 +128,6 @@ public class HBaseClassloader extends
 		}
 	}
 
-	@Override
-	public URL getResource(
-			String name ) {
-		URL resource = null;
-		boolean parentLoaded = false;
-
-		// Delegate to the parent first if necessary
-		if (loadResourceUsingParentFirst(name)) {
-			resource = super.getResource(name);
-			parentLoaded = true;
-		}
-		synchronized (getClassLoadingLock(name)) {
-			// Try to find the resource in this jar
-			resource = findResource(name);
-			if ((resource == null) && !parentLoaded) {
-				// Not found in this jar and we haven't attempted to load
-				// the resource in the parent yet; fall back to the parent
-				resource = super.getResource(name);
-			}
-
-		}
-		return resource;
-	}
-
 	/**
 	 * Determines whether the given class should be exempt from being loaded by
 	 * this ClassLoader.
@@ -183,28 +149,6 @@ public class HBaseClassloader extends
 		}
 		for (String exemptPrefix : CLASS_PREFIX_EXEMPTIONS) {
 			if (name.startsWith(exemptPrefix)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Determines whether we should attempt to load the given resource using the
-	 * parent first before attempting to load the resource using this
-	 * ClassLoader.
-	 * 
-	 * @param name
-	 *            the name of the resource to test.
-	 * @return true if we should attempt to load the resource using the parent
-	 *         first; false if we should attempt to load the resource using this
-	 *         ClassLoader first.
-	 */
-	protected boolean loadResourceUsingParentFirst(
-			String name ) {
-		for (Pattern resourcePattern : RESOURCE_LOAD_PARENT_FIRST_PATTERNS) {
-			if (resourcePattern.matcher(
-					name).matches()) {
 				return true;
 			}
 		}

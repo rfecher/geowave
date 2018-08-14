@@ -1229,8 +1229,6 @@ public class HBaseOperations implements
 				shouldRetry = false;
 
 				try (final Table table = getTable(tableName)) {
-					System.err.println(RpcChannel.class.getClassLoader());
-					System.err.println(AggregationService.class.getClassLoader());
 					results = table.coprocessorService(
 							AggregationProtos.AggregationService.class,
 							startRow,
