@@ -29,7 +29,7 @@ public class HBaseMiniClusterClassLoader extends
 		"org.w3c",
 		"org.xml",
 		"sunw.",
-		// logging		
+		// logging
 		"org.apache.commons.logging",
 		"org.apache.log4j",
 		"com.hadoop",
@@ -39,7 +39,7 @@ public class HBaseMiniClusterClassLoader extends
 		"org.apache.hadoop.fs",
 		"org.apache.hadoop.util",
 	};
-	
+
 	/**
 	 * Creates a JarClassLoader that loads classes from the given paths.
 	 */
