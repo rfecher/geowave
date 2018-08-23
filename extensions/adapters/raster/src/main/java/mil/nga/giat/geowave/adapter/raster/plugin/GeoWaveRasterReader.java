@@ -955,10 +955,14 @@ public class GeoWaveRasterReader extends
 			final GeoWaveRasterReaderState state,
 			final CoordinateReferenceSystem crs )
 			throws DataSourceException {
+		System.err.println(crs.toString());
 
+		System.err.println(state.getRequestedEnvelope().getCoordinateReferenceSystem());
 		if (CRS.equalsIgnoreMetadata(
 				state.getRequestedEnvelope().getCoordinateReferenceSystem(),
 				crs)) {
+
+			System.err.println("equals!");
 			state.setRequestEnvelopeXformed(state.getRequestedEnvelope());
 
 			return; // and finish
@@ -973,6 +977,7 @@ public class GeoWaveRasterReader extends
 					crs).getMathTransform();
 
 			if (transform.isIdentity()) { // Identity Transform ?
+				System.err.println("identity!");
 				state.setRequestEnvelopeXformed(state.getRequestedEnvelope());
 				return; // and finish
 			}
@@ -983,9 +988,8 @@ public class GeoWaveRasterReader extends
 			state.getRequestEnvelopeXformed().setCoordinateReferenceSystem(
 					crs);
 
-			// if (config.getIgnoreAxisOrder() == false) { // check for axis
-			// order
-			// required
+			System.err.println(state.getRequestedEnvelope().toString());
+			System.err.println(state.getRequestEnvelopeXformed().toString());
 			final int indexX = indexOfX(crs);
 			final int indexY = indexOfY(crs);
 			final int indexRequestedX = indexOfX(state.getRequestedEnvelope().getCoordinateReferenceSystem());
@@ -1015,7 +1019,6 @@ public class GeoWaveRasterReader extends
 				throw new DataSourceException(
 						"Unable to resolve the X Axis problem");
 			}
-			// }
 		}
 		catch (final Exception e) {
 			throw new DataSourceException(
