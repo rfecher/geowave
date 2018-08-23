@@ -270,6 +270,7 @@ public class GeoWaveRasterReader extends
 			String coverageName ) {
 		CoordinateReferenceSystem crs = crsCache.get(coverageName);
 		if (crs != null) {
+			System.err.println("cached");
 			return crs;
 		}
 
@@ -283,6 +284,14 @@ public class GeoWaveRasterReader extends
 			crsCache.put(
 					coverageName,
 					crs);
+		}
+		else {
+			if (indices == null) {
+			System.err.println("null");
+			}
+			else {
+				System.err.println("empty");
+			}
 		}
 		return crs;
 	}

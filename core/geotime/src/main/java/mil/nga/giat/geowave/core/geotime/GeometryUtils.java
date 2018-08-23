@@ -461,9 +461,12 @@ public class GeometryUtils
 		CoordinateReferenceSystem indexCrs = null;
 
 		if (index.getIndexModel() instanceof CustomCrsIndexModel) {
+			System.err.println("custom");
 			indexCrs = ((CustomCrsIndexModel) index.getIndexModel()).getCrs();
+			System.err.println(indexCrs.toString());
 		}
 		else {
+			System.err.println("default");
 			indexCrs = getDefaultCRS();
 		}
 		return indexCrs;
