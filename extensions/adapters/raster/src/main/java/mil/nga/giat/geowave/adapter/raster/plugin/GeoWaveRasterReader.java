@@ -274,9 +274,13 @@ public class GeoWaveRasterReader extends
 			return crs;
 		}
 
+		System.err.println("coverageName");
 		AdapterToIndexMapping adapterMapping = geowaveAdapterIndexMappingStore
 				.getIndicesForAdapter(getInternalAdapterId(new ByteArrayId(
 						coverageName)));
+
+		System.err.println(geowaveAdapterIndexMappingStore);
+		System.err.println(geowaveIndexStore);
 		PrimaryIndex[] indices = adapterMapping.getIndices(geowaveIndexStore);
 		
 		if (indices != null && indices.length > 0) {
