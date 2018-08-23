@@ -278,9 +278,10 @@ public class GeoWaveRasterReader extends
 				.getIndicesForAdapter(getInternalAdapterId(new ByteArrayId(
 						coverageName)));
 		PrimaryIndex[] indices = adapterMapping.getIndices(geowaveIndexStore);
-
+		
 		if (indices != null && indices.length > 0) {
-			crs = GeometryUtils.getIndexCrs(indices[0]);
+			System.err.println("indices length " + indices.length);
+			crs = GeometryUtils.getIndexCrs(indices[indices.length-1]);
 			crsCache.put(
 					coverageName,
 					crs);
