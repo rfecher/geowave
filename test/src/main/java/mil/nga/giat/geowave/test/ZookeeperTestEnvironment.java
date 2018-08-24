@@ -29,9 +29,7 @@ public class ZookeeperTestEnvironment implements
 		return singletonInstance;
 	}
 
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					ZookeeperTestEnvironment.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ZookeeperTestEnvironment.class);
 	protected String zookeeper;
 
 	private HBaseTestingUtility zookeeperLocalCluster;
@@ -44,35 +42,27 @@ public class ZookeeperTestEnvironment implements
 	@Override
 	public void setup()
 			throws Exception {
-		if (!TestUtils
-				.isSet(
-						zookeeper)) {
-			zookeeper = System
-					.getProperty(
-							ZK_PROPERTY_NAME);
+		if (!TestUtils.isSet(zookeeper)) {
+			zookeeper = System.getProperty(ZK_PROPERTY_NAME);
 
-			if (!TestUtils
-					.isSet(
-							zookeeper)) {
+			if (!TestUtils.isSet(zookeeper)) {
 
 				try {
-					System
-							.setProperty(
-									HBaseTestingUtility.BASE_TEST_DIRECTORY_KEY,
-									HBaseConfiguration
-											.create()
-											.get(
-													"zookeeper.temp.dir",
-													DEFAULT_ZK_TEMP_DIR));
+					System.setProperty(
+							HBaseTestingUtility.BASE_TEST_DIRECTORY_KEY,
+							HBaseConfiguration.create().get(
+									"zookeeper.temp.dir",
+									DEFAULT_ZK_TEMP_DIR));
 					zookeeperLocalCluster = new HBaseTestingUtility();
-					zookeeperLocalCluster.getConfiguration().setInt("test.hbase.zookeeper.property.clientPort", 2181);
+					zookeeperLocalCluster.getConfiguration().setInt(
+							"test.hbase.zookeeper.property.clientPort",
+							2181);
 					zookeeperLocalCluster.startMiniZKCluster();
 				}
 				catch (final Exception e) {
-					LOGGER
-							.error(
-									"Exception starting zookeeperLocalCluster: " + e,
-									e);
+					LOGGER.error(
+							"Exception starting zookeeperLocalCluster: " + e,
+							e);
 					Assert.fail();
 				}
 
@@ -87,16 +77,13 @@ public class ZookeeperTestEnvironment implements
 		try {
 			zookeeperLocalCluster.shutdownMiniZKCluster();
 			if (!zookeeperLocalCluster.cleanupTestDir()) {
-				LOGGER
-						.warn(
-								"Unable to delete mini zookeeper temporary directory");
+				LOGGER.warn("Unable to delete mini zookeeper temporary directory");
 			}
 		}
 		catch (final Exception e) {
-			LOGGER
-					.warn(
-							"Unable to delete or shutdown mini zookeeper temporary directory",
-							e);
+			LOGGER.warn(
+					"Unable to delete or shutdown mini zookeeper temporary directory",
+					e);
 		}
 
 		zookeeper = null;
