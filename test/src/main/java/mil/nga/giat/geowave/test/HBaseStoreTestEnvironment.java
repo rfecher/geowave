@@ -10,7 +10,20 @@
  ******************************************************************************/
 package mil.nga.giat.geowave.test;
 
+import java.io.IOException;
+import java.security.PrivilegedExceptionAction;
+
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.protobuf.generated.VisibilityLabelsProtos.VisibilityLabelsResponse;
+import org.apache.hadoop.hbase.security.User;
+import org.apache.hadoop.hbase.security.visibility.ScanLabelGenerator;
+import org.apache.hadoop.hbase.security.visibility.SimpleScanLabelGenerator;
+import org.apache.hadoop.hbase.security.visibility.VisibilityClient;
+import org.apache.hadoop.hbase.security.visibility.VisibilityLabelService;
+import org.apache.hadoop.hbase.security.visibility.VisibilityLabelServiceManager;
+import org.apache.hadoop.hbase.security.visibility.VisibilityTestUtil;
+import org.apache.hadoop.hbase.security.visibility.VisibilityUtils;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +55,9 @@ public class HBaseStoreTestEnvironment extends
 		return singletonInstance;
 	}
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(HBaseStoreTestEnvironment.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					HBaseStoreTestEnvironment.class);
 
 	public static final String DEFAULT_HBASE_TEMP_DIR = "./target/hbase_temp";
 	protected String zookeeper;
@@ -59,17 +74,16 @@ public class HBaseStoreTestEnvironment extends
 		"z"
 	};
 
-	// protected User SUPERUSER;
+	protected User SUPERUSER;
 
 	@Override
 	protected void initOptions(
 			final StoreFactoryOptions options ) {
 		HBaseRequiredOptions hbaseRequiredOptions = (HBaseRequiredOptions) options;
-		hbaseRequiredOptions.setZookeeper(zookeeper);
+		hbaseRequiredOptions
+				.setZookeeper(
+						zookeeper);
 	}
-
-	public static ClassLoader newCl = new HBaseMiniClusterClassLoader(
-			Thread.currentThread().getContextClassLoader());
 
 	@Override
 	protected GenericStoreFactory<DataStore> getDataStoreFactory() {
@@ -80,139 +94,195 @@ public class HBaseStoreTestEnvironment extends
 	public void setup() {
 		if (hbaseLocalCluster == null) {
 
-			if (!TestUtils.isSet(zookeeper)) {
-				zookeeper = System.getProperty(ZookeeperTestEnvironment.ZK_PROPERTY_NAME);
+			if (!TestUtils
+					.isSet(
+							zookeeper)) {
+				zookeeper = System
+						.getProperty(
+								ZookeeperTestEnvironment.ZK_PROPERTY_NAME);
 
-				if (!TestUtils.isSet(zookeeper)) {
+				if (!TestUtils
+						.isSet(
+								zookeeper)) {
 					zookeeper = ZookeeperTestEnvironment.getInstance().getZookeeper();
-					LOGGER.debug("Using local zookeeper URL: " + zookeeper);
+					LOGGER
+							.debug(
+									"Using local zookeeper URL: " + zookeeper);
 				}
 			}
-			ClassLoader prev = Thread.currentThread().getContextClassLoader();
-			Thread.currentThread().setContextClassLoader(
-					newCl);
-			if (!TestUtils.isSet(System.getProperty(ZookeeperTestEnvironment.ZK_PROPERTY_NAME))) {
+			ClassLoader hbaseMiniClusterCl = new HBaseMiniClusterClassLoader(
+					Thread.currentThread().getContextClassLoader());
+			ClassLoader prevCl = Thread.currentThread().getContextClassLoader();
+			Thread
+					.currentThread()
+					.setContextClassLoader(
+							hbaseMiniClusterCl);
+			if (!TestUtils
+					.isSet(
+							System
+									.getProperty(
+											ZookeeperTestEnvironment.ZK_PROPERTY_NAME))) {
 				try {
-					hbaseLocalCluster = Class.forName(
-							"org.apache.hadoop.hbase.HBaseTestingUtility",
-							true,
-							newCl).newInstance();
-					final Object conf = hbaseLocalCluster.getClass().getMethod(
-							"getConfiguration").invoke(
-							hbaseLocalCluster);
-					System.setProperty(
-							// HBaseTestingUtility.BASE_TEST_DIRECTORY_KEY,
-							"test.build.data.basedirectory",
-							DEFAULT_HBASE_TEMP_DIR);
-					conf.getClass().getMethod(
-							"set",
-							String.class,
-							String.class).invoke(
-							conf,
-							"hbase.online.schema.update.enable",
-							"true");
+					//HBaseTestingUtility must be loaded dynamically by the minicluster class loader
+					hbaseLocalCluster = Class
+							.forName(
+									"org.apache.hadoop.hbase.HBaseTestingUtility",
+									true,
+									hbaseMiniClusterCl)
+							.newInstance();
+					final Configuration conf = (Configuration) hbaseLocalCluster
+							.getClass()
+							.getMethod(
+									"getConfiguration")
+							.invoke(
+									hbaseLocalCluster);
+					System
+							.setProperty(
+									"test.build.data.basedirectory",
+									DEFAULT_HBASE_TEMP_DIR);
+					conf
+							.getClass()
+							.getMethod(
+									"set",
+									String.class,
+									String.class)
+							.invoke(
+									conf,
+									"hbase.online.schema.update.enable",
+									"true");
 
 					if (enableVisibility) {
-						conf.getClass().getMethod(
-								"set",
-								String.class,
-								String.class).invoke(
-								conf,
-								"hbase.superuser",
-								"admin");
+						conf
+								.getClass()
+								.getMethod(
+										"set",
+										String.class,
+										String.class)
+								.invoke(
+										conf,
+										"hbase.superuser",
+										"admin");
 
-						conf.getClass().getMethod(
-								"setBoolean",
-								String.class,
-								Boolean.TYPE).invoke(
-								conf,
-								"hbase.security.authorization",
-								true);
+						conf
+								.getClass()
+								.getMethod(
+										"setBoolean",
+										String.class,
+										Boolean.TYPE)
+								.invoke(
+										conf,
+										"hbase.security.authorization",
+										true);
 
-						conf.getClass().getMethod(
-								"setBoolean",
-								String.class,
-								Boolean.TYPE).invoke(
-								conf,
-								"hbase.security.visibility.mutations.checkauths",
-								true);
+						conf
+								.getClass()
+								.getMethod(
+										"setBoolean",
+										String.class,
+										Boolean.TYPE)
+								.invoke(
+										conf,
+										"hbase.security.visibility.mutations.checkauths",
+										true);
 
-						// // setup vis IT configuration
-						// conf.getClass().getMethod(
-						// "setClass",
-						// String.class,
-						// Class.class,
-						// Class.class).invoke(
-						// conf,
-						// VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS,
-						// SimpleScanLabelGenerator.class,
-						// ScanLabelGenerator.class);
-						//
-						// conf.getClass().getMethod(
-						// "setClass",
-						// String.class,
-						// Class.class,
-						// Class.class).invoke(
-						// conf,
-						// VisibilityLabelServiceManager.VISIBILITY_LABEL_SERVICE_CLASS,
-						// // DefaultVisibilityLabelServiceImpl.class,
-						// HBaseTestVisibilityLabelServiceImpl.class,
-						// VisibilityLabelService.class);
+						// setup vis IT configuration
+						conf
+								.getClass()
+								.getMethod(
+										"setClass",
+										String.class,
+										Class.class,
+										Class.class)
+								.invoke(
+										conf,
+										VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS,
+										SimpleScanLabelGenerator.class,
+										ScanLabelGenerator.class);
+
+						conf
+								.getClass()
+								.getMethod(
+										"setClass",
+										String.class,
+										Class.class,
+										Class.class)
+								.invoke(
+										conf,
+										VisibilityLabelServiceManager.VISIBILITY_LABEL_SERVICE_CLASS,
+										// DefaultVisibilityLabelServiceImpl.class,
+										HBaseTestVisibilityLabelServiceImpl.class,
+										VisibilityLabelService.class);
 
 						// Install the VisibilityController as a system
 						// processor
-						// VisibilityTestUtil.enableVisiblityLabels(conf);
+						VisibilityTestUtil
+								.enableVisiblityLabels(
+										(Configuration) conf);
 					}
 					// Start the cluster
 					// hbaseLocalCluster = new HBaseTestingUtility(
 					// conf);
-					hbaseLocalCluster.getClass().getMethod(
-							"startMiniHBaseCluster",
-							Integer.TYPE,
-							Integer.TYPE).invoke(
-							hbaseLocalCluster,
-							1,
-							NUM_REGION_SERVERS);
+					hbaseLocalCluster
+							.getClass()
+							.getMethod(
+									"startMiniHBaseCluster",
+									Integer.TYPE,
+									Integer.TYPE)
+							.invoke(
+									hbaseLocalCluster,
+									1,
+									NUM_REGION_SERVERS);
 					// 1,
 					// NUM_REGION_SERVERS);
 
 					if (enableVisibility) {
 
 						// Set valid visibilities for the vis IT
-						final Connection conn = ConnectionPool.getInstance().getConnection(
-								zookeeper);
+						final Connection conn = ConnectionPool
+								.getInstance()
+								.getConnection(
+										zookeeper);
 						try {
-							// SUPERUSER = User.createUserForTesting(
-							// conf,
-							// "admin",
-							// new String[] {
-							// "supergroup"
-							// });
+							SUPERUSER = User
+									.createUserForTesting(
+											conf,
+											"admin",
+											new String[] {
+												"supergroup"
+											});
 
 							// Set up valid visibilities for the user
-							// addLabels(
-							// conn.getConfiguration(),
-							// auths,
-							// User.getCurrent().getName());
+							addLabels(
+									conn.getConfiguration(),
+									auths,
+									User.getCurrent().getName());
 
 							// Verify hfile version
-							final String hfileVersionStr = conn.getAdmin().getConfiguration().get(
-									"hfile.format.version");
-							Assert.assertTrue(
-									"HFile version is incorrect",
-									hfileVersionStr.equals("3"));
+							final String hfileVersionStr = conn
+									.getAdmin()
+									.getConfiguration()
+									.get(
+											"hfile.format.version");
+							Assert
+									.assertTrue(
+											"HFile version is incorrect",
+											hfileVersionStr
+													.equals(
+															"3"));
 						}
 						catch (final Throwable e) {
-							LOGGER.error(
-									"Error creating test user",
-									e);
+							LOGGER
+									.error(
+											"Error creating test user",
+											e);
 						}
 					}
 				}
 				catch (final Exception e) {
-					LOGGER.error(
-							"Exception starting hbaseLocalCluster",
-							e);
+					LOGGER
+							.error(
+									"Exception starting hbaseLocalCluster",
+									e);
 					Assert.fail();
 				}
 			}
@@ -223,60 +293,74 @@ public class HBaseStoreTestEnvironment extends
 			// // TODO Auto-generated catch block
 			// e.printStackTrace();
 			// }
-			Thread.currentThread().setContextClassLoader(
-					prev);
+			Thread
+					.currentThread()
+					.setContextClassLoader(
+							prevCl);
 		}
 	}
 
-	// private void addLabels(
-	// final Configuration conf,
-	// final String[] labels,
-	// final String user )
-	// throws Exception {
-	// final PrivilegedExceptionAction<VisibilityLabelsResponse> action = new
-	// PrivilegedExceptionAction<VisibilityLabelsResponse>() {
-	// @Override
-	// public VisibilityLabelsResponse run()
-	// throws Exception {
-	// try {
-	// VisibilityClient.addLabels(
-	// conf,
-	// labels);
-	//
-	// VisibilityClient.setAuths(
-	// conf,
-	// labels,
-	// user);
-	// }
-	// catch (final Throwable t) {
-	// throw new IOException(
-	// t);
-	// }
-	// return null;
-	// }
-	// };
-	//
-	// SUPERUSER.runAs(action);
-	// }
+	private void addLabels(
+			final Configuration conf,
+			final String[] labels,
+			final String user )
+			throws Exception {
+		final PrivilegedExceptionAction<VisibilityLabelsResponse> action = new PrivilegedExceptionAction<VisibilityLabelsResponse>() {
+			@Override
+			public VisibilityLabelsResponse run()
+					throws Exception {
+				try {
+					VisibilityClient
+							.addLabels(
+									conf,
+									labels);
+
+					VisibilityClient
+							.setAuths(
+									conf,
+									labels,
+									user);
+				}
+				catch (final Throwable t) {
+					throw new IOException(
+							t);
+				}
+				return null;
+			}
+		};
+
+		SUPERUSER
+				.runAs(
+						action);
+	}
 
 	@Override
 	public void tearDown() {
 		try {
-			hbaseLocalCluster.getClass().getMethod(
-					"shutdownMiniCluster").invoke(
-					hbaseLocalCluster);
+			hbaseLocalCluster
+					.getClass()
+					.getMethod(
+							"shutdownMiniCluster")
+					.invoke(
+							hbaseLocalCluster);
 			// if (!hbaseLocalCluster.cleanupTestDir()) {
-			if (!(Boolean) hbaseLocalCluster.getClass().getMethod(
-					"shutdownMiniCluster").invoke(
-					hbaseLocalCluster)) {
-				LOGGER.warn("Unable to delete mini hbase temporary directory");
+			if (!(Boolean) hbaseLocalCluster
+					.getClass()
+					.getMethod(
+							"shutdownMiniCluster")
+					.invoke(
+							hbaseLocalCluster)) {
+				LOGGER
+						.warn(
+								"Unable to delete mini hbase temporary directory");
 			}
 			hbaseLocalCluster = null;
 		}
 		catch (final Exception e) {
-			LOGGER.warn(
-					"Unable to shutdown and delete mini hbase temporary directory",
-					e);
+			LOGGER
+					.warn(
+							"Unable to shutdown and delete mini hbase temporary directory",
+							e);
 		}
 	}
 
