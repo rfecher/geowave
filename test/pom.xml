@@ -405,7 +405,36 @@
 							</artifactItems>
 						</configuration>
 					</execution>
-
+					<execution>
+						<id>setup-hbase</id>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<phase>pre-integration-test</phase>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<artifactId>guava</artifactId>
+									<groupId>com.google.guava</groupId>
+									<version>12.0.1</version>
+								</artifactItem>
+								<artifactItem>
+									<artifactId>protobuf-java</artifactId>
+									<groupId>com.google.protobuf</groupId>
+									<version>2.5.0</version>
+								</artifactItem>
+								<artifactItem>
+									<artifactId>hbase-client</artifactId>
+									<groupId>org.apache.hbase</groupId>
+								</artifactItem>
+								<artifactItem>
+									<artifactId>hbase-protocol</artifactId>
+									<groupId>org.apache.hbase</groupId>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.build.directory}/hbase/lib</outputDirectory>
+						</configuration>
+					</execution>
 					<execution>
 						<id>setup-wps</id>
 						<goals>
@@ -690,88 +719,9 @@
 				<testStoreType>HBASE</testStoreType>
 				<testStoreOptions>enableServerSideLibrary=true</testStoreOptions>
 			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>2.9</version>
-						<executions>
-							<execution>
-								<id>setup-hbase</id>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<phase>pre-integration-test</phase>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<artifactId>guava</artifactId>
-											<groupId>com.google.guava</groupId>
-											<version>12.0.1</version>
-										</artifactItem>
-										<artifactItem>
-											<artifactId>protobuf-java</artifactId>
-											<groupId>com.google.protobuf</groupId>
-											<version>2.5.0</version>
-										</artifactItem>
-										<artifactItem>
-											<artifactId>hbase-client</artifactId>
-											<groupId>org.apache.hbase</groupId>
-										</artifactItem>
-										<artifactItem>
-											<artifactId>hbase-protocol</artifactId>
-											<groupId>org.apache.hbase</groupId>
-										</artifactItem>
-									</artifactItems>
-									<outputDirectory>${project.build.directory}/hbase/lib</outputDirectory>
-								</configuration>
-							</execution>
-							<!-- <execution> <id>setup-hbase2</id> <goals> <goal>get</goal> </goals> 
-								<phase>pre-integration-test</phase> <configuration> <artifactId>protobuf-java</artifactId> 
-								<groupId>com.google.protobuf</groupId> <version>2.5.0</version> <outputDirectory>${project.build.directory}/hbase/lib2</outputDirectory> 
-								</configuration> </execution> <execution> <id>setup-hbase3</id> <goals> <goal>get</goal> 
-								</goals> <phase>pre-integration-test</phase> <configuration> <artifactId>guava</artifactId> 
-								<groupId>com.google.guava</groupId> <version>${guava.version}</version> <outputDirectory>${project.build.directory}/hbase/lib3</outputDirectory> 
-								</configuration> </execution> <execution> <id>setup-hbase4</id> <goals> <goal>get</goal> 
-								</goals> <phase>pre-integration-test</phase> <configuration> <artifactId>protobuf-java</artifactId> 
-								<groupId>com.google.protobuf</groupId> <version>3.5.1</version> <outputDirectory>${project.build.directory}/hbase/lib3</outputDirectory> 
-								</configuration> </execution> -->
-
-							<execution>
-								<id>setup-other</id>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<phase>pre-integration-test</phase>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<artifactId>guava</artifactId>
-											<groupId>com.google.guava</groupId>
-										</artifactItem>
-										<artifactItem>
-											<artifactId>protobuf-java</artifactId>
-											<groupId>com.google.protobuf</groupId>
-										</artifactItem>
-									</artifactItems>
-									<outputDirectory>${project.build.directory}/hbase/lib-other</outputDirectory>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 		<profile>
 			<id>hbase-it-client</id>
-			<dependencies>
-				<dependency>
-					<groupId>mil.nga.giat</groupId>
-					<artifactId>geowave-test-hbase-server</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-			</dependencies>
 			<properties>
 				<skipITs>false</skipITs>
 				<testStoreType>HBASE</testStoreType>
@@ -780,31 +730,11 @@
 		</profile>
 		<profile>
 			<id>hbase-it-all</id>
-			<dependencies>
-				<dependency>
-					<groupId>mil.nga.giat</groupId>
-					<artifactId>geowave-test-hbase-server</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-			</dependencies>
 			<properties>
 				<skipITs>false</skipITs>
 				<testStoreType>HBASE</testStoreType>
 				<testStoreOptions>enableServerSideLibrary=true!enableServerSideLibrary=false</testStoreOptions>
 			</properties>
-
-		</profile>
-		<profile>
-			<!-- rather than repeat this long xml block for each hbase profile, the 
-				hbase ITs just must activate this in addition to the hbase-it* profile -->
-			<id>hbase-safe-compile</id>
-			<!-- <properties> <guava.version>14.0-rc1</guava.version> <protobuf.version>2.5.0</protobuf.version> 
-				</properties> <build> <plugins> <plugin> <groupId>org.apache.maven.plugins</groupId> 
-				<artifactId>maven-compiler-plugin</artifactId> <configuration> <excludes> 
-				<exclude>**/mil/nga/giat/geowave/test/service/grpc/*.java</exclude> </excludes> 
-				<testExcludes> <exclude>**/mil/nga/giat/geowave/test/service/grpc/*.java</exclude> 
-				</testExcludes> </configuration> </plugin> </plugins> </build> -->
-
 		</profile>
 		<profile>
 			<id>cassandra-it</id>

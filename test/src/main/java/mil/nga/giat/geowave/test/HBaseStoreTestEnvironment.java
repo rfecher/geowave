@@ -140,78 +140,34 @@ public class HBaseStoreTestEnvironment extends
 							.setProperty(
 									"test.build.data.basedirectory",
 									DEFAULT_HBASE_TEMP_DIR);
-					conf
-							.getClass()
-							.getMethod(
-									"set",
-									String.class,
-									String.class)
-							.invoke(
-									conf,
-									"hbase.online.schema.update.enable",
-									"true");
+					conf.setBoolean(
+							"hbase.online.schema.update.enable",
+							true);
 
 					if (enableVisibility) {
-						conf
-								.getClass()
-								.getMethod(
-										"set",
-										String.class,
-										String.class)
-								.invoke(
-										conf,
-										"hbase.superuser",
-										"admin");
+						conf.set(
+								"hbase.superuser",
+								"admin");
 
-						conf
-								.getClass()
-								.getMethod(
-										"setBoolean",
-										String.class,
-										Boolean.TYPE)
-								.invoke(
-										conf,
-										"hbase.security.authorization",
-										true);
+						conf.setBoolean(
+								"hbase.security.authorization",
+								true);
 
-						conf
-								.getClass()
-								.getMethod(
-										"setBoolean",
-										String.class,
-										Boolean.TYPE)
-								.invoke(
-										conf,
-										"hbase.security.visibility.mutations.checkauths",
-										true);
+						conf.setBoolean(
+								"hbase.security.visibility.mutations.checkauths",
+								true);
 
 						// setup vis IT configuration
-						conf
-								.getClass()
-								.getMethod(
-										"setClass",
-										String.class,
-										Class.class,
-										Class.class)
-								.invoke(
-										conf,
-										VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS,
-										SimpleScanLabelGenerator.class,
-										ScanLabelGenerator.class);
+						conf.setClass(
+								VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS,
+								SimpleScanLabelGenerator.class,
+								ScanLabelGenerator.class);
 
-						conf
-								.getClass()
-								.getMethod(
-										"setClass",
-										String.class,
-										Class.class,
-										Class.class)
-								.invoke(
-										conf,
-										VisibilityLabelServiceManager.VISIBILITY_LABEL_SERVICE_CLASS,
-										// DefaultVisibilityLabelServiceImpl.class,
-										HBaseTestVisibilityLabelServiceImpl.class,
-										VisibilityLabelService.class);
+						conf.setClass(
+								VisibilityLabelServiceManager.VISIBILITY_LABEL_SERVICE_CLASS,
+								// DefaultVisibilityLabelServiceImpl.class,
+								HBaseTestVisibilityLabelServiceImpl.class,
+								VisibilityLabelService.class);
 
 						// Install the VisibilityController as a system
 						// processor
@@ -232,11 +188,8 @@ public class HBaseStoreTestEnvironment extends
 									hbaseLocalCluster,
 									1,
 									NUM_REGION_SERVERS);
-					// 1,
-					// NUM_REGION_SERVERS);
 
 					if (enableVisibility) {
-
 						// Set valid visibilities for the vis IT
 						final Connection conn = ConnectionPool
 								.getInstance()
@@ -286,13 +239,6 @@ public class HBaseStoreTestEnvironment extends
 					Assert.fail();
 				}
 			}
-			// try {
-			// Thread.sleep(10000);
-			// }
-			// catch (InterruptedException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
 			Thread
 					.currentThread()
 					.setContextClassLoader(
@@ -343,16 +289,15 @@ public class HBaseStoreTestEnvironment extends
 							"shutdownMiniCluster")
 					.invoke(
 							hbaseLocalCluster);
-			// if (!hbaseLocalCluster.cleanupTestDir()) {
 			if (!(Boolean) hbaseLocalCluster
 					.getClass()
 					.getMethod(
-							"shutdownMiniCluster")
+							"cleanupTestDir")
 					.invoke(
 							hbaseLocalCluster)) {
 				LOGGER
-						.warn(
-								"Unable to delete mini hbase temporary directory");
+				.warn(
+						"Unable to delete mini hbase temporary directory");
 			}
 			hbaseLocalCluster = null;
 		}
