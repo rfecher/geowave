@@ -36,6 +36,8 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -751,6 +753,28 @@ public class RasterUtils
 		return image;
 	}
 
+private static String calculateMethodSignature(Method method){
+        String signature = "";
+        if(method != null){
+            signature += "(";
+            for(Class<?> c:method.getParameterTypes()){
+                String Lsig = Array.newInstance(c,1).getClass().getName();
+                signature += Lsig.substring(1);
+            }
+            signature += ")";
+
+            Class<?> returnType = method.getReturnType();
+            if(returnType == void.class){
+                signature += "V";
+            }else{
+                signature += Array.newInstance(returnType,1).getClass().getName();
+            }
+
+            signature = signature.replace('.','/');
+        }
+
+        return signature;
+    }
 	private static BufferedImage rescaleImageViaPlanarImage(
 			final Interpolation interpolation,
 			final double rescaleX,
@@ -762,6 +786,12 @@ public class RasterUtils
 				image.getHeight());
 		final ImageWorker w = new ImageWorker(
 				planarImage);
+		Method[] ms = ImageWorker.class.getDeclaredMethods();
+		for (Method m : ms) {
+			System.err.println("METHOD: " + m.getName());
+			System.err.println("toString: " + m.toString());
+			System.err.println("descriptor: " + calculateMethodSignature(m));
+		}
 		w.scale(
 				(float) rescaleX,
 				(float) rescaleY,
