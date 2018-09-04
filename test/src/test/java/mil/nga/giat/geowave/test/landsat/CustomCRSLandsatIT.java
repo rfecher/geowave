@@ -121,10 +121,10 @@ public class CustomCRSLandsatIT extends
 	private static final int MAX_PATH = 199;
 	private static final int MIN_ROW = 36;
 	private static final int MAX_ROW = 36;
-	private static final double WEST = -2.4;
-	private static final double EAST = -1.9;
-	private static final double NORTH = 34.5;
-	private static final double SOUTH = 34;
+	private static final double WEST = -2.65;
+	private static final double EAST = -1.65;
+	private static final double NORTH = 34.75;
+	private static final double SOUTH = 33.75;
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(CustomCRSLandsatIT.class);
 	private static long startMillis;
