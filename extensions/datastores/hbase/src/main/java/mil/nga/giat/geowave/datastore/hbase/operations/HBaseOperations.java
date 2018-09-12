@@ -264,8 +264,12 @@ public class HBaseOperations implements
 							column.setMaxVersions(Integer.MAX_VALUE);
 						}
 						if (partitionPrefixLength > 0) {
-							desc.setValue(HTableDescriptor.SPLIT_POLICY, "org.apache.hadoop.hbase.regionserver.KeyPrefixRegionSplitPolicy");
-							desc.setValue("KeyPrefixRegionSplitPolicy.prefix_length", Integer.toString(partitionPrefixLength));
+							desc.setValue(
+									HTableDescriptor.SPLIT_POLICY,
+									"org.apache.hadoop.hbase.regionserver.KeyPrefixRegionSplitPolicy");
+							desc.setValue(
+									"KeyPrefixRegionSplitPolicy.prefix_length",
+									Integer.toString(partitionPrefixLength));
 						}
 						desc.addFamily(column);
 
@@ -915,7 +919,8 @@ public class HBaseOperations implements
 					ByteArrayUtils.shortToString(internalAdapterId));
 
 			if (options.isCreateTable()) {
-				createTable(index.getIndexStrategy().getPartitionKeyLength(),
+				createTable(
+						index.getIndexStrategy().getPartitionKeyLength(),
 						columnFamilies,
 						StringColumnFamilyFactory.getSingletonInstance(),
 						options.isServerSideLibraryEnabled(),
@@ -954,7 +959,8 @@ public class HBaseOperations implements
 		final TableName tableName = getTableName(getMetadataTableName(metadataType));
 		try {
 			if (options.isCreateTable()) {
-				createTable(-1,
+				createTable(
+						-1,
 						METADATA_CFS_VERSIONING,
 						StringColumnFamilyFactory.getSingletonInstance(),
 						tableName);
@@ -1599,7 +1605,8 @@ public class HBaseOperations implements
 			String tableName = getMetadataTableName(type);
 			if (!indexExists(new ByteArrayId(
 					tableName))) {
-				createTable(-1, 
+				createTable(
+						-1,
 						HBaseOperations.METADATA_CFS_VERSIONING,
 						StringColumnFamilyFactory.getSingletonInstance(),
 						getTableName(getQualifiedTableName(tableName)));
@@ -1665,7 +1672,8 @@ public class HBaseOperations implements
 	public boolean createIndex(
 			PrimaryIndex index )
 			throws IOException {
-		createTable(index.getIndexStrategy().getPartitionKeyLength(),
+		createTable(
+				index.getIndexStrategy().getPartitionKeyLength(),
 				new GeoWaveColumnFamily[0],
 				StringColumnFamilyFactory.getSingletonInstance(),
 				options.isServerSideLibraryEnabled(),
