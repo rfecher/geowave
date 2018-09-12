@@ -134,7 +134,6 @@ public class HBaseOperations implements
 	private final String tableNamespace;
 	private final boolean schemaUpdateEnabled;
 	private final HashMap<String, List<String>> coprocessorCache = new HashMap<>();
-	private final Map<TableName, Set<ByteArrayId>> partitionCache = new HashMap<>();
 	private final HashMap<TableName, Set<GeoWaveColumnFamily>> cfCache = new HashMap<>();
 
 	private final HBaseOptions options;
@@ -246,6 +245,7 @@ public class HBaseOperations implements
 	}
 
 	protected void createTable(
+			int partitionPrefixLength,
 			final Pair<GeoWaveColumnFamily, Boolean>[] columnFamiliesAndVersioningPairs,
 			GeoWaveColumnFamilyFactory columnFamilyFactory,
 			final TableName tableName )
@@ -262,6 +262,10 @@ public class HBaseOperations implements
 						final HColumnDescriptor column = columnFamilyAndVersioning.getLeft().toColumnDescriptor();
 						if (!columnFamilyAndVersioning.getRight()) {
 							column.setMaxVersions(Integer.MAX_VALUE);
+						}
+						if (partitionPrefixLength > 0) {
+							desc.setValue(HTableDescriptor.SPLIT_POLICY, "org.apache.hadoop.hbase.regionserver.KeyPrefixRegionSplitPolicy");
+							desc.setValue("KeyPrefixRegionSplitPolicy.prefix_length", Integer.toString(partitionPrefixLength));
 						}
 						desc.addFamily(column);
 
@@ -287,12 +291,13 @@ public class HBaseOperations implements
 	}
 
 	protected void createTable(
+			final int partitionPrefixLength,
 			final GeoWaveColumnFamily[] columnFamilies,
 			final GeoWaveColumnFamilyFactory columnFamilyFactory,
 			final boolean enableVersioning,
 			final TableName tableName )
 			throws IOException {
-		createTable(
+		createTable(partitionPrefixLength,
 				Arrays
 						.stream(
 								columnFamilies)
@@ -491,7 +496,6 @@ public class HBaseOperations implements
 				iteratorsAttached = false;
 			}
 			cfCache.clear();
-			partitionCache.clear();
 			coprocessorCache.clear();
 			DataAdapterAndIndexCache.getInstance(
 					RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID,
@@ -853,51 +857,6 @@ public class HBaseOperations implements
 		return true;
 	}
 
-	public void ensurePartition(
-			final ByteArrayId partition,
-			final String tableNameStr ) {
-		final TableName tableName = getTableName(tableNameStr);
-		Set<ByteArrayId> existingPartitions = partitionCache.get(tableName);
-
-		try {
-			synchronized (partitionCache) {
-				if (existingPartitions == null) {
-					try (RegionLocator regionLocator = getRegionLocator(tableNameStr)) {
-						existingPartitions = new HashSet<>();
-
-						for (final byte[] startKey : regionLocator.getStartKeys()) {
-							if (startKey.length > 0) {
-								existingPartitions.add(new ByteArrayId(
-										startKey));
-							}
-						}
-					}
-
-					partitionCache.put(
-							tableName,
-							existingPartitions);
-				}
-
-				if (!existingPartitions.contains(partition)) {
-					existingPartitions.add(partition);
-
-					LOGGER.debug("> Splitting: " + partition.getHexString());
-
-					try (Admin admin = conn.getAdmin()) {
-						admin.split(
-								tableName,
-								partition.getBytes());
-					}
-
-					LOGGER.debug("> Split complete: " + partition.getHexString());
-				}
-			}
-		}
-		catch (final IOException e) {
-			LOGGER.error("Error accessing region info: " + e.getMessage());
-		}
-	}
-
 	@Override
 	public boolean ensureAuthorizations(
 			final String clientUser,
@@ -915,9 +874,10 @@ public class HBaseOperations implements
 	}
 
 	public void createTable(
-			final ByteArrayId indexId,
+			final PrimaryIndex index,
 			final boolean enableVersioning,
 			final short internalAdapterId ) {
+		ByteArrayId indexId = index.getId();
 		final TableName tableName = getTableName(indexId.getString());
 
 		final GeoWaveColumnFamily[] columnFamilies = new GeoWaveColumnFamily[1];
@@ -925,6 +885,7 @@ public class HBaseOperations implements
 				ByteArrayUtils.shortToString(internalAdapterId));
 		try {
 			createTable(
+					index.getIndexStrategy().getPartitionKeyLength(),
 					columnFamilies,
 					StringColumnFamilyFactory.getSingletonInstance(),
 					enableVersioning,
@@ -944,8 +905,9 @@ public class HBaseOperations implements
 
 	@Override
 	public Writer createWriter(
-			final ByteArrayId indexId,
+			final PrimaryIndex index,
 			final short internalAdapterId ) {
+		ByteArrayId indexId = index.getId();
 		final TableName tableName = getTableName(indexId.getString());
 		try {
 			final GeoWaveColumnFamily[] columnFamilies = new GeoWaveColumnFamily[1];
@@ -953,7 +915,7 @@ public class HBaseOperations implements
 					ByteArrayUtils.shortToString(internalAdapterId));
 
 			if (options.isCreateTable()) {
-				createTable(
+				createTable(index.getIndexStrategy().getPartitionKeyLength(),
 						columnFamilies,
 						StringColumnFamilyFactory.getSingletonInstance(),
 						options.isServerSideLibraryEnabled(),
@@ -992,7 +954,7 @@ public class HBaseOperations implements
 		final TableName tableName = getTableName(getMetadataTableName(metadataType));
 		try {
 			if (options.isCreateTable()) {
-				createTable(
+				createTable(-1,
 						METADATA_CFS_VERSIONING,
 						StringColumnFamilyFactory.getSingletonInstance(),
 						tableName);
@@ -1637,7 +1599,7 @@ public class HBaseOperations implements
 			String tableName = getMetadataTableName(type);
 			if (!indexExists(new ByteArrayId(
 					tableName))) {
-				createTable(
+				createTable(-1, 
 						HBaseOperations.METADATA_CFS_VERSIONING,
 						StringColumnFamilyFactory.getSingletonInstance(),
 						getTableName(getQualifiedTableName(tableName)));
@@ -1703,7 +1665,7 @@ public class HBaseOperations implements
 	public boolean createIndex(
 			PrimaryIndex index )
 			throws IOException {
-		createTable(
+		createTable(index.getIndexStrategy().getPartitionKeyLength(),
 				new GeoWaveColumnFamily[0],
 				StringColumnFamilyFactory.getSingletonInstance(),
 				options.isServerSideLibraryEnabled(),

@@ -86,7 +86,7 @@ public class HBaseDataStore extends
 					indexName)) {
 				if (baseOptions.isCreateTable()) {
 					((HBaseOperations) baseOperations).createTable(
-							index.getId(),
+							index,
 							false,
 							adapter.getInternalAdapterId());
 				}
