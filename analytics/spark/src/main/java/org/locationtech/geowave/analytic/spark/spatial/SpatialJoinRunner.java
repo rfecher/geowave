@@ -33,10 +33,11 @@ import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
 import org.locationtech.geowave.core.store.adapter.AdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryOptionsInt;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.QueryOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +123,7 @@ public class SpatialJoinRunner implements
 		writeResultsToNewAdapter();
 	}
 
-	private PrimaryIndex[] getIndicesForAdapter(
+	private Index[] getIndicesForAdapter(
 			DataStorePluginOptions storeOptions,
 			ByteArrayId adapterId,
 			InternalAdapterStore internalAdapterStore,
@@ -135,7 +136,7 @@ public class SpatialJoinRunner implements
 	private FeatureDataAdapter createOutputAdapter(
 			DataStorePluginOptions originalOptions,
 			ByteArrayId originalId,
-			PrimaryIndex[] indices,
+			Index[] indices,
 			ByteArrayId outputAdapterId ) {
 
 		if (outputAdapterId == null) {
@@ -154,7 +155,7 @@ public class SpatialJoinRunner implements
 	private void writeResultsToNewAdapter()
 			throws IOException {
 		if (outputStore != null) {
-			final PrimaryIndex[] leftIndices = this.getIndicesForAdapter(
+			final Index[] leftIndices = this.getIndicesForAdapter(
 					leftStore,
 					leftAdapterId,
 					leftInternalAdapterStore,
@@ -165,7 +166,7 @@ public class SpatialJoinRunner implements
 					leftIndices,
 					outLeftAdapterId);
 
-			final PrimaryIndex[] rightIndices = this.getIndicesForAdapter(
+			final Index[] rightIndices = this.getIndicesForAdapter(
 					rightStore,
 					rightAdapterId,
 					rightInternalAdapterStore,
@@ -264,7 +265,7 @@ public class SpatialJoinRunner implements
 			InternalAdapterStore internalAdapterStore,
 			IndexStore indexStore )
 			throws IOException {
-		QueryOptions adapterOptions;
+		QueryOptionsInt adapterOptions;
 
 		// If no adapterId provided by user grab first adapterId
 		// available.
@@ -291,7 +292,7 @@ public class SpatialJoinRunner implements
 		NumericIndexStrategy rddStrategy = null;
 		// Did the user provide a strategy for join?
 		if (this.indexStrategy == null) {
-			PrimaryIndex[] rddIndices = this.getIndicesForAdapter(
+			Index[] rddIndices = this.getIndicesForAdapter(
 					storeOptions,
 					adapterId,
 					internalAdapterStore,

@@ -23,10 +23,10 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.adapter.AdapterStore;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.ingest.GeoWaveData;
 import org.locationtech.geowave.mapreduce.GeoWaveKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +45,9 @@ public class GeoWaveOutputKey<T> implements
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	protected ByteArrayId adapterId;
-	private Collection<ByteArrayId> indexIds;
-	transient private WritableDataAdapter<T> adapter;
+	protected String typeName;
+	private Collection<String> indexNames;
+	transient private DataTypeAdapter<T> adapter;
 
 	protected GeoWaveOutputKey() {
 		super();
@@ -68,13 +68,18 @@ public class GeoWaveOutputKey<T> implements
 	}
 
 	public GeoWaveOutputKey(
-			final WritableDataAdapter<T> adapter,
+			final DataTypeAdapter<T> adapter,
 			final Collection<ByteArrayId> indexIds ) {
 		this.adapter = adapter;
 		this.indexIds = indexIds;
 		adapterId = adapter.getAdapterId();
 	}
 
+	public GeoWaveOutputKey(GeoWaveData<T> data) {
+		this.adapter = data.getAdapter();
+		this.indexNames = data.getIndexNames();
+		this.typeName = data.getTypeName();
+	}
 	public ByteArrayId getAdapterId() {
 		return adapterId;
 	}
@@ -88,17 +93,12 @@ public class GeoWaveOutputKey<T> implements
 		return indexIds;
 	}
 
-	public WritableDataAdapter<T> getAdapter(
+	public DataTypeAdapter<T> getAdapter(
 			final TransientAdapterStore adapterCache ) {
 		if (adapter != null) {
 			return adapter;
 		}
-		final DataAdapter<?> adapter = adapterCache.getAdapter(adapterId);
-		if (adapter instanceof WritableDataAdapter) {
-			return (WritableDataAdapter<T>) adapter;
-		}
-		LOGGER.warn("Adapter is not writable");
-		return null;
+		return (DataTypeAdapter<T>) adapterCache.getAdapter(adapterId);
 	}
 
 	@Override

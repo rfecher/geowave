@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,102 +11,118 @@
 package org.locationtech.geowave.core.store.adapter;
 
 import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
 import org.locationtech.geowave.core.store.data.field.FieldWriter;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
 
 public class InternalDataAdapterWrapper<T> implements
 		InternalDataAdapter<T>
 {
-	private WritableDataAdapter<T> adapter;
-	private short internalAdapterId;
+	private final DataTypeAdapter<T> adapter;
+	private final short adapterId;
 
 	public InternalDataAdapterWrapper(
-			WritableDataAdapter<T> adapter,
-			short internalAdapterId ) {
+			final DataTypeAdapter<T> adapter,
+			final short adapterId ) {
 		this.adapter = adapter;
-		this.internalAdapterId = internalAdapterId;
+		this.adapterId = adapterId;
 	}
 
+	@Override
 	public FieldWriter<T, Object> getWriter(
-			ByteArrayId fieldId ) {
-		return adapter.getWriter(fieldId);
+			final String fieldName ) {
+		return adapter
+				.getWriter(
+						fieldName);
 	}
 
-	public short getInternalAdapterId() {
-		return internalAdapterId;
+	@Override
+	public short getAdapterId() {
+		return adapterId;
 	}
 
+	@Override
 	public byte[] toBinary() {
 		return adapter.toBinary();
 	}
 
+	@Override
 	public FieldReader<Object> getReader(
-			ByteArrayId fieldId ) {
-		return adapter.getReader(fieldId);
-	}
-
-	public void fromBinary(
-			byte[] bytes ) {
-		adapter.fromBinary(bytes);
-	}
-
-	public ByteArrayId getAdapterId() {
-		return adapter.getAdapterId();
-	}
-
-	public boolean isSupported(
-			T entry ) {
-		return adapter.isSupported(entry);
-	}
-
-	public ByteArrayId getDataId(
-			T entry ) {
-		return adapter.getDataId(entry);
-	}
-
-	public T decode(
-			IndexedAdapterPersistenceEncoding data,
-			PrimaryIndex index ) {
-		return adapter.decode(
-				data,
-				index);
-	}
-
-	public AdapterPersistenceEncoding encode(
-			T entry,
-			CommonIndexModel indexModel ) {
-		AdapterPersistenceEncoding retVal = adapter.encode(
-				entry,
-				indexModel);
-		retVal.setInternalAdapterId(internalAdapterId);
-		return retVal;
-	}
-
-	public int getPositionOfOrderedField(
-			CommonIndexModel model,
-			ByteArrayId fieldId ) {
-		return adapter.getPositionOfOrderedField(
-				model,
-				fieldId);
-	}
-
-	public ByteArrayId getFieldIdForPosition(
-			CommonIndexModel model,
-			int position ) {
-		return adapter.getFieldIdForPosition(
-				model,
-				position);
-	}
-
-	public void init(
-			PrimaryIndex... indices ) {
-		adapter.init(indices);
+			final String fieldName ) {
+		return adapter
+				.getReader(
+						fieldName);
 	}
 
 	@Override
-	public WritableDataAdapter<?> getAdapter() {
+	public void fromBinary(
+			final byte[] bytes ) {
+		adapter
+				.fromBinary(
+						bytes);
+	}
+
+	@Override
+	public String getTypeName() {
+		return adapter.getTypeName();
+	}
+
+	@Override
+	public ByteArrayId getDataId(
+			final T entry ) {
+		return adapter
+				.getDataId(
+						entry);
+	}
+
+	@Override
+	public T decode(
+			final IndexedAdapterPersistenceEncoding data,
+			final Index index ) {
+		return adapter
+				.decode(
+						data,
+						index);
+	}
+
+	@Override
+	public AdapterPersistenceEncoding encode(
+			final T entry,
+			final CommonIndexModel indexModel ) {
+		final AdapterPersistenceEncoding retVal = adapter
+				.encode(
+						entry,
+						indexModel);
+		retVal
+				.setInternalAdapterId(
+						adapterId);
+		return retVal;
+	}
+
+	@Override
+	public int getPositionOfOrderedField(
+			final CommonIndexModel model,
+			final String fieldName ) {
+		return adapter
+				.getPositionOfOrderedField(
+						model,
+						fieldName);
+	}
+
+	@Override
+	public String getFieldNameForPosition(
+			final CommonIndexModel model,
+			final int position ) {
+		return adapter
+				.getFieldNameForPosition(
+						model,
+						position);
+	}
+
+	@Override
+	public DataTypeAdapter<?> getAdapter() {
 		return adapter;
 	}
 }

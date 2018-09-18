@@ -20,9 +20,8 @@ import org.locationtech.geowave.adapter.vector.stats.StatsManager;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
-import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
-import org.locationtech.geowave.core.store.index.SecondaryIndex;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
+import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
 import org.locationtech.geowave.core.store.index.SecondaryIndexType;
 import org.locationtech.geowave.core.store.index.numeric.NumericFieldIndexStrategy;
 import org.locationtech.geowave.core.store.index.temporal.TemporalIndexStrategy;
@@ -42,7 +41,7 @@ import com.google.common.base.Splitter;
 public class SecondaryIndexManager implements
 		Persistable
 {
-	private final List<SecondaryIndex<SimpleFeature>> supportedSecondaryIndices = new ArrayList<>();
+	private final List<SecondaryIndexImpl<SimpleFeature>> supportedSecondaryIndices = new ArrayList<>();
 	private transient SimpleFeatureType sft;
 	private transient StatsManager statsManager;
 
@@ -121,7 +120,7 @@ public class SecondaryIndexManager implements
 		}
 	}
 
-	public List<SecondaryIndex<SimpleFeature>> getSupportedSecondaryIndices() {
+	public List<SecondaryIndexImpl<SimpleFeature>> getSupportedSecondaryIndices() {
 		return supportedSecondaryIndices;
 	}
 
@@ -140,15 +139,15 @@ public class SecondaryIndexManager implements
 			final SecondaryIndexType secondaryIndexType,
 			final List<ByteArrayId> fieldsForPartial ) {
 
-		final List<DataStatistics<SimpleFeature>> statistics = new ArrayList<>();
-		DataStatistics<SimpleFeature> stat = null;
+		final List<InternalDataStatistics<SimpleFeature>> statistics = new ArrayList<>();
+		InternalDataStatistics<SimpleFeature> stat = null;
 		switch (secondaryIndexKey) {
 
 			case NumericSecondaryIndexConfiguration.INDEX_KEY:
 				stat = new FeatureNumericHistogramStatistics(
 						fieldId.getString());
 				statistics.add(stat);
-				supportedSecondaryIndices.add(new SecondaryIndex<SimpleFeature>(
+				supportedSecondaryIndices.add(new SecondaryIndexImpl<SimpleFeature>(
 						new NumericFieldIndexStrategy(),
 						fieldId,
 						statistics,
@@ -161,7 +160,7 @@ public class SecondaryIndexManager implements
 						fieldId.getString(),
 						16);
 				statistics.add(stat);
-				supportedSecondaryIndices.add(new SecondaryIndex<SimpleFeature>(
+				supportedSecondaryIndices.add(new SecondaryIndexImpl<SimpleFeature>(
 						new TextIndexStrategy(),
 						fieldId,
 						statistics,
@@ -173,7 +172,7 @@ public class SecondaryIndexManager implements
 				stat = new FeatureNumericHistogramStatistics(
 						fieldId.getString());
 				statistics.add(stat);
-				supportedSecondaryIndices.add(new SecondaryIndex<SimpleFeature>(
+				supportedSecondaryIndices.add(new SecondaryIndexImpl<SimpleFeature>(
 						new TemporalIndexStrategy(),
 						fieldId,
 						statistics,
@@ -185,7 +184,7 @@ public class SecondaryIndexManager implements
 				break;
 
 		}
-		for (final DataStatistics<SimpleFeature> statistic : statistics) {
+		for (final InternalDataStatistics<SimpleFeature> statistic : statistics) {
 			statsManager.addStats(
 					statistic,
 					fieldId);
@@ -200,7 +199,7 @@ public class SecondaryIndexManager implements
 	@Override
 	public byte[] toBinary() {
 		final List<Persistable> persistables = new ArrayList<Persistable>();
-		for (final SecondaryIndex<SimpleFeature> secondaryIndex : supportedSecondaryIndices) {
+		for (final SecondaryIndexImpl<SimpleFeature> secondaryIndex : supportedSecondaryIndices) {
 			persistables.add(secondaryIndex);
 		}
 		return PersistenceUtils.toBinary(persistables);
@@ -218,7 +217,7 @@ public class SecondaryIndexManager implements
 			final byte[] bytes ) {
 		final List<Persistable> persistables = PersistenceUtils.fromBinaryAsList(bytes);
 		for (final Persistable persistable : persistables) {
-			supportedSecondaryIndices.add((SecondaryIndex<SimpleFeature>) persistable);
+			supportedSecondaryIndices.add((SecondaryIndexImpl<SimpleFeature>) persistable);
 		}
 	}
 

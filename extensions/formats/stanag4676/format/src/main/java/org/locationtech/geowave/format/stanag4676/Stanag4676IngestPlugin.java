@@ -32,28 +32,28 @@ import org.apache.hadoop.io.Text;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.jaitools.jts.CoordinateSequence2D;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
-import org.locationtech.geowave.core.geotime.GeometryUtils;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.dimension.Time;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.FloatCompareUtils;
 import org.locationtech.geowave.core.index.StringUtils;
-import org.locationtech.geowave.core.ingest.GeoWaveData;
-import org.locationtech.geowave.core.ingest.IngestPluginBase;
 import org.locationtech.geowave.core.ingest.avro.AbstractStageWholeFileToAvro;
 import org.locationtech.geowave.core.ingest.avro.WholeFile;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithMapper;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithReducer;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.KeyValueData;
-import org.locationtech.geowave.core.ingest.local.LocalFileIngestPlugin;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.data.field.FieldVisibilityHandler;
 import org.locationtech.geowave.core.store.data.visibility.GlobalVisibilityHandler;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.index.NullIndex;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.ingest.GeoWaveData;
+import org.locationtech.geowave.core.store.ingest.IngestPluginBase;
+import org.locationtech.geowave.core.store.ingest.LocalFileIngestPlugin;
 import org.locationtech.geowave.format.stanag4676.image.ImageChip;
 import org.locationtech.geowave.format.stanag4676.image.ImageChipDataAdapter;
 import org.locationtech.geowave.format.stanag4676.parser.NATO4676Decoder;
@@ -75,7 +75,7 @@ public class Stanag4676IngestPlugin extends
 		LocalFileIngestPlugin<Object>
 {
 	private static Logger LOGGER = LoggerFactory.getLogger(Stanag4676IngestPlugin.class);
-	public final static PrimaryIndex IMAGE_CHIP_INDEX = new NullIndex(
+	public final static Index IMAGE_CHIP_INDEX = new NullIndex(
 			"IMAGERY_CHIPS");
 
 	private static final List<ByteArrayId> IMAGE_CHIP_AS_ID_LIST = Arrays.asList(IMAGE_CHIP_INDEX.getId());
@@ -139,7 +139,7 @@ public class Stanag4676IngestPlugin extends
 	}
 
 	@Override
-	public WritableDataAdapter<Object>[] getDataAdapters(
+	public DataTypeAdapter<Object>[] getDataAdapters(
 			final String globalVisibility ) {
 		return new IngestWithReducerImpl().getDataAdapters(globalVisibility);
 	}
@@ -204,13 +204,13 @@ public class Stanag4676IngestPlugin extends
 		}
 
 		@Override
-		public WritableDataAdapter<Object>[] getDataAdapters(
+		public DataTypeAdapter<Object>[] getDataAdapters(
 				final String globalVisibility ) {
 			final FieldVisibilityHandler fieldVisiblityHandler = ((globalVisibility != null) && !globalVisibility
 					.isEmpty()) ? new GlobalVisibilityHandler(
 					globalVisibility) : null;
 
-			return new WritableDataAdapter[] {
+			return new DataTypeAdapter[] {
 				new FeatureDataAdapter(
 						pointType,
 						fieldVisiblityHandler),
@@ -677,8 +677,8 @@ public class Stanag4676IngestPlugin extends
 	}
 
 	@Override
-	public PrimaryIndex[] getRequiredIndices() {
-		return new PrimaryIndex[] {
+	public Index[] getRequiredIndices() {
+		return new Index[] {
 			IMAGE_CHIP_INDEX
 		};
 	}

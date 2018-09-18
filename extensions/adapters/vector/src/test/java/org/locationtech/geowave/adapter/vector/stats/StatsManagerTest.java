@@ -42,11 +42,11 @@ import org.locationtech.geowave.adapter.vector.stats.FeatureFixedBinNumericStati
 import org.locationtech.geowave.adapter.vector.stats.FeatureHyperLogLogStatistics.FeatureHyperLogLogConfig;
 import org.locationtech.geowave.adapter.vector.stats.FeatureNumericHistogramStatistics.FeatureNumericHistogramConfig;
 import org.locationtech.geowave.adapter.vector.stats.StatsConfigurationCollection.SimpleFeatureStatsConfigurationCollection;
-import org.locationtech.geowave.adapter.vector.utils.SimpleFeatureUserDataConfigurationSet;
+import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigurationSet;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.data.visibility.GlobalVisibilityHandler;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -97,7 +97,7 @@ public class StatsManagerTest
 				FeatureTimeRangeStatistics.composeId("whennot")));
 
 		// can each type be created uniquely
-		DataStatistics<SimpleFeature> stat = statsManager.createDataStatistics(FeatureBoundingBoxStatistics
+		InternalDataStatistics<SimpleFeature> stat = statsManager.createDataStatistics(FeatureBoundingBoxStatistics
 				.composeId("somewhere"));
 		stat.setInternalDataAdapterId((short) -1);
 		assertNotNull(stat);
@@ -171,7 +171,7 @@ public class StatsManagerTest
 		assertEquals(
 				9,
 				ids.length);
-		DataStatistics<SimpleFeature> stat = statsManager.createDataStatistics(FeatureFixedBinNumericStatistics
+		InternalDataStatistics<SimpleFeature> stat = statsManager.createDataStatistics(FeatureFixedBinNumericStatistics
 				.composeId("pop"));
 		assertNotNull(stat);
 		stat = statsManager.createDataStatistics(FeatureNumericHistogramStatistics.composeId("pop"));

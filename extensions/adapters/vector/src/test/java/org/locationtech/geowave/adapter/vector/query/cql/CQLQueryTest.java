@@ -21,21 +21,21 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.junit.Before;
 import org.junit.Test;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
-import org.locationtech.geowave.adapter.vector.query.cql.CQLQuery;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.ingest.SpatialTemporalDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialTemporalOptions;
+import org.locationtech.geowave.core.geotime.store.query.CQLQuery;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.api.Index;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 public class CQLQueryTest
 {
-	private static final PrimaryIndex SPATIAL_INDEX = new SpatialDimensionalityTypeProvider()
-			.createPrimaryIndex(new SpatialOptions());
-	private static final PrimaryIndex SPATIAL_TEMPORAL_INDEX = new SpatialTemporalDimensionalityTypeProvider()
-			.createPrimaryIndex(new SpatialTemporalOptions());
+	private static final Index SPATIAL_INDEX = new SpatialDimensionalityTypeProvider()
+			.createIndex(new SpatialOptions());
+	private static final Index SPATIAL_TEMPORAL_INDEX = new SpatialTemporalDimensionalityTypeProvider()
+			.createIndex(new SpatialTemporalOptions());
 	SimpleFeatureType type;
 	FeatureDataAdapter adapter;
 

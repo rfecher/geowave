@@ -13,31 +13,33 @@ package org.locationtech.geowave.core.store;
 import java.util.Arrays;
 
 import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DuplicateEntryCount;
 import org.locationtech.geowave.core.store.adapter.statistics.EmptyStatisticVisibility;
 import org.locationtech.geowave.core.store.adapter.statistics.PartitionStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatisticsSet;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsProvider;
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsType;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.StatisticsQueryBuilder;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.IndexMetaDataSet;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
 
 public class DataStoreStatisticsProvider<T> implements
 		StatisticsProvider<T>
 {
 	final InternalDataAdapter<T> adapter;
 	final boolean includeAdapterStats;
-	final PrimaryIndex index;
+	final Index index;
 
 	public DataStoreStatisticsProvider(
 			final InternalDataAdapter<T> adapter,
-			final PrimaryIndex index,
+			final Index index,
 			final boolean includeAdapterStats ) {
 		super();
 		this.adapter = adapter;
@@ -46,19 +48,19 @@ public class DataStoreStatisticsProvider<T> implements
 	}
 
 	@Override
-	public ByteArrayId[] getSupportedStatisticsTypes() {
-		final ByteArrayId[] idsFromAdapter;
+	public StatisticsType<?, ?>[] getSupportedStatisticsTypes() {
+		final StatisticsType<?,?>[] idsFromAdapter;
 		if ((adapter.getAdapter() instanceof StatisticsProvider) && includeAdapterStats) {
-			adapter.init(index);
 			idsFromAdapter = ((StatisticsProvider) adapter.getAdapter()).getSupportedStatisticsTypes();
 		}
 		else {
-			idsFromAdapter = new ByteArrayId[0];
+			idsFromAdapter = new StatisticsType[0];
 		}
 
-		final ByteArrayId[] newSet = Arrays.copyOf(
-				idsFromAdapter,
-				idsFromAdapter.length + 6);
+		final StatisticsType<?, ?>[] newSet = Arrays
+				.copyOf(
+						idsFromAdapter,
+						idsFromAdapter.length + 6);
 		newSet[idsFromAdapter.length] = RowRangeHistogramStatistics.STATS_TYPE;
 		newSet[idsFromAdapter.length + 1] = IndexMetaDataSet.STATS_TYPE;
 		newSet[idsFromAdapter.length + 2] = DifferingFieldVisibilityEntryCount.STATS_TYPE;
@@ -69,43 +71,59 @@ public class DataStoreStatisticsProvider<T> implements
 	}
 
 	@Override
-	public DataStatistics<T> createDataStatistics(
-			final ByteArrayId statisticsType ) {
-		if (statisticsType.equals(RowRangeHistogramStatistics.STATS_TYPE)) {
+	public<R, B extends StatisticsQueryBuilder<R,B>> InternalDataStatistics<T, R, B> createDataStatistics(
+			final StatisticsType<R, B> statisticsType ) {
+		if (statisticsType
+				.equals(
+						RowRangeHistogramStatistics.STATS_TYPE)) {
 			return new RowRangeHistogramStatisticsSet(
-					adapter.getInternalAdapterId(),
-					index.getId());
+					adapter.getAdapterId(),
+					index.getName());
 		}
-		if (statisticsType.equals(PartitionStatistics.STATS_TYPE)) {
+		if (statisticsType
+				.equals(
+						PartitionStatistics.STATS_TYPE)) {
 			return new PartitionStatistics(
-					adapter.getInternalAdapterId(),
-					index.getId());
+					adapter.getAdapterId(),
+					index.getName());
 		}
-		if (statisticsType.equals(IndexMetaDataSet.STATS_TYPE)) {
+		if (statisticsType
+				.equals(
+						IndexMetaDataSet.STATS_TYPE)) {
 			return new IndexMetaDataSet(
-					adapter.getInternalAdapterId(),
-					index.getId(),
+					adapter.getAdapterId(),
+					index.getName(),
 					index.getIndexStrategy());
 		}
-		if (statisticsType.equals(DifferingFieldVisibilityEntryCount.STATS_TYPE)) {
-			return new DifferingFieldVisibilityEntryCount<>(
-					adapter.getInternalAdapterId(),
-					index.getId());
+		if (statisticsType
+				.equals(
+						DifferingFieldVisibilityEntryCount.STATS_TYPE)) {
+			return new DifferingFieldVisibilityEntryCount(
+					adapter.getAdapterId(),
+					index.getName());
 		}
-		if (statisticsType.equals(FieldVisibilityCount.STATS_TYPE)) {
-			return new FieldVisibilityCount<>(
-					adapter.getInternalAdapterId(),
-					index.getId());
+		if (statisticsType
+				.equals(
+						FieldVisibilityCount.STATS_TYPE)) {
+			return new FieldVisibilityCount(
+					adapter.getAdapterId(),
+					index.getName());
 		}
-		if (statisticsType.equals(DuplicateEntryCount.STATS_TYPE)) {
-			return new DuplicateEntryCount<>(
-					adapter.getInternalAdapterId(),
-					index.getId());
+		if (statisticsType
+				.equals(
+						DuplicateEntryCount.STATS_TYPE)) {
+			return new DuplicateEntryCount(
+					adapter.getAdapterId(),
+					index.getName());
 		}
 		if (adapter.getAdapter() instanceof StatisticsProvider) {
-			DataStatistics<T> stats = ((StatisticsProvider) adapter.getAdapter()).createDataStatistics(statisticsType);
+			InternalDataStatistics<T,R, B> stats = ((StatisticsProvider) adapter.getAdapter())
+					.createDataStatistics(
+							statisticsType);
 			if (stats != null) {
-				stats.setInternalDataAdapterId(adapter.getInternalAdapterId());
+				stats
+						.setAdapterId(
+								adapter.getAdapterId());
 				return stats;
 			}
 		}
@@ -116,11 +134,13 @@ public class DataStoreStatisticsProvider<T> implements
 	@Override
 	public EntryVisibilityHandler<T> getVisibilityHandler(
 			final CommonIndexModel indexModel,
-			final DataAdapter<T> adapter,
-			final ByteArrayId statisticsId ) {
-		return (adapter instanceof StatisticsProvider) ? ((StatisticsProvider) adapter).getVisibilityHandler(
-				index.getIndexModel(),
-				adapter,
-				statisticsId) : new EmptyStatisticVisibility<T>();
+			final DataTypeAdapter<T> adapter,
+			final StatisticsType<?, ?> statisticsType ) {
+		return (adapter instanceof StatisticsProvider) ? ((StatisticsProvider) adapter)
+				.getVisibilityHandler(
+						index.getIndexModel(),
+						adapter,
+						statisticsType)
+				: new EmptyStatisticVisibility<T>();
 	}
 }

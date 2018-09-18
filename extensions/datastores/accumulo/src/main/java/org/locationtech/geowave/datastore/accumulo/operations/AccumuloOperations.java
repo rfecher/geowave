@@ -68,15 +68,16 @@ import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.api.Aggregation;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.operations.BaseReaderParams;
-import org.locationtech.geowave.core.store.operations.Deleter;
+import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
@@ -84,9 +85,8 @@ import org.locationtech.geowave.core.store.operations.MetadataWriter;
 import org.locationtech.geowave.core.store.operations.QueryAndDeleteByRow;
 import org.locationtech.geowave.core.store.operations.Reader;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
+import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
-import org.locationtech.geowave.core.store.operations.Writer;
-import org.locationtech.geowave.core.store.query.aggregate.Aggregation;
 import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregation;
 import org.locationtech.geowave.core.store.server.BasicOptionProvider;
 import org.locationtech.geowave.core.store.server.RowMergingAdapterOptionProvider;
@@ -302,7 +302,7 @@ public class AccumuloOperations implements
 
 	@Override
 	public boolean createIndex(
-			final PrimaryIndex index )
+			Index index )
 			throws IOException {
 		return createTable(
 				index.getId().getString(),
@@ -1200,7 +1200,7 @@ public class AccumuloOperations implements
 			final ScannerBase scanner ) {
 		if ((params.getFieldSubsets() != null) && !params.isAggregation()) {
 			final List<String> fieldIds = params.getFieldSubsets().getLeft();
-			final DataAdapter<?> associatedAdapter = params.getFieldSubsets().getRight();
+			final DataTypeAdapter<?> associatedAdapter = (DataTypeAdapter<?>) params.getFieldSubsets().getRight();
 			if ((fieldIds != null) && (!fieldIds.isEmpty()) && (associatedAdapter != null)) {
 				final IteratorSetting iteratorSetting = AttributeSubsettingIterator.getIteratorSetting();
 
@@ -1236,7 +1236,7 @@ public class AccumuloOperations implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Reader<T> createReader(
+	public <T> RowReader<T> createReader(
 			final ReaderParams<T> params ) {
 		final ScannerBase scanner = getScanner(
 				params,
@@ -1323,7 +1323,7 @@ public class AccumuloOperations implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Reader<T> createReader(
+	public <T> RowReader<T> createReader(
 			final RecordReaderParams<T> readerParams ) {
 		final ScannerBase scanner = getScanner(readerParams);
 		addConstraintsScanIteratorSettings(
@@ -1357,8 +1357,8 @@ public class AccumuloOperations implements
 	}
 
 	@Override
-	public Writer createWriter(
-			final PrimaryIndex index,
+	public RowWriter createWriter(
+			final Index index,
 			final short internalAdapterId ) {
 		final String tableName = index.getId().getString();
 		if (options.isCreateTable()) {
@@ -1460,7 +1460,7 @@ public class AccumuloOperations implements
 
 	@Override
 	public boolean mergeData(
-			final PrimaryIndex index,
+			final Index index,
 			final PersistentAdapterStore adapterStore,
 			final AdapterIndexMappingStore adapterIndexMappingStore ) {
 		if (options.isServerSideLibraryEnabled()) {

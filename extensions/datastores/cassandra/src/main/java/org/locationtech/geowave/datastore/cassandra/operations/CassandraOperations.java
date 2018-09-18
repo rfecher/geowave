@@ -38,9 +38,9 @@ import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.Deleter;
@@ -51,7 +51,7 @@ import org.locationtech.geowave.core.store.operations.MetadataWriter;
 import org.locationtech.geowave.core.store.operations.QueryAndDeleteByRow;
 import org.locationtech.geowave.core.store.operations.Reader;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
-import org.locationtech.geowave.core.store.operations.Writer;
+import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.cassandra.CassandraRow;
 import org.locationtech.geowave.datastore.cassandra.CassandraRow.CassandraField;
@@ -506,8 +506,8 @@ public class CassandraOperations implements
 	}
 
 	@Override
-	public Writer createWriter(
-			final PrimaryIndex index,
+	public RowWriter createWriter(
+			final Index index,
 			final short internalAdapterId ) {
 		createTable(index.getId());
 		return new CassandraWriter(
@@ -608,7 +608,7 @@ public class CassandraOperations implements
 	}
 
 	@Override
-	public <T> Reader<T> createReader(
+	public <T> RowReader<T> createReader(
 			final ReaderParams<T> readerParams ) {
 		return new CassandraReader<T>(
 				readerParams,
@@ -625,7 +625,7 @@ public class CassandraOperations implements
 
 	@Override
 	public boolean mergeData(
-			final PrimaryIndex index,
+			final Index index,
 			final PersistentAdapterStore adapterStore,
 			final AdapterIndexMappingStore adapterIndexMappingStore ) {
 		return DataStoreUtils.mergeData(
@@ -635,7 +635,7 @@ public class CassandraOperations implements
 	}
 
 	@Override
-	public <T> Reader<T> createReader(
+	public <T> RowReader<T> createReader(
 			final RecordReaderParams<T> recordReaderParams ) {
 		return new CassandraReader<T>(
 				recordReaderParams,
@@ -658,7 +658,7 @@ public class CassandraOperations implements
 
 	@Override
 	public boolean createIndex(
-			PrimaryIndex index )
+			Index index )
 			throws IOException {
 		return createTable(index.getId());
 	}

@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.locationtech.geowave.core.geotime.GeometryUtils;
 import org.locationtech.geowave.core.geotime.index.dimension.TimeDefinition;
-import org.locationtech.geowave.core.geotime.store.filter.SpatialQueryFilter.CompareOperation;
+import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter.CompareOperation;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.sfc.data.NumericRange;
 
 import com.vividsolutions.jts.geom.Geometry;

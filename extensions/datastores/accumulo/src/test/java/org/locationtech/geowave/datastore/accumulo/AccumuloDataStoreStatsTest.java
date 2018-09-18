@@ -38,14 +38,11 @@ import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.EntryVisibilityHandler;
-import org.locationtech.geowave.core.store.IndexWriter;
 import org.locationtech.geowave.core.store.adapter.AbstractDataAdapter;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentIndexFieldHandler;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler.RowBuilder;
 import org.locationtech.geowave.core.store.adapter.statistics.CountDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
@@ -53,6 +50,10 @@ import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStor
 import org.locationtech.geowave.core.store.adapter.statistics.DefaultFieldStatisticVisibility;
 import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsProvider;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.data.PersistentValue;
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
@@ -65,15 +66,13 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
 import org.locationtech.geowave.core.store.metadata.AdapterIndexMappingStoreImpl;
 import org.locationtech.geowave.core.store.metadata.AdapterStoreImpl;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.metadata.IndexStoreImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
-import org.locationtech.geowave.core.store.query.DataIdQuery;
-import org.locationtech.geowave.core.store.query.EverythingQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
+import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
 import org.locationtech.geowave.datastore.accumulo.AccumuloDataStore;
 import org.locationtech.geowave.datastore.accumulo.cli.config.AccumuloOptions;
 import org.locationtech.geowave.datastore.accumulo.index.secondary.AccumuloSecondaryIndexDataStore;
@@ -211,8 +210,8 @@ public class AccumuloDataStoreStatsTest
 	private void runtest()
 			throws IOException {
 
-		final PrimaryIndex index = new SpatialDimensionalityTypeProvider().createPrimaryIndex(new SpatialOptions());
-		final WritableDataAdapter<TestGeometry> adapter = new TestGeometryAdapter();
+		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		final DataTypeAdapter<TestGeometry> adapter = new TestGeometryAdapter();
 
 		final Geometry testGeoFilter = factory.createPolygon(new Coordinate[] {
 			new Coordinate(
@@ -232,7 +231,7 @@ public class AccumuloDataStoreStatsTest
 					33)
 		});
 		ByteArrayId partitionKey = null;
-		try (IndexWriter<TestGeometry> indexWriter = mockDataStore.createWriter(
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
 				adapter,
 				index)) {
 			partitionKey = indexWriter.write(
@@ -538,7 +537,7 @@ public class AccumuloDataStoreStatsTest
 				"bbb");
 		assertNull(countStats);
 
-		try (IndexWriter<TestGeometry> indexWriter = mockDataStore.createWriter(
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
 				adapter,
 				index)) {
 			indexWriter.write(new TestGeometry(
@@ -823,7 +822,7 @@ public class AccumuloDataStoreStatsTest
 
 		@Override
 		public void init(
-				final PrimaryIndex... indices ) {
+				final Index... indices ) {
 			// TODO Auto-generated method stub
 
 		}
@@ -831,7 +830,7 @@ public class AccumuloDataStoreStatsTest
 		@Override
 		public EntryVisibilityHandler<TestGeometry> getVisibilityHandler(
 				final CommonIndexModel indexModel,
-				final DataAdapter<TestGeometry> adapter,
+				final DataTypeAdapter<TestGeometry> adapter,
 				final ByteArrayId statisticsId ) {
 			return GEOMETRY_VISIBILITY_HANDLER;
 		}

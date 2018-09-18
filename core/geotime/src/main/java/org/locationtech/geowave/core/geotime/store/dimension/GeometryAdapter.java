@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.geotime.store.dimension;
 
-import org.locationtech.geowave.core.geotime.GeometryUtils;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.StringUtils;
@@ -53,7 +53,7 @@ public class GeometryAdapter implements
 	@Override
 	public byte[] getVisibility(
 			final Object rowValue,
-			final ByteArrayId fieldId,
+			final String fieldName,
 			final GeometryWrapper geometry ) {
 		return geometry.getVisibility();
 	}

@@ -32,10 +32,11 @@ import org.locationtech.geowave.core.geotime.store.dimension.GeometryAdapter;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.IndexWriter;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.adapter.statistics.CountDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
@@ -43,10 +44,9 @@ import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOpt
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.data.field.FieldVisibilityHandler;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
-import org.locationtech.geowave.core.store.query.EverythingQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
 import org.locationtech.geowave.core.store.query.aggregate.CountAggregation;
 import org.locationtech.geowave.core.store.query.aggregate.CountResult;
+import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
 import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
@@ -177,7 +177,7 @@ public class GeoWaveVisibilityIT extends
 				raster2,
 				tileSize);
 
-		try (IndexWriter writer = dataStore.createWriter(
+		try (Writer writer = dataStore.createWriter(
 				adapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX)) {
 			// Write the first raster w/ vis info
@@ -577,7 +577,7 @@ public class GeoWaveVisibilityIT extends
 				raster2,
 				tileSize);
 
-		try (IndexWriter writer = dataStore.createWriter(
+		try (Writer writer = dataStore.createWriter(
 				adapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX)) {
 			// Write the first raster w/ vis info
@@ -763,7 +763,7 @@ public class GeoWaveVisibilityIT extends
 		final FeatureDataAdapter adapter = new FeatureDataAdapter(
 				getType());
 		final DataStore store = dataStoreOptions.createDataStore();
-		try (IndexWriter writer = store.createWriter(
+		try (Writer writer = store.createWriter(
 				adapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX)) {
 			for (int i = 0; i < TOTAL_FEATURES; i++) {

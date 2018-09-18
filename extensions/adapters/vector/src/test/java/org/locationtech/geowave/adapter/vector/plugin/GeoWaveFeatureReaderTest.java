@@ -41,7 +41,7 @@ import org.junit.Test;
 import org.locationtech.geowave.adapter.vector.BaseDataStoreTest;
 import org.locationtech.geowave.adapter.vector.plugin.GeoWaveFeatureReader;
 import org.locationtech.geowave.adapter.vector.plugin.GeoWaveGTDataStore;
-import org.locationtech.geowave.adapter.vector.utils.DateUtilities;
+import org.locationtech.geowave.adapter.vector.util.DateUtilities;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider.SpatialIndexBuilder;
 import org.locationtech.geowave.core.geotime.ingest.SpatialTemporalDimensionalityTypeProvider.SpatialTemporalIndexBuilder;
 import org.opengis.feature.simple.SimpleFeature;

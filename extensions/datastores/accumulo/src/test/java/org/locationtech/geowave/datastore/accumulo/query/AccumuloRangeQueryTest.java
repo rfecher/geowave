@@ -32,17 +32,18 @@ import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStore;
 import org.locationtech.geowave.core.store.EntryVisibilityHandler;
-import org.locationtech.geowave.core.store.IndexWriter;
 import org.locationtech.geowave.core.store.adapter.AbstractDataAdapter;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler;
 import org.locationtech.geowave.core.store.adapter.PersistentIndexFieldHandler;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler.RowBuilder;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsProvider;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.data.PersistentValue;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
 import org.locationtech.geowave.core.store.data.field.FieldUtils;
@@ -51,9 +52,7 @@ import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.Query;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.datastore.accumulo.AccumuloDataStore;
 import org.locationtech.geowave.datastore.accumulo.cli.config.AccumuloOptions;
 import org.locationtech.geowave.datastore.accumulo.operations.AccumuloOperations;
@@ -69,8 +68,8 @@ import com.vividsolutions.jts.io.WKBWriter;
 public class AccumuloRangeQueryTest
 {
 	private DataStore mockDataStore;
-	private PrimaryIndex index;
-	private WritableDataAdapter<TestGeometry> adapter;
+	private Index index;
+	private DataTypeAdapter<TestGeometry> adapter;
 	private final GeometryFactory factory = new GeometryFactory();
 	private final TestGeometry testdata = new TestGeometry(
 			factory.createPolygon(new Coordinate[] {
@@ -107,10 +106,10 @@ public class AccumuloRangeQueryTest
 						options),
 				options);
 
-		index = new SpatialDimensionalityTypeProvider().createPrimaryIndex(new SpatialOptions());
+		index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 		adapter = new TestGeometryAdapter();
 
-		try (IndexWriter writer = mockDataStore.createWriter(
+		try (Writer writer = mockDataStore.createWriter(
 				adapter,
 				index)) {
 			writer.write(testdata);
@@ -134,7 +133,7 @@ public class AccumuloRangeQueryTest
 					1.0249,
 					1.0319)
 		});
-		final Query intersectQuery = new SpatialQuery(
+		final QueryConstraints intersectQuery = new SpatialQuery(
 				testGeo);
 		Assert.assertTrue(testdata.geom.intersects(testGeo));
 		final CloseableIterator<TestGeometry> resultOfIntersect = mockDataStore.query(
@@ -148,7 +147,7 @@ public class AccumuloRangeQueryTest
 	@Test
 	public void largeQuery() {
 		final Geometry largeGeo = createPolygon(50000);
-		final Query largeQuery = new SpatialQuery(
+		final QueryConstraints largeQuery = new SpatialQuery(
 				largeGeo);
 		final CloseableIterator itr = mockDataStore.query(
 				new QueryOptions(
@@ -237,7 +236,7 @@ public class AccumuloRangeQueryTest
 
 	@Test
 	public void testMiss() {
-		final Query intersectQuery = new SpatialQuery(
+		final QueryConstraints intersectQuery = new SpatialQuery(
 				factory.createPolygon(new Coordinate[] {
 					new Coordinate(
 							1.0247,
@@ -262,7 +261,7 @@ public class AccumuloRangeQueryTest
 
 	@Test
 	public void testEncompass() {
-		final Query encompassQuery = new SpatialQuery(
+		final QueryConstraints encompassQuery = new SpatialQuery(
 				factory.createPolygon(new Coordinate[] {
 					new Coordinate(
 							1.0249,
@@ -327,7 +326,7 @@ public class AccumuloRangeQueryTest
 		}
 	}
 
-	protected WritableDataAdapter<TestGeometry> createGeometryAdapter() {
+	protected DataTypeAdapter<TestGeometry> createGeometryAdapter() {
 		return new TestGeometryAdapter();
 	}
 
@@ -547,7 +546,7 @@ public class AccumuloRangeQueryTest
 		@Override
 		public EntryVisibilityHandler<TestGeometry> getVisibilityHandler(
 				final CommonIndexModel indexModel,
-				final DataAdapter<TestGeometry> adapter,
+				final DataTypeAdapter<TestGeometry> adapter,
 				final ByteArrayId statisticsId ) {
 			// TODO Auto-generated method stub
 			return new EntryVisibilityHandler<AccumuloRangeQueryTest.TestGeometry>() {
@@ -563,7 +562,7 @@ public class AccumuloRangeQueryTest
 
 		@Override
 		public void init(
-				PrimaryIndex... indices ) {
+				Index... indices ) {
 			// TODO Auto-generated method stub
 
 		}

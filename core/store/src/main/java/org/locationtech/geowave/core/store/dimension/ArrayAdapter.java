@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.dimension;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.data.field.ArrayReader;
 import org.locationtech.geowave.core.store.data.field.ArrayWriter;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
@@ -37,7 +36,7 @@ public class ArrayAdapter<T> implements
 	@Override
 	public byte[] getVisibility(
 			final Object rowValue,
-			final ByteArrayId fieldId,
+			final String fieldName,
 			final ArrayWrapper<T> fieldValue ) {
 		return fieldValue.getVisibility();
 	}
@@ -45,14 +44,18 @@ public class ArrayAdapter<T> implements
 	@Override
 	public byte[] writeField(
 			final ArrayWrapper<T> fieldValue ) {
-		return writer.writeField(fieldValue.getArray());
+		return writer
+				.writeField(
+						fieldValue.getArray());
 	}
 
 	@Override
 	public ArrayWrapper<T> readField(
 			final byte[] fieldData ) {
-		return new ArrayWrapper<T>(
-				reader.readField(fieldData));
+		return new ArrayWrapper<>(
+				reader
+						.readField(
+								fieldData));
 	}
 
 }

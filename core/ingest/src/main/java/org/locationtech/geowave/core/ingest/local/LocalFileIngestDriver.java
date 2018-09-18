@@ -28,16 +28,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.ingest.GeoWaveData;
 import org.locationtech.geowave.core.ingest.IngestUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.IndexWriter;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.IndexPluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.VisibilityOptions;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.ingest.GeoWaveData;
+import org.locationtech.geowave.core.store.ingest.LocalFileIngestPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,7 @@ public class LocalFileIngestDriver extends
 			File configFile ) {
 		// first collect the local file ingest plugins
 		final Map<String, LocalFileIngestPlugin<?>> localFileIngestPlugins = new HashMap<String, LocalFileIngestPlugin<?>>();
-		final List<WritableDataAdapter<?>> adapters = new ArrayList<WritableDataAdapter<?>>();
+		final List<DataTypeAdapter<?>> adapters = new ArrayList<DataTypeAdapter<?>>();
 		for (Entry<String, LocalFileIngestPlugin<?>> pluginEntry : ingestPlugins.entrySet()) {
 
 			if (!IngestUtils.checkIndexesAgainstProvider(
@@ -177,9 +178,9 @@ public class LocalFileIngestDriver extends
 		// This loads up the primary indexes that are specified on the command
 		// line.
 		// Usually spatial or spatial-temporal
-		final Map<ByteArrayId, PrimaryIndex> specifiedPrimaryIndexes = new HashMap<ByteArrayId, PrimaryIndex>();
+		final Map<ByteArrayId, Index> specifiedPrimaryIndexes = new HashMap<ByteArrayId, Index>();
 		for (final IndexPluginOptions dimensionType : indexOptions) {
-			final PrimaryIndex primaryIndex = dimensionType.createPrimaryIndex();
+			final Index primaryIndex = dimensionType.createIndex();
 			if (primaryIndex == null) {
 				LOGGER.error("Could not get index instance, getIndex() returned null;");
 				throw new IOException(
@@ -198,10 +199,10 @@ public class LocalFileIngestDriver extends
 		// if the Plugin supports it. If it does, then we allow the creation of
 		// the
 		// index.
-		final Map<ByteArrayId, PrimaryIndex> requiredIndexMap = new HashMap<ByteArrayId, PrimaryIndex>();
-		final PrimaryIndex[] requiredIndices = plugin.getRequiredIndices();
+		final Map<ByteArrayId, Index> requiredIndexMap = new HashMap<ByteArrayId, Index>();
+		final Index[] requiredIndices = plugin.getRequiredIndices();
 		if ((requiredIndices != null) && (requiredIndices.length > 0)) {
-			for (final PrimaryIndex requiredIndex : requiredIndices) {
+			for (final Index requiredIndex : requiredIndices) {
 				requiredIndexMap.put(
 						requiredIndex.getId(),
 						requiredIndex);
@@ -240,13 +241,13 @@ public class LocalFileIngestDriver extends
 			final String typeName,
 			final LocalFileIngestPlugin<?> plugin,
 			final LocalIngestRunData ingestRunData,
-			final Map<ByteArrayId, PrimaryIndex> specifiedPrimaryIndexes,
-			final Map<ByteArrayId, PrimaryIndex> requiredIndexMap )
+			final Map<ByteArrayId, Index> specifiedPrimaryIndexes,
+			final Map<ByteArrayId, Index> requiredIndexMap )
 			throws IOException {
 
 		int count = 0;
 		long dbWriteMs = 0L;
-		Map<ByteArrayId, IndexWriter> indexWriters = new HashMap<ByteArrayId, IndexWriter>();
+		Map<ByteArrayId, Writer> indexWriters = new HashMap<ByteArrayId, Writer>();
 
 		// Read files until EOF from the command line.
 		try (CloseableIterator<?> geowaveDataIt = plugin.toGeoWaveData(
@@ -257,7 +258,7 @@ public class LocalFileIngestDriver extends
 			while (geowaveDataIt.hasNext()) {
 				final GeoWaveData<?> geowaveData = (GeoWaveData<?>) geowaveDataIt.next();
 				try {
-					final WritableDataAdapter adapter = ingestRunData.getDataAdapter(geowaveData);
+					final DataTypeAdapter adapter = ingestRunData.getDataAdapter(geowaveData);
 					if (adapter == null) {
 						LOGGER.warn(String.format(
 								"Adapter not found for [%s] file [%s]",
@@ -294,7 +295,7 @@ public class LocalFileIngestDriver extends
 		}
 		finally {
 			// Clean up index writers
-			for (Entry<ByteArrayId, IndexWriter> writerEntry : indexWriters.entrySet()) {
+			for (Entry<ByteArrayId, Writer> writerEntry : indexWriters.entrySet()) {
 				try {
 					ingestRunData.releaseIndexWriter(
 							writerEntry.getKey(),
@@ -314,22 +315,22 @@ public class LocalFileIngestDriver extends
 
 	private long ingestData(
 			GeoWaveData<?> geowaveData,
-			WritableDataAdapter adapter,
+			DataTypeAdapter adapter,
 			LocalIngestRunData runData,
-			Map<ByteArrayId, PrimaryIndex> specifiedPrimaryIndexes,
-			Map<ByteArrayId, PrimaryIndex> requiredIndexMap,
-			Map<ByteArrayId, IndexWriter> indexWriters )
+			Map<ByteArrayId, Index> specifiedPrimaryIndexes,
+			Map<ByteArrayId, Index> requiredIndexMap,
+			Map<ByteArrayId, Writer> indexWriters )
 			throws Exception {
 
 		try {
 			ByteArrayId adapterId = adapter.getAdapterId();
 			// Write the data to the data store.
-			IndexWriter writer = indexWriters.get(adapterId);
+			Writer writer = indexWriters.get(adapterId);
 
 			if (writer == null) {
-				List<PrimaryIndex> indices = new ArrayList<PrimaryIndex>();
+				List<Index> indices = new ArrayList<Index>();
 				for (final ByteArrayId indexId : geowaveData.getIndexIds()) {
-					PrimaryIndex index = specifiedPrimaryIndexes.get(indexId);
+					Index index = specifiedPrimaryIndexes.get(indexId);
 					if (index == null) {
 						index = requiredIndexMap.get(indexId);
 						if (index == null) {
@@ -378,8 +379,8 @@ public class LocalFileIngestDriver extends
 			final String typeName,
 			final LocalFileIngestPlugin<?> plugin,
 			final LocalIngestRunData ingestRunData,
-			final Map<ByteArrayId, PrimaryIndex> specifiedPrimaryIndexes,
-			final Map<ByteArrayId, PrimaryIndex> requiredIndexMap )
+			final Map<ByteArrayId, Index> specifiedPrimaryIndexes,
+			final Map<ByteArrayId, Index> requiredIndexMap )
 			throws IOException {
 
 		// Create our queue. We will post GeoWaveData items to these queue until

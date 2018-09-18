@@ -20,31 +20,27 @@ import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.geotools.filter.text.cql2.CQLException;
 import org.locationtech.geowave.adapter.vector.AvroFeatureUtils;
-import org.locationtech.geowave.adapter.vector.GeotoolsFeatureDataAdapter;
 import org.locationtech.geowave.adapter.vector.avro.AttributeValues;
 import org.locationtech.geowave.adapter.vector.avro.AvroSimpleFeatureCollection;
 import org.locationtech.geowave.adapter.vector.cli.VectorSection;
-import org.locationtech.geowave.adapter.vector.query.cql.CQLQuery;
 import org.locationtech.geowave.core.cli.annotations.GeowaveOperation;
 import org.locationtech.geowave.core.cli.api.Command;
 import org.locationtech.geowave.core.cli.api.DefaultOperation;
 import org.locationtech.geowave.core.cli.api.OperationParams;
-import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
+import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
+import org.locationtech.geowave.core.geotime.store.query.CQLQuery;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.adapter.AdapterStore;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.StoreLoader;
-import org.locationtech.geowave.core.store.index.Index;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.Query;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -138,21 +134,13 @@ public class VectorLocalExportCommand extends
 				JCommander.getConsole().println(
 						"Unable to find any vector data types in store");
 			}
-			PrimaryIndex queryIndex = null;
+			Index queryIndex = null;
 			if (options.getIndexId() != null) {
-				final Index index = indexStore.getIndex(new ByteArrayId(
+				queryIndex = indexStore.getIndex(new ByteArrayId(
 						options.getIndexId()));
-				if (index == null) {
+				if (queryIndex == null) {
 					JCommander.getConsole().println(
 							"Unable to find index '" + options.getIndexId() + "' in store");
-					return;
-				}
-				if (index instanceof PrimaryIndex) {
-					queryIndex = (PrimaryIndex) index;
-				}
-				else {
-					JCommander.getConsole().println(
-							"Index '" + options.getIndexId() + "' is not a primary index");
 					return;
 				}
 			}
@@ -164,7 +152,7 @@ public class VectorLocalExportCommand extends
 				if (queryIndex != null) {
 					queryOptions.setIndex(queryIndex);
 				}
-				Query queryConstraints = null;
+				QueryConstraints queryConstraints = null;
 				if (options.getCqlFilter() != null) {
 					queryConstraints = CQLQuery.createOptimalQuery(
 							options.getCqlFilter(),

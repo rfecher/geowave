@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.locationtech.geowave.core.geotime.index.dimension.TimeDefinition;
 import org.locationtech.geowave.core.index.sfc.data.NumericRange;
-import org.locationtech.geowave.core.store.query.BasicQuery;
+import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
 
 /**
  * The Spatial Temporal Query class represents a query in three dimensions. The

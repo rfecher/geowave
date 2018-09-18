@@ -27,8 +27,8 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.index.sfc.data.NumericRange;
-import org.locationtech.geowave.core.store.query.DistributableQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

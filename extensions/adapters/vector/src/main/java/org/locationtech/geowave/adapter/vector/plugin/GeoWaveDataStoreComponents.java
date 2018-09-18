@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -15,28 +15,27 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.locationtech.geowave.adapter.vector.GeotoolsFeatureDataAdapter;
 import org.locationtech.geowave.adapter.vector.index.IndexQueryStrategySPI.QueryHint;
 import org.locationtech.geowave.adapter.vector.plugin.transaction.GeoWaveTransaction;
 import org.locationtech.geowave.adapter.vector.plugin.transaction.TransactionsAllocator;
+import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.IndexWriter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.data.visibility.GlobalVisibilityHandler;
 import org.locationtech.geowave.core.store.data.visibility.UniformVisibilityWriter;
-import org.locationtech.geowave.core.store.index.Index;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.BasicQuery;
-import org.locationtech.geowave.core.store.query.DataIdQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
+import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
 import org.opengis.feature.simple.SimpleFeature;
 import org.spark_project.guava.collect.Maps;
 
@@ -49,7 +48,7 @@ public class GeoWaveDataStoreComponents
 	private final GeoWaveGTDataStore gtStore;
 	private final TransactionsAllocator transactionAllocator;
 
-	private final PrimaryIndex[] adapterIndices;
+	private final Index[] adapterIndices;
 
 	public GeoWaveDataStoreComponents(
 			final DataStore dataStore,
@@ -72,9 +71,9 @@ public class GeoWaveDataStoreComponents
 		// indicies and writing it to the adapterStore, in cases where the
 		// featuredataadapter was created from geotools datastore's createSchema
 		adapter.init(adapterIndices);
-		short internalAdapterId = gtStore.getInternalAdapterStore().getInternalAdapterId(
+		final short internalAdapterId = gtStore.getInternalAdapterStore().getInternalAdapterId(
 				adapter.getAdapterId());
-		InternalDataAdapter<?> internalDataAdapter = new InternalDataAdapterWrapper(
+		final InternalDataAdapter<?> internalDataAdapter = new InternalDataAdapterWrapper(
 				adapter,
 				internalAdapterId);
 		gtStore.adapterStore.addAdapter(internalDataAdapter);
@@ -96,7 +95,7 @@ public class GeoWaveDataStoreComponents
 		return gtStore;
 	}
 
-	public PrimaryIndex[] getAdapterIndices() {
+	public Index[] getAdapterIndices() {
 		return adapterIndices;
 	}
 
@@ -104,11 +103,11 @@ public class GeoWaveDataStoreComponents
 		return dataStatisticsStore;
 	}
 
-	public CloseableIterator<Index<?, ?>> getIndices(
-			final Map<ByteArrayId, DataStatistics<SimpleFeature>> stats,
+	public CloseableIterator<Index> getIndices(
+			final Map<ByteArrayId, InternalDataStatistics<SimpleFeature>> stats,
 			final BasicQuery query ) {
-		GeoWaveGTDataStore gtStore = getGTstore();
-		Map<QueryHint, Object> queryHints = Maps.newHashMap();
+		final GeoWaveGTDataStore gtStore = getGTstore();
+		final Map<QueryHint, Object> queryHints = Maps.newHashMap();
 		queryHints.put(
 				QueryHint.MAX_RANGE_DECOMPOSITION,
 				gtStore.getDataStoreOptions().getMaxRangeDecomposition());
@@ -161,7 +160,7 @@ public class GeoWaveDataStoreComponents
 				new GlobalVisibilityHandler(
 						transaction.composeVisibility()));
 
-		try (IndexWriter indexWriter = dataStore.createWriter(
+		try (Writer indexWriter = dataStore.createWriter(
 				adapter,
 				adapterIndices)) {
 			while (featureIt.hasNext()) {
@@ -184,7 +183,7 @@ public class GeoWaveDataStoreComponents
 				new GlobalVisibilityHandler(
 						transaction.composeVisibility()));
 
-		try (IndexWriter indexWriter = dataStore.createWriter(
+		try (Writer indexWriter = dataStore.createWriter(
 				adapter,
 				adapterIndices)) {
 			indexWriter.write(

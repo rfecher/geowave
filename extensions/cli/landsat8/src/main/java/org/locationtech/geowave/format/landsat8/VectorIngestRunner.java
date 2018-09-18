@@ -18,13 +18,13 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.core.cli.api.OperationParams;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.IndexWriter;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.IndexLoader;
 import org.locationtech.geowave.core.store.cli.remote.options.IndexPluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.StoreLoader;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -39,8 +39,8 @@ public class VectorIngestRunner extends
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(RasterIngestRunner.class);
 	protected final List<String> parameters;
-	private IndexWriter bandWriter;
-	private IndexWriter sceneWriter;
+	private Writer bandWriter;
+	private Writer sceneWriter;
 
 	private SimpleFeatureType sceneType;
 
@@ -88,10 +88,10 @@ public class VectorIngestRunner extends
 			}
 			final List<IndexPluginOptions> indexOptions = indexLoader.getLoadedIndexes();
 
-			final PrimaryIndex[] indices = new PrimaryIndex[indexOptions.size()];
+			final Index[] indices = new Index[indexOptions.size()];
 			int i = 0;
 			for (final IndexPluginOptions dimensionType : indexOptions) {
-				final PrimaryIndex primaryIndex = dimensionType.createPrimaryIndex();
+				final Index primaryIndex = dimensionType.createIndex();
 				if (primaryIndex == null) {
 					LOGGER.error("Could not get index instance, getIndex() returned null;");
 					throw new IOException(
@@ -163,7 +163,7 @@ public class VectorIngestRunner extends
 	public static void writeScene(
 			final SimpleFeatureType sceneType,
 			final SimpleFeature firstBandOfScene,
-			final IndexWriter sceneWriter ) {
+			final Writer sceneWriter ) {
 		final SimpleFeatureBuilder bldr = new SimpleFeatureBuilder(
 				sceneType);
 		String fid = null;

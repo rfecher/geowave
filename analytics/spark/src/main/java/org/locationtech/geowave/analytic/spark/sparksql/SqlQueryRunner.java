@@ -39,13 +39,14 @@ import org.locationtech.geowave.analytic.spark.spatial.SpatialJoinRunner;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryOptionsInt;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.QueryOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -289,11 +290,11 @@ public class SqlQueryRunner
 			joinRunner.setNegativeTest(negativePredicate);
 
 			// Setup store info for runner
-			final PrimaryIndex[] leftIndices = leftStore.getOrCreateAdapterIndexMappingStore().getIndicesForAdapter(
+			final Index[] leftIndices = leftStore.getOrCreateAdapterIndexMappingStore().getIndicesForAdapter(
 					leftStore.getOrCreateInternalAdapterStore().getInternalAdapterId(
 							leftStore.adapterId)).getIndices(
 					leftStore.getOrCreateIndexStore());
-			final PrimaryIndex[] rightIndices = rightStore.getOrCreateAdapterIndexMappingStore().getIndicesForAdapter(
+			final Index[] rightIndices = rightStore.getOrCreateAdapterIndexMappingStore().getIndicesForAdapter(
 					rightStore.getOrCreateInternalAdapterStore().getInternalAdapterId(
 							rightStore.adapterId)).getIndices(
 					rightStore.getOrCreateIndexStore());
@@ -400,10 +401,10 @@ public class SqlQueryRunner
 
 		for (final InputStoreInfo storeInfo : addStores) {
 
-			final DataAdapter<?> adapter = storeInfo.getOrCreateAdapterStore().getAdapter(
+			final DataTypeAdapter<?> adapter = storeInfo.getOrCreateAdapterStore().getAdapter(
 					storeInfo.getOrCreateInternalAdapterStore().getInternalAdapterId(
 							storeInfo.adapterId));
-			final QueryOptions queryOptions = new QueryOptions(
+			final QueryOptionsInt queryOptions = new QueryOptions(
 					adapter);
 
 			final RDDOptions rddOpts = new RDDOptions();

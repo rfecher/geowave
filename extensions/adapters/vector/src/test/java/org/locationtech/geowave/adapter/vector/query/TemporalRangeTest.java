@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.locationtech.geowave.adapter.vector.BaseDataStoreTest;
 import org.locationtech.geowave.adapter.vector.plugin.GeoWavePluginException;
 import org.locationtech.geowave.adapter.vector.stats.FeatureTimeRangeStatistics;
-import org.locationtech.geowave.adapter.vector.utils.DateUtilities;
+import org.locationtech.geowave.adapter.vector.util.DateUtilities;
 import org.locationtech.geowave.core.geotime.store.query.TemporalRange;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.opengis.feature.simple.SimpleFeature;

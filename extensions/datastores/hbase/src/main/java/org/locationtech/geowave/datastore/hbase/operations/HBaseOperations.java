@@ -69,14 +69,14 @@ import org.locationtech.geowave.core.index.MultiDimensionalCoordinateRangesArray
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
+import org.locationtech.geowave.core.store.api.Aggregation;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
-import org.locationtech.geowave.core.store.filter.DistributableQueryFilter;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
@@ -87,11 +87,11 @@ import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.MetadataWriter;
 import org.locationtech.geowave.core.store.operations.QueryAndDeleteByRow;
-import org.locationtech.geowave.core.store.operations.Reader;
+import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
-import org.locationtech.geowave.core.store.operations.Writer;
-import org.locationtech.geowave.core.store.query.aggregate.Aggregation;
+import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregation;
+import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
 import org.locationtech.geowave.core.store.server.BasicOptionProvider;
 import org.locationtech.geowave.core.store.server.RowMergingAdapterOptionProvider;
 import org.locationtech.geowave.core.store.server.ServerOpHelper;
@@ -561,8 +561,8 @@ public class HBaseOperations implements
 			deleter = createDeleter(
 					indexId,
 					additionalAuthorizations);
-			DataAdapter<?> adapter = null;
-			PrimaryIndex index = null;
+			DataTypeAdapter<?> adapter = null;
+			Index index = null;
 			try (final CloseableIterator<GeoWaveMetadata> it = createMetadataReader(
 					MetadataType.ADAPTER).query(
 					new MetadataQuery(
@@ -574,7 +574,7 @@ public class HBaseOperations implements
 					return false;
 				}
 				final GeoWaveMetadata adapterMd = it.next();
-				adapter = (DataAdapter<?>) URLClassloaderUtils.fromBinary(adapterMd.getValue());
+				adapter = (DataTypeAdapter<?>) URLClassloaderUtils.fromBinary(adapterMd.getValue());
 			}
 			try (final CloseableIterator<GeoWaveMetadata> it = createMetadataReader(
 					MetadataType.INDEX).query(
@@ -587,7 +587,7 @@ public class HBaseOperations implements
 					return false;
 				}
 				final GeoWaveMetadata indexMd = it.next();
-				index = (PrimaryIndex) URLClassloaderUtils.fromBinary(indexMd.getValue());
+				index = (Index) URLClassloaderUtils.fromBinary(indexMd.getValue());
 			}
 			final Scan scan = new Scan();
 			scan.addFamily(ByteArrayUtils.shortToByteArray(adapterId));
@@ -831,7 +831,7 @@ public class HBaseOperations implements
 
 	@Override
 	public boolean mergeData(
-			final PrimaryIndex index,
+			final Index index,
 			final PersistentAdapterStore adapterStore,
 			final AdapterIndexMappingStore adapterIndexMappingStore ) {
 		// simply compact the table,
@@ -928,8 +928,8 @@ public class HBaseOperations implements
 	}
 
 	@Override
-	public Writer createWriter(
-			final PrimaryIndex index,
+	public RowWriter createWriter(
+			final Index index,
 			final short internalAdapterId ) {
 		ByteArrayId indexId = index.getId();
 		final TableName tableName = getTableName(indexId.getString());
@@ -1034,7 +1034,7 @@ public class HBaseOperations implements
 	}
 
 	@Override
-	public <T> Reader<T> createReader(
+	public <T> RowReader<T> createReader(
 			final ReaderParams<T> readerParams ) {
 		final HBaseReader<T> hbaseReader = new HBaseReader<T>(
 				readerParams,
@@ -1044,7 +1044,7 @@ public class HBaseOperations implements
 	}
 
 	@Override
-	public <T> Reader<T> createReader(
+	public <T> RowReader<T> createReader(
 			final RecordReaderParams<T> recordReaderParams ) {
 		return new HBaseReader<T>(
 				recordReaderParams,
@@ -1710,7 +1710,7 @@ public class HBaseOperations implements
 
 	@Override
 	public boolean createIndex(
-			PrimaryIndex index )
+			Index index )
 			throws IOException {
 		createTable(
 				index.getIndexStrategy().getPredefinedSplits(),

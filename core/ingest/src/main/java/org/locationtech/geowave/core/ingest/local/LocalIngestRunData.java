@@ -24,15 +24,15 @@ import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.ingest.GeoWaveData;
 import org.locationtech.geowave.core.store.AdapterToIndexMapping;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.IndexWriter;
 import org.locationtech.geowave.core.store.adapter.AdapterStore;
 import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.ingest.GeoWaveData;
 import org.locationtech.geowave.core.store.memory.MemoryAdapterStore;
 import org.locationtech.geowave.core.store.memory.MemoryIndexStore;
 
@@ -48,11 +48,11 @@ public class LocalIngestRunData implements
 	private static class AdapterIdKeyWithIndices
 	{
 		private ByteArrayId adapterId;
-		private PrimaryIndex[] indices;
+		private Index[] indices;
 
 		public AdapterIdKeyWithIndices(
 				ByteArrayId adapterId,
-				PrimaryIndex[] indices ) {
+				Index[] indices ) {
 			super();
 			this.adapterId = adapterId;
 			this.indices = indices;
@@ -81,28 +81,28 @@ public class LocalIngestRunData implements
 		}
 	}
 
-	private final KeyedObjectPool<AdapterIdKeyWithIndices, IndexWriter> indexWriterPool;
+	private final KeyedObjectPool<AdapterIdKeyWithIndices, Writer> indexWriterPool;
 
 	private final TransientAdapterStore adapterStore;
 	private final DataStore dataStore;
 
 	public LocalIngestRunData(
-			final List<WritableDataAdapter<?>> adapters,
+			final List<DataTypeAdapter<?>> adapters,
 			final DataStore dataStore ) {
 		this.dataStore = dataStore;
 		indexWriterPool = new GenericKeyedObjectPool<>(
 				new IndexWriterFactory());
 		adapterStore = new MemoryAdapterStore(
-				adapters.toArray(new WritableDataAdapter[0]));
+				adapters.toArray(new DataTypeAdapter[0]));
 	}
 
-	public WritableDataAdapter<?> getDataAdapter(
+	public DataTypeAdapter<?> getDataAdapter(
 			final GeoWaveData<?> data ) {
 		return data.getAdapter(adapterStore);
 	}
 
 	public void addAdapter(
-			final WritableDataAdapter<?> adapter ) {
+			final DataTypeAdapter<?> adapter ) {
 		adapterStore.addAdapter(adapter);
 	}
 
@@ -115,13 +115,13 @@ public class LocalIngestRunData implements
 	 * @return
 	 * @throws Exception
 	 */
-	public IndexWriter getIndexWriter(
+	public Writer getIndexWriter(
 			final ByteArrayId adapterId,
-			List<PrimaryIndex> indices )
+			List<Index> indices )
 			throws Exception {
 		return indexWriterPool.borrowObject(new AdapterIdKeyWithIndices(
 				adapterId,
-				indices.toArray(new PrimaryIndex[0])));
+				indices.toArray(new Index[0])));
 	}
 
 	/**
@@ -134,12 +134,12 @@ public class LocalIngestRunData implements
 	 */
 	public void releaseIndexWriter(
 			final ByteArrayId adapterId,
-			final IndexWriter writer )
+			final Writer writer )
 			throws Exception {
 		indexWriterPool.returnObject(
 				new AdapterIdKeyWithIndices(
 						adapterId,
-						new PrimaryIndex[0]),
+						new Index[0]),
 				writer);
 	}
 
@@ -154,22 +154,22 @@ public class LocalIngestRunData implements
 	 * return new instances of an index writer for a given primary index.
 	 */
 	public class IndexWriterFactory extends
-			BaseKeyedPooledObjectFactory<AdapterIdKeyWithIndices, IndexWriter>
+			BaseKeyedPooledObjectFactory<AdapterIdKeyWithIndices, Writer>
 	{
 
 		@Override
-		public IndexWriter<?> create(
+		public Writer<?> create(
 				final AdapterIdKeyWithIndices adapterWithIndices )
 				throws Exception {
 			return dataStore.createWriter(
-					(WritableDataAdapter<?>) adapterStore.getAdapter(adapterWithIndices.adapterId),
+					(DataTypeAdapter<?>) adapterStore.getAdapter(adapterWithIndices.adapterId),
 					adapterWithIndices.indices);
 		}
 
 		@Override
 		public void destroyObject(
 				final AdapterIdKeyWithIndices key,
-				final PooledObject<IndexWriter> p )
+				final PooledObject<Writer> p )
 				throws Exception {
 			super.destroyObject(
 					key,
@@ -178,9 +178,9 @@ public class LocalIngestRunData implements
 		}
 
 		@Override
-		public PooledObject<IndexWriter> wrap(
-				final IndexWriter writer ) {
-			return new DefaultPooledObject<IndexWriter>(
+		public PooledObject<Writer> wrap(
+				final Writer writer ) {
+			return new DefaultPooledObject<Writer>(
 					writer);
 		}
 	}

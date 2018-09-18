@@ -27,22 +27,22 @@ import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.AdapterStore;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.callback.ScanCallbackList;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
-import org.locationtech.geowave.core.store.filter.FilterList;
-import org.locationtech.geowave.core.store.filter.QueryFilter;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.operations.Reader;
+import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
+import org.locationtech.geowave.core.store.query.filter.FilterList;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.MergingEntryIterator;
 import org.locationtech.geowave.core.store.util.NativeEntryIteratorWrapper;
 
@@ -56,9 +56,9 @@ abstract class BaseFilteredIndexQuery extends
 
 	public BaseFilteredIndexQuery(
 			final List<Short> adapterIds,
-			final PrimaryIndex index,
+			final Index index,
 			final ScanCallback<?, ?> scanCallback,
-			final Pair<List<String>, InternalDataAdapter<?>> fieldIdsAdapterPair,
+			final Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair,
 			final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
 			final FieldVisibilityCount visibilityCounts,
 			final String... authorizations ) {
@@ -88,7 +88,7 @@ abstract class BaseFilteredIndexQuery extends
 			final Integer limit,
 			final Integer queryMaxRangeDecomposition,
 			boolean delete ) {
-		final Reader<?> reader = getReader(
+		final RowReader<?> reader = getReader(
 				datastoreOperations,
 				options,
 				adapterStore,
@@ -117,7 +117,7 @@ abstract class BaseFilteredIndexQuery extends
 	}
 
 	@Override
-	protected <C> Reader<C> getReader(
+	protected <C> RowReader<C> getReader(
 			final DataStoreOperations datastoreOperations,
 			final DataStoreOptions options,
 			final PersistentAdapterStore adapterStore,
@@ -128,7 +128,7 @@ abstract class BaseFilteredIndexQuery extends
 			boolean delete ) {
 		boolean exists = false;
 		try {
-			exists = datastoreOperations.indexExists(index.getId());
+			exists = datastoreOperations.indexExists(index.getName());
 		}
 		catch (final IOException e) {
 			LOGGER.error(
@@ -136,7 +136,7 @@ abstract class BaseFilteredIndexQuery extends
 					e);
 		}
 		if (!exists) {
-			LOGGER.warn("Table does not exist " + StringUtils.stringFromBinary(index.getId().getBytes()));
+			LOGGER.warn("Table does not exist " + index.getName());
 			return null;
 		}
 
@@ -155,7 +155,7 @@ abstract class BaseFilteredIndexQuery extends
 			final PersistentAdapterStore adapterStore ) {
 		final Map<Short, RowMergingDataAdapter> mergingAdapters = new HashMap<Short, RowMergingDataAdapter>();
 		for (final Short adapterId : adapterIds) {
-			final DataAdapter<?> adapter = adapterStore.getAdapter(
+			final DataTypeAdapter<?> adapter = adapterStore.getAdapter(
 					adapterId).getAdapter();
 			if ((adapter instanceof RowMergingDataAdapter)
 					&& (((RowMergingDataAdapter) adapter).getTransform() != null)) {

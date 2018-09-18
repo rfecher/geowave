@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -29,22 +29,19 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.locationtech.geowave.adapter.raster.util.ZipUtils;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
-import org.locationtech.geowave.adapter.vector.GeotoolsFeatureDataAdapter;
 import org.locationtech.geowave.adapter.vector.query.cql.CQLQuery;
 import org.locationtech.geowave.adapter.vector.stats.FeatureBoundingBoxStatistics;
 import org.locationtech.geowave.adapter.vector.stats.FeatureNumericRangeStatistics;
 import org.locationtech.geowave.adapter.vector.util.FeatureDataUtils;
+import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
 import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxDataStatistics;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
-import org.locationtech.geowave.core.ingest.GeoWaveData;
-import org.locationtech.geowave.core.ingest.local.LocalFileIngestPlugin;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
 import org.locationtech.geowave.core.store.adapter.statistics.CountDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
@@ -52,20 +49,23 @@ import org.locationtech.geowave.core.store.adapter.statistics.DuplicateEntryCoun
 import org.locationtech.geowave.core.store.adapter.statistics.PartitionStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsProvider;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.callback.IngestCallback;
 import org.locationtech.geowave.core.store.data.CommonIndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.index.IndexMetaDataSet;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.ingest.GeoWaveData;
+import org.locationtech.geowave.core.store.ingest.LocalFileIngestPlugin;
 import org.locationtech.geowave.core.store.memory.MemoryAdapterStore;
-import org.locationtech.geowave.core.store.query.DataIdQuery;
-import org.locationtech.geowave.core.store.query.DistributableQuery;
-import org.locationtech.geowave.core.store.query.Query;
-import org.locationtech.geowave.core.store.query.QueryOptions;
 import org.locationtech.geowave.core.store.query.aggregate.CountAggregation;
 import org.locationtech.geowave.core.store.query.aggregate.CountResult;
+import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.format.geotools.vector.GeoToolsVectorDataStoreIngestPlugin;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.TestUtils.ExpectedResults;
@@ -117,7 +117,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 	protected void testQuery(
 			final URL savedFilterResource,
 			final URL[] expectedResultsResources,
-			final PrimaryIndex index,
+			final Index index,
 			final String queryDescription )
 			throws Exception {
 		testQuery(
@@ -132,13 +132,13 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 	protected void testQuery(
 			final URL savedFilterResource,
 			final URL[] expectedResultsResources,
-			final PrimaryIndex index,
+			final Index index,
 			final String queryDescription,
 			final CoordinateReferenceSystem crs,
 			final boolean countDuplicates )
 			throws Exception {
 		LOGGER.info("querying " + queryDescription);
-		final org.locationtech.geowave.core.store.DataStore geowaveStore = getDataStorePluginOptions()
+		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = getDataStorePluginOptions()
 				.createDataStore();
 		// this file is the filtered dataset (using the previous file as a
 		// filter) so use it to ensure the query worked
@@ -254,7 +254,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 
 		@Override
 		public CountResult getResult() {
-			CountResult res = super.getResult();
+			final CountResult res = super.getResult();
 			if (res == null) {
 				// return non-null because the visited Data IDs may generate
 				// duplicates on merge
@@ -344,12 +344,12 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 
 	protected void testDeleteDataId(
 			final URL savedFilterResource,
-			final PrimaryIndex index )
+			final Index index )
 			throws Exception {
 		LOGGER.warn("deleting by data ID from " + index.getId().getString() + " index");
 
 		boolean success = false;
-		final org.locationtech.geowave.core.store.DataStore geowaveStore = getDataStorePluginOptions()
+		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = getDataStorePluginOptions()
 				.createDataStore();
 		final DistributableQuery query = TestUtils.resourceToQuery(savedFilterResource);
 		final CloseableIterator<?> actualResults;
@@ -399,11 +399,11 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 
 	protected void testDeleteSpatial(
 			final URL savedFilterResource,
-			final PrimaryIndex index )
+			final Index index )
 			throws Exception {
 		LOGGER.warn("bulk deleting via spatial query from " + index.getId() + " index");
 
-		final org.locationtech.geowave.core.store.DataStore geowaveStore = getDataStorePluginOptions()
+		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = getDataStorePluginOptions()
 				.createDataStore();
 
 		// Run the query for this delete to get the expected count
@@ -417,22 +417,22 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 
 	protected void testDeleteCQL(
 			final String cqlStr,
-			final PrimaryIndex index )
+			final Index index )
 			throws Exception {
 		LOGGER.warn("bulk deleting from " + index.getId() + " index using CQL: '" + cqlStr + "'");
 
-		final org.locationtech.geowave.core.store.DataStore geowaveStore = getDataStorePluginOptions()
+		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = getDataStorePluginOptions()
 				.createDataStore();
 
 		// Retrieve the feature adapter for the CQL query generator
-		PersistentAdapterStore adapterStore = getDataStorePluginOptions().createAdapterStore();
+		final PersistentAdapterStore adapterStore = getDataStorePluginOptions().createAdapterStore();
 
 		try (CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters()) {
 			while (it.hasNext()) {
-				GeotoolsFeatureDataAdapter adapter = (GeotoolsFeatureDataAdapter) it.next().getAdapter();
+				final GeotoolsFeatureDataAdapter adapter = (GeotoolsFeatureDataAdapter) it.next().getAdapter();
 
 				// Create the CQL query
-				final Query query = CQLQuery.createOptimalQuery(
+				final QueryConstraints query = CQLQuery.createOptimalQuery(
 						cqlStr,
 						adapter,
 						null,
@@ -447,9 +447,9 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 	}
 
 	protected void deleteInternal(
-			final org.locationtech.geowave.core.store.DataStore geowaveStore,
-			final PrimaryIndex index,
-			final Query query )
+			final org.locationtech.geowave.core.store.api.DataStore geowaveStore,
+			final Index index,
+			final QueryConstraints query )
 			throws IOException {
 		// Query everything
 		CloseableIterator<?> queryResults = geowaveStore.query(
@@ -553,7 +553,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 
 	protected void testStats(
 			final URL[] inputFiles,
-			final PrimaryIndex index,
+			final Index index,
 			final boolean multithreaded ) {
 		testStats(
 				inputFiles,
@@ -564,7 +564,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 
 	protected void testStats(
 			final URL[] inputFiles,
-			final PrimaryIndex index,
+			final Index index,
 			final boolean multithreaded,
 			final CoordinateReferenceSystem crs ) {
 		// In the multithreaded case, only test min/max and count. Stats will be
@@ -574,7 +574,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 		final Map<ByteArrayId, StatisticsCache> statsCache = new HashMap<>();
 		final Collection<ByteArrayId> indexIds = new ArrayList<>();
 		indexIds.add(index.getId());
-		InternalAdapterStore internalAdapterStore = getDataStorePluginOptions().createInternalAdapterStore();
+		final InternalAdapterStore internalAdapterStore = getDataStorePluginOptions().createInternalAdapterStore();
 		final MathTransform mathTransform = TestUtils.transformFromCrs(crs);
 		for (final URL inputFile : inputFiles) {
 			LOGGER.warn("Calculating stats from file '" + inputFile.getPath() + "' - this may take several minutes...");
@@ -587,7 +587,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 				while (dataIterator.hasNext()) {
 					final GeoWaveData<SimpleFeature> data = dataIterator.next();
 					final boolean needsInit = adapterCache.adapterExists(data.getAdapterId());
-					final WritableDataAdapter<SimpleFeature> adapter = data.getAdapter(adapterCache);
+					final DataTypeAdapter<SimpleFeature> adapter = data.getAdapter(adapterCache);
 					if (!needsInit) {
 						adapter.init(index);
 						adapterCache.addAdapter(adapter);
@@ -652,16 +652,16 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 				for (final DataStatistics<SimpleFeature> expectedStat : expectedStats) {
 					final DataStatistics<?> actualStats = statsStore.getDataStatistics(
 							internalDataAdapter.getInternalAdapterId(),
-							expectedStat.getStatisticsId());
+							expectedStat.getStatisticsType());
 
 					// Only test RANGE and COUNT in the multithreaded case. None
 					// of the other statistics will match!
 					if (multithreaded) {
-						if (!(expectedStat.getStatisticsId().getString().startsWith(
+						if (!(expectedStat.getStatisticsType().getString().startsWith(
 								FeatureNumericRangeStatistics.STATS_TYPE.getString() + "#")
-								|| expectedStat.getStatisticsId().equals(
+								|| expectedStat.getStatisticsType().equals(
 										CountDataStatistics.STATS_TYPE) || expectedStat
-								.getStatisticsId()
+								.getStatisticsType()
 								.getString()
 								.startsWith(
 										"FEATURE_BBOX"))) {
@@ -751,7 +751,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 		// and compare results to what is available in the statistics data store
 		private StatisticsCache(
 				final StatisticsProvider<SimpleFeature> dataAdapter,
-				short internalAdapterId ) {
+				final short internalAdapterId ) {
 			final ByteArrayId[] statsIds = dataAdapter.getSupportedStatisticsTypes();
 			for (final ByteArrayId statsId : statsIds) {
 				final DataStatistics<SimpleFeature> stats = dataAdapter.createDataStatistics(statsId);

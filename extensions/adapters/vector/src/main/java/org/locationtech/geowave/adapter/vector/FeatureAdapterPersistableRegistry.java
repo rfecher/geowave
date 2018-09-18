@@ -20,8 +20,6 @@ import org.locationtech.geowave.adapter.vector.ingest.DataSchemaOptionProvider;
 import org.locationtech.geowave.adapter.vector.ingest.FeatureSerializationOptionProvider;
 import org.locationtech.geowave.adapter.vector.ingest.TypeNameOptionProvider;
 import org.locationtech.geowave.adapter.vector.plugin.visibility.VisibilityConfiguration;
-import org.locationtech.geowave.adapter.vector.query.cql.CQLQuery;
-import org.locationtech.geowave.adapter.vector.query.cql.CQLQueryFilter;
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderAggregation;
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderOptions;
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderResult;
@@ -42,8 +40,10 @@ import org.locationtech.geowave.adapter.vector.stats.FeatureHyperLogLogStatistic
 import org.locationtech.geowave.adapter.vector.stats.FeatureNumericHistogramStatistics.FeatureNumericHistogramConfig;
 import org.locationtech.geowave.adapter.vector.stats.FeatureNumericRangeStatistics.FeatureNumericRangeConfig;
 import org.locationtech.geowave.adapter.vector.stats.StatsConfigurationCollection.SimpleFeatureStatsConfigurationCollection;
-import org.locationtech.geowave.adapter.vector.utils.SimpleFeatureUserDataConfigurationSet;
-import org.locationtech.geowave.adapter.vector.utils.TimeDescriptors.TimeDescriptorConfiguration;
+import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigurationSet;
+import org.locationtech.geowave.core.geotime.store.query.CQLQuery;
+import org.locationtech.geowave.core.geotime.store.query.filter.CQLQueryFilter;
+import org.locationtech.geowave.core.geotime.util.TimeDescriptors.TimeDescriptorConfiguration;
 import org.locationtech.geowave.core.index.persist.PersistableRegistrySpi;
 
 public class FeatureAdapterPersistableRegistry implements

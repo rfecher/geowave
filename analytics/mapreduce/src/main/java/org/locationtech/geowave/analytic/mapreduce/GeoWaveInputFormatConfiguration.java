@@ -21,11 +21,11 @@ import org.locationtech.geowave.analytic.param.FormatConfiguration;
 import org.locationtech.geowave.analytic.param.ParameterEnum;
 import org.locationtech.geowave.analytic.param.StoreParameters.StoreParam;
 import org.locationtech.geowave.analytic.store.PersistableStore;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.DistributableQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputFormat;
 
 public class GeoWaveInputFormatConfiguration implements
@@ -33,8 +33,8 @@ public class GeoWaveInputFormatConfiguration implements
 {
 
 	protected boolean isDataWritable = false;
-	protected List<DataAdapter<?>> adapters = new ArrayList<DataAdapter<?>>();
-	protected List<PrimaryIndex> indices = new ArrayList<PrimaryIndex>();
+	protected List<DataTypeAdapter<?>> adapters = new ArrayList<DataTypeAdapter<?>>();
+	protected List<Index> indices = new ArrayList<Index>();
 
 	public GeoWaveInputFormatConfiguration() {
 
@@ -91,12 +91,12 @@ public class GeoWaveInputFormatConfiguration implements
 	}
 
 	public void addDataAdapter(
-			final DataAdapter<?> adapter ) {
+			final DataTypeAdapter<?> adapter ) {
 		adapters.add(adapter);
 	}
 
 	public void addIndex(
-			final PrimaryIndex index ) {
+			final Index index ) {
 		indices.add(index);
 	}
 
