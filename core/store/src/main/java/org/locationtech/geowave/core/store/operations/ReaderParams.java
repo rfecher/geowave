@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -18,10 +18,10 @@ import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
+import org.locationtech.geowave.core.store.api.Aggregation;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
-import org.locationtech.geowave.core.store.filter.DistributableQueryFilter;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.aggregate.Aggregation;
+import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
 
 public class ReaderParams<T> extends
 		BaseReaderParams<T>
@@ -34,12 +34,12 @@ public class ReaderParams<T> extends
 	private final List<MultiDimensionalNumericData> constraints;
 
 	public ReaderParams(
-			final PrimaryIndex index,
+			final Index index,
 			final PersistentAdapterStore adapterStore,
-			final List<Short> adapterIds,
+			final short[] adapterIds,
 			final double[] maxResolutionSubsamplingPerDimension,
 			final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
-			final Pair<List<String>, InternalDataAdapter<?>> fieldSubsets,
+			final Pair<String[], InternalDataAdapter<?>> fieldSubsets,
 			final boolean isMixedVisibility,
 			final boolean isAuthorizationsLimiting,
 			final boolean isServersideAggregation,
@@ -73,10 +73,12 @@ public class ReaderParams<T> extends
 		this.constraints = constraints;
 	}
 
+	@Override
 	public List<MultiDimensionalCoordinateRangesArray> getCoordinateRanges() {
 		return coordinateRanges;
 	}
 
+	@Override
 	public List<MultiDimensionalNumericData> getConstraints() {
 		return constraints;
 	}
@@ -85,6 +87,7 @@ public class ReaderParams<T> extends
 		return isClientsideRowMerging;
 	}
 
+	@Override
 	public boolean isServersideAggregation() {
 		return isServersideAggregation;
 	}
@@ -93,6 +96,7 @@ public class ReaderParams<T> extends
 		return queryRanges;
 	}
 
+	@Override
 	public DistributableQueryFilter getFilter() {
 		return filter;
 	}

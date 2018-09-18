@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.accumulo.core.client.AccumuloException;
@@ -56,35 +54,35 @@ import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.adapter.vector.index.NumericSecondaryIndexConfiguration;
 import org.locationtech.geowave.adapter.vector.index.TemporalSecondaryIndexConfiguration;
 import org.locationtech.geowave.adapter.vector.index.TextSecondaryIndexConfiguration;
-import org.locationtech.geowave.adapter.vector.utils.SimpleFeatureUserDataConfiguration;
-import org.locationtech.geowave.adapter.vector.utils.SimpleFeatureUserDataConfigurationSet;
-import org.locationtech.geowave.core.geotime.GeometryUtils;
+import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfiguration;
+import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigurationSet;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryAdapter;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.lexicoder.Lexicoders;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.IndexWriter;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
 import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.FilterableConstraints;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.index.SecondaryIndex;
+import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
 import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.index.SecondaryIndexType;
 import org.locationtech.geowave.core.store.index.SecondaryIndexUtils;
 import org.locationtech.geowave.core.store.index.numeric.NumericGreaterThanConstraint;
 import org.locationtech.geowave.core.store.index.temporal.TemporalQueryConstraint;
 import org.locationtech.geowave.core.store.index.text.TextQueryConstraint;
-import org.locationtech.geowave.core.store.query.DataIdQuery;
-import org.locationtech.geowave.core.store.query.DistributableQuery;
-import org.locationtech.geowave.core.store.query.Query;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.datastore.accumulo.cli.config.AccumuloRequiredOptions;
 import org.locationtech.geowave.datastore.accumulo.index.secondary.AccumuloSecondaryIndexDataStore;
 import org.locationtech.geowave.datastore.accumulo.util.ConnectorPool;
@@ -112,15 +110,15 @@ public class SecondaryIndexIT
 	protected DataStorePluginOptions dataStoreOptions;
 
 	private FeatureDataAdapter dataAdapter;
-	private PrimaryIndex index;
+	private Index index;
 	private DataStore dataStore;
 	private SecondaryIndexDataStore secondaryDataStore;
 	private InternalAdapterStore internalAdapterStore;
-	private List<ByteArrayId> allPrimaryIndexIds = new ArrayList<>();
+	private List<ByteArrayId> allIndexIds = new ArrayList<>();
 	private List<String> allDataIds = new ArrayList<>();
 	private int numAttributes;
-	private List<SecondaryIndex<SimpleFeature>> allSecondaryIndices;
-	private DistributableQuery query;
+	private List<SecondaryIndexImpl<SimpleFeature>> allSecondaryIndices;
+	private DistributableQueryConstrain query;
 	private Point expectedPoint;
 	private String expectedDataId;
 
@@ -156,7 +154,7 @@ public class SecondaryIndexIT
 			TableNotFoundException,
 			ParseException,
 			IOException {
-		Assert.assertTrue(allPrimaryIndexIds.size() == 3);
+		Assert.assertTrue(allIndexIds.size() == 3);
 
 		if (dataStoreOptions.getType().equals(
 				"accumulo")) {
@@ -223,7 +221,7 @@ public class SecondaryIndexIT
 				dataAdapter,
 				internalAdapterStore.getInternalAdapterId(dataAdapter.getAdapterId()));
 
-		for (final SecondaryIndex<SimpleFeature> secondaryIndex : allSecondaryIndices) {
+		for (final SecondaryIndexImpl<SimpleFeature> secondaryIndex : allSecondaryIndices) {
 
 			final List<SimpleFeature> queryResults = new ArrayList<>();
 			try (final CloseableIterator<SimpleFeature> results = secondaryDataStore.query(
@@ -257,7 +255,7 @@ public class SecondaryIndexIT
 		}
 
 		// test delete
-		final Query deleteQuery = new DataIdQuery(
+		final QueryConstraints deleteQuery = new DataIdQuery(
 				new ByteArrayId(
 						expectedDataId));
 		final QueryOptions queryOptions = new QueryOptions(
@@ -267,7 +265,7 @@ public class SecondaryIndexIT
 				queryOptions,
 				deleteQuery);
 
-		for (final SecondaryIndex<SimpleFeature> secondaryIndex : allSecondaryIndices) {
+		for (final SecondaryIndexImpl<SimpleFeature> secondaryIndex : allSecondaryIndices) {
 
 			int numResults = 0;
 			try (final CloseableIterator<SimpleFeature> results = secondaryDataStore.query(
@@ -329,7 +327,7 @@ public class SecondaryIndexIT
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
 			"dd-MM-yyyy");
 	private static final ByteArrayId GEOMETRY_FIELD_ID = new ByteArrayId(
-			GeometryAdapter.DEFAULT_GEOMETRY_FIELD_ID.getBytes());
+			GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME.getBytes());
 	private static final String[] DEFAULT_AUTHORIZATIONS = new String[] {};
 	private static final Authorizations DEFAULT_ACCUMULO_AUTHORIZATIONS = new Authorizations(
 			DEFAULT_AUTHORIZATIONS);
@@ -437,11 +435,11 @@ public class SecondaryIndexIT
 		index = TestUtils.DEFAULT_SPATIAL_INDEX;
 		dataAdapter.init(index);
 		try (@SuppressWarnings("unchecked")
-		final IndexWriter<SimpleFeature> writer = dataStore.createWriter(
+		final Writer<SimpleFeature> writer = dataStore.createWriter(
 				dataAdapter,
 				index)) {
 			for (final SimpleFeature aFeature : features) {
-				allPrimaryIndexIds.addAll(writer.write(
+				allIndexIds.addAll(writer.write(
 						aFeature).getCompositeInsertionIds());
 			}
 		}
@@ -561,10 +559,10 @@ public class SecondaryIndexIT
 					.getColumnQualifierData()
 					.getBackingArray());
 			if (numResults == 1) {
-				Assert.assertTrue(primaryRowId.equals(allPrimaryIndexIds.get(0)));
+				Assert.assertTrue(primaryRowId.equals(allIndexIds.get(0)));
 			}
 			else if (numResults == 2) {
-				Assert.assertTrue(primaryRowId.equals(allPrimaryIndexIds.get(1)));
+				Assert.assertTrue(primaryRowId.equals(allIndexIds.get(1)));
 			}
 		}
 		scanner.close();
@@ -596,10 +594,10 @@ public class SecondaryIndexIT
 	// final ByteArrayId primaryRowId =
 	// SecondaryIndexUtils.getPrimaryRowId(entry.getKey());
 	// if (numResults == 1) {
-	// Assert.assertTrue(primaryRowId.equals(allPrimaryIndexIds.get(0)));
+	// Assert.assertTrue(primaryRowId.equals(allIndexIds.get(0)));
 	// }
 	// else if (numResults == 2) {
-	// Assert.assertTrue(primaryRowId.equals(allPrimaryIndexIds.get(1)));
+	// Assert.assertTrue(primaryRowId.equals(allIndexIds.get(1)));
 	// }
 	// }
 	// }
@@ -628,7 +626,7 @@ public class SecondaryIndexIT
 					.getKey()
 					.getColumnQualifierData()
 					.getBackingArray());
-			Assert.assertTrue(primaryRowId.equals(allPrimaryIndexIds.get(1)));
+			Assert.assertTrue(primaryRowId.equals(allIndexIds.get(1)));
 		}
 		scanner.close();
 		Assert.assertTrue(numResults == 1);
@@ -660,7 +658,7 @@ public class SecondaryIndexIT
 	// for (final Entry<byte[], byte[]> entry : entries) {
 	// final ByteArrayId primaryRowId =
 	// SecondaryIndexUtils.getPrimaryRowId(entry.getKey());
-	// Assert.assertTrue(primaryRowId.equals(allPrimaryIndexIds.get(1)));
+	// Assert.assertTrue(primaryRowId.equals(allIndexIds.get(1)));
 	// }
 	// }
 	// table.close();
@@ -697,7 +695,7 @@ public class SecondaryIndexIT
 					.getKey()
 					.getColumnQualifierData()
 					.getBackingArray());
-			Assert.assertTrue(primaryRowId.equals(allPrimaryIndexIds.get(1)));
+			Assert.assertTrue(primaryRowId.equals(allIndexIds.get(1)));
 		}
 		scanner.close();
 		Assert.assertTrue(numResults == 1);

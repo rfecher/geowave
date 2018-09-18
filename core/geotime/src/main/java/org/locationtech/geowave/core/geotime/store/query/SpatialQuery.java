@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -18,20 +18,19 @@ import java.util.Map;
 
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
-import org.locationtech.geowave.core.geotime.GeometryUtils;
 import org.locationtech.geowave.core.geotime.store.dimension.CustomCrsIndexModel;
-import org.locationtech.geowave.core.geotime.store.filter.SpatialQueryFilter;
-import org.locationtech.geowave.core.geotime.store.filter.SpatialQueryFilter.CompareOperation;
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter;
+import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter.CompareOperation;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
-import org.locationtech.geowave.core.store.filter.DistributableQueryFilter;
-import org.locationtech.geowave.core.store.filter.BasicQueryFilter.BasicQueryCompareOperation;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.FilterableConstraints;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.BasicQuery;
+import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
+import org.locationtech.geowave.core.store.query.filter.BasicQueryFilter.BasicQueryCompareOperation;
+import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -53,16 +52,18 @@ import com.vividsolutions.jts.io.WKBWriter;
 public class SpatialQuery extends
 		BasicQuery
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(SpatialQuery.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					SpatialQuery.class);
 
 	private static class CrsCache
 	{
 		Geometry geometry;
-		Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId;
+		Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId;
 
 		public CrsCache(
 				final Geometry geometry,
-				final Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId ) {
+				final Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId ) {
 			this.geometry = geometry;
 			this.constraintsPerIndexId = constraintsPerIndexId;
 		}
@@ -85,7 +86,9 @@ public class SpatialQuery extends
 	public SpatialQuery(
 			final Geometry queryGeometry ) {
 		this(
-				GeometryUtils.basicConstraintsFromGeometry(queryGeometry),
+				GeometryUtils
+						.basicConstraintsFromGeometry(
+								queryGeometry),
 				queryGeometry);
 	}
 
@@ -113,9 +116,11 @@ public class SpatialQuery extends
 
 	public SpatialQuery(
 			final Geometry queryGeometry,
-			final Map<ByteArrayId, FilterableConstraints> additionalConstraints ) {
+			final Map<String, FilterableConstraints> additionalConstraints ) {
 		this(
-				GeometryUtils.basicConstraintsFromGeometry(queryGeometry),
+				GeometryUtils
+						.basicConstraintsFromGeometry(
+								queryGeometry),
 				queryGeometry,
 				additionalConstraints);
 	}
@@ -124,7 +129,9 @@ public class SpatialQuery extends
 			final Geometry queryGeometry,
 			final String crsCode ) {
 		this(
-				GeometryUtils.basicConstraintsFromGeometry(queryGeometry),
+				GeometryUtils
+						.basicConstraintsFromGeometry(
+								queryGeometry),
 				queryGeometry,
 				Collections.emptyMap(),
 				crsCode,
@@ -135,7 +142,7 @@ public class SpatialQuery extends
 	private SpatialQuery(
 			final Constraints constraints,
 			final Geometry queryGeometry,
-			final Map<ByteArrayId, FilterableConstraints> additionalConstraints ) {
+			final Map<String, FilterableConstraints> additionalConstraints ) {
 		this(
 				constraints,
 				queryGeometry,
@@ -158,7 +165,9 @@ public class SpatialQuery extends
 			final Geometry queryGeometry,
 			final CompareOperation compareOp ) {
 		this(
-				GeometryUtils.basicConstraintsFromGeometry(queryGeometry),
+				GeometryUtils
+						.basicConstraintsFromGeometry(
+								queryGeometry),
 				queryGeometry,
 				compareOp);
 	}
@@ -184,6 +193,36 @@ public class SpatialQuery extends
 				queryGeometry,
 				compareOp,
 				BasicQueryCompareOperation.INTERSECTS);
+	}
+
+	public SpatialQuery(
+			final Geometry queryGeometry,
+			final String crsCode,
+			final CompareOperation compareOp ) {
+		this(
+				GeometryUtils
+						.basicConstraintsFromGeometry(
+								queryGeometry),
+				queryGeometry,
+				Collections.emptyMap(),
+				crsCode,
+				compareOp == null ? CompareOperation.INTERSECTS : compareOp,
+				BasicQueryCompareOperation.INTERSECTS);
+	}
+
+	public SpatialQuery(
+			final Constraints constraints,
+			final Geometry queryGeometry,
+			final String crsCode,
+			final CompareOperation compareOp,
+			final BasicQueryCompareOperation nonSpatialCompareOp ) {
+		this(
+				constraints,
+				queryGeometry,
+				Collections.emptyMap(),
+				crsCode,
+				compareOp == null ? CompareOperation.INTERSECTS : compareOp,
+				nonSpatialCompareOp);
 	}
 
 	/**
@@ -217,7 +256,7 @@ public class SpatialQuery extends
 	public SpatialQuery(
 			final Constraints constraints,
 			final Geometry queryGeometry,
-			final Map<ByteArrayId, FilterableConstraints> additionalConstraints,
+			final Map<String, FilterableConstraints> additionalConstraints,
 			final String crsCode,
 			final CompareOperation compareOp,
 			final BasicQueryCompareOperation nonSpatialCompareOp ) {
@@ -248,76 +287,93 @@ public class SpatialQuery extends
 			final MultiDimensionalNumericData constraints,
 			final NumericDimensionField<?>[] orderedConstrainedDimensionFields,
 			final NumericDimensionField<?>[] unconstrainedDimensionDefinitions,
-			final PrimaryIndex index ) {
+			final Index index ) {
 		return new SpatialQueryFilter(
 				constraints,
 				orderedConstrainedDimensionFields,
 				unconstrainedDimensionDefinitions,
-				internalGetGeometry(index),
+				internalGetGeometry(
+						index),
 				compareOp,
 				nonSpatialCompareOp);
 	}
 
 	private Geometry internalGetGeometry(
-			final PrimaryIndex index ) {
-		final String indexCrsStr = getCrs(index.getIndexModel());
-		CrsCache cache = crsCodeCache.get(indexCrsStr);
+			final Index index ) {
+		final String indexCrsStr = getCrs(
+				index.getIndexModel());
+		CrsCache cache = crsCodeCache
+				.get(
+						indexCrsStr);
 		if (cache != null) {
 			return cache.geometry;
 		}
 		cache = transformToIndex(
 				indexCrsStr,
 				index);
-		crsCodeCache.put(
-				indexCrsStr,
-				cache);
+		crsCodeCache
+				.put(
+						indexCrsStr,
+						cache);
 		return cache.geometry;
 	}
 
 	@Override
 	public List<MultiDimensionalNumericData> getIndexConstraints(
-			final PrimaryIndex index ) {
-		final String indexCrsStr = getCrs(index.getIndexModel());
-		CrsCache cache = crsCodeCache.get(indexCrsStr);
+			final Index index ) {
+		final String indexCrsStr = getCrs(
+				index.getIndexModel());
+		CrsCache cache = crsCodeCache
+				.get(
+						indexCrsStr);
 		if (cache != null) {
-			List<MultiDimensionalNumericData> indexConstraints = cache.constraintsPerIndexId.get(index.getId());
+			List<MultiDimensionalNumericData> indexConstraints = cache.constraintsPerIndexId
+					.get(
+							index.getName());
 			if (indexConstraints == null) {
 				if (crsMatches(
 						crsCode,
-						indexCrsStr) || queryGeometry == null) {
-					indexConstraints = super.getIndexConstraints(index);
+						indexCrsStr) || (queryGeometry == null)) {
+					indexConstraints = super.getIndexConstraints(
+							index);
 				}
 				else {
 					indexConstraints = indexConstraintsFromGeometry(
 							cache.geometry,
 							index);
 				}
-				cache.constraintsPerIndexId.put(
-						index.getId(),
-						indexConstraints);
+				cache.constraintsPerIndexId
+						.put(
+								index.getName(),
+								indexConstraints);
 			}
 			return indexConstraints;
 		}
 		cache = transformToIndex(
 				indexCrsStr,
 				index);
-		crsCodeCache.put(
-				indexCrsStr,
-				cache);
-		return cache.constraintsPerIndexId.get(index.getId());
+		crsCodeCache
+				.put(
+						indexCrsStr,
+						cache);
+		return cache.constraintsPerIndexId
+				.get(
+						index.getName());
 	}
 
 	private CrsCache transformToIndex(
 			final String indexCrsStr,
-			final PrimaryIndex index ) {
+			final Index index ) {
 		if (crsMatches(
 				crsCode,
-				indexCrsStr) || queryGeometry == null) {
-			List<MultiDimensionalNumericData> constraints = super.getIndexConstraints(index);
-			Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
-			constraintsPerIndexId.put(
-					index.getId(),
-					constraints);
+				indexCrsStr) || (queryGeometry == null)) {
+			final List<MultiDimensionalNumericData> constraints = super.getIndexConstraints(
+					index);
+			final Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
+			constraintsPerIndexId
+					.put(
+							index.getName(),
+							constraints);
 			return new CrsCache(
 					queryGeometry,
 					constraintsPerIndexId);
@@ -330,76 +386,89 @@ public class SpatialQuery extends
 				}
 
 				try {
-					crs = CRS.decode(
-							crsCode,
-							true);
+					crs = CRS
+							.decode(
+									crsCode,
+									true);
 				}
 				catch (final FactoryException e) {
-					LOGGER.warn(
-							"Unable to decode spatial query crs",
-							e);
+					LOGGER
+							.warn(
+									"Unable to decode spatial query crs",
+									e);
 				}
 			}
 			CoordinateReferenceSystem indexCrs;
-			if (isDefaultCrs(indexCrsStr)) {
+			if (isDefaultCrs(
+					indexCrsStr)) {
 				indexCrs = GeometryUtils.getDefaultCRS();
 			}
 			else {
 				indexCrs = ((CustomCrsIndexModel) index.getIndexModel()).getCrs();
 			}
 			try {
-				final MathTransform transform = CRS.findMathTransform(
-						crs,
-						indexCrs,
-						true);
+				final MathTransform transform = CRS
+						.findMathTransform(
+								crs,
+								indexCrs,
+								true);
 				// transform geometry
-				final Geometry indexCrsQueryGeometry = JTS.transform(
-						queryGeometry,
-						transform);
-				List<MultiDimensionalNumericData> indexConstraints = indexConstraintsFromGeometry(
+				final Geometry indexCrsQueryGeometry = JTS
+						.transform(
+								queryGeometry,
+								transform);
+				final List<MultiDimensionalNumericData> indexConstraints = indexConstraintsFromGeometry(
 						indexCrsQueryGeometry,
 						index);
-				Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
-				constraintsPerIndexId.put(
-						index.getId(),
-						indexConstraints);
+				final Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
+				constraintsPerIndexId
+						.put(
+								index.getName(),
+								indexConstraints);
 				return new CrsCache(
 						indexCrsQueryGeometry,
 						constraintsPerIndexId);
 			}
 			catch (final FactoryException e) {
-				LOGGER.warn(
-						"Unable to create coordinate reference system transform",
-						e);
+				LOGGER
+						.warn(
+								"Unable to create coordinate reference system transform",
+								e);
 			}
 			catch (MismatchedDimensionException | TransformException e) {
-				LOGGER.warn(
-						"Unable to transform query geometry into index CRS",
-						e);
+				LOGGER
+						.warn(
+								"Unable to transform query geometry into index CRS",
+								e);
 			}
 		}
-		List<MultiDimensionalNumericData> constraints = super.getIndexConstraints(index);
-		Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
-		constraintsPerIndexId.put(
-				index.getId(),
-				constraints);
+		final List<MultiDimensionalNumericData> constraints = super.getIndexConstraints(
+				index);
+		final Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
+		constraintsPerIndexId
+				.put(
+						index.getName(),
+						constraints);
 		return new CrsCache(
 				queryGeometry,
 				constraintsPerIndexId);
 	}
 
 	private static List<MultiDimensionalNumericData> indexConstraintsFromGeometry(
-			Geometry geom,
-			PrimaryIndex index ) {
-		return GeometryUtils.basicConstraintsFromGeometry(
-				geom).getIndexConstraints(
-				index.getIndexStrategy());
+			final Geometry geom,
+			final Index index ) {
+		return GeometryUtils
+				.basicConstraintsFromGeometry(
+						geom)
+				.getIndexConstraints(
+						index.getIndexStrategy());
 	}
 
 	private static String getCrs(
 			final CommonIndexModel indexModel ) {
 		if (indexModel instanceof CustomCrsIndexModel) {
-			if (isDefaultCrs(((CustomCrsIndexModel) indexModel).getCrsCode())) {
+			if (isDefaultCrs(
+					((CustomCrsIndexModel) indexModel).getCrsCode())) {
 				return null;
 			}
 			return ((CustomCrsIndexModel) indexModel).getCrsCode();
@@ -410,33 +479,63 @@ public class SpatialQuery extends
 	private static boolean crsMatches(
 			final String crsCode1,
 			final String crsCode2 ) {
-		if (isDefaultCrs(crsCode1)) {
-			return isDefaultCrs(crsCode2);
+		if (isDefaultCrs(
+				crsCode1)) {
+			return isDefaultCrs(
+					crsCode2);
 		}
-		else if (isDefaultCrs(crsCode2)) {
-			return isDefaultCrs(crsCode1);
+		else if (isDefaultCrs(
+				crsCode2)) {
+			return isDefaultCrs(
+					crsCode1);
 		}
-		return crsCode1.equalsIgnoreCase(crsCode2);
+		return crsCode1
+				.equalsIgnoreCase(
+						crsCode2);
 	}
 
 	private static boolean isDefaultCrs(
 			final String crsCode ) {
-		return (crsCode == null) || crsCode.isEmpty() || crsCode.equalsIgnoreCase(GeometryUtils.DEFAULT_CRS_STR);
+		return (crsCode == null) || crsCode.isEmpty() || crsCode
+				.equalsIgnoreCase(
+						GeometryUtils.DEFAULT_CRS_STR);
 	}
 
 	@Override
 	public byte[] toBinary() {
-		final byte[] crsBinary = isDefaultCrs(crsCode) ? new byte[0] : StringUtils.stringToBinary(crsCode);
+		final byte[] crsBinary = isDefaultCrs(
+				crsCode) ? new byte[0]
+						: StringUtils
+								.stringToBinary(
+										crsCode);
 		final byte[] superBinary = super.toBinary();
-		final byte[] geometryBinary = new WKBWriter().write(queryGeometry);
-		final ByteBuffer buf = ByteBuffer.allocate(superBinary.length + geometryBinary.length + 16);
-		buf.putInt(compareOp.ordinal());
-		buf.putInt(nonSpatialCompareOp.ordinal());
-		buf.putInt(crsBinary.length);
-		buf.putInt(superBinary.length);
-		buf.put(crsBinary);
-		buf.put(superBinary);
-		buf.put(geometryBinary);
+		final byte[] geometryBinary = new WKBWriter()
+				.write(
+						queryGeometry);
+		final ByteBuffer buf = ByteBuffer
+				.allocate(
+						superBinary.length + geometryBinary.length + 16);
+		buf
+				.putInt(
+						compareOp.ordinal());
+		buf
+				.putInt(
+						nonSpatialCompareOp.ordinal());
+		buf
+				.putInt(
+						crsBinary.length);
+		buf
+				.putInt(
+						superBinary.length);
+		buf
+				.put(
+						crsBinary);
+		buf
+				.put(
+						superBinary);
+		buf
+				.put(
+						geometryBinary);
 
 		return buf.array();
 	}
@@ -444,25 +543,40 @@ public class SpatialQuery extends
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer.wrap(bytes);
+		final ByteBuffer buf = ByteBuffer
+				.wrap(
+						bytes);
 		compareOp = CompareOperation.values()[buf.getInt()];
 		nonSpatialCompareOp = BasicQueryCompareOperation.values()[buf.getInt()];
 
 		final byte[] crsBinary = new byte[buf.getInt()];
 		final byte[] superBinary = new byte[buf.getInt()];
-		buf.get(crsBinary);
-		crsCode = crsBinary.length > 0 ? StringUtils.stringFromBinary(crsBinary) : null;
-		buf.get(superBinary);
-		super.fromBinary(superBinary);
+		buf
+				.get(
+						crsBinary);
+		crsCode = crsBinary.length > 0 ? StringUtils
+				.stringFromBinary(
+						crsBinary)
+				: null;
+		buf
+				.get(
+						superBinary);
+		super.fromBinary(
+				superBinary);
 		final byte[] geometryBinary = new byte[bytes.length - superBinary.length - crsBinary.length - 16];
-		buf.get(geometryBinary);
+		buf
+				.get(
+						geometryBinary);
 		try {
-			queryGeometry = new WKBReader().read(geometryBinary);
+			queryGeometry = new WKBReader()
+					.read(
+							geometryBinary);
 		}
 		catch (final ParseException e) {
-			LOGGER.warn(
-					"Unable to read query geometry as well-known binary",
-					e);
+			LOGGER
+					.warn(
+							"Unable to read query geometry as well-known binary",
+							e);
 		}
 	}
 }

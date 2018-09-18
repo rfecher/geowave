@@ -23,12 +23,12 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
-import org.locationtech.geowave.adapter.vector.utils.SimpleFeatureUserDataConfigurationSet;
+import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigurationSet;
 import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.ingest.GeoWaveData;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.data.visibility.GlobalVisibilityHandler;
+import org.locationtech.geowave.core.store.ingest.GeoWaveData;
 import org.locationtech.geowave.format.geotools.vector.RetypingVectorDataPlugin.RetypingVectorDataSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -48,7 +48,7 @@ public class SimpleFeatureGeoWaveWrapper implements
 			CloseableIterator<GeoWaveData<SimpleFeature>>
 	{
 		private final SimpleFeatureIterator featureIterator;
-		private final WritableDataAdapter<SimpleFeature> dataAdapter;
+		private final DataTypeAdapter<SimpleFeature> dataAdapter;
 		private RetypingVectorDataSource source = null;
 		private final Filter filter;
 		private SimpleFeatureBuilder builder = null;

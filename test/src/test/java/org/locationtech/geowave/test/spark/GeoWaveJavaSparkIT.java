@@ -25,11 +25,11 @@ import org.locationtech.geowave.analytic.spark.GeoWaveRDDLoader;
 import org.locationtech.geowave.analytic.spark.RDDOptions;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.query.DistributableQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
@@ -117,7 +117,7 @@ public class GeoWaveJavaSparkIT extends
 						HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE).toURI().toURL()
 			});
 
-			final DistributableQuery query = TestUtils.resourceToQuery(new File(
+			final DistributableQueryConstrain query = TestUtils.resourceToQuery(new File(
 					TEST_BOX_FILTER_FILE).toURI().toURL());
 
 			// Load RDD using spatial query (bbox)
@@ -150,7 +150,7 @@ public class GeoWaveJavaSparkIT extends
 						HAIL_EXPECTED_POLYGON_FILTER_RESULTS_FILE).toURI().toURL()
 			});
 
-			final DistributableQuery query = TestUtils.resourceToQuery(new File(
+			final DistributableQueryConstrain query = TestUtils.resourceToQuery(new File(
 					TEST_POLYGON_FILTER_FILE).toURI().toURL());
 
 			// Load RDD using spatial query (poly)
@@ -185,11 +185,11 @@ public class GeoWaveJavaSparkIT extends
 
 		// Retrieve the adapters
 		CloseableIterator<InternalDataAdapter<?>> adapterIt = dataStore.createAdapterStore().getAdapters();
-		DataAdapter hailAdapter = null;
-		DataAdapter tornadoAdapter = null;
+		DataTypeAdapter hailAdapter = null;
+		DataTypeAdapter tornadoAdapter = null;
 
 		while (adapterIt.hasNext()) {
-			DataAdapter adapter = adapterIt.next().getAdapter();
+			DataTypeAdapter adapter = adapterIt.next().getAdapter();
 			String adapterName = StringUtils.stringFromBinary(adapter.getAdapterId().getBytes());
 
 			if (adapterName.equals("hail")) {

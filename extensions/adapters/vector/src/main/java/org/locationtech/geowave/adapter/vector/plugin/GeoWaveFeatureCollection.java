@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -15,8 +15,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
@@ -29,22 +27,28 @@ import org.geotools.filter.spatial.BBOXImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderOptions;
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderResult;
-import org.locationtech.geowave.adapter.vector.stats.FeatureBoundingBoxStatistics;
 import org.locationtech.geowave.adapter.vector.stats.FeatureNumericRangeStatistics;
-import org.locationtech.geowave.adapter.vector.stats.FeatureTimeRangeStatistics;
-import org.locationtech.geowave.core.geotime.GeometryUtils;
 import org.locationtech.geowave.core.geotime.store.query.TemporalConstraintsSet;
+import org.locationtech.geowave.core.geotime.store.query.api.VectorStatisticsQueryBuilder;
 import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxDataStatistics;
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureTimeRangeStatistics;
+import org.locationtech.geowave.core.geotime.util.ExtractAttributesFilter;
+import org.locationtech.geowave.core.geotime.util.ExtractGeometryFilterVisitor;
+import org.locationtech.geowave.core.geotime.util.ExtractGeometryFilterVisitorResult;
+import org.locationtech.geowave.core.geotime.util.ExtractTimeFilterVisitor;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.statistics.CountDataStatistics;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -60,7 +64,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 public class GeoWaveFeatureCollection extends
 		DataFeatureCollection
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveFeatureCollection.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					GeoWaveFeatureCollection.class);
 	private final GeoWaveFeatureReader reader;
 	private CloseableIterator<SimpleFeature> featureCursor;
 	private final Query query;
@@ -71,29 +77,39 @@ public class GeoWaveFeatureCollection extends
 			final Query query ) {
 		this.reader = reader;
 		this.query = validateQuery(
-				GeoWaveFeatureCollection.getSchema(
-						reader,
-						query).getTypeName(),
+				GeoWaveFeatureCollection
+						.getSchema(
+								reader,
+								query)
+						.getTypeName(),
 				query);
 	}
 
 	@Override
 	public int getCount() {
-		if (query.getFilter().equals(
-				Filter.INCLUDE)) {
+		if (query
+				.getFilter()
+				.equals(
+						Filter.INCLUDE)) {
 			// GEOWAVE-60 optimization
-			final Map<ByteArrayId, DataStatistics<SimpleFeature>> statsMap = reader
+			final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = reader
 					.getTransaction()
 					.getDataStatistics();
-			if (statsMap.containsKey(CountDataStatistics.STATS_TYPE)) {
-				final CountDataStatistics stats = (CountDataStatistics) statsMap.get(CountDataStatistics.STATS_TYPE);
+			if (statsMap
+					.containsKey(
+							CountDataStatistics.STATS_TYPE)) {
+				final CountDataStatistics stats = (CountDataStatistics) statsMap
+						.get(
+								CountDataStatistics.STATS_TYPE);
 				if ((stats != null) && stats.isSet()) {
 					return (int) stats.getCount();
 				}
 			}
 		}
-		else if (query.getFilter().equals(
-				Filter.EXCLUDE)) {
+		else if (query
+				.getFilter()
+				.equals(
+						Filter.EXCLUDE)) {
 			return 0;
 		}
 
@@ -101,17 +117,20 @@ public class GeoWaveFeatureCollection extends
 		try {
 			constraints = getQueryConstraints();
 
-			return (int) reader.getCountInternal(
-					constraints.jtsBounds,
-					constraints.timeBounds,
-					getFilter(query),
-					constraints.limit);
+			return (int) reader
+					.getCountInternal(
+							constraints.jtsBounds,
+							constraints.timeBounds,
+							getFilter(
+									query),
+							constraints.limit);
 		}
 		catch (TransformException | FactoryException e) {
 
-			LOGGER.warn(
-					"Unable to transform geometry, can't get count",
-					e);
+			LOGGER
+					.warn(
+							"Unable to transform geometry, can't get count",
+							e);
 		}
 		// fallback
 		return 0;
@@ -123,16 +142,23 @@ public class GeoWaveFeatureCollection extends
 		double minx = Double.MAX_VALUE, maxx = -Double.MAX_VALUE, miny = Double.MAX_VALUE, maxy = -Double.MAX_VALUE;
 		try {
 			// GEOWAVE-60 optimization
-			final Map<ByteArrayId, DataStatistics<SimpleFeature>> statsMap = reader
+			final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = reader
 					.getTransaction()
 					.getDataStatistics();
-			final ByteArrayId statId = FeatureBoundingBoxStatistics.composeId(reader
-					.getFeatureType()
-					.getGeometryDescriptor()
-					.getLocalName());
-			if (statsMap.containsKey(statId)) {
+			final StatisticsId statId = VectorStatisticsQueryBuilder
+					.newBuilder()
+					.factory()
+					.bbox()
+					.fieldName(
+							reader.getFeatureType().getGeometryDescriptor().getLocalName())
+					.build()
+					.getId();
+			if (statsMap
+					.containsKey(
+							statId)) {
 				final BoundingBoxDataStatistics<SimpleFeature> stats = (BoundingBoxDataStatistics<SimpleFeature>) statsMap
-						.get(statId);
+						.get(
+								statId);
 				return new ReferencedEnvelope(
 						stats.getMinX(),
 						stats.getMaxX(),
@@ -146,26 +172,32 @@ public class GeoWaveFeatureCollection extends
 			}
 			while (iterator.hasNext()) {
 				final BoundingBox bbox = iterator.next().getBounds();
-				minx = Math.min(
-						bbox.getMinX(),
-						minx);
-				maxx = Math.max(
-						bbox.getMaxX(),
-						maxx);
-				miny = Math.min(
-						bbox.getMinY(),
-						miny);
-				maxy = Math.max(
-						bbox.getMaxY(),
-						maxy);
+				minx = Math
+						.min(
+								bbox.getMinX(),
+								minx);
+				maxx = Math
+						.max(
+								bbox.getMaxX(),
+								maxx);
+				miny = Math
+						.min(
+								bbox.getMinY(),
+								miny);
+				maxy = Math
+						.max(
+								bbox.getMaxY(),
+								maxy);
 
 			}
-			close(iterator);
+			close(
+					iterator);
 		}
 		catch (final Exception e) {
-			LOGGER.warn(
-					"Error calculating bounds",
-					e);
+			LOGGER
+					.warn(
+							"Error calculating bounds",
+							e);
 			return new ReferencedEnvelope(
 					-180,
 					180,
@@ -199,30 +231,40 @@ public class GeoWaveFeatureCollection extends
 
 	private static SimpleFeatureType createDistributedRenderFeatureType() {
 		final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-		typeBuilder.setName("distributed_render");
-		typeBuilder.add(
-				"result",
-				DistributedRenderResult.class);
-		typeBuilder.add(
-				"options",
-				DistributedRenderOptions.class);
+		typeBuilder
+				.setName(
+						"distributed_render");
+		typeBuilder
+				.add(
+						"result",
+						DistributedRenderResult.class);
+		typeBuilder
+				.add(
+						"options",
+						DistributedRenderOptions.class);
 		return typeBuilder.buildFeatureType();
 	}
 
 	protected boolean isDistributedRenderQuery() {
-		return GeoWaveFeatureCollection.isDistributedRenderQuery(query);
+		return GeoWaveFeatureCollection
+				.isDistributedRenderQuery(
+						query);
 	}
 
 	protected static final boolean isDistributedRenderQuery(
 			final Query query ) {
-		return query.getHints().containsKey(
-				DistributedRenderProcess.OPTIONS);
+		return query
+				.getHints()
+				.containsKey(
+						DistributedRenderProcess.OPTIONS);
 	}
 
 	private static SimpleFeatureType getSchema(
 			final GeoWaveFeatureReader reader,
 			final Query query ) {
-		if (GeoWaveFeatureCollection.isDistributedRenderQuery(query)) {
+		if (GeoWaveFeatureCollection
+				.isDistributedRenderQuery(
+						query)) {
 			return getDistributedRenderFeatureType();
 		}
 		return reader.getComponents().getAdapter().getFeatureType();
@@ -235,9 +277,11 @@ public class GeoWaveFeatureCollection extends
 			final BBOXImpl bbox = ((BBOXImpl) filter);
 			final String propName = bbox.getPropertyName();
 			if ((propName == null) || propName.isEmpty()) {
-				bbox.setPropertyName(getSchema(
-						reader,
-						query).getGeometryDescriptor().getLocalName());
+				bbox
+						.setPropertyName(
+								getSchema(
+										reader,
+										query).getGeometryDescriptor().getLocalName());
 			}
 		}
 		return filter;
@@ -246,13 +290,17 @@ public class GeoWaveFeatureCollection extends
 	protected QueryConstraints getQueryConstraints()
 			throws TransformException,
 			FactoryException {
-		final ReferencedEnvelope referencedEnvelope = getEnvelope(query);
+		final ReferencedEnvelope referencedEnvelope = getEnvelope(
+				query);
 		final Geometry jtsBounds = getBBox(
 				query,
 				referencedEnvelope);
-		final TemporalConstraintsSet timeBounds = getBoundedTime(query);
-		Integer limit = getLimit(query);
-		final Integer startIndex = getStartIndex(query);
+		final TemporalConstraintsSet timeBounds = getBoundedTime(
+				query);
+		Integer limit = getLimit(
+				query);
+		final Integer startIndex = getStartIndex(
+				query);
 
 		// limit becomes a 'soft' constraint since GeoServer will inforce
 		// the limit
@@ -269,13 +317,15 @@ public class GeoWaveFeatureCollection extends
 	@Override
 	protected Iterator<SimpleFeature> openIterator() {
 		try {
-			return openIterator(getQueryConstraints());
+			return openIterator(
+					getQueryConstraints());
 
 		}
 		catch (TransformException | FactoryException e) {
-			LOGGER.warn(
-					"Unable to transform geometry",
-					e);
+			LOGGER
+					.warn(
+							"Unable to transform geometry",
+							e);
 		}
 		return featureCursor;
 	}
@@ -286,44 +336,68 @@ public class GeoWaveFeatureCollection extends
 			featureCursor = reader.getNoData();
 		}
 		else if (isDistributedRenderQuery()) {
-			featureCursor = reader.renderData(
-					contraints.jtsBounds,
-					contraints.timeBounds,
-					getFilter(query),
-					contraints.limit,
-					(DistributedRenderOptions) query.getHints().get(
-							DistributedRenderProcess.OPTIONS));
+			featureCursor = reader
+					.renderData(
+							contraints.jtsBounds,
+							contraints.timeBounds,
+							getFilter(
+									query),
+							contraints.limit,
+							(DistributedRenderOptions) query
+									.getHints()
+									.get(
+											DistributedRenderProcess.OPTIONS));
 		}
-		else if (query.getHints().containsKey(
-				SubsampleProcess.OUTPUT_WIDTH) && query.getHints().containsKey(
-				SubsampleProcess.OUTPUT_HEIGHT) && query.getHints().containsKey(
-				SubsampleProcess.OUTPUT_BBOX)) {
+		else if (query
+				.getHints()
+				.containsKey(
+						SubsampleProcess.OUTPUT_WIDTH)
+				&& query
+						.getHints()
+						.containsKey(
+								SubsampleProcess.OUTPUT_HEIGHT)
+				&& query
+						.getHints()
+						.containsKey(
+								SubsampleProcess.OUTPUT_BBOX)) {
 			double pixelSize = 1;
-			if (query.getHints().containsKey(
-					SubsampleProcess.PIXEL_SIZE)) {
-				pixelSize = (Double) query.getHints().get(
-						SubsampleProcess.PIXEL_SIZE);
+			if (query
+					.getHints()
+					.containsKey(
+							SubsampleProcess.PIXEL_SIZE)) {
+				pixelSize = (Double) query
+						.getHints()
+						.get(
+								SubsampleProcess.PIXEL_SIZE);
 			}
-			featureCursor = reader.getData(
-					contraints.jtsBounds,
-					contraints.timeBounds,
-					(Integer) query.getHints().get(
-							SubsampleProcess.OUTPUT_WIDTH),
-					(Integer) query.getHints().get(
-							SubsampleProcess.OUTPUT_HEIGHT),
-					pixelSize,
-					getFilter(query),
-					contraints.referencedEnvelope,
-					contraints.limit);
+			featureCursor = reader
+					.getData(
+							contraints.jtsBounds,
+							contraints.timeBounds,
+							(Integer) query
+									.getHints()
+									.get(
+											SubsampleProcess.OUTPUT_WIDTH),
+							(Integer) query
+									.getHints()
+									.get(
+											SubsampleProcess.OUTPUT_HEIGHT),
+							pixelSize,
+							getFilter(
+									query),
+							contraints.referencedEnvelope,
+							contraints.limit);
 
 		}
 		else {
 			// get the data within the bounding box
-			featureCursor = reader.getData(
-					contraints.jtsBounds,
-					contraints.timeBounds,
-					getFilter(query),
-					contraints.limit);
+			featureCursor = reader
+					.getData(
+							contraints.jtsBounds,
+							contraints.timeBounds,
+							getFilter(
+									query),
+							contraints.limit);
 		}
 		return featureCursor;
 	}
@@ -332,12 +406,17 @@ public class GeoWaveFeatureCollection extends
 			final Query query )
 			throws TransformException,
 			FactoryException {
-		if (query.getHints().containsKey(
-				SubsampleProcess.OUTPUT_BBOX)) {
-			return ((ReferencedEnvelope) query.getHints().get(
-					SubsampleProcess.OUTPUT_BBOX)).transform(
-					GeometryUtils.getDefaultCRS(),
-					true);
+		if (query
+				.getHints()
+				.containsKey(
+						SubsampleProcess.OUTPUT_BBOX)) {
+			return ((ReferencedEnvelope) query
+					.getHints()
+					.get(
+							SubsampleProcess.OUTPUT_BBOX))
+									.transform(
+											GeometryUtils.getDefaultCRS(),
+											true);
 		}
 		return null;
 	}
@@ -346,23 +425,30 @@ public class GeoWaveFeatureCollection extends
 			final Query query,
 			final ReferencedEnvelope envelope ) {
 		if (envelope != null) {
-			return new GeometryFactory().toGeometry(envelope);
+			return new GeometryFactory()
+					.toGeometry(
+							envelope);
 		}
-		String geomAtrributeName = reader
+		final String geomAtrributeName = reader
 				.getComponents()
 				.getAdapter()
 				.getFeatureType()
 				.getGeometryDescriptor()
 				.getLocalName();
-		ExtractGeometryFilterVisitorResult geoAndCompareOp = ExtractGeometryFilterVisitor.getConstraints(
-				query.getFilter(),
-				GeometryUtils.getDefaultCRS(),
-				geomAtrributeName);
+		final ExtractGeometryFilterVisitorResult geoAndCompareOp = ExtractGeometryFilterVisitor
+				.getConstraints(
+						query.getFilter(),
+						GeometryUtils.getDefaultCRS(),
+						geomAtrributeName);
 		if (geoAndCompareOp == null) {
-			return reader.clipIndexedBBOXConstraints(null);
+			return reader
+					.clipIndexedBBOXConstraints(
+							null);
 		}
 		else {
-			return reader.clipIndexedBBOXConstraints(geoAndCompareOp.getGeometry());
+			return reader
+					.clipIndexedBBOXConstraints(
+							geoAndCompareOp.getGeometry());
 		}
 	}
 
@@ -397,22 +483,32 @@ public class GeoWaveFeatureCollection extends
 			final ExtractAttributesFilter filter = new ExtractAttributesFilter();
 
 			final MinVisitor minVisitor = (MinVisitor) visitor;
-			final Collection<String> attrs = (Collection<String>) minVisitor.getExpression().accept(
-					filter,
-					null);
+			final Collection<String> attrs = (Collection<String>) minVisitor
+					.getExpression()
+					.accept(
+							filter,
+							null);
 			int acceptedCount = 0;
 			for (final String attr : attrs) {
-				for (final DataStatistics<SimpleFeature> stat : reader.getStatsFor(attr)) {
+				for (final InternalDataStatistics<SimpleFeature, ?, ?> stat : reader
+						.getStatsFor(
+								attr)) {
 					if (stat instanceof FeatureTimeRangeStatistics) {
-						minVisitor.setValue(reader.convertToType(
-								attr,
-								((FeatureTimeRangeStatistics) stat).getMinTime()));
+						minVisitor
+								.setValue(
+										reader
+												.convertToType(
+														attr,
+														((FeatureTimeRangeStatistics) stat).getMinTime()));
 						acceptedCount++;
 					}
 					else if (stat instanceof FeatureNumericRangeStatistics) {
-						minVisitor.setValue(reader.convertToType(
-								attr,
-								((FeatureNumericRangeStatistics) stat).getMin()));
+						minVisitor
+								.setValue(
+										reader
+												.convertToType(
+														attr,
+														((FeatureNumericRangeStatistics) stat).getMin()));
 						acceptedCount++;
 					}
 				}
@@ -429,22 +525,32 @@ public class GeoWaveFeatureCollection extends
 			final ExtractAttributesFilter filter = new ExtractAttributesFilter();
 
 			final MaxVisitor maxVisitor = (MaxVisitor) visitor;
-			final Collection<String> attrs = (Collection<String>) maxVisitor.getExpression().accept(
-					filter,
-					null);
+			final Collection<String> attrs = (Collection<String>) maxVisitor
+					.getExpression()
+					.accept(
+							filter,
+							null);
 			int acceptedCount = 0;
 			for (final String attr : attrs) {
-				for (final DataStatistics<SimpleFeature> stat : reader.getStatsFor(attr)) {
+				for (final InternalDataStatistics<SimpleFeature, ?, ?> stat : reader
+						.getStatsFor(
+								attr)) {
 					if (stat instanceof FeatureTimeRangeStatistics) {
-						maxVisitor.setValue(reader.convertToType(
-								attr,
-								((FeatureTimeRangeStatistics) stat).getMaxTime()));
+						maxVisitor
+								.setValue(
+										reader
+												.convertToType(
+														attr,
+														((FeatureTimeRangeStatistics) stat).getMaxTime()));
 						acceptedCount++;
 					}
 					else if (stat instanceof FeatureNumericRangeStatistics) {
-						maxVisitor.setValue(reader.convertToType(
-								attr,
-								((FeatureNumericRangeStatistics) stat).getMax()));
+						maxVisitor
+								.setValue(
+										reader
+												.convertToType(
+														attr,
+														((FeatureNumericRangeStatistics) stat).getMax()));
 						acceptedCount++;
 					}
 				}
@@ -457,10 +563,11 @@ public class GeoWaveFeatureCollection extends
 				return;
 			}
 		}
-		DataUtilities.visit(
-				this,
-				visitor,
-				progress);
+		DataUtilities
+				.visit(
+						this,
+						visitor,
+						progress);
 	}
 
 	/**
@@ -475,9 +582,14 @@ public class GeoWaveFeatureCollection extends
 			return null;
 		}
 		final TemporalConstraintsSet constraints = new ExtractTimeFilterVisitor(
-				reader.getComponents().getAdapter().getTimeDescriptors()).getConstraints(query);
+				reader.getComponents().getAdapter().getTimeDescriptors())
+						.getConstraints(
+								query);
 
-		return constraints.isEmpty() ? constraints : reader.clipIndexedTemporalConstraints(constraints);
+		return constraints.isEmpty() ? constraints
+				: reader
+						.clipIndexedTemporalConstraints(
+								constraints);
 	}
 
 	@Override
@@ -488,14 +600,7 @@ public class GeoWaveFeatureCollection extends
 	@Override
 	protected void closeIterator(
 			final Iterator<SimpleFeature> close ) {
-		try {
-			featureCursor.close();
-		}
-		catch (final IOException e) {
-			LOGGER.warn(
-					"Unable to close iterator",
-					e);
-		}
+		featureCursor.close();
 	}
 
 	public Iterator<SimpleFeature> getOpenIterator() {
@@ -506,7 +611,8 @@ public class GeoWaveFeatureCollection extends
 	public void close(
 			final FeatureIterator<SimpleFeature> iterator ) {
 		featureCursor = null;
-		super.close(iterator);
+		super.close(
+				iterator);
 	}
 
 	@Override
@@ -515,9 +621,10 @@ public class GeoWaveFeatureCollection extends
 			return !reader.hasNext();
 		}
 		catch (final IOException e) {
-			LOGGER.warn(
-					"Error checking reader",
-					e);
+			LOGGER
+					.warn(
+							"Error checking reader",
+							e);
 		}
 		return true;
 	}

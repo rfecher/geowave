@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,18 +11,17 @@
 package org.locationtech.geowave.core.store.adapter.statistics;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
-import org.locationtech.geowave.core.store.adapter.statistics.histogram.ByteUtils;
+import org.locationtech.geowave.core.store.adapter.statistics.histogram.NumericHistogram;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 
 /**
- * 
+ *
  * This class really just needs to get ingest callbacks and collect individual
  * RowRangeHistogramStatistics per partition. It should never be persisted as
  * is, and is only a DataStatistic to match the current interfaces for the
@@ -33,41 +32,48 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
  *            The type of the row to keep statistics on
  */
 public class RowRangeHistogramStatisticsSet<T> extends
-		AbstractDataStatistics<T> implements
-		DataStatisticsSet<T>
+		AbstractDataStatistics<T, Map<ByteArrayId, RowRangeHistogramStatistics<T>>, BaseStatisticsQueryBuilder<Map<ByteArrayId, RowRangeHistogramStatistics<T>>>>
+		implements
+		DataStatisticsSet<T, Map<ByteArrayId, RowRangeHistogramStatistics<T>>, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>, BaseStatisticsQueryBuilder<Map<ByteArrayId, RowRangeHistogramStatistics<T>>>>
 {
-	private Map<ByteArrayId, RowRangeHistogramStatistics<T>> histogramPerPartition = new HashMap<>();
+	public static final BaseStatisticsType<Map<ByteArrayId, RowRangeHistogramStatistics<?>>> STATS_TYPE = new BaseStatisticsType<>(
+			RowRangeHistogramStatistics.STATS_TYPE.getString());
+	private final Map<ByteArrayId, RowRangeHistogramStatistics<T>> histogramPerPartition = new HashMap<>();
 
 	public RowRangeHistogramStatisticsSet() {
 		super();
 	}
 
 	public RowRangeHistogramStatisticsSet(
-			Short internalDataAdapterId,
-			ByteArrayId indexId ) {
+			final Short adapterId,
+			final String indexName ) {
 		super(
-				internalDataAdapterId,
-				indexId);
+				adapterId,
+				(StatisticsType) STATS_TYPE,
+				indexName);
 	}
 
 	private synchronized RowRangeHistogramStatistics<T> getPartitionStatistic(
 			final ByteArrayId partitionKey ) {
-		RowRangeHistogramStatistics<T> histogram = histogramPerPartition.get(partitionKey);
+		RowRangeHistogramStatistics<T> histogram = histogramPerPartition
+				.get(
+						partitionKey);
 		if (histogram == null) {
 			histogram = new RowRangeHistogramStatistics<>(
-					internalDataAdapterId,
-					statisticsId,
+					adapterId,
+					extendedId,
 					partitionKey);
-			histogramPerPartition.put(
-					partitionKey,
-					histogram);
+			histogramPerPartition
+					.put(
+							partitionKey,
+							histogram);
 		}
 		return histogram;
 	}
 
 	@Override
 	public void merge(
-			Mergeable merge ) {
+			final Mergeable merge ) {
 		throw new UnsupportedOperationException(
 				"Merge should never be called");
 	}
@@ -80,36 +86,62 @@ public class RowRangeHistogramStatisticsSet<T> extends
 
 	@Override
 	public void fromBinary(
-			byte[] bytes ) {
+			final byte[] bytes ) {
 		throw new UnsupportedOperationException(
 				"fromBinary should never be called");
 	}
 
 	@Override
 	public void entryIngested(
-			T entry,
-			GeoWaveRow... rows ) {
+			final T entry,
+			final GeoWaveRow... rows ) {
 		if (rows != null) {
 			// call entry ingested once per row
 			for (final GeoWaveRow row : rows) {
 				getPartitionStatistic(
-						getPartitionKey(row.getPartitionKey())).entryIngested(
-						entry,
-						row);
+						getPartitionKey(
+								row.getPartitionKey()))
+										.entryIngested(
+												entry,
+												row);
 			}
 		}
 	}
 
 	@Override
-	public DataStatistics<T>[] getStatisticsSet() {
-		return histogramPerPartition.values().toArray(
-				new DataStatistics[histogramPerPartition.size()]);
+	public InternalDataStatistics<T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>>[] getStatisticsSet() {
+		return histogramPerPartition
+				.values()
+				.toArray(
+						new InternalDataStatistics[histogramPerPartition.size()]);
 	}
 
 	protected static ByteArrayId getPartitionKey(
 			final byte[] partitionBytes ) {
-		return ((partitionBytes == null) || (partitionBytes.length == 0)) ? null : new ByteArrayId(
-				partitionBytes);
+		return ((partitionBytes == null) || (partitionBytes.length == 0)) ? null
+				: new ByteArrayId(
+						partitionBytes);
+	}
+
+	@Override
+	public Map<ByteArrayId, RowRangeHistogramStatistics<T>> getResult() {
+		return histogramPerPartition;
+	}
+
+	@Override
+	protected String resultsName() {
+		return "histogramSet";
+	}
+
+	@Override
+	protected Object resultsValue() {
+		final Collection<Object> values = new ArrayList<>();
+		for (final RowRangeHistogramStatistics<?> h : histogramPerPartition.values()) {
+			values
+					.add(
+							h.resultsValue());
+		}
+		return values;
 	}
 
 }

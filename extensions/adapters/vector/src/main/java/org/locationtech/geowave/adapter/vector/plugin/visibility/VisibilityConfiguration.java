@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -13,7 +13,7 @@ package org.locationtech.geowave.adapter.vector.plugin.visibility;
 import java.io.ObjectStreamException;
 import java.nio.ByteBuffer;
 
-import org.locationtech.geowave.adapter.vector.utils.SimpleFeatureUserDataConfiguration;
+import org.locationtech.geowave.core.geotime.util.SimpleFeatureUserDataConfiguration;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.data.visibility.VisibilityManagement;
 import org.opengis.feature.simple.SimpleFeature;
@@ -43,7 +43,8 @@ public class VisibilityConfiguration implements
 
 	public VisibilityConfiguration(
 			final SimpleFeatureType type ) {
-		configureFromType(type);
+		configureFromType(
+				type);
 	}
 
 	/**
@@ -60,10 +61,12 @@ public class VisibilityConfiguration implements
 	public void updateWithDefaultIfNeeded(
 			final SimpleFeatureType type,
 			final VisibilityManagement<SimpleFeature> manager ) {
-		if ((!configureManager(type)) && (manager != null)) {
+		if ((!configureManager(
+				type)) && (manager != null)) {
 			this.manager = manager;
 			managerClassName = manager.getClass().getName();
-			updateType(type);
+			updateType(
+					type);
 		}
 	}
 
@@ -109,20 +112,28 @@ public class VisibilityConfiguration implements
 			final SimpleFeatureType persistType ) {
 		// First, remove the visibility UserData from all attributes
 		for (final AttributeDescriptor attrDesc : persistType.getAttributeDescriptors()) {
-			attrDesc.getUserData().remove(
-					"visibility");
+			attrDesc
+					.getUserData()
+					.remove(
+							"visibility");
 		}
 
-		final AttributeDescriptor attrDesc = persistType.getDescriptor(attributeName);
+		final AttributeDescriptor attrDesc = persistType
+				.getDescriptor(
+						attributeName);
 		if (attrDesc != null) {
-			attrDesc.getUserData().put(
-					"visibility",
-					Boolean.TRUE);
+			attrDesc
+					.getUserData()
+					.put(
+							"visibility",
+							Boolean.TRUE);
 		}
 
-		persistType.getUserData().put(
-				"visibilityManagerClass",
-				managerClassName);
+		persistType
+				.getUserData()
+				.put(
+						"visibilityManagerClass",
+						managerClassName);
 	}
 
 	/**
@@ -143,37 +154,52 @@ public class VisibilityConfiguration implements
 		// the found attribute.
 
 		for (final AttributeDescriptor attrDesc : persistType.getAttributeDescriptors()) {
-			if (attrDesc.getUserData().containsKey(
-					"visibility") && Boolean.TRUE.equals(attrDesc.getUserData().get(
-					"visibility"))) {
+			if (attrDesc
+					.getUserData()
+					.containsKey(
+							"visibility")
+					&& Boolean.TRUE
+							.equals(
+									attrDesc
+											.getUserData()
+											.get(
+													"visibility"))) {
 				attributeName = attrDesc.getLocalName();
 			}
 		}
-		configureManager(persistType);
+		configureManager(
+				persistType);
 	}
 
 	@SuppressWarnings("unchecked")
 	private boolean configureManager(
 			final SimpleFeatureType persistType ) {
-		final Object visMgr = persistType.getUserData().get(
-				"visibilityManagerClass");
+		final Object visMgr = persistType
+				.getUserData()
+				.get(
+						"visibilityManagerClass");
 		if (visMgr == null) {
 			// If no visibility manager is present, then can't configure
 			return false;
 		}
 
 		// If the manager class name
-		if ((managerClassName == null) || (!visMgr.toString().equals(
-				managerClassName))) {
+		if ((managerClassName == null) || (!visMgr
+				.toString()
+				.equals(
+						managerClassName))) {
 			try {
 				managerClassName = visMgr.toString();
-				manager = (VisibilityManagement<SimpleFeature>) Class.forName(
-						visMgr.toString()).newInstance();
+				manager = (VisibilityManagement<SimpleFeature>) Class
+						.forName(
+								visMgr.toString())
+						.newInstance();
 			}
 			catch (final Exception ex) {
-				VisibilityManagementHelper.LOGGER.warn(
-						"Cannot load visibility management class " + visMgr.toString(),
-						ex);
+				VisibilityManagementHelper.LOGGER
+						.warn(
+								"Cannot load visibility management class " + visMgr.toString(),
+								ex);
 				return false;
 			}
 		}
@@ -185,13 +211,16 @@ public class VisibilityConfiguration implements
 			throws ObjectStreamException {
 		if ((managerClassName != null) && !(manager instanceof JsonDefinitionColumnVisibilityManagement)) {
 			try {
-				manager = (VisibilityManagement<SimpleFeature>) Class.forName(
-						managerClassName).newInstance();
+				manager = (VisibilityManagement<SimpleFeature>) Class
+						.forName(
+								managerClassName)
+						.newInstance();
 			}
 			catch (final Exception ex) {
-				VisibilityManagementHelper.LOGGER.warn(
-						"Cannot load visibility management class " + managerClassName,
-						ex);
+				VisibilityManagementHelper.LOGGER
+						.warn(
+								"Cannot load visibility management class " + managerClassName,
+								ex);
 			}
 		}
 		return this;
@@ -201,23 +230,37 @@ public class VisibilityConfiguration implements
 	public byte[] toBinary() {
 		byte[] managerClassBytes;
 		if (managerClassName != null) {
-			managerClassBytes = StringUtils.stringToBinary(managerClassName);
+			managerClassBytes = StringUtils
+					.stringToBinary(
+							managerClassName);
 		}
 		else {
 			managerClassBytes = new byte[0];
 		}
 		byte[] attributeBytes;
 		if (attributeName != null) {
-			attributeBytes = StringUtils.stringToBinary(attributeName);
+			attributeBytes = StringUtils
+					.stringToBinary(
+							attributeName);
 		}
 		else {
 			attributeBytes = new byte[0];
 		}
-		final ByteBuffer buf = ByteBuffer.allocate(attributeBytes.length + managerClassBytes.length + 8);
-		buf.putInt(attributeBytes.length);
-		buf.put(attributeBytes);
-		buf.putInt(managerClassBytes.length);
-		buf.put(managerClassBytes);
+		final ByteBuffer buf = ByteBuffer
+				.allocate(
+						attributeBytes.length + managerClassBytes.length + 8);
+		buf
+				.putInt(
+						attributeBytes.length);
+		buf
+				.put(
+						attributeBytes);
+		buf
+				.putInt(
+						managerClassBytes.length);
+		buf
+				.put(
+						managerClassBytes);
 		return buf.array();
 	}
 
@@ -226,33 +269,47 @@ public class VisibilityConfiguration implements
 			final byte[] bytes ) {
 		byte[] attributeBytes;
 		final byte[] managerClassBytes;
-		final ByteBuffer buf = ByteBuffer.wrap(bytes);
+		final ByteBuffer buf = ByteBuffer
+				.wrap(
+						bytes);
 		attributeBytes = new byte[buf.getInt()];
 		if (attributeBytes.length > 0) {
-			buf.get(attributeBytes);
-			attributeName = StringUtils.stringFromBinary(attributeBytes);
+			buf
+					.get(
+							attributeBytes);
+			attributeName = StringUtils
+					.stringFromBinary(
+							attributeBytes);
 		}
 		else {
 			attributeName = null;
 		}
 		managerClassBytes = new byte[buf.getInt()];
 		if (managerClassBytes.length > 0) {
-			buf.get(managerClassBytes);
-			managerClassName = StringUtils.stringFromBinary(managerClassBytes);
+			buf
+					.get(
+							managerClassBytes);
+			managerClassName = StringUtils
+					.stringFromBinary(
+							managerClassBytes);
 		}
 		else {
 			managerClassName = null;
 		}
-		if ((managerClassName != null)
-				&& !(managerClassName.equals(JsonDefinitionColumnVisibilityManagement.class.getName()))) {
+		if ((managerClassName != null) && !(managerClassName
+				.equals(
+						JsonDefinitionColumnVisibilityManagement.class.getName()))) {
 			try {
-				manager = (VisibilityManagement<SimpleFeature>) Class.forName(
-						managerClassName).newInstance();
+				manager = (VisibilityManagement<SimpleFeature>) Class
+						.forName(
+								managerClassName)
+						.newInstance();
 			}
 			catch (final Exception ex) {
-				VisibilityManagementHelper.LOGGER.warn(
-						"Cannot load visibility management class " + managerClassName,
-						ex);
+				VisibilityManagementHelper.LOGGER
+						.warn(
+								"Cannot load visibility management class " + managerClassName,
+								ex);
 			}
 		}
 	}

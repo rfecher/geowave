@@ -24,21 +24,21 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.referencing.CRS;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
+import org.locationtech.geowave.adapter.vector.util.DateUtilities;
 import org.locationtech.geowave.adapter.vector.util.FeatureDataUtils;
-import org.locationtech.geowave.adapter.vector.utils.DateUtilities;
-import org.locationtech.geowave.adapter.vector.utils.PolygonAreaCalculator;
-import org.locationtech.geowave.core.geotime.GeometryUtils;
+import org.locationtech.geowave.adapter.vector.util.PolygonAreaCalculator;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.query.ScaledTemporalRange;
 import org.locationtech.geowave.core.geotime.store.query.TemporalRange;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.IndexWriter;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
@@ -56,7 +56,7 @@ public class KMeansUtils
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(KMeansUtils.class);
 
-	public static DataAdapter writeClusterCentroids(
+	public static DataTypeAdapter writeClusterCentroids(
 			final KMeansModel clusterModel,
 			final DataStorePluginOptions outputDataStore,
 			final String centroidAdapterName,
@@ -103,10 +103,9 @@ public class KMeansUtils
 				sfType);
 
 		final DataStore featureStore = outputDataStore.createDataStore();
-		final PrimaryIndex featureIndex = new SpatialDimensionalityTypeProvider()
-				.createPrimaryIndex(new SpatialOptions());
+		final Index featureIndex = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 
-		try (IndexWriter writer = featureStore.createWriter(
+		try (Writer writer = featureStore.createWriter(
 				featureAdapter,
 				featureIndex)) {
 			for (final Vector center : clusterModel.clusterCenters()) {
@@ -156,7 +155,7 @@ public class KMeansUtils
 		return featureAdapter;
 	}
 
-	public static DataAdapter writeClusterHulls(
+	public static DataTypeAdapter writeClusterHulls(
 			final JavaRDD<Vector> inputCentroids,
 			final KMeansModel clusterModel,
 			final DataStorePluginOptions outputDataStore,
@@ -217,12 +216,11 @@ public class KMeansUtils
 				sfType);
 
 		final DataStore featureStore = outputDataStore.createDataStore();
-		final PrimaryIndex featureIndex = new SpatialDimensionalityTypeProvider()
-				.createPrimaryIndex(new SpatialOptions());
+		final Index featureIndex = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 
 		PolygonAreaCalculator polyCalc = (computeMetadata ? new PolygonAreaCalculator() : null);
 
-		try (IndexWriter writer = featureStore.createWriter(
+		try (Writer writer = featureStore.createWriter(
 				featureAdapter,
 				featureIndex)) {
 
@@ -338,7 +336,7 @@ public class KMeansUtils
 					inputDataStore,
 					adapterId);
 
-			Envelope bbox = org.locationtech.geowave.adapter.vector.utils.FeatureGeometryUtils.getGeoBounds(
+			Envelope bbox = org.locationtech.geowave.adapter.vector.util.FeatureGeometryUtils.getGeoBounds(
 					inputDataStore,
 					adapterId,
 					geomField);

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -22,8 +22,6 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.text.cql2.CQLException;
 import org.junit.Before;
 import org.junit.Test;
-import org.locationtech.geowave.adapter.vector.plugin.visibility.JsonDefinitionColumnVisibilityManagement;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.data.field.FieldVisibilityHandler;
 import org.locationtech.geowave.core.store.data.visibility.GlobalVisibilityHandler;
@@ -42,35 +40,39 @@ public class JsonDefinitionColumnVisibilityManagementTest
 	List<AttributeDescriptor> descriptors;
 	Object[] defaults;
 	SimpleFeature newFeature;
-	final JsonDefinitionColumnVisibilityManagement<SimpleFeature> manager = new JsonDefinitionColumnVisibilityManagement<SimpleFeature>();
+	final JsonDefinitionColumnVisibilityManagement<SimpleFeature> manager = new JsonDefinitionColumnVisibilityManagement<>();
 	final GeometryFactory factory = new GeometryFactory(
 			new PrecisionModel(
 					PrecisionModel.FIXED));
-	final FieldVisibilityHandler<SimpleFeature, Object> simplePIDHandler = manager.createVisibilityHandler(
-			"pid",
-			new GlobalVisibilityHandler<SimpleFeature, Object>(
-					"default"),
-			"vis");
+	final FieldVisibilityHandler<SimpleFeature, Object> simplePIDHandler = manager
+			.createVisibilityHandler(
+					"pid",
+					new GlobalVisibilityHandler<SimpleFeature, Object>(
+							"default"),
+					"vis");
 
-	final FieldVisibilityHandler<SimpleFeature, Object> simplePOPHandler = manager.createVisibilityHandler(
-			"pop",
-			new GlobalVisibilityHandler<SimpleFeature, Object>(
-					"default"),
-			"vis");
+	final FieldVisibilityHandler<SimpleFeature, Object> simplePOPHandler = manager
+			.createVisibilityHandler(
+					"pop",
+					new GlobalVisibilityHandler<SimpleFeature, Object>(
+							"default"),
+					"vis");
 
-	final FieldVisibilityHandler<SimpleFeature, Object> simpleGEOHandler = manager.createVisibilityHandler(
-			"geometry",
-			new GlobalVisibilityHandler<SimpleFeature, Object>(
-					"default"),
-			"vis");
+	final FieldVisibilityHandler<SimpleFeature, Object> simpleGEOHandler = manager
+			.createVisibilityHandler(
+					"geometry",
+					new GlobalVisibilityHandler<SimpleFeature, Object>(
+							"default"),
+					"vis");
 
 	@Before
 	public void setup()
 			throws SchemaException,
 			CQLException {
-		type = DataUtilities.createType(
-				"geostuff",
-				"geometry:Geometry:srid=4326,vis:java.lang.String,pop:java.lang.Long,pid:String");
+		type = DataUtilities
+				.createType(
+						"geostuff",
+						"geometry:Geometry:srid=4326,vis:java.lang.String,pop:java.lang.Long,pid:String");
 		descriptors = type.getAttributeDescriptors();
 		defaults = new Object[descriptors.size()];
 		int p = 0;
@@ -78,74 +80,100 @@ public class JsonDefinitionColumnVisibilityManagementTest
 			defaults[p++] = descriptor.getDefaultValue();
 		}
 
-		newFeature = SimpleFeatureBuilder.build(
-				type,
-				defaults,
-				UUID.randomUUID().toString());
-		newFeature.setAttribute(
-				"pop",
-				Long.valueOf(100));
-		newFeature.setAttribute(
-				"pid",
-				UUID.randomUUID().toString());
-		newFeature.setAttribute(
-				"vis",
-				"{\"pid\":\"TS\", \"geo.*\":\"S\"}");
-		newFeature.setAttribute(
-				"geometry",
-				factory.createPoint(new Coordinate(
-						43.454,
-						128.232)));
+		newFeature = SimpleFeatureBuilder
+				.build(
+						type,
+						defaults,
+						UUID.randomUUID().toString());
+		newFeature
+				.setAttribute(
+						"pop",
+						Long
+								.valueOf(
+										100));
+		newFeature
+				.setAttribute(
+						"pid",
+						UUID.randomUUID().toString());
+		newFeature
+				.setAttribute(
+						"vis",
+						"{\"pid\":\"TS\", \"geo.*\":\"S\"}");
+		newFeature
+				.setAttribute(
+						"geometry",
+						factory
+								.createPoint(
+										new Coordinate(
+												43.454,
+												128.232)));
 	}
 
 	@Test
 	public void testPIDNonDefault() {
 
-		assertTrue(Arrays.equals(
-				"TS".getBytes(StringUtils.getGeoWaveCharset()),
-				simplePIDHandler.getVisibility(
-						newFeature,
-						new ByteArrayId(
-								"pid".getBytes(StringUtils.getGeoWaveCharset())),
-						"pid")));
+		assertTrue(
+				Arrays
+						.equals(
+								"TS"
+										.getBytes(
+												StringUtils.getGeoWaveCharset()),
+								simplePIDHandler
+										.getVisibility(
+												newFeature,
+												"pid",
+												"pid")));
 	}
 
 	@Test
 	public void testPOPNonDefault() {
-		assertTrue(Arrays.equals(
-				"default".getBytes(StringUtils.getGeoWaveCharset()),
-				simplePOPHandler.getVisibility(
-						newFeature,
-						new ByteArrayId(
-								"pop".getBytes(StringUtils.getGeoWaveCharset())),
-						"pop")));
+		assertTrue(
+				Arrays
+						.equals(
+								"default"
+										.getBytes(
+												StringUtils.getGeoWaveCharset()),
+								simplePOPHandler
+										.getVisibility(
+												newFeature,
+												"pop",
+												"pop")));
 
 	}
 
 	@Test
 	public void testGEORegexDefault() {
-		assertTrue(Arrays.equals(
-				"S".getBytes(StringUtils.getGeoWaveCharset()),
-				simpleGEOHandler.getVisibility(
-						newFeature,
-						new ByteArrayId(
-								"geometry".getBytes(StringUtils.getGeoWaveCharset())),
-						"geometry")));
+		assertTrue(
+				Arrays
+						.equals(
+								"S"
+										.getBytes(
+												StringUtils.getGeoWaveCharset()),
+								simpleGEOHandler
+										.getVisibility(
+												newFeature,
+												"geometry",
+												"geometry")));
 
 	}
 
 	@Test
 	public void testCatchAllRegexDefault() {
-		newFeature.setAttribute(
-				"vis",
-				"{\"pid\":\"TS\", \".*\":\"U\"}");
-		assertTrue(Arrays.equals(
-				"U".getBytes(StringUtils.getGeoWaveCharset()),
-				simplePOPHandler.getVisibility(
-						newFeature,
-						new ByteArrayId(
-								"pop".getBytes(StringUtils.getGeoWaveCharset())),
-						"pop")));
+		newFeature
+				.setAttribute(
+						"vis",
+						"{\"pid\":\"TS\", \".*\":\"U\"}");
+		assertTrue(
+				Arrays
+						.equals(
+								"U"
+										.getBytes(
+												StringUtils.getGeoWaveCharset()),
+								simplePOPHandler
+										.getVisibility(
+												newFeature,
+												"pop",
+												"pop")));
 
 	}
 

@@ -33,8 +33,8 @@ import org.locationtech.geowave.analytic.param.ParameterHelper;
 import org.locationtech.geowave.analytic.param.InputParameters.Input;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.store.query.DistributableQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -145,7 +145,7 @@ public class PropertyManagementTest
 		pm.store(
 				ExtractParameters.Extract.QUERY,
 				sq);
-		final DistributableQuery q = pm.getPropertyAsQuery(ExtractParameters.Extract.QUERY);
+		final DistributableQueryConstraints q = pm.getPropertyAsQuery(ExtractParameters.Extract.QUERY);
 		assertNotNull(q);
 		assertNotNull(((SpatialQuery) q).getQueryGeometry());
 		assertEquals(
@@ -155,7 +155,7 @@ public class PropertyManagementTest
 		pm.store(
 				ExtractParameters.Extract.QUERY,
 				q);
-		final DistributableQuery q1 = (DistributableQuery) pm.getPropertyAsPersistable(ExtractParameters.Extract.QUERY);
+		final DistributableQueryConstraints q1 = (DistributableQueryConstraints) pm.getPropertyAsPersistable(ExtractParameters.Extract.QUERY);
 		assertNotNull(((SpatialQuery) q1).getQueryGeometry());
 		assertEquals(
 				"POLYGON ((24 33, 28 33, 28 31, 24 31, 24 33))",

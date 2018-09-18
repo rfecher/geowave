@@ -41,7 +41,7 @@ import org.locationtech.geowave.analytic.param.ParameterEnum;
 import org.locationtech.geowave.analytic.param.StoreParameters;
 import org.locationtech.geowave.analytic.param.StoreParameters.StoreParam;
 import org.locationtech.geowave.analytic.store.PersistableStore;
-import org.locationtech.geowave.core.store.query.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 import org.locationtech.geowave.mapreduce.GeoWaveConfiguratorBase;
 import org.locationtech.geowave.mapreduce.dedupe.GeoWaveDedupeJobRunner;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputFormat;
@@ -189,7 +189,7 @@ public class GeoWaveAnalyticExtractJobRunner extends
 						GlobalParameters.Global.BATCH_ID,
 						UUID.randomUUID().toString()));
 
-		DistributableQuery myQuery = query;
+		DistributableQueryConstraints myQuery = constraints;
 		if (myQuery == null) {
 			myQuery = runTimeProperties.getPropertyAsQuery(ExtractParameters.Extract.QUERY);
 		}
@@ -200,9 +200,9 @@ public class GeoWaveAnalyticExtractJobRunner extends
 				ExtractParameters.Extract.MAX_INPUT_SPLIT,
 				10000));
 		if (myQuery != null) {
-			GeoWaveInputFormat.setQuery(
+			GeoWaveInputFormat.setQueryConstraints(
 					config,
-					query);
+					constraints);
 		}
 		if (minInputSplits != null) {
 			GeoWaveInputFormat.setMinimumSplitCount(

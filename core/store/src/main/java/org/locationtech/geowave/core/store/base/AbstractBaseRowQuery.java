@@ -18,13 +18,13 @@ import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.callback.ScanCallbackList;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.operations.Reader;
+import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
 import org.locationtech.geowave.core.store.util.NativeEntryTransformer;
 
@@ -39,7 +39,7 @@ abstract class AbstractBaseRowQuery<T> extends
 	private static final Logger LOGGER = Logger.getLogger(AbstractBaseRowQuery.class);
 
 	public AbstractBaseRowQuery(
-			final PrimaryIndex index,
+			final Index index,
 			final String[] authorizations,
 			final ScanCallback<T, ?> scanCallback,
 			final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
@@ -60,7 +60,7 @@ abstract class AbstractBaseRowQuery<T> extends
 			final Integer limit,
 			final Integer queryMaxRangeDecomposition,
 			boolean delete ) {
-		Reader<T> reader = getReader(
+		RowReader<T> reader = getReader(
 				operations,
 				options,
 				adapterStore,

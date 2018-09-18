@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -12,19 +12,17 @@ package org.locationtech.geowave.adapter.vector.stats;
 
 import java.nio.ByteBuffer;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
 import org.locationtech.geowave.core.index.Mergeable;
-import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.AbstractDataStatistics;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsQueryBuilder;
+import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsType;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.opengis.feature.simple.SimpleFeature;
 
 import com.clearspring.analytics.stream.frequency.CountMinSketch;
 import com.clearspring.analytics.stream.frequency.FrequencyMergeException;
-
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 
 /**
  *
@@ -38,10 +36,10 @@ import net.sf.json.JSONObject;
  *
  */
 public class FeatureCountMinSketchStatistics extends
-		AbstractDataStatistics<SimpleFeature> implements
-		FeatureStatistic
+		AbstractDataStatistics<SimpleFeature, CountMinSketch, FieldStatisticsQueryBuilder<CountMinSketch>> implements
+		FieldNameStatistic
 {
-	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
+	public static final FieldStatisticsType<CountMinSketch> STATS_TYPE = new FieldStatisticsType<>(
 			"ATT_SKETCH");
 	private CountMinSketch sketch = null;
 
@@ -54,13 +52,12 @@ public class FeatureCountMinSketchStatistics extends
 	}
 
 	public FeatureCountMinSketchStatistics(
-			final Short internalDataAdapterId,
-			final String statisticsId ) {
+			final Short adapterId,
+			final String fieldName ) {
 		super(
-				internalDataAdapterId,
-				composeId(
-						STATS_TYPE.getString(),
-						statisticsId));
+				adapterId,
+				STATS_TYPE,
+				fieldName);
 		sketch = new CountMinSketch(
 				0.001,
 				0.98,
@@ -68,37 +65,29 @@ public class FeatureCountMinSketchStatistics extends
 	}
 
 	public FeatureCountMinSketchStatistics(
-			final Short internalDataAdapterId,
-			final String statisticsId,
+			final Short adapterId,
+			final String fieldName,
 			final double errorFactor,
 			final double probabilityOfCorrectness ) {
 		super(
-				internalDataAdapterId,
-				composeId(
-						STATS_TYPE.getString(),
-						statisticsId));
+				adapterId,
+				STATS_TYPE,
+				fieldName);
 		sketch = new CountMinSketch(
 				errorFactor,
 				probabilityOfCorrectness,
 				7364181);
 	}
 
-	public static final ByteArrayId composeId(
-			final String fieldName ) {
-		return composeId(
-				STATS_TYPE.getString(),
-				fieldName);
-	}
-
 	@Override
 	public String getFieldName() {
-		return decomposeNameFromId(getStatisticsId());
+		return extendedId;
 	}
 
 	@Override
-	public DataStatistics<SimpleFeature> duplicate() {
+	public InternalDataStatistics<SimpleFeature, CountMinSketch, FieldStatisticsQueryBuilder<CountMinSketch>> clone() {
 		return new FeatureCountMinSketchStatistics(
-				internalDataAdapterId,
+				adapterId,
 				getFieldName());
 	}
 
@@ -108,7 +97,9 @@ public class FeatureCountMinSketchStatistics extends
 
 	public long count(
 			final String item ) {
-		return sketch.estimateCount(item);
+		return sketch
+				.estimateCount(
+						item);
 	}
 
 	@Override
@@ -116,9 +107,10 @@ public class FeatureCountMinSketchStatistics extends
 			final Mergeable mergeable ) {
 		if (mergeable instanceof FeatureCountMinSketchStatistics) {
 			try {
-				sketch = CountMinSketch.merge(
-						sketch,
-						((FeatureCountMinSketchStatistics) mergeable).sketch);
+				sketch = CountMinSketch
+						.merge(
+								sketch,
+								((FeatureCountMinSketchStatistics) mergeable).sketch);
 			}
 			catch (final FrequencyMergeException e) {
 				throw new RuntimeException(
@@ -131,80 +123,87 @@ public class FeatureCountMinSketchStatistics extends
 
 	@Override
 	public byte[] toBinary() {
-		final byte[] data = CountMinSketch.serialize(sketch);
-		final ByteBuffer buffer = super.binaryBuffer(4 + data.length);
-		buffer.putInt(data.length);
-		buffer.put(data);
+		final byte[] data = CountMinSketch
+				.serialize(
+						sketch);
+		final ByteBuffer buffer = super.binaryBuffer(
+				4 + data.length);
+		buffer
+				.putInt(
+						data.length);
+		buffer
+				.put(
+						data);
 		return buffer.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(bytes);
+		final ByteBuffer buffer = super.binaryBuffer(
+				bytes);
 		final byte[] data = new byte[buffer.getInt()];
-		buffer.get(data);
-		sketch = CountMinSketch.deserialize(data);
+		buffer
+				.get(
+						data);
+		sketch = CountMinSketch
+				.deserialize(
+						data);
 	}
 
 	@Override
 	public void entryIngested(
 			final SimpleFeature entry,
 			final GeoWaveRow... rows ) {
-		final Object o = entry.getAttribute(getFieldName());
+		final Object o = entry
+				.getAttribute(
+						getFieldName());
 		if (o == null) {
 			return;
 		}
-		sketch.add(
-				o.toString(),
-				1);
+		sketch
+				.add(
+						o.toString(),
+						1);
 	}
 
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer.append(
-				"sketch[internalDataAdapterId=").append(
-				super.getInternalDataAdapterId());
-		buffer.append(
-				", field=").append(
-				getFieldName());
-		buffer.append(
-				", size=").append(
-				sketch.size());
-		buffer.append("]");
+		buffer
+				.append(
+						"sketch[adapterId=")
+				.append(
+						super.getAdapterId());
+		buffer
+				.append(
+						", field=")
+				.append(
+						getFieldName());
+		buffer
+				.append(
+						", size=")
+				.append(
+						sketch.size());
+		buffer
+				.append(
+						"]");
 		return buffer.toString();
 	}
 
-	/**
-	 * Convert FeatureCountMinSketch statistics to a JSON object
-	 */
+	@Override
+	public CountMinSketch getResult() {
+		return sketch;
+	}
 
 	@Override
-	public JSONObject toJSONObject(
-			final InternalAdapterStore store )
-			throws JSONException {
-		final JSONObject jo = new JSONObject();
-		jo.put(
-				"type",
-				STATS_TYPE.getString());
-		jo.put(
-				"dataAdapterID",
-				store.getAdapterId(internalDataAdapterId));
+	protected String resultsName() {
+		return "size";
+	}
 
-		jo.put(
-				"statisticsID",
-				statisticsId.getString());
-
-		jo.put(
-				"field_identifier",
-				getFieldName());
-
-		jo.put(
-				"size",
-				sketch.size());
-
-		return jo;
+	@Override
+	protected Object resultsValue() {
+		return sketch.size();
 	}
 
 	public static class FeatureCountMinSketchConfig implements
@@ -248,7 +247,7 @@ public class FeatureCountMinSketchStatistics extends
 		}
 
 		@Override
-		public DataStatistics<SimpleFeature> create(
+		public InternalDataStatistics<SimpleFeature, CountMinSketch, FieldStatisticsQueryBuilder<CountMinSketch>> create(
 				final Short internalDataAdapterId,
 				final String fieldName ) {
 			return new FeatureCountMinSketchStatistics(
@@ -260,16 +259,24 @@ public class FeatureCountMinSketchStatistics extends
 
 		@Override
 		public byte[] toBinary() {
-			ByteBuffer buf = ByteBuffer.allocate(16);
-			buf.putDouble(errorFactor);
-			buf.putDouble(probabilityOfCorrectness);
+			final ByteBuffer buf = ByteBuffer
+					.allocate(
+							16);
+			buf
+					.putDouble(
+							errorFactor);
+			buf
+					.putDouble(
+							probabilityOfCorrectness);
 			return buf.array();
 		}
 
 		@Override
 		public void fromBinary(
-				byte[] bytes ) {
-			ByteBuffer buf = ByteBuffer.wrap(bytes);
+				final byte[] bytes ) {
+			final ByteBuffer buf = ByteBuffer
+					.wrap(
+							bytes);
 			errorFactor = buf.getDouble();
 			probabilityOfCorrectness = buf.getDouble();
 		}

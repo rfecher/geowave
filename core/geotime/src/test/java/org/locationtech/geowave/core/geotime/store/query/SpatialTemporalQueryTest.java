@@ -24,17 +24,15 @@ import org.locationtech.geowave.core.geotime.store.dimension.GeometryAdapter;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.dimension.TimeField;
 import org.locationtech.geowave.core.geotime.store.dimension.Time.TimeRange;
-import org.locationtech.geowave.core.geotime.store.filter.SpatialQueryFilter.CompareOperation;
-import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
-import org.locationtech.geowave.core.geotime.store.query.SpatialTemporalQuery;
+import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter.CompareOperation;
 import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.data.CommonIndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.data.PersistentValue;
-import org.locationtech.geowave.core.store.filter.QueryFilter;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -83,12 +81,12 @@ public class SpatialTemporalQueryTest
 		final PersistentDataset<CommonIndexValue> commonData = new PersistentDataset<CommonIndexValue>();
 
 		commonData.addValue(
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_ID,
+				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME,
 				new GeometryWrapper(
 						factory.createLineString(coordinates)));
 		commonData.addValue(
 				new TimeField(
-						Unit.YEAR).getFieldId(),
+						Unit.YEAR).getFieldName(),
 				new TimeRange(
 						start.getTime(),
 						end.getTime(),
@@ -193,8 +191,7 @@ public class SpatialTemporalQueryTest
 								34)
 					})
 		};
-		final PrimaryIndex index = new SpatialTemporalDimensionalityTypeProvider()
-				.createPrimaryIndex(new SpatialTemporalOptions());
+		final Index index = new SpatialTemporalDimensionalityTypeProvider().createIndex(new SpatialTemporalOptions());
 		int pos = 0;
 		for (final CommonIndexedPersistenceEncoding dataItem : data) {
 			for (final QueryFilter filter : queryCopy.createFilters(index)) {

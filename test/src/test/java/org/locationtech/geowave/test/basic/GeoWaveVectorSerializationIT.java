@@ -30,13 +30,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
-import org.locationtech.geowave.core.geotime.GeometryUtils;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.IndexWriter;
+import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.query.DistributableQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
@@ -214,15 +214,15 @@ public class GeoWaveVectorSerializationIT extends
 					arg.getValue());
 		}
 
-		final org.locationtech.geowave.core.store.DataStore geowaveStore = dataStore.createDataStore();
+		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = dataStore.createDataStore();
 
 		final SimpleFeature sf = serBuilder.buildFeature("343");
-		try (IndexWriter writer = geowaveStore.createWriter(
+		try (Writer writer = geowaveStore.createWriter(
 				serAdapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX)) {
 			writer.write(sf);
 		}
-		final DistributableQuery q = new SpatialQuery(
+		final DistributableQueryConstrain q = new SpatialQuery(
 				((Geometry) args.get(Geometry.class)).buffer(0.5d));
 		try (final CloseableIterator<?> iter = geowaveStore.query(
 				new QueryOptions(/* TODO do I need to pass 'index'? */),

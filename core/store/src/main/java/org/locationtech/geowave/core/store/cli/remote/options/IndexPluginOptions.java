@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -12,12 +12,11 @@ package org.locationtech.geowave.core.store.cli.remote.options;
 
 import org.locationtech.geowave.core.cli.api.DefaultPluginOptions;
 import org.locationtech.geowave.core.cli.api.PluginOptions;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.CompoundIndexStrategy;
 import org.locationtech.geowave.core.index.simple.HashKeyIndexStrategy;
 import org.locationtech.geowave.core.index.simple.RoundRobinKeyIndexStrategy;
-import org.locationtech.geowave.core.store.index.CustomIdIndex;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.index.CustomNameIndex;
 import org.locationtech.geowave.core.store.operations.remote.options.BasicIndexOptions;
 import org.locationtech.geowave.core.store.spi.DimensionalityTypeOptions;
 import org.locationtech.geowave.core.store.spi.DimensionalityTypeProviderSpi;
@@ -40,7 +39,9 @@ public class IndexPluginOptions extends
 	public static final String INDEX_PROPERTY_NAMESPACE = "index";
 	public static final String DEFAULT_PROPERTY_NAMESPACE = "indexdefault";
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(IndexPluginOptions.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					IndexPluginOptions.class);
 
 	private String indexType;
 	@ParametersDelegate
@@ -61,7 +62,7 @@ public class IndexPluginOptions extends
 	}
 
 	public void setBasicIndexOptions(
-			BasicIndexOptions basicIndexOptions ) {
+			final BasicIndexOptions basicIndexOptions ) {
 		this.basicIndexOptions = basicIndexOptions;
 	}
 
@@ -71,7 +72,9 @@ public class IndexPluginOptions extends
 		// Load the Index options.
 		indexType = qualifier;
 		if (qualifier != null) {
-			indexPlugin = DimensionalityTypeRegistry.getSelectedDimensionalityProvider(qualifier);
+			indexPlugin = DimensionalityTypeRegistry
+					.getSelectedDimensionalityProvider(
+							qualifier);
 			if (indexPlugin == null) {
 				throw new ParameterException(
 						"Unknown index type specified");
@@ -85,11 +88,11 @@ public class IndexPluginOptions extends
 	}
 
 	public DimensionalityTypeOptions getDimensionalityOptions() {
-		return this.indexOptions;
+		return indexOptions;
 	}
 
 	public void setDimensionalityTypeOptions(
-			DimensionalityTypeOptions indexOptions ) {
+			final DimensionalityTypeOptions indexOptions ) {
 		this.indexOptions = indexOptions;
 	}
 
@@ -114,64 +117,68 @@ public class IndexPluginOptions extends
 		return indexPlugin;
 	}
 
-	public PrimaryIndex createPrimaryIndex() {
-		final PrimaryIndex index = indexPlugin.createPrimaryIndex(indexOptions);
+	public Index createIndex() {
+		final Index index = indexPlugin
+				.createIndex(
+						indexOptions);
 		return wrapIndexWithOptions(
 				index,
 				this);
 	}
 
-	private static PrimaryIndex wrapIndexWithOptions(
-			final PrimaryIndex index,
+	private static Index wrapIndexWithOptions(
+			final Index index,
 			final IndexPluginOptions options ) {
-		PrimaryIndex retVal = index;
-		if ((options.basicIndexOptions.getNumPartitions() > 1)
-				&& options.basicIndexOptions.getPartitionStrategy().equals(
+		Index retVal = index;
+		if ((options.basicIndexOptions.getNumPartitions() > 1) && options.basicIndexOptions
+				.getPartitionStrategy()
+				.equals(
 						PartitionStrategy.ROUND_ROBIN)) {
-			retVal = new CustomIdIndex(
+			retVal = new CustomNameIndex(
 					new CompoundIndexStrategy(
 							new RoundRobinKeyIndexStrategy(
 									options.basicIndexOptions.getNumPartitions()),
 							index.getIndexStrategy()),
 					index.getIndexModel(),
-					new ByteArrayId(
-							index.getId().getString() + "_" + PartitionStrategy.ROUND_ROBIN.name() + "_"
-									+ options.basicIndexOptions.getNumPartitions()));
+					index.getName() + "_" + PartitionStrategy.ROUND_ROBIN.name() + "_"
+							+ options.basicIndexOptions.getNumPartitions());
 		}
 		else if (options.basicIndexOptions.getNumPartitions() > 1) {
 			// default to round robin partitioning (none is not valid if there
 			// are more than 1 partition)
-			if (options.basicIndexOptions.getPartitionStrategy().equals(
-					PartitionStrategy.NONE)) {
+			if (options.basicIndexOptions
+					.getPartitionStrategy()
+					.equals(
+							PartitionStrategy.NONE)) {
 				LOGGER
-						.warn("Partition strategy is necessary when using more than 1 partition, defaulting to 'hash' partitioning.");
+						.warn(
+								"Partition strategy is necessary when using more than 1 partition, defaulting to 'hash' partitioning.");
 			}
-			retVal = new CustomIdIndex(
+			retVal = new CustomNameIndex(
 					new CompoundIndexStrategy(
 							new HashKeyIndexStrategy(
 									options.basicIndexOptions.getNumPartitions()),
 							index.getIndexStrategy()),
 					index.getIndexModel(),
-					new ByteArrayId(
-							index.getId().getString() + "_" + PartitionStrategy.HASH.name() + "_"
-									+ options.basicIndexOptions.getNumPartitions()));
+					index.getName() + "_" + PartitionStrategy.HASH.name() + "_"
+							+ options.basicIndexOptions.getNumPartitions());
 		}
 		if ((options.getNameOverride() != null) && (options.getNameOverride().length() > 0)) {
-			retVal = new CustomIdIndex(
+			retVal = new CustomNameIndex(
 					retVal.getIndexStrategy(),
 					retVal.getIndexModel(),
-					new ByteArrayId(
-							options.getNameOverride()));
+					options.getNameOverride());
 		}
 		return retVal;
 	}
 
 	public static String getIndexNamespace(
 			final String name ) {
-		return String.format(
-				"%s.%s",
-				INDEX_PROPERTY_NAMESPACE,
-				name);
+		return String
+				.format(
+						"%s.%s",
+						INDEX_PROPERTY_NAMESPACE,
+						name);
 	}
 
 	public static enum PartitionStrategy {
@@ -197,24 +204,30 @@ public class IndexPluginOptions extends
 
 		public T setNumPartitions(
 				final int numPartitions ) {
-			options.basicIndexOptions.setNumPartitions(numPartitions);
+			options.basicIndexOptions
+					.setNumPartitions(
+							numPartitions);
 			return (T) this;
 		}
 
 		public T setPartitionStrategy(
 				final PartitionStrategy partitionStrategy ) {
-			options.basicIndexOptions.setPartitionStrategy(partitionStrategy);
+			options.basicIndexOptions
+					.setPartitionStrategy(
+							partitionStrategy);
 			return (T) this;
 		}
 
 		public T setNameOverride(
 				final String nameOverride ) {
-			options.basicIndexOptions.setNameOverride(nameOverride);
+			options.basicIndexOptions
+					.setNameOverride(
+							nameOverride);
 			return (T) this;
 		}
 
-		public PrimaryIndex createIndex(
-				final PrimaryIndex dimensionalityIndex ) {
+		public Index createIndex(
+				final Index dimensionalityIndex ) {
 			return wrapIndexWithOptions(
 					dimensionalityIndex,
 					options);

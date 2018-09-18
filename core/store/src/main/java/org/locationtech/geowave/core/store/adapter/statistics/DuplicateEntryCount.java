@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -14,22 +14,17 @@ import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
-import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.DeleteCallback;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 
 public class DuplicateEntryCount<T> extends
-		AbstractDataStatistics<T> implements
+		AbstractDataStatistics<T, Long, IndexStatisticsQueryBuilder<Long>> implements
 		DeleteCallback<T, GeoWaveRow>
 {
-	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
+	public static final IndexStatisticsType<Long> STATS_TYPE = new IndexStatisticsType<>(
 			"DUPLICATE_ENTRY_COUNT");
 	private long entriesWithDuplicates = 0;
 
@@ -47,58 +42,47 @@ public class DuplicateEntryCount<T> extends
 
 	private DuplicateEntryCount(
 			final Short internalDataAdapterId,
-			final ByteArrayId statsId,
+			final String indexName,
 			final long entriesWithDuplicates ) {
 		super(
 				internalDataAdapterId,
-				statsId);
+				STATS_TYPE,
+				indexName);
 		this.entriesWithDuplicates = entriesWithDuplicates;
 	}
 
 	public DuplicateEntryCount(
-			final ByteArrayId indexId ) {
-		this(
-				null,
-				indexId);
-	}
-
-	public DuplicateEntryCount(
 			final Short internalDataAdapterId,
-			final ByteArrayId indexId ) {
+			final String indexName ) {
 		super(
 				internalDataAdapterId,
-				composeId(indexId));
-	}
-
-	public static ByteArrayId composeId(
-			final ByteArrayId indexId ) {
-		return new ByteArrayId(
-				ArrayUtils.addAll(
-						ArrayUtils.addAll(
-								STATS_TYPE.getBytes(),
-								STATS_SEPARATOR.getBytes()),
-						indexId.getBytes()));
+				STATS_TYPE,
+				indexName);
 	}
 
 	@Override
-	public DataStatistics<T> duplicate() {
+	public InternalDataStatistics<T, Long, IndexStatisticsQueryBuilder<Long>> clone() {
 		return new DuplicateEntryCount<>(
-				internalDataAdapterId,
-				statisticsId,
+				adapterId,
+				extendedId,
 				entriesWithDuplicates);
 	}
 
 	@Override
 	public byte[] toBinary() {
-		final ByteBuffer buf = super.binaryBuffer(8);
-		buf.putLong(entriesWithDuplicates);
+		final ByteBuffer buf = super.binaryBuffer(
+				8);
+		buf
+				.putLong(
+						entriesWithDuplicates);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = super.binaryBuffer(bytes);
+		final ByteBuffer buf = super.binaryBuffer(
+				bytes);
 		entriesWithDuplicates = buf.getLong();
 	}
 
@@ -107,7 +91,8 @@ public class DuplicateEntryCount<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		if (kvs.length > 0) {
-			if (entryHasDuplicates(kvs[0])) {
+			if (entryHasDuplicates(
+					kvs[0])) {
 				entriesWithDuplicates++;
 			}
 		}
@@ -117,16 +102,19 @@ public class DuplicateEntryCount<T> extends
 	 * This is expensive, but necessary since there may be duplicates
 	 */
 	// TODO entryDeleted should only be called once with all duplicates
-	private transient HashSet<ByteArrayId> ids = new HashSet<ByteArrayId>();
+	private transient HashSet<ByteArrayId> ids = new HashSet<>();
 
 	@Override
 	public void entryDeleted(
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		if (kvs.length > 0) {
-			if (entryHasDuplicates(kvs[0])) {
-				if (ids.add(new ByteArrayId(
-						kvs[0].getDataId()))) {
+			if (entryHasDuplicates(
+					kvs[0])) {
+				if (ids
+						.add(
+								new ByteArrayId(
+										kvs[0].getDataId()))) {
 					entriesWithDuplicates--;
 				}
 			}
@@ -147,49 +135,44 @@ public class DuplicateEntryCount<T> extends
 	}
 
 	public static DuplicateEntryCount getDuplicateCounts(
-			final PrimaryIndex index,
+			final Index index,
 			final List<Short> adapterIdsToQuery,
 			final DataStatisticsStore statisticsStore,
 			final String... authorizations ) {
 		DuplicateEntryCount combinedDuplicateCount = null;
 		for (final short adapterId : adapterIdsToQuery) {
-			final DuplicateEntryCount adapterVisibilityCount = (DuplicateEntryCount) statisticsStore.getDataStatistics(
-					adapterId,
-					DuplicateEntryCount.composeId(index.getId()),
-					authorizations);
+			final DuplicateEntryCount adapterVisibilityCount = (DuplicateEntryCount) statisticsStore
+					.getDataStatistics(
+							adapterId,
+							STATS_TYPE,
+							index.getName(),
+							authorizations);
 			if (combinedDuplicateCount == null) {
 				combinedDuplicateCount = adapterVisibilityCount;
 			}
 			else {
-				combinedDuplicateCount.merge(adapterVisibilityCount);
+				combinedDuplicateCount
+						.merge(
+								adapterVisibilityCount);
 			}
 		}
 		return combinedDuplicateCount;
 	}
 
-	/**
-	 * Convert Duplicate Count statistics to a JSON object
-	 */
+	@Override
+	public Long getResult() {
+		return entriesWithDuplicates;
+	}
 
 	@Override
-	public JSONObject toJSONObject(
-			final InternalAdapterStore store )
-			throws JSONException {
-		final JSONObject jo = new JSONObject();
-		jo.put(
-				"type",
-				STATS_TYPE.getString());
+	protected String resultsName() {
+		return "entriesWithDuplicates";
+	}
 
-		jo.put(
-				"statisticsID",
-				statisticsId.getString());
-		jo.put(
-				"dataAdapterID",
-				store.getAdapterId(internalDataAdapterId));
-		jo.put(
-				"count",
-				entriesWithDuplicates);
-
-		return jo;
+	@Override
+	protected Object resultsValue() {
+		return Long
+				.toString(
+						entriesWithDuplicates);
 	}
 }

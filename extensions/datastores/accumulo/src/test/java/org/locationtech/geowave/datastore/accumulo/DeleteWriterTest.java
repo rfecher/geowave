@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -46,22 +46,21 @@ import org.locationtech.geowave.core.index.dimension.NumericDimensionDefinition;
 import org.locationtech.geowave.core.index.sfc.SFCFactory.SFCType;
 import org.locationtech.geowave.core.index.sfc.tiered.TieredSFCIndexFactory;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.IndexWriter;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
 import org.locationtech.geowave.core.store.adapter.statistics.CountDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.base.BaseDataStore;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
-import org.locationtech.geowave.core.store.query.DataIdQuery;
-import org.locationtech.geowave.core.store.query.InsertionIdQuery;
-import org.locationtech.geowave.core.store.query.PrefixIdQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
-import org.locationtech.geowave.datastore.accumulo.AccumuloDataStore;
+import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
+import org.locationtech.geowave.core.store.query.constraints.InsertionIdQuery;
+import org.locationtech.geowave.core.store.query.constraints.PrefixIdQuery;
 import org.locationtech.geowave.datastore.accumulo.AccumuloDataStoreStatsTest.TestGeometry;
 import org.locationtech.geowave.datastore.accumulo.AccumuloDataStoreStatsTest.TestGeometryAdapter;
 import org.locationtech.geowave.datastore.accumulo.cli.config.AccumuloOptions;
@@ -81,12 +80,12 @@ public class DeleteWriterTest
 	private DataStore mockDataStore;
 	private InsertionIds rowIds1;
 	private InsertionIds rowIds3;
-	private WritableDataAdapter<AccumuloDataStoreStatsTest.TestGeometry> adapter;
+	private DataTypeAdapter<AccumuloDataStoreStatsTest.TestGeometry> adapter;
 	private DataStatisticsStore statsStore;
 	InternalAdapterStore internalAdapterStore;
 	protected AccumuloOptions options = new AccumuloOptions();
 
-	private static final CommonIndexModel MODEL = new SpatialDimensionalityTypeProvider().createPrimaryIndex(
+	private static final CommonIndexModel MODEL = new SpatialDimensionalityTypeProvider().createIndex(
 			new SpatialOptions()).getIndexModel();
 
 	private static final NumericDimensionDefinition[] SPATIAL_DIMENSIONS = new NumericDimensionDefinition[] {
@@ -105,7 +104,7 @@ public class DeleteWriterTest
 	final SimpleDateFormat dateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss.S");
 
-	private static final PrimaryIndex index = new PrimaryIndex(
+	private static final Index index = new PrimaryIndex(
 			STRATEGY,
 			MODEL);
 
@@ -176,7 +175,7 @@ public class DeleteWriterTest
 		adapter = new TestGeometryAdapter();
 		final GeometryFactory factory = new GeometryFactory();
 
-		try (IndexWriter indexWriter = mockDataStore.createWriter(
+		try (Writer indexWriter = mockDataStore.createWriter(
 				adapter,
 				index)) {
 			rowIds1 = indexWriter.write(new AccumuloDataStoreStatsTest.TestGeometry(
@@ -278,7 +277,7 @@ public class DeleteWriterTest
 	@Test
 	public void testDeleteByInsertionId()
 			throws IOException {
-		short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapter.getAdapterId());
+		final short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapter.getAdapterId());
 		CountDataStatistics countStats = (CountDataStatistics) statsStore.getDataStatistics(
 				internalAdapterId,
 				CountDataStatistics.STATS_TYPE);
@@ -328,7 +327,7 @@ public class DeleteWriterTest
 	@Test
 	public void testDeleteBySpatialConstraint()
 			throws IOException {
-		short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapter.getAdapterId());
+		final short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapter.getAdapterId());
 		CountDataStatistics countStats = (CountDataStatistics) statsStore.getDataStatistics(
 				internalAdapterId,
 				CountDataStatistics.STATS_TYPE);
@@ -368,7 +367,7 @@ public class DeleteWriterTest
 	@Test
 	public void testDeleteByPrefixId()
 			throws IOException {
-		short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapter.getAdapterId());
+		final short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapter.getAdapterId());
 		CountDataStatistics countStats = (CountDataStatistics) statsStore.getDataStatistics(
 				internalAdapterId,
 				CountDataStatistics.STATS_TYPE);
@@ -413,7 +412,7 @@ public class DeleteWriterTest
 	@Test
 	public void testDeleteByDataId()
 			throws IOException {
-		short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapter.getAdapterId());
+		final short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapter.getAdapterId());
 		CountDataStatistics countStats = (CountDataStatistics) statsStore.getDataStatistics(
 				internalAdapterId,
 				CountDataStatistics.STATS_TYPE);

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -15,15 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.locationtech.geowave.core.geotime.TimeUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureBoundingBoxStatistics;
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureTimeRangeStatistics;
+import org.locationtech.geowave.core.geotime.util.TimeUtils;
 import org.locationtech.geowave.core.store.EntryVisibilityHandler;
-import org.locationtech.geowave.core.store.adapter.DataAdapter;
 import org.locationtech.geowave.core.store.adapter.statistics.AbstractDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.CountDataStatistics;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DefaultFieldStatisticVisibility;
-import org.locationtech.geowave.core.store.adapter.statistics.FieldIdStatisticVisibility;
+import org.locationtech.geowave.core.store.adapter.statistics.FieldNameStatisticVisibility;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -41,24 +43,26 @@ import com.vividsolutions.jts.geom.Geometry;
 public class StatsManager
 {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(StatsManager.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					StatsManager.class);
 
 	/**
 	 * Visibility that can be used within GeoWave as a CommonIndexValue
 	 */
-	private final static EntryVisibilityHandler<SimpleFeature> DEFAULT_VISIBILITY_HANDLER = new DefaultFieldStatisticVisibility<SimpleFeature>();
+	private final static EntryVisibilityHandler<SimpleFeature> DEFAULT_VISIBILITY_HANDLER = new DefaultFieldStatisticVisibility<>();
 
 	/**
 	 * List of stats objects supported by this manager for the adapter
 	 */
 
-	private final List<DataStatistics<SimpleFeature>> statsObjList = new ArrayList<DataStatistics<SimpleFeature>>();
+	private final List<InternalDataStatistics<SimpleFeature, ?, ?>> statsObjList = new ArrayList<>();
 	/**
 	 * List of visibility handlers supported by this manager for the stats
 	 * objects
 	 */
 
-	private final Map<ByteArrayId, ByteArrayId> statisticsIdToFieldIdMap = new HashMap<ByteArrayId, ByteArrayId>();
+	private final Map<StatisticsId, String> statisticsIdToFieldNameMap = new HashMap<>();
 
 	// -----------------------------------------------------------------------------------
 	// -----------------------------------------------------------------------------------
@@ -74,7 +78,7 @@ public class StatsManager
 	 */
 
 	public StatsManager(
-			final DataAdapter<SimpleFeature> dataAdapter,
+			final DataTypeAdapter<SimpleFeature> dataAdapter,
 			final SimpleFeatureType persistedType ) {
 		this(
 				dataAdapter,
@@ -104,7 +108,7 @@ public class StatsManager
 	 */
 
 	public StatsManager(
-			final DataAdapter<SimpleFeature> dataAdapter,
+			final DataTypeAdapter<SimpleFeature> dataAdapter,
 			final SimpleFeatureType persistedType,
 			final SimpleFeatureType reprojectedType,
 			final MathTransform transform ) {
@@ -119,23 +123,25 @@ public class StatsManager
 			// For temporal and geometry because there is a dependency on these
 			// stats for optimizations within the GeoServer adapter.
 
-			if (TimeUtils.isTemporal(descriptor.getType().getBinding())) {
+			if (TimeUtils
+					.isTemporal(
+							descriptor.getType().getBinding())) {
 
 				addStats(
 						new FeatureTimeRangeStatistics(
 								descriptor.getLocalName()),
-						new ByteArrayId(
-								descriptor.getLocalName()));
+						descriptor.getLocalName());
 			}
 
-			else if (Geometry.class.isAssignableFrom(descriptor.getType().getBinding())) {
+			else if (Geometry.class
+					.isAssignableFrom(
+							descriptor.getType().getBinding())) {
 				addStats(
 						new FeatureBoundingBoxStatistics(
 								descriptor.getLocalName(),
 								reprojectedType,
 								transform),
-						new ByteArrayId(
-								descriptor.getLocalName()));
+						descriptor.getLocalName());
 			}
 
 			// ---------------------------------------------------------------------
@@ -143,8 +149,10 @@ public class StatsManager
 			// StatsConfigurationCollection and the stats objects for the
 			// feature need to be extracted and added as stats for this adapter
 
-			if (descriptor.getUserData().containsKey(
-					"stats")) {
+			if (descriptor
+					.getUserData()
+					.containsKey(
+							"stats")) {
 				final StatsConfigurationCollection statsConfigurations = (StatsConfigurationCollection) descriptor
 						.getUserData()
 						.get(
@@ -155,11 +163,11 @@ public class StatsManager
 
 				for (final StatsConfig<SimpleFeature> statConfig : featureConfigs) {
 					addStats(
-							statConfig.create(
-									null,
-									descriptor.getLocalName()),
-							new ByteArrayId(
-									descriptor.getLocalName()));
+							statConfig
+									.create(
+											null,
+											descriptor.getLocalName()),
+							descriptor.getLocalName());
 				}
 
 			}
@@ -167,18 +175,18 @@ public class StatsManager
 			// ---------------------------------------------------------------------
 			// If this numeric, then add two stats objects that relate
 
-			else if (Number.class.isAssignableFrom(descriptor.getType().getBinding())) {
+			else if (Number.class
+					.isAssignableFrom(
+							descriptor.getType().getBinding())) {
 				addStats(
 						new FeatureNumericRangeStatistics(
 								descriptor.getLocalName()),
-						new ByteArrayId(
-								descriptor.getLocalName()));
+						descriptor.getLocalName());
 
 				addStats(
 						new FeatureFixedBinNumericStatistics(
 								descriptor.getLocalName()),
-						new ByteArrayId(
-								descriptor.getLocalName()));
+						descriptor.getLocalName());
 			}
 		}
 	}
@@ -197,30 +205,37 @@ public class StatsManager
 	 * @return new statistics object of specified type
 	 */
 
-	public DataStatistics<SimpleFeature> createDataStatistics(
-			final ByteArrayId statisticsId ) {
-		for (final DataStatistics<SimpleFeature> statObj : statsObjList) {
-			if (statObj.getStatisticsId().equals(
-					statisticsId)) {
+	public InternalDataStatistics<SimpleFeature, ?, ?> createDataStatistics(
+			final StatisticsId statisticsId ) {
+		for (final InternalDataStatistics<SimpleFeature, ?, ?> statObj : statsObjList) {
+			if (statObj
+					.getType()
+					.equals(
+							statisticsId)) {
 				// TODO most of the data statistics seem to do shallow clones
 				// that pass along a lot of references - this seems
 				// counter-intuitive to the spirit of a "create" method, but it
 				// seems to work right now?
-				return ((AbstractDataStatistics<SimpleFeature>) statObj).duplicate();
+				return ((AbstractDataStatistics<SimpleFeature, ?, ?>) statObj).clone();
 			}
 		}
 
-		if (statisticsId.getString().equals(
-				CountDataStatistics.STATS_TYPE.getString())) {
-			return new CountDataStatistics<SimpleFeature>();
+		if (statisticsId
+				.getType()
+				.equals(
+						CountDataStatistics.STATS_TYPE.getString())) {
+			return new CountDataStatistics<>();
 		}
 
 		// HP Fortify "Log Forging" false positive
 		// What Fortify considers "user input" comes only
 		// from users with OS-level access anyway
 
-		LOGGER.warn("Unrecognized statistics ID " + statisticsId.getString() + ", using count statistic.");
-		return new CountDataStatistics<SimpleFeature>();
+		LOGGER
+				.warn(
+						"Unrecognized statistics ID of type '" + statisticsId.getType().getString()
+								+ "' with field name '" + statisticsId.getExtendedId() + "', using count statistic.");
+		return new CountDataStatistics<>();
 	}
 
 	// -----------------------------------------------------------------------------------
@@ -235,18 +250,25 @@ public class StatsManager
 
 	public EntryVisibilityHandler<SimpleFeature> getVisibilityHandler(
 			final CommonIndexModel indexModel,
-			final DataAdapter<SimpleFeature> adapter,
-			final ByteArrayId statisticsId ) {
+			final DataTypeAdapter<SimpleFeature> adapter,
+			final StatisticsId statisticsId ) {
 		// If the statistics object is of type CountDataStats or there is no
 		// visibility handler, then return the default visibility handler
-		if (statisticsId.equals(CountDataStatistics.STATS_TYPE)
-				|| (!statisticsIdToFieldIdMap.containsKey(statisticsId))) {
+		if (statisticsId
+				.getType()
+				.equals(
+						CountDataStatistics.STATS_TYPE)
+				|| (!statisticsIdToFieldNameMap
+						.containsKey(
+								statisticsId))) {
 			return DEFAULT_VISIBILITY_HANDLER;
 		}
 
-		final ByteArrayId fieldId = statisticsIdToFieldIdMap.get(statisticsId);
-		return new FieldIdStatisticVisibility<>(
-				fieldId,
+		final String fieldName = statisticsIdToFieldNameMap
+				.get(
+						statisticsId);
+		return new FieldNameStatisticVisibility<>(
+				fieldName,
 				indexModel,
 				adapter);
 	}
@@ -266,26 +288,35 @@ public class StatsManager
 	 */
 
 	public void addStats(
-			final DataStatistics<SimpleFeature> statsObj,
-			final ByteArrayId fieldId ) {
+			final InternalDataStatistics<SimpleFeature, ?, ?> statsObj,
+			final String fieldName ) {
 		int replaceStat = 0;
 
 		// Go through stats list managed by this manager and look for a match
-		for (final DataStatistics<SimpleFeature> currentStat : statsObjList) {
-			if (currentStat.getStatisticsId().equals(
-					statsObj.getStatisticsId())) {
+		for (final InternalDataStatistics<SimpleFeature, ?, ?> currentStat : statsObjList) {
+			if (currentStat
+					.getType()
+					.equals(
+							statsObj.getType())) {
 				// If a match was found for an existing stat object in list,
 				// remove it now and replace it later.
-				statsObjList.remove(replaceStat);
+				statsObjList
+						.remove(
+								replaceStat);
 				break;
 			}
 			replaceStat++; // Not found, check next stat object
 		}
 
-		statsObjList.add(statsObj);
-		statisticsIdToFieldIdMap.put(
-				statsObj.getStatisticsId(),
-				fieldId);
+		statsObjList
+				.add(
+						statsObj);
+		statisticsIdToFieldNameMap
+				.put(
+						new StatisticsId(
+								statsObj.getType(),
+								statsObj.getExtendedId()),
+						fieldName);
 	}
 
 	// -----------------------------------------------------------------------------------
@@ -297,17 +328,19 @@ public class StatsManager
 	 * @return Array of stats object IDs as 'ByteArrayId'
 	 */
 
-	public ByteArrayId[] getSupportedStatisticsIds() {
+	public StatisticsId[] getSupportedStatistics() {
 		// Why are we adding a CountDataStatistics??
 
-		final ByteArrayId[] statObjIds = new ByteArrayId[statsObjList.size() + 1];
+		final StatisticsId[] statObjIds = new StatisticsId[statsObjList.size() + 1];
 		int i = 0;
 
-		for (final DataStatistics<SimpleFeature> statObj : statsObjList) {
-			statObjIds[i++] = statObj.getStatisticsId();
+		for (final InternalDataStatistics<SimpleFeature, ?, ?> statObj : statsObjList) {
+			statObjIds[i++] = new StatisticsId(
+					statObj.getType(),
+					statObj.getExtendedId());
 		}
 
-		statObjIds[i] = CountDataStatistics.STATS_TYPE;
+		statObjIds[i] = CountDataStatistics.STATS_TYPE.newBuilder().build().getId();
 
 		return statObjIds;
 	}

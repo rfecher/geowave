@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -12,12 +12,15 @@ package org.locationtech.geowave.adapter.vector.stats;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
 import org.locationtech.geowave.core.index.Mergeable;
-import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.AbstractDataStatistics;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsQueryBuilder;
+import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsType;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
@@ -26,9 +29,6 @@ import org.slf4j.LoggerFactory;
 import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
-
 /**
  * Hyperloglog provides an estimated cardinality of the number of unique values
  * for an attribute.
@@ -36,11 +36,13 @@ import net.sf.json.JSONObject;
  *
  */
 public class FeatureHyperLogLogStatistics extends
-		AbstractDataStatistics<SimpleFeature> implements
-		FeatureStatistic
+		AbstractDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>> implements
+		FieldNameStatistic
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(FeatureHyperLogLogStatistics.class);
-	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					FeatureHyperLogLogStatistics.class);
+	public static final FieldStatisticsType<HyperLogLogPlus> STATS_TYPE = new FieldStatisticsType<>(
 			"ATT_HYPERLLP");
 
 	private HyperLogLogPlus loglog;
@@ -51,11 +53,11 @@ public class FeatureHyperLogLogStatistics extends
 	}
 
 	public FeatureHyperLogLogStatistics(
-			final String statisticsId,
+			final String fieldName,
 			final int precision ) {
 		this(
 				null,
-				statisticsId,
+				fieldName,
 				precision);
 	}
 
@@ -68,35 +70,27 @@ public class FeatureHyperLogLogStatistics extends
 	 *            value per distinct value. 1 <= p <= 32
 	 */
 	public FeatureHyperLogLogStatistics(
-			final Short internalDataAdapterId,
-			final String statisticsId,
+			final Short adapterId,
+			final String fieldName,
 			final int precision ) {
 		super(
-				internalDataAdapterId,
-				composeId(
-						STATS_TYPE.getString(),
-						statisticsId));
+				adapterId,
+				STATS_TYPE,
+				fieldName);
 		loglog = new HyperLogLogPlus(
 				precision);
 		this.precision = precision;
 	}
 
-	public static final ByteArrayId composeId(
-			final String statisticsId ) {
-		return composeId(
-				STATS_TYPE.getString(),
-				statisticsId);
-	}
-
 	@Override
 	public String getFieldName() {
-		return decomposeNameFromId(getStatisticsId());
+		return extendedId;
 	}
 
 	@Override
-	public DataStatistics<SimpleFeature> duplicate() {
+	public InternalDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>> clone() {
 		return new FeatureHyperLogLogStatistics(
-				internalDataAdapterId,
+				adapterId,
 				getFieldName(),
 				precision);
 	}
@@ -110,7 +104,9 @@ public class FeatureHyperLogLogStatistics extends
 			final Mergeable mergeable ) {
 		if (mergeable instanceof FeatureHyperLogLogStatistics) {
 			try {
-				loglog = (HyperLogLogPlus) ((FeatureHyperLogLogStatistics) mergeable).loglog.merge(loglog);
+				loglog = (HyperLogLogPlus) ((FeatureHyperLogLogStatistics) mergeable).loglog
+						.merge(
+								loglog);
 			}
 			catch (final CardinalityMergeException e) {
 				throw new RuntimeException(
@@ -127,15 +123,21 @@ public class FeatureHyperLogLogStatistics extends
 		try {
 			final byte[] data = loglog.getBytes();
 
-			final ByteBuffer buffer = super.binaryBuffer(4 + data.length);
-			buffer.putInt(data.length);
-			buffer.put(data);
+			final ByteBuffer buffer = super.binaryBuffer(
+					4 + data.length);
+			buffer
+					.putInt(
+							data.length);
+			buffer
+					.put(
+							data);
 			return buffer.array();
 		}
 		catch (final IOException e) {
-			LOGGER.error(
-					"Exception while writing statistic",
-					e);
+			LOGGER
+					.error(
+							"Exception while writing statistic",
+							e);
 		}
 		return new byte[0];
 	}
@@ -143,16 +145,22 @@ public class FeatureHyperLogLogStatistics extends
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(bytes);
+		final ByteBuffer buffer = super.binaryBuffer(
+				bytes);
 		final byte[] data = new byte[buffer.getInt()];
-		buffer.get(data);
+		buffer
+				.get(
+						data);
 		try {
-			loglog = HyperLogLogPlus.Builder.build(data);
+			loglog = HyperLogLogPlus.Builder
+					.build(
+							data);
 		}
 		catch (final IOException e) {
-			LOGGER.error(
-					"Exception while reading statistic",
-					e);
+			LOGGER
+					.error(
+							"Exception while reading statistic",
+							e);
 		}
 	}
 
@@ -160,62 +168,64 @@ public class FeatureHyperLogLogStatistics extends
 	public void entryIngested(
 			final SimpleFeature entry,
 			final GeoWaveRow... rows ) {
-		final Object o = entry.getAttribute(getFieldName());
+		final Object o = entry
+				.getAttribute(
+						getFieldName());
 		if (o == null) {
 			return;
 		}
-		loglog.offer(o.toString());
+		loglog
+				.offer(
+						o.toString());
 	}
 
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer.append(
-				"hyperloglog[internalDataAdapterId=").append(
-				super.getInternalDataAdapterId());
-		buffer.append(
-				", field=").append(
-				getFieldName());
-		buffer.append(
-				", cardinality=").append(
-				loglog.cardinality());
-		buffer.append("]");
+		buffer
+				.append(
+						"hyperloglog[internalDataAdapterId=")
+				.append(
+						super.getAdapterId());
+		buffer
+				.append(
+						", field=")
+				.append(
+						getFieldName());
+		buffer
+				.append(
+						", cardinality=")
+				.append(
+						loglog.cardinality());
+		buffer
+				.append(
+						"]");
 		return buffer.toString();
 	}
 
-	/**
-	 * Convert FeatureCountMinSketch statistics to a JSON object
-	 */
+	@Override
+	public HyperLogLogPlus getResult() {
+		return loglog;
+	}
 
 	@Override
-	public JSONObject toJSONObject(
-			final InternalAdapterStore store )
-			throws JSONException {
-		final JSONObject jo = new JSONObject();
-		jo.put(
-				"type",
-				STATS_TYPE.getString());
-		jo.put(
-				"dataAdapterID",
-				store.getAdapterId(internalDataAdapterId));
+	protected String resultsName() {
+		return "hyperloglog";
+	}
 
-		jo.put(
-				"statisticsID",
-				statisticsId.getString());
+	@Override
+	protected Object resultsValue() {
+		final Map<String, Long> result = new HashMap<>();
+		result
+				.put(
+						"cardinality",
+						loglog.cardinality());
 
-		jo.put(
-				"field_identifier",
-				getFieldName());
-
-		jo.put(
-				"cardinality",
-				loglog.cardinality());
-
-		jo.put(
-				"precision",
-				precision);
-
-		return jo;
+		result
+				.put(
+						"precision",
+						(long) precision);
+		return result;
 	}
 
 	public static class FeatureHyperLogLogConfig implements
@@ -247,7 +257,7 @@ public class FeatureHyperLogLogStatistics extends
 		}
 
 		@Override
-		public DataStatistics<SimpleFeature> create(
+		public InternalDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>> create(
 				final Short internalDataAdapterId,
 				final String fieldName ) {
 			return new FeatureHyperLogLogStatistics(
@@ -258,16 +268,21 @@ public class FeatureHyperLogLogStatistics extends
 
 		@Override
 		public byte[] toBinary() {
-			return ByteBuffer.allocate(
-					4).putInt(
-					precision).array();
+			return ByteBuffer
+					.allocate(
+							4)
+					.putInt(
+							precision)
+					.array();
 		}
 
 		@Override
 		public void fromBinary(
-				byte[] bytes ) {
-			precision = ByteBuffer.wrap(
-					bytes).getInt();
+				final byte[] bytes ) {
+			precision = ByteBuffer
+					.wrap(
+							bytes)
+					.getInt();
 		}
 	}
 }

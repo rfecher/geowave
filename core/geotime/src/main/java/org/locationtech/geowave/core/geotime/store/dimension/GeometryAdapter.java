@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,10 +10,7 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.geotime.store.dimension;
 
-import org.locationtech.geowave.core.geotime.GeometryUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.ByteArrayUtils;
-import org.locationtech.geowave.core.index.StringUtils;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
 import org.locationtech.geowave.core.store.data.field.FieldWriter;
 
@@ -27,13 +24,7 @@ public class GeometryAdapter implements
 		FieldReader<GeometryWrapper>,
 		FieldWriter<Object, GeometryWrapper>
 {
-	public final static ByteArrayId DEFAULT_GEOMETRY_FIELD_ID = new ByteArrayId(
-			ByteArrayUtils.combineArrays(
-					StringUtils.stringToBinary("geom"),
-					new byte[] {
-						0,
-						0
-					}));
+	public final static String DEFAULT_GEOMETRY_FIELD_NAME = "default_geom_dimension";
 
 	public GeometryAdapter() {}
 
@@ -53,7 +44,7 @@ public class GeometryAdapter implements
 	@Override
 	public byte[] getVisibility(
 			final Object rowValue,
-			final ByteArrayId fieldId,
+			final String fieldName,
 			final GeometryWrapper geometry ) {
 		return geometry.getVisibility();
 	}

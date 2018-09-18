@@ -37,8 +37,6 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.filter.FilterFactoryImpl;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
-import org.locationtech.geowave.adapter.vector.GeotoolsFeatureDataAdapter;
-import org.locationtech.geowave.adapter.vector.query.cql.CQLQuery;
 import org.locationtech.geowave.analytic.AnalyticFeature;
 import org.locationtech.geowave.analytic.AnalyticItemWrapper;
 import org.locationtech.geowave.analytic.AnalyticItemWrapperFactory;
@@ -53,15 +51,17 @@ import org.locationtech.geowave.analytic.param.StoreParameters;
 import org.locationtech.geowave.analytic.store.PersistableStore;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
+import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitCQLQuery;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStore;
-import org.locationtech.geowave.core.store.IndexWriter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.DataIdQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
 import org.locationtech.geowave.mapreduce.GeoWaveConfiguratorBase;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -141,7 +141,7 @@ public class CentroidManagerGeoWave<T> implements
 
 	private DataStore dataStore;
 	private IndexStore indexStore;
-	private PrimaryIndex index;
+	private Index index;
 
 	public CentroidManagerGeoWave(
 			final DataStore dataStore,
@@ -159,7 +159,7 @@ public class CentroidManagerGeoWave<T> implements
 		this.dataStore = dataStore;
 		this.indexStore = indexStore;
 		this.centroidDataTypeId = centroidDataTypeId;
-		index = (PrimaryIndex) indexStore.getIndex(new ByteArrayId(
+		index = (Index) indexStore.getIndex(new ByteArrayId(
 				indexId));
 		adapter = (GeotoolsFeatureDataAdapter) adapterStore.getAdapter(
 				centroidInternalAdapterId).getAdapter();
@@ -244,7 +244,7 @@ public class CentroidManagerGeoWave<T> implements
 
 		final String indexId = scopedJob.getString(
 				CentroidParameters.Centroid.INDEX_ID,
-				new SpatialDimensionalityTypeProvider().createPrimaryIndex(
+				new SpatialDimensionalityTypeProvider().createIndex(
 						new SpatialOptions()).getId().getString());
 		final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(
 				context,
@@ -253,7 +253,7 @@ public class CentroidManagerGeoWave<T> implements
 
 		dataStore = store.getDataStoreOptions().createDataStore();
 		indexStore = store.getDataStoreOptions().createIndexStore();
-		index = (PrimaryIndex) indexStore.getIndex(new ByteArrayId(
+		index = (Index) indexStore.getIndex(new ByteArrayId(
 				indexId));
 		final PersistentAdapterStore adapterStore = store.getDataStoreOptions().createAdapterStore();
 		adapter = (GeotoolsFeatureDataAdapter) adapterStore.getAdapter(
@@ -496,7 +496,7 @@ public class CentroidManagerGeoWave<T> implements
 				new QueryOptions(
 						adapter,
 						index),
-				new CQLQuery(
+				new ExplicitCQLQuery(
 						null,
 						finalFilter,
 						adapter));
@@ -511,7 +511,7 @@ public class CentroidManagerGeoWave<T> implements
 		try (final CloseableIterator<T> it = getRawCentroids(
 				fromBatchId,
 				groupID)) {
-			try (final IndexWriter indexWriter = dataStore.createWriter(
+			try (final Writer indexWriter = dataStore.createWriter(
 					adapter,
 					index)) {
 				while (it.hasNext()) {

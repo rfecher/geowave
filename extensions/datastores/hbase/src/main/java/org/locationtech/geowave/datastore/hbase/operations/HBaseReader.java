@@ -35,10 +35,10 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRowImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
-import org.locationtech.geowave.core.store.filter.DistributableQueryFilter;
 import org.locationtech.geowave.core.store.operations.BaseReaderParams;
-import org.locationtech.geowave.core.store.operations.Reader;
+import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
+import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
 import org.locationtech.geowave.datastore.hbase.HBaseRow;
 import org.locationtech.geowave.datastore.hbase.filters.FixedCardinalitySkippingFilter;
 import org.locationtech.geowave.datastore.hbase.filters.HBaseDistributableFilter;
@@ -55,7 +55,7 @@ import com.google.common.collect.Iterators;
 import com.google.inject.Provider;
 
 public class HBaseReader<T> implements
-		Reader<T>
+		RowReader<T>
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(HBaseReader.class);
 

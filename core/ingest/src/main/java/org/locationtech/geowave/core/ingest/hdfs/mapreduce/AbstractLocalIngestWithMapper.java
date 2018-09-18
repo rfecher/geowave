@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.ingest.hdfs.mapreduce;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -21,17 +19,15 @@ import java.util.Collections;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
-import org.locationtech.geowave.core.ingest.GeoWaveData;
 import org.locationtech.geowave.core.ingest.avro.AbstractStageWholeFileToAvro;
 import org.locationtech.geowave.core.ingest.avro.WholeFile;
-import org.locationtech.geowave.core.ingest.local.LocalFileIngestPlugin;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.adapter.WritableDataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
+import org.locationtech.geowave.core.store.ingest.GeoWaveData;
+import org.locationtech.geowave.core.store.ingest.LocalFileIngestPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Iterators;
 
 /**
  * This class can be sub-classed as a general-purpose recipe for parallelizing
@@ -44,7 +40,9 @@ abstract public class AbstractLocalIngestWithMapper<T> extends
 		IngestFromHdfsPlugin<WholeFile, T>,
 		Persistable
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(AbstractLocalIngestWithMapper.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					AbstractLocalIngestWithMapper.class);
 
 	@Override
 	public boolean isUseReducerPreferred() {
@@ -53,25 +51,26 @@ abstract public class AbstractLocalIngestWithMapper<T> extends
 
 	@Override
 	public IngestWithMapper<WholeFile, T> ingestWithMapper() {
-		return new InternalIngestWithMapper<T>(
+		return new InternalIngestWithMapper<>(
 				this);
 	}
 
 	@Override
 	public CloseableIterator<GeoWaveData<T>> toGeoWaveData(
 			final URL input,
-			final Collection<ByteArrayId> primaryIndexIds,
+			final String[] indexNames,
 			final String globalVisibility ) {
 		try (final InputStream inputStream = input.openStream()) {
 			return toGeoWaveDataInternal(
 					inputStream,
-					primaryIndexIds,
+					indexNames,
 					globalVisibility);
 		}
 		catch (final IOException e) {
-			LOGGER.warn(
-					"Cannot open file, unable to ingest",
-					e);
+			LOGGER
+					.warn(
+							"Cannot open file, unable to ingest",
+							e);
 		}
 		return new CloseableIterator.Wrapper(
 				Collections.emptyIterator());
@@ -79,7 +78,7 @@ abstract public class AbstractLocalIngestWithMapper<T> extends
 
 	abstract protected CloseableIterator<GeoWaveData<T>> toGeoWaveDataInternal(
 			final InputStream file,
-			final Collection<ByteArrayId> primaryIndexIds,
+			final String[] indexNames,
 			final String globalVisibility );
 
 	@Override
@@ -100,33 +99,40 @@ abstract public class AbstractLocalIngestWithMapper<T> extends
 		}
 
 		@Override
-		public WritableDataAdapter<T>[] getDataAdapters(
+		public DataTypeAdapter<T>[] getDataAdapters(
 				final String globalVisibility ) {
-			return parentPlugin.getDataAdapters(globalVisibility);
+			return parentPlugin
+					.getDataAdapters(
+							globalVisibility);
 		}
 
 		@Override
 		public CloseableIterator<GeoWaveData<T>> toGeoWaveData(
 				final WholeFile input,
-				final Collection<ByteArrayId> primaryIndexIds,
+				final String[] indexNames,
 				final String globalVisibility ) {
 			final InputStream inputStream = new ByteBufferBackedInputStream(
 					input.getOriginalFile());
-			return parentPlugin.toGeoWaveDataInternal(
-					inputStream,
-					primaryIndexIds,
-					globalVisibility);
+			return parentPlugin
+					.toGeoWaveDataInternal(
+							inputStream,
+							indexNames,
+							globalVisibility);
 		}
 
 		@Override
 		public byte[] toBinary() {
-			return PersistenceUtils.toClassId(parentPlugin);
+			return PersistenceUtils
+					.toClassId(
+							parentPlugin);
 		}
 
 		@Override
 		public void fromBinary(
 				final byte[] bytes ) {
-			parentPlugin = (AbstractLocalIngestWithMapper) PersistenceUtils.fromClassId(bytes);
+			parentPlugin = (AbstractLocalIngestWithMapper) PersistenceUtils
+					.fromClassId(
+							bytes);
 		}
 
 		@Override

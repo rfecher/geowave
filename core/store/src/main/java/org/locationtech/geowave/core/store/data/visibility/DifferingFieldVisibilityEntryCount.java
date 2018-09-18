@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -13,29 +13,26 @@ package org.locationtech.geowave.core.store.data.visibility;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
-import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.AbstractDataStatistics;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
+import org.locationtech.geowave.core.store.adapter.statistics.IndexStatisticsQueryBuilder;
+import org.locationtech.geowave.core.store.adapter.statistics.IndexStatisticsType;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
+import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.DeleteCallback;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
-
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 
 public class DifferingFieldVisibilityEntryCount<T> extends
-		AbstractDataStatistics<T> implements
+		AbstractDataStatistics<T, Long, IndexStatisticsQueryBuilder<Long>> implements
 		DeleteCallback<T, GeoWaveRow>
 {
-	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
+	public static final IndexStatisticsType<Long> STATS_TYPE = new IndexStatisticsType<>(
 			"DIFFERING_VISIBILITY_COUNT");
 
-	private long entriesWithDifferingFieldVisibilities = 0;
+	private long entriesWithDifferingFieldVisibilities;
 
 	public DifferingFieldVisibilityEntryCount() {
 		super();
@@ -49,50 +46,49 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 		return entriesWithDifferingFieldVisibilities > 0;
 	}
 
+	public DifferingFieldVisibilityEntryCount(
+			final short internalDataAdapterId,
+			final String indexName ) {
+		this(
+				internalDataAdapterId,
+				indexName,
+				0);
+	}
+
 	private DifferingFieldVisibilityEntryCount(
 			final short internalDataAdapterId,
-			final ByteArrayId statisticsId,
+			final String indexName,
 			final long entriesWithDifferingFieldVisibilities ) {
 		super(
 				internalDataAdapterId,
-				composeId(statisticsId));
+				STATS_TYPE,
+				indexName);
 		this.entriesWithDifferingFieldVisibilities = entriesWithDifferingFieldVisibilities;
 	}
 
-	public DifferingFieldVisibilityEntryCount(
-			final short internalDataAdapterId,
-			final ByteArrayId statisticsId ) {
-		super(
-				internalDataAdapterId,
-				composeId(statisticsId));
-	}
-
-	public static ByteArrayId composeId(
-			final ByteArrayId statisticsId ) {
-		return composeId(
-				STATS_TYPE.getString(),
-				statisticsId.getString());
-	}
-
 	@Override
-	public DataStatistics<T> duplicate() {
+	public InternalDataStatistics<T, Long, IndexStatisticsQueryBuilder<Long>> clone() {
 		return new DifferingFieldVisibilityEntryCount<>(
-				internalDataAdapterId,
-				statisticsId,
+				adapterId,
+				extendedId,
 				entriesWithDifferingFieldVisibilities);
 	}
 
 	@Override
 	public byte[] toBinary() {
-		final ByteBuffer buf = super.binaryBuffer(8);
-		buf.putLong(entriesWithDifferingFieldVisibilities);
+		final ByteBuffer buf = super.binaryBuffer(
+				8);
+		buf
+				.putLong(
+						entriesWithDifferingFieldVisibilities);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = super.binaryBuffer(bytes);
+		final ByteBuffer buf = super.binaryBuffer(
+				bytes);
 		entriesWithDifferingFieldVisibilities = buf.getLong();
 	}
 
@@ -101,9 +97,12 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		for (final GeoWaveRow kv : kvs) {
-			if (entryHasDifferentVisibilities(kv)) {
-				if (ids.add(new ByteArrayId(
-						kvs[0].getDataId()))) {
+			if (entryHasDifferentVisibilities(
+					kv)) {
+				if (ids
+						.add(
+								new ByteArrayId(
+										kvs[0].getDataId()))) {
 					entriesWithDifferingFieldVisibilities++;
 				}
 			}
@@ -114,14 +113,15 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 	 * This is expensive, but necessary since there may be duplicates
 	 */
 	// TODO entryDeleted should only be called once with all duplicates
-	private transient HashSet<ByteArrayId> ids = new HashSet<ByteArrayId>();
+	private transient HashSet<ByteArrayId> ids = new HashSet<>();
 
 	@Override
 	public void entryDeleted(
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		for (final GeoWaveRow kv : kvs) {
-			if (entryHasDifferentVisibilities(kv)) {
+			if (entryHasDifferentVisibilities(
+					kv)) {
 				entriesWithDifferingFieldVisibilities--;
 			}
 		}
@@ -146,7 +146,7 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 	}
 
 	public static DifferingFieldVisibilityEntryCount getVisibilityCounts(
-			final PrimaryIndex index,
+			final Index index,
 			final Collection<Short> adapterIdsToQuery,
 			final DataStatisticsStore statisticsStore,
 			final String... authorizations ) {
@@ -155,39 +155,36 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 			final DifferingFieldVisibilityEntryCount adapterVisibilityCount = (DifferingFieldVisibilityEntryCount) statisticsStore
 					.getDataStatistics(
 							adapterId,
-							DifferingFieldVisibilityEntryCount.composeId(index.getId()),
+							STATS_TYPE,
+							index.getName(),
 							authorizations);
 			if (combinedVisibilityCount == null) {
 				combinedVisibilityCount = adapterVisibilityCount;
 			}
 			else {
-				combinedVisibilityCount.merge(adapterVisibilityCount);
+				combinedVisibilityCount
+						.merge(
+								adapterVisibilityCount);
 			}
 		}
 		return combinedVisibilityCount;
 	}
 
-	/**
-	 * Convert Differing Visibility statistics to a JSON object
-	 */
+	@Override
+	protected String resultsName() {
+		return "entriesWithDifferingFieldVisibilities";
+	}
 
 	@Override
-	public JSONObject toJSONObject(
-			final InternalAdapterStore store )
-			throws JSONException {
-		final JSONObject jo = new JSONObject();
-		jo.put(
-				"type",
-				STATS_TYPE.getString());
-		jo.put(
-				"dataAdapterID",
-				store.getAdapterId(internalDataAdapterId));
-		jo.put(
-				"statisticsID",
-				statisticsId.getString());
-		jo.put(
-				"count",
-				entriesWithDifferingFieldVisibilities);
-		return jo;
+	protected Object resultsValue() {
+		return Long
+				.toString(
+						entriesWithDifferingFieldVisibilities);
 	}
+
+	@Override
+	public Long getResult() {
+		return entriesWithDifferingFieldVisibilities;
+	}
+
 }

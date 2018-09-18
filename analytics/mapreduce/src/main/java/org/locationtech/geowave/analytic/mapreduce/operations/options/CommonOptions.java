@@ -22,7 +22,8 @@ import org.locationtech.geowave.analytic.param.annotations.MapReduceParameter;
 import org.locationtech.geowave.analytic.param.annotations.OutputParameter;
 import org.locationtech.geowave.core.cli.annotations.PrefixParameter;
 import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryOptionsInt;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
@@ -212,7 +213,7 @@ public class CommonOptions
 	 * 
 	 * @return
 	 */
-	public QueryOptions buildQueryOptions() {
+	public QueryOptionsInt buildQueryOptions() {
 		final QueryOptions options = new QueryOptions();
 		if (queryOptions.getAdapterIds() != null && queryOptions.getAdapterIds().size() > 0)
 			options.setAdapterIds(Lists.transform(

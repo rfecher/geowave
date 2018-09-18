@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,11 +10,9 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.data.field;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
-
 /**
  * This class contains all of the primitive writer field types supported
- * 
+ *
  */
 public class BasicWriter<RowType, FieldType> implements
 		FieldWriter<RowType, FieldType>
@@ -39,13 +37,14 @@ public class BasicWriter<RowType, FieldType> implements
 	@Override
 	public byte[] getVisibility(
 			final RowType rowValue,
-			final ByteArrayId fieldId,
+			final String fieldName,
 			final FieldType fieldValue ) {
 		if (visibilityHandler != null) {
-			return visibilityHandler.getVisibility(
-					rowValue,
-					fieldId,
-					fieldValue);
+			return visibilityHandler
+					.getVisibility(
+							rowValue,
+							fieldName,
+							fieldValue);
 		}
 		return new byte[] {};
 	}
@@ -53,7 +52,9 @@ public class BasicWriter<RowType, FieldType> implements
 	@Override
 	public byte[] writeField(
 			final FieldType fieldValue ) {
-		return writer.writeField(fieldValue);
+		return writer
+				.writeField(
+						fieldValue);
 	}
 
 }

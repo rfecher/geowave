@@ -27,8 +27,8 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.index.sfc.data.NumericRange;
-import org.locationtech.geowave.core.store.query.DistributableQuery;
-import org.locationtech.geowave.core.store.query.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * The class supports some basic conversions.
  * 
  * Non-serializable objects: {@link Persistable} instances are converted to and
- * from byte formats. {@link DistributableQuery} is a special case, supporting
+ * from byte formats. {@link DistributableQueryConstraints} is a special case, supporting
  * WKT String. {@link Path} are converted to a from string representation of the
  * their URI.
  * 
@@ -558,12 +558,12 @@ public class PropertyManagement implements
 		return classToValidate;
 	}
 
-	public DistributableQuery getPropertyAsQuery(
+	public DistributableQueryConstraints getPropertyAsQuery(
 			final ParameterEnum<?> property )
 			throws Exception {
 		final Serializable val = getPropertyValue(property);
 		if (val != null) {
-			return (DistributableQuery) validate(
+			return (DistributableQueryConstraints) validate(
 					property,
 					new QueryConverter().convert(val));
 		}
@@ -743,7 +743,7 @@ public class PropertyManagement implements
 	}
 
 	public static class QueryConverter implements
-			PropertyConverter<DistributableQuery>
+			PropertyConverter<DistributableQueryConstraints>
 	{
 
 		/**
@@ -753,7 +753,7 @@ public class PropertyManagement implements
 
 		@Override
 		public Serializable convert(
-				final DistributableQuery ob ) {
+				final DistributableQueryConstraints ob ) {
 			try {
 				return toBytes(ob);
 			}
@@ -767,11 +767,11 @@ public class PropertyManagement implements
 		}
 
 		@Override
-		public DistributableQuery convert(
+		public DistributableQueryConstraints convert(
 				final Serializable ob )
 				throws Exception {
 			if (ob instanceof byte[]) {
-				return (DistributableQuery) PropertyManagement.fromBytes((byte[]) ob);
+				return (DistributableQueryConstraints) PropertyManagement.fromBytes((byte[]) ob);
 			}
 			final PrecisionModel precision = new PrecisionModel();
 			final GeometryFactory geometryFactory = new GeometryFactory(
@@ -784,8 +784,8 @@ public class PropertyManagement implements
 		}
 
 		@Override
-		public Class<DistributableQuery> baseClass() {
-			return DistributableQuery.class;
+		public Class<DistributableQueryConstraints> baseClass() {
+			return DistributableQueryConstraints.class;
 		}
 	}
 
