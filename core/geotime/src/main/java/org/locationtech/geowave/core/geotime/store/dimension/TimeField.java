@@ -34,17 +34,10 @@ import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
 public class TimeField implements
 		NumericDimensionField<Time>
 {
-	// DOUBLE null terminate to be extra sure this is a reserved field ID
-	private final static ByteArrayId DEFAULT_FIELD_ID = new ByteArrayId(
-			ByteArrayUtils.combineArrays(
-					StringUtils.stringToBinary("time"),
-					new byte[] {
-						0,
-						0
-					}));
+	private final static String DEFAULT_FIELD_ID = "default_time_dimension";
 	private NumericDimensionDefinition baseDefinition;
 	private final TimeAdapter adapter;
-	private ByteArrayId fieldId;
+	private String fieldName;
 
 	public TimeField() {
 		adapter = new TimeAdapter();
@@ -59,11 +52,11 @@ public class TimeField implements
 
 	public TimeField(
 			final Unit timeUnit,
-			final ByteArrayId fieldId ) {
+			final String fieldName ) {
 		this(
 				new TimeDefinition(
 						timeUnit),
-				fieldId);
+				fieldName);
 	}
 
 	@Override
@@ -75,10 +68,10 @@ public class TimeField implements
 
 	public TimeField(
 			final NumericDimensionDefinition baseDefinition,
-			final ByteArrayId fieldId ) {
+			final String fieldName ) {
 		this.baseDefinition = baseDefinition;
 		adapter = new TimeAdapter();
-		this.fieldId = fieldId;
+		this.fieldName = fieldName;
 	}
 
 	@Override
@@ -127,8 +120,8 @@ public class TimeField implements
 	}
 
 	@Override
-	public ByteArrayId getFieldId() {
-		return fieldId;
+	public String getFieldName() {
+		return fieldName;
 	}
 
 	@Override
@@ -149,9 +142,10 @@ public class TimeField implements
 	@Override
 	public byte[] toBinary() {
 		final byte[] dimensionBinary = PersistenceUtils.toBinary(baseDefinition);
-		final ByteBuffer buf = ByteBuffer.allocate(dimensionBinary.length + fieldId.getBytes().length + 4);
-		buf.putInt(fieldId.getBytes().length);
-		buf.put(fieldId.getBytes());
+		byte[] fieldNameBytes = StringUtils.stringToBinary(fieldName);
+		final ByteBuffer buf = ByteBuffer.allocate(dimensionBinary.length + fieldNameBytes.length + 4);
+		buf.putInt(fieldNameBytes.length);
+		buf.put(fieldNameBytes);
 		buf.put(dimensionBinary);
 		return buf.array();
 	}
@@ -160,13 +154,13 @@ public class TimeField implements
 	public void fromBinary(
 			final byte[] bytes ) {
 		final ByteBuffer buf = ByteBuffer.wrap(bytes);
-		final int fieldIdLength = buf.getInt();
-		final byte[] fieldIdBinary = new byte[fieldIdLength];
-		buf.get(fieldIdBinary);
-		fieldId = new ByteArrayId(
-				fieldIdBinary);
+		final int fieldNameLength = buf.getInt();
+		final byte[] fieldNameBinary = new byte[fieldNameLength];
+		buf.get(fieldNameBinary);
+		fieldName = StringUtils.stringFromBinary(
+				fieldNameBinary);
 
-		final byte[] dimensionBinary = new byte[bytes.length - fieldIdLength - 4];
+		final byte[] dimensionBinary = new byte[bytes.length - fieldNameLength - 4];
 		buf.get(dimensionBinary);
 		baseDefinition = (NumericDimensionDefinition) PersistenceUtils.fromBinary(dimensionBinary);
 	}
@@ -176,7 +170,7 @@ public class TimeField implements
 		final int prime = 31;
 		int result = 1;
 		result = (prime * result) + ((baseDefinition == null) ? 0 : baseDefinition.hashCode());
-		result = (prime * result) + ((fieldId == null) ? 0 : fieldId.hashCode());
+		result = (prime * result) + ((fieldName == null) ? 0 : fieldName.hashCode());
 		return result;
 	}
 
@@ -201,12 +195,12 @@ public class TimeField implements
 		else if (!baseDefinition.equals(other.baseDefinition)) {
 			return false;
 		}
-		if (fieldId == null) {
-			if (other.fieldId != null) {
+		if (fieldName == null) {
+			if (other.fieldName != null) {
 				return false;
 			}
 		}
-		else if (!fieldId.equals(other.fieldId)) {
+		else if (!fieldName.equals(other.fieldName)) {
 			return false;
 		}
 		return true;

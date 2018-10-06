@@ -824,7 +824,7 @@ public class GeoWaveVisibilityIT extends
 							final ByteArrayId fieldId,
 							final Object fieldValue ) {
 
-						final boolean isGeom = fieldId.equals(GeometryAdapter.DEFAULT_GEOMETRY_FIELD_ID);
+						final boolean isGeom = fieldId.equals(GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME);
 						final int fieldValueInt;
 						if (isGeom) {
 							fieldValueInt = Integer.parseInt(rowValue.getID());

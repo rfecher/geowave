@@ -12,6 +12,7 @@ package org.locationtech.geowave.adapter.vector.stats;
 
 import java.nio.ByteBuffer;
 
+import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
@@ -39,7 +40,7 @@ import net.sf.json.JSONObject;
  */
 public class FeatureCountMinSketchStatistics extends
 		AbstractDataStatistics<SimpleFeature> implements
-		FeatureStatistic
+		FieldNameStatistic
 {
 	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
 			"ATT_SKETCH");

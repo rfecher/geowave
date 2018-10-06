@@ -20,7 +20,7 @@ public class CommonIndexBoundingBoxAggregation<P extends Persistable> extends
 		final CommonIndexValue v = entry
 				.getCommonData()
 				.getValue(
-						GeometryAdapter.DEFAULT_GEOMETRY_FIELD_ID);
+						GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME);
 		if ((v != null) && (v instanceof GeometryWrapper)) {
 			return ((GeometryWrapper) v).getGeometry().getEnvelopeInternal();
 		}

@@ -8,9 +8,9 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.adapter.vector.stats;
+package org.locationtech.geowave.core.geotime.store.statistics;
 
-public interface FeatureStatistic
+public interface FieldNameStatistic
 {
 	public String getFieldName();
 }

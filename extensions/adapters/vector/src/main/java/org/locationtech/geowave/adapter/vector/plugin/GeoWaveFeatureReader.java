@@ -43,13 +43,13 @@ import org.locationtech.geowave.adapter.vector.plugin.transaction.GeoWaveTransac
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderAggregation;
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderOptions;
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderResult;
-import org.locationtech.geowave.adapter.vector.stats.FeatureStatistic;
 import org.locationtech.geowave.adapter.vector.util.QueryIndexHelper;
 import org.locationtech.geowave.core.geotime.index.dimension.LatitudeDefinition;
 import org.locationtech.geowave.core.geotime.index.dimension.TimeDefinition;
 import org.locationtech.geowave.core.geotime.store.query.CQLQuery;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.geotime.store.query.TemporalConstraintsSet;
+import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils.GeoConstraintsWrapper;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.dimension.NumericDimensionDefinition;
@@ -657,8 +657,8 @@ public class GeoWaveFeatureReader implements
 		final List<InternalDataStatistics<SimpleFeature>> stats = new LinkedList<>();
 		final Map<ByteArrayId, InternalDataStatistics<SimpleFeature>> statsMap = transaction.getDataStatistics();
 		for (final Map.Entry<ByteArrayId, InternalDataStatistics<SimpleFeature>> stat : statsMap.entrySet()) {
-			if ((stat.getValue() instanceof FeatureStatistic)
-					&& ((FeatureStatistic) stat.getValue()).getFieldName().endsWith(
+			if ((stat.getValue() instanceof FieldNameStatistic)
+					&& ((FieldNameStatistic) stat.getValue()).getFieldName().endsWith(
 							name)) {
 				stats.add(stat.getValue());
 			}

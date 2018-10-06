@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -8,12 +8,11 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.adapter.vector.stats;
+package org.locationtech.geowave.core.geotime.store.statistics;
 
-import org.locationtech.geowave.adapter.vector.util.FeatureDataUtils;
-import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxDataStatistics;
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsQueryBuilder;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -24,16 +23,10 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
-
 public class FeatureBoundingBoxStatistics extends
 		BoundingBoxDataStatistics<SimpleFeature> implements
-		FeatureStatistic
+		FieldNameStatistic
 {
-
-	private static final ByteArrayId STATS_TYPE = new ByteArrayId(
-			"FEATURE_BBOX");
 
 	private SimpleFeatureType reprojectedType;
 	private MathTransform transform;
@@ -77,23 +70,14 @@ public class FeatureBoundingBoxStatistics extends
 			final MathTransform transform ) {
 		super(
 				internalDataAdapterId,
-				composeId(
-						STATS_TYPE.getString(),
-						fieldName));
+				fieldName);
 		this.reprojectedType = reprojectedType;
 		this.transform = transform;
 	}
 
-	public static final ByteArrayId composeId(
-			final String fieldName ) {
-		return composeId(
-				STATS_TYPE.getString(),
-				fieldName);
-	}
-
 	@Override
 	public String getFieldName() {
-		return decomposeNameFromId(getStatisticsType());
+		return extendedId;
 	}
 
 	public Geometry composeGeometry(
@@ -104,7 +88,9 @@ public class FeatureBoundingBoxStatistics extends
 				getMinY(),
 				getMaxY());
 
-		return new GeometryFactory().toGeometry(bounds);
+		return new GeometryFactory()
+				.toGeometry(
+						bounds);
 	}
 
 	@Override
@@ -112,16 +98,22 @@ public class FeatureBoundingBoxStatistics extends
 			final SimpleFeature entry ) {
 		// incorporate the bounding box of the entry's envelope
 		final Object o;
-		if ((reprojectedType != null) && (transform != null) && !reprojectedType.getCoordinateReferenceSystem().equals(
-				entry.getType().getCoordinateReferenceSystem())) {
-			o = FeatureDataUtils.crsTransform(
-					entry,
-					reprojectedType,
-					transform).getAttribute(
-					getFieldName());
+		if ((reprojectedType != null) && (transform != null) && !reprojectedType
+				.getCoordinateReferenceSystem()
+				.equals(
+						entry.getType().getCoordinateReferenceSystem())) {
+			o = GeometryUtils
+					.crsTransform(
+							entry,
+							reprojectedType,
+							transform)
+					.getAttribute(
+							getFieldName());
 		}
 		else {
-			o = entry.getAttribute(getFieldName());
+			o = entry
+					.getAttribute(
+							getFieldName());
 		}
 		if ((o != null) && (o instanceof Geometry)) {
 			final Geometry geometry = (Geometry) o;
@@ -133,86 +125,11 @@ public class FeatureBoundingBoxStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature> duplicate() {
+	public InternalDataStatistics<SimpleFeature, Envelope, FieldStatisticsQueryBuilder<Envelope>> clone() {
 		return new FeatureBoundingBoxStatistics(
-				internalDataAdapterId,
+				adapterId,
 				getFieldName(),
 				reprojectedType,
 				transform);
-	}
-
-	@Override
-	public String toString() {
-		final StringBuffer buffer = new StringBuffer();
-		buffer.append(
-				"bbox[internalAdapter=").append(
-				super.getInternalDataAdapterId());
-		buffer.append(
-				", field=").append(
-				getFieldName());
-		if (isSet()) {
-			buffer.append(
-					", minX=").append(
-					minX);
-			buffer.append(
-					", maxX=").append(
-					maxX);
-			buffer.append(
-					", minY=").append(
-					minY);
-			buffer.append(
-					", maxY=").append(
-					maxY);
-		}
-		else {
-			buffer.append(", No Values");
-		}
-		buffer.append("]");
-		return buffer.toString();
-	}
-
-	/**
-	 * Convert Feature Bounding Box statistics to a JSON object
-	 */
-
-	@Override
-	public JSONObject toJSONObject(
-			final InternalAdapterStore store )
-			throws JSONException {
-		final JSONObject jo = new JSONObject();
-		jo.put(
-				"type",
-				STATS_TYPE.getString());
-		jo.put(
-				"dataAdapterID",
-				store.getAdapterId(internalDataAdapterId));
-		jo.put(
-				"statisticsId",
-				statisticsId.getString());
-
-		jo.put(
-				"field_identifier",
-				getFieldName());
-
-		if (isSet()) {
-			jo.put(
-					"minX",
-					minX);
-			jo.put(
-					"maxX",
-					maxX);
-			jo.put(
-					"minY",
-					minY);
-			jo.put(
-					"maxY",
-					maxY);
-		}
-		else {
-			jo.put(
-					"boundaries",
-					"No Values");
-		}
-		return jo;
 	}
 }

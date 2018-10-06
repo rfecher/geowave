@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.locationtech.geowave.adapter.vector.stats;
 
+import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.sfc.data.NumericRange;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
@@ -22,7 +23,7 @@ import net.sf.json.JSONObject;
 
 public class FeatureNumericRangeStatistics extends
 		NumericRangeDataStatistics<SimpleFeature> implements
-		FeatureStatistic
+		FieldNameStatistic
 {
 	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
 			"FEATURE_NUMERIC_RANGE");

@@ -34,7 +34,6 @@ import org.locationtech.geowave.core.geotime.util.PropertyConstraintSet;
 import org.locationtech.geowave.core.geotime.util.PropertyFilterVisitor;
 import org.locationtech.geowave.core.geotime.util.TimeDescriptors;
 import org.locationtech.geowave.core.geotime.util.TimeUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
@@ -59,7 +58,9 @@ public class CQLQuery implements
 		DistributableQuery,
 		TypeConstraintQuery
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(CQLQuery.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					CQLQuery.class);
 	private QueryConstraints baseQuery;
 	private CQLQueryFilter filter;
 	private Filter cqlFilter;
@@ -99,7 +100,9 @@ public class CQLQuery implements
 			final Index index,
 			final BasicQuery baseQuery )
 			throws CQLException {
-		final Filter cqlFilter = CQL.toFilter(cql);
+		final Filter cqlFilter = CQL
+				.toFilter(
+						cql);
 		return createOptimalQuery(
 				cqlFilter,
 				adapter,
@@ -129,9 +132,10 @@ public class CQLQuery implements
 			BasicQuery baseQuery ) {
 		final ExtractAttributesFilter attributesVisitor = new ExtractAttributesFilter();
 
-		final Object obj = cqlFilter.accept(
-				attributesVisitor,
-				null);
+		final Object obj = cqlFilter
+				.accept(
+						attributesVisitor,
+						null);
 
 		final Collection<String> attrs;
 		if ((obj != null) && (obj instanceof Collection)) {
@@ -142,26 +146,38 @@ public class CQLQuery implements
 		}
 		// assume the index can't handle spatial or temporal constraints if its
 		// null
-		final boolean isSpatial = index == null ? false : hasAtLeastSpatial(index);
-		final boolean isTemporal = index == null ? false : hasTime(index) && adapter.hasTemporalConstraints();
+		final boolean isSpatial = index == null ? false
+				: hasAtLeastSpatial(
+						index);
+		final boolean isTemporal = index == null ? false
+				: hasTime(
+						index) && adapter.hasTemporalConstraints();
 		if (isSpatial) {
 			final String geomName = adapter.getFeatureType().getGeometryDescriptor().getLocalName();
-			attrs.remove(geomName);
+			attrs
+					.remove(
+							geomName);
 		}
 		if (isTemporal) {
 			final TimeDescriptors timeDescriptors = adapter.getTimeDescriptors();
 			if (timeDescriptors != null) {
 				final AttributeDescriptor timeDesc = timeDescriptors.getTime();
 				if (timeDesc != null) {
-					attrs.remove(timeDesc.getLocalName());
+					attrs
+							.remove(
+									timeDesc.getLocalName());
 				}
 				final AttributeDescriptor startDesc = timeDescriptors.getStartRange();
 				if (startDesc != null) {
-					attrs.remove(startDesc.getLocalName());
+					attrs
+							.remove(
+									startDesc.getLocalName());
 				}
 				final AttributeDescriptor endDesc = timeDescriptors.getEndRange();
 				if (endDesc != null) {
-					attrs.remove(endDesc.getLocalName());
+					attrs
+							.remove(
+									endDesc.getLocalName());
 				}
 			}
 		}
@@ -173,12 +189,15 @@ public class CQLQuery implements
 							adapter.getFeatureType().getCoordinateReferenceSystem(),
 							adapter.getFeatureType().getGeometryDescriptor().getLocalName());
 			final TemporalConstraintsSet timeConstraintSet = new ExtractTimeFilterVisitor(
-					adapter.getTimeDescriptors()).getConstraints(cqlFilter);
+					adapter.getTimeDescriptors())
+							.getConstraints(
+									cqlFilter);
 
 			if (geometryAndCompareOp != null) {
 				final Geometry geometry = geometryAndCompareOp.getGeometry();
 				final GeoConstraintsWrapper geoConstraints = GeometryUtils
-						.basicGeoConstraintsWrapperFromGeometry(geometry);
+						.basicGeoConstraintsWrapperFromGeometry(
+								geometry);
 
 				Constraints constraints = geoConstraints.getConstraints();
 				final CompareOperation extractedCompareOp = geometryAndCompareOp.getCompareOp();
@@ -186,15 +205,19 @@ public class CQLQuery implements
 					// determine which time constraints are associated with an
 					// indexable
 					// field
-					final TemporalConstraints temporalConstraints = TimeUtils.getTemporalConstraintsForDescriptors(
-							adapter.getTimeDescriptors(),
-							timeConstraintSet);
+					final TemporalConstraints temporalConstraints = TimeUtils
+							.getTemporalConstraintsForDescriptors(
+									adapter.getTimeDescriptors(),
+									timeConstraintSet);
 					// convert to constraints
-					final Constraints timeConstraints = SpatialTemporalQuery.createConstraints(
-							temporalConstraints,
-							false);
-					constraints = geoConstraints.getConstraints().merge(
-							timeConstraints);
+					final Constraints timeConstraints = SpatialTemporalQuery
+							.createConstraints(
+									temporalConstraints,
+									false);
+					constraints = geoConstraints
+							.getConstraints()
+							.merge(
+									timeConstraints);
 				}
 				// TODO: this actually doesn't boost performance much, if at
 				// all, and one key is missing - the query geometry has to be
@@ -225,7 +248,9 @@ public class CQLQuery implements
 				// represent CQL expression but use
 				// linear constraint from baseQuery
 				if (extractedCompareOp == null) {
-					baseQuery.setExact(false);
+					baseQuery
+							.setExact(
+									false);
 				}
 				// }
 			}
@@ -233,9 +258,10 @@ public class CQLQuery implements
 				// determine which time constraints are associated with an
 				// indexable
 				// field
-				final TemporalConstraints temporalConstraints = TimeUtils.getTemporalConstraintsForDescriptors(
-						adapter.getTimeDescriptors(),
-						timeConstraintSet);
+				final TemporalConstraints temporalConstraints = TimeUtils
+						.getTemporalConstraintsForDescriptors(
+								adapter.getTimeDescriptors(),
+								timeConstraintSet);
 				baseQuery = new TemporalQuery(
 						temporalConstraints);
 			}
@@ -279,7 +305,9 @@ public class CQLQuery implements
 		if (filter != null) {
 			queryFilters = new ArrayList<>(
 					queryFilters);
-			queryFilters.add(filter);
+			queryFilters
+					.add(
+							filter);
 		}
 		return queryFilters;
 	}
@@ -288,7 +316,9 @@ public class CQLQuery implements
 	public List<MultiDimensionalNumericData> getIndexConstraints(
 			final Index index ) {
 		if (baseQuery != null) {
-			return baseQuery.getIndexConstraints(index);
+			return baseQuery
+					.getIndexConstraints(
+							index);
 		}
 		return Collections.emptyList();
 	}
@@ -302,7 +332,9 @@ public class CQLQuery implements
 						"Cannot distribute CQL query with base query of type '" + baseQuery.getClass() + "'");
 			}
 			else {
-				baseQueryBytes = PersistenceUtils.toBinary((DistributableQuery) baseQuery);
+				baseQueryBytes = PersistenceUtils
+						.toBinary(
+								(DistributableQuery) baseQuery);
 			}
 		}
 		else {
@@ -314,38 +346,56 @@ public class CQLQuery implements
 			filterBytes = filter.toBinary();
 		}
 		else {
-			LOGGER.warn("Filter is null");
+			LOGGER
+					.warn(
+							"Filter is null");
 			filterBytes = new byte[] {};
 		}
 
-		final ByteBuffer buf = ByteBuffer.allocate(filterBytes.length + baseQueryBytes.length + 4);
-		buf.putInt(filterBytes.length);
-		buf.put(filterBytes);
-		buf.put(baseQueryBytes);
+		final ByteBuffer buf = ByteBuffer
+				.allocate(
+						filterBytes.length + baseQueryBytes.length + 4);
+		buf
+				.putInt(
+						filterBytes.length);
+		buf
+				.put(
+						filterBytes);
+		buf
+				.put(
+						baseQueryBytes);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer.wrap(bytes);
+		final ByteBuffer buf = ByteBuffer
+				.wrap(
+						bytes);
 		final int filterBytesLength = buf.getInt();
 		final int baseQueryBytesLength = bytes.length - filterBytesLength - 4;
 		if (filterBytesLength > 0) {
 			final byte[] filterBytes = new byte[filterBytesLength];
 
 			filter = new CQLQueryFilter();
-			filter.fromBinary(filterBytes);
+			filter
+					.fromBinary(
+							filterBytes);
 		}
 		else {
-			LOGGER.warn("CQL filter is empty bytes");
+			LOGGER
+					.warn(
+							"CQL filter is empty bytes");
 			filter = null;
 		}
 		if (baseQueryBytesLength > 0) {
 			final byte[] baseQueryBytes = new byte[baseQueryBytesLength];
 
 			try {
-				baseQuery = (QueryConstraints) PersistenceUtils.fromBinary(baseQueryBytes);
+				baseQuery = (QueryConstraints) PersistenceUtils
+						.fromBinary(
+								baseQueryBytes);
 			}
 			catch (final Exception e) {
 				throw new IllegalArgumentException(
@@ -362,20 +412,26 @@ public class CQLQuery implements
 	public List<ByteArrayRange> getSecondaryIndexConstraints(
 			final SecondaryIndexImpl<?> index ) {
 		final PropertyFilterVisitor visitor = new PropertyFilterVisitor();
-		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter.accept(
-				visitor,
-				null);
-		return constraints.getRangesFor(index);
+		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter
+				.accept(
+						visitor,
+						null);
+		return constraints
+				.getRangesFor(
+						index);
 	}
 
 	@Override
 	public List<DistributableQueryFilter> getSecondaryQueryFilter(
 			final SecondaryIndexImpl<?> index ) {
 		final PropertyFilterVisitor visitor = new PropertyFilterVisitor();
-		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter.accept(
-				visitor,
-				null);
-		return constraints.getFiltersFor(index);
+		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter
+				.accept(
+						visitor,
+						null);
+		return constraints
+				.getFiltersFor(
+						index);
 	}
 
 	protected static boolean hasAtLeastSpatial(
@@ -410,7 +466,7 @@ public class CQLQuery implements
 	}
 
 	@Override
-	public ByteArrayId getAdapterId() {
-		return filter.getAdapterId();
+	public String getTypeName() {
+		return filter.getTypeName();
 	}
 }

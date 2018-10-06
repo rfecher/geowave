@@ -327,7 +327,7 @@ public class SecondaryIndexIT
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
 			"dd-MM-yyyy");
 	private static final ByteArrayId GEOMETRY_FIELD_ID = new ByteArrayId(
-			GeometryAdapter.DEFAULT_GEOMETRY_FIELD_ID.getBytes());
+			GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME.getBytes());
 	private static final String[] DEFAULT_AUTHORIZATIONS = new String[] {};
 	private static final Authorizations DEFAULT_ACCUMULO_AUTHORIZATIONS = new Authorizations(
 			DEFAULT_AUTHORIZATIONS);

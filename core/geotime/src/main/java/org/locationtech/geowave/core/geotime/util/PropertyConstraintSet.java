@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.store.index.FilterableConstraints;
 import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
@@ -23,7 +22,7 @@ import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter
 
 public class PropertyConstraintSet
 {
-	private final Map<ByteArrayId, FilterableConstraints> constraints = new HashMap<ByteArrayId, FilterableConstraints>();
+	private final Map<String, FilterableConstraints> constraints = new HashMap<>();
 
 	public PropertyConstraintSet() {}
 
@@ -39,12 +38,16 @@ public class PropertyConstraintSet
 	}
 
 	public List<FilterableConstraints> getConstraintsFor(
-			final ByteArrayId[] fieldIds ) {
-		final List<FilterableConstraints> result = new LinkedList<FilterableConstraints>();
-		for (final ByteArrayId fieldId : fieldIds) {
-			final FilterableConstraints c = constraints.get(fieldId);
+			final String[] fieldIds ) {
+		final List<FilterableConstraints> result = new LinkedList<>();
+		for (final String fieldId : fieldIds) {
+			final FilterableConstraints c = constraints
+					.get(
+							fieldId);
 			if (c != null) {
-				result.add(c);
+				result
+						.add(
+								c);
 			}
 
 		}
@@ -53,24 +56,35 @@ public class PropertyConstraintSet
 
 	public List<ByteArrayRange> getRangesFor(
 			final SecondaryIndexImpl<?> index ) {
-		final List<ByteArrayRange> result = new LinkedList<ByteArrayRange>();
-		final FilterableConstraints c = constraints.get(index.getFieldId());
+		final List<ByteArrayRange> result = new LinkedList<>();
+		final FilterableConstraints c = constraints
+				.get(
+						index.getFieldName());
 		if (c != null) {
 			// TODO GEOWAVE-1018 how to handle secondary index ranges?
-			result.addAll(index.getIndexStrategy().getQueryRanges(
-					c).getCompositeQueryRanges());
+			result
+					.addAll(
+							index
+									.getIndexStrategy()
+									.getQueryRanges(
+											c)
+									.getCompositeQueryRanges());
 		}
 		return result;
 	}
 
 	public List<DistributableQueryFilter> getFiltersFor(
 			final SecondaryIndexImpl<?> index ) {
-		final List<DistributableQueryFilter> result = new LinkedList<DistributableQueryFilter>();
-		final FilterableConstraints c = constraints.get(index.getFieldId());
+		final List<DistributableQueryFilter> result = new LinkedList<>();
+		final FilterableConstraints c = constraints
+				.get(
+						index.getFieldName());
 		if (c != null) {
 			final DistributableQueryFilter filter = c.getFilter();
 			if (filter != null) {
-				result.add(filter);
+				result
+						.add(
+								filter);
 			}
 		}
 		return result;
@@ -79,28 +93,37 @@ public class PropertyConstraintSet
 	public void add(
 			final FilterableConstraints constraint,
 			final boolean intersect ) {
-		final ByteArrayId id = constraint.getFieldId();
-		final FilterableConstraints constraintsForId = constraints.get(id);
+		final String id = constraint.getFieldName();
+		final FilterableConstraints constraintsForId = constraints
+				.get(
+						id);
 		if (constraintsForId == null) {
-			constraints.put(
-					id,
-					constraint);
+			constraints
+					.put(
+							id,
+							constraint);
 		}
 		else if (intersect) {
-			constraints.put(
-					id,
-					constraintsForId.intersect(constraint));
+			constraints
+					.put(
+							id,
+							constraintsForId
+									.intersect(
+											constraint));
 		}
 		else {
-			constraints.put(
-					id,
-					constraintsForId.union(constraint));
+			constraints
+					.put(
+							id,
+							constraintsForId
+									.union(
+											constraint));
 		}
 	}
 
 	public void intersect(
 			final PropertyConstraintSet set ) {
-		for (final Map.Entry<ByteArrayId, FilterableConstraints> entry : set.constraints.entrySet()) {
+		for (final Map.Entry<String, FilterableConstraints> entry : set.constraints.entrySet()) {
 			add(
 					entry.getValue(),
 					true);
@@ -109,7 +132,7 @@ public class PropertyConstraintSet
 
 	public void union(
 			final PropertyConstraintSet set ) {
-		for (final Map.Entry<ByteArrayId, FilterableConstraints> entry : set.constraints.entrySet()) {
+		for (final Map.Entry<String, FilterableConstraints> entry : set.constraints.entrySet()) {
 			add(
 					entry.getValue(),
 					false);
@@ -117,8 +140,10 @@ public class PropertyConstraintSet
 	}
 
 	public FilterableConstraints getConstraintsById(
-			final ByteArrayId id ) {
-		return constraints.get(id);
+			final String id ) {
+		return constraints
+				.get(
+						id);
 	}
 
 }

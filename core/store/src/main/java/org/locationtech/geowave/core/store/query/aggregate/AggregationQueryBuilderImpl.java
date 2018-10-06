@@ -1,6 +1,5 @@
 package org.locationtech.geowave.core.store.query.aggregate;
 
-import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.AggregationQuery;
@@ -29,6 +28,7 @@ public class AggregationQueryBuilderImpl<P extends Persistable, R, T, A extends 
 	public A count(
 			final String... typeNames ) {
 		aggregation = (Aggregation) new CountAggregation();
+		this.typeNames = typeNames;
 		return (A) this;
 	}
 
@@ -37,6 +37,9 @@ public class AggregationQueryBuilderImpl<P extends Persistable, R, T, A extends 
 			final String typeName,
 			final Aggregation<P, R, T> aggregation ) {
 		this.aggregation = aggregation;
+		this.typeNames = new String[] {
+			typeName
+		};
 		return (A) this;
 	}
 

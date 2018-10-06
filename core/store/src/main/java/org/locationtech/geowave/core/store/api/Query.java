@@ -14,6 +14,14 @@ public class Query<T> extends
 		super();
 	}
 
+	/**
+	 * This is better built through QueryBuilder.
+	 * 
+	 * @param commonQueryOptions
+	 * @param dataTypeQueryOptions
+	 * @param indexQueryOptions
+	 * @param queryConstraints
+	 */
 	public Query(
 			final CommonQueryOptions commonQueryOptions,
 			final FilterByTypeQueryOptions<T> dataTypeQueryOptions,

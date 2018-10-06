@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureBoundingBoxStatistics;
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureTimeRangeStatistics;
 import org.locationtech.geowave.core.geotime.util.TimeUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.EntryVisibilityHandler;

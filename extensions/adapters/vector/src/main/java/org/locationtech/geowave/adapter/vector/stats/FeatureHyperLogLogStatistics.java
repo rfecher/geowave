@@ -13,6 +13,7 @@ package org.locationtech.geowave.adapter.vector.stats;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
@@ -37,7 +38,7 @@ import net.sf.json.JSONObject;
  */
 public class FeatureHyperLogLogStatistics extends
 		AbstractDataStatistics<SimpleFeature> implements
-		FeatureStatistic
+		FieldNameStatistic
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(FeatureHyperLogLogStatistics.class);
 	public static final ByteArrayId STATS_TYPE = new ByteArrayId(

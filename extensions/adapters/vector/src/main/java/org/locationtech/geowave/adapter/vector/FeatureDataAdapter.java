@@ -34,6 +34,7 @@ import org.locationtech.geowave.core.geotime.store.dimension.Time;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.geotime.util.TimeDescriptors;
 import org.locationtech.geowave.core.geotime.util.TimeDescriptors.TimeDescriptorConfiguration;
+import org.locationtech.geowave.core.geotime.util.TimeUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
@@ -433,7 +434,7 @@ public class FeatureDataAdapter extends
 			final SimpleFeatureType featureType ) {
 		final VisibilityConfiguration config = new VisibilityConfiguration(
 				featureType);
-		final TimeDescriptors timeDescriptors = inferTimeAttributeDescriptor(featureType);
+		final TimeDescriptors timeDescriptors = TimeUtils.inferTimeAttributeDescriptor(featureType);
 
 		if ((timeDescriptors.getStartRange() != null) && (timeDescriptors.getEndRange() != null)) {
 
@@ -901,39 +902,14 @@ public class FeatureDataAdapter extends
 	}
 
 	public synchronized void resetTimeDescriptors() {
-		timeDescriptors = inferTimeAttributeDescriptor(persistedFeatureType);
+		timeDescriptors = TimeUtils.inferTimeAttributeDescriptor(persistedFeatureType);
 	}
 
 	@Override
 	public synchronized TimeDescriptors getTimeDescriptors() {
 		if (timeDescriptors == null) {
-			timeDescriptors = inferTimeAttributeDescriptor(persistedFeatureType);
+			timeDescriptors = TimeUtils.inferTimeAttributeDescriptor(persistedFeatureType);
 		}
-		return timeDescriptors;
-	}
-
-	/**
-	 * Determine if a time or range descriptor is set. If so, then use it,
-	 * otherwise infer.
-	 *
-	 * @param persistType
-	 *            - FeatureType that will be scanned for TimeAttributes
-	 * @return
-	 */
-	protected static final TimeDescriptors inferTimeAttributeDescriptor(
-			final SimpleFeatureType persistType ) {
-
-		final TimeDescriptorConfiguration config = new TimeDescriptorConfiguration(
-				persistType);
-		final TimeDescriptors timeDescriptors = new TimeDescriptors(
-				persistType,
-				config);
-
-		// Up the meta-data so that it is clear and visible any inference that
-		// has occurred here. Also, this is critical to
-		// serialization/deserialization
-
-		config.updateType(persistType);
 		return timeDescriptors;
 	}
 

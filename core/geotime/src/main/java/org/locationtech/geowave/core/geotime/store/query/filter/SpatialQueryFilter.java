@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -19,7 +19,7 @@ import java.util.Set;
 
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.sfc.data.BasicNumericDataset;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.index.sfc.data.NumericData;
@@ -38,7 +38,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 /**
  * This filter can perform fine-grained acceptance testing (intersection test
  * with a query geometry) with JTS geometry
- * 
+ *
  */
 public class SpatialQueryFilter extends
 		BasicQueryFilter
@@ -64,7 +64,9 @@ public class SpatialQueryFilter extends
 			public boolean compare(
 					final Geometry dataGeometry,
 					final PreparedGeometry constraintGeometry ) {
-				return constraintGeometry.contains(dataGeometry);
+				return constraintGeometry
+						.contains(
+								dataGeometry);
 			}
 
 			@Override
@@ -78,7 +80,9 @@ public class SpatialQueryFilter extends
 			public boolean compare(
 					final Geometry dataGeometry,
 					final PreparedGeometry constraintGeometry ) {
-				return constraintGeometry.overlaps(dataGeometry);
+				return constraintGeometry
+						.overlaps(
+								dataGeometry);
 			}
 
 			@Override
@@ -91,7 +95,9 @@ public class SpatialQueryFilter extends
 			public boolean compare(
 					final Geometry dataGeometry,
 					final PreparedGeometry constraintGeometry ) {
-				return constraintGeometry.intersects(dataGeometry);
+				return constraintGeometry
+						.intersects(
+								dataGeometry);
 			}
 
 			@Override
@@ -104,7 +110,9 @@ public class SpatialQueryFilter extends
 			public boolean compare(
 					final Geometry dataGeometry,
 					final PreparedGeometry constraintGeometry ) {
-				return constraintGeometry.touches(dataGeometry);
+				return constraintGeometry
+						.touches(
+								dataGeometry);
 			}
 
 			@Override
@@ -117,7 +125,9 @@ public class SpatialQueryFilter extends
 			public boolean compare(
 					final Geometry dataGeometry,
 					final PreparedGeometry constraintGeometry ) {
-				return constraintGeometry.within(dataGeometry);
+				return constraintGeometry
+						.within(
+								dataGeometry);
 			}
 
 			@Override
@@ -130,7 +140,9 @@ public class SpatialQueryFilter extends
 			public boolean compare(
 					final Geometry dataGeometry,
 					final PreparedGeometry constraintGeometry ) {
-				return constraintGeometry.disjoint(dataGeometry);
+				return constraintGeometry
+						.disjoint(
+								dataGeometry);
 			}
 
 			@Override
@@ -143,7 +155,9 @@ public class SpatialQueryFilter extends
 			public boolean compare(
 					final Geometry dataGeometry,
 					final PreparedGeometry constraintGeometry ) {
-				return constraintGeometry.crosses(dataGeometry);
+				return constraintGeometry
+						.crosses(
+								dataGeometry);
 			}
 
 			@Override
@@ -159,8 +173,10 @@ public class SpatialQueryFilter extends
 				// This method is same as Geometry.equalsTopo which is
 				// computationally expensive.
 				// See equalsExact for quick structural equality
-				return constraintGeometry.getGeometry().equals(
-						dataGeometry);
+				return constraintGeometry
+						.getGeometry()
+						.equals(
+								dataGeometry);
 			}
 
 			@Override
@@ -172,7 +188,7 @@ public class SpatialQueryFilter extends
 
 	private CompareOperation compareOperation = CompareOperation.INTERSECTS;
 
-	private Set<ByteArrayId> geometryFieldIds;
+	private Set<String> geometryFieldNames;
 
 	public SpatialQueryFilter() {
 		super();
@@ -205,24 +221,26 @@ public class SpatialQueryFilter extends
 				strippedGeometry.strippedDimensionDefinitions,
 				nonSpatialCompareOp);
 		preparedGeometryImage = new GeometryImage(
-				FACTORY.create(queryGeometry));
-		geometryFieldIds = strippedGeometry.geometryFieldIds;
-		this.compareOperation = compareOp;
+				FACTORY
+						.create(
+								queryGeometry));
+		geometryFieldNames = strippedGeometry.geometryFieldNames;
+		compareOperation = compareOp;
 	}
 
 	private static class StrippedGeometry
 	{
 		private final MultiDimensionalNumericData strippedQuery;
 		private final NumericDimensionField<?>[] strippedDimensionDefinitions;
-		private final Set<ByteArrayId> geometryFieldIds;
+		private final Set<String> geometryFieldNames;
 
 		public StrippedGeometry(
 				final MultiDimensionalNumericData strippedQuery,
 				final NumericDimensionField<?>[] strippedDimensionDefinitions,
-				final Set<ByteArrayId> geometryFieldIds ) {
+				final Set<String> geometryFieldNames ) {
 			this.strippedQuery = strippedQuery;
 			this.strippedDimensionDefinitions = strippedDimensionDefinitions;
-			this.geometryFieldIds = geometryFieldIds;
+			this.geometryFieldNames = geometryFieldNames;
 		}
 	}
 
@@ -230,19 +248,26 @@ public class SpatialQueryFilter extends
 			final MultiDimensionalNumericData query,
 			final NumericDimensionField<?>[] orderedConstrainedDimensionDefinitions,
 			final NumericDimensionField<?>[] unconstrainedDimensionDefinitions ) {
-		final Set<ByteArrayId> geometryFieldIds = new HashSet<ByteArrayId>();
-		final List<NumericData> numericDataPerDimension = new ArrayList<NumericData>();
-		final List<NumericDimensionField<?>> fields = new ArrayList<NumericDimensionField<?>>();
+		final Set<String> geometryFieldNames = new HashSet<>();
+		final List<NumericData> numericDataPerDimension = new ArrayList<>();
+		final List<NumericDimensionField<?>> fields = new ArrayList<>();
 		final NumericData[] data = query.getDataPerDimension();
 		for (int d = 0; d < orderedConstrainedDimensionDefinitions.length; d++) {
 			// if the type on the generic is assignable to geometry then save
 			// the field ID for later filtering
-			if (isSpatial(orderedConstrainedDimensionDefinitions[d])) {
-				geometryFieldIds.add(orderedConstrainedDimensionDefinitions[d].getFieldId());
+			if (isSpatial(
+					orderedConstrainedDimensionDefinitions[d])) {
+				geometryFieldNames
+						.add(
+								orderedConstrainedDimensionDefinitions[d].getFieldName());
 			}
 			else {
-				numericDataPerDimension.add(data[d]);
-				fields.add(orderedConstrainedDimensionDefinitions[d]);
+				numericDataPerDimension
+						.add(
+								data[d]);
+				fields
+						.add(
+								orderedConstrainedDimensionDefinitions[d]);
 			}
 		}
 		// we need to also add all geometry field IDs even if it is
@@ -251,23 +276,33 @@ public class SpatialQueryFilter extends
 		// envelope but the polygon may still need to be intersected with
 		// results)
 		for (int d = 0; d < unconstrainedDimensionDefinitions.length; d++) {
-			if (isSpatial(unconstrainedDimensionDefinitions[d])) {
-				geometryFieldIds.add(unconstrainedDimensionDefinitions[d].getFieldId());
+			if (isSpatial(
+					unconstrainedDimensionDefinitions[d])) {
+				geometryFieldNames
+						.add(
+								unconstrainedDimensionDefinitions[d].getFieldName());
 			}
 		}
 		return new StrippedGeometry(
 				new BasicNumericDataset(
-						numericDataPerDimension.toArray(new NumericData[numericDataPerDimension.size()])),
-				fields.toArray(new NumericDimensionField<?>[fields.size()]),
-				geometryFieldIds);
+						numericDataPerDimension
+								.toArray(
+										new NumericData[numericDataPerDimension.size()])),
+				fields
+						.toArray(
+								new NumericDimensionField<?>[fields.size()]),
+				geometryFieldNames);
 	}
 
 	public static boolean isSpatial(
 			final NumericDimensionField<?> d ) {
-		final Class<?> commonIndexType = GenericTypeResolver.resolveTypeArgument(
-				d.getClass(),
-				NumericDimensionField.class);
-		return GeometryWrapper.class.isAssignableFrom(commonIndexType);
+		final Class<?> commonIndexType = GenericTypeResolver
+				.resolveTypeArgument(
+						d.getClass(),
+						NumericDimensionField.class);
+		return GeometryWrapper.class
+				.isAssignableFrom(
+						commonIndexType);
 	}
 
 	@Override
@@ -280,12 +315,15 @@ public class SpatialQueryFilter extends
 		// we can actually get the geometry for the data and test the
 		// intersection of the query geometry with that
 		boolean geometryPasses = false;
-		for (final ByteArrayId fieldId : geometryFieldIds) {
-			final Object geomObj = persistenceEncoding.getCommonData().getValue(
-					fieldId);
+		for (final String fieldName : geometryFieldNames) {
+			final Object geomObj = persistenceEncoding
+					.getCommonData()
+					.getValue(
+							fieldName);
 			if ((geomObj != null) && (geomObj instanceof GeometryWrapper)) {
 				final GeometryWrapper geom = (GeometryWrapper) geomObj;
-				if (geometryPasses(geom.getGeometry())) {
+				if (geometryPasses(
+						geom.getGeometry())) {
 					geometryPasses = true;
 					break;
 				}
@@ -311,9 +349,10 @@ public class SpatialQueryFilter extends
 			return false;
 		}
 		if (preparedGeometryImage != null) {
-			return compareOperation.compare(
-					dataGeometry,
-					preparedGeometryImage.preparedGeometry);
+			return compareOperation
+					.compare(
+							dataGeometry,
+							preparedGeometryImage.preparedGeometry);
 		}
 		return false;
 	}
@@ -325,74 +364,89 @@ public class SpatialQueryFilter extends
 	@Override
 	public byte[] toBinary() {
 		final byte[] geometryBinary = preparedGeometryImage.geometryBinary;
-		int geometryFieldIdByteSize = 4;
-		for (final ByteArrayId id : geometryFieldIds) {
-			geometryFieldIdByteSize += (4 + id.getBytes().length);
-		}
-		final ByteBuffer geometryFieldIdBuffer = ByteBuffer.allocate(geometryFieldIdByteSize);
-		geometryFieldIdBuffer.putInt(geometryFieldIds.size());
-		for (final ByteArrayId id : geometryFieldIds) {
-			geometryFieldIdBuffer.putInt(id.getBytes().length);
-			geometryFieldIdBuffer.put(id.getBytes());
-		}
+		final byte[] geometryFieldNamesBytes = StringUtils
+				.stringsToBinary(
+						geometryFieldNames
+								.toArray(
+										new String[0]));
 		final byte[] theRest = super.toBinary();
-		final ByteBuffer buf = ByteBuffer.allocate(12 + geometryBinary.length + geometryFieldIdByteSize
-				+ theRest.length);
-		buf.putInt(compareOperation.ordinal());
-		buf.putInt(geometryBinary.length);
-		buf.putInt(geometryFieldIdByteSize);
-		buf.put(geometryBinary);
-		buf.put(geometryFieldIdBuffer.array());
-		buf.put(theRest);
+		final ByteBuffer buf = ByteBuffer
+				.allocate(
+						12 + geometryBinary.length + geometryFieldNamesBytes.length + theRest.length);
+		buf
+				.putInt(
+						compareOperation.ordinal());
+		buf
+				.putInt(
+						geometryBinary.length);
+		buf
+				.putInt(
+						geometryFieldNamesBytes.length);
+		buf
+				.put(
+						geometryBinary);
+		buf
+				.put(
+						geometryFieldNamesBytes);
+		buf
+				.put(
+						theRest);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer.wrap(bytes);
+		final ByteBuffer buf = ByteBuffer
+				.wrap(
+						bytes);
 		compareOperation = CompareOperation.values()[buf.getInt()];
 		final byte[] geometryBinary = new byte[buf.getInt()];
-		final byte[] theRest = new byte[bytes.length - geometryBinary.length - buf.getInt() - 12];
-		buf.get(geometryBinary);
-		final int fieldIdSize = buf.getInt();
-		geometryFieldIds = new HashSet<ByteArrayId>(
-				fieldIdSize);
-		for (int i = 0; i < fieldIdSize; i++) {
-			final byte[] fieldId = new byte[buf.getInt()];
-			buf.get(fieldId);
-			geometryFieldIds.add(new ByteArrayId(
-					fieldId));
-		}
-		buf.get(theRest);
-		preparedGeometryImage = geometryImageInterner.intern(new GeometryImage(
-				geometryBinary));
+		final byte[] geometryFieldNamesBytes = new byte[buf.getInt()];
+		final byte[] theRest = new byte[bytes.length - geometryBinary.length - geometryFieldNamesBytes.length - 12];
+		buf
+				.get(
+						geometryBinary);
+		geometryFieldNames = new HashSet<>(
+				Arrays
+						.asList(
+								StringUtils
+										.stringsFromBinary(
+												geometryFieldNamesBytes)));
+		buf
+				.get(
+						theRest);
+		preparedGeometryImage = geometryImageInterner
+				.intern(
+						new GeometryImage(
+								geometryBinary));
 		// build the the PreparedGeometry and underling Geometry if not
 		// reconstituted yet; most likely occurs if this thread constructed the
 		// image.
 		preparedGeometryImage.init();
 
-		super.fromBinary(theRest);
+		super.fromBinary(
+				theRest);
 	}
 
 	/**
 	 * This class is used for interning a PreparedGeometry. Prepared geometries
 	 * cannot be interned since they do not extend Object.hashCode().
-	 * 
+	 *
 	 * Interning a geometry assumes a geometry is already constructed on the
 	 * heap at the time interning begins. The byte image of geometry provides a
 	 * more efficient component to hash and associate with a single image of the
 	 * geometry.
-	 * 
+	 *
 	 * The approach of interning the Geometry prior to construction of a
 	 * PreparedGeometry lead to excessive memory use. Thus, this class is
 	 * constructed to hold the prepared geometry and prevent reconstruction of
 	 * the underlying geometry from a byte array if the Geometry has been
 	 * interned.
-	 * 
+	 *
 	 * Using this approach increased performance of a large query unit test by
 	 * 40% and reduced heap memory consumption by roughly 50%.
-	 * 
+	 *
 	 */
 	public static class GeometryImage
 	{
@@ -404,7 +458,9 @@ public class SpatialQueryFilter extends
 				final PreparedGeometry preparedGeometry ) {
 			super();
 			this.preparedGeometry = preparedGeometry;
-			geometryBinary = GeometryUtils.geometryToBinary(preparedGeometry.getGeometry());
+			geometryBinary = GeometryUtils
+					.geometryToBinary(
+							preparedGeometry.getGeometry());
 		}
 
 		public GeometryImage(
@@ -415,7 +471,11 @@ public class SpatialQueryFilter extends
 
 		public synchronized void init() {
 			if (preparedGeometry == null) {
-				preparedGeometry = FACTORY.create(GeometryUtils.geometryFromBinary(geometryBinary));
+				preparedGeometry = FACTORY
+						.create(
+								GeometryUtils
+										.geometryFromBinary(
+												geometryBinary));
 			}
 		}
 
@@ -427,7 +487,9 @@ public class SpatialQueryFilter extends
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = (prime * result) + Arrays.hashCode(geometryBinary);
+			result = (prime * result) + Arrays
+					.hashCode(
+							geometryBinary);
 			return result;
 		}
 
@@ -444,9 +506,10 @@ public class SpatialQueryFilter extends
 				return false;
 			}
 			final GeometryImage other = (GeometryImage) obj;
-			if (!Arrays.equals(
-					geometryBinary,
-					other.geometryBinary)) {
+			if (!Arrays
+					.equals(
+							geometryBinary,
+							other.geometryBinary)) {
 				return false;
 			}
 			return true;

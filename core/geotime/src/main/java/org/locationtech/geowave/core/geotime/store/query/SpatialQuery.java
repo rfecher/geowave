@@ -58,11 +58,11 @@ public class SpatialQuery extends
 	private static class CrsCache
 	{
 		Geometry geometry;
-		Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId;
+		Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId;
 
 		public CrsCache(
 				final Geometry geometry,
-				final Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId ) {
+				final Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId ) {
 			this.geometry = geometry;
 			this.constraintsPerIndexId = constraintsPerIndexId;
 		}
@@ -113,7 +113,7 @@ public class SpatialQuery extends
 
 	public SpatialQuery(
 			final Geometry queryGeometry,
-			final Map<ByteArrayId, FilterableConstraints> additionalConstraints ) {
+			final Map<String, FilterableConstraints> additionalConstraints ) {
 		this(
 				GeometryUtils.basicConstraintsFromGeometry(queryGeometry),
 				queryGeometry,
@@ -135,7 +135,7 @@ public class SpatialQuery extends
 	private SpatialQuery(
 			final Constraints constraints,
 			final Geometry queryGeometry,
-			final Map<ByteArrayId, FilterableConstraints> additionalConstraints ) {
+			final Map<String, FilterableConstraints> additionalConstraints ) {
 		this(
 				constraints,
 				queryGeometry,
@@ -217,7 +217,7 @@ public class SpatialQuery extends
 	public SpatialQuery(
 			final Constraints constraints,
 			final Geometry queryGeometry,
-			final Map<ByteArrayId, FilterableConstraints> additionalConstraints,
+			final Map<String, FilterableConstraints> additionalConstraints,
 			final String crsCode,
 			final CompareOperation compareOp,
 			final BasicQueryCompareOperation nonSpatialCompareOp ) {
@@ -280,7 +280,7 @@ public class SpatialQuery extends
 		final String indexCrsStr = getCrs(index.getIndexModel());
 		CrsCache cache = crsCodeCache.get(indexCrsStr);
 		if (cache != null) {
-			List<MultiDimensionalNumericData> indexConstraints = cache.constraintsPerIndexId.get(index.getId());
+			List<MultiDimensionalNumericData> indexConstraints = cache.constraintsPerIndexId.get(index.getName());
 			if (indexConstraints == null) {
 				if (crsMatches(
 						crsCode,
@@ -293,7 +293,7 @@ public class SpatialQuery extends
 							index);
 				}
 				cache.constraintsPerIndexId.put(
-						index.getId(),
+						index.getName(),
 						indexConstraints);
 			}
 			return indexConstraints;
@@ -304,7 +304,7 @@ public class SpatialQuery extends
 		crsCodeCache.put(
 				indexCrsStr,
 				cache);
-		return cache.constraintsPerIndexId.get(index.getId());
+		return cache.constraintsPerIndexId.get(index.getName());
 	}
 
 	private CrsCache transformToIndex(
@@ -314,9 +314,9 @@ public class SpatialQuery extends
 				crsCode,
 				indexCrsStr) || queryGeometry == null) {
 			List<MultiDimensionalNumericData> constraints = super.getIndexConstraints(index);
-			Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
+			Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
 			constraintsPerIndexId.put(
-					index.getId(),
+					index.getName(),
 					constraints);
 			return new CrsCache(
 					queryGeometry,
@@ -359,9 +359,9 @@ public class SpatialQuery extends
 				List<MultiDimensionalNumericData> indexConstraints = indexConstraintsFromGeometry(
 						indexCrsQueryGeometry,
 						index);
-				Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
+				Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
 				constraintsPerIndexId.put(
-						index.getId(),
+						index.getName(),
 						indexConstraints);
 				return new CrsCache(
 						indexCrsQueryGeometry,
@@ -379,9 +379,9 @@ public class SpatialQuery extends
 			}
 		}
 		List<MultiDimensionalNumericData> constraints = super.getIndexConstraints(index);
-		Map<ByteArrayId, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
+		Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId = new HashMap<>();
 		constraintsPerIndexId.put(
-				index.getId(),
+				index.getName(),
 				constraints);
 		return new CrsCache(
 				queryGeometry,

@@ -18,6 +18,7 @@ import java.util.zip.DataFormatException;
 import org.HdrHistogram.AbstractHistogram;
 import org.HdrHistogram.DoubleHistogram;
 import org.HdrHistogram.Histogram;
+import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.store.adapter.statistics.AbstractDataStatistics;
@@ -32,7 +33,7 @@ import org.opengis.feature.simple.SimpleFeature;
  */
 public class FeatureNumericHistogramStatistics extends
 		AbstractDataStatistics<SimpleFeature> implements
-		FeatureStatistic
+		FieldNameStatistic
 {
 	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
 			"ATT_HISTOGRAM");

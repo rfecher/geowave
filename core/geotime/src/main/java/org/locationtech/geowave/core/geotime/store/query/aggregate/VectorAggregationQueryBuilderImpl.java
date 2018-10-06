@@ -1,7 +1,6 @@
 package org.locationtech.geowave.core.geotime.store.query.aggregate;
 
 import org.locationtech.geowave.core.geotime.store.query.api.VectorAggregationQueryBuilder;
-import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxDataStatistics;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.query.aggregate.AggregationQueryBuilderImpl;
 import org.locationtech.geowave.core.store.query.options.AggregateTypeQueryOptions;
@@ -11,16 +10,52 @@ public class VectorAggregationQueryBuilderImpl<P extends Persistable, R> extends
 		AggregationQueryBuilderImpl<P, R, SimpleFeature, VectorAggregationQueryBuilder<P, R>> implements
 		VectorAggregationQueryBuilder<P, R>
 {
+	AggregateTypeQueryOptions<P, R, SimpleFeature> options;
 
 	@Override
 	public VectorAggregationQueryBuilder<P, R> bboxOfResults(
-			String... typeNames ) {
-		return new AggregateTypeQueryOptions(new BoundingBoxDataStatistics<T>(), typeNames);
+			final String... typeNames ) {
+		options = new AggregateTypeQueryOptions(
+				new VectorBoundingBoxAggregation(),
+				typeNames);
+		return this;
+	}
+
+	@Override
+	public VectorAggregationQueryBuilder<P, R> bboxOfResultsForGeometryField(
+			final String typeName,
+			final String geomFieldName ) {
+		options = new AggregateTypeQueryOptions(
+				new VectorBoundingBoxAggregation(
+						new FieldNameParam(
+								geomFieldName)),
+				typeName);
+		return this;
 	}
 
 	@Override
 	public VectorAggregationQueryBuilder<P, R> timeRangeOfResults(
-			String... typeNames ) {
-		return new AggregateTypeQueryOptions(aggregation, typeNames);
+			final String... typeNames ) {
+		options = new AggregateTypeQueryOptions(
+				new VectorTimeRangeAggregation(),
+				typeNames);
+		return this;
+	}
+
+	@Override
+	public VectorAggregationQueryBuilder<P, R> timeRangeOfResultsForTimeField(
+			final String typeName,
+			final String timeFieldName ) {
+		options = new AggregateTypeQueryOptions(
+				new VectorBoundingBoxAggregation(
+						new FieldNameParam(
+								timeFieldName)),
+				typeName);
+		return this;
+	}
+
+	@Override
+	protected AggregateTypeQueryOptions<P, R, SimpleFeature> newAggregateTypeQueryOptions() {
+		return options;
 	}
 }

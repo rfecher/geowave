@@ -1196,4 +1196,32 @@ public class BaseDataStore implements
 		}
 		// TODO issue #1440 addresses filling out this method
 	}
+
+	@Override
+	public void removeIndex(
+			String indexName ) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeIndex(
+			String typeName,
+			String indexName ) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeType(
+			String typeName ) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteAll() {
+		// TODO Auto-generated method stub
+		
+	}
 }

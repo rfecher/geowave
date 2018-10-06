@@ -1,21 +1,18 @@
 package org.locationtech.geowave.core.geotime.store.query.aggregate;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.threeten.extra.Interval;
 
-import com.vividsolutions.jts.geom.Envelope;
-
-public class TimeRangeAggregation<P extends Persistable, T> implements
+abstract public class TimeRangeAggregation<P extends Persistable, T> implements
 		Aggregation<P, Interval, T>
 {
 
-	protected double minX = Double.MAX_VALUE;
-	protected double minY = Double.MAX_VALUE;
-	protected double maxX = -Double.MAX_VALUE;
-	protected double maxY = -Double.MAX_VALUE;
+	protected long min = Long.MAX_VALUE;
+	protected long max = Long.MIN_VALUE;
 
 	@Override
 	public byte[] toBinary() {
@@ -36,8 +33,7 @@ public class TimeRangeAggregation<P extends Persistable, T> implements
 			final Persistable parameters ) {}
 
 	public boolean isSet() {
-		if ((minX == Double.MAX_VALUE) || (minY == Double.MAX_VALUE) || (maxX == -Double.MAX_VALUE)
-				|| (maxY == -Double.MAX_VALUE)) {
+		if ((min == Long.MAX_VALUE) || (max == Long.MIN_VALUE)) {
 			return false;
 		}
 		return true;
@@ -46,122 +42,123 @@ public class TimeRangeAggregation<P extends Persistable, T> implements
 	@Override
 	public Interval getResult() {
 		if (!isSet()) {
-			return new Envelope();
+			return null;
 		}
-		return new Envelope(
-				minX,
-				maxX,
-				minY,
-				maxY);
+		return Interval
+				.of(
+						Instant
+								.ofEpochMilli(
+										min),
+						Instant
+								.ofEpochMilli(
+										max));
 	}
 
 	@Override
-	public TimeRange merge(
-			final TimeRange result1,
-			final TimeRange result2 ) {
-		if (result1.isNull()) {
+	public Interval merge(
+			final Interval result1,
+			final Interval result2 ) {
+		if (result1 == null) {
 			return result2;
 		}
-		else if (result2.isNull()) {
+		else if (result2 == null) {
 			return result1;
 		}
-		final double minX = Math
+		final long min = Math
 				.min(
-						result1.getMinX(),
-						result2.getMinX());
-		final double minY = Math
-				.min(
-						result1.getMinY(),
-						result2.getMinY());
-		final double maxX = Math
+						result1.getStart().toEpochMilli(),
+						result1.getEnd().toEpochMilli());
+		final long max = Math
 				.max(
-						result1.getMaxX(),
-						result2.getMaxX());
-		final double maxY = Math
-				.max(
-						result1.getMaxY(),
-						result2.getMaxY());
-		return new Envelope(
-				minX,
-				maxX,
-				minY,
-				maxY);
+						result2.getStart().toEpochMilli(),
+						result2.getEnd().toEpochMilli());
+		return Interval
+				.of(
+						Instant
+								.ofEpochMilli(
+										min),
+						Instant
+								.ofEpochMilli(
+										max));
 	}
 
 	@Override
 	public byte[] resultToBinary(
-			final Envelope result ) {
+			final Interval result ) {
 		final ByteBuffer buffer = ByteBuffer
 				.allocate(
-						32);
-		buffer
-				.putDouble(
-						minX);
-		buffer
-				.putDouble(
-						minY);
-		buffer
-				.putDouble(
-						maxX);
-		buffer
-				.putDouble(
-						maxY);
+						16);
+		if (result == null) {
+			buffer
+					.putLong(
+							Long.MAX_VALUE);
+			buffer
+					.putLong(
+							Long.MIN_VALUE);
+		}
+		else {
+			buffer
+					.putLong(
+							result.getStart().toEpochMilli());
+			buffer
+					.putLong(
+
+							result.getEnd().toEpochMilli());
+		}
 		return buffer.array();
 	}
 
 	@Override
-	public TimeRange resultFromBinary(
+	public Interval resultFromBinary(
 			final byte[] binary ) {
 		final ByteBuffer buffer = ByteBuffer
 				.wrap(
 						binary);
-		final double minTime = buffer.getLong();
-		final double maxTime = buffer.getLong();
-		return new TimeRange(
-				minTime,
-				maxTime);
+		final long minTime = buffer.getLong();
+		final long maxTime = buffer.getLong();
+		if ((min == Long.MAX_VALUE) || (max == Long.MIN_VALUE)) {
+			return null;
+		}
+		return Interval
+				.of(
+						Instant
+								.ofEpochMilli(
+										minTime),
+						Instant
+								.ofEpochMilli(
+										maxTime));
 	}
 
 	@Override
 	public void clearResult() {
-		minX = Double.MAX_VALUE;
-		minY = Double.MAX_VALUE;
-		maxX = -Double.MAX_VALUE;
-		maxY = -Double.MAX_VALUE;
+		min = Long.MAX_VALUE;
+		max = Long.MIN_VALUE;
 	}
 
 	@Override
 	public void aggregate(
 			final T entry ) {
-		final Envelope env = getEnvelope(
+		final Interval env = getInterval(
 				entry);
 		aggregate(
 				env);
 	}
 
 	protected void aggregate(
-			final Envelope env ) {
-		if ((env != null) && !env.isNull()) {
-			minX = Math
+			final Interval interval ) {
+		if (interval != null) {
+			min = Math
 					.min(
-							minX,
-							env.getMinX());
-			minY = Math
-					.min(
-							minY,
-							env.getMinY());
-			maxX = Math
+							min,
+							interval.getStart().toEpochMilli());
+			max = Math
 					.max(
-							maxX,
-							env.getMaxX());
-			maxY = Math
-					.max(
-							maxY,
-							env.getMaxY());
+							max,
+							interval.getEnd().toEpochMilli());
 		}
 	}
 
-	abstract protected Time getTime(
+	abstract protected Interval getInterval(
 			final T entry );
 
 }

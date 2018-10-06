@@ -12,8 +12,6 @@ package org.locationtech.geowave.core.store.api;
 
 import java.net.URL;
 
-import javax.annotation.Nullable;
-
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -27,10 +25,11 @@ import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToA
  */
 public interface DataStore
 {
-	public <T> void ingest(
+	 <T> void ingest(
 			URL url,
 			Index... index )
 			throws MismatchedIndexToAdapterMapping;
+
 	/**
 	 * Returns an index writer to perform batched write operations
 	 *
@@ -42,7 +41,7 @@ public interface DataStore
 	 * @return Returns the index writer which can be used for batch write
 	 *         operations
 	 */
-	public <T> void ingest(
+	<T> void ingest(
 			URL url,
 			IngestOptions<T> options,
 			Index... index )
@@ -64,34 +63,12 @@ public interface DataStore
 	 *         implements Closeable and it is best practice to close the
 	 *         iterator after it is no longer needed.
 	 */
-	public <T> CloseableIterator<T> query(
+	<T> CloseableIterator<T> query(
 			final Query<T> query );
 
 	// TODO javadocs
-	public <P extends Persistable, R extends Mergeable, T> R aggregate(
+	<P extends Persistable, R extends Mergeable, T> R aggregate(
 			final AggregationQuery<P, R, T> query );
-
-	/**
-	 * Delete all data in this data store that matches the query parameter
-	 * within the index described by the index passed in and matches the adapter
-	 * (the same adapter ID as the ID ingested). All data that matches the
-	 * query, adapter ID, and is in the index ID will be deleted.
-	 *
-	 * For ({@link org.locationtech.geowave.core.store.query.AdapterIdQuery),
-	 * all supporting statistics and secondary indices are also deleted.
-	 *
-	 * Statistics and secondary indices are updated as required for all other
-	 * types of queries.
-	 *
-	 *
-	 * @param queryOptions
-	 *            additional options for the processing the query
-	 * @param the
-	 *            data constraints for the query
-	 * @return true on success
-	 */
-	public <T> boolean delete(
-			final Query<T> query );
 
 	/**
 	 * Get all the adapters that have been used within this data store
@@ -112,7 +89,7 @@ public interface DataStore
 	 * @param statisticsId
 	 *            the data statistics ID
 	 * @param authorizations
-	 *            A set of authorizations to use for access to the atatistics
+	 *            A set of authorizations to use for access to the statistics
 	 * @return An iterator on the data statistics. The iterator implements
 	 *         Closeable and it is best practice to close the iterator after it
 	 *         is no longer needed.
@@ -153,6 +130,49 @@ public interface DataStore
 			String typeName,
 			Index... indices );
 
+	/**
+	 * remove statistics, across types
+	 * 
+	 * if this is the last index for a type need to remove type first or throw exception
+	 * @param indexName
+	 */
+	void removeIndex(
+			String indexName );
+
+	void removeIndex(
+			String typeName,
+			String indexName );
+
+	/**
+	 * remove statistics for type
+	 * @param typeName
+	 */
+	void removeType(
+			String typeName );
+	/**
+	 * Delete all data in this data store that matches the query parameter
+	 * within the index described by the index passed in and matches the adapter
+	 * (the same adapter ID as the ID ingested). All data that matches the
+	 * query, adapter ID, and is in the index ID will be deleted.
+	 *
+	 * For ({@link org.locationtech.geowave.core.store.query.AdapterIdQuery),
+	 * all supporting statistics and secondary indices are also deleted.
+	 *
+	 * Statistics and secondary indices are updated as required for all other
+	 * types of queries.
+	 *
+	 *
+	 * @param queryOptions
+	 *            additional options for the processing the query
+	 * @param the
+	 *            data constraints for the query
+	 * @return true on success
+	 */
+	<T> boolean delete(
+			final Query<T> query );
+	
+	void deleteAll();
+
 	<T> void addType(
 			DataTypeAdapter<T> dataTypeAdapter );
 
@@ -161,6 +181,6 @@ public interface DataStore
 	 * typename
 	 *
 	 */
-	public <T> Writer<T> createWriter(
+	<T> Writer<T> createWriter(
 			String typeName );
 }

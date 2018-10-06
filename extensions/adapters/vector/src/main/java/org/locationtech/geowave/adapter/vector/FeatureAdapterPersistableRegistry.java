@@ -26,13 +26,11 @@ import org.locationtech.geowave.adapter.vector.render.DistributedRenderResult;
 import org.locationtech.geowave.adapter.vector.render.PersistableComposite;
 import org.locationtech.geowave.adapter.vector.render.PersistableRenderedImage;
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderResult.CompositeGroupResult;
-import org.locationtech.geowave.adapter.vector.stats.FeatureBoundingBoxStatistics;
 import org.locationtech.geowave.adapter.vector.stats.FeatureCountMinSketchStatistics;
 import org.locationtech.geowave.adapter.vector.stats.FeatureFixedBinNumericStatistics;
 import org.locationtech.geowave.adapter.vector.stats.FeatureHyperLogLogStatistics;
 import org.locationtech.geowave.adapter.vector.stats.FeatureNumericHistogramStatistics;
 import org.locationtech.geowave.adapter.vector.stats.FeatureNumericRangeStatistics;
-import org.locationtech.geowave.adapter.vector.stats.FeatureTimeRangeStatistics;
 import org.locationtech.geowave.adapter.vector.stats.StatsConfigurationCollection;
 import org.locationtech.geowave.adapter.vector.stats.FeatureCountMinSketchStatistics.FeatureCountMinSketchConfig;
 import org.locationtech.geowave.adapter.vector.stats.FeatureFixedBinNumericStatistics.FeatureFixedBinConfig;
@@ -43,6 +41,8 @@ import org.locationtech.geowave.adapter.vector.stats.StatsConfigurationCollectio
 import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigurationSet;
 import org.locationtech.geowave.core.geotime.store.query.CQLQuery;
 import org.locationtech.geowave.core.geotime.store.query.filter.CQLQueryFilter;
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureBoundingBoxStatistics;
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureTimeRangeStatistics;
 import org.locationtech.geowave.core.geotime.util.TimeDescriptors.TimeDescriptorConfiguration;
 import org.locationtech.geowave.core.index.persist.PersistableRegistrySpi;
 

@@ -24,7 +24,7 @@ public interface VectorAggregationQueryBuilder<P extends Persistable, R> extends
 
 	// this can be particularly useful if you want to calculate the bbox on a
 	// different field than the indexed Geometry
-	VectorAggregationQueryBuilder<P, R> bboxOfResults(
+	VectorAggregationQueryBuilder<P, R> bboxOfResultsForGeometryField(
 			String typeName,
 			String geomAttributeName );
 
@@ -34,7 +34,7 @@ public interface VectorAggregationQueryBuilder<P extends Persistable, R> extends
 	VectorAggregationQueryBuilder<P, R> timeRangeOfResults(
 			String... typeNames );
 
-	VectorAggregationQueryBuilder<P, R> timeRangeOfResults(
+	VectorAggregationQueryBuilder<P, R> timeRangeOfResultsForTimeField(
 			String typeName,
 			String timeAttributeName );
 }

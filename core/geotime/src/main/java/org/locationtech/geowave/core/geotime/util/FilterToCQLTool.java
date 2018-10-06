@@ -129,7 +129,7 @@ public class FilterToCQLTool
 				TransformException {
 			super(
 					new LiteralExpressionImpl(
-							org.locationtech.geowave.adapter.vector.utils.FeatureGeometryUtils.buffer(
+							GeometryUtils.buffer(
 									getCRS(
 											e1,
 											e2),
@@ -161,7 +161,7 @@ public class FilterToCQLTool
 				TransformException {
 			super(
 					new LiteralExpressionImpl(
-							org.locationtech.geowave.adapter.vector.utils.FeatureGeometryUtils.buffer(
+							GeometryUtils.buffer(
 									getCRS(
 											e1,
 											e2),

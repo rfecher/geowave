@@ -13,8 +13,8 @@ package org.locationtech.geowave.adapter.vector.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.locationtech.geowave.adapter.vector.stats.FeatureTimeRangeStatistics;
 import org.locationtech.geowave.core.geotime.store.query.TemporalRange;
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureTimeRangeStatistics;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;

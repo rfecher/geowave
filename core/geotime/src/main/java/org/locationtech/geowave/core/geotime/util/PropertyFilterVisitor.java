@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,15 +11,12 @@
 package org.locationtech.geowave.core.geotime.util;
 
 import org.geotools.filter.visitor.NullFilterVisitor;
-import org.locationtech.geowave.adapter.vector.query.cql.PropertyConstraintSet;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.index.numeric.NumericEqualsConstraint;
 import org.locationtech.geowave.core.store.index.numeric.NumericGreaterThanConstraint;
 import org.locationtech.geowave.core.store.index.numeric.NumericGreaterThanOrEqualToConstraint;
 import org.locationtech.geowave.core.store.index.numeric.NumericLessThanConstraint;
 import org.locationtech.geowave.core.store.index.numeric.NumericLessThanOrEqualToConstraint;
 import org.locationtech.geowave.core.store.index.numeric.NumericQueryConstraint;
-import org.locationtech.geowave.core.store.index.text.TextExactMatchFilter;
 import org.locationtech.geowave.core.store.index.text.TextQueryConstraint;
 import org.opengis.filter.And;
 import org.opengis.filter.ExcludeFilter;
@@ -73,9 +70,9 @@ import org.opengis.filter.temporal.TOverlaps;
 
 /**
  * CQL visitor to extract constraints for secondary indexing queries.
- * 
+ *
  * TODO: compare operators for text (e.g. <,>,<=,>=) TODO: Temporal
- * 
+ *
  */
 public class PropertyFilterVisitor extends
 		NullFilterVisitor
@@ -101,12 +98,12 @@ public class PropertyFilterVisitor extends
 
 	/**
 	 * Please note we are only visiting literals involved in spatial operations.
-	 * 
+	 *
 	 * @param literal
 	 *            , hopefully a Geometry or Envelope
 	 * @param data
 	 *            Incoming BoundingBox (or Envelope or CRS)
-	 * 
+	 *
 	 * @return ReferencedEnvelope updated to reflect literal
 	 */
 	@Override
@@ -123,11 +120,14 @@ public class PropertyFilterVisitor extends
 			final Object data ) {
 		final PropertyConstraintSet constraints = new PropertyConstraintSet();
 		for (final Filter f : filter.getChildren()) {
-			final Object output = f.accept(
-					this,
-					data);
+			final Object output = f
+					.accept(
+							this,
+							data);
 			if (output instanceof PropertyConstraintSet) {
-				constraints.intersect((PropertyConstraintSet) output);
+				constraints
+						.intersect(
+								(PropertyConstraintSet) output);
 			}
 
 		}
@@ -147,11 +147,14 @@ public class PropertyFilterVisitor extends
 			final Object data ) {
 		final PropertyConstraintSet constraints = new PropertyConstraintSet();
 		for (final Filter f : filter.getChildren()) {
-			final Object output = f.accept(
-					this,
-					data);
+			final Object output = f
+					.accept(
+							this,
+							data);
 			if (output instanceof PropertyConstraintSet) {
-				constraints.union((PropertyConstraintSet) output);
+				constraints
+						.union(
+								(PropertyConstraintSet) output);
 			}
 		}
 		return constraints;
@@ -293,16 +296,22 @@ public class PropertyFilterVisitor extends
 	public Object visit(
 			final PropertyIsBetween filter,
 			final Object data ) {
-		final ByteArrayId leftResult = (ByteArrayId) filter.getExpression().accept(
-				this,
-				data);
-		final Object lower = filter.getLowerBoundary().accept(
-				this,
-				data);
+		final String leftResult = (String) filter
+				.getExpression()
+				.accept(
+						this,
+						data);
+		final Object lower = filter
+				.getLowerBoundary()
+				.accept(
+						this,
+						data);
 
-		final Object upper = filter.getUpperBoundary().accept(
-				this,
-				data);
+		final Object upper = filter
+				.getUpperBoundary()
+				.accept(
+						this,
+						data);
 
 		if (lower instanceof Number) {
 
@@ -322,13 +331,17 @@ public class PropertyFilterVisitor extends
 	public Object visit(
 			final PropertyIsEqualTo filter,
 			final Object data ) {
-		final ByteArrayId leftResult = (ByteArrayId) filter.getExpression1().accept(
-				this,
-				data);
+		final String leftResult = (String) filter
+				.getExpression1()
+				.accept(
+						this,
+						data);
 
-		final Object value = filter.getExpression2().accept(
-				this,
-				data);
+		final Object value = filter
+				.getExpression2()
+				.accept(
+						this,
+						data);
 
 		if (value instanceof Number) {
 			return new PropertyConstraintSet(
@@ -353,9 +366,11 @@ public class PropertyFilterVisitor extends
 	public Object visit(
 			final PropertyIsNotEqualTo filter,
 			final Object data ) {
-		return filter.getExpression1().accept(
-				this,
-				data);
+		return filter
+				.getExpression1()
+				.accept(
+						this,
+						data);
 
 	}
 
@@ -363,13 +378,17 @@ public class PropertyFilterVisitor extends
 	public Object visit(
 			final PropertyIsGreaterThan filter,
 			final Object data ) {
-		final ByteArrayId leftResult = (ByteArrayId) filter.getExpression1().accept(
-				this,
-				data);
+		final String leftResult = (String) filter
+				.getExpression1()
+				.accept(
+						this,
+						data);
 
-		final Object value = filter.getExpression2().accept(
-				this,
-				data);
+		final Object value = filter
+				.getExpression2()
+				.accept(
+						this,
+						data);
 
 		if (value instanceof Number) {
 			return new PropertyConstraintSet(
@@ -384,12 +403,16 @@ public class PropertyFilterVisitor extends
 	public Object visit(
 			final PropertyIsGreaterThanOrEqualTo filter,
 			final Object data ) {
-		final ByteArrayId leftResult = (ByteArrayId) filter.getExpression1().accept(
-				this,
-				data);
-		final Object value = filter.getExpression2().accept(
-				this,
-				data);
+		final String leftResult = (String) filter
+				.getExpression1()
+				.accept(
+						this,
+						data);
+		final Object value = filter
+				.getExpression2()
+				.accept(
+						this,
+						data);
 
 		if (value instanceof Number) {
 			return new PropertyConstraintSet(
@@ -404,12 +427,16 @@ public class PropertyFilterVisitor extends
 	public Object visit(
 			final PropertyIsLessThan filter,
 			final Object data ) {
-		final ByteArrayId leftResult = (ByteArrayId) filter.getExpression1().accept(
-				this,
-				data);
-		final Object value = filter.getExpression2().accept(
-				this,
-				data);
+		final String leftResult = (String) filter
+				.getExpression1()
+				.accept(
+						this,
+						data);
+		final Object value = filter
+				.getExpression2()
+				.accept(
+						this,
+						data);
 
 		if (value instanceof Number) {
 			return new PropertyConstraintSet(
@@ -425,13 +452,17 @@ public class PropertyFilterVisitor extends
 			final PropertyIsLessThanOrEqualTo filter,
 			final Object data ) {
 
-		final ByteArrayId leftResult = (ByteArrayId) filter.getExpression1().accept(
-				this,
-				data);
+		final String leftResult = (String) filter
+				.getExpression1()
+				.accept(
+						this,
+						data);
 
-		final Object value = filter.getExpression2().accept(
-				this,
-				data);
+		final Object value = filter
+				.getExpression2()
+				.accept(
+						this,
+						data);
 
 		if (value instanceof Number) {
 			return new PropertyConstraintSet(
@@ -580,8 +611,7 @@ public class PropertyFilterVisitor extends
 	public Object visit(
 			final PropertyName expression,
 			final Object data ) {
-		return new ByteArrayId(
-				expression.getPropertyName());
+		return expression.getPropertyName();
 
 	}
 
@@ -589,9 +619,10 @@ public class PropertyFilterVisitor extends
 	public Object visit(
 			final Subtract expression,
 			final Object data ) {
-		return expression.accept(
-				this,
-				data);
+		return expression
+				.accept(
+						this,
+						data);
 	}
 
 }

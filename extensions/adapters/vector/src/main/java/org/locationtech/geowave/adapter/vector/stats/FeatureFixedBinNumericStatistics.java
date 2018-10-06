@@ -13,6 +13,7 @@ package org.locationtech.geowave.adapter.vector.stats;
 import java.nio.ByteBuffer;
 import java.util.Date;
 
+import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.FixedBinNumericStatistics;
@@ -38,7 +39,7 @@ import org.opengis.feature.simple.SimpleFeature;
  */
 public class FeatureFixedBinNumericStatistics extends
 		FixedBinNumericStatistics<SimpleFeature> implements
-		FeatureStatistic
+		FieldNameStatistic
 {
 
 	public static final ByteArrayId STATS_TYPE = new ByteArrayId(

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -12,41 +12,42 @@ package org.locationtech.geowave.core.geotime.store.dimension;
 
 import org.locationtech.geowave.core.geotime.index.dimension.LongitudeDefinition;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.dimension.NumericDimensionDefinition;
 import org.locationtech.geowave.core.index.sfc.data.NumericData;
 
 /**
  * This field can be used as a EPSG:4326 longitude dimension within GeoWave. It
  * can utilize JTS geometry as the underlying spatial object for this dimension.
- * 
+ *
  */
 public class LongitudeField extends
 		SpatialField
 {
 	public LongitudeField() {
 		this(
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_ID);
+				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME);
 	}
 
 	public LongitudeField(
-			final ByteArrayId fieldId ) {
+			final String fieldName ) {
 		this(
 				new LongitudeDefinition(),
-				fieldId);
+				fieldName);
 	}
 
 	public LongitudeField(
 			final NumericDimensionDefinition baseDefinition,
-			final ByteArrayId fieldId ) {
+			final String fieldName ) {
 		super(
 				baseDefinition,
-				fieldId);
+				fieldName);
 	}
 
 	@Override
 	public NumericData getNumericData(
 			final GeometryWrapper geometry ) {
-		return GeometryUtils.xRangeFromGeometry(geometry.getGeometry());
+		return GeometryUtils
+				.xRangeFromGeometry(
+						geometry.getGeometry());
 	}
 }

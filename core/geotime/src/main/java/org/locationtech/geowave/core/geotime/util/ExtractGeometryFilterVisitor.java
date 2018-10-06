@@ -454,7 +454,7 @@ public class ExtractGeometryFilterVisitor extends
 		}
 		Pair<Geometry, Double> geometryAndDegrees;
 		try {
-			geometryAndDegrees = org.locationtech.geowave.adapter.vector.utils.FeatureGeometryUtils.buffer(
+			geometryAndDegrees = GeometryUtils.buffer(
 					crs,
 					geom,
 					filter.getDistanceUnits(),

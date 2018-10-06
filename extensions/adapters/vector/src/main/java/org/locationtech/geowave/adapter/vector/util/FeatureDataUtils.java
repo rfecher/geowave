@@ -53,38 +53,6 @@ public class FeatureDataUtils
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(FeatureDataUtils.class);
 
-	public static SimpleFeature crsTransform(
-			final SimpleFeature entry,
-			final SimpleFeatureType reprojectedType,
-			final MathTransform transform ) {
-		SimpleFeature crsEntry = entry;
-
-		if (transform != null) {
-			// we can use the transform we have already calculated for this
-			// feature
-			try {
-
-				// this will clone the feature and retype it to Index CRS
-				crsEntry = SimpleFeatureBuilder.retype(
-						entry,
-						reprojectedType);
-
-				// this will transform the geometry
-				crsEntry.setDefaultGeometry(JTS.transform(
-						(Geometry) entry.getDefaultGeometry(),
-						transform));
-			}
-			catch (MismatchedDimensionException | TransformException e) {
-				LOGGER
-						.warn(
-								"Unable to perform transform to specified CRS of the index, the feature geometry will remain in its original CRS",
-								e);
-			}
-		}
-
-		return crsEntry;
-	}
-
 	public static SimpleFeature defaultCRSTransform(
 			final SimpleFeature entry,
 			final SimpleFeatureType persistedType,

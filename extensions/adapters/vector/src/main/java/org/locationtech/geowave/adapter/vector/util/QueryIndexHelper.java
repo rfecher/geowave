@@ -12,13 +12,13 @@ package org.locationtech.geowave.adapter.vector.util;
 
 import java.util.Map;
 
-import org.locationtech.geowave.adapter.vector.stats.FeatureBoundingBoxStatistics;
-import org.locationtech.geowave.adapter.vector.stats.FeatureTimeRangeStatistics;
 import org.locationtech.geowave.core.geotime.store.query.SpatialTemporalQuery;
 import org.locationtech.geowave.core.geotime.store.query.TemporalConstraints;
 import org.locationtech.geowave.core.geotime.store.query.TemporalConstraintsSet;
 import org.locationtech.geowave.core.geotime.store.query.TemporalRange;
 import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxDataStatistics;
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureBoundingBoxStatistics;
+import org.locationtech.geowave.core.geotime.store.statistics.FeatureTimeRangeStatistics;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.geotime.util.TimeDescriptors;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils.GeoConstraintsWrapper;

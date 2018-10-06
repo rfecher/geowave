@@ -81,7 +81,7 @@ public class SpatialTemporalQueryTest
 		final PersistentDataset<CommonIndexValue> commonData = new PersistentDataset<CommonIndexValue>();
 
 		commonData.addValue(
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_ID,
+				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME,
 				new GeometryWrapper(
 						factory.createLineString(coordinates)));
 		commonData.addValue(
