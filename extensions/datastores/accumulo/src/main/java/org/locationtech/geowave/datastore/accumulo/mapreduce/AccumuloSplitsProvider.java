@@ -36,7 +36,7 @@ import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramS
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.accumulo.mapreduce.BackwardCompatibleTabletLocatorFactory.BackwardCompatibleTabletLocator;
 import org.locationtech.geowave.datastore.accumulo.operations.AccumuloOperations;
@@ -64,7 +64,7 @@ public class AccumuloSplitsProvider extends
 			final TransientAdapterStore adapterStore,
 			final DataStatisticsStore statsStore,
 			final Integer maxSplits,
-			final DistributableQuery query,
+			final DistributableQueryConstrain query,
 			final String[] authorizations )
 			throws IOException {
 

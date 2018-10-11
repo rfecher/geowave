@@ -111,7 +111,7 @@ public class InputFormatIteratorWrapper<T> implements
 				value) : value);
 		final GeoWaveInputKey key = new GeoWaveInputKey(
 				row,
-				index.getId());
+				index.getName());
 		return new GeoWaveInputFormatEntry(
 				key,
 				result);

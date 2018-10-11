@@ -50,7 +50,7 @@ public class BasicQueryTest
 
 		commonData.addValue(
 				new TimeField(
-						Unit.YEAR).getFieldId(),
+						Unit.YEAR).getFieldName(),
 				new TimeRange(
 						start.getTime(),
 						end.getTime(),

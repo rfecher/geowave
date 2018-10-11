@@ -19,23 +19,24 @@ import org.locationtech.geowave.adapter.vector.index.IndexQueryStrategySPI.Query
 import org.locationtech.geowave.adapter.vector.plugin.transaction.GeoWaveTransaction;
 import org.locationtech.geowave.adapter.vector.plugin.transaction.TransactionsAllocator;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
+import org.locationtech.geowave.core.geotime.store.query.api.VectorQueryBuilder;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.adapter.InitializeWithIndicesDataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
-import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Writer;
-import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.data.visibility.GlobalVisibilityHandler;
 import org.locationtech.geowave.core.store.data.visibility.UniformVisibilityWriter;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
-import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
 import org.opengis.feature.simple.SimpleFeature;
 import org.spark_project.guava.collect.Maps;
 
@@ -62,7 +63,9 @@ public class GeoWaveDataStoreComponents
 		this.indexStore = indexStore;
 		this.dataStatisticsStore = dataStatisticsStore;
 		this.gtStore = gtStore;
-		adapterIndices = gtStore.getIndicesForAdapter(adapter);
+		adapterIndices = gtStore
+				.getIndicesForAdapter(
+						adapter);
 		this.transactionAllocator = transactionAllocator;
 	}
 
@@ -70,13 +73,21 @@ public class GeoWaveDataStoreComponents
 		// this is ensuring the adapter is properly initialized with the
 		// indicies and writing it to the adapterStore, in cases where the
 		// featuredataadapter was created from geotools datastore's createSchema
-		adapter.init(adapterIndices);
-		final short internalAdapterId = gtStore.getInternalAdapterStore().getInternalAdapterId(
-				adapter.getAdapterId());
+		if (adapter instanceof InitializeWithIndicesDataAdapter) {
+			((InitializeWithIndicesDataAdapter) adapter)
+					.init(
+							adapterIndices);
+		}
+		final short internalAdapterId = gtStore
+				.getInternalAdapterStore()
+				.getAdapterId(
+						adapter.getTypeName());
 		final InternalDataAdapter<?> internalDataAdapter = new InternalDataAdapterWrapper(
 				adapter,
 				internalAdapterId);
-		gtStore.adapterStore.addAdapter(internalDataAdapter);
+		gtStore.adapterStore
+				.addAdapter(
+						internalDataAdapter);
 	}
 
 	public IndexStore getIndexStore() {
@@ -104,33 +115,48 @@ public class GeoWaveDataStoreComponents
 	}
 
 	public CloseableIterator<Index> getIndices(
-			final Map<ByteArrayId, InternalDataStatistics<SimpleFeature>> stats,
+			final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats,
 			final BasicQuery query ) {
 		final GeoWaveGTDataStore gtStore = getGTstore();
 		final Map<QueryHint, Object> queryHints = Maps.newHashMap();
-		queryHints.put(
-				QueryHint.MAX_RANGE_DECOMPOSITION,
-				gtStore.getDataStoreOptions().getMaxRangeDecomposition());
-		return gtStore.getIndexQueryStrategy().getIndices(
-				stats,
-				query,
-				gtStore.getIndicesForAdapter(adapter),
-				queryHints);
+		queryHints
+				.put(
+						QueryHint.MAX_RANGE_DECOMPOSITION,
+						gtStore.getDataStoreOptions().getMaxRangeDecomposition());
+		return gtStore
+				.getIndexQueryStrategy()
+				.getIndices(
+						stats,
+						query,
+						gtStore
+								.getIndicesForAdapter(
+										adapter),
+						queryHints);
 	}
 
 	public void remove(
 			final SimpleFeature feature,
 			final GeoWaveTransaction transaction )
 			throws IOException {
+		final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
 
-		final QueryOptions options = new QueryOptions(
-				adapter);
-		options.setAuthorizations(transaction.composeAuthorizations());
-
-		dataStore.delete(
-				options,
-				new DataIdQuery(
-						adapter.getDataId(feature)));
+		dataStore
+				.delete(
+						bldr
+								.setAuthorizations(
+										transaction.composeAuthorizations())
+								.addTypeName(
+										adapter.getTypeName())
+								.constraints(
+										bldr
+												.constraintsFactory()
+												.dataIds(
+														new ByteArrayId[] {
+															adapter
+																	.getDataId(
+																			feature)
+														}))
+								.build());
 	}
 
 	public void remove(
@@ -138,15 +164,26 @@ public class GeoWaveDataStoreComponents
 			final GeoWaveTransaction transaction )
 			throws IOException {
 
-		final QueryOptions options = new QueryOptions(
-				adapter);
-		options.setAuthorizations(transaction.composeAuthorizations());
+		final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
 
-		dataStore.delete(
-				options,
-				new DataIdQuery(
-						new ByteArrayId(
-								StringUtils.stringToBinary(fid))));
+		dataStore
+				.delete(
+						bldr
+								.setAuthorizations(
+										transaction.composeAuthorizations())
+								.addTypeName(
+										adapter.getTypeName())
+								.constraints(
+										bldr
+												.constraintsFactory()
+												.dataIds(
+														new ByteArrayId[] {
+															new ByteArrayId(
+																	StringUtils
+																			.stringToBinary(
+																					fid))
+														}))
+								.build());
 
 	}
 
@@ -156,19 +193,28 @@ public class GeoWaveDataStoreComponents
 			final Set<String> fidList,
 			final GeoWaveTransaction transaction )
 			throws IOException {
-		final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<SimpleFeature>(
-				new GlobalVisibilityHandler(
+		final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<>(
+				new GlobalVisibilityHandler<>(
 						transaction.composeVisibility()));
-
-		try (Writer indexWriter = dataStore.createWriter(
-				adapter,
-				adapterIndices)) {
+		dataStore
+				.addType(
+						adapter);
+		dataStore
+				.addIndex(
+						adapter.getTypeName(),
+						adapterIndices);
+		try (Writer<SimpleFeature> indexWriter = dataStore
+				.createWriter(
+						adapter.getTypeName())) {
 			while (featureIt.hasNext()) {
 				final SimpleFeature feature = featureIt.next();
-				fidList.add(feature.getID());
-				indexWriter.write(
-						feature,
-						visibilityWriter);
+				fidList
+						.add(
+								feature.getID());
+				indexWriter
+						.write(
+								feature,
+								visibilityWriter);
 			}
 		}
 
@@ -179,16 +225,23 @@ public class GeoWaveDataStoreComponents
 			final GeoWaveTransaction transaction )
 			throws IOException {
 
-		final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<SimpleFeature>(
-				new GlobalVisibilityHandler(
+		final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<>(
+				new GlobalVisibilityHandler<>(
 						transaction.composeVisibility()));
-
-		try (Writer indexWriter = dataStore.createWriter(
-				adapter,
-				adapterIndices)) {
-			indexWriter.write(
-					feature,
-					visibilityWriter);
+		dataStore
+				.addType(
+						adapter);
+		dataStore
+				.addIndex(
+						adapter.getTypeName(),
+						adapterIndices);
+		try (Writer<SimpleFeature> indexWriter = dataStore
+				.createWriter(
+						adapter.getTypeName())) {
+			indexWriter
+					.write(
+							feature,
+							visibilityWriter);
 		}
 
 	}
@@ -201,6 +254,8 @@ public class GeoWaveDataStoreComponents
 	public void releaseTransaction(
 			final String txID )
 			throws IOException {
-		transactionAllocator.releaseTransaction(txID);
+		transactionAllocator
+				.releaseTransaction(
+						txID);
 	}
 }

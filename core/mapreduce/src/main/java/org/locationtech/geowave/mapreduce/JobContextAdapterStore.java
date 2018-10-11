@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -19,7 +19,6 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.JobContext;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
@@ -41,7 +40,7 @@ public class JobContextAdapterStore implements
 	private final JobContext context;
 	private PersistentAdapterStore persistentAdapterStore = null;
 	private InternalAdapterStore internalAdapterStore = null;
-	private final Map<ByteArrayId, DataTypeAdapter<?>> adapterCache = new HashMap<ByteArrayId, DataTypeAdapter<?>>();
+	private final Map<String, DataTypeAdapter<?>> adapterCache = new HashMap<>();
 
 	public JobContextAdapterStore(
 			final JobContext context,
@@ -57,51 +56,51 @@ public class JobContextAdapterStore implements
 	public void addAdapter(
 			final DataTypeAdapter<?> adapter ) {
 		adapterCache.put(
-				adapter.getAdapterId(),
+				adapter.getTypeName(),
 				adapter);
 	}
 
 	@Override
 	public void removeAdapter(
-			final ByteArrayId adapterId ) {
-		adapterCache.remove(adapterId);
+			final String typeName ) {
+		adapterCache.remove(typeName);
 	}
 
 	@Override
 	public DataTypeAdapter<?> getAdapter(
-			final ByteArrayId adapterId ) {
-		DataTypeAdapter<?> adapter = adapterCache.get(adapterId);
+			final String typeName ) {
+		DataTypeAdapter<?> adapter = adapterCache.get(typeName);
 		if (adapter == null) {
-			adapter = getAdapterInternal(adapterId);
+			adapter = getAdapterInternal(typeName);
 		}
 		return adapter;
 	}
 
 	@Override
 	public boolean adapterExists(
-			final ByteArrayId adapterId ) {
-		if (adapterCache.containsKey(adapterId)) {
+			final String typeName ) {
+		if (adapterCache.containsKey(typeName)) {
 			return true;
 		}
-		final DataTypeAdapter<?> adapter = getAdapterInternal(adapterId);
+		final DataTypeAdapter<?> adapter = getAdapterInternal(typeName);
 		return adapter != null;
 	}
 
 	private DataTypeAdapter<?> getAdapterInternal(
-			final ByteArrayId adapterId ) {
+			final String typeName ) {
 		// first try to get it from the job context
 		DataTypeAdapter<?> adapter = getDataAdapter(
 				context,
-				adapterId);
+				typeName);
 		if (adapter == null) {
 
 			// then try to get it from the persistent store
-			adapter = persistentAdapterStore.getAdapter(internalAdapterStore.getInternalAdapterId(adapterId));
+			adapter = persistentAdapterStore.getAdapter(internalAdapterStore.getAdapterId(typeName));
 		}
 
 		if (adapter != null) {
 			adapterCache.put(
-					adapterId,
+					typeName,
 					adapter);
 		}
 		return adapter;
@@ -127,7 +126,7 @@ public class JobContextAdapterStore implements
 									final Object obj ) {
 								if (obj instanceof DataTypeAdapter) {
 									adapterCache.put(
-											((DataTypeAdapter) obj).getAdapterId(),
+											((DataTypeAdapter) obj).getTypeName(),
 											(DataTypeAdapter) obj);
 								}
 								return obj;
@@ -135,7 +134,7 @@ public class JobContextAdapterStore implements
 						}));
 	}
 
-	public List<ByteArrayId> getAdapterIds() {
+	public List<String> getTypeNames() {
 		final DataTypeAdapter<?>[] userAdapters = GeoWaveConfiguratorBase.getDataAdapters(
 				CLASS,
 				context);
@@ -148,17 +147,17 @@ public class JobContextAdapterStore implements
 						public Object transform(
 								final Object input ) {
 							if (input instanceof DataTypeAdapter) {
-								return ((DataTypeAdapter) input).getAdapterId();
+								return ((DataTypeAdapter) input).getTypeName();
 							}
 							return input;
 						}
 					}));
 		}
 		else {
-			final List<ByteArrayId> retVal = new ArrayList<ByteArrayId>(
+			final List<String> retVal = new ArrayList<>(
 					userAdapters.length);
 			for (final DataTypeAdapter<?> adapter : userAdapters) {
-				retVal.add(adapter.getAdapterId());
+				retVal.add(adapter.getTypeName());
 			}
 			return retVal;
 		}
@@ -166,11 +165,11 @@ public class JobContextAdapterStore implements
 
 	protected static DataTypeAdapter<?> getDataAdapter(
 			final JobContext context,
-			final ByteArrayId adapterId ) {
+			final String typeName ) {
 		return GeoWaveConfiguratorBase.getDataAdapter(
 				CLASS,
 				context,
-				adapterId);
+				typeName);
 	}
 
 	public static DataTypeAdapter<?>[] getDataAdapters(
@@ -191,10 +190,10 @@ public class JobContextAdapterStore implements
 
 	public static void removeAdapter(
 			final Configuration configuration,
-			final ByteArrayId adapterId ) {
+			final String typeName  ) {
 		GeoWaveConfiguratorBase.removeDataAdapter(
 				CLASS,
 				configuration,
-				adapterId);
+				typeName);
 	}
 }

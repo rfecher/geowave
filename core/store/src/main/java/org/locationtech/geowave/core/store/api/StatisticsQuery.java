@@ -1,5 +1,6 @@
 package org.locationtech.geowave.core.store.api;
 
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsType;
 
 public class StatisticsQuery<R>
@@ -35,5 +36,11 @@ public class StatisticsQuery<R>
 
 	public String[] getAuthorizations() {
 		return authorizations;
+	}
+
+	public StatisticsId getId() {
+		return new StatisticsId(
+				statsType,
+				extendedId);
 	}
 }

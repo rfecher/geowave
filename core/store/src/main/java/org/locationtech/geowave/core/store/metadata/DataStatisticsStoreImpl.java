@@ -20,8 +20,8 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.DataStoreOptions;
+import org.locationtech.geowave.core.store.adapter.statistics.BaseStatisticsType;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
-import org.locationtech.geowave.core.store.adapter.statistics.GenericStatisticsType;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsType;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
@@ -234,7 +234,7 @@ public class DataStatisticsStoreImpl extends
 			if ((index > 0) && (index < (entry.getPrimaryId().length - 1))) {
 				stats
 						.setType(
-								new GenericStatisticsType(
+								new BaseStatisticsType(
 										Arrays
 												.copyOfRange(
 														entry.getPrimaryId(),
@@ -254,7 +254,7 @@ public class DataStatisticsStoreImpl extends
 			else {
 				stats
 						.setType(
-								new GenericStatisticsType(
+								new BaseStatisticsType(
 										entry.getPrimaryId()));
 			}
 			final byte[] visibility = entry.getVisibility();

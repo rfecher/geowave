@@ -60,7 +60,7 @@ public class CQLQuery extends
 					adapter);
 			try (final CloseableIterator<Object> it = dataStore.query(
 					options,
-					org.locationtech.geowave.core.geotime.store.query.CQLQuery.createOptimalQuery(
+					org.locationtech.geowave.core.geotime.store.query.ExplicitCQLQuery.createOptimalQuery(
 							cqlStr,
 							adapter,
 							null,
@@ -89,7 +89,7 @@ public class CQLQuery extends
 					new QueryOptions(
 							adapterId,
 							indexId),
-					org.locationtech.geowave.core.geotime.store.query.CQLQuery.createOptimalQuery(
+					org.locationtech.geowave.core.geotime.store.query.ExplicitCQLQuery.createOptimalQuery(
 							cqlStr,
 							adapter,
 							null,

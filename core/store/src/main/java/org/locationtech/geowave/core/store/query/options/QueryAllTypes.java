@@ -3,8 +3,7 @@ package org.locationtech.geowave.core.store.query.options;
 public class QueryAllTypes<T> extends
 		FilterByTypeQueryOptions<T>
 {
-	public QueryAllTypes(
-			final String[] typeNames ) {
+	public QueryAllTypes() {
 		super(
 				null);
 	}

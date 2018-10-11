@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.operations;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,7 +27,7 @@ abstract public class BaseReaderParams<T>
 
 	private final Index index;
 	private final PersistentAdapterStore adapterStore;
-	private final Collection<Short> adapterIds;
+	private final short[] adapterIds;
 	private final double[] maxResolutionSubsamplingPerDimension;
 	private final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation;
 	private final Pair<String[], InternalDataAdapter<?>> fieldSubsets;
@@ -42,7 +41,7 @@ abstract public class BaseReaderParams<T>
 	public BaseReaderParams(
 			final Index index,
 			final PersistentAdapterStore adapterStore,
-			final Collection<Short> adapterIds,
+			final short[] adapterIds,
 			final double[] maxResolutionSubsamplingPerDimension,
 			final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
 			final Pair<String[], InternalDataAdapter<?>> fieldSubsets,
@@ -74,7 +73,7 @@ abstract public class BaseReaderParams<T>
 		return adapterStore;
 	}
 
-	public Collection<Short> getAdapterIds() {
+	public short[] getAdapterIds() {
 		return adapterIds;
 	}
 

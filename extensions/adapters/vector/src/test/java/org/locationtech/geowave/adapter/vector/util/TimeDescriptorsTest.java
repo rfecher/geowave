@@ -8,7 +8,7 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.adapter.vector.utils;
+package org.locationtech.geowave.adapter.vector.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

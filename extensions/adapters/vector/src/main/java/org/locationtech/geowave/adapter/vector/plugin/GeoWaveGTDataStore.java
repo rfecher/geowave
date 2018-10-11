@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -41,8 +41,6 @@ import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
 import org.locationtech.geowave.core.geotime.store.dimension.LatitudeField;
 import org.locationtech.geowave.core.geotime.store.dimension.LongitudeField;
 import org.locationtech.geowave.core.geotime.store.dimension.TimeField;
-import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.AdapterToIndexMapping;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.DataStoreOptions;
@@ -54,11 +52,9 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.data.visibility.VisibilityManagement;
 import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
@@ -69,7 +65,9 @@ public class GeoWaveGTDataStore extends
 		ContentDataStore
 {
 	/** Package logger */
-	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveGTDataStore.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					GeoWaveGTDataStore.class);
 
 	private FeatureListenerManager listenerManager = null;
 	protected PersistentAdapterStore adapterStore;
@@ -79,7 +77,7 @@ public class GeoWaveGTDataStore extends
 	protected DataStore dataStore;
 	protected DataStoreOptions dataStoreOptions;
 	protected AdapterIndexMappingStore adapterIndexMappingStore;
-	private final Map<String, Index[]> preferredIndexes = new ConcurrentHashMap<String, Index[]>();
+	private final Map<String, Index[]> preferredIndexes = new ConcurrentHashMap<>();
 
 	private final VisibilityManagement<SimpleFeature> visibilityManagement = VisibilityManagementHelper
 			.loadVisibilityManagement();
@@ -93,11 +91,16 @@ public class GeoWaveGTDataStore extends
 			final GeoWavePluginConfig config )
 			throws IOException {
 		listenerManager = new FeatureListenerManager();
-		lockingManager = config.getLockingManagementFactory().createLockingManager(
+		lockingManager = config
+				.getLockingManagementFactory()
+				.createLockingManager(
+						config);
+		authorizationSPI = config
+				.getAuthorizationFactory()
+				.create(
+						config.getAuthorizationURL());
+		init(
 				config);
-		authorizationSPI = config.getAuthorizationFactory().create(
-				config.getAuthorizationURL());
-		init(config);
 		featureNameSpaceURI = config.getFeatureNamespace();
 		indexQueryStrategy = config.getIndexQueryStrategy();
 		transactionBufferSize = config.getTransactionBufferSize();
@@ -153,24 +156,33 @@ public class GeoWaveGTDataStore extends
 
 	protected Index[] getIndicesForAdapter(
 			final GeotoolsFeatureDataAdapter adapter ) {
-		Index[] currentSelections = preferredIndexes.get(adapter.getFeatureType().getName().toString());
+		Index[] currentSelections = preferredIndexes
+				.get(
+						adapter.getFeatureType().getName().toString());
 		if (currentSelections != null) {
 			return currentSelections;
 		}
 
-		short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapter.getAdapterId());
+		final short internalAdapterId = internalAdapterStore
+				.getAdapterId(
+						adapter.getTypeName());
 
 		final AdapterToIndexMapping adapterIndexMapping = adapterIndexMappingStore
-				.getIndicesForAdapter(internalAdapterId);
+				.getIndicesForAdapter(
+						internalAdapterId);
 		if ((adapterIndexMapping != null) && adapterIndexMapping.isNotEmpty()) {
-			currentSelections = adapterIndexMapping.getIndices(indexStore);
+			currentSelections = adapterIndexMapping
+					.getIndices(
+							indexStore);
 		}
 		else {
-			currentSelections = getPreferredIndices(adapter);
+			currentSelections = getPreferredIndices(
+					adapter);
 		}
-		preferredIndexes.put(
-				adapter.getFeatureType().getName().toString(),
-				currentSelections);
+		preferredIndexes
+				.put(
+						adapter.getFeatureType().getName().toString(),
+						currentSelections);
 		return currentSelections;
 	}
 
@@ -184,35 +196,52 @@ public class GeoWaveGTDataStore extends
 		final FeatureDataAdapter adapter = new FeatureDataAdapter(
 				featureType,
 				visibilityManagement);
-		short internalAdapterId = internalAdapterStore.addAdapterId(adapter.getAdapterId());
-		if (!adapterStore.adapterExists(internalAdapterId)) {
+		final short adapterId = internalAdapterStore
+				.addTypeName(
+						adapter.getTypeName());
+		if (!adapterStore
+				.adapterExists(
+						adapterId)) {
 			// it is questionable whether createSchema *should* write the
 			// adapter to the store, it is missing the proper index information
 			// at this stage
-			adapter.init(new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()));
+			adapter
+					.init(
+							new SpatialDimensionalityTypeProvider()
+									.createIndex(
+											new SpatialOptions()));
 			if (featureNameSpaceURI != null) {
-				adapter.setNamespace(featureNameSpaceURI.toString());
+				adapter
+						.setNamespace(
+								featureNameSpaceURI.toString());
 			}
-			InternalDataAdapter<?> internalAdapter = new InternalDataAdapterWrapper(
+			final InternalDataAdapter<?> internalAdapter = new InternalDataAdapterWrapper(
 					adapter,
-					internalAdapterId);
-			adapterStore.addAdapter(internalAdapter);
+					adapterId);
+			adapterStore
+					.addAdapter(
+							internalAdapter);
 		}
 	}
 
 	private GeotoolsFeatureDataAdapter getAdapter(
 			final String typeName ) {
 		final GeotoolsFeatureDataAdapter featureAdapter;
-		short internalAdapterId = internalAdapterStore.getInternalAdapterId(new ByteArrayId(
-				StringUtils.stringToBinary(typeName)));
-		final InternalDataAdapter<?> adapter = adapterStore.getAdapter(internalAdapterId);
+		final short adapterId = internalAdapterStore
+				.getAdapterId(
+						typeName);
+		final InternalDataAdapter<?> adapter = adapterStore
+				.getAdapter(
+						adapterId);
 		if ((adapter == null) || !(adapter.getAdapter() instanceof GeotoolsFeatureDataAdapter)) {
 			return null;
 		}
 		featureAdapter = (GeotoolsFeatureDataAdapter) adapter.getAdapter();
 		if (featureNameSpaceURI != null) {
 			if (adapter.getAdapter() instanceof FeatureDataAdapter) {
-				((FeatureDataAdapter) featureAdapter).setNamespace(featureNameSpaceURI.toString());
+				((FeatureDataAdapter) featureAdapter)
+						.setNamespace(
+								featureNameSpaceURI.toString());
 			}
 		}
 		return featureAdapter;
@@ -226,7 +255,9 @@ public class GeoWaveGTDataStore extends
 		while (adapters.hasNext()) {
 			final InternalDataAdapter<?> adapter = adapters.next();
 			if (adapter.getAdapter() instanceof GeotoolsFeatureDataAdapter) {
-				names.add(((GeotoolsFeatureDataAdapter) adapter.getAdapter()).getFeatureType().getName());
+				names
+						.add(
+								((GeotoolsFeatureDataAdapter) adapter.getAdapter()).getFeatureType().getName());
 			}
 		}
 		adapters.close();
@@ -281,7 +312,8 @@ public class GeoWaveGTDataStore extends
 		return new GeoWaveFeatureSource(
 				entry,
 				Query.ALL,
-				getAdapter(entry.getTypeName()),
+				getAdapter(
+						entry.getTypeName()),
 				transactionsAllocator);
 	}
 
@@ -289,25 +321,18 @@ public class GeoWaveGTDataStore extends
 	public void removeSchema(
 			final Name typeName )
 			throws IOException {
-		this.removeSchema(typeName.getLocalPart());
+		this
+				.removeSchema(
+						typeName.getLocalPart());
 	}
 
 	@Override
 	public void removeSchema(
 			final String typeName )
 			throws IOException {
-		short internalAdapterId = internalAdapterStore.getInternalAdapterId(new ByteArrayId(
-				StringUtils.stringToBinary(typeName)));
-		final InternalDataAdapter<?> adapter = adapterStore.getAdapter(internalAdapterId);
-		if (adapter != null) {
-			final String[] authorizations = getAuthorizationSPI().getAuthorizations();
-			dataStore.delete(
-					new QueryOptions(
-							adapter,
-							authorizations),
-					new EverythingQuery());
-			// TODO do we want to delete the adapter from the adapter store?
-		}
+		dataStore
+				.removeType(
+						typeName);
 	}
 
 	/**
@@ -330,16 +355,19 @@ public class GeoWaveGTDataStore extends
 						source);
 			}
 			else {
-				state = (GeoWaveTransactionState) transaction.getState(this);
+				state = (GeoWaveTransactionState) transaction
+						.getState(
+								this);
 				if (state == null) {
 					state = new GeoWaveTransactionManagementState(
 							transactionBufferSize,
 							source.getComponents(),
 							transaction,
 							(LockingManagement) lockingManager);
-					transaction.putState(
-							this,
-							state);
+					transaction
+							.putState(
+									this,
+									state);
 				}
 			}
 			return state;
@@ -349,9 +377,11 @@ public class GeoWaveGTDataStore extends
 	public Index[] getPreferredIndices(
 			final GeotoolsFeatureDataAdapter adapter ) {
 
-		final List<Index> currentSelectionsList = new ArrayList<Index>(
+		final List<Index> currentSelectionsList = new ArrayList<>(
 				2);
-		final List<String> indexNames = SimpleFeaturePrimaryIndexConfiguration.getIndexNames(adapter.getFeatureType());
+		final List<String> indexNames = SimpleFeaturePrimaryIndexConfiguration
+				.getIndexNames(
+						adapter.getFeatureType());
 		final boolean canUseTime = adapter.hasTemporalConstraints();
 
 		/**
@@ -363,8 +393,12 @@ public class GeoWaveGTDataStore extends
 				final Index index = indices.next();
 				if (!indexNames.isEmpty()) {
 					// Only used selected preferred indices
-					if (indexNames.contains(index.getId().getString())) {
-						currentSelectionsList.add(index);
+					if (indexNames
+							.contains(
+									index.getName())) {
+						currentSelectionsList
+								.add(
+										index);
 					}
 				}
 				@SuppressWarnings("rawtypes")
@@ -382,21 +416,24 @@ public class GeoWaveGTDataStore extends
 					// If not requiring time OR (requires time AND has time
 					// constraints)
 					if (!hasTime || canUseTime) {
-						currentSelectionsList.add(index);
+						currentSelectionsList
+								.add(
+										index);
 					}
 				}
 			}
 		}
-		catch (final IOException ex) {
-			LOGGER.error(
-					"Cannot close index iterator.",
-					ex);
-		}
 
 		if (currentSelectionsList.isEmpty()) {
-			currentSelectionsList.add(new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()));
+			currentSelectionsList
+					.add(
+							new SpatialDimensionalityTypeProvider()
+									.createIndex(
+											new SpatialOptions()));
 		}
 
-		return currentSelectionsList.toArray(new Index[currentSelectionsList.size()]);
+		return currentSelectionsList
+				.toArray(
+						new Index[currentSelectionsList.size()]);
 	}
 }

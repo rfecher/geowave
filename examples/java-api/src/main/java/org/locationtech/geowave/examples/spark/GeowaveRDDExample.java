@@ -21,7 +21,7 @@ import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.StoreLoader;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 import org.opengis.feature.simple.SimpleFeature;
 
@@ -44,7 +44,7 @@ public class GeowaveRDDExample
 
 		int minSplits = -1;
 		int maxSplits = -1;
-		DistributableQuery query = null;
+		DistributableQueryConstrain query = null;
 
 		if (args.length > 1) {
 			if (args[1].equals("--splits")) {

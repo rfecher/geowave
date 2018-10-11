@@ -53,7 +53,7 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
 import org.locationtech.geowave.format.gpx.GpxIngestPlugin;
 import org.locationtech.geowave.mapreduce.GeoWaveConfiguratorBase;
@@ -367,7 +367,7 @@ public class BasicMapReduceIT extends
 	@SuppressFBWarnings(value = "DM_GC", justification = "Memory usage kept low for travis-ci")
 	private void runTestJob(
 			final ExpectedResults expectedResults,
-			final DistributableQuery query,
+			final DistributableQueryConstrain query,
 			final DataTypeAdapter<?>[] adapters,
 			final Index index )
 			throws Exception {

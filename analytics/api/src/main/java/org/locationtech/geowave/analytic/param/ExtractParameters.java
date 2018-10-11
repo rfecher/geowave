@@ -12,7 +12,7 @@ package org.locationtech.geowave.analytic.param;
 
 import org.locationtech.geowave.analytic.extract.DimensionExtractor;
 import org.locationtech.geowave.core.store.api.QueryOptions;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 
 public class ExtractParameters
 {
@@ -44,7 +44,7 @@ public class ExtractParameters
 				true,
 				true),
 		QUERY(
-				DistributableQuery.class,
+				DistributableQueryConstraints.class,
 				"eq",
 				"Query",
 				false,

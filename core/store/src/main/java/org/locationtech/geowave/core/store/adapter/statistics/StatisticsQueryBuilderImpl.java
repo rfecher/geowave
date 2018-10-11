@@ -1,6 +1,10 @@
 package org.locationtech.geowave.core.store.adapter.statistics;
 
+import java.util.Set;
+
 import org.apache.commons.lang.ArrayUtils;
+import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.store.adapter.statistics.histogram.NumericHistogram;
 import org.locationtech.geowave.core.store.api.StatisticsQuery;
 import org.locationtech.geowave.core.store.api.StatisticsQueryBuilder;
 
@@ -17,7 +21,7 @@ public class StatisticsQueryBuilderImpl<R, B extends StatisticsQueryBuilder<R, B
 		this.dataTypeName = dataTypeName;
 		return (B) this;
 	}
-	
+
 	@Override
 	public B addAuthorization(
 			final String authorization ) {
@@ -49,8 +53,35 @@ public class StatisticsQueryBuilderImpl<R, B extends StatisticsQueryBuilder<R, B
 				extendedId(),
 				authorizations);
 	}
-	
-	protected String extendedId(){
+
+	@Override
+	public QueryByStatisticsTypeFactory factory() {
+		return QueryByStatisticsTypeFactoryImpl.SINGLETON;
+	}
+
+	protected String extendedId() {
 		return null;
 	}
+
+	protected static class QueryByStatisticsTypeFactoryImpl implements
+			QueryByStatisticsTypeFactory
+	{
+		private static final QueryByStatisticsTypeFactory SINGLETON = new QueryByStatisticsTypeFactoryImpl();
+
+		@Override
+		public BaseStatisticsQueryBuilder<Long> count() {
+			return CountDataStatistics.STATS_TYPE.newBuilder();
+		}
+
+		@Override
+		public PartitionStatisticsQueryBuilder<NumericHistogram> rowHistogram() {
+			return RowRangeHistogramStatistics.STATS_TYPE.newBuilder();
+		}
+
+		@Override
+		public IndexStatisticsQueryBuilder<Set<ByteArrayId>> partitions() {
+			return PartitionStatistics.STATS_TYPE.newBuilder();
+		}
+	}
+
 }

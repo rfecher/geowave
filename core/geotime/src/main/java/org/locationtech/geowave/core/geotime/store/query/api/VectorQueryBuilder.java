@@ -2,7 +2,7 @@ package org.locationtech.geowave.core.geotime.store.query.api;
 
 import org.locationtech.geowave.core.geotime.store.query.BaseVectorQueryBuilder;
 import org.locationtech.geowave.core.geotime.store.query.VectorQueryBuilderImpl;
-import org.locationtech.geowave.core.geotime.store.query.VectorQueryConstraintsFactory;
+import org.locationtech.geowave.core.geotime.store.query.VectorQueryConstraintsFactoryImpl;
 import org.locationtech.geowave.core.store.api.Query;
 import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -17,6 +17,6 @@ public interface VectorQueryBuilder extends
 
 	@Override
 	default VectorQueryConstraintsFactory constraintsFactory() {
-		return VectorQueryConstraintsFactory.SINGLETON_INSTANCE;
+		return VectorQueryConstraintsFactoryImpl.SINGLETON_INSTANCE;
 	}
 }

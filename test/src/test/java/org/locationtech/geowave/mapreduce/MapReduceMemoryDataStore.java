@@ -28,7 +28,7 @@ import org.locationtech.geowave.core.store.metadata.AdapterStoreImpl;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.metadata.IndexStoreImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.mapreduce.BaseMapReduceDataStore;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 
@@ -64,7 +64,7 @@ public class MapReduceMemoryDataStore extends
 
 	@Override
 	public List<InputSplit> getSplits(
-			DistributableQuery query,
+			DistributableQueryConstrain query,
 			QueryOptionsInt queryOptions,
 			TransientAdapterStore adapterStore,
 			AdapterIndexMappingStore aimStore,

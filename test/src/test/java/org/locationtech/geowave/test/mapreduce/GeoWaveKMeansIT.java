@@ -51,7 +51,7 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.annotation.Environments;
@@ -191,7 +191,7 @@ public class GeoWaveKMeansIT
 	}
 
 	private void runKPlusPlus(
-			final DistributableQuery query )
+			final DistributableQueryConstrain query )
 			throws Exception {
 
 		final MultiLevelKMeansClusteringJobRunner jobRunner = new MultiLevelKMeansClusteringJobRunner();
@@ -258,7 +258,7 @@ public class GeoWaveKMeansIT
 	}
 
 	private void runKJumpPlusPlus(
-			final DistributableQuery query )
+			final DistributableQueryConstrain query )
 			throws Exception {
 
 		final MultiLevelJumpKMeansClusteringJobRunner jobRunner2 = new MultiLevelJumpKMeansClusteringJobRunner();

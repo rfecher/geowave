@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -9,8 +9,6 @@
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 package org.locationtech.geowave.core.store.base;
-
-import java.util.Collections;
 
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.QueryRanges;
@@ -43,7 +41,9 @@ class BaseInsertionIdQuery<T> extends
 			final FieldVisibilityCount visibilityCounts,
 			final String[] authorizations ) {
 		super(
-				Collections.<Short> singletonList(adapter.getAdapterId()),
+				new short[] {
+					adapter.getAdapterId()
+				},
 				index,
 				query,
 				dedupeFilter,
@@ -57,12 +57,14 @@ class BaseInsertionIdQuery<T> extends
 				authorizations);
 		this.ranges = new InsertionIds(
 				query.getPartitionKey(),
-				Lists.newArrayList(query.getSortKey())).asQueryRanges();
+				Lists
+						.newArrayList(
+								query.getSortKey())).asQueryRanges();
 	}
 
 	@Override
 	protected QueryRanges getRanges(
-			int maxRangeDecomposition ) {
+			final int maxRangeDecomposition ) {
 		return ranges;
 	}
 }

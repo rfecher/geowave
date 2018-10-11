@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -17,7 +17,6 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.JobContext;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.api.Index;
@@ -34,7 +33,7 @@ public class JobContextIndexStore implements
 	private static final Class<?> CLASS = JobContextIndexStore.class;
 	private final JobContext context;
 	private final IndexStore persistentIndexStore;
-	private final Map<ByteArrayId, Index> indexCache = new HashMap<ByteArrayId, Index>();
+	private final Map<String, Index> indexCache = new HashMap<>();
 
 	public JobContextIndexStore(
 			final JobContext context,
@@ -46,46 +45,56 @@ public class JobContextIndexStore implements
 	@Override
 	public void addIndex(
 			final Index index ) {
-		indexCache.put(
-				index.getId(),
-				index);
+		indexCache
+				.put(
+						index.getName(),
+						index);
 	}
 
 	@Override
 	public Index getIndex(
-			final ByteArrayId indexId ) {
-		Index index = indexCache.get(indexId);
+			final String indexName ) {
+		Index index = indexCache
+				.get(
+						indexName);
 		if (index == null) {
-			index = getIndexInternal(indexId);
+			index = getIndexInternal(
+					indexName);
 		}
 		return index;
 	}
 
 	@Override
 	public boolean indexExists(
-			final ByteArrayId indexId ) {
-		if (indexCache.containsKey(indexId)) {
+			final String indexName ) {
+		if (indexCache
+				.containsKey(
+						indexName)) {
 			return true;
 		}
-		final Index index = getIndexInternal(indexId);
+		final Index index = getIndexInternal(
+				indexName);
 		return index != null;
 	}
 
 	private Index getIndexInternal(
-			final ByteArrayId indexId ) {
+			final String indexName ) {
 		// first try to get it from the job context
 		Index index = getIndex(
 				context,
-				indexId);
+				indexName);
 		if (index == null) {
 			// then try to get it from the accumulo persistent store
-			index = persistentIndexStore.getIndex(indexId);
+			index = persistentIndexStore
+					.getIndex(
+							indexName);
 		}
 
 		if (index != null) {
-			indexCache.put(
-					indexId,
-					index);
+			indexCache
+					.put(
+							indexName,
+							index);
 		}
 		return index;
 	}
@@ -101,44 +110,49 @@ public class JobContextIndexStore implements
 		// cache any results
 		return new CloseableIteratorWrapper<Index>(
 				it,
-				IteratorUtils.transformedIterator(
-						it,
-						new Transformer() {
+				IteratorUtils
+						.transformedIterator(
+								it,
+								new Transformer() {
 
-							@Override
-							public Object transform(
-									final Object obj ) {
-								indexCache.put(
-										((Index) obj).getId(),
-										(Index) obj);
-								return obj;
-							}
-						}));
+									@Override
+									public Object transform(
+											final Object obj ) {
+										indexCache
+												.put(
+														((Index) obj).getName(),
+														(Index) obj);
+										return obj;
+									}
+								}));
 	}
 
 	public static void addIndex(
 			final Configuration config,
 			final Index index ) {
-		GeoWaveConfiguratorBase.addIndex(
-				CLASS,
-				config,
-				index);
+		GeoWaveConfiguratorBase
+				.addIndex(
+						CLASS,
+						config,
+						index);
 	}
 
 	protected static Index getIndex(
 			final JobContext context,
-			final ByteArrayId indexId ) {
-		return GeoWaveConfiguratorBase.getIndex(
-				CLASS,
-				context,
-				indexId);
+			final String indexName ) {
+		return GeoWaveConfiguratorBase
+				.getIndex(
+						CLASS,
+						context,
+						indexName);
 	}
 
 	public static Index[] getIndices(
 			final JobContext context ) {
-		return GeoWaveConfiguratorBase.getIndices(
-				CLASS,
-				context);
+		return GeoWaveConfiguratorBase
+				.getIndices(
+						CLASS,
+						context);
 	}
 
 }

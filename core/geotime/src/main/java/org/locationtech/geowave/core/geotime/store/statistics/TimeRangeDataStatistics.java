@@ -12,14 +12,15 @@ package org.locationtech.geowave.core.geotime.store.statistics;
 
 import java.nio.ByteBuffer;
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.locationtech.geowave.core.geotime.store.query.TemporalRange;
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.store.adapter.statistics.AbstractDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsQueryBuilder;
 import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsType;
-import org.locationtech.geowave.core.store.adapter.statistics.StatisticsType;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.threeten.extra.Interval;
 
@@ -50,6 +51,14 @@ abstract public class TimeRangeDataStatistics<T> extends
 			return false;
 		}
 		return true;
+	}
+
+	public TemporalRange asTemporalRange() {
+		return new TemporalRange(
+				new Date(
+						getMin()),
+				new Date(
+						getMax()));
 	}
 
 	public long getMin() {

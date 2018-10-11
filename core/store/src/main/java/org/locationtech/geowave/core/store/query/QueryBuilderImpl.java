@@ -38,9 +38,12 @@ public class QueryBuilderImpl<T, R extends QueryBuilder<T, R>> extends
 	public R setTypeNames(
 			final String[] typeNames ) {
 		if ((fieldNames == null) || (fieldNames.length == 0)) {
+			if (typeNames == null) {
+				return allTypes();
+			}
 			this.typeNames = typeNames;
 		}
-		else if (typeNames.length != 1) {
+		else if (typeNames == null || typeNames.length != 1) {
 			throw new IllegalStateException(
 					"Subsetting fields only allows for a single type name");
 		}

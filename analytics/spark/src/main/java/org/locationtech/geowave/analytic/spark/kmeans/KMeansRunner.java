@@ -43,7 +43,7 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,7 +175,7 @@ public class KMeansRunner
 		// queryOptions.getAdaptersArray(adapterStore);
 
 		// Add a spatial filter if requested
-		DistributableQuery query = null;
+		DistributableQueryConstraints query = null;
 		try {
 			if (cqlFilter != null) {
 				Geometry bbox = null;

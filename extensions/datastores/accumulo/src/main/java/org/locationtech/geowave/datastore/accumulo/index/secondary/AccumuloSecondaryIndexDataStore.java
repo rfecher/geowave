@@ -41,7 +41,7 @@ import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
 import org.locationtech.geowave.core.store.index.SecondaryIndexType;
 import org.locationtech.geowave.core.store.index.SecondaryIndexUtils;
 import org.locationtech.geowave.core.store.operations.RowWriter;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.core.store.query.constraints.PrefixIdQuery;
 import org.locationtech.geowave.datastore.accumulo.cli.config.AccumuloOptions;
 import org.locationtech.geowave.datastore.accumulo.operations.AccumuloOperations;
@@ -206,7 +206,7 @@ public class AccumuloSecondaryIndexDataStore extends
 			final ByteArrayId indexedAttributeFieldId,
 			final InternalDataAdapter<T> adapter,
 			final Index primaryIndex,
-			final DistributableQuery query,
+			final DistributableQueryConstrain query,
 			final String... authorizations ) {
 		final Scanner scanner = getScanner(
 				StringUtils.stringFromBinary(secondaryIndex.getId().getBytes()),

@@ -139,7 +139,7 @@ public class PropertyConstraintSet
 		}
 	}
 
-	public FilterableConstraints getConstraintsById(
+	public FilterableConstraints getConstraintsByName(
 			final String id ) {
 		return constraints
 				.get(

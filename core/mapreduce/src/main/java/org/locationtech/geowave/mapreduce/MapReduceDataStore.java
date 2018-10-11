@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -24,20 +24,23 @@ import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.DataStore;
-import org.locationtech.geowave.core.store.api.QueryOptions;
-import org.locationtech.geowave.core.store.api.QueryOptionsInt;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
+import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
+import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 import org.locationtech.geowave.mapreduce.output.GeoWaveOutputKey;
 
-public interface MapReduceDataStore<T> extends
-		DataStore<T>
+public interface MapReduceDataStore extends
+		DataStore
 {
 
 	public RecordReader<GeoWaveInputKey, ?> createRecordReader(
-			DistributableQuery query,
-			QueryOptions queryOptions,
+			CommonQueryOptions commonOptions,
+			DataTypeQueryOptions<?> typeOptions,
+			IndexQueryOptions indexOptions,
+			DistributableQueryConstraints constraints,
 			TransientAdapterStore adapterStore,
 			InternalAdapterStore internalAdapterStore,
 			AdapterIndexMappingStore aimStore,
@@ -49,8 +52,10 @@ public interface MapReduceDataStore<T> extends
 			InterruptedException;
 
 	public List<InputSplit> getSplits(
-			DistributableQuery query,
-			QueryOptionsInt queryOptions,
+			CommonQueryOptions commonOptions,
+			DataTypeQueryOptions<?> typeOptions,
+			IndexQueryOptions indexOptions,
+			DistributableQueryConstraints constraints,
 			TransientAdapterStore adapterStore,
 			AdapterIndexMappingStore aimStore,
 			DataStatisticsStore statsStore,

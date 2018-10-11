@@ -134,7 +134,7 @@ public class GeoWaveRDDLoader
 				storeOptions);
 
 		if (rddOpts.getQuery() != null) {
-			GeoWaveInputFormat.setQuery(
+			GeoWaveInputFormat.setQueryConstraints(
 					conf,
 					rddOpts.getQuery());
 		}

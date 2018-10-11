@@ -24,7 +24,7 @@ import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 public class CoordinateRangeQuery implements
-		DistributableQuery
+		DistributableQueryConstraints
 {
 	private NumericIndexStrategy indexStrategy;
 	private MultiDimensionalCoordinateRangesArray[] coordinateRanges;

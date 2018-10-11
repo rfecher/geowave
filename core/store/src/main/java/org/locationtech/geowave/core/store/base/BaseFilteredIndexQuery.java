@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,7 +11,6 @@
 package org.locationtech.geowave.core.store.base;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,26 +20,22 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
-import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.DataStoreOptions;
-import org.locationtech.geowave.core.store.adapter.AdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
-import org.locationtech.geowave.core.store.callback.ScanCallbackList;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
+import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.FilterList;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.MergingEntryIterator;
@@ -55,7 +50,7 @@ abstract class BaseFilteredIndexQuery extends
 	private final static Logger LOGGER = Logger.getLogger(BaseFilteredIndexQuery.class);
 
 	public BaseFilteredIndexQuery(
-			final List<Short> adapterIds,
+			final short[] adapterIds,
 			final Index index,
 			final ScanCallback<?, ?> scanCallback,
 			final Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair,
@@ -87,7 +82,7 @@ abstract class BaseFilteredIndexQuery extends
 			final double[] maxResolutionSubsamplingPerDimension,
 			final Integer limit,
 			final Integer queryMaxRangeDecomposition,
-			boolean delete ) {
+			final boolean delete ) {
 		final RowReader<?> reader = getReader(
 				datastoreOperations,
 				options,
@@ -125,7 +120,7 @@ abstract class BaseFilteredIndexQuery extends
 			final Integer limit,
 			final Integer queryMaxRangeDecomposition,
 			final GeoWaveRowIteratorTransformer<C> rowTransformer,
-			boolean delete ) {
+			final boolean delete ) {
 		boolean exists = false;
 		try {
 			exists = datastoreOperations.indexExists(index.getName());
@@ -153,7 +148,7 @@ abstract class BaseFilteredIndexQuery extends
 
 	protected Map<Short, RowMergingDataAdapter> getMergingAdapters(
 			final PersistentAdapterStore adapterStore ) {
-		final Map<Short, RowMergingDataAdapter> mergingAdapters = new HashMap<Short, RowMergingDataAdapter>();
+		final Map<Short, RowMergingDataAdapter> mergingAdapters = new HashMap<>();
 		for (final Short adapterId : adapterIds) {
 			final DataTypeAdapter<?> adapter = adapterStore.getAdapter(
 					adapterId).getAdapter();
@@ -174,7 +169,7 @@ abstract class BaseFilteredIndexQuery extends
 			final double[] maxResolutionSubsamplingPerDimension,
 			final boolean decodePersistenceEncoding ) {
 		final @Nullable QueryFilter clientFilter = getClientFilter(options);
-		if (options == null || !options.isServerSideLibraryEnabled()) {
+		if ((options == null) || !options.isServerSideLibraryEnabled()) {
 			final Map<Short, RowMergingDataAdapter> mergingAdapters = getMergingAdapters(adapterStore);
 
 			if (!mergingAdapters.isEmpty()) {
@@ -186,7 +181,7 @@ abstract class BaseFilteredIndexQuery extends
 					})
 					@Override
 					public Iterator<T> apply(
-							Iterator<GeoWaveRow> input ) {
+							final Iterator<GeoWaveRow> input ) {
 						return new MergingEntryIterator(
 								adapterStore,
 								index,
@@ -208,7 +203,7 @@ abstract class BaseFilteredIndexQuery extends
 			})
 			@Override
 			public Iterator<T> apply(
-					Iterator<GeoWaveRow> input ) {
+					final Iterator<GeoWaveRow> input ) {
 				return new NativeEntryIteratorWrapper(
 						adapterStore,
 						index,
@@ -228,7 +223,7 @@ abstract class BaseFilteredIndexQuery extends
 			final DataStoreOptions options ) {
 		final List<QueryFilter> internalClientFilters = getClientFiltersList(options);
 		return internalClientFilters.isEmpty() ? null : internalClientFilters.size() == 1 ? internalClientFilters
-				.get(0) : new FilterList<QueryFilter>(
+				.get(0) : new FilterList<>(
 				internalClientFilters);
 	}
 

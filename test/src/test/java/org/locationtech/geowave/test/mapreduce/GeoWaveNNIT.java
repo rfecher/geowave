@@ -47,7 +47,7 @@ import org.locationtech.geowave.analytic.store.PersistableStore;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.annotation.Environments;
@@ -144,7 +144,7 @@ public class GeoWaveNNIT extends
 	}
 
 	private void runNN(
-			final DistributableQuery query )
+			final DistributableQueryConstrain query )
 			throws Exception {
 
 		final NNJobRunner jobRunner = new NNJobRunner();

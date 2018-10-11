@@ -52,7 +52,7 @@ import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.annotation.Environments;
@@ -174,7 +174,7 @@ public class DBScanIT extends
 	}
 
 	private void runScan(
-			final DistributableQuery query )
+			final DistributableQueryConstrain query )
 			throws Exception {
 
 		final DBScanIterationsJobRunner jobRunner = new DBScanIterationsJobRunner();

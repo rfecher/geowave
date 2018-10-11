@@ -56,7 +56,7 @@ import com.google.common.math.DoubleMath;
  *
  */
 public class BasicQuery implements
-		DistributableQuery
+		DistributableQueryConstraints
 {
 	private final static double DOUBLE_TOLERANCE = 1E-12d;
 	private final static Logger LOGGER = LoggerFactory.getLogger(BasicQuery.class);

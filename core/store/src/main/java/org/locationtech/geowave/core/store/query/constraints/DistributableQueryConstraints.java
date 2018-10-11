@@ -22,7 +22,7 @@ import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter
  * distributed if necessary (particularly useful for using a query as mapreduce
  * input)
  */
-public interface DistributableQuery extends
+public interface DistributableQueryConstraints extends
 		QueryConstraints,
 		Persistable
 {

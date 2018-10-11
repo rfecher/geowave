@@ -29,7 +29,7 @@ import org.locationtech.geowave.adapter.vector.plugin.GeoWaveGTDataStore;
 import org.locationtech.geowave.adapter.vector.plugin.GeoWavePluginConfig;
 import org.locationtech.geowave.adapter.vector.plugin.GeoWavePluginException;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
-import org.locationtech.geowave.core.geotime.store.query.CQLQuery;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitCQLQuery;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.geotime.store.query.SpatialTemporalQuery;
 import org.locationtech.geowave.core.geotime.store.query.TemporalRange;
@@ -495,7 +495,7 @@ public class GeoWaveGrpcVectorService extends
 				new QueryOptions(
 						adapterId,
 						indexId),
-				CQLQuery.createOptimalQuery(
+				ExplicitCQLQuery.createOptimalQuery(
 						cql,
 						adapter,
 						pIndex))) {

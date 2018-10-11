@@ -10,16 +10,15 @@
  ******************************************************************************/
 package org.locationtech.geowave.adapter.vector.index;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.IndexUtils;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
 import org.opengis.feature.simple.SimpleFeature;
@@ -45,7 +44,7 @@ public class ChooseLocalityPreservingQueryStrategy implements
 
 	@Override
 	public CloseableIterator<Index> getIndices(
-			final Map<ByteArrayId, InternalDataStatistics<SimpleFeature>> stats,
+			final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats,
 			final BasicQuery query,
 			final Index[] indices,
 			final Map<QueryHint, Object> hints ) {
@@ -63,8 +62,12 @@ public class ChooseLocalityPreservingQueryStrategy implements
 					if (nextIdx.getIndexStrategy().getOrderedDimensionDefinitions().length == 0) {
 						continue;
 					}
-					final List<MultiDimensionalNumericData> queryRanges = query.getIndexConstraints(nextIdx);
-					if (IndexUtils.isFullTableScan(queryRanges)) {
+					final List<MultiDimensionalNumericData> queryRanges = query
+							.getIndexConstraints(
+									nextIdx);
+					if (IndexUtils
+							.isFullTableScan(
+									queryRanges)) {
 						// keep this is as a default in case all indices
 						// result in a full table scan
 						if (bestIdx == null) {
@@ -79,9 +82,10 @@ public class ChooseLocalityPreservingQueryStrategy implements
 								dataRangePerDimension[d] = qr.getMaxValuesPerDimension()[d]
 										- qr.getMinValuesPerDimension()[d];
 							}
-							totalMax += IndexUtils.getDimensionalBitsUsed(
-									nextIdx.getIndexStrategy(),
-									dataRangePerDimension);
+							totalMax += IndexUtils
+									.getDimensionalBitsUsed(
+											nextIdx.getIndexStrategy(),
+											dataRangePerDimension);
 						}
 						if (totalMax > indexMax) {
 							indexMax = totalMax;
@@ -109,8 +113,7 @@ public class ChooseLocalityPreservingQueryStrategy implements
 			public void remove() {}
 
 			@Override
-			public void close()
-					throws IOException {}
+			public void close() {}
 		};
 	}
 }

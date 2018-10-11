@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -35,7 +35,9 @@ import com.aol.cyclops.data.async.Queue;
 public class DistributedRenderAggregation implements
 		Aggregation<DistributedRenderOptions, DistributedRenderResult, SimpleFeature>
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(DistributedRenderAggregation.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					DistributedRenderAggregation.class);
 	private DistributedRenderMapOutputFormat currentRenderer;
 	private DistributedRenderResult currentResult;
 	// use a cyclops-react queue to feed simple features asynchronously while a
@@ -68,52 +70,73 @@ public class DistributedRenderAggregation implements
 				options);
 		final WMSMapContent mapContent = new WMSMapContent();
 		final GetMapRequest request = new GetMapRequest();
-		mapContent.setBgColor(
-				options.getBgColor());
-		request.setBgColor(
-				options.getBgColor());
-		mapContent.setPalette(
-				options.getPalette());
-		request.setPalette(
-				options.getPalette());
-		mapContent.setAngle(
-				options.getAngle());
-		request.setAngle(
-				options.getAngle());
-		mapContent.setBuffer(
-				options.getBuffer());
-		request.setBuffer(
-				options.getBuffer());
-		mapContent.setMapWidth(
-				options.getMapWidth());
-		request.setWidth(
-				options.getMapWidth());
-		mapContent.setMapHeight(
-				options.getMapHeight());
-		request.setHeight(
-				options.getMapHeight());
-		mapContent.setTransparent(
-				options.isTransparent());
-		request.setTransparent(
-				options.isTransparent());
-		mapContent.setViewport(
-				new MapViewport(
-						options.getEnvelope()));
-		request.setBbox(
-				options.getEnvelope());
-		request.setInterpolations(
-				options.getInterpolations());
+		mapContent
+				.setBgColor(
+						options.getBgColor());
+		request
+				.setBgColor(
+						options.getBgColor());
+		mapContent
+				.setPalette(
+						options.getPalette());
+		request
+				.setPalette(
+						options.getPalette());
+		mapContent
+				.setAngle(
+						options.getAngle());
+		request
+				.setAngle(
+						options.getAngle());
+		mapContent
+				.setBuffer(
+						options.getBuffer());
+		request
+				.setBuffer(
+						options.getBuffer());
+		mapContent
+				.setMapWidth(
+						options.getMapWidth());
+		request
+				.setWidth(
+						options.getMapWidth());
+		mapContent
+				.setMapHeight(
+						options.getMapHeight());
+		request
+				.setHeight(
+						options.getMapHeight());
+		mapContent
+				.setTransparent(
+						options.isTransparent());
+		request
+				.setTransparent(
+						options.isTransparent());
+		mapContent
+				.setViewport(
+						new MapViewport(
+								options.getEnvelope()));
+		request
+				.setBbox(
+						options.getEnvelope());
+		request
+				.setInterpolations(
+						options.getInterpolations());
 		final Map formatOptions = new HashMap<>();
-		formatOptions.put(
-				"antialias",
-				options.getAntialias());
-		formatOptions.put(
-				"timeout",
-				options.getMaxRenderTime());
-		formatOptions.put(
-				"kmplacemark",
-				Boolean.valueOf(
-						options.isKmlPlacemark()));
+		formatOptions
+				.put(
+						"antialias",
+						options.getAntialias());
+		formatOptions
+				.put(
+						"timeout",
+						options.getMaxRenderTime());
+		formatOptions
+				.put(
+						"kmplacemark",
+						Boolean
+								.valueOf(
+										options.isKmlPlacemark()));
 		// this sets a static variable, but its the only method available
 		// (multiple geoserver clients with different settings hitting the same
 		// distributed backend, may conflict on these settings)
@@ -122,53 +145,74 @@ public class DistributedRenderAggregation implements
 		// object within DistributedRenderer so it is no longer using these
 		// static settings, but these static properties must be set to avoid
 		// NPEs
-		System.setProperty(
-				"OPTIMIZE_LINE_WIDTH",
-				Boolean.toString(
-						options.isOptimizeLineWidth()));
-		System.setProperty(
-				"MAX_FILTER_RULES",
-				Integer.toString(
-						options.getMaxFilters()));
-		System.setProperty(
-				"USE_GLOBAL_RENDERING_POOL",
-				Boolean.toString(
-						DistributedRenderOptions.isUseGlobalRenderPool()));
-		new DefaultWebMapService(null).setApplicationContext(null);
-		request.setFormatOptions(
-				formatOptions);
-		request.setWidth(
-				options.getMapWidth());
-		request.setHeight(
-				options.getMapHeight());
-		request.setTiled(
-				options.isMetatile());
-		request.setScaleMethod(
-				options.isRenderScaleMethodAccurate() ? ScaleComputationMethod.Accurate : ScaleComputationMethod.OGC);
+		System
+				.setProperty(
+						"OPTIMIZE_LINE_WIDTH",
+						Boolean
+								.toString(
+										options.isOptimizeLineWidth()));
+		System
+				.setProperty(
+						"MAX_FILTER_RULES",
+						Integer
+								.toString(
+										options.getMaxFilters()));
+		System
+				.setProperty(
+						"USE_GLOBAL_RENDERING_POOL",
+						Boolean
+								.toString(
+										DistributedRenderOptions.isUseGlobalRenderPool()));
+		new DefaultWebMapService(
+				null)
+						.setApplicationContext(
+								null);
+		request
+				.setFormatOptions(
+						formatOptions);
+		request
+				.setWidth(
+						options.getMapWidth());
+		request
+				.setHeight(
+						options.getMapHeight());
+		request
+				.setTiled(
+						options.isMetatile());
+		request
+				.setScaleMethod(
+						options.isRenderScaleMethodAccurate() ? ScaleComputationMethod.Accurate
+								: ScaleComputationMethod.OGC);
 
 		if (options.isMetatile()) {
 			// it doesn't matter what this is, as long as its not null, we are
 			// just ensuring proper transparency usage based on meta-tiling
 			// rules
-			request.setTilesOrigin(
-					new Point2D.Double());
+			request
+					.setTilesOrigin(
+							new Point2D.Double());
 		}
-		mapContent.setRequest(
-				request);
+		mapContent
+				.setRequest(
+						request);
 		queue = new Queue<>();
-		mapContent.addLayer(
-				new FeatureLayer(
-						new AsyncQueueFeatureCollection(
-								type,
-								queue),
-						options.getStyle()));
+		mapContent
+				.addLayer(
+						new FeatureLayer(
+								new AsyncQueueFeatureCollection(
+										type,
+										queue),
+								options.getStyle()));
 		// produce map in a separate thread...
-		asyncRenderer = CompletableFuture.supplyAsync(
-				() -> {
-					currentRenderer.produceMap(
-							mapContent).dispose();
-					return currentRenderer.getDistributedRenderResult();
-				});
+		asyncRenderer = CompletableFuture
+				.supplyAsync(
+						() -> {
+							currentRenderer
+									.produceMap(
+											mapContent)
+									.dispose();
+							return currentRenderer.getDistributedRenderResult();
+						});
 	}
 
 	@Override
@@ -180,9 +224,10 @@ public class DistributedRenderAggregation implements
 			// sufficient
 			try {
 				if (options.getMaxRenderTime() > 0) {
-					result = asyncRenderer.get(
-							options.getMaxRenderTime(),
-							TimeUnit.SECONDS);
+					result = asyncRenderer
+							.get(
+									options.getMaxRenderTime(),
+									TimeUnit.SECONDS);
 
 				}
 				else {
@@ -190,9 +235,10 @@ public class DistributedRenderAggregation implements
 				}
 			}
 			catch (InterruptedException | ExecutionException | TimeoutException e) {
-				LOGGER.warn(
-						"Unable to get distributed render result",
-						e);
+				LOGGER
+						.warn(
+								"Unable to get distributed render result",
+								e);
 			}
 			currentResult = result;
 			clearRenderer();
@@ -212,7 +258,9 @@ public class DistributedRenderAggregation implements
 			currentRenderer.stopRendering();
 		}
 		if (asyncRenderer != null) {
-			asyncRenderer.cancel(true);
+			asyncRenderer
+					.cancel(
+							true);
 		}
 	}
 
@@ -225,15 +273,19 @@ public class DistributedRenderAggregation implements
 	private synchronized void ensureOpen(
 			final SimpleFeatureType type ) {
 		if (currentRenderer == null) {
-			initRenderer(type);
+			initRenderer(
+					type);
 		}
 	}
 
 	@Override
 	public void aggregate(
 			final SimpleFeature entry ) {
-		ensureOpen(entry.getFeatureType());
-		queue.add(entry);
+		ensureOpen(
+				entry.getFeatureType());
+		queue
+				.add(
+						entry);
 	}
 
 	@Override
@@ -243,6 +295,30 @@ public class DistributedRenderAggregation implements
 
 	@Override
 	public void fromBinary(
-			byte[] bytes ) {}
+			final byte[] bytes ) {}
+
+	@Override
+	public DistributedRenderResult merge(
+			final DistributedRenderResult result1,
+			final DistributedRenderResult result2 ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public byte[] resultToBinary(
+			final DistributedRenderResult result ) {
+		return result.toBinary();
+	}
+
+	@Override
+	public DistributedRenderResult resultFromBinary(
+			final byte[] binary ) {
+		final DistributedRenderResult result = new DistributedRenderResult();
+		result
+				.fromBinary(
+						binary);
+		return result;
+	}
 
 }

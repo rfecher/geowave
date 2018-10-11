@@ -17,8 +17,8 @@ import java.util.List;
 import org.locationtech.geowave.core.cli.annotations.GeowaveOperation;
 import org.locationtech.geowave.core.cli.api.OperationParams;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
+import org.locationtech.geowave.core.store.adapter.statistics.BaseStatisticsType;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
-import org.locationtech.geowave.core.store.adapter.statistics.GenericStatisticsType;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.StatsCommandLineOptions;
 
@@ -33,7 +33,7 @@ public class RemoveStatCommand extends
 {
 
 	@Parameter(description = "<store name> <datatype name> <stat type>")
-	private final List<String> parameters = new ArrayList<>();
+	private List<String> parameters = new ArrayList<>();
 
 	private String statType = null;
 
@@ -59,7 +59,7 @@ public class RemoveStatCommand extends
 		if (!statStore
 				.removeStatistics(
 						adapter.getAdapterId(),
-						new GenericStatisticsType<>(
+						new BaseStatisticsType<>(
 								statType),
 						authorizations)) {
 			throw new RuntimeException(

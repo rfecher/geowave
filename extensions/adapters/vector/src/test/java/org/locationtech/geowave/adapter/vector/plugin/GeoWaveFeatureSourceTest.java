@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -31,13 +31,10 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.junit.Test;
 import org.locationtech.geowave.adapter.vector.BaseDataStoreTest;
-import org.locationtech.geowave.adapter.vector.plugin.GeoWaveGTDataStore;
 import org.locationtech.geowave.adapter.vector.stats.FeatureNumericRangeStatistics;
 import org.locationtech.geowave.adapter.vector.util.DateUtilities;
 import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxDataStatistics;
 import org.locationtech.geowave.core.geotime.store.statistics.FeatureTimeRangeStatistics;
-import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.statistics.CountDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
@@ -77,12 +74,17 @@ public class GeoWaveFeatureSourceTest extends
 
 	public void testEmpty()
 			throws Exception {
-		final SimpleFeatureType type = DataUtilities.createType(
-				"GeoWaveFeatureSourceTest_e",
-				"geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
+		final SimpleFeatureType type = DataUtilities
+				.createType(
+						"GeoWaveFeatureSourceTest_e",
+						"geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
 		final DataStore dataStore = createDataStore();
-		dataStore.createSchema(type);
-		final SimpleFeatureSource source = dataStore.getFeatureSource("GeoWaveFeatureSourceTest_e");
+		dataStore
+				.createSchema(
+						type);
+		final SimpleFeatureSource source = dataStore
+				.getFeatureSource(
+						"GeoWaveFeatureSourceTest_e");
 		final ReferencedEnvelope env = source.getBounds();
 		assertEquals(
 				90.0,
@@ -97,22 +99,28 @@ public class GeoWaveFeatureSourceTest extends
 				Filter.INCLUDE);
 		assertEquals(
 				0,
-				source.getCount(query));
+				source
+						.getCount(
+								query));
 	}
 
 	public void testFull(
-			Populater populater,
-			String ext )
+			final Populater populater,
+			final String ext )
 			throws Exception {
 		final String typeName = "GeoWaveFeatureSourceTest_full" + ext;
-		final SimpleFeatureType type = DataUtilities.createType(
-				typeName,
-				"geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
+		final SimpleFeatureType type = DataUtilities
+				.createType(
+						typeName,
+						"geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
 		final DataStore dataStore = createDataStore();
-		populater.populate(
-				type,
-				dataStore);
-		final SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
+		populater
+				.populate(
+						type,
+						dataStore);
+		final SimpleFeatureSource source = dataStore
+				.getFeatureSource(
+						typeName);
 		final ReferencedEnvelope env = source.getBounds();
 		assertEquals(
 				43.454,
@@ -129,24 +137,31 @@ public class GeoWaveFeatureSourceTest extends
 		final Query query = new Query(
 				typeName,
 				Filter.INCLUDE);
-		assertTrue(source.getCount(query) > 2);
+		assertTrue(
+				source
+						.getCount(
+								query) > 2);
 
-		short internalAdapterId = ((GeoWaveGTDataStore) dataStore).getInternalAdapterStore().addAdapterId(
-				new ByteArrayId(
-						(typeName).getBytes(StringUtils.getGeoWaveCharset())));
-		try (final CloseableIterator<InternalDataStatistics<?>> stats = ((GeoWaveGTDataStore) dataStore)
+		final short internalAdapterId = ((GeoWaveGTDataStore) dataStore)
+				.getInternalAdapterStore()
+				.addTypeName(
+						typeName);
+		try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> stats = ((GeoWaveGTDataStore) dataStore)
 				.getDataStatisticsStore()
 				.getDataStatistics(
 						internalAdapterId)) {
-			assertTrue(stats.hasNext());
+			assertTrue(
+					stats.hasNext());
 			int count = 0;
 			BoundingBoxDataStatistics<SimpleFeature> bboxStats = null;
 			CountDataStatistics<SimpleFeature> cStats = null;
 			FeatureTimeRangeStatistics timeRangeStats = null;
 			FeatureNumericRangeStatistics popStats = null;
 			while (stats.hasNext()) {
-				final InternalDataStatistics<?> statsData = stats.next();
-				System.out.println(statsData.toString());
+				final InternalDataStatistics<?, ?, ?> statsData = stats.next();
+				System.out
+						.println(
+								statsData.toString());
 				if (statsData instanceof BoundingBoxDataStatistics) {
 					bboxStats = (BoundingBoxDataStatistics<SimpleFeature>) statsData;
 				}
@@ -177,10 +192,14 @@ public class GeoWaveFeatureSourceTest extends
 					popStats.getMax(),
 					0.001);
 			assertEquals(
-					DateUtilities.parseISO("2005-05-17T20:32:56Z"),
+					DateUtilities
+							.parseISO(
+									"2005-05-17T20:32:56Z"),
 					timeRangeStats.asTemporalRange().getStartTime());
 			assertEquals(
-					DateUtilities.parseISO("2005-05-19T20:32:56Z"),
+					DateUtilities
+							.parseISO(
+									"2005-05-19T20:32:56Z"),
 					timeRangeStats.asTemporalRange().getEndTime());
 			assertEquals(
 					43.454,
@@ -198,29 +217,37 @@ public class GeoWaveFeatureSourceTest extends
 	}
 
 	public void testPartial(
-			Populater populater,
-			String ext )
+			final Populater populater,
+			final String ext )
 			throws CQLException,
 			Exception {
 		final String typeName = "GeoWaveFeatureSourceTest_p" + ext;
-		final SimpleFeatureType type = DataUtilities.createType(
-				typeName,
-				"geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
+		final SimpleFeatureType type = DataUtilities
+				.createType(
+						typeName,
+						"geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
 		final DataStore dataStore = createDataStore();
-		populater.populate(
-				type,
-				dataStore);
-		final SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
+		populater
+				.populate(
+						type,
+						dataStore);
+		final SimpleFeatureSource source = dataStore
+				.getFeatureSource(
+						typeName);
 
 		final Query query = new Query(
 				typeName,
-				CQL.toFilter("BBOX(geometry,42,28,44,30) and when during 2005-05-01T20:32:56Z/2005-05-29T21:32:56Z"),
+				CQL
+						.toFilter(
+								"BBOX(geometry,42,28,44,30) and when during 2005-05-01T20:32:56Z/2005-05-29T21:32:56Z"),
 				new String[] {
 					"geometry",
 					"when",
 					"pid"
 				});
-		final ReferencedEnvelope env = source.getBounds(query);
+		final ReferencedEnvelope env = source
+				.getBounds(
+						query);
 		assertEquals(
 				43.454,
 				env.getMaxX(),
@@ -235,7 +262,9 @@ public class GeoWaveFeatureSourceTest extends
 				0.0001);
 		assertEquals(
 				2,
-				source.getCount(query));
+				source
+						.getCount(
+								query));
 
 	}
 
@@ -252,6 +281,7 @@ public class GeoWaveFeatureSourceTest extends
 	private static class FWPopulater implements
 			Populater
 	{
+		@Override
 		public void populate(
 				final SimpleFeatureType type,
 				final DataStore dataStore )
@@ -259,63 +289,97 @@ public class GeoWaveFeatureSourceTest extends
 				CQLException,
 				ParseException {
 
-			dataStore.createSchema(type);
+			dataStore
+					.createSchema(
+							type);
 
 			final Transaction transaction1 = new DefaultTransaction();
 
-			final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter(
-					type.getTypeName(),
-					transaction1);
-			assertFalse(writer.hasNext());
+			final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore
+					.getFeatureWriter(
+							type.getTypeName(),
+							transaction1);
+			assertFalse(
+					writer.hasNext());
 			SimpleFeature newFeature = writer.next();
-			newFeature.setAttribute(
-					"pop",
-					Long.valueOf(77));
-			newFeature.setAttribute(
-					"pid",
-					UUID.randomUUID().toString());
-			newFeature.setAttribute(
-					"when",
-					DateUtilities.parseISO("2005-05-19T20:32:56Z"));
-			newFeature.setAttribute(
-					"geometry",
-					factory.createPoint(new Coordinate(
-							43.454,
-							28.232)));
+			newFeature
+					.setAttribute(
+							"pop",
+							Long
+									.valueOf(
+											77));
+			newFeature
+					.setAttribute(
+							"pid",
+							UUID.randomUUID().toString());
+			newFeature
+					.setAttribute(
+							"when",
+							DateUtilities
+									.parseISO(
+											"2005-05-19T20:32:56Z"));
+			newFeature
+					.setAttribute(
+							"geometry",
+							factory
+									.createPoint(
+											new Coordinate(
+													43.454,
+													28.232)));
 			writer.write();
 
 			newFeature = writer.next();
-			newFeature.setAttribute(
-					"pop",
-					Long.valueOf(66));
-			newFeature.setAttribute(
-					"pid",
-					UUID.randomUUID().toString());
-			newFeature.setAttribute(
-					"when",
-					DateUtilities.parseISO("2005-05-18T20:32:56Z"));
-			newFeature.setAttribute(
-					"geometry",
-					factory.createPoint(new Coordinate(
-							43.454,
-							27.232)));
+			newFeature
+					.setAttribute(
+							"pop",
+							Long
+									.valueOf(
+											66));
+			newFeature
+					.setAttribute(
+							"pid",
+							UUID.randomUUID().toString());
+			newFeature
+					.setAttribute(
+							"when",
+							DateUtilities
+									.parseISO(
+											"2005-05-18T20:32:56Z"));
+			newFeature
+					.setAttribute(
+							"geometry",
+							factory
+									.createPoint(
+											new Coordinate(
+													43.454,
+													27.232)));
 			writer.write();
 
 			newFeature = writer.next();
-			newFeature.setAttribute(
-					"pop",
-					Long.valueOf(100));
-			newFeature.setAttribute(
-					"pid",
-					UUID.randomUUID().toString());
-			newFeature.setAttribute(
-					"when",
-					DateUtilities.parseISO("2005-05-17T20:32:56Z"));
-			newFeature.setAttribute(
-					"geometry",
-					factory.createPoint(new Coordinate(
-							43.454,
-							28.242)));
+			newFeature
+					.setAttribute(
+							"pop",
+							Long
+									.valueOf(
+											100));
+			newFeature
+					.setAttribute(
+							"pid",
+							UUID.randomUUID().toString());
+			newFeature
+					.setAttribute(
+							"when",
+							DateUtilities
+									.parseISO(
+											"2005-05-17T20:32:56Z"));
+			newFeature
+					.setAttribute(
+							"geometry",
+							factory
+									.createPoint(
+											new Coordinate(
+													43.454,
+													28.242)));
 			writer.write();
 			writer.close();
 			transaction1.commit();
@@ -326,6 +390,7 @@ public class GeoWaveFeatureSourceTest extends
 	private static class SourcePopulater implements
 			Populater
 	{
+		@Override
 		public void populate(
 				final SimpleFeatureType type,
 				final DataStore dataStore )
@@ -333,65 +398,113 @@ public class GeoWaveFeatureSourceTest extends
 				CQLException,
 				ParseException {
 
-			dataStore.createSchema(type);
+			dataStore
+					.createSchema(
+							type);
 
 			final Transaction transaction1 = new DefaultTransaction();
 
-			SimpleFeatureStore source = (SimpleFeatureStore) dataStore.getFeatureSource(type.getName());
-			final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter(
-					type.getTypeName(),
-					transaction1);
-			assertFalse(writer.hasNext());
+			final SimpleFeatureStore source = (SimpleFeatureStore) dataStore
+					.getFeatureSource(
+							type.getName());
+			final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore
+					.getFeatureWriter(
+							type.getTypeName(),
+							transaction1);
+			assertFalse(
+					writer.hasNext());
 			SimpleFeature newFeature = writer.next();
-			newFeature.setAttribute(
-					"pop",
-					Long.valueOf(77));
-			newFeature.setAttribute(
-					"pid",
-					UUID.randomUUID().toString());
-			newFeature.setAttribute(
-					"when",
-					DateUtilities.parseISO("2005-05-19T20:32:56Z"));
-			newFeature.setAttribute(
-					"geometry",
-					factory.createPoint(new Coordinate(
-							43.454,
-							28.232)));
-			source.addFeatures(DataUtilities.collection(newFeature));
+			newFeature
+					.setAttribute(
+							"pop",
+							Long
+									.valueOf(
+											77));
+			newFeature
+					.setAttribute(
+							"pid",
+							UUID.randomUUID().toString());
+			newFeature
+					.setAttribute(
+							"when",
+							DateUtilities
+									.parseISO(
+											"2005-05-19T20:32:56Z"));
+			newFeature
+					.setAttribute(
+							"geometry",
+							factory
+									.createPoint(
+											new Coordinate(
+													43.454,
+													28.232)));
+			source
+					.addFeatures(
+							DataUtilities
+									.collection(
+											newFeature));
 
 			newFeature = writer.next();
-			newFeature.setAttribute(
-					"pop",
-					Long.valueOf(66));
-			newFeature.setAttribute(
-					"pid",
-					UUID.randomUUID().toString());
-			newFeature.setAttribute(
-					"when",
-					DateUtilities.parseISO("2005-05-18T20:32:56Z"));
-			newFeature.setAttribute(
-					"geometry",
-					factory.createPoint(new Coordinate(
-							43.454,
-							27.232)));
-			source.addFeatures(DataUtilities.collection(newFeature));
+			newFeature
+					.setAttribute(
+							"pop",
+							Long
+									.valueOf(
+											66));
+			newFeature
+					.setAttribute(
+							"pid",
+							UUID.randomUUID().toString());
+			newFeature
+					.setAttribute(
+							"when",
+							DateUtilities
+									.parseISO(
+											"2005-05-18T20:32:56Z"));
+			newFeature
+					.setAttribute(
+							"geometry",
+							factory
+									.createPoint(
+											new Coordinate(
+													43.454,
+													27.232)));
+			source
+					.addFeatures(
+							DataUtilities
+									.collection(
+											newFeature));
 
 			newFeature = writer.next();
-			newFeature.setAttribute(
-					"pop",
-					Long.valueOf(100));
-			newFeature.setAttribute(
-					"pid",
-					UUID.randomUUID().toString());
-			newFeature.setAttribute(
-					"when",
-					DateUtilities.parseISO("2005-05-17T20:32:56Z"));
-			newFeature.setAttribute(
-					"geometry",
-					factory.createPoint(new Coordinate(
-							43.454,
-							28.242)));
-			source.addFeatures(DataUtilities.collection(newFeature));
+			newFeature
+					.setAttribute(
+							"pop",
+							Long
+									.valueOf(
+											100));
+			newFeature
+					.setAttribute(
+							"pid",
+							UUID.randomUUID().toString());
+			newFeature
+					.setAttribute(
+							"when",
+							DateUtilities
+									.parseISO(
+											"2005-05-17T20:32:56Z"));
+			newFeature
+					.setAttribute(
+							"geometry",
+							factory
+									.createPoint(
+											new Coordinate(
+													43.454,
+													28.242)));
+			source
+					.addFeatures(
+							DataUtilities
+									.collection(
+											newFeature));
 			transaction1.commit();
 			transaction1.close();
 		}

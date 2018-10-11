@@ -32,21 +32,21 @@ public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R,B>> 
 {
 	private final DataStoreStatisticsProvider<T> statisticsProvider;
 	private final Map<ByteArrayId, InternalDataStatistics<T, R, B>> statisticsMap = new HashMap<>();
-	private final StatisticsType<R,B> statisticsType;
+	private final StatisticsId statisticsId;
 	private final EntryVisibilityHandler<T> visibilityHandler;
 
 	public DataStatisticsBuilder(
 			final Index index,
 			final DataTypeAdapter<T> adapter,
 			final DataStoreStatisticsProvider<T> statisticsProvider,
-			final StatisticsType<R,B> statisticsType ) {
+			final StatisticsId statisticsId ) {
 		this.statisticsProvider = statisticsProvider;
-		this.statisticsType = statisticsType;
+		this.statisticsId = statisticsId;
 		this.visibilityHandler = statisticsProvider
 				.getVisibilityHandler(
 						index.getIndexModel(),
 						adapter,
-						statisticsType);
+						statisticsId);
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R,B>> 
 		if (statistics == null) {
 			statistics = statisticsProvider
 					.createDataStatistics(
-							statisticsType);
+							statisticsId);
 			if (statistics == null) {
 				return;
 			}
@@ -102,7 +102,7 @@ public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R,B>> 
 		if (statistics == null) {
 			statistics = statisticsProvider
 					.createDataStatistics(
-							statisticsType);
+							statisticsId);
 			statistics
 					.setVisibility(
 							visibilityByteArray.getBytes());
@@ -134,7 +134,7 @@ public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R,B>> 
 		if (statistics == null) {
 			statistics = statisticsProvider
 					.createDataStatistics(
-							statisticsType);
+							statisticsId);
 			if (statistics == null) {
 				return;
 			}

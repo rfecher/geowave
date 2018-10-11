@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.util;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,9 +39,10 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.api.StatisticsQueryBuilder.QueryByStatisticsTypeFactory;
+import org.locationtech.geowave.core.store.api.StatisticsQueryBuilder;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
@@ -61,7 +61,6 @@ import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.beust.jcommander.ParameterException;
 import com.google.common.collect.Iterators;
 
 /*
@@ -170,14 +169,16 @@ public class DataStoreUtils
 
 	public static <T> long cardinality(
 			final Index index,
-			final Map<String, InternalDataStatistics<T, ?, ?>> stats,
+			final Map<StatisticsId, InternalDataStatistics<T, ?, ?>> stats,
 			final QueryRanges queryRanges ) {
 
 		long count = 0;
 		for (final SinglePartitionQueryRanges partitionRange : queryRanges.getPartitionQueryRanges()) {
 			final RowRangeHistogramStatistics rangeStats = (RowRangeHistogramStatistics) stats
 					.get(
-							QueryByStatisticsTypeFactory
+							StatisticsQueryBuilder
+									.newBuilder()
+									.factory()
 									.rowHistogram()
 									.indexName(
 											index.getName())

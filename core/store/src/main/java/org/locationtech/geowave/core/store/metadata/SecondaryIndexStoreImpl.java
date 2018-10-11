@@ -18,7 +18,7 @@ import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 
 public class SecondaryIndexStoreImpl implements
@@ -39,7 +39,7 @@ public class SecondaryIndexStoreImpl implements
 			final ByteArrayId indexedAttributeFieldId,
 			final InternalDataAdapter<T> adapter,
 			final Index primaryIndex,
-			final DistributableQuery query,
+			final DistributableQueryConstraints query,
 			final String... authorizations ) {
 		// TODO Auto-generated method stub
 		return null;

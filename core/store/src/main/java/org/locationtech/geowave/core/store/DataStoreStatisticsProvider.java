@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -12,14 +12,14 @@ package org.locationtech.geowave.core.store;
 
 import java.util.Arrays;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
-import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DuplicateEntryCount;
 import org.locationtech.geowave.core.store.adapter.statistics.EmptyStatisticVisibility;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.PartitionStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatisticsSet;
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsProvider;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsType;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
@@ -48,31 +48,62 @@ public class DataStoreStatisticsProvider<T> implements
 	}
 
 	@Override
-	public StatisticsType<?, ?>[] getSupportedStatisticsTypes() {
-		final StatisticsType<?,?>[] idsFromAdapter;
+	public StatisticsId[] getSupportedStatistics() {
+		final StatisticsId[] idsFromAdapter;
 		if ((adapter.getAdapter() instanceof StatisticsProvider) && includeAdapterStats) {
-			idsFromAdapter = ((StatisticsProvider) adapter.getAdapter()).getSupportedStatisticsTypes();
+			idsFromAdapter = ((StatisticsProvider) adapter.getAdapter()).getSupportedStatistics();
 		}
 		else {
-			idsFromAdapter = new StatisticsType[0];
+			idsFromAdapter = new StatisticsId[0];
 		}
 
-		final StatisticsType<?, ?>[] newSet = Arrays
+		final StatisticsId[] newSet = Arrays
 				.copyOf(
 						idsFromAdapter,
 						idsFromAdapter.length + 6);
-		newSet[idsFromAdapter.length] = RowRangeHistogramStatistics.STATS_TYPE;
-		newSet[idsFromAdapter.length + 1] = IndexMetaDataSet.STATS_TYPE;
-		newSet[idsFromAdapter.length + 2] = DifferingFieldVisibilityEntryCount.STATS_TYPE;
-		newSet[idsFromAdapter.length + 3] = FieldVisibilityCount.STATS_TYPE;
-		newSet[idsFromAdapter.length + 4] = DuplicateEntryCount.STATS_TYPE;
-		newSet[idsFromAdapter.length + 5] = PartitionStatistics.STATS_TYPE;
+		newSet[idsFromAdapter.length] = RowRangeHistogramStatistics.STATS_TYPE
+				.newBuilder()
+				.indexName(
+						index.getName())
+				.build()
+				.getId();
+		newSet[idsFromAdapter.length + 1] = IndexMetaDataSet.STATS_TYPE
+				.newBuilder()
+				.indexName(
+						index.getName())
+				.build()
+				.getId();
+		newSet[idsFromAdapter.length + 2] = DifferingFieldVisibilityEntryCount.STATS_TYPE
+				.newBuilder()
+				.indexName(
+						index.getName())
+				.build()
+				.getId();
+		newSet[idsFromAdapter.length + 3] = FieldVisibilityCount.STATS_TYPE
+				.newBuilder()
+				.indexName(
+						index.getName())
+				.build()
+				.getId();
+		newSet[idsFromAdapter.length + 4] = DuplicateEntryCount.STATS_TYPE
+				.newBuilder()
+				.indexName(
+						index.getName())
+				.build()
+				.getId();
+		newSet[idsFromAdapter.length + 5] = PartitionStatistics.STATS_TYPE
+				.newBuilder()
+				.indexName(
+						index.getName())
+				.build()
+				.getId();
 		return newSet;
 	}
 
 	@Override
-	public<R, B extends StatisticsQueryBuilder<R,B>> InternalDataStatistics<T, R, B> createDataStatistics(
-			final StatisticsType<R, B> statisticsType ) {
+	public <R, B extends StatisticsQueryBuilder<R, B>> InternalDataStatistics<T, R, B> createDataStatistics(
+			final StatisticsId statisticsId ) {
+		final StatisticsType<?, ?> statisticsType = statisticsId.getType();
 		if (statisticsType
 				.equals(
 						RowRangeHistogramStatistics.STATS_TYPE)) {
@@ -117,9 +148,9 @@ public class DataStoreStatisticsProvider<T> implements
 					index.getName());
 		}
 		if (adapter.getAdapter() instanceof StatisticsProvider) {
-			InternalDataStatistics<T,R, B> stats = ((StatisticsProvider) adapter.getAdapter())
+			final InternalDataStatistics<T, R, B> stats = ((StatisticsProvider) adapter.getAdapter())
 					.createDataStatistics(
-							statisticsType);
+							statisticsId);
 			if (stats != null) {
 				stats
 						.setAdapterId(
@@ -135,12 +166,12 @@ public class DataStoreStatisticsProvider<T> implements
 	public EntryVisibilityHandler<T> getVisibilityHandler(
 			final CommonIndexModel indexModel,
 			final DataTypeAdapter<T> adapter,
-			final StatisticsType<?, ?> statisticsType ) {
+			final StatisticsId statisticsId ) {
 		return (adapter instanceof StatisticsProvider) ? ((StatisticsProvider) adapter)
 				.getVisibilityHandler(
 						index.getIndexModel(),
 						adapter,
-						statisticsType)
-				: new EmptyStatisticVisibility<T>();
+						statisticsId)
+				: new EmptyStatisticVisibility<>();
 	}
 }

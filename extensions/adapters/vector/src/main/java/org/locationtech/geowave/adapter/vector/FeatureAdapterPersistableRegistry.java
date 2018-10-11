@@ -39,7 +39,7 @@ import org.locationtech.geowave.adapter.vector.stats.FeatureNumericHistogramStat
 import org.locationtech.geowave.adapter.vector.stats.FeatureNumericRangeStatistics.FeatureNumericRangeConfig;
 import org.locationtech.geowave.adapter.vector.stats.StatsConfigurationCollection.SimpleFeatureStatsConfigurationCollection;
 import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigurationSet;
-import org.locationtech.geowave.core.geotime.store.query.CQLQuery;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitCQLQuery;
 import org.locationtech.geowave.core.geotime.store.query.filter.CQLQueryFilter;
 import org.locationtech.geowave.core.geotime.store.statistics.FeatureBoundingBoxStatistics;
 import org.locationtech.geowave.core.geotime.store.statistics.FeatureTimeRangeStatistics;
@@ -76,7 +76,7 @@ public class FeatureAdapterPersistableRegistry implements
 					TypeNameOptionProvider::new),
 			new PersistableIdAndConstructor(
 					(short) 507,
-					CQLQuery::new),
+					ExplicitCQLQuery::new),
 			new PersistableIdAndConstructor(
 					(short) 508,
 					CQLQueryFilter::new),

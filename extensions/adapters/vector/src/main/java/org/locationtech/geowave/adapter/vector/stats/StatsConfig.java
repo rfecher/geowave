@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -22,7 +22,7 @@ public interface StatsConfig<T> extends
 		Serializable,
 		Persistable
 {
-	InternalDataStatistics<T> create(
+	InternalDataStatistics<T, ?, ?> create(
 			Short internalDataAdapterId,
 			final String fieldName );
 }

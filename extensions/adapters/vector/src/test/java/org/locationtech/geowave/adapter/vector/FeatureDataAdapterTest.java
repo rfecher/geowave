@@ -146,7 +146,7 @@ public class FeatureDataAdapterTest
 						new SpatialOptions()).getIndexModel());
 
 		GeometryWrapper wrapper = null;
-		for (final Entry<ByteArrayId, ?> pv : persistenceEncoding.getCommonData().getValues().entrySet()) {
+		for (final Entry<String, ?> pv : persistenceEncoding.getCommonData().getValues().entrySet()) {
 			if (pv.getValue() instanceof GeometryWrapper) {
 				wrapper = (GeometryWrapper) pv.getValue();
 			}
@@ -181,8 +181,8 @@ public class FeatureDataAdapterTest
 		dataAdapterCopy.fromBinary(binary);
 
 		assertEquals(
-				dataAdapterCopy.getAdapterId(),
-				dataAdapter.getAdapterId());
+				dataAdapterCopy.getTypeName(),
+				dataAdapter.getTypeName());
 		assertEquals(
 				dataAdapterCopy.getFeatureType(),
 				dataAdapter.getFeatureType());
@@ -227,8 +227,8 @@ public class FeatureDataAdapterTest
 		dataAdapterCopy.fromBinary(binary);
 
 		assertEquals(
-				dataAdapterCopy.getAdapterId(),
-				dataAdapter.getAdapterId());
+				dataAdapterCopy.getTypeName(),
+				dataAdapter.getTypeName());
 		assertEquals(
 				dataAdapterCopy.getFeatureType(),
 				dataAdapter.getFeatureType());
@@ -290,8 +290,8 @@ public class FeatureDataAdapterTest
 		dataAdapterCopy.fromBinary(binary);
 
 		assertEquals(
-				dataAdapterCopy.getAdapterId(),
-				dataAdapter.getAdapterId());
+				dataAdapterCopy.getTypeName(),
+				dataAdapter.getTypeName());
 		assertEquals(
 				dataAdapterCopy.getFeatureType(),
 				dataAdapter.getFeatureType());
@@ -344,8 +344,8 @@ public class FeatureDataAdapterTest
 		dataAdapterCopy.fromBinary(binary);
 
 		assertEquals(
-				dataAdapterCopy.getAdapterId(),
-				dataAdapter.getAdapterId());
+				dataAdapterCopy.getTypeName(),
+				dataAdapter.getTypeName());
 		assertEquals(
 				dataAdapterCopy.getFeatureType(),
 				dataAdapter.getFeatureType());
@@ -431,8 +431,8 @@ public class FeatureDataAdapterTest
 				dataAdapterCopy.getFeatureType().getName().getNamespaceURI());
 
 		assertEquals(
-				dataAdapterCopy.getAdapterId(),
-				dataAdapter.getAdapterId());
+				dataAdapterCopy.getTypeName(),
+				dataAdapter.getTypeName());
 		assertEquals(
 				dataAdapterCopy.getFeatureType(),
 				dataAdapter.getFeatureType());

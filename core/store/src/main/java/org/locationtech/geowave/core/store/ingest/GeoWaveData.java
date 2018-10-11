@@ -25,13 +25,13 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 public class GeoWaveData<T>
 {
 	protected String typeName;
-	private final Collection<String> indexNames;
+	private final String[] indexNames;
 	private final T data;
 	transient private DataTypeAdapter<T> adapter;
 
 	public GeoWaveData(
 			final String typeName,
-			final Collection<String> indexNames,
+			final String[] indexNames,
 			final T data ) {
 		this.typeName = typeName;
 		this.indexNames = indexNames;
@@ -40,14 +40,14 @@ public class GeoWaveData<T>
 
 	public GeoWaveData(
 			final DataTypeAdapter<T> adapter,
-			final Collection<String> indexNames,
+			final String[] indexNames,
 			final T data ) {
 		this.adapter = adapter;
 		this.indexNames = indexNames;
 		this.data = data;
 	}
 
-	public Collection<String> getIndexNames() {
+	public String[] getIndexNames() {
 		return indexNames;
 	}
 

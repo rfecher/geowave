@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,16 +10,13 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.ingest;
 
-import java.util.Collection;
-
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
 
 /**
  * An interface required for ingest plugins to implement a conversion from an
  * expected input format to GeoWave data which can in turn be ingested into the
  * system.
- * 
+ *
  * @param <I>
  *            The type for the input data
  * @param <O>
@@ -31,10 +28,10 @@ public interface IngestPluginBase<I, O> extends
 	/**
 	 * Convert from an expected input format to a data format that can be
 	 * directly ingested into GeoWave
-	 * 
+	 *
 	 * @param file
 	 *            The expected input.
-	 * @param primaryIndexIds
+	 * @param indexNames
 	 *            The set of index IDs specified via a commandline argument
 	 *            (this is typically either the default spatial index or default
 	 *            spatial-temporal index)
@@ -48,6 +45,6 @@ public interface IngestPluginBase<I, O> extends
 	 */
 	public CloseableIterator<GeoWaveData<O>> toGeoWaveData(
 			I input,
-			Collection<ByteArrayId> primaryIndexIds,
+			String[] indexNames,
 			String globalVisibility );
 }

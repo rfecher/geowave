@@ -43,7 +43,12 @@ public abstract class BaseQueryBuilderImpl<T, Q extends BaseQuery<T, ?>, R exten
 	@Override
 	public R setAuthorizations(
 			final String[] authorizations ) {
+		if (authorizations == null) {
+			this.authorizations = new String[0];
+		}
+		else {
 		this.authorizations = authorizations;
+		}
 		return (R) this;
 	}
 

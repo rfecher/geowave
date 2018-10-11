@@ -119,6 +119,21 @@ public class BaseQueryOptions
 			final DataTypeQueryOptions<?> typeOptions,
 			final IndexQueryOptions indexOptions,
 			final PersistentAdapterStore adapterStore,
+			final InternalAdapterStore internalAdapterStore ) {
+		this(
+				commonOptions,
+				typeOptions,
+				indexOptions,
+				adapterStore,
+				internalAdapterStore,
+				null);
+	}
+
+	public BaseQueryOptions(
+			final CommonQueryOptions commonOptions,
+			final DataTypeQueryOptions<?> typeOptions,
+			final IndexQueryOptions indexOptions,
+			final PersistentAdapterStore adapterStore,
 			final InternalAdapterStore internalAdapterStore,
 			final ScanCallback<?, ?> scanCallback ) {
 		if (scanCallback != null) {

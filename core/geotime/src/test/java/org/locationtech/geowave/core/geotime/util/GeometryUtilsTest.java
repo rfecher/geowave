@@ -8,7 +8,7 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.core.geotime;
+package org.locationtech.geowave.core.geotime.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -191,6 +191,67 @@ public class GeometryUtilsTest
 				},
 				results.get(
 						1).getMaxValuesPerDimension()));
+
+	}	GeometryFactory factory = new GeometryFactory();
+
+	@Test
+	public void testSplit() {
+		final Geometry multiPolygon = factory.createMultiPolygon(new Polygon[] {
+			factory.createPolygon(new Coordinate[] {
+				new Coordinate(
+						179.0,
+						-89),
+				new Coordinate(
+						179.0,
+						-92),
+				new Coordinate(
+						182.0,
+						-92),
+				new Coordinate(
+						192.0,
+						-89),
+				new Coordinate(
+						179.0,
+						-89)
+			})
+		});
+		final Geometry result = GeometryUtils.adjustGeo(
+				GeometryUtils.getDefaultCRS(),
+				multiPolygon);
+
+		assertTrue(result.intersects(multiPolygon));
+		assertTrue(result.getNumGeometries() == 2);
+	}
+
+	@Test
+	public void testSimple() {
+
+		final Geometry singlePoly = factory.createMultiPolygon(new Polygon[] {
+			factory.createPolygon(new Coordinate[] {
+				new Coordinate(
+						169.0,
+						20),
+				new Coordinate(
+						169.0,
+						21),
+				new Coordinate(
+						172.0,
+						21),
+				new Coordinate(
+						172.0,
+						20),
+				new Coordinate(
+						169.0,
+						20)
+			})
+		});
+		final Geometry result = GeometryUtils.adjustGeo(
+				GeometryUtils.getDefaultCRS(),
+				singlePoly);
+
+		assertTrue(result.intersects(singlePoly));
+		assertTrue(singlePoly.isValid());
+		assertTrue(singlePoly.getNumGeometries() == 1);
 
 	}
 

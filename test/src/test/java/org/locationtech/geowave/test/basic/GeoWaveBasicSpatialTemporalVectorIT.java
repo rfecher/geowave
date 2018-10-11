@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.adapter.vector.export.VectorLocalExportCommand;
 import org.locationtech.geowave.adapter.vector.export.VectorLocalExportOptions;
-import org.locationtech.geowave.adapter.vector.utils.TimeDescriptors;
+import org.locationtech.geowave.adapter.vector.util.TimeDescriptors;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
 import org.locationtech.geowave.core.cli.parser.ManualOperationParams;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;

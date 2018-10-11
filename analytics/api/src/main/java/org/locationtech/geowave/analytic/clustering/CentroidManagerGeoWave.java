@@ -52,7 +52,7 @@ import org.locationtech.geowave.analytic.store.PersistableStore;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
-import org.locationtech.geowave.core.geotime.store.query.CQLQuery;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitCQLQuery;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
@@ -496,7 +496,7 @@ public class CentroidManagerGeoWave<T> implements
 				new QueryOptions(
 						adapter,
 						index),
-				new CQLQuery(
+				new ExplicitCQLQuery(
 						null,
 						finalFilter,
 						adapter));

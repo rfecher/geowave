@@ -86,7 +86,7 @@ public class SpatialTemporalQueryTest
 						factory.createLineString(coordinates)));
 		commonData.addValue(
 				new TimeField(
-						Unit.YEAR).getFieldId(),
+						Unit.YEAR).getFieldName(),
 				new TimeRange(
 						start.getTime(),
 						end.getTime(),

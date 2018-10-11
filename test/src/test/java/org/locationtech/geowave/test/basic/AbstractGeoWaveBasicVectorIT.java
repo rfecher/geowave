@@ -64,7 +64,7 @@ import org.locationtech.geowave.core.store.memory.MemoryAdapterStore;
 import org.locationtech.geowave.core.store.query.aggregate.CountAggregation;
 import org.locationtech.geowave.core.store.query.aggregate.CountResult;
 import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.format.geotools.vector.GeoToolsVectorDataStoreIngestPlugin;
 import org.locationtech.geowave.test.TestUtils;
@@ -142,7 +142,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 				.createDataStore();
 		// this file is the filtered dataset (using the previous file as a
 		// filter) so use it to ensure the query worked
-		final DistributableQuery query = TestUtils.resourceToQuery(savedFilterResource);
+		final DistributableQueryConstrain query = TestUtils.resourceToQuery(savedFilterResource);
 		try (final CloseableIterator<?> actualResults = (index == null) ? geowaveStore.query(
 				new QueryOptions(),
 				query) : geowaveStore.query(
@@ -351,7 +351,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 		boolean success = false;
 		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = getDataStorePluginOptions()
 				.createDataStore();
-		final DistributableQuery query = TestUtils.resourceToQuery(savedFilterResource);
+		final DistributableQueryConstrain query = TestUtils.resourceToQuery(savedFilterResource);
 		final CloseableIterator<?> actualResults;
 
 		// Run the spatial query
@@ -407,7 +407,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 				.createDataStore();
 
 		// Run the query for this delete to get the expected count
-		final DistributableQuery query = TestUtils.resourceToQuery(savedFilterResource);
+		final DistributableQueryConstrain query = TestUtils.resourceToQuery(savedFilterResource);
 
 		deleteInternal(
 				geowaveStore,

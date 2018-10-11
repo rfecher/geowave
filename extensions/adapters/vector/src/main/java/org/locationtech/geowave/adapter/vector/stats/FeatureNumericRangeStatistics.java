@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,22 +10,24 @@
  ******************************************************************************/
 package org.locationtech.geowave.adapter.vector.stats;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.Range;
 import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.sfc.data.NumericRange;
-import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsQueryBuilder;
+import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsType;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.NumericRangeDataStatistics;
 import org.opengis.feature.simple.SimpleFeature;
-
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 
 public class FeatureNumericRangeStatistics extends
 		NumericRangeDataStatistics<SimpleFeature> implements
 		FieldNameStatistic
 {
-	public static final ByteArrayId STATS_TYPE = new ByteArrayId(
+
+	public static final FieldStatisticsType<Range<Double>> STATS_TYPE = new FieldStatisticsType<>(
 			"FEATURE_NUMERIC_RANGE");
 
 	public FeatureNumericRangeStatistics() {
@@ -40,32 +42,26 @@ public class FeatureNumericRangeStatistics extends
 	}
 
 	public FeatureNumericRangeStatistics(
-			final Short internalDataAdapterId,
+			final Short adapterId,
 			final String fieldName ) {
 		super(
-				internalDataAdapterId,
-				composeId(
-						STATS_TYPE.getString(),
-						fieldName));
-	}
-
-	public static final ByteArrayId composeId(
-			final String fieldName ) {
-		return composeId(
-				STATS_TYPE.getString(),
+				adapterId,
+				STATS_TYPE,
 				fieldName);
 	}
 
 	@Override
 	public String getFieldName() {
-		return decomposeNameFromId(getStatisticsType());
+		return extendedId;
 	}
 
 	@Override
 	protected NumericRange getRange(
 			final SimpleFeature entry ) {
 
-		final Object o = entry.getAttribute(getFieldName());
+		final Object o = entry
+				.getAttribute(
+						getFieldName());
 		if (o == null) {
 			return null;
 		}
@@ -76,71 +72,76 @@ public class FeatureNumericRangeStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature> duplicate() {
+	public InternalDataStatistics<SimpleFeature, Range<Double>, FieldStatisticsQueryBuilder<Range<Double>>> clone() {
 		return new FeatureNumericRangeStatistics(
-				internalDataAdapterId,
+				adapterId,
 				getFieldName());
 	}
 
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer.append(
-				"range[internalDataAdapterId=").append(
-				super.getInternalDataAdapterId());
-		buffer.append(
-				", field=").append(
-				getFieldName());
+		buffer
+				.append(
+						"range[internalDataAdapterId=")
+				.append(
+						super.getAdapterId());
+		buffer
+				.append(
+						", field=")
+				.append(
+						getFieldName());
 		if (isSet()) {
-			buffer.append(
-					", min=").append(
-					getMin());
-			buffer.append(
-					", max=").append(
-					getMax());
+			buffer
+					.append(
+							", min=")
+					.append(
+							getMin());
+			buffer
+					.append(
+							", max=")
+					.append(
+							getMax());
 		}
 		else {
-			buffer.append(", No Values");
+			buffer
+					.append(
+							", No Values");
 		}
-		buffer.append("]");
+		buffer
+				.append(
+						"]");
 		return buffer.toString();
+	}
+
+	@Override
+	protected String resultsName() {
+		return "range";
+	}
+
+	@Override
+	protected Object resultsValue() {
+
+		if (!isSet()) {
+			return "No Values";
+		}
+		else {
+			final Map<String, Double> map = new HashMap<>();
+			map
+					.put(
+							"min",
+							getMin());
+			map
+					.put(
+							"max",
+							getMax());
+			return map;
+		}
 	}
 
 	/**
 	 * Convert Feature Numeric Range statistics to a JSON object
 	 */
-
-	@Override
-	public JSONObject toJSONObject(
-			final InternalAdapterStore store )
-			throws JSONException {
-		final JSONObject jo = new JSONObject();
-		jo.put(
-				"type",
-				STATS_TYPE.getString());
-		jo.put(
-				"dataAdapterID",
-				store.getAdapterId(internalDataAdapterId));
-		jo.put(
-				"field_identifier",
-				getFieldName());
-
-		if (!isSet()) {
-			jo.put(
-					"range",
-					"No Values");
-		}
-		else {
-			jo.put(
-					"range_min",
-					getMin());
-			jo.put(
-					"range_max",
-					getMax());
-		}
-
-		return jo;
-	}
 
 	public static class FeatureNumericRangeConfig implements
 			StatsConfig<SimpleFeature>
@@ -151,11 +152,11 @@ public class FeatureNumericRangeStatistics extends
 		private static final long serialVersionUID = 6309383518148391565L;
 
 		@Override
-		public InternalDataStatistics<SimpleFeature> create(
-				final Short internalDataAdapterId,
+		public InternalDataStatistics<SimpleFeature, Range<Double>, FieldStatisticsQueryBuilder<Range<Double>>> create(
+				final Short adapterId,
 				final String fieldName ) {
 			return new FeatureNumericRangeStatistics(
-					internalDataAdapterId,
+					adapterId,
 					fieldName);
 		}
 
@@ -166,6 +167,6 @@ public class FeatureNumericRangeStatistics extends
 
 		@Override
 		public void fromBinary(
-				byte[] bytes ) {}
+				final byte[] bytes ) {}
 	}
 }

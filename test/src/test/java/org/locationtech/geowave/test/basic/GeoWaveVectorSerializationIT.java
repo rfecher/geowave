@@ -36,7 +36,7 @@ import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
@@ -222,7 +222,7 @@ public class GeoWaveVectorSerializationIT extends
 				TestUtils.DEFAULT_SPATIAL_INDEX)) {
 			writer.write(sf);
 		}
-		final DistributableQuery q = new SpatialQuery(
+		final DistributableQueryConstrain q = new SpatialQuery(
 				((Geometry) args.get(Geometry.class)).buffer(0.5d));
 		try (final CloseableIterator<?> iter = geowaveStore.query(
 				new QueryOptions(/* TODO do I need to pass 'index'? */),

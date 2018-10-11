@@ -1,28 +1,14 @@
-/*******************************************************************************
- * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *
- *  See the NOTICE file distributed with this work for additional
- *  information regarding copyright ownership.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Apache License,
- *  Version 2.0 which accompanies this distribution and is available at
- *  http://www.apache.org/licenses/LICENSE-2.0.txt
- ******************************************************************************/
 package org.locationtech.geowave.core.geotime.store.query;
 
-import java.nio.ByteBuffer;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.text.ecql.ECQL;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
-import org.locationtech.geowave.core.geotime.store.dimension.LatitudeField;
-import org.locationtech.geowave.core.geotime.store.dimension.LongitudeField;
-import org.locationtech.geowave.core.geotime.store.dimension.TimeField;
-import org.locationtech.geowave.core.geotime.store.query.filter.CQLQueryFilter;
 import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter.CompareOperation;
 import org.locationtech.geowave.core.geotime.util.ExtractAttributesFilter;
 import org.locationtech.geowave.core.geotime.util.ExtractGeometryFilterVisitor;
@@ -30,23 +16,21 @@ import org.locationtech.geowave.core.geotime.util.ExtractGeometryFilterVisitorRe
 import org.locationtech.geowave.core.geotime.util.ExtractTimeFilterVisitor;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils.GeoConstraintsWrapper;
-import org.locationtech.geowave.core.geotime.util.PropertyConstraintSet;
-import org.locationtech.geowave.core.geotime.util.PropertyFilterVisitor;
+import org.locationtech.geowave.core.geotime.util.IndexOptimizationUtils;
 import org.locationtech.geowave.core.geotime.util.TimeDescriptors;
 import org.locationtech.geowave.core.geotime.util.TimeUtils;
 import org.locationtech.geowave.core.index.ByteArrayRange;
-import org.locationtech.geowave.core.index.persist.PersistenceUtils;
-import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
+import org.locationtech.geowave.core.index.StringUtils;
+import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
 import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
+import org.locationtech.geowave.core.store.query.constraints.AdapterAndIndexBasedQueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery.Constraints;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
-import org.locationtech.geowave.core.store.query.constraints.TypeConstraintQuery;
 import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
-import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -54,18 +38,13 @@ import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-public class CQLQuery implements
-		DistributableQuery,
-		TypeConstraintQuery
+public class OptimalCQLQuery implements
+		AdapterAndIndexBasedQueryConstraints,
+		DistributableQueryConstraints
 {
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(
-					CQLQuery.class);
-	private QueryConstraints baseQuery;
-	private CQLQueryFilter filter;
-	private Filter cqlFilter;
-
-	public CQLQuery() {}
+					OptimalCQLQuery.class);
 
 	public static QueryConstraints createOptimalQuery(
 			final String cql,
@@ -114,6 +93,17 @@ public class CQLQuery implements
 	public static QueryConstraints createOptimalQuery(
 			final Filter cqlFilter,
 			final GeotoolsFeatureDataAdapter adapter,
+			final Index index ) {
+		return createOptimalQuery(
+				cqlFilter,
+				adapter,
+				index,
+				null);
+	}
+
+	public static QueryConstraints createOptimalQuery(
+			final Filter cqlFilter,
+			final GeotoolsFeatureDataAdapter adapter,
 			final Index index,
 			final BasicQuery baseQuery ) {
 		return createOptimalQuery(
@@ -146,12 +136,13 @@ public class CQLQuery implements
 		}
 		// assume the index can't handle spatial or temporal constraints if its
 		// null
-		final boolean isSpatial = index == null ? false
-				: hasAtLeastSpatial(
+		final boolean isSpatial = IndexOptimizationUtils
+				.hasAtLeastSpatial(
 						index);
-		final boolean isTemporal = index == null ? false
-				: hasTime(
-						index) && adapter.hasTemporalConstraints();
+		final boolean isTemporal = IndexOptimizationUtils
+				.hasTime(
+						index,
+						adapter);
 		if (isSpatial) {
 			final String geomName = adapter.getFeatureType().getGeometryDescriptor().getLocalName();
 			attrs
@@ -273,115 +264,102 @@ public class CQLQuery implements
 		else {
 			// baseQuery is passed to CQLQuery just to extract out linear
 			// constraints only
-			return new CQLQuery(
+			return new ExplicitCQLQuery(
 					baseQuery,
 					cqlFilter,
 					adapter);
 		}
 	}
 
-	public CQLQuery(
-			final QueryConstraints baseQuery,
-			final Filter filter,
-			final GeotoolsFeatureDataAdapter adapter ) {
-		// TODO consider ensuring the baseQuery amd the filter are in the
-		// coordinate reference system of the adapter
-		// only if the query has spatial predicate(s)
-		this.baseQuery = baseQuery;
-		cqlFilter = filter;
-		this.filter = new CQLQueryFilter(
-				filter,
-				adapter);
+	private Filter filter;
+
+	public OptimalCQLQuery() {}
+
+	public OptimalCQLQuery(
+			final Filter filter ) {
+		this.filter = filter;
 	}
 
 	@Override
-	public List<QueryFilter> createFilters(
+	public QueryConstraints createQueryConstraints(
+			final DataTypeAdapter<?> adapter,
 			final Index index ) {
-		List<QueryFilter> queryFilters;
-		// note, this assumes the CQL filter covers the baseQuery which *should*
-		// be a safe assumption, otherwise we need to add the
-		// baseQuery.createFilters to the list of query filters
-		queryFilters = new ArrayList<>();
-		if (filter != null) {
-			queryFilters = new ArrayList<>(
-					queryFilters);
-			queryFilters
-					.add(
-							filter);
+		if (adapter instanceof GeotoolsFeatureDataAdapter) {
+			return createOptimalQuery(
+					filter,
+					(GeotoolsFeatureDataAdapter) adapter,
+					index);
 		}
-		return queryFilters;
+		if ((adapter instanceof InternalDataAdapter)
+				&& (((InternalDataAdapter) adapter).getAdapter() instanceof GeotoolsFeatureDataAdapter)) {
+			return createOptimalQuery(
+					filter,
+					(GeotoolsFeatureDataAdapter) ((InternalDataAdapter) adapter).getAdapter(),
+					index);
+		}
+		LOGGER
+				.error(
+						"Adapter is not a geotools feature adapter.  Cannot apply CQL filter.");
+		return null;
 	}
 
 	@Override
-	public List<MultiDimensionalNumericData> getIndexConstraints(
-			final Index index ) {
-		if (baseQuery != null) {
-			return baseQuery
-					.getIndexConstraints(
-							index);
-		}
-		return Collections.emptyList();
+	public List<ByteArrayRange> getSecondaryIndexConstraints(
+			final SecondaryIndexImpl<?> index ) {
+		return null;
+	}
+
+	@Override
+	public List<DistributableQueryFilter> getSecondaryQueryFilter(
+			final SecondaryIndexImpl<?> index ) {
+		return null;
 	}
 
 	@Override
 	public byte[] toBinary() {
-		byte[] baseQueryBytes;
-		if (baseQuery != null) {
-			if (!(baseQuery instanceof DistributableQuery)) {
-				throw new IllegalArgumentException(
-						"Cannot distribute CQL query with base query of type '" + baseQuery.getClass() + "'");
-			}
-			else {
-				baseQueryBytes = PersistenceUtils
-						.toBinary(
-								(DistributableQuery) baseQuery);
-			}
-		}
-		else {
-			// base query can be null, no reason to log a warning
-			baseQueryBytes = new byte[] {};
-		}
-		final byte[] filterBytes;
-		if (filter != null) {
-			filterBytes = filter.toBinary();
-		}
-		else {
+		byte[] filterBytes;
+		if (filter == null) {
 			LOGGER
 					.warn(
-							"Filter is null");
+							"CQL filter is null");
 			filterBytes = new byte[] {};
 		}
-
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						filterBytes.length + baseQueryBytes.length + 4);
-		buf
-				.putInt(
-						filterBytes.length);
-		buf
-				.put(
-						filterBytes);
-		buf
-				.put(
-						baseQueryBytes);
-		return buf.array();
+		else {
+			filterBytes = StringUtils
+					.stringToBinary(
+							ECQL
+									.toCQL(
+											filter));
+		}
+		return filterBytes;
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer
-				.wrap(
-						bytes);
-		final int filterBytesLength = buf.getInt();
-		final int baseQueryBytesLength = bytes.length - filterBytesLength - 4;
-		if (filterBytesLength > 0) {
-			final byte[] filterBytes = new byte[filterBytesLength];
-
-			filter = new CQLQueryFilter();
-			filter
-					.fromBinary(
-							filterBytes);
+		try {
+			GeometryUtils.initClassLoader();
+		}
+		catch (final MalformedURLException e) {
+			LOGGER
+					.error(
+							"Unable to initialize GeoTools class loader",
+							e);
+		}
+		if (bytes.length > 0) {
+			final String cql = StringUtils
+					.stringFromBinary(
+							bytes);
+			try {
+				filter = ECQL
+						.toFilter(
+								cql);
+			}
+			catch (final Exception e) {
+				throw new IllegalArgumentException(
+						cql,
+						e);
+			}
 		}
 		else {
 			LOGGER
@@ -389,84 +367,6 @@ public class CQLQuery implements
 							"CQL filter is empty bytes");
 			filter = null;
 		}
-		if (baseQueryBytesLength > 0) {
-			final byte[] baseQueryBytes = new byte[baseQueryBytesLength];
-
-			try {
-				baseQuery = (QueryConstraints) PersistenceUtils
-						.fromBinary(
-								baseQueryBytes);
-			}
-			catch (final Exception e) {
-				throw new IllegalArgumentException(
-						e);
-			}
-		}
-		else {
-			// base query can be null, no reason to log a warning
-			baseQuery = null;
-		}
 	}
 
-	@Override
-	public List<ByteArrayRange> getSecondaryIndexConstraints(
-			final SecondaryIndexImpl<?> index ) {
-		final PropertyFilterVisitor visitor = new PropertyFilterVisitor();
-		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter
-				.accept(
-						visitor,
-						null);
-		return constraints
-				.getRangesFor(
-						index);
-	}
-
-	@Override
-	public List<DistributableQueryFilter> getSecondaryQueryFilter(
-			final SecondaryIndexImpl<?> index ) {
-		final PropertyFilterVisitor visitor = new PropertyFilterVisitor();
-		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter
-				.accept(
-						visitor,
-						null);
-		return constraints
-				.getFiltersFor(
-						index);
-	}
-
-	protected static boolean hasAtLeastSpatial(
-			final Index index ) {
-		if ((index == null) || (index.getIndexModel() == null) || (index.getIndexModel().getDimensions() == null)) {
-			return false;
-		}
-		boolean hasLatitude = false;
-		boolean hasLongitude = false;
-		for (final NumericDimensionField dimension : index.getIndexModel().getDimensions()) {
-			if (dimension instanceof LatitudeField) {
-				hasLatitude = true;
-			}
-			if (dimension instanceof LongitudeField) {
-				hasLongitude = true;
-			}
-		}
-		return hasLatitude && hasLongitude;
-	}
-
-	protected static boolean hasTime(
-			final Index index ) {
-		if ((index == null) || (index.getIndexModel() == null) || (index.getIndexModel().getDimensions() == null)) {
-			return false;
-		}
-		for (final NumericDimensionField dimension : index.getIndexModel().getDimensions()) {
-			if (dimension instanceof TimeField) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public String getTypeName() {
-		return filter.getTypeName();
-	}
 }

@@ -10,6 +10,13 @@ public class CommonQueryOptions implements
 	private final Integer limit;
 	private final String[] authorizations;
 
+	public CommonQueryOptions(
+			final String... authorizations ) {
+
+		this(
+				(Integer) null,
+				authorizations);
+	}
 
 	public CommonQueryOptions(
 			final Integer limit,
@@ -68,9 +75,9 @@ public class CommonQueryOptions implements
 
 	@Override
 	public void fromBinary(
-			byte[] bytes ) {
+			final byte[] bytes ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

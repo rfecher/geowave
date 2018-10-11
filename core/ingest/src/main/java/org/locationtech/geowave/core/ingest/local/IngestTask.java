@@ -41,19 +41,19 @@ public class IngestTask implements
 	private final String id;
 	private final BlockingQueue<GeoWaveData<?>> readQueue;
 	private final LocalIngestRunData runData;
-	private final Map<ByteArrayId, Index> specifiedPrimaryIndexes;
-	private final Map<ByteArrayId, Index> requiredIndexMap;
+	private final Map<String, Index> specifiedPrimaryIndexes;
+	private final Map<String, Index> requiredIndexMap;
 	private volatile boolean isTerminated = false;
 	private volatile boolean isFinished = false;
 
-	private Map<ByteArrayId, Writer> indexWriters;
-	private Map<ByteArrayId, AdapterToIndexMapping> adapterMappings;
+	private Map<String, Writer> indexWriters;
+	private Map<String, AdapterToIndexMapping> adapterMappings;
 
 	public IngestTask(
 			String id,
 			LocalIngestRunData runData,
-			Map<ByteArrayId, Index> specifiedPrimaryIndexes,
-			Map<ByteArrayId, Index> requiredIndexMap,
+			Map<String, Index> specifiedPrimaryIndexes,
+			Map<String, Index> requiredIndexMap,
 			BlockingQueue<GeoWaveData<?>> queue ) {
 		this.id = id;
 		this.runData = runData;
@@ -61,8 +61,8 @@ public class IngestTask implements
 		this.requiredIndexMap = requiredIndexMap;
 		this.readQueue = queue;
 
-		this.indexWriters = new HashMap<ByteArrayId, Writer>();
-		this.adapterMappings = new HashMap<ByteArrayId, AdapterToIndexMapping>();
+		this.indexWriters = new HashMap<>();
+		this.adapterMappings = new HashMap<>();
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class IngestTask implements
 		}
 		finally {
 			// Clean up index writers
-			for (Entry<ByteArrayId, Writer> writerEntry : indexWriters.entrySet()) {
+			for (Entry<String, Writer> writerEntry : indexWriters.entrySet()) {
 				try {
 					runData.releaseIndexWriter(
 							writerEntry.getKey(),
@@ -186,20 +186,20 @@ public class IngestTask implements
 			DataTypeAdapter adapter )
 			throws Exception {
 
-		ByteArrayId adapterId = adapter.getAdapterId();
+		String typeName = adapter.getTypeName();
 		// Write the data to the data store.
-		Writer writer = indexWriters.get(adapterId);
+		Writer writer = indexWriters.get(typeName);
 
 		if (writer == null) {
 			List<Index> indices = new ArrayList<Index>();
-			for (final ByteArrayId indexId : geowaveData.getIndexIds()) {
-				Index index = specifiedPrimaryIndexes.get(indexId);
+			for (final String indexName : geowaveData.getIndexNames()) {
+				Index index = specifiedPrimaryIndexes.get(indexName);
 				if (index == null) {
-					index = requiredIndexMap.get(indexId);
+					index = requiredIndexMap.get(indexName);
 					if (index == null) {
 						LOGGER.warn(String.format(
 								"Index '%s' not found for %s; worker [%s]",
-								indexId.getString(),
+								indexName,
 								geowaveData.getValue(),
 								this.getId()));
 						continue;
@@ -211,10 +211,10 @@ public class IngestTask implements
 
 			// If we have the index checked out already, use that.
 			writer = runData.getIndexWriter(
-					adapterId,
+					typeName,
 					indices);
 			indexWriters.put(
-					adapterId,
+					typeName,
 					writer);
 		}
 

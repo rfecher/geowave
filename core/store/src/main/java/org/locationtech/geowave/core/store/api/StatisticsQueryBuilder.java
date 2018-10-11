@@ -1,9 +1,11 @@
 package org.locationtech.geowave.core.store.api;
 
+import java.util.Set;
+
+import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.adapter.statistics.BaseStatisticsQueryBuilder;
-import org.locationtech.geowave.core.store.adapter.statistics.CountDataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.IndexStatisticsQueryBuilder;
 import org.locationtech.geowave.core.store.adapter.statistics.PartitionStatisticsQueryBuilder;
-import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsQueryBuilderImpl;
 import org.locationtech.geowave.core.store.adapter.statistics.histogram.NumericHistogram;
 
@@ -26,14 +28,14 @@ public interface StatisticsQueryBuilder<R, B extends StatisticsQueryBuilder<R, B
 		return new StatisticsQueryBuilderImpl<>();
 	}
 
-	public static class QueryByStatisticsTypeFactory
-	{
-		public static BaseStatisticsQueryBuilder<Long> count() {
-			return CountDataStatistics.STATS_TYPE.newBuilder();
-		}
+	QueryByStatisticsTypeFactory factory();
 
-		public static PartitionStatisticsQueryBuilder<NumericHistogram> rowHistogram() {
-			return RowRangeHistogramStatistics.STATS_TYPE.newBuilder();
-		}
+	interface QueryByStatisticsTypeFactory
+	{
+		BaseStatisticsQueryBuilder<Long> count();
+
+		PartitionStatisticsQueryBuilder<NumericHistogram> rowHistogram();
+
+		IndexStatisticsQueryBuilder<Set<ByteArrayId>> partitions();
 	}
 }

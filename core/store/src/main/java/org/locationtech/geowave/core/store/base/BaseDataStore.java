@@ -42,6 +42,7 @@ import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStor
 import org.locationtech.geowave.core.store.adapter.statistics.DuplicateEntryCount;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsImpl;
+import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.AggregationQuery;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
@@ -65,6 +66,8 @@ import org.locationtech.geowave.core.store.index.writer.IndependentAdapterIndexW
 import org.locationtech.geowave.core.store.index.writer.IndexCompositeWriter;
 import org.locationtech.geowave.core.store.memory.MemoryPersistentAdapterStore;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
+import org.locationtech.geowave.core.store.query.aggregate.AdapterAndIndexBasedAggregation;
+import org.locationtech.geowave.core.store.query.constraints.AdapterAndIndexBasedQueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
 import org.locationtech.geowave.core.store.query.constraints.InsertionIdQuery;
 import org.locationtech.geowave.core.store.query.constraints.PrefixIdQuery;
@@ -290,7 +293,9 @@ public class BaseDataStore implements
 		}
 
 		final QueryConstraints sanitizedConstraints = (constraints == null) ? new EverythingQuery() : constraints;
-
+		final boolean isConstraintsAdapterIndexSpecific = sanitizedConstraints instanceof AdapterAndIndexBasedQueryConstraints;
+		final boolean isAggregationAdapterIndexSpecific = (queryOptions.getAggregation() != null)
+				&& (queryOptions.getAggregation().getRight() instanceof AdapterAndIndexBasedAggregation);
 		final DedupeFilter filter = new DedupeFilter();
 		MemoryPersistentAdapterStore tempAdapterStore;
 		final List<DataStoreCallbackManager> deleteCallbacks = new ArrayList<>();
@@ -314,6 +319,7 @@ public class BaseDataStore implements
 									tempAdapterStore,
 									indexMappingStore,
 									indexStore);
+			final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation = queryOptions.getAggregation();
 			for (final Pair<Index, List<InternalDataAdapter<?>>> indexAdapterPair : indexAdapterPairList) {
 				final List<Short> adapterIdsToQuery = new ArrayList<>();
 				// this only needs to be done once per index, not once per
@@ -360,7 +366,26 @@ public class BaseDataStore implements
 											}
 										});
 					}
-					if (sanitizedConstraints instanceof InsertionIdQuery) {
+					QueryConstraints adapterIndexConstraints;
+					if (isConstraintsAdapterIndexSpecific) {
+						adapterIndexConstraints = ((AdapterAndIndexBasedQueryConstraints) sanitizedConstraints)
+								.createQueryConstraints(
+										adapter,
+										indexAdapterPair.getLeft());
+					}
+					else {
+						adapterIndexConstraints = sanitizedConstraints;
+					}
+					if (isAggregationAdapterIndexSpecific) {
+						queryOptions
+								.setAggregation(
+										((AdapterAndIndexBasedAggregation) aggregation.getRight())
+												.createAggregation(
+														adapter,
+														indexAdapterPair.getLeft()),
+										aggregation.getLeft());
+					}
+					if (adapterIndexConstraints instanceof InsertionIdQuery) {
 						queryOptions
 								.setLimit(
 										-1);
@@ -369,16 +394,16 @@ public class BaseDataStore implements
 										queryInsertionId(
 												adapter,
 												indexAdapterPair.getLeft(),
-												(InsertionIdQuery) sanitizedConstraints,
+												(InsertionIdQuery) adapterIndexConstraints,
 												filter,
 												queryOptions,
 												tempAdapterStore,
 												delete));
 						continue;
 					}
-					else if (sanitizedConstraints instanceof PrefixIdQuery) {
+					else if (adapterIndexConstraints instanceof PrefixIdQuery) {
 						if (!queriedAllAdaptersByPrefix) {
-							final PrefixIdQuery prefixIdQuery = (PrefixIdQuery) sanitizedConstraints;
+							final PrefixIdQuery prefixIdQuery = (PrefixIdQuery) adapterIndexConstraints;
 							results
 									.add(
 											queryRowPrefix(
@@ -393,6 +418,24 @@ public class BaseDataStore implements
 						}
 						continue;
 					}
+					else if (isConstraintsAdapterIndexSpecific || isAggregationAdapterIndexSpecific) {
+						// can't query multiple adapters in the same scan
+						results
+								.add(
+										queryConstraints(
+												Collections
+														.singletonList(
+																adapter.getAdapterId()),
+												indexAdapterPair.getLeft(),
+												sanitizedConstraints,
+												filter,
+												queryOptions,
+												tempAdapterStore,
+												delete));
+						continue;
+					}
+					// finally just add it to a list to query multiple adapters
+					// in on scan
 					adapterIdsToQuery
 							.add(
 									adapter.getAdapterId());
@@ -564,7 +607,11 @@ public class BaseDataStore implements
 			final PersistentAdapterStore tempAdapterStore,
 			final boolean delete ) {
 		final BaseConstraintsQuery constraintsQuery = new BaseConstraintsQuery(
-				adapterIdsToQuery,
+				ArrayUtils
+						.toPrimitive(
+								adapterIdsToQuery
+										.toArray(
+												new Short[0])),
 				index,
 				sanitizedQuery,
 				filter,
@@ -1032,7 +1079,7 @@ public class BaseDataStore implements
 	}
 
 	@Override
-	public <P extends Persistable, R extends Mergeable, T> R aggregate(
+	public <P extends Persistable, R, T> R aggregate(
 			final AggregationQuery<P, R, T> query ) {
 		if (query == null) {
 			LOGGER
@@ -1199,29 +1246,29 @@ public class BaseDataStore implements
 
 	@Override
 	public void removeIndex(
-			String indexName ) {
+			final String indexName ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void removeIndex(
-			String typeName,
-			String indexName ) {
+			final String typeName,
+			final String indexName ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void removeType(
-			String typeName ) {
+			final String typeName ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteAll() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

@@ -88,6 +88,11 @@ public abstract class FixedBinNumericStatistics<T> extends
 
 	}
 
+	@Override
+	public FixedBinNumericHistogram getResult() {
+		return histogram;
+	}
+
 	public double[] quantile(
 			final int bins ) {
 		return histogram

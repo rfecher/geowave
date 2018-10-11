@@ -19,7 +19,7 @@ import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
-import org.locationtech.geowave.core.store.adapter.statistics.GenericStatisticsType;
+import org.locationtech.geowave.core.store.adapter.statistics.BaseStatisticsType;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsType;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
@@ -144,7 +144,7 @@ public class StatisticsRowIterator implements
 											entry.getSecondaryId()));
 			stats
 					.setType((StatisticsType)
-							new GenericStatisticsType<>(
+							new BaseStatisticsType(
 									entry.getPrimaryId()));
 		}
 

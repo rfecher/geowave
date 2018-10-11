@@ -71,17 +71,17 @@ public class StatsCompositionTool<T> implements
 			final Index index,
 			final DataTypeAdapter<T> adapter,
 			final DataStoreStatisticsProvider<T> statisticsProvider ) {
-		final StatisticsType<?, ?>[] statisticsTypes = statisticsProvider.getSupportedStatisticsTypes();
+		final StatisticsId[] statisticsIds = statisticsProvider.getSupportedStatistics();
 		statisticsBuilders = new ArrayList<>(
-				statisticsTypes.length);
-		for (final StatisticsType<?, ?> type : statisticsTypes) {
+				statisticsIds.length);
+		for (final StatisticsId id : statisticsIds) {
 			statisticsBuilders
 					.add(
 							new DataStatisticsBuilder<>(
 									index,
 									adapter,
 									statisticsProvider,
-									type));
+									id));
 		}
 		try {
 			final Object v = System

@@ -47,7 +47,7 @@ abstract class BaseQuery
 {
 	private final static Logger LOGGER = Logger.getLogger(BaseQuery.class);
 
-	protected List<Short> adapterIds;
+	protected short[] adapterIds;
 	protected final Index index;
 	protected final Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair;
 	protected final DifferingFieldVisibilityEntryCount differingVisibilityCounts;
@@ -72,7 +72,7 @@ abstract class BaseQuery
 	}
 
 	public BaseQuery(
-			final List<Short> adapterIds,
+			final short[] adapterIds,
 			final Index index,
 			final Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair,
 			final ScanCallback<?, ?> scanCallback,

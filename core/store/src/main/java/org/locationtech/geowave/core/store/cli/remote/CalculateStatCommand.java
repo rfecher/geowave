@@ -20,8 +20,8 @@ import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.DataStoreStatisticsProvider;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
-import org.locationtech.geowave.core.store.adapter.statistics.GenericStatisticsType;
-import org.locationtech.geowave.core.store.adapter.statistics.StatisticsType;
+import org.locationtech.geowave.core.store.adapter.statistics.BaseStatisticsType;
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.adapter.statistics.StatsCompositionTool;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
@@ -58,6 +58,11 @@ public class CalculateStatCommand extends
 	// The state we're re-caculating. Set in execute(), used in
 	// calculateStatistics()
 	private String statType;
+
+	@Parameter(names = {
+		"--fieldName"
+	}, description = "If the statistic is maintained per field, optionally provide a field name")
+	private String fieldName = "";
 
 	@Override
 	public void execute(
@@ -103,10 +108,12 @@ public class CalculateStatCommand extends
 						index,
 						isFirstTime) {
 					@Override
-					public StatisticsType<?, ?>[] getSupportedStatisticsTypes() {
-						return new StatisticsType<?, ?>[] {
-							new GenericStatisticsType(
-									statType)
+					public StatisticsId[] getSupportedStatistics() {
+						return new StatisticsId[] {
+							new StatisticsId(
+									new BaseStatisticsType<>(
+											statType),
+									fieldName)
 						};
 					}
 				};

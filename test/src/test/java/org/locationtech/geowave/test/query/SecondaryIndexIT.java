@@ -54,8 +54,8 @@ import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.adapter.vector.index.NumericSecondaryIndexConfiguration;
 import org.locationtech.geowave.adapter.vector.index.TemporalSecondaryIndexConfiguration;
 import org.locationtech.geowave.adapter.vector.index.TextSecondaryIndexConfiguration;
+import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfiguration;
 import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigurationSet;
-import org.locationtech.geowave.adapter.vector.utils.SimpleFeatureUserDataConfiguration;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryAdapter;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
@@ -81,7 +81,7 @@ import org.locationtech.geowave.core.store.index.numeric.NumericGreaterThanConst
 import org.locationtech.geowave.core.store.index.temporal.TemporalQueryConstraint;
 import org.locationtech.geowave.core.store.index.text.TextQueryConstraint;
 import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.datastore.accumulo.cli.config.AccumuloRequiredOptions;
 import org.locationtech.geowave.datastore.accumulo.index.secondary.AccumuloSecondaryIndexDataStore;
@@ -118,7 +118,7 @@ public class SecondaryIndexIT
 	private List<String> allDataIds = new ArrayList<>();
 	private int numAttributes;
 	private List<SecondaryIndexImpl<SimpleFeature>> allSecondaryIndices;
-	private DistributableQuery query;
+	private DistributableQueryConstrain query;
 	private Point expectedPoint;
 	private String expectedDataId;
 

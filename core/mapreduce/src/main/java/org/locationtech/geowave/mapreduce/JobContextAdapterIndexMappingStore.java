@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -15,10 +15,8 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.JobContext;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.AdapterToIndexMapping;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
-import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
 
 /**
  * This class implements an adapter index mapping store by first checking the
@@ -32,7 +30,7 @@ public class JobContextAdapterIndexMappingStore implements
 	private static final Class<?> CLASS = JobContextAdapterIndexMappingStore.class;
 	private final JobContext context;
 	private final AdapterIndexMappingStore persistentAdapterIndexMappingStore;
-	private final Map<Short, AdapterToIndexMapping> adapterCache = new HashMap<Short, AdapterToIndexMapping>();
+	private final Map<Short, AdapterToIndexMapping> adapterCache = new HashMap<>();
 
 	public JobContextAdapterIndexMappingStore(
 			final JobContext context,
@@ -50,13 +48,16 @@ public class JobContextAdapterIndexMappingStore implements
 				internalAdapterId);
 		if (adapter == null) {
 			// then try to get it from the persistent store
-			adapter = persistentAdapterIndexMappingStore.getIndicesForAdapter(internalAdapterId);
+			adapter = persistentAdapterIndexMappingStore
+					.getIndicesForAdapter(
+							internalAdapterId);
 		}
 
 		if (adapter != null) {
-			adapterCache.put(
-					internalAdapterId,
-					adapter);
+			adapterCache
+					.put(
+							internalAdapterId,
+							adapter);
 		}
 		return adapter;
 	}
@@ -69,44 +70,51 @@ public class JobContextAdapterIndexMappingStore implements
 	protected static AdapterToIndexMapping getAdapterToIndexMapping(
 			final JobContext context,
 			final short internalAdapterId ) {
-		return GeoWaveConfiguratorBase.getAdapterToIndexMapping(
-				CLASS,
-				context,
-				internalAdapterId);
+		return GeoWaveConfiguratorBase
+				.getAdapterToIndexMapping(
+						CLASS,
+						context,
+						internalAdapterId);
 	}
 
 	public static void addAdapterToIndexMapping(
 			final Configuration configuration,
 			final AdapterToIndexMapping adapter ) {
-		GeoWaveConfiguratorBase.addAdapterToIndexMapping(
-				CLASS,
-				configuration,
-				adapter);
+		GeoWaveConfiguratorBase
+				.addAdapterToIndexMapping(
+						CLASS,
+						configuration,
+						adapter);
 	}
 
 	@Override
 	public AdapterToIndexMapping getIndicesForAdapter(
-			short adapterId ) {
-		AdapterToIndexMapping adapter = adapterCache.get(adapterId);
+			final short adapterId ) {
+		AdapterToIndexMapping adapter = adapterCache
+				.get(
+						adapterId);
 		if (adapter == null) {
-			adapter = getIndicesForAdapterInternal(adapterId);
+			adapter = getIndicesForAdapterInternal(
+					adapterId);
 		}
 		return adapter;
 	}
 
 	@Override
 	public void addAdapterIndexMapping(
-			AdapterToIndexMapping mapping )
-			throws MismatchedIndexToAdapterMapping {
-		adapterCache.put(
-				mapping.getInternalAdapterId(),
-				mapping);
+			final AdapterToIndexMapping mapping ) {
+		adapterCache
+				.put(
+						mapping.getAdapterId(),
+						mapping);
 	}
 
 	@Override
 	public void remove(
-			short internalAdapterId ) {
-		adapterCache.remove(internalAdapterId);
+			final short internalAdapterId ) {
+		adapterCache
+				.remove(
+						internalAdapterId);
 	}
 
 }

@@ -318,7 +318,7 @@ public class KDEJobRunner extends
 			}
 
 			if ((bbox != null) && !bbox.equals(GeometryUtils.infinity())) {
-				GeoWaveInputFormat.setQuery(
+				GeoWaveInputFormat.setQueryConstraints(
 						job.getConfiguration(),
 						new SpatialQuery(
 								bbox));

@@ -1,5 +1,7 @@
 package org.locationtech.geowave.core.store.adapter.statistics;
 
+import java.util.Arrays;
+
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.api.StatisticsQueryBuilder;
@@ -37,12 +39,40 @@ abstract public class StatisticsType<R, B extends StatisticsQueryBuilder<R, B>> 
 
 	@Override
 	public byte[] toBinary() {
-		return this.id;
+		return id;
 	}
 
 	@Override
 	public void fromBinary(
-			byte[] bytes ) {
-		this.id = bytes;
+			final byte[] bytes ) {
+		id = bytes;
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
+	@Override
+	public boolean equals(
+			final Object obj ) {
+		// If all we know is the name of the stat type,
+		// but not the class we need to override equals on
+		// the base statistics type so that the
+		// class does not need to match
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof StatisticsType)) {
+			return false;
+		}
+		final StatisticsType<?, ?> other = (StatisticsType<?, ?>) obj;
+		return Arrays
+				.equals(
+						id,
+						other.getBytes());
 	}
 }

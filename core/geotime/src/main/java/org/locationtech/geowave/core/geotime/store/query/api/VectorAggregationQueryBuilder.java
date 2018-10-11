@@ -1,7 +1,8 @@
 package org.locationtech.geowave.core.geotime.store.query.api;
 
 import org.locationtech.geowave.core.geotime.store.query.BaseVectorQueryBuilder;
-import org.locationtech.geowave.core.geotime.store.query.VectorQueryConstraintsFactory;
+import org.locationtech.geowave.core.geotime.store.query.VectorQueryConstraintsFactoryImpl;
+import org.locationtech.geowave.core.geotime.store.query.aggregate.VectorAggregationQueryBuilderImpl;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.api.AggregationQuery;
 import org.locationtech.geowave.core.store.api.AggregationQueryBuilder;
@@ -13,7 +14,11 @@ public interface VectorAggregationQueryBuilder<P extends Persistable, R> extends
 {
 	@Override
 	default VectorQueryConstraintsFactory constraintsFactory() {
-		return VectorQueryConstraintsFactory.SINGLETON_INSTANCE;
+		return VectorQueryConstraintsFactoryImpl.SINGLETON_INSTANCE;
+	}
+	
+	 static <P extends Persistable,R> VectorAggregationQueryBuilder<P, R> newBuilder(){
+		return new VectorAggregationQueryBuilderImpl<>();
 	}
 
 	// more convenience methods for aggregations

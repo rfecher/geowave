@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -36,7 +36,7 @@ public class ReaderParams<T> extends
 	public ReaderParams(
 			final Index index,
 			final PersistentAdapterStore adapterStore,
-			final List<Short> adapterIds,
+			final short[] adapterIds,
 			final double[] maxResolutionSubsamplingPerDimension,
 			final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
 			final Pair<String[], InternalDataAdapter<?>> fieldSubsets,
@@ -73,10 +73,12 @@ public class ReaderParams<T> extends
 		this.constraints = constraints;
 	}
 
+	@Override
 	public List<MultiDimensionalCoordinateRangesArray> getCoordinateRanges() {
 		return coordinateRanges;
 	}
 
+	@Override
 	public List<MultiDimensionalNumericData> getConstraints() {
 		return constraints;
 	}
@@ -85,6 +87,7 @@ public class ReaderParams<T> extends
 		return isClientsideRowMerging;
 	}
 
+	@Override
 	public boolean isServersideAggregation() {
 		return isServersideAggregation;
 	}
@@ -93,6 +96,7 @@ public class ReaderParams<T> extends
 		return queryRanges;
 	}
 
+	@Override
 	public DistributableQueryFilter getFilter() {
 		return filter;
 	}

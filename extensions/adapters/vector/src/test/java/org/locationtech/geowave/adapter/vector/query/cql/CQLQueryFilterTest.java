@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
-import org.locationtech.geowave.core.geotime.store.query.CQLQuery;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitCQLQuery;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.SinglePartitionInsertionIds;
@@ -84,7 +84,7 @@ public class CQLQueryFilterTest
 		final FeatureDataAdapter adapter = new FeatureDataAdapter(
 				type);
 		adapter.init(spatialIndex);
-		final CQLQuery cqlQuery = new CQLQuery(
+		final ExplicitCQLQuery cqlQuery = new ExplicitCQLQuery(
 				null,
 				f,
 				adapter);

@@ -31,7 +31,7 @@ import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.metadata.IndexStoreImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
 import org.locationtech.geowave.core.store.metadata.SecondaryIndexStoreImpl;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQuery;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
 import org.locationtech.geowave.datastore.cassandra.operations.CassandraOperations;
 import org.locationtech.geowave.datastore.cassandra.operations.config.CassandraOptions;
 import org.locationtech.geowave.mapreduce.BaseMapReduceDataStore;
@@ -97,7 +97,7 @@ public class CassandraDataStore<T> extends
 
 	@Override
 	public List<InputSplit> getSplits(
-			final DistributableQuery query,
+			final DistributableQueryConstrain query,
 			final QueryOptionsInt queryOptions,
 			final TransientAdapterStore adapterStore,
 			final AdapterIndexMappingStore aimStore,

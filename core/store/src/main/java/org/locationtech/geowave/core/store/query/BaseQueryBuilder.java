@@ -1,7 +1,8 @@
 package org.locationtech.geowave.core.store.query;
 
+import org.locationtech.geowave.core.store.api.QueryConstraintsFactory;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
-import org.locationtech.geowave.core.store.query.constraints.QueryConstraintsFactory;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraintsFactoryImpl;
 
 public interface BaseQueryBuilder<T, Q extends BaseQuery<T, ?>, R extends BaseQueryBuilder<T, Q, R>>
 {
@@ -39,7 +40,7 @@ public interface BaseQueryBuilder<T, Q extends BaseQuery<T, ?>, R extends BaseQu
 			QueryConstraints constraints );
 
 	default QueryConstraintsFactory constraintsFactory() {
-		return QueryConstraintsFactory.SINGLETON_INSTANCE;
+		return QueryConstraintsFactoryImpl.SINGLETON_INSTANCE;
 	}
 
 	Q build();

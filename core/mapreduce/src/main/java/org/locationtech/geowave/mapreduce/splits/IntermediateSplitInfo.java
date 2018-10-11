@@ -191,11 +191,11 @@ public class IntermediateSplitInfo implements
 		}
 	}
 
-	private final Map<ByteArrayId, SplitInfo> splitInfo;
+	private final Map<String, SplitInfo> splitInfo;
 	private final SplitsProvider splitsProvider;
 
 	public IntermediateSplitInfo(
-			final Map<ByteArrayId, SplitInfo> splitInfo,
+			final Map<String, SplitInfo> splitInfo,
 			final SplitsProvider splitsProvider ) {
 		this.splitInfo = splitInfo;
 		this.splitsProvider = splitsProvider;
@@ -203,7 +203,7 @@ public class IntermediateSplitInfo implements
 
 	synchronized void merge(
 			final IntermediateSplitInfo split ) {
-		for (final Entry<ByteArrayId, SplitInfo> e : split.splitInfo.entrySet()) {
+		for (final Entry<String, SplitInfo> e : split.splitInfo.entrySet()) {
 			SplitInfo thisInfo = splitInfo.get(e.getKey());
 			if (thisInfo == null) {
 				thisInfo = new SplitInfo(
@@ -242,7 +242,7 @@ public class IntermediateSplitInfo implements
 								: 1;
 					}
 				});
-		for (final Entry<ByteArrayId, SplitInfo> ranges : splitInfo.entrySet()) {
+		for (final Entry<String, SplitInfo> ranges : splitInfo.entrySet()) {
 			for (final RangeLocationPair p : ranges.getValue().getRangeLocationPairs()) {
 				orderedSplits.add(new IndexRangeLocation(
 						p,
@@ -251,7 +251,7 @@ public class IntermediateSplitInfo implements
 		}
 		final double targetCardinality = getTotalCardinality() / 2;
 		double currentCardinality = 0.0;
-		final Map<ByteArrayId, SplitInfo> otherSplitInfo = new HashMap<ByteArrayId, SplitInfo>();
+		final Map<String, SplitInfo> otherSplitInfo = new HashMap<>();
 
 		splitInfo.clear();
 
@@ -317,8 +317,8 @@ public class IntermediateSplitInfo implements
 		if (splitInfo.size() == 0) {
 			// First try to move a index set of ranges back.
 			if (otherSplitInfo.size() > 1) {
-				final Iterator<Entry<ByteArrayId, SplitInfo>> it = otherSplitInfo.entrySet().iterator();
-				final Entry<ByteArrayId, SplitInfo> entry = it.next();
+				final Iterator<Entry<String, SplitInfo>> it = otherSplitInfo.entrySet().iterator();
+				final Entry<String, SplitInfo> entry = it.next();
 				it.remove();
 				splitInfo.put(
 						entry.getKey(),
@@ -335,15 +335,15 @@ public class IntermediateSplitInfo implements
 	}
 
 	private void addPairForIndex(
-			final Map<ByteArrayId, SplitInfo> otherSplitInfo,
+			final Map<String, SplitInfo> otherSplitInfo,
 			final RangeLocationPair pair,
 			final Index index ) {
-		SplitInfo other = otherSplitInfo.get(index.getId());
+		SplitInfo other = otherSplitInfo.get(index.getName());
 		if (other == null) {
 			other = new SplitInfo(
 					index);
 			otherSplitInfo.put(
-					index.getId(),
+					index.getName(),
 					other);
 		}
 		other.getRangeLocationPairs().add(
@@ -353,10 +353,10 @@ public class IntermediateSplitInfo implements
 
 	public synchronized GeoWaveInputSplit toFinalSplit(
 			final DataStatisticsStore statisticsStore,
-			final Map<ByteArrayId, List<Short>> indexIdToAdaptersMap,
+			final Map<String, List<Short>> indexIdToAdaptersMap,
 			final String... authorizations ) {
 		final Set<String> locations = new HashSet<String>();
-		for (final Entry<ByteArrayId, SplitInfo> entry : splitInfo.entrySet()) {
+		for (final Entry<String, SplitInfo> entry : splitInfo.entrySet()) {
 			for (final RangeLocationPair pair : entry.getValue().getRangeLocationPairs()) {
 				if ((pair.getLocation() != null) && !pair.getLocation().isEmpty()) {
 					locations.add(pair.getLocation());
@@ -367,12 +367,12 @@ public class IntermediateSplitInfo implements
 			final DifferingFieldVisibilityEntryCount differingVisibilityCounts = DifferingFieldVisibilityEntryCount
 					.getVisibilityCounts(
 							si.getIndex(),
-							indexIdToAdaptersMap.get(si.getIndex().getId()),
+							indexIdToAdaptersMap.get(si.getIndex().getName()),
 							statisticsStore,
 							authorizations);
 			final FieldVisibilityCount visibilityCounts = FieldVisibilityCount.getVisibilityCounts(
 					si.getIndex(),
-					indexIdToAdaptersMap.get(si.getIndex().getId()),
+					indexIdToAdaptersMap.get(si.getIndex().getName()),
 					statisticsStore,
 					authorizations);
 

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -21,7 +21,6 @@ import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.JobContext;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.store.AdapterToIndexMapping;
@@ -30,8 +29,8 @@ import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
@@ -43,7 +42,9 @@ import org.slf4j.LoggerFactory;
  */
 public class GeoWaveConfiguratorBase
 {
-	protected static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveConfiguratorBase.class);
+	protected static final Logger LOGGER = LoggerFactory
+			.getLogger(
+					GeoWaveConfiguratorBase.class);
 	private static final String KEY_SEPARATOR = "-";
 
 	public static enum GeoWaveConfg {
@@ -94,8 +95,12 @@ public class GeoWaveConfiguratorBase
 			final Class<?> implementingClass,
 			final Enum<?> e ) {
 		final String s = implementingClass.getSimpleName() + "." + e.getDeclaringClass().getSimpleName() + "."
-				+ org.apache.hadoop.util.StringUtils.camelize(e.name().toLowerCase(
-						Locale.ENGLISH));
+				+ org.apache.hadoop.util.StringUtils
+						.camelize(
+								e
+										.name()
+										.toLowerCase(
+												Locale.ENGLISH));
 		return s;
 	}
 
@@ -107,11 +112,13 @@ public class GeoWaveConfiguratorBase
 			throws InstantiationException,
 			IllegalAccessException {
 		return (T) getConfiguration(
-				context).getClass(
-				enumToConfKey(
-						implementingClass,
-						e),
-				interfaceClass).newInstance();
+				context)
+						.getClass(
+								enumToConfKey(
+										implementingClass,
+										e),
+								interfaceClass)
+						.newInstance();
 	}
 
 	public static final <T> T getInstance(
@@ -123,28 +130,34 @@ public class GeoWaveConfiguratorBase
 			throws InstantiationException,
 			IllegalAccessException {
 		return getConfiguration(
-				context).getClass(
-				enumToConfKey(
-						implementingClass,
-						e),
-				defaultClass,
-				interfaceClass).newInstance();
+				context)
+						.getClass(
+								enumToConfKey(
+										implementingClass,
+										e),
+								defaultClass,
+								interfaceClass)
+						.newInstance();
 	}
 
 	public static DataStore getDataStore(
 			final Class<?> implementingClass,
 			final JobContext context ) {
-		return GeoWaveStoreFinder.createDataStore(getStoreOptionsMap(
-				implementingClass,
-				context));
+		return GeoWaveStoreFinder
+				.createDataStore(
+						getStoreOptionsMap(
+								implementingClass,
+								context));
 	}
 
 	public static DataStatisticsStore getDataStatisticsStore(
 			final Class<?> implementingClass,
 			final JobContext context ) {
-		return GeoWaveStoreFinder.createDataStatisticsStore(getStoreOptionsMap(
-				implementingClass,
-				context));
+		return GeoWaveStoreFinder
+				.createDataStatisticsStore(
+						getStoreOptionsMap(
+								implementingClass,
+								context));
 	}
 
 	public static void setStoreOptionsMap(
@@ -153,20 +166,25 @@ public class GeoWaveConfiguratorBase
 			final Map<String, String> dataStoreOptions ) {
 		if ((dataStoreOptions != null) && !dataStoreOptions.isEmpty()) {
 			for (final Entry<String, String> entry : dataStoreOptions.entrySet()) {
-				config.set(
-						enumToConfKey(
-								implementingClass,
-								GeoWaveConfg.STORE_CONFIG_OPTION,
-								entry.getKey()),
-						entry.getValue());
+				config
+						.set(
+								enumToConfKey(
+										implementingClass,
+										GeoWaveConfg.STORE_CONFIG_OPTION,
+										entry.getKey()),
+								entry.getValue());
 			}
 		}
 		else {
-			final Map<String, String> existingVals = config.getValByRegex(enumToConfKey(
-					implementingClass,
-					GeoWaveConfg.STORE_CONFIG_OPTION) + "*");
+			final Map<String, String> existingVals = config
+					.getValByRegex(
+							enumToConfKey(
+									implementingClass,
+									GeoWaveConfg.STORE_CONFIG_OPTION) + "*");
 			for (final String k : existingVals.keySet()) {
-				config.unset(k);
+				config
+						.unset(
+								k);
 			}
 		}
 	}
@@ -176,15 +194,17 @@ public class GeoWaveConfiguratorBase
 			final JobContext context ) {
 		final Map<String, String> options = getStoreOptionsMapInternal(
 				implementingClass,
-				getConfiguration(context));
+				getConfiguration(
+						context));
 		try {
 			return new DataStorePluginOptions(
 					options);
 		}
 		catch (final IllegalArgumentException e) {
-			LOGGER.warn(
-					"Unable to get data store options from job context",
-					e);
+			LOGGER
+					.warn(
+							"Unable to get data store options from job context",
+							e);
 			return null;
 		}
 	}
@@ -194,7 +214,8 @@ public class GeoWaveConfiguratorBase
 			final JobContext context ) {
 		return getStoreOptionsMapInternal(
 				implementingClass,
-				getConfiguration(context));
+				getConfiguration(
+						context));
 	}
 
 	public static void addIndex(
@@ -202,90 +223,112 @@ public class GeoWaveConfiguratorBase
 			final Configuration config,
 			final Index index ) {
 		if (index != null) {
-			config.set(
-					enumToConfKey(
-							implementingClass,
-							GeoWaveConfg.INDEX,
-							index.getId().getString()),
-					ByteArrayUtils.byteArrayToString(PersistenceUtils.toBinary(index)));
+			config
+					.set(
+							enumToConfKey(
+									implementingClass,
+									GeoWaveConfg.INDEX,
+									index.getName()),
+							ByteArrayUtils
+									.byteArrayToString(
+											PersistenceUtils
+													.toBinary(
+															index)));
 		}
 	}
 
 	public static Index getIndex(
 			final Class<?> implementingClass,
 			final JobContext context,
-			final ByteArrayId indexId ) {
+			final String indexName ) {
 		return getIndexInternal(
 				implementingClass,
-				getConfiguration(context),
-				indexId);
+				getConfiguration(
+						context),
+				indexName);
 	}
 
-	public static Short getInternalAdapterId(
+	public static Short getAdapterId(
 			final Class<?> implementingClass,
 			final JobContext context,
-			final ByteArrayId adapterId ) {
-		return getInternalAdapterIdInternal(
+			final String typeName ) {
+		return getAdapterIdInternal(
 				implementingClass,
-				getConfiguration(context),
-				adapterId);
+				getConfiguration(
+						context),
+				typeName);
 	}
 
-	private static Short getInternalAdapterIdInternal(
+	private static Short getAdapterIdInternal(
 			final Class<?> implementingClass,
 			final Configuration configuration,
-			final ByteArrayId adapterId ) {
-		final String input = configuration.get(enumToConfKey(
-				implementingClass,
-				GeoWaveConfg.INTERNAL_ADAPTER,
-				adapterId.getString()));
+			final String typeName ) {
+		final String input = configuration
+				.get(
+						enumToConfKey(
+								implementingClass,
+								GeoWaveConfg.INTERNAL_ADAPTER,
+								typeName));
 		if (input != null) {
-			return Short.valueOf(input);
+			return Short
+					.valueOf(
+							input);
 		}
 		return null;
 	}
 
-	public static ByteArrayId getAdapterId(
+	public static String getTypeName(
 			final Class<?> implementingClass,
 			final JobContext context,
 			final short internalAdapterId ) {
-		return getAdapterIdInternal(
+		return getTypeNameInternal(
 				implementingClass,
-				getConfiguration(context),
+				getConfiguration(
+						context),
 				internalAdapterId);
 	}
 
-	private static ByteArrayId getAdapterIdInternal(
+	private static String getTypeNameInternal(
 			final Class<?> implementingClass,
 			final Configuration configuration,
 			final short internalAdapterId ) {
 		final String prefix = enumToConfKey(
 				implementingClass,
 				GeoWaveConfg.INTERNAL_ADAPTER);
-		final Map<String, String> input = configuration.getValByRegex(prefix + "*");
-		final String internalAdapterIdStr = Short.toString(internalAdapterId);
+		final Map<String, String> input = configuration
+				.getValByRegex(
+						prefix + "*");
+		final String internalAdapterIdStr = Short
+				.toString(
+						internalAdapterId);
 		for (final Entry<String, String> e : input.entrySet()) {
-			if (e.getValue().equals(
-					internalAdapterIdStr)) {
-				return new ByteArrayId(
-						e.getKey().substring(
-								prefix.length() + 1));
+			if (e
+					.getValue()
+					.equals(
+							internalAdapterIdStr)) {
+				return e
+						.getKey()
+						.substring(
+								prefix.length() + 1);
 			}
 		}
 		return null;
 	}
 
-	public static void addInternalAdapterId(
+	public static void addTypeName(
 			final Class<?> implementingClass,
 			final Configuration conf,
-			final ByteArrayId adapterId,
+			final String typeName,
 			final short internalAdapterId ) {
-		conf.set(
-				enumToConfKey(
-						implementingClass,
-						GeoWaveConfg.INTERNAL_ADAPTER,
-						adapterId.getString()),
-				Short.toString(internalAdapterId));
+		conf
+				.set(
+						enumToConfKey(
+								implementingClass,
+								GeoWaveConfg.INTERNAL_ADAPTER,
+								typeName),
+						Short
+								.toString(
+										internalAdapterId));
 	}
 
 	public static void addAdapterToIndexMapping(
@@ -293,13 +336,19 @@ public class GeoWaveConfiguratorBase
 			final Configuration conf,
 			final AdapterToIndexMapping adapterToIndexMapping ) {
 		if (adapterToIndexMapping != null) {
-			conf.set(
-					enumToConfKey(
-							implementingClass,
-							GeoWaveConfg.ADAPTER_TO_INDEX,
-							// adapterToIndexMapping.getAdapterId().getString()
-							Short.toString(adapterToIndexMapping.getInternalAdapterId())),
-					ByteArrayUtils.byteArrayToString(PersistenceUtils.toBinary(adapterToIndexMapping)));
+			conf
+					.set(
+							enumToConfKey(
+									implementingClass,
+									GeoWaveConfg.ADAPTER_TO_INDEX,
+									Short
+											.toString(
+													adapterToIndexMapping.getAdapterId())),
+							ByteArrayUtils
+									.byteArrayToString(
+											PersistenceUtils
+													.toBinary(
+															adapterToIndexMapping)));
 		}
 	}
 
@@ -309,7 +358,8 @@ public class GeoWaveConfiguratorBase
 			final short internalAdapterId ) {
 		return getAdapterToIndexMappingInternal(
 				implementingClass,
-				getConfiguration(context),
+				getConfiguration(
+						context),
 				internalAdapterId);
 	}
 
@@ -317,13 +367,21 @@ public class GeoWaveConfiguratorBase
 			final Class<?> implementingClass,
 			final Configuration configuration,
 			final short internalAdapterId ) {
-		final String input = configuration.get(enumToConfKey(
-				implementingClass,
-				GeoWaveConfg.ADAPTER_TO_INDEX,
-				Short.toString(internalAdapterId)));
+		final String input = configuration
+				.get(
+						enumToConfKey(
+								implementingClass,
+								GeoWaveConfg.ADAPTER_TO_INDEX,
+								Short
+										.toString(
+												internalAdapterId)));
 		if (input != null) {
-			final byte[] dataAdapterBytes = ByteArrayUtils.byteArrayFromString(input);
-			return (AdapterToIndexMapping) PersistenceUtils.fromBinary(dataAdapterBytes);
+			final byte[] dataAdapterBytes = ByteArrayUtils
+					.byteArrayFromString(
+							input);
+			return (AdapterToIndexMapping) PersistenceUtils
+					.fromBinary(
+							dataAdapterBytes);
 		}
 		return null;
 	}
@@ -333,48 +391,62 @@ public class GeoWaveConfiguratorBase
 			final Configuration conf,
 			final DataTypeAdapter<?> adapter ) {
 		if (adapter != null) {
-			conf.set(
-					enumToConfKey(
-							implementingClass,
-							GeoWaveConfg.DATA_ADAPTER,
-							adapter.getAdapterId().getString()),
-					ByteArrayUtils.byteArrayToString(PersistenceUtils.toBinary(adapter)));
+			conf
+					.set(
+							enumToConfKey(
+									implementingClass,
+									GeoWaveConfg.DATA_ADAPTER,
+									adapter.getTypeName()),
+							ByteArrayUtils
+									.byteArrayToString(
+											PersistenceUtils
+													.toBinary(
+															adapter)));
 		}
 	}
 
 	public static void removeDataAdapter(
 			final Class<?> implementingClass,
 			final Configuration conf,
-			final ByteArrayId adapterId ) {
-		if (adapterId != null) {
-			conf.unset(enumToConfKey(
-					implementingClass,
-					GeoWaveConfg.DATA_ADAPTER,
-					adapterId.getString()));
+			final String typeName ) {
+		if (typeName != null) {
+			conf
+					.unset(
+							enumToConfKey(
+									implementingClass,
+									GeoWaveConfg.DATA_ADAPTER,
+									typeName));
 		}
 	}
 
 	public static DataTypeAdapter<?> getDataAdapter(
 			final Class<?> implementingClass,
 			final JobContext context,
-			final ByteArrayId adapterId ) {
+			final String typeName ) {
 		return getDataAdapterInternal(
 				implementingClass,
-				getConfiguration(context),
-				adapterId);
+				getConfiguration(
+						context),
+				typeName);
 	}
 
 	private static DataTypeAdapter<?> getDataAdapterInternal(
 			final Class<?> implementingClass,
 			final Configuration configuration,
-			final ByteArrayId adapterId ) {
-		final String input = configuration.get(enumToConfKey(
-				implementingClass,
-				GeoWaveConfg.DATA_ADAPTER,
-				adapterId.getString()));
+			final String typeName ) {
+		final String input = configuration
+				.get(
+						enumToConfKey(
+								implementingClass,
+								GeoWaveConfg.DATA_ADAPTER,
+								typeName));
 		if (input != null) {
-			final byte[] dataAdapterBytes = ByteArrayUtils.byteArrayFromString(input);
-			return (DataTypeAdapter<?>) PersistenceUtils.fromBinary(dataAdapterBytes);
+			final byte[] dataAdapterBytes = ByteArrayUtils
+					.byteArrayFromString(
+							input);
+			return (DataTypeAdapter<?>) PersistenceUtils
+					.fromBinary(
+							dataAdapterBytes);
 		}
 		return null;
 	}
@@ -384,7 +456,8 @@ public class GeoWaveConfiguratorBase
 			final JobContext context ) {
 		return getDataAdaptersInternal(
 				implementingClass,
-				getConfiguration(context));
+				getConfiguration(
+						context));
 	}
 
 	private static Map<String, String> getStoreOptionsMapInternal(
@@ -393,13 +466,18 @@ public class GeoWaveConfiguratorBase
 		final String prefix = enumToConfKey(
 				implementingClass,
 				GeoWaveConfg.STORE_CONFIG_OPTION) + KEY_SEPARATOR;
-		final Map<String, String> enumMap = configuration.getValByRegex(prefix + "*");
-		final Map<String, String> retVal = new HashMap<String, String>();
+		final Map<String, String> enumMap = configuration
+				.getValByRegex(
+						prefix + "*");
+		final Map<String, String> retVal = new HashMap<>();
 		for (final Entry<String, String> entry : enumMap.entrySet()) {
 			final String key = entry.getKey();
-			retVal.put(
-					key.substring(prefix.length()),
-					entry.getValue());
+			retVal
+					.put(
+							key
+									.substring(
+											prefix.length()),
+							entry.getValue());
 		}
 		return retVal;
 	}
@@ -407,17 +485,27 @@ public class GeoWaveConfiguratorBase
 	private static DataTypeAdapter<?>[] getDataAdaptersInternal(
 			final Class<?> implementingClass,
 			final Configuration configuration ) {
-		final Map<String, String> input = configuration.getValByRegex(enumToConfKey(
-				implementingClass,
-				GeoWaveConfg.DATA_ADAPTER) + "*");
+		final Map<String, String> input = configuration
+				.getValByRegex(
+						enumToConfKey(
+								implementingClass,
+								GeoWaveConfg.DATA_ADAPTER) + "*");
 		if (input != null) {
-			final List<DataTypeAdapter<?>> adapters = new ArrayList<DataTypeAdapter<?>>(
+			final List<DataTypeAdapter<?>> adapters = new ArrayList<>(
 					input.size());
 			for (final String dataAdapterStr : input.values()) {
-				final byte[] dataAdapterBytes = ByteArrayUtils.byteArrayFromString(dataAdapterStr);
-				adapters.add((DataTypeAdapter<?>) PersistenceUtils.fromBinary(dataAdapterBytes));
+				final byte[] dataAdapterBytes = ByteArrayUtils
+						.byteArrayFromString(
+								dataAdapterStr);
+				adapters
+						.add(
+								(DataTypeAdapter<?>) PersistenceUtils
+										.fromBinary(
+												dataAdapterBytes));
 			}
-			return adapters.toArray(new DataTypeAdapter[adapters.size()]);
+			return adapters
+					.toArray(
+							new DataTypeAdapter[adapters.size()]);
 		}
 		return new DataTypeAdapter[] {};
 	}
@@ -425,14 +513,20 @@ public class GeoWaveConfiguratorBase
 	private static Index getIndexInternal(
 			final Class<?> implementingClass,
 			final Configuration configuration,
-			final ByteArrayId indexId ) {
-		final String input = configuration.get(enumToConfKey(
-				implementingClass,
-				GeoWaveConfg.INDEX,
-				indexId.getString()));
+			final String indexName ) {
+		final String input = configuration
+				.get(
+						enumToConfKey(
+								implementingClass,
+								GeoWaveConfg.INDEX,
+								indexName));
 		if (input != null) {
-			final byte[] indexBytes = ByteArrayUtils.byteArrayFromString(input);
-			return (Index) PersistenceUtils.fromBinary(indexBytes);
+			final byte[] indexBytes = ByteArrayUtils
+					.byteArrayFromString(
+							input);
+			return (Index) PersistenceUtils
+					.fromBinary(
+							indexBytes);
 		}
 		return null;
 	}
@@ -442,7 +536,8 @@ public class GeoWaveConfiguratorBase
 			final JobContext context ) {
 		return getIndicesInternal(
 				implementingClass,
-				getConfiguration(context));
+				getConfiguration(
+						context));
 	}
 
 	public static IndexStore getJobContextIndexStore(
@@ -453,7 +548,9 @@ public class GeoWaveConfiguratorBase
 				context);
 		return new JobContextIndexStore(
 				context,
-				GeoWaveStoreFinder.createIndexStore(configOptions));
+				GeoWaveStoreFinder
+						.createIndexStore(
+								configOptions));
 	}
 
 	public static TransientAdapterStore getJobContextAdapterStore(
@@ -464,7 +561,9 @@ public class GeoWaveConfiguratorBase
 				context);
 		return new JobContextAdapterStore(
 				context,
-				GeoWaveStoreFinder.createAdapterStore(configOptions),
+				GeoWaveStoreFinder
+						.createAdapterStore(
+								configOptions),
 				getJobContextInternalAdapterStore(
 						implementingClass,
 						context));
@@ -478,7 +577,9 @@ public class GeoWaveConfiguratorBase
 				context);
 		return new JobContextAdapterIndexMappingStore(
 				context,
-				GeoWaveStoreFinder.createAdapterIndexMappingStore(configOptions));
+				GeoWaveStoreFinder
+						.createAdapterIndexMappingStore(
+								configOptions));
 	}
 
 	public static InternalAdapterStore getJobContextInternalAdapterStore(
@@ -489,23 +590,35 @@ public class GeoWaveConfiguratorBase
 				context);
 		return new JobContextInternalAdapterStore(
 				context,
-				GeoWaveStoreFinder.createInternalAdapterStore(configOptions));
+				GeoWaveStoreFinder
+						.createInternalAdapterStore(
+								configOptions));
 	}
 
 	private static Index[] getIndicesInternal(
 			final Class<?> implementingClass,
 			final Configuration configuration ) {
-		final Map<String, String> input = configuration.getValByRegex(enumToConfKey(
-				implementingClass,
-				GeoWaveConfg.INDEX) + "*");
+		final Map<String, String> input = configuration
+				.getValByRegex(
+						enumToConfKey(
+								implementingClass,
+								GeoWaveConfg.INDEX) + "*");
 		if (input != null) {
-			final List<Index> indices = new ArrayList<Index>(
+			final List<Index> indices = new ArrayList<>(
 					input.size());
 			for (final String indexStr : input.values()) {
-				final byte[] indexBytes = ByteArrayUtils.byteArrayFromString(indexStr);
-				indices.add((Index) PersistenceUtils.fromBinary(indexBytes));
+				final byte[] indexBytes = ByteArrayUtils
+						.byteArrayFromString(
+								indexStr);
+				indices
+						.add(
+								(Index) PersistenceUtils
+										.fromBinary(
+												indexBytes));
 			}
-			return indices.toArray(new Index[indices.size()]);
+			return indices
+					.toArray(
+							new Index[indices.size()]);
 		}
 		return new Index[] {};
 	}
@@ -515,12 +628,17 @@ public class GeoWaveConfiguratorBase
 	public static Configuration getConfiguration(
 			final JobContext context ) {
 		try {
-			final Class<?> c = GeoWaveConfiguratorBase.class.getClassLoader().loadClass(
-					"org.apache.hadoop.mapreduce.JobContext");
-			final Method m = c.getMethod("getConfiguration");
-			final Object o = m.invoke(
-					context,
-					new Object[0]);
+			final Class<?> c = GeoWaveConfiguratorBase.class
+					.getClassLoader()
+					.loadClass(
+							"org.apache.hadoop.mapreduce.JobContext");
+			final Method m = c
+					.getMethod(
+							"getConfiguration");
+			final Object o = m
+					.invoke(
+							context,
+							new Object[0]);
 			return (Configuration) o;
 		}
 		catch (final Exception e) {
@@ -536,49 +654,62 @@ public class GeoWaveConfiguratorBase
 			throws IOException {
 		String finalHdfsHostPort;
 		// Ensures that the url starts with hdfs://
-		if (!hdfsHostPort.contains("://")) {
+		if (!hdfsHostPort
+				.contains(
+						"://")) {
 			finalHdfsHostPort = "hdfs://" + hdfsHostPort;
 		}
 		else {
 			finalHdfsHostPort = hdfsHostPort;
 		}
 
-		conf.set(
-				"fs.defaultFS",
-				finalHdfsHostPort);
-		conf.set(
-				"fs.hdfs.impl",
-				org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
+		conf
+				.set(
+						"fs.defaultFS",
+						finalHdfsHostPort);
+		conf
+				.set(
+						"fs.hdfs.impl",
+						org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
 
 		// if this property is used, it hadoop does not support yarn
-		conf.set(
-				"mapreduce.jobtracker.address",
-				jobTrackerOrResourceManagerHostPort);
+		conf
+				.set(
+						"mapreduce.jobtracker.address",
+						jobTrackerOrResourceManagerHostPort);
 		// the following 3 properties will only be used if the hadoop version
 		// does support yarn
-		if ("local".equals(jobTrackerOrResourceManagerHostPort)) {
-			conf.set(
-					"mapreduce.framework.name",
-					"local");
+		if ("local"
+				.equals(
+						jobTrackerOrResourceManagerHostPort)) {
+			conf
+					.set(
+							"mapreduce.framework.name",
+							"local");
 		}
 		else {
-			conf.set(
-					"mapreduce.framework.name",
-					"yarn");
+			conf
+					.set(
+							"mapreduce.framework.name",
+							"yarn");
 		}
-		conf.set(
-				"yarn.resourcemanager.address",
-				jobTrackerOrResourceManagerHostPort);
+		conf
+				.set(
+						"yarn.resourcemanager.address",
+						jobTrackerOrResourceManagerHostPort);
 		// if remotely submitted with yarn, the job configuration xml will be
 		// written to this staging directory, it is generally good practice to
 		// ensure the staging directory is different for each user
-		String user = System.getProperty("user.name");
+		String user = System
+				.getProperty(
+						"user.name");
 		if ((user == null) || user.isEmpty()) {
 			user = "default";
 		}
-		conf.set(
-				"yarn.app.mapreduce.am.staging-dir",
-				"/tmp/hadoop-" + user);
+		conf
+				.set(
+						"yarn.app.mapreduce.am.staging-dir",
+						"/tmp/hadoop-" + user);
 
 	}
 }

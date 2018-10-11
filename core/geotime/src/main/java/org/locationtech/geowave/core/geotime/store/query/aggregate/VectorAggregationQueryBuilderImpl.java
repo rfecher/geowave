@@ -16,7 +16,7 @@ public class VectorAggregationQueryBuilderImpl<P extends Persistable, R> extends
 	public VectorAggregationQueryBuilder<P, R> bboxOfResults(
 			final String... typeNames ) {
 		options = new AggregateTypeQueryOptions(
-				new VectorBoundingBoxAggregation(),
+				new OptimalVectorBoundingBoxAggregation(),
 				typeNames);
 		return this;
 	}
@@ -26,7 +26,7 @@ public class VectorAggregationQueryBuilderImpl<P extends Persistable, R> extends
 			final String typeName,
 			final String geomFieldName ) {
 		options = new AggregateTypeQueryOptions(
-				new VectorBoundingBoxAggregation(
+				new OptimalVectorBoundingBoxAggregation<>(
 						new FieldNameParam(
 								geomFieldName)),
 				typeName);

@@ -67,7 +67,7 @@ public interface DataStore
 			final Query<T> query );
 
 	// TODO javadocs
-	<P extends Persistable, R extends Mergeable, T> R aggregate(
+	<P extends Persistable, R, T> R aggregate(
 			final AggregationQuery<P, R, T> query );
 
 	/**
