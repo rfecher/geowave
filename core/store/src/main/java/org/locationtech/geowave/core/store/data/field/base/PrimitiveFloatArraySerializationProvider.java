@@ -62,13 +62,5 @@ public class PrimitiveFloatArraySerializationProvider implements
 			}
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final float[] fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

@@ -62,13 +62,5 @@ public class StringSerializationProvider implements
 			// for field serialization ensure UTF-8?
 			// return fieldValue.getBytes(StringUtils.UTF8_CHAR_SET);
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final String fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

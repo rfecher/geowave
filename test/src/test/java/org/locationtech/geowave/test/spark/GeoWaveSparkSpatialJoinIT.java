@@ -121,7 +121,7 @@ public class GeoWaveSparkSpatialJoinIT extends
 		SpatialJoinRunner runner = new SpatialJoinRunner(
 				session);
 		runner.setLeftStore(dataStore);
-		runner.setLeftAdapterId(hail_adapter);
+		runner.setLeftAdapterTypeName(hail_adapter);
 
 		runner.setRightStore(dataStore);
 		runner.setRightAdapterId(tornado_adapter);

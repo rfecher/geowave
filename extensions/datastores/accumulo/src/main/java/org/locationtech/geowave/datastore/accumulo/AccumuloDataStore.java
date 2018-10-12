@@ -48,10 +48,12 @@ import org.slf4j.LoggerFactory;
  * explicitly given an index and a data adapter which is then persisted to be
  * used in subsequent queries.
  */
-public class AccumuloDataStore<T> extends
-		BaseMapReduceDataStore<T>
+public class AccumuloDataStore extends
+		BaseMapReduceDataStore
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(AccumuloDataStore.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					AccumuloDataStore.class);
 
 	public AccumuloDataStore(
 			final AccumuloOperations accumuloOperations,
@@ -116,7 +118,9 @@ public class AccumuloDataStore<T> extends
 				accumuloOptions,
 				adapterMappingStore);
 
-		secondaryIndexDataStore.setDataStore(this);
+		secondaryIndexDataStore
+				.setDataStore(
+						this);
 	}
 
 	@Override
@@ -129,54 +133,59 @@ public class AccumuloDataStore<T> extends
 			final InternalDataAdapter adapter,
 			final Index index ) {
 
-		final String indexName = index.getId().getString();
-
+		final String indexName = index.getName();
+		final String typeName = adapter.getTypeName();
 		try {
 			if (adapter.getAdapter() instanceof RowMergingDataAdapter) {
-				if (!((AccumuloOperations) baseOperations).isRowMergingEnabled(
-						adapter.getInternalAdapterId(),
-						indexName)) {
+				if (!((AccumuloOperations) baseOperations)
+						.isRowMergingEnabled(
+								adapter.getAdapterId(),
+								indexName)) {
 					if (baseOptions.isCreateTable()) {
-						if (!((AccumuloOperations) baseOperations).createTable(
-								indexName,
-								false,
-								baseOptions.isEnableBlockCache())) {
-							((AccumuloOperations) baseOperations).enableVersioningIterator(
-									indexName,
-									false);
+						if (!((AccumuloOperations) baseOperations)
+								.createTable(
+										indexName,
+										false,
+										baseOptions.isEnableBlockCache())) {
+							((AccumuloOperations) baseOperations)
+									.enableVersioningIterator(
+											indexName,
+											false);
 						}
 					}
 					else {
-						((AccumuloOperations) baseOperations).enableVersioningIterator(
-								indexName,
-								false);
+						((AccumuloOperations) baseOperations)
+								.enableVersioningIterator(
+										indexName,
+										false);
 					}
 					if (baseOptions.isServerSideLibraryEnabled()) {
-						ServerOpHelper.addServerSideRowMerging(
-								((RowMergingDataAdapter<?, ?>) adapter.getAdapter()),
-								adapter.getInternalAdapterId(),
-								(ServerSideOperations) baseOperations,
-								RowMergingCombiner.class.getName(),
-								RowMergingVisibilityCombiner.class.getName(),
-								indexName);
+						ServerOpHelper
+								.addServerSideRowMerging(
+										((RowMergingDataAdapter<?, ?>) adapter.getAdapter()),
+										adapter.getAdapterId(),
+										(ServerSideOperations) baseOperations,
+										RowMergingCombiner.class.getName(),
+										RowMergingVisibilityCombiner.class.getName(),
+										indexName);
 					}
 				}
 			}
-
-			final byte[] adapterId = adapter.getAdapterId().getBytes();
-			if (((AccumuloOptions) baseOptions).isUseLocalityGroups()
-					&& !((AccumuloOperations) baseOperations).localityGroupExists(
+			if (((AccumuloOptions) baseOptions).isUseLocalityGroups() && !((AccumuloOperations) baseOperations)
+					.localityGroupExists(
 							indexName,
-							adapterId)) {
-				((AccumuloOperations) baseOperations).addLocalityGroup(
-						indexName,
-						adapterId);
+							typeName)) {
+				((AccumuloOperations) baseOperations)
+						.addLocalityGroup(
+								indexName,
+								typeName);
 			}
 		}
 		catch (AccumuloException | TableNotFoundException | AccumuloSecurityException e) {
-			LOGGER.error(
-					"Unable to determine existence of locality group [" + adapter.getAdapterId().getString() + "]",
-					e);
+			LOGGER
+					.error(
+							"Unable to determine existence of locality group [" + typeName + "]",
+							e);
 		}
 
 	}

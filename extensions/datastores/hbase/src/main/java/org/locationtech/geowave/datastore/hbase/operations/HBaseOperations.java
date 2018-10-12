@@ -560,14 +560,14 @@ public class HBaseOperations implements
 
 	@Override
 	public boolean deleteAll(
-			final ByteArrayId indexId,
+			final String indexName,
 			final Short adapterId,
 			final String... additionalAuthorizations ) {
 		RowDeleter deleter = null;
 		Iterable<Result> scanner = null;
 		try {
 			deleter = createDeleter(
-					indexId,
+					indexName,
 					additionalAuthorizations);
 			DataTypeAdapter<?> adapter = null;
 			Index index = null;
@@ -586,8 +586,7 @@ public class HBaseOperations implements
 			}
 			try (final CloseableIterator<GeoWaveMetadata> it = createMetadataReader(
 					MetadataType.INDEX).query(
-					new MetadataQuery(
-							indexId.getBytes(),
+					new MetadataQuery(StringUtils.stringToBinary(indexName),
 							null,
 							additionalAuthorizations))) {
 				if (!it.hasNext()) {
@@ -601,7 +600,7 @@ public class HBaseOperations implements
 			scan.addFamily(ByteArrayUtils.shortToByteArray(adapterId));
 			scanner = getScannedResults(
 					scan,
-					indexId.getString());
+					indexName);
 			for (final Result result : scanner) {
 				deleter.delete(new HBaseRow(
 						result,
@@ -827,11 +826,11 @@ public class HBaseOperations implements
 
 	@Override
 	public boolean indexExists(
-			final ByteArrayId indexId )
+			final String indexName )
 			throws IOException {
 		synchronized (ADMIN_MUTEX) {
 			try (Admin admin = conn.getAdmin()) {
-				TableName tableName = getTableName(indexId.getString());
+				TableName tableName = getTableName(indexName);
 				return admin.tableExists(tableName);
 			}
 		}
@@ -850,11 +849,11 @@ public class HBaseOperations implements
 		// but we can consider blocking and waiting for completion
 		if (options.isServerSideLibraryEnabled()) {
 			try (Admin admin = conn.getAdmin()) {
-				admin.compact(getTableName(index.getId().getString()));
+				admin.compact(getTableName(index.getName()));
 			}
 			catch (final IOException e) {
 				LOGGER.error(
-						"Cannot compact table '" + index.getId().getString() + "'",
+						"Cannot compact table '" + index.getName() + "'",
 						e);
 				return false;
 			}
@@ -897,10 +896,9 @@ public class HBaseOperations implements
 	}
 
 	public void ensureServerSideOperationsObserverAttached(
-			final ByteArrayId indexId ) {
+			final String indexName ) {
 		// Use the server-side operations observer
-		verifyCoprocessor(
-				indexId.getString(),
+		verifyCoprocessor(indexName,
 				"org.locationtech.geowave.datastore.hbase.coprocessors.ServerSideOperationsObserver",
 				options.getCoprocessorJar());
 	}
@@ -998,8 +996,8 @@ public class HBaseOperations implements
 
 						final BasicOptionProvider optionProvider = new BasicOptionProvider(
 								new HashMap<>());
-						ensureServerSideOperationsObserverAttached(new ByteArrayId(
-								getMetadataTableName(metadataType)));
+						ensureServerSideOperationsObserverAttached(
+								getMetadataTableName(metadataType));
 						ServerOpHelper.addServerSideMerging(
 								this,
 								DataStatisticsStoreImpl.STATISTICS_COMBINER_NAME,
@@ -1060,10 +1058,10 @@ public class HBaseOperations implements
 	}
 
 	public RowDeleter createDeleter(
-			final ByteArrayId indexId,
+			final String indexName,
 			final String... authorizations ) {
 		try {
-			final TableName tableName = getTableName(indexId.getString());
+			final TableName tableName = getTableName(indexName);
 			return new HBaseRowDeleter(
 					getBufferedMutator(tableName));
 		}
@@ -1133,7 +1131,7 @@ public class HBaseOperations implements
 
 	public <T> Mergeable aggregateServerSide(
 			final ReaderParams<T> readerParams ) {
-		final String tableName = readerParams.getIndex().getId().getString();
+		final String tableName = readerParams.getIndex().getName();
 
 		try {
 			// Use the row count coprocessor
@@ -1190,6 +1188,7 @@ public class HBaseOperations implements
 			final MultiRowRangeFilter multiFilter = getMultiRowRangeFilter(DataStoreUtils.constraintsToQueryRanges(
 					readerParams.getConstraints(),
 					readerParams.getIndex().getIndexStrategy(),
+					null,
 					maxRangeDecomposition).getCompositeQueryRanges());
 			if (multiFilter != null) {
 				requestBuilder.setRangeFilter(ByteString.copyFrom(multiFilter.toByteArray()));
@@ -1197,7 +1196,7 @@ public class HBaseOperations implements
 			if (readerParams.getAggregation().getLeft() != null) {
 				if (readerParams.getAggregation().getRight() instanceof CommonIndexAggregation) {
 					requestBuilder.setInternalAdapterId(ByteString.copyFrom(ByteArrayUtils
-							.shortToByteArray(readerParams.getAggregation().getLeft().getInternalAdapterId())));
+							.shortToByteArray(readerParams.getAggregation().getLeft().getAdapterId())));
 				}
 				else {
 					requestBuilder.setAdapter(ByteString.copyFrom(URLClassloaderUtils.toBinary(readerParams
@@ -1320,8 +1319,8 @@ public class HBaseOperations implements
 
 	public void bulkDelete(
 			final ReaderParams readerParams ) {
-		final String tableName = readerParams.getIndex().getId().getString();
-		Collection<Short> adapterIds = readerParams.getAdapterIds();
+		final String tableName = readerParams.getIndex().getName();
+		short[] adapterIds = readerParams.getAdapterIds();
 		Long total = 0L;
 
 		try {

@@ -248,13 +248,13 @@ public class RDDUtils
 	    job.setOutputValueClass(SimpleFeature.class);
 	    job.setOutputFormatClass(GeoWaveOutputFormat.class);
 
-	    // broadcast byte ids
-	    ClassTag<ByteArrayId> byteTag = scala.reflect.ClassTag$.MODULE$.apply(ByteArrayId.class);
-	    Broadcast<ByteArrayId> adapterId = sc.broadcast(adapter.getAdapterId(), byteTag );
-	    Broadcast<ByteArrayId> indexId = sc.broadcast(index.getId(), byteTag);
+	    // broadcast string names
+	    ClassTag<String> stringTag = scala.reflect.ClassTag$.MODULE$.apply(String.class);
+	    Broadcast<String> typeName = sc.broadcast(adapter.getTypeName(), stringTag );
+	    Broadcast<String> indexName = sc.broadcast(index.getName(), stringTag);
 
 	    //map to a pair containing the output key and the output value
-	    inputRDD.mapToPair(feat -> new Tuple2<GeoWaveOutputKey,SimpleFeature>(new GeoWaveOutputKey(adapterId.value(), indexId.value()),feat))
+	    inputRDD.mapToPair(feat -> new Tuple2<GeoWaveOutputKey,SimpleFeature>(new GeoWaveOutputKey(typeName.value(), indexName.value()),feat))
 	    .saveAsNewAPIHadoopDataset(job.getConfiguration());
 	  }
 

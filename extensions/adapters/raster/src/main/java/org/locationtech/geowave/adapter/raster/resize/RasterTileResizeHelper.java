@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,9 +11,7 @@
 package org.locationtech.geowave.adapter.raster.resize;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.conf.Configuration;
@@ -34,35 +32,47 @@ import org.opengis.coverage.grid.GridCoverage;
 public class RasterTileResizeHelper
 {
 	private RasterDataAdapter newAdapter;
-	private final short oldInternalAdapterId;
-	private final short newInternalAdapterId;
+	private final short oldAdapterId;
+	private final short newAdapterId;
 	private final Index index;
-	private final List<ByteArrayId> indexIds;
+	private final String[] indexNames;
 
 	public RasterTileResizeHelper(
 			final JobContext context ) {
-		index = JobContextIndexStore.getIndices(context)[0];
-		indexIds = new ArrayList<ByteArrayId>();
-		indexIds.add(index.getId());
-		final DataTypeAdapter[] adapters = JobContextAdapterStore.getDataAdapters(context);
+		index = JobContextIndexStore
+				.getIndices(
+						context)[0];
+		indexNames = new String[] {
+			index.getName()
+		};
+		final DataTypeAdapter[] adapters = JobContextAdapterStore
+				.getDataAdapters(
+						context);
 		final Configuration conf = context.getConfiguration();
-		final String newAdapterId = conf.get(RasterTileResizeJobRunner.NEW_ADAPTER_ID_KEY);
-		oldInternalAdapterId = (short) conf.getInt(
-				RasterTileResizeJobRunner.OLD_INTERNAL_ADAPTER_ID_KEY,
-				-1);
-		newInternalAdapterId = (short) conf.getInt(
-				RasterTileResizeJobRunner.NEW_INTERNAL_ADAPTER_ID_KEY,
-				InternalAdapterStoreImpl.getInitialInternalAdapterId(new ByteArrayId(
-						newAdapterId)));
+		final String newTypeName = conf
+				.get(
+						RasterTileResizeJobRunner.NEW_TYPE_NAME_KEY);
+		oldAdapterId = (short) conf
+				.getInt(
+						RasterTileResizeJobRunner.OLD_ADAPTER_ID_KEY,
+						-1);
+		newAdapterId = (short) conf
+				.getInt(
+						RasterTileResizeJobRunner.NEW_ADAPTER_ID_KEY,
+						InternalAdapterStoreImpl
+								.getInitialAdapterId(
+										newTypeName));
 		for (final DataTypeAdapter adapter : adapters) {
-			if (adapter.getAdapterId().getString().equals(
-					newAdapterId)) {
+			if (adapter
+					.getTypeName()
+					.equals(
+							newTypeName)) {
 				if (((RasterDataAdapter) adapter).getTransform() == null) {
 					// the new adapter doesn't have a merge strategy - resizing
 					// will require merging, so default to NoDataMergeStrategy
 					newAdapter = new RasterDataAdapter(
 							(RasterDataAdapter) adapter,
-							newAdapterId,
+							newTypeName,
 							new NoDataMergeStrategy());
 				}
 				else {
@@ -74,15 +84,16 @@ public class RasterTileResizeHelper
 
 	public GeoWaveOutputKey getGeoWaveOutputKey() {
 		return new GeoWaveOutputKey(
-				newAdapter.getAdapterId(),
-				indexIds);
+				newAdapter.getTypeName(),
+				indexNames);
 	}
 
 	public Iterator<GridCoverage> getCoveragesForIndex(
 			final GridCoverage existingCoverage ) {
-		return newAdapter.convertToIndex(
-				index,
-				existingCoverage);
+		return newAdapter
+				.convertToIndex(
+						index,
+						existingCoverage);
 	}
 
 	protected GridCoverage getMergedCoverage(
@@ -102,45 +113,57 @@ public class RasterTileResizeHelper
 				}
 				else {
 					if (!needsMerge) {
-						mergedTile = newAdapter.getRasterTileFromCoverage(mergedCoverage);
+						mergedTile = newAdapter
+								.getRasterTileFromCoverage(
+										mergedCoverage);
 						needsMerge = true;
 					}
 					final ClientMergeableRasterTile thisTile = newAdapter
-							.getRasterTileFromCoverage((GridCoverage) value);
+							.getRasterTileFromCoverage(
+									(GridCoverage) value);
 					if (mergedTile != null) {
-						mergedTile.merge(thisTile);
+						mergedTile
+								.merge(
+										thisTile);
 					}
 				}
 			}
 		}
 		if (needsMerge) {
-			final Pair<byte[], byte[]> pair = key.getPartitionAndSortKey(index);
-			mergedCoverage = newAdapter.getCoverageFromRasterTile(
-					mergedTile,
-					pair == null ? null : new ByteArrayId(
-							pair.getLeft()),
-					pair == null ? null : new ByteArrayId(
-							pair.getRight()),
-					index);
+			final Pair<byte[], byte[]> pair = key
+					.getPartitionAndSortKey(
+							index);
+			mergedCoverage = newAdapter
+					.getCoverageFromRasterTile(
+							mergedTile,
+							pair == null ? null
+									: new ByteArrayId(
+											pair.getLeft()),
+							pair == null ? null
+									: new ByteArrayId(
+											pair.getRight()),
+							index);
 		}
 		return mergedCoverage;
 	}
 
-	public short getNewInternalAdapterId() {
-		return newInternalAdapterId;
+	public short getNewAdapterId() {
+		return newAdapterId;
 	}
 
 	public ByteArrayId getNewDataId(
 			final GridCoverage coverage ) {
-		return newAdapter.getDataId(coverage);
+		return newAdapter
+				.getDataId(
+						coverage);
 	}
 
-	public ByteArrayId getIndexId() {
-		return index.getId();
+	public String getIndexName() {
+		return index.getName();
 	}
 
 	public boolean isOriginalCoverage(
-			final short internalAdapterId ) {
-		return oldInternalAdapterId == internalAdapterId;
+			final short adapterId ) {
+		return oldAdapterId == adapterId;
 	}
 }

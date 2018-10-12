@@ -52,13 +52,5 @@ public class ByteArraySerializationProvider implements
 			}
 			return ArrayUtils.toPrimitive(fieldValue);
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Byte[] fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

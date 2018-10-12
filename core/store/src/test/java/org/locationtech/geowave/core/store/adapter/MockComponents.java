@@ -41,9 +41,7 @@ import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatis
 import org.locationtech.geowave.core.store.adapter.statistics.NumericRangeDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsProvider;
-import org.locationtech.geowave.core.store.adapter.statistics.StatisticsType;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
-import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.StatisticsQueryBuilder;
 import org.locationtech.geowave.core.store.data.PersistentValue;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
@@ -142,7 +140,6 @@ public class MockComponents
 		public String getTypeName() {
 			return id;
 		}
-
 
 		@Override
 		public ByteArrayId getDataId(
@@ -254,14 +251,17 @@ public class MockComponents
 		public StatisticsId[] getSupportedStatistics() {
 			return new StatisticsId[] {
 				CountDataStatistics.STATS_TYPE.newBuilder().build().getId(),
-				
+
 			};
 		}
 
 		@Override
-		public <R, B extends StatisticsQueryBuilder<R, B>> InternalDataStatistics<Integer,R,B> createDataStatistics(
+		public <R, B extends StatisticsQueryBuilder<R, B>> InternalDataStatistics<Integer, R, B> createDataStatistics(
 				final StatisticsId statisticsId ) {
-			if (statisticsId.getType().equals(CountDataStatistics.STATS_TYPE)) {
+			if (statisticsId
+					.getType()
+					.equals(
+							CountDataStatistics.STATS_TYPE)) {
 				return (InternalDataStatistics<Integer, R, B>) new CountDataStatistics<Integer>();
 			}
 			return (InternalDataStatistics<Integer, R, B>) new IntegerRangeDataStatistics(
@@ -324,7 +324,7 @@ public class MockComponents
 				final CommonIndexModel indexModel,
 				final DataTypeAdapter<Integer> adapter,
 				final StatisticsId statisticsId ) {
-			return new FieldNameStatisticVisibility<Integer>(
+			return new FieldNameStatisticVisibility<>(
 					new TestDimensionField().fieldName,
 					indexModel,
 					adapter);
@@ -335,7 +335,8 @@ public class MockComponents
 	public static class IntegerRangeDataStatistics extends
 			NumericRangeDataStatistics<Integer>
 	{
-		protected static final FieldStatisticsType<Range<Double>> TYPE = new FieldStatisticsType<>("Integer_Range");
+		protected static final FieldStatisticsType<Range<Double>> TYPE = new FieldStatisticsType<>(
+				"Integer_Range");
 
 		public IntegerRangeDataStatistics() {
 			super();
@@ -344,7 +345,8 @@ public class MockComponents
 		public IntegerRangeDataStatistics(
 				final String fieldName ) {
 			super(
-					null,TYPE,
+					null,
+					TYPE,
 					fieldName);
 		}
 
@@ -572,8 +574,7 @@ public class MockComponents
 		final String fieldName;
 
 		public TestDimensionField() {
-			fieldName = 
-							"TestDimensionField1";
+			fieldName = "TestDimensionField1";
 		}
 
 		@Override
@@ -611,12 +612,12 @@ public class MockComponents
 
 		@Override
 		public FieldWriter<Object, TestIndexFieldType> getWriter() {
-			return new IntegerAdapter();
+			return new IntegerWriter();
 		}
 
 		@Override
 		public FieldReader<TestIndexFieldType> getReader() {
-			return new IntegerAdapter();
+			return new IntegerReader();
 		}
 
 		@Override
@@ -864,8 +865,22 @@ public class MockComponents
 		}
 	}
 
-	public static class IntegerAdapter implements
-			FieldReader<TestIndexFieldType>,
+	public static class IntegerReader implements
+			FieldReader<TestIndexFieldType>
+	{
+
+		@Override
+		public TestIndexFieldType readField(
+				final byte[] fieldData ) {
+			return new TestIndexFieldType(
+					Integer
+							.parseInt(
+									new String(
+											fieldData)));
+		}
+	}
+
+	public static class IntegerWriter implements
 			FieldWriter<Object, TestIndexFieldType>
 	{
 
@@ -884,16 +899,6 @@ public class MockComponents
 					.toString(
 							fieldValue.indexValue)
 					.getBytes();
-		}
-
-		@Override
-		public TestIndexFieldType readField(
-				final byte[] fieldData ) {
-			return new TestIndexFieldType(
-					Integer
-							.parseInt(
-									new String(
-											fieldData)));
 		}
 	}
 }

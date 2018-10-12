@@ -108,6 +108,10 @@ public class SplitsProvider
 					statsStore,
 					maxSplits,
 					constraints,
+					(double[]) commonOptions
+							.getHints()
+							.get(
+									DataStoreUtils.TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX),
 					commonOptions.getAuthorizations());
 		}
 
@@ -201,6 +205,7 @@ public class SplitsProvider
 			final DataStatisticsStore statsStore,
 			final Integer maxSplits,
 			final DistributableQueryConstraints constraints,
+			final double[] targetResolutionPerDimensionForHierarchicalIndex,
 			final String[] authorizations )
 			throws IOException {
 
@@ -218,6 +223,7 @@ public class SplitsProvider
 						.constraintsToQueryRanges(
 								indexConstraints,
 								indexStrategy,
+								targetResolutionPerDimensionForHierarchicalIndex,
 								maxSplits)
 						.getCompositeQueryRanges();
 			}
@@ -226,6 +232,7 @@ public class SplitsProvider
 						.constraintsToQueryRanges(
 								indexConstraints,
 								indexStrategy,
+								targetResolutionPerDimensionForHierarchicalIndex,
 								-1)
 						.getCompositeQueryRanges();
 			}
@@ -435,8 +442,8 @@ public class SplitsProvider
 			try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> it = store
 					.getDataStatistics(
 							adapterId,
-							statsQuery.getStatsType(),
 							statsQuery.getExtendedId(),
+							statsQuery.getStatsType(),
 							authorizations)) {
 				while (it.hasNext()) {
 					final RowRangeHistogramStatistics<?> rowStat = (RowRangeHistogramStatistics<?>) it.next();
@@ -472,8 +479,8 @@ public class SplitsProvider
 			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it = store
 					.getDataStatistics(
 							adapterId,
-							statsQuery.getStatsType(),
 							statsQuery.getExtendedId(),
+							statsQuery.getStatsType(),
 							authorizations)) {
 				while (it.hasNext()) {
 					final PartitionStatistics<?> rowStat = (PartitionStatistics<?>) it.next();

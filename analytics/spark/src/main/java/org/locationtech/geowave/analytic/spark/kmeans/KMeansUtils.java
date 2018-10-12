@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.locationtech.geowave.analytic.spark.kmeans;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -32,10 +31,8 @@ import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.query.ScaledTemporalRange;
 import org.locationtech.geowave.core.geotime.store.query.TemporalRange;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
@@ -54,7 +51,9 @@ import scala.Tuple2;
 
 public class KMeansUtils
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(KMeansUtils.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					KMeansUtils.class);
 
 	public static DataTypeAdapter writeClusterCentroids(
 			final KMeansModel clusterModel,
@@ -62,38 +61,61 @@ public class KMeansUtils
 			final String centroidAdapterName,
 			final ScaledTemporalRange scaledRange ) {
 		final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-		typeBuilder.setName(centroidAdapterName);
-		typeBuilder.setNamespaceURI(BasicFeatureTypes.DEFAULT_NAMESPACE);
+		typeBuilder
+				.setName(
+						centroidAdapterName);
+		typeBuilder
+				.setNamespaceURI(
+						BasicFeatureTypes.DEFAULT_NAMESPACE);
 
 		try {
-			typeBuilder.setCRS(CRS.decode(
-					"EPSG:4326",
-					true));
+			typeBuilder
+					.setCRS(
+							CRS
+									.decode(
+											"EPSG:4326",
+											true));
 		}
 		catch (final FactoryException fex) {
-			LOGGER.error(
-					fex.getMessage(),
-					fex);
+			LOGGER
+					.error(
+							fex.getMessage(),
+							fex);
 		}
 
 		final AttributeTypeBuilder attrBuilder = new AttributeTypeBuilder();
 
-		typeBuilder.add(attrBuilder.binding(
-				Geometry.class).nillable(
-				false).buildDescriptor(
-				Geometry.class.getName().toString()));
+		typeBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Geometry.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										Geometry.class.getName().toString()));
 
 		if (scaledRange != null) {
-			typeBuilder.add(attrBuilder.binding(
-					Date.class).nillable(
-					false).buildDescriptor(
-					"Time"));
+			typeBuilder
+					.add(
+							attrBuilder
+									.binding(
+											Date.class)
+									.nillable(
+											false)
+									.buildDescriptor(
+											"Time"));
 		}
 
-		typeBuilder.add(attrBuilder.binding(
-				Integer.class).nillable(
-				false).buildDescriptor(
-				"ClusterIndex"));
+		typeBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Integer.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"ClusterIndex"));
 
 		final SimpleFeatureType sfType = typeBuilder.buildFeatureType();
 		final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(
@@ -103,53 +125,72 @@ public class KMeansUtils
 				sfType);
 
 		final DataStore featureStore = outputDataStore.createDataStore();
-		final Index featureIndex = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
-
-		try (Writer writer = featureStore.createWriter(
-				featureAdapter,
-				featureIndex)) {
+		final Index featureIndex = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
+		featureStore
+				.addType(
+						featureAdapter);
+		featureStore
+				.addIndex(
+						featureAdapter.getTypeName(),
+						featureIndex);
+		try (Writer writer = featureStore
+				.createWriter(
+						featureAdapter.getTypeName())) {
 			for (final Vector center : clusterModel.clusterCenters()) {
-				int index = clusterModel.predict(center);
+				final int index = clusterModel
+						.predict(
+								center);
 
-				final double lon = center.apply(0);
-				final double lat = center.apply(1);
+				final double lon = center
+						.apply(
+								0);
+				final double lat = center
+						.apply(
+								1);
 
-				sfBuilder.set(
-						Geometry.class.getName(),
-						GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
-								lon,
-								lat)));
+				sfBuilder
+						.set(
+								Geometry.class.getName(),
+								GeometryUtils.GEOMETRY_FACTORY
+										.createPoint(
+												new Coordinate(
+														lon,
+														lat)));
 
-				if (scaledRange != null && center.size() > 2) {
-					final double timeVal = center.apply(2);
+				if ((scaledRange != null) && (center.size() > 2)) {
+					final double timeVal = center
+							.apply(
+									2);
 
-					Date time = scaledRange.valueToTime(timeVal);
+					final Date time = scaledRange
+							.valueToTime(
+									timeVal);
 
-					sfBuilder.set(
-							"Time",
-							time);
+					sfBuilder
+							.set(
+									"Time",
+									time);
 
-					LOGGER.warn("Write time: " + time);
+					LOGGER
+							.warn(
+									"Write time: " + time);
 				}
 
-				sfBuilder.set(
-						"ClusterIndex",
-						index);
+				sfBuilder
+						.set(
+								"ClusterIndex",
+								index);
 
-				final SimpleFeature sf = sfBuilder.buildFeature("Centroid-" + index);
+				final SimpleFeature sf = sfBuilder
+						.buildFeature(
+								"Centroid-" + index);
 
-				writer.write(sf);
+				writer
+						.write(
+								sf);
 			}
-		}
-		catch (final MismatchedIndexToAdapterMapping e) {
-			LOGGER.error(
-					e.getMessage(),
-					e);
-		}
-		catch (final IOException e) {
-			LOGGER.error(
-					e.getMessage(),
-					e);
 		}
 
 		return featureAdapter;
@@ -161,52 +202,88 @@ public class KMeansUtils
 			final DataStorePluginOptions outputDataStore,
 			final String hullAdapterName,
 			final boolean computeMetadata ) {
-		final JavaPairRDD<Integer, Iterable<Vector>> groupByRdd = KMeansHullGenerator.groupByIndex(
-				inputCentroids,
-				clusterModel);
+		final JavaPairRDD<Integer, Iterable<Vector>> groupByRdd = KMeansHullGenerator
+				.groupByIndex(
+						inputCentroids,
+						clusterModel);
 
-		final JavaPairRDD<Integer, Geometry> hullRdd = KMeansHullGenerator.generateHullsRDD(groupByRdd);
+		final JavaPairRDD<Integer, Geometry> hullRdd = KMeansHullGenerator
+				.generateHullsRDD(
+						groupByRdd);
 
 		final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-		typeBuilder.setName(hullAdapterName);
-		typeBuilder.setNamespaceURI(BasicFeatureTypes.DEFAULT_NAMESPACE);
+		typeBuilder
+				.setName(
+						hullAdapterName);
+		typeBuilder
+				.setNamespaceURI(
+						BasicFeatureTypes.DEFAULT_NAMESPACE);
 		try {
-			typeBuilder.setCRS(CRS.decode(
-					"EPSG:4326",
-					true));
+			typeBuilder
+					.setCRS(
+							CRS
+									.decode(
+											"EPSG:4326",
+											true));
 		}
 		catch (final FactoryException e) {
-			LOGGER.error(
-					e.getMessage(),
-					e);
+			LOGGER
+					.error(
+							e.getMessage(),
+							e);
 		}
 
 		final AttributeTypeBuilder attrBuilder = new AttributeTypeBuilder();
 
-		typeBuilder.add(attrBuilder.binding(
-				Geometry.class).nillable(
-				false).buildDescriptor(
-				Geometry.class.getName().toString()));
+		typeBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Geometry.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										Geometry.class.getName().toString()));
 
-		typeBuilder.add(attrBuilder.binding(
-				Integer.class).nillable(
-				false).buildDescriptor(
-				"ClusterIndex"));
+		typeBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Integer.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"ClusterIndex"));
 
-		typeBuilder.add(attrBuilder.binding(
-				Integer.class).nillable(
-				false).buildDescriptor(
-				"Count"));
+		typeBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Integer.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"Count"));
 
-		typeBuilder.add(attrBuilder.binding(
-				Double.class).nillable(
-				false).buildDescriptor(
-				"Area"));
+		typeBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Double.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"Area"));
 
-		typeBuilder.add(attrBuilder.binding(
-				Double.class).nillable(
-				false).buildDescriptor(
-				"Density"));
+		typeBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Double.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"Density"));
 
 		final SimpleFeatureType sfType = typeBuilder.buildFeatureType();
 		final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(
@@ -216,76 +293,90 @@ public class KMeansUtils
 				sfType);
 
 		final DataStore featureStore = outputDataStore.createDataStore();
-		final Index featureIndex = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		final Index featureIndex = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
 
-		PolygonAreaCalculator polyCalc = (computeMetadata ? new PolygonAreaCalculator() : null);
-
-		try (Writer writer = featureStore.createWriter(
-				featureAdapter,
-				featureIndex)) {
+		final PolygonAreaCalculator polyCalc = (computeMetadata ? new PolygonAreaCalculator() : null);
+		featureStore
+				.addType(
+						featureAdapter);
+		featureStore
+				.addIndex(
+						featureAdapter.getTypeName(),
+						featureIndex);
+		try (Writer writer = featureStore
+				.createWriter(
+						featureAdapter.getTypeName())) {
 
 			for (final Tuple2<Integer, Geometry> hull : hullRdd.collect()) {
-				Integer index = hull._1;
-				Geometry geom = hull._2;
+				final Integer index = hull._1;
+				final Geometry geom = hull._2;
 
-				sfBuilder.set(
-						Geometry.class.getName(),
-						geom);
+				sfBuilder
+						.set(
+								Geometry.class.getName(),
+								geom);
 
-				sfBuilder.set(
-						"ClusterIndex",
-						index);
+				sfBuilder
+						.set(
+								"ClusterIndex",
+								index);
 
 				int count = 0;
 				double area = 0.0;
 				double density = 0.0;
 
 				if (computeMetadata) {
-					for (Iterable<Vector> points : groupByRdd.lookup(index)) {
-						Vector[] pointVec = Iterables.toArray(
-								points,
-								Vector.class);
+					for (final Iterable<Vector> points : groupByRdd
+							.lookup(
+									index)) {
+						final Vector[] pointVec = Iterables
+								.toArray(
+										points,
+										Vector.class);
 						count += pointVec.length;
 					}
 
 					try {
 						// HP Fortify "NULL Pointer Dereference" false positive
 						// Exception handling will catch if polyCalc is null
-						area = polyCalc.getAreaDensify(geom);
+						area = polyCalc
+								.getAreaDensify(
+										geom);
 
-						density = (double) count / area;
+						density = count / area;
 					}
-					catch (Exception e) {
-						LOGGER.error("Problem computing polygon area: " + e.getMessage());
+					catch (final Exception e) {
+						LOGGER
+								.error(
+										"Problem computing polygon area: " + e.getMessage());
 					}
 				}
 
-				sfBuilder.set(
-						"Count",
-						count);
+				sfBuilder
+						.set(
+								"Count",
+								count);
 
-				sfBuilder.set(
-						"Area",
-						area);
+				sfBuilder
+						.set(
+								"Area",
+								area);
 
-				sfBuilder.set(
-						"Density",
-						density);
+				sfBuilder
+						.set(
+								"Density",
+								density);
 
-				final SimpleFeature sf = sfBuilder.buildFeature("Hull-" + index);
+				final SimpleFeature sf = sfBuilder
+						.buildFeature(
+								"Hull-" + index);
 
-				writer.write(sf);
+				writer
+						.write(
+								sf);
 			}
-		}
-		catch (final MismatchedIndexToAdapterMapping e) {
-			LOGGER.error(
-					e.getMessage(),
-					e);
-		}
-		catch (final IOException e) {
-			LOGGER.error(
-					e.getMessage(),
-					e);
 		}
 
 		return featureAdapter;
@@ -294,72 +385,90 @@ public class KMeansUtils
 	public static ScaledTemporalRange setRunnerTimeParams(
 			final KMeansRunner runner,
 			final DataStorePluginOptions inputDataStore,
-			ByteArrayId adapterId ) {
-		if (adapterId == null) { // if no id provided, locate a single
-									// featureadapter
-			List<ByteArrayId> adapterIdList = FeatureDataUtils.getFeatureAdapterIds(inputDataStore);
-			if (adapterIdList.size() == 1) {
-				adapterId = adapterIdList.get(0);
+			String typeName ) {
+		if (typeName == null) { // if no id provided, locate a single
+								// featureadapter
+			final List<String> typeNameList = FeatureDataUtils
+					.getFeatureTypeNames(
+							inputDataStore);
+			if (typeNameList.size() == 1) {
+				typeName = typeNameList
+						.get(
+								0);
 			}
-			else if (adapterIdList.isEmpty()) {
-				LOGGER.error("No feature adapters found for use with time param");
+			else if (typeNameList.isEmpty()) {
+				LOGGER
+						.error(
+								"No feature adapters found for use with time param");
 
 				return null;
 			}
 			else {
-				LOGGER.error("Multiple feature adapters found for use with time param. Please specify one.");
+				LOGGER
+						.error(
+								"Multiple feature adapters found for use with time param. Please specify one.");
 
 				return null;
 
 			}
 		}
 
-		ScaledTemporalRange scaledRange = new ScaledTemporalRange();
+		final ScaledTemporalRange scaledRange = new ScaledTemporalRange();
 
-		String timeField = FeatureDataUtils.getTimeField(
-				inputDataStore,
-				adapterId);
+		final String timeField = FeatureDataUtils
+				.getTimeField(
+						inputDataStore,
+						typeName);
 
 		if (timeField != null) {
-			TemporalRange timeRange = DateUtilities.getTemporalRange(
-					inputDataStore,
-					adapterId,
-					timeField);
+			final TemporalRange timeRange = DateUtilities
+					.getTemporalRange(
+							inputDataStore,
+							typeName,
+							timeField);
 
 			if (timeRange != null) {
-				scaledRange.setTimeRange(
-						timeRange.getStartTime(),
-						timeRange.getEndTime());
+				scaledRange
+						.setTimeRange(
+								timeRange.getStartTime(),
+								timeRange.getEndTime());
 			}
 
-			String geomField = FeatureDataUtils.getGeomField(
-					inputDataStore,
-					adapterId);
+			final String geomField = FeatureDataUtils
+					.getGeomField(
+							inputDataStore,
+							typeName);
 
-			Envelope bbox = org.locationtech.geowave.adapter.vector.util.FeatureGeometryUtils.getGeoBounds(
-					inputDataStore,
-					adapterId,
-					geomField);
+			final Envelope bbox = org.locationtech.geowave.adapter.vector.util.FeatureGeometryUtils
+					.getGeoBounds(
+							inputDataStore,
+							typeName,
+							geomField);
 
 			if (bbox != null) {
-				double xRange = bbox.getMaxX() - bbox.getMinX();
-				double yRange = bbox.getMaxY() - bbox.getMinY();
-				double valueRange = Math.min(
-						xRange,
-						yRange);
-				scaledRange.setValueRange(
-						0.0,
-						valueRange);
+				final double xRange = bbox.getMaxX() - bbox.getMinX();
+				final double yRange = bbox.getMaxY() - bbox.getMinY();
+				final double valueRange = Math
+						.min(
+								xRange,
+								yRange);
+				scaledRange
+						.setValueRange(
+								0.0,
+								valueRange);
 			}
 
-			runner.setTimeParams(
-					timeField,
-					scaledRange);
+			runner
+					.setTimeParams(
+							timeField,
+							scaledRange);
 
 			return scaledRange;
 		}
 
-		LOGGER.error("Couldn't determine field to use for time param");
+		LOGGER
+				.error(
+						"Couldn't determine field to use for time param");
 
 		return null;
 	}

@@ -62,13 +62,5 @@ public class PrimitiveIntArraySerializationProvider implements
 			}
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final int[] fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

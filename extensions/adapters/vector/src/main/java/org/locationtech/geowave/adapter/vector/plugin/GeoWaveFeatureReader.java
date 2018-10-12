@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -50,6 +51,7 @@ import org.locationtech.geowave.core.geotime.store.query.TemporalConstraintsSet;
 import org.locationtech.geowave.core.geotime.store.query.api.VectorAggregationQueryBuilder;
 import org.locationtech.geowave.core.geotime.store.query.api.VectorQueryBuilder;
 import org.locationtech.geowave.core.geotime.store.statistics.FieldNameStatistic;
+import org.locationtech.geowave.core.geotime.util.ExtractAttributesFilter;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils.GeoConstraintsWrapper;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.dimension.NumericDimensionDefinition;
@@ -61,6 +63,7 @@ import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery.Constraints;
+import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -72,7 +75,6 @@ import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.vividsolutions.jts.geom.Envelope;
@@ -229,15 +231,21 @@ public class GeoWaveFeatureReader implements
 				timeBounds);
 
 		boolean spatialOnly = false;
-		if (this.query.getHints().containsKey(
-				SubsampleProcess.SUBSAMPLE_ENABLED) && (Boolean) this.query.getHints().get(
-				SubsampleProcess.SUBSAMPLE_ENABLED)) {
+		if (this.query
+				.getHints()
+				.containsKey(
+						SubsampleProcess.SUBSAMPLE_ENABLED)
+				&& (Boolean) this.query
+						.getHints()
+						.get(
+								SubsampleProcess.SUBSAMPLE_ENABLED)) {
 			spatialOnly = true;
 		}
-		try (CloseableIterator<Index> indexIt = getComponents().getIndices(
-				statsMap,
-				query,
-				spatialOnly)) {
+		try (CloseableIterator<Index> indexIt = getComponents()
+				.getIndices(
+						statsMap,
+						query,
+						spatialOnly)) {
 			while (indexIt.hasNext()) {
 				final Index index = indexIt.next();
 
@@ -327,14 +335,12 @@ public class GeoWaveFeatureReader implements
 		public CloseableIterator<SimpleFeature> query(
 				final Index index,
 				final BasicQuery query ) {
-			final VectorQueryBuilder bldr = VectorQueryBuilder
+			VectorQueryBuilder bldr = VectorQueryBuilder
 					.newBuilder()
 					.addTypeName(
 							components.getAdapter().getTypeName())
 					.indexName(
 							index.getName())
-					.limit(
-							limit)
 					.setAuthorizations(
 							transaction.composeAuthorizations())
 					.constraints(
@@ -344,8 +350,13 @@ public class GeoWaveFeatureReader implements
 											components.getAdapter(),
 											index,
 											query));
+			if (limit != null) {
+				bldr = bldr
+						.limit(
+								limit);
+			}
 			if (subsetRequested()) {
-				bldr
+				bldr = bldr
 						.subsetFields(
 								components.getAdapter().getTypeName(),
 								getSubset());
@@ -385,14 +396,12 @@ public class GeoWaveFeatureReader implements
 		public CloseableIterator<SimpleFeature> query(
 				final Index index,
 				final BasicQuery query ) {
-			final VectorAggregationQueryBuilder<Persistable, Long> bldr = (VectorAggregationQueryBuilder) VectorAggregationQueryBuilder
+			VectorAggregationQueryBuilder<Persistable, Long> bldr = (VectorAggregationQueryBuilder) VectorAggregationQueryBuilder
 					.newBuilder()
 					.count(
 							components.getAdapter().getTypeName())
 					.indexName(
 							index.getName())
-					.limit(
-							limit)
 					.setAuthorizations(
 							transaction.composeAuthorizations())
 					.constraints(
@@ -402,7 +411,11 @@ public class GeoWaveFeatureReader implements
 											components.getAdapter(),
 											index,
 											query));
-
+			if (limit != null) {
+				bldr = bldr
+						.limit(
+								limit);
+			}
 			final Long count = components
 					.getDataStore()
 					.aggregate(
@@ -445,7 +458,7 @@ public class GeoWaveFeatureReader implements
 				final Index index,
 				final BasicQuery query ) {
 
-			final VectorQueryBuilder bldr = VectorQueryBuilder
+			VectorQueryBuilder bldr = VectorQueryBuilder
 					.newBuilder()
 					.addTypeName(
 							components.getAdapter().getTypeName())
@@ -453,8 +466,6 @@ public class GeoWaveFeatureReader implements
 							index.getName())
 					.setAuthorizations(
 							transaction.composeAuthorizations())
-					.limit(
-							limit)
 					.constraints(
 							OptimalCQLQuery
 									.createOptimalQuery(
@@ -462,8 +473,13 @@ public class GeoWaveFeatureReader implements
 											components.getAdapter(),
 											index,
 											query));
+			if (limit != null) {
+				bldr = bldr
+						.limit(
+								limit);
+			}
 			if (subsetRequested()) {
-				bldr
+				bldr = bldr
 						.subsetFields(
 								components.getAdapter().getTypeName(),
 								getSubset());
@@ -500,8 +516,9 @@ public class GeoWaveFeatureReader implements
 											width,
 											height),
 									pixelSize);
-					bldr
-							.subsampling(
+					bldr = bldr
+							.addHint(
+									DataStoreUtils.MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION,
 									spans);
 					return components
 							.getDataStore()
@@ -644,19 +661,21 @@ public class GeoWaveFeatureReader implements
 
 			final Index[] writeIndices = components.getAdapterIndices();
 			final Index queryIndex = ((writeIndices != null) && (writeIndices.length > 0)) ? writeIndices[0] : null;
-			final VectorQueryBuilder bldr = VectorQueryBuilder
+			VectorQueryBuilder bldr = VectorQueryBuilder
 					.newBuilder()
 					.addTypeName(
 							components.getAdapter().getTypeName())
 					.indexName(
 							queryIndex.getName())
-					.limit(
-							limit)
 					.setAuthorizations(
 							transaction.composeAuthorizations());
-
+			if (limit != null) {
+				bldr = bldr
+						.limit(
+								limit);
+			}
 			if (subsetRequested()) {
-				bldr
+				bldr = bldr
 						.subsetFields(
 								components.getAdapter().getTypeName(),
 								getSubset());
@@ -868,19 +887,28 @@ public class GeoWaveFeatureReader implements
 		if (query == null) {
 			return new String[0];
 		}
-		
-		if (query.getFilter() != null && !components.getGTstore().getDataStoreOptions().isServerSideLibraryEnabled()) {
+
+		if ((query.getFilter() != null)
+				&& !components.getGTstore().getDataStoreOptions().isServerSideLibraryEnabled()) {
 			final ExtractAttributesFilter attributesVisitor = new ExtractAttributesFilter();
-			final Object obj = query.getFilter().accept(
-					attributesVisitor,
-					null);
+			final Object obj = query
+					.getFilter()
+					.accept(
+							attributesVisitor,
+							null);
 
 			if ((obj != null) && (obj instanceof Collection)) {
-				Set<String> properties = Sets.newHashSet(query.getPropertyNames());
-				for (String prop : (Collection<String>) obj) {
-					properties.add(prop);
+				final Set<String> properties = Sets
+						.newHashSet(
+								query.getPropertyNames());
+				for (final String prop : (Collection<String>) obj) {
+					properties
+							.add(
+									prop);
 				}
-				return properties.toArray(new String[0]);
+				return properties
+						.toArray(
+								new String[0]);
 			}
 		}
 		return query.getPropertyNames();

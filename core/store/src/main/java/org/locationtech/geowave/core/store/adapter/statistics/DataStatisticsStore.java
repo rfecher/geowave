@@ -71,8 +71,8 @@ public interface DataStatisticsStore
 	 *         exist
 	 */
 	public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
-			StatisticsType<?, ?> statisticsType,
 			String extendedIdPrefix,
+			StatisticsType<?, ?> statisticsType,
 			String... authorizations );
 
 	/**
@@ -110,8 +110,8 @@ public interface DataStatisticsStore
 	 */
 	public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
 			short adapterId,
-			StatisticsType<?, ?> statisticsType,
 			String extendedIdPrefix,
+			StatisticsType<?, ?> statisticsType,
 			String... authorizations );
 
 	/**
@@ -137,8 +137,8 @@ public interface DataStatisticsStore
 	 */
 	public boolean removeStatistics(
 			short adapterId,
-			StatisticsType<?, ?> statisticsType,
 			String extendedIdPrefix,
+			StatisticsType<?, ?> statisticsType,
 			String... authorizations );
 
 	/**

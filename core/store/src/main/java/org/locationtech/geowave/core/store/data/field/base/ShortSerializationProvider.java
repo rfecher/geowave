@@ -58,13 +58,5 @@ public class ShortSerializationProvider implements
 			buf.putShort(fieldValue);
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Short fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

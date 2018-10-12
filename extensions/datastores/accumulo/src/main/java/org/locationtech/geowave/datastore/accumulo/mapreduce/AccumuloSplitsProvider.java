@@ -36,7 +36,7 @@ import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramS
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.accumulo.mapreduce.BackwardCompatibleTabletLocatorFactory.BackwardCompatibleTabletLocator;
 import org.locationtech.geowave.datastore.accumulo.operations.AccumuloOperations;
@@ -59,12 +59,13 @@ public class AccumuloSplitsProvider extends
 			final TreeSet<IntermediateSplitInfo> splits,
 			final DataStoreOperations operations,
 			final Index index,
-			final List<Short> adapters,
+			final List<Short> adapterIds,
 			final Map<Pair<Index, ByteArrayId>, RowRangeHistogramStatistics<?>> statsCache,
 			final TransientAdapterStore adapterStore,
 			final DataStatisticsStore statsStore,
 			final Integer maxSplits,
-			final DistributableQueryConstrain query,
+			final DistributableQueryConstraints constraints,
+			final double[] targetResolutionPerDimensionForHierarchicalIndex,
 			final String[] authorizations )
 			throws IOException {
 
@@ -99,21 +100,21 @@ public class AccumuloSplitsProvider extends
 
 		final String tableName = AccumuloUtils.getQualifiedTableName(
 				accumuloOperations.getTableNameSpace(),
-				index.getId().getString());
+				index.getName());
 
 		final TreeSet<Range> ranges;
-		if (query != null) {
-			final List<MultiDimensionalNumericData> indexConstraints = query.getIndexConstraints(index);
+		if (constraints != null) {
+			final List<MultiDimensionalNumericData> indexConstraints = constraints.getIndexConstraints(index);
 			if ((maxSplits != null) && (maxSplits > 0)) {
 				ranges = AccumuloUtils.byteArrayRangesToAccumuloRanges(DataStoreUtils.constraintsToQueryRanges(
 						indexConstraints,
-						indexStrategy,
+						indexStrategy,targetResolutionPerDimensionForHierarchicalIndex,
 						maxSplits).getCompositeQueryRanges());
 			}
 			else {
 				ranges = AccumuloUtils.byteArrayRangesToAccumuloRanges(DataStoreUtils.constraintsToQueryRanges(
 						indexConstraints,
-						indexStrategy,
+						indexStrategy,targetResolutionPerDimensionForHierarchicalIndex,
 						-1).getCompositeQueryRanges());
 			}
 			if (ranges.size() == 1) {
@@ -158,7 +159,7 @@ public class AccumuloSplitsProvider extends
 			}
 
 			final Range tabletRange = locator.toRange(tabletId);
-			final Map<ByteArrayId, SplitInfo> splitInfo = new HashMap<ByteArrayId, SplitInfo>();
+			final Map<String, SplitInfo> splitInfo = new HashMap<String, SplitInfo>();
 			final List<RangeLocationPair> rangeList = new ArrayList<RangeLocationPair>();
 
 			for (final Range range : tabletIdRanges.getValue()) {
@@ -171,7 +172,7 @@ public class AccumuloSplitsProvider extends
 					final double cardinality = getCardinality(
 							getHistStats(
 									index,
-									adapters,
+									adapterIds,
 									adapterStore,
 									statsStore,
 									statsCache,
@@ -194,7 +195,7 @@ public class AccumuloSplitsProvider extends
 			}
 			if (!rangeList.isEmpty()) {
 				splitInfo.put(
-						index.getId(),
+						index.getName(),
 						new SplitInfo(
 								index,
 								rangeList));

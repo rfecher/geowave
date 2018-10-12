@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -31,14 +31,13 @@ import org.locationtech.geowave.analytic.mapreduce.nn.NNJobRunner;
 import org.locationtech.geowave.analytic.mapreduce.nn.NNMapReduce;
 import org.locationtech.geowave.analytic.mapreduce.nn.NNMapReduce.PartitionDataWritable;
 import org.locationtech.geowave.analytic.param.ClusteringParameters;
-import org.locationtech.geowave.analytic.param.GlobalParameters;
-import org.locationtech.geowave.analytic.param.HullParameters;
-import org.locationtech.geowave.analytic.param.ParameterEnum;
 import org.locationtech.geowave.analytic.param.ClusteringParameters.Clustering;
+import org.locationtech.geowave.analytic.param.GlobalParameters;
 import org.locationtech.geowave.analytic.param.GlobalParameters.Global;
+import org.locationtech.geowave.analytic.param.HullParameters;
 import org.locationtech.geowave.analytic.param.HullParameters.Hull;
+import org.locationtech.geowave.analytic.param.ParameterEnum;
 import org.locationtech.geowave.analytic.param.PartitionParameters.Partition;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
 import org.locationtech.geowave.mapreduce.JobContextAdapterStore;
 import org.locationtech.geowave.mapreduce.JobContextInternalAdapterStore;
@@ -66,38 +65,63 @@ public class DBScanJobRunner extends
 	public void configure(
 			final Job job )
 			throws Exception {
-		super.configure(job);
-		job.setMapperClass(NNMapReduce.NNMapper.class);
-		job.setReducerClass(DBScanMapReduce.DBScanMapHullReducer.class);
-		job.setMapOutputKeyClass(PartitionDataWritable.class);
-		job.setMapOutputValueClass(AdapterWithObjectWritable.class);
-		job.setOutputKeyClass(GeoWaveInputKey.class);
-		job.setOutputValueClass(ObjectWritable.class);
-		job.setSpeculativeExecution(false);
+		super.configure(
+				job);
+		job
+				.setMapperClass(
+						NNMapReduce.NNMapper.class);
+		job
+				.setReducerClass(
+						DBScanMapReduce.DBScanMapHullReducer.class);
+		job
+				.setMapOutputKeyClass(
+						PartitionDataWritable.class);
+		job
+				.setMapOutputValueClass(
+						AdapterWithObjectWritable.class);
+		job
+				.setOutputKeyClass(
+						GeoWaveInputKey.class);
+		job
+				.setOutputValueClass(
+						ObjectWritable.class);
+		job
+				.setSpeculativeExecution(
+						false);
 		final Configuration conf = job.getConfiguration();
-		conf.set(
-				"mapreduce.map.java.opts",
-				"-Xmx" + memInMB + "m");
-		conf.set(
-				"mapreduce.reduce.java.opts",
-				"-Xmx" + memInMB + "m");
-		conf.setLong(
-				"mapred.task.timeout",
-				2000000);
-		conf.setInt(
-				"mapreduce.task.io.sort.mb",
-				250);
-		job.getConfiguration().setBoolean(
-				"mapreduce.reduce.speculative",
-				false);
+		conf
+				.set(
+						"mapreduce.map.java.opts",
+						"-Xmx" + memInMB + "m");
+		conf
+				.set(
+						"mapreduce.reduce.java.opts",
+						"-Xmx" + memInMB + "m");
+		conf
+				.setLong(
+						"mapred.task.timeout",
+						2000000);
+		conf
+				.setInt(
+						"mapreduce.task.io.sort.mb",
+						250);
+		job
+				.getConfiguration()
+				.setBoolean(
+						"mapreduce.reduce.speculative",
+						false);
 
 		Class<? extends CompressionCodec> bestCodecClass = org.apache.hadoop.io.compress.DefaultCodec.class;
 		int rank = 0;
-		for (final Class<? extends CompressionCodec> codecClass : CompressionCodecFactory.getCodecClasses(conf)) {
+		for (final Class<? extends CompressionCodec> codecClass : CompressionCodecFactory
+				.getCodecClasses(
+						conf)) {
 			int r = 1;
 			for (final String codecs : CodecsRank) {
-				if (codecClass.getName().contains(
-						codecs)) {
+				if (codecClass
+						.getName()
+						.contains(
+								codecs)) {
 					break;
 				}
 				r++;
@@ -105,34 +129,46 @@ public class DBScanJobRunner extends
 			if ((rank < r) && (r <= CodecsRank.length)) {
 				try {
 					final CompressionCodec codec = codecClass.newInstance();
-					if (Configurable.class.isAssignableFrom(codecClass)) {
-						((Configurable) codec).setConf(conf);
+					if (Configurable.class
+							.isAssignableFrom(
+									codecClass)) {
+						((Configurable) codec)
+								.setConf(
+										conf);
 					}
 					// throws an exception if not configurable in this context
-					CodecPool.getCompressor(codec);
+					CodecPool
+							.getCompressor(
+									codec);
 					bestCodecClass = codecClass;
 					rank = r;
 				}
 				catch (final Throwable ex) {
 					// occurs when codec is not installed.
-					LOGGER.info(
-							"Not configuable in this context",
-							ex);
+					LOGGER
+							.info(
+									"Not configuable in this context",
+									ex);
 				}
 			}
 		}
-		LOGGER.warn("Compression with " + bestCodecClass.toString());
+		LOGGER
+				.warn(
+						"Compression with " + bestCodecClass.toString());
 
-		conf.setClass(
-				"mapreduce.map.output.compress.codec",
-				bestCodecClass,
-				CompressionCodec.class);
-		conf.setBoolean(
-				"mapreduce.map.output.compress",
-				true);
-		conf.setBooleanIfUnset(
-				"first.iteration",
-				firstIteration);
+		conf
+				.setClass(
+						"mapreduce.map.output.compress.codec",
+						bestCodecClass,
+						CompressionCodec.class);
+		conf
+				.setBoolean(
+						"mapreduce.map.output.compress",
+						true);
+		conf
+				.setBooleanIfUnset(
+						"first.iteration",
+						firstIteration);
 	}
 
 	public void setMemoryInMB(
@@ -151,55 +187,65 @@ public class DBScanJobRunner extends
 			final PropertyManagement runTimeProperties )
 			throws Exception {
 
-		runTimeProperties.storeIfEmpty(
-				HullParameters.Hull.DATA_TYPE_ID,
-				"concave_hull");
-		final String adapterID = runTimeProperties.getPropertyAsString(
-				HullParameters.Hull.DATA_TYPE_ID,
-				"concave_hull");
-		final String namespaceURI = runTimeProperties.storeIfEmpty(
-				HullParameters.Hull.DATA_NAMESPACE_URI,
-				BasicFeatureTypes.DEFAULT_NAMESPACE).toString();
+		runTimeProperties
+				.storeIfEmpty(
+						HullParameters.Hull.DATA_TYPE_ID,
+						"concave_hull");
+		final String adapterID = runTimeProperties
+				.getPropertyAsString(
+						HullParameters.Hull.DATA_TYPE_ID,
+						"concave_hull");
+		final String namespaceURI = runTimeProperties
+				.storeIfEmpty(
+						HullParameters.Hull.DATA_NAMESPACE_URI,
+						BasicFeatureTypes.DEFAULT_NAMESPACE)
+				.toString();
 
-		JobContextAdapterStore.addDataAdapter(
-				config,
-				AnalyticFeature.createGeometryFeatureAdapter(
+		JobContextAdapterStore
+				.addDataAdapter(
+						config,
+						AnalyticFeature
+								.createGeometryFeatureAdapter(
+										adapterID,
+										new String[0],
+										namespaceURI,
+										ClusteringUtils.CLUSTERING_CRS));
+		JobContextInternalAdapterStore
+				.addTypeName(
+						config,
 						adapterID,
-						new String[0],
-						namespaceURI,
-						ClusteringUtils.CLUSTERING_CRS));
-		ByteArrayId adapterByteId = new ByteArrayId(
-				adapterID);
-		JobContextInternalAdapterStore.addInternalDataAdapter(
-				config,
-				adapterByteId,
-				InternalAdapterStoreImpl.getInitialInternalAdapterId(adapterByteId));
+						InternalAdapterStoreImpl
+								.getInitialAdapterId(
+										adapterID));
 
-		final Projection<?> projectionFunction = runTimeProperties.getClassInstance(
-				HullParameters.Hull.PROJECTION_CLASS,
-				Projection.class,
-				SimpleFeatureProjection.class);
+		final Projection<?> projectionFunction = runTimeProperties
+				.getClassInstance(
+						HullParameters.Hull.PROJECTION_CLASS,
+						Projection.class,
+						SimpleFeatureProjection.class);
 
-		projectionFunction.setup(
-				runTimeProperties,
-				getScope(),
-				config);
+		projectionFunction
+				.setup(
+						runTimeProperties,
+						getScope(),
+						config);
 
-		runTimeProperties.setConfig(
-				new ParameterEnum[] {
-					HullParameters.Hull.PROJECTION_CLASS,
-					GlobalParameters.Global.BATCH_ID,
-					HullParameters.Hull.ZOOM_LEVEL,
-					HullParameters.Hull.ITERATION,
-					HullParameters.Hull.DATA_TYPE_ID,
-					HullParameters.Hull.DATA_NAMESPACE_URI,
-					ClusteringParameters.Clustering.MINIMUM_SIZE,
-					Partition.GEOMETRIC_DISTANCE_UNIT,
-					Partition.DISTANCE_THRESHOLDS,
-					Partition.MAX_MEMBER_SELECTION
-				},
-				config,
-				getScope());
+		runTimeProperties
+				.setConfig(
+						new ParameterEnum[] {
+							HullParameters.Hull.PROJECTION_CLASS,
+							GlobalParameters.Global.BATCH_ID,
+							HullParameters.Hull.ZOOM_LEVEL,
+							HullParameters.Hull.ITERATION,
+							HullParameters.Hull.DATA_TYPE_ID,
+							HullParameters.Hull.DATA_NAMESPACE_URI,
+							ClusteringParameters.Clustering.MINIMUM_SIZE,
+							Partition.GEOMETRIC_DISTANCE_UNIT,
+							Partition.DISTANCE_THRESHOLDS,
+							Partition.MAX_MEMBER_SELECTION
+						},
+						config,
+						getScope());
 
 		// HP Fortify "Command Injection" false positive
 		// What Fortify considers "externally-influenced input"
@@ -213,17 +259,21 @@ public class DBScanJobRunner extends
 	@Override
 	public Collection<ParameterEnum<?>> getParameters() {
 		final Collection<ParameterEnum<?>> params = super.getParameters();
-		params.addAll(Arrays.asList(new ParameterEnum<?>[] {
-			Partition.PARTITIONER_CLASS,
-			Partition.MAX_DISTANCE,
-			Partition.MAX_MEMBER_SELECTION,
-			Global.BATCH_ID,
-			Hull.DATA_TYPE_ID,
-			Hull.PROJECTION_CLASS,
-			Clustering.MINIMUM_SIZE,
-			Partition.GEOMETRIC_DISTANCE_UNIT,
-			Partition.DISTANCE_THRESHOLDS
-		}));
+		params
+				.addAll(
+						Arrays
+								.asList(
+										new ParameterEnum<?>[] {
+											Partition.PARTITIONER_CLASS,
+											Partition.MAX_DISTANCE,
+											Partition.MAX_MEMBER_SELECTION,
+											Global.BATCH_ID,
+											Hull.DATA_TYPE_ID,
+											Hull.PROJECTION_CLASS,
+											Clustering.MINIMUM_SIZE,
+											Partition.GEOMETRIC_DISTANCE_UNIT,
+											Partition.DISTANCE_THRESHOLDS
+										}));
 		return params;
 	}
 

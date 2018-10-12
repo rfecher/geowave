@@ -36,7 +36,7 @@ public class SecondaryIndexStoreImpl implements
 	@Override
 	public <T> CloseableIterator<T> query(
 			final SecondaryIndexImpl<T> secondaryIndex,
-			final ByteArrayId indexedAttributeFieldId,
+			final String indexedAttributeFieldName,
 			final InternalDataAdapter<T> adapter,
 			final Index primaryIndex,
 			final DistributableQueryConstraints query,

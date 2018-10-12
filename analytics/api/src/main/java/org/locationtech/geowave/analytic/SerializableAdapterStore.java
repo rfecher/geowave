@@ -70,16 +70,16 @@ public class SerializableAdapterStore implements
 
 	@Override
 	public DataTypeAdapter<?> getAdapter(
-			final ByteArrayId adapterId ) {
+			final String typeName ) {
 		return getAdapterStore().getAdapter(
-				adapterId);
+				typeName);
 	}
 
 	@Override
 	public boolean adapterExists(
-			final ByteArrayId adapterId ) {
+			final String typeName ) {
 		return getAdapterStore().adapterExists(
-				adapterId);
+				typeName);
 	}
 
 	@Override
@@ -118,8 +118,8 @@ public class SerializableAdapterStore implements
 
 	@Override
 	public void removeAdapter(
-			final ByteArrayId adapterId ) {
+			final String typeName ) {
 		getAdapterStore().removeAdapter(
-				adapterId);
+				typeName);
 	}
 }

@@ -66,13 +66,5 @@ public class BigDecimalSerializationProvider implements
 			buf.put(unscaled);
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final BigDecimal fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

@@ -43,7 +43,9 @@ public class ClusteringUtils
 
 	public static final String CLUSTERING_CRS = "EPSG:4326";
 
-	final static Logger LOGGER = LoggerFactory.getLogger(ClusteringUtils.class);
+	final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					ClusteringUtils.class);
 
 	private static DataTypeAdapter<?> createAdapter(
 			final String sampleDataTypeId,
@@ -51,20 +53,27 @@ public class ClusteringUtils
 			final AdapterStore adapterStore,
 			final String[] dimensionNames ) {
 
-		final FeatureDataAdapter adapter = AnalyticFeature.createGeometryFeatureAdapter(
-				sampleDataTypeId,
-				dimensionNames,
-				sampleDataNamespaceURI,
-				CLUSTERING_CRS);
+		final FeatureDataAdapter adapter = AnalyticFeature
+				.createGeometryFeatureAdapter(
+						sampleDataTypeId,
+						dimensionNames,
+						sampleDataNamespaceURI,
+						CLUSTERING_CRS);
 
 		final ByteArrayId dbId = new ByteArrayId(
 				sampleDataTypeId);
-		if (!adapterStore.adapterExists(dbId)) {
-			adapterStore.addAdapter(adapter);
+		if (!adapterStore
+				.adapterExists(
+						dbId)) {
+			adapterStore
+					.addAdapter(
+							adapter);
 			return adapter;
 		}
 		else {
-			return adapterStore.getAdapter(dbId);
+			return adapterStore
+					.getAdapter(
+							dbId);
 		}
 
 	}
@@ -73,44 +82,51 @@ public class ClusteringUtils
 			final PropertyManagement propertyManagement )
 			throws IOException {
 
-		final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(
-				propertyManagement);
+		final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE
+				.getHelper()
+				.getValue(
+						propertyManagement);
 
 		final AdapterStore adapterStore = store.getDataStoreOptions().createAdapterStore();
 
 		final org.locationtech.geowave.core.store.CloseableIterator<DataTypeAdapter<?>> it = adapterStore.getAdapters();
 		final List<DataTypeAdapter> adapters = new LinkedList<>();
 		while (it.hasNext()) {
-			adapters.add(it.next());
+			adapters
+					.add(
+							it.next());
 		}
 		it.close();
 		final DataTypeAdapter[] result = new DataTypeAdapter[adapters.size()];
-		adapters.toArray(result);
+		adapters
+				.toArray(
+						result);
 		return result;
 	}
 
 	public static Index[] getIndices(
 			final PropertyManagement propertyManagement ) {
 
-		final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(
-				propertyManagement);
+		final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE
+				.getHelper()
+				.getValue(
+						propertyManagement);
 
 		final IndexStore indexStore = store.getDataStoreOptions().createIndexStore();
 
-		final org.locationtech.geowave.core.store.CloseableIterator<Index> it = indexStore.getIndices();
-		final List<Index> indices = new LinkedList<>();
-		while (it.hasNext()) {
-			indices.add(it.next());
+		try (final org.locationtech.geowave.core.store.CloseableIterator<Index> it = indexStore.getIndices()) {
+			final List<Index> indices = new LinkedList<>();
+			while (it.hasNext()) {
+				indices
+						.add(
+								it.next());
+			}
+			final Index[] result = new Index[indices.size()];
+			indices
+					.toArray(
+							result);
+			return result;
 		}
-		try {
-			it.close();
-		}
-		catch (final IOException e) {
-			LOGGER.warn("Unable to close iterator" + e);
-		}
-		final Index[] result = new Index[indices.size()];
-		indices.toArray(result);
-		return result;
 	}
 
 	/*
@@ -120,12 +136,18 @@ public class ClusteringUtils
 	protected static QueryRanges getGeoWaveRangesForQuery(
 			final Polygon polygon ) {
 
-		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
-		final QueryRanges ranges = DataStoreUtils.constraintsToQueryRanges(
-				new SpatialQuery(
-						polygon).getIndexConstraints(index),
-				index.getIndexStrategy(),
-				-1);
+		final Index index = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
+		final QueryRanges ranges = DataStoreUtils
+				.constraintsToQueryRanges(
+						new SpatialQuery(
+								polygon)
+										.getIndexConstraints(
+												index),
+						index.getIndexStrategy(),
+						null,
+						-1);
 
 		return ranges;
 	}
@@ -133,12 +155,17 @@ public class ClusteringUtils
 	public static Index createIndex(
 			final PropertyManagement propertyManagement ) {
 
-		final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(
-				propertyManagement);
+		final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE
+				.getHelper()
+				.getValue(
+						propertyManagement);
 
 		final IndexStore indexStore = store.getDataStoreOptions().createIndexStore();
-		return indexStore.getIndex(new ByteArrayId(
-				propertyManagement.getPropertyAsString(CentroidParameters.Centroid.INDEX_ID)));
+		return indexStore
+				.getIndex(
+						propertyManagement
+								.getPropertyAsString(
+										CentroidParameters.Centroid.INDEX_NAME));
 	}
 
 	public static DataTypeAdapter<?> createAdapter(
@@ -147,17 +174,24 @@ public class ClusteringUtils
 			InstantiationException,
 			IllegalAccessException {
 
-		final Class<DimensionExtractor> dimensionExtractorClass = propertyManagement.getPropertyAsClass(
-				CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
-				DimensionExtractor.class);
+		final Class<DimensionExtractor> dimensionExtractorClass = propertyManagement
+				.getPropertyAsClass(
+						CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
+						DimensionExtractor.class);
 
-		return ClusteringUtils.createAdapter(
-				propertyManagement.getPropertyAsString(CentroidParameters.Centroid.DATA_TYPE_ID),
-				propertyManagement.getPropertyAsString(
-						CentroidParameters.Centroid.DATA_NAMESPACE_URI,
-						BasicFeatureTypes.DEFAULT_NAMESPACE),
-				((PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(
-						propertyManagement)).getDataStoreOptions().createAdapterStore(),
-				dimensionExtractorClass.newInstance().getDimensionNames());
+		return ClusteringUtils
+				.createAdapter(
+						propertyManagement
+								.getPropertyAsString(
+										CentroidParameters.Centroid.DATA_TYPE_ID),
+						propertyManagement
+								.getPropertyAsString(
+										CentroidParameters.Centroid.DATA_NAMESPACE_URI,
+										BasicFeatureTypes.DEFAULT_NAMESPACE),
+						((PersistableStore) StoreParameters.StoreParam.INPUT_STORE
+								.getHelper()
+								.getValue(
+										propertyManagement)).getDataStoreOptions().createAdapterStore(),
+						dimensionExtractorClass.newInstance().getDimensionNames());
 	}
 }

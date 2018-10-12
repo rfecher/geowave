@@ -169,8 +169,8 @@ public class IndexMetaDataSet<T> extends
 			final IndexMetaDataSet adapterMetadata = (IndexMetaDataSet) statisticsStore
 					.getDataStatistics(
 							adapterId,
-							STATS_TYPE,
 							index.getName(),
+							STATS_TYPE,
 							authorizations);
 			if (combinedMetaData == null) {
 				combinedMetaData = adapterMetadata;

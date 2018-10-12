@@ -40,6 +40,7 @@ import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
 import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
 import org.locationtech.geowave.core.store.query.options.FilterByTypeQueryOptions;
 import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
+import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +72,7 @@ public class BaseQueryOptions
 	private Integer limit = -1;
 	private Integer maxRangeDecomposition = null;
 	private double[] maxResolutionSubsamplingPerDimension = null;
+	private double[] targetResolutionPerDimensionForHierarchicalIndex = null;
 	private transient ScanCallback<?, ?> scanCallback = DEFAULT_CALLBACK;
 	private String[] authorizations = new String[0];
 	private Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair;
@@ -141,8 +143,18 @@ public class BaseQueryOptions
 		}
 		indexName = indexOptions.getIndexName();
 		limit = commonOptions.getLimit();
-		maxRangeDecomposition = commonOptions.getMaxRangeDecomposition();
-		maxResolutionSubsamplingPerDimension = commonOptions.getMaxResolutionSubsamplingPerDimension();
+		maxRangeDecomposition = (Integer) commonOptions
+				.getHints()
+				.get(
+						DataStoreUtils.MAX_RANGE_DECOMPOSITION);
+		maxResolutionSubsamplingPerDimension = (double[]) commonOptions
+				.getHints()
+				.get(
+						DataStoreUtils.MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION);
+		targetResolutionPerDimensionForHierarchicalIndex = (double[]) commonOptions
+				.getHints()
+				.get(
+						DataStoreUtils.TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX);
 		authorizations = commonOptions.getAuthorizations();
 
 		if ((typeOptions instanceof AggregateTypeQueryOptions)
@@ -485,6 +497,15 @@ public class BaseQueryOptions
 	public void setAuthorizations(
 			final String[] authorizations ) {
 		this.authorizations = authorizations;
+	}
+
+	public double[] getTargetResolutionPerDimensionForHierarchicalIndex() {
+		return targetResolutionPerDimensionForHierarchicalIndex;
+	}
+
+	public void setTargetResolutionPerDimensionForHierarchicalIndex(
+			final double[] targetResolutionPerDimensionForHierarchicalIndex ) {
+		this.targetResolutionPerDimensionForHierarchicalIndex = targetResolutionPerDimensionForHierarchicalIndex;
 	}
 
 	public void setMaxResolutionSubsamplingPerDimension(

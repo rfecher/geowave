@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -18,8 +18,8 @@ import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.adapter.AbstractDataAdapter;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler;
-import org.locationtech.geowave.core.store.adapter.PersistentIndexFieldHandler;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler.RowBuilder;
+import org.locationtech.geowave.core.store.adapter.PersistentIndexFieldHandler;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.data.PersistentValue;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
@@ -37,18 +37,16 @@ public class TestObjectDataAdapter extends
 		AbstractDataAdapter<TestObject> implements
 		HadoopDataAdapter<TestObject, TestObjectWritable>
 {
-	private static final ByteArrayId GEOM = new ByteArrayId(
-			"myGeo");
-	private static final ByteArrayId ID = new ByteArrayId(
-			"myId");
-	private static final ByteArrayId GROUP_ID = new ByteArrayId(
-			"myGroupId");
+	private static final String GEOM = "myGeo";
+	private static final String ID = "myId";
+	private static final String GROUP_ID =
+			"myGroupId";
 
 	private static final PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object> GEOM_FIELD_HANDLER = new PersistentIndexFieldHandler<TestObject, CommonIndexValue, Object>() {
 
 		@Override
-		public ByteArrayId[] getNativeFieldIds() {
-			return new ByteArrayId[] {
+		public String[] getNativeFieldNames() {
+			return new String[] {
 				GEOM
 			};
 		}
@@ -86,7 +84,7 @@ public class TestObjectDataAdapter extends
 	private static final NativeFieldHandler<TestObject, Object> ID_FIELD_HANDLER = new NativeFieldHandler<TestObject, Object>() {
 
 		@Override
-		public ByteArrayId getFieldId() {
+		public String getFieldName() {
 			return ID;
 		}
 
@@ -100,7 +98,7 @@ public class TestObjectDataAdapter extends
 	private static final NativeFieldHandler<TestObject, Object> GROUP_ID_FIELD_HANDLER = new NativeFieldHandler<TestObject, Object>() {
 
 		@Override
-		public ByteArrayId getFieldId() {
+		public String getFieldName() {
 			return GROUP_ID;
 		}
 
@@ -111,12 +109,18 @@ public class TestObjectDataAdapter extends
 		}
 	};
 
-	private static final List<NativeFieldHandler<TestObject, Object>> NATIVE_FIELD_HANDLER_LIST = new ArrayList<NativeFieldHandler<TestObject, Object>>();
-	private static final List<PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object>> COMMON_FIELD_HANDLER_LIST = new ArrayList<PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object>>();
+	private static final List<NativeFieldHandler<TestObject, Object>> NATIVE_FIELD_HANDLER_LIST = new ArrayList<>();
+	private static final List<PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object>> COMMON_FIELD_HANDLER_LIST = new ArrayList<>();
 	static {
-		COMMON_FIELD_HANDLER_LIST.add(GEOM_FIELD_HANDLER);
-		NATIVE_FIELD_HANDLER_LIST.add(ID_FIELD_HANDLER);
-		NATIVE_FIELD_HANDLER_LIST.add(GROUP_ID_FIELD_HANDLER);
+		COMMON_FIELD_HANDLER_LIST
+				.add(
+						GEOM_FIELD_HANDLER);
+		NATIVE_FIELD_HANDLER_LIST
+				.add(
+						ID_FIELD_HANDLER);
+		NATIVE_FIELD_HANDLER_LIST
+				.add(
+						GROUP_ID_FIELD_HANDLER);
 	}
 
 	public TestObjectDataAdapter() {
@@ -126,15 +130,8 @@ public class TestObjectDataAdapter extends
 	}
 
 	@Override
-	public ByteArrayId getAdapterId() {
-		return new ByteArrayId(
-				"test");
-	}
-
-	@Override
-	public boolean isSupported(
-			final TestObject entry ) {
-		return true;
+	public String getTypeName() {
+		return "test";
 	}
 
 	@Override
@@ -146,30 +143,54 @@ public class TestObjectDataAdapter extends
 
 	@Override
 	public FieldReader getReader(
-			final ByteArrayId fieldId ) {
-		if (fieldId.equals(GEOM)) {
-			return FieldUtils.getDefaultReaderForClass(Geometry.class);
+			final String fieldId ) {
+		if (fieldId
+				.equals(
+						GEOM)) {
+			return FieldUtils
+					.getDefaultReaderForClass(
+							Geometry.class);
 		}
-		else if (fieldId.equals(ID)) {
-			return FieldUtils.getDefaultReaderForClass(String.class);
+		else if (fieldId
+				.equals(
+						ID)) {
+			return FieldUtils
+					.getDefaultReaderForClass(
+							String.class);
 		}
-		else if (fieldId.equals(GROUP_ID)) {
-			return FieldUtils.getDefaultReaderForClass(String.class);
+		else if (fieldId
+				.equals(
+						GROUP_ID)) {
+			return FieldUtils
+					.getDefaultReaderForClass(
+							String.class);
 		}
 		return null;
 	}
 
 	@Override
 	public FieldWriter getWriter(
-			final ByteArrayId fieldId ) {
-		if (fieldId.equals(GEOM)) {
-			return FieldUtils.getDefaultWriterForClass(Geometry.class);
+			final String fieldId ) {
+		if (fieldId
+				.equals(
+						GEOM)) {
+			return FieldUtils
+					.getDefaultWriterForClass(
+							Geometry.class);
 		}
-		else if (fieldId.equals(ID)) {
-			return FieldUtils.getDefaultWriterForClass(String.class);
+		else if (fieldId
+				.equals(
+						ID)) {
+			return FieldUtils
+					.getDefaultWriterForClass(
+							String.class);
 		}
-		else if (fieldId.equals(GROUP_ID)) {
-			return FieldUtils.getDefaultWriterForClass(String.class);
+		else if (fieldId
+				.equals(
+						GROUP_ID)) {
+			return FieldUtils
+					.getDefaultWriterForClass(
+							String.class);
 		}
 		return null;
 	}
@@ -183,30 +204,48 @@ public class TestObjectDataAdapter extends
 
 			@Override
 			public void setField(
-					ByteArrayId id,
-					Object fieldValue ) {
-				if (id.equals(GEOM)) {
+					final String id,
+					final Object fieldValue ) {
+				if (id
+						.equals(
+								GEOM)) {
 					geom = (Geometry) fieldValue;
 				}
-				else if (id.equals(ID)) {
+				else if (id
+						.equals(
+								ID)) {
 					this.id = (String) fieldValue;
 				}
-				else if (id.equals(GROUP_ID)) {
+				else if (id
+						.equals(
+								GROUP_ID)) {
 					groupID = (String) fieldValue;
 				}
 			}
 
 			@Override
 			public void setFields(
-					Map<ByteArrayId, Object> values ) {
-				if (values.containsKey(GEOM)) {
-					geom = (Geometry) values.get(GEOM);
+					final Map<String, Object> values ) {
+				if (values
+						.containsKey(
+								GEOM)) {
+					geom = (Geometry) values
+							.get(
+									GEOM);
 				}
-				if (values.containsKey(ID)) {
-					this.id = (String) values.get(ID);
+				if (values
+						.containsKey(
+								ID)) {
+					id = (String) values
+							.get(
+									ID);
 				}
-				if (values.containsKey(GROUP_ID)) {
-					groupID = (String) values.get(GROUP_ID);
+				if (values
+						.containsKey(
+								GROUP_ID)) {
+					groupID = (String) values
+							.get(
+									GROUP_ID);
 				}
 			}
 
@@ -248,41 +287,49 @@ public class TestObjectDataAdapter extends
 	@Override
 	public int getPositionOfOrderedField(
 			final CommonIndexModel model,
-			final ByteArrayId fieldId ) {
+			final String fieldId ) {
 		int i = 0;
 		for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-			if (fieldId.equals(dimensionField.getFieldId())) {
+			if (fieldId
+					.equals(
+							dimensionField.getFieldName())) {
 				return i;
 			}
 			i++;
 		}
-		if (fieldId.equals(GEOM)) {
+		if (fieldId
+				.equals(
+						GEOM)) {
 			return i;
 		}
-		else if (fieldId.equals(ID)) {
+		else if (fieldId
+				.equals(
+						ID)) {
 			return i + 1;
 		}
-		else if (fieldId.equals(GROUP_ID)) {
+		else if (fieldId
+				.equals(
+						GROUP_ID)) {
 			return i + 2;
 		}
 		return -1;
 	}
 
 	@Override
-	public ByteArrayId getFieldIdForPosition(
+	public String getFieldNameForPosition(
 			final CommonIndexModel model,
 			final int position ) {
 		if (position < model.getDimensions().length) {
 			int i = 0;
 			for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
 				if (i == position) {
-					return dimensionField.getFieldId();
+					return dimensionField.getFieldName();
 				}
 				i++;
 			}
 		}
 		else {
-			int numDimensions = model.getDimensions().length;
+			final int numDimensions = model.getDimensions().length;
 			if (position == numDimensions) {
 				return GEOM;
 			}
@@ -294,12 +341,5 @@ public class TestObjectDataAdapter extends
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public void init(
-			Index... indices ) {
-		// TODO Auto-generated method stub
-
 	}
 }

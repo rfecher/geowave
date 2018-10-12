@@ -8,7 +8,7 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.adapter.raster.adapter;
+package org.locationtech.geowave.core.store.util;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -63,14 +63,6 @@ public class CalendarSerializationProvider implements
 			buf.putLong(TimeUtils.calendarToGMTMillis(cal));
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Calendar fieldValue ) {
-			return new byte[] {};
-		}
 	}
 
 }

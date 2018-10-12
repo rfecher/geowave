@@ -23,7 +23,7 @@ public class CustomCRSSpatialField extends
 			final CustomCRSSpatialDimension baseDefinition ) {
 		this(
 				baseDefinition,
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME);
+				GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME);
 	}
 
 	public CustomCRSSpatialField(

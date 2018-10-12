@@ -3,6 +3,7 @@ package org.locationtech.geowave.core.store.query;
 import org.locationtech.geowave.core.store.api.QueryConstraintsFactory;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraintsFactoryImpl;
+import org.locationtech.geowave.core.store.query.options.CommonQueryOptions.HintKey;
 
 public interface BaseQueryBuilder<T, Q extends BaseQuery<T, ?>, R extends BaseQueryBuilder<T, Q, R>>
 {
@@ -19,22 +20,16 @@ public interface BaseQueryBuilder<T, Q extends BaseQuery<T, ?>, R extends BaseQu
 
 	R noAuthorizations();
 
-	R subsampling(
-			double[] maxResolutionPerDimension );
-
-	R noSubsampling();
-
 	R noLimit();
 
 	R limit(
 			int limit );
 
-	R maxRanges(
-			int maxRangeDecomposition );
+	<HintValueType> R addHint(
+			HintKey<HintValueType> key,
+			HintValueType value );
 
-	R noMaxRanges();
-
-	R defaultMaxRanges();
+	R noHints();
 
 	R constraints(
 			QueryConstraints constraints );

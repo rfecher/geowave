@@ -59,13 +59,5 @@ public class IntegerSerializationProvider implements
 			buf.putInt(fieldValue);
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Integer fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

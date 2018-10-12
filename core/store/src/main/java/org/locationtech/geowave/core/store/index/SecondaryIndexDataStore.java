@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -13,7 +13,6 @@ package org.locationtech.geowave.core.store.index;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
@@ -26,7 +25,7 @@ public interface SecondaryIndexDataStore
 {
 	/**
 	 * Set the reference to the primary data store
-	 * 
+	 *
 	 * @param dataStore
 	 */
 	public void setDataStore(
@@ -35,7 +34,7 @@ public interface SecondaryIndexDataStore
 	/**
 	 * Stores a secondary index entry that will require a join against the
 	 * primary index upon lookup.
-	 * 
+	 *
 	 * @param secondaryIndexName
 	 * @param indexedAttributeValue
 	 * @param typeName
@@ -58,7 +57,7 @@ public interface SecondaryIndexDataStore
 	/**
 	 * Stores a secondary index entry that will not require a join against the
 	 * primary index upon lookup.
-	 * 
+	 *
 	 * @param secondaryIndexName
 	 * @param indexedAttributeValue
 	 * @param adapterId
@@ -76,7 +75,7 @@ public interface SecondaryIndexDataStore
 
 	/**
 	 * Execute a query against the given secondary index
-	 * 
+	 *
 	 * @param secondaryIndex
 	 * @param indexedAttributeFieldId
 	 * @param adapter
@@ -87,7 +86,7 @@ public interface SecondaryIndexDataStore
 	 */
 	public <T> CloseableIterator<T> query(
 			final SecondaryIndexImpl<T> secondaryIndex,
-			final ByteArrayId indexedAttributeFieldId,
+			final String indexedAttributeFieldName,
 			final InternalDataAdapter<T> adapter,
 			final Index primaryIndex,
 			final DistributableQueryConstraints query,

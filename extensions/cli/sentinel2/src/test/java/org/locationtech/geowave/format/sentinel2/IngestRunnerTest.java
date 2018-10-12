@@ -27,11 +27,10 @@ import org.locationtech.geowave.core.cli.parser.ManualOperationParams;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.GeoWaveStoreFinder;
 import org.locationtech.geowave.core.store.api.DataStore;
-import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.StoreLoader;
 import org.locationtech.geowave.core.store.memory.MemoryStoreFactoryFamily;
-import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
 import org.locationtech.geowave.format.sentinel2.IngestRunner;
 import org.locationtech.geowave.format.sentinel2.Sentinel2BasicCommandLineOptions;
 import org.locationtech.geowave.format.sentinel2.Sentinel2DownloadCommandLineOptions;
@@ -143,9 +142,7 @@ public class IngestRunnerTest
 		runner.runInternal(params);
 
 		try (CloseableIterator<Object> results = getStore(
-				params).query(
-				new QueryOptions(),
-				new EverythingQuery())) {
+				params).query(QueryBuilder.newBuilder().build())) {
 			assertTrue(
 					"Store is not empty",
 					results.hasNext());

@@ -12,7 +12,6 @@ package org.locationtech.geowave.core.geotime.store.dimension;
 
 import java.nio.ByteBuffer;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.dimension.NumericDimensionDefinition;
 import org.locationtech.geowave.core.index.dimension.bin.BinRange;
@@ -31,18 +30,20 @@ abstract public class SpatialField implements
 		NumericDimensionField<GeometryWrapper>
 {
 	protected NumericDimensionDefinition baseDefinition;
-	private final GeometryAdapter geometryAdapter;
+	private final GeometryWrapperReader geometryReader;
+	private final GeometryWrapperWriter geometryWriter;
 	private String fieldName;
 
 	protected SpatialField() {
-		geometryAdapter = new GeometryAdapter();
+		geometryReader = new GeometryWrapperReader();
+		geometryWriter = new GeometryWrapperWriter();
 	}
 
 	public SpatialField(
 			final NumericDimensionDefinition baseDefinition ) {
 		this(
 				baseDefinition,
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME);
+				GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME);
 	}
 
 	@Override
@@ -55,7 +56,8 @@ abstract public class SpatialField implements
 			final String fieldName ) {
 		this.baseDefinition = baseDefinition;
 		this.fieldName = fieldName;
-		geometryAdapter = new GeometryAdapter();
+		geometryReader = new GeometryWrapperReader();
+		geometryWriter = new GeometryWrapperWriter();
 	}
 
 	@Override
@@ -112,12 +114,12 @@ abstract public class SpatialField implements
 
 	@Override
 	public FieldWriter<?, GeometryWrapper> getWriter() {
-		return geometryAdapter;
+		return geometryWriter;
 	}
 
 	@Override
 	public FieldReader<GeometryWrapper> getReader() {
-		return geometryAdapter;
+		return geometryReader;
 	}
 
 	@Override

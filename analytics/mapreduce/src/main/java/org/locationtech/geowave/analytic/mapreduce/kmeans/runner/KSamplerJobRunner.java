@@ -97,10 +97,10 @@ public class KSamplerJobRunner extends
 		final PersistentAdapterStore adapterStore = super.getAdapterStore(runTimeProperties);
 
 		final InternalAdapterStore internalAdapterStore = getInternalAdapterStore(runTimeProperties);
-		Short sampleInternalAdapterId = internalAdapterStore.getInternalAdapterId(new ByteArrayId(
+		Short sampleInternalAdapterId = internalAdapterStore.getAdapterId(
 				runTimeProperties.getPropertyAsString(
-						SampleParameters.Sample.DATA_TYPE_ID,
-						"sample")));
+						SampleParameters.Sample.DATA_TYPE_NAME,
+						"sample"));
 		if (sampleInternalAdapterId == null) {
 			return null;
 		}
@@ -112,10 +112,10 @@ public class KSamplerJobRunner extends
 			throws Exception {
 		final IndexStore indexStore = super.getIndexStore(runTimeProperties);
 
-		return (Index) indexStore.getIndex(new ByteArrayId(
+		return (Index) indexStore.getIndex(
 				runTimeProperties.getPropertyAsString(
-						SampleParameters.Sample.INDEX_ID,
-						"index")));
+						SampleParameters.Sample.INDEX_NAME,
+						"index"));
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class KSamplerJobRunner extends
 				UUID.randomUUID().toString());
 
 		runTimeProperties.storeIfEmpty(
-				SampleParameters.Sample.DATA_TYPE_ID,
+				SampleParameters.Sample.DATA_TYPE_NAME,
 				"sample");
 
 		runTimeProperties.store(
@@ -137,15 +137,15 @@ public class KSamplerJobRunner extends
 				zoomLevel);
 
 		runTimeProperties.storeIfEmpty(
-				SampleParameters.Sample.INDEX_ID,
+				SampleParameters.Sample.INDEX_NAME,
 				new SpatialTemporalDimensionalityTypeProvider().createIndex(
-						new SpatialTemporalOptions()).getId());
+						new SpatialTemporalOptions()).getName());
 		runTimeProperties.setConfig(
 				new ParameterEnum[] {
 					GlobalParameters.Global.BATCH_ID,
-					SampleParameters.Sample.INDEX_ID,
+					SampleParameters.Sample.INDEX_NAME,
 					SampleParameters.Sample.SAMPLE_SIZE,
-					SampleParameters.Sample.DATA_TYPE_ID,
+					SampleParameters.Sample.DATA_TYPE_NAME,
 					CentroidParameters.Centroid.EXTRACTOR_CLASS,
 					CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
 					CentroidParameters.Centroid.ZOOM_LEVEL

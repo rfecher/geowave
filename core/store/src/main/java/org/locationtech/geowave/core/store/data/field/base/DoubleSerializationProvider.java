@@ -57,13 +57,5 @@ public class DoubleSerializationProvider implements
 			buf.putDouble(fieldValue);
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Double fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

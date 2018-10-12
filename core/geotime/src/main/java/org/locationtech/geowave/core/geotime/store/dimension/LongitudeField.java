@@ -25,7 +25,7 @@ public class LongitudeField extends
 {
 	public LongitudeField() {
 		this(
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME);
+				GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME);
 	}
 
 	public LongitudeField(

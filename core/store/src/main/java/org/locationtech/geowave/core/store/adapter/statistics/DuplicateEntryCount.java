@@ -144,8 +144,8 @@ public class DuplicateEntryCount<T> extends
 			final DuplicateEntryCount adapterVisibilityCount = (DuplicateEntryCount) statisticsStore
 					.getDataStatistics(
 							adapterId,
-							STATS_TYPE,
 							index.getName(),
+							STATS_TYPE,
 							authorizations);
 			if (combinedDuplicateCount == null) {
 				combinedDuplicateCount = adapterVisibilityCount;

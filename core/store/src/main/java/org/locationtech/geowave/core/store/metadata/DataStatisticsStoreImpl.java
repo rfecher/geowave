@@ -358,8 +358,8 @@ public class DataStatisticsStoreImpl extends
 	@Override
 	public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
 			final short adapterId,
-			final StatisticsType<?, ?> statisticsType,
 			final String extendedId,
+			final StatisticsType<?, ?> statisticsType,
 			final String... authorizations ) {
 		return internalGetDataStatistics(
 				adapterId,
@@ -372,8 +372,8 @@ public class DataStatisticsStoreImpl extends
 	@Override
 	public boolean removeStatistics(
 			final short adapterId,
-			final StatisticsType<?, ?> statisticsType,
 			final String extendedId,
+			final StatisticsType<?, ?> statisticsType,
 			final String... authorizations ) {
 		return deleteObject(
 				getPrimaryId(
@@ -396,8 +396,8 @@ public class DataStatisticsStoreImpl extends
 
 	@Override
 	public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
-			final StatisticsType<?, ?> statisticsType,
 			final String extendedIdPrefix,
+			final StatisticsType<?, ?> statisticsType,
 			final String... authorizations ) {
 		return internalGetDataStatistics(
 				null,

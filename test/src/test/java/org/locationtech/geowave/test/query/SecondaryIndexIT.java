@@ -941,7 +941,7 @@ public class SecondaryIndexIT
 		for (final Entry<Key, Value> entry : scanner) {
 			numResults += 1;
 			final byte[] cq = entry.getKey().getColumnQualifierData().getBackingArray();
-			final ByteArrayId fieldId = SecondaryIndexUtils.getFieldId(cq);
+			final ByteArrayId fieldId = SecondaryIndexUtils.getFieldName(cq);
 			Assert.assertTrue(fieldId.equals(GEOMETRY_FIELD_ID));
 			final String dataId = SecondaryIndexUtils.getDataId(entry
 					.getKey()
@@ -1011,7 +1011,7 @@ public class SecondaryIndexIT
 		for (final Entry<Key, Value> entry : scanner) {
 			numResults += 1;
 			final byte[] cq = entry.getKey().getColumnQualifierData().getBackingArray();
-			final ByteArrayId fieldId = SecondaryIndexUtils.getFieldId(cq);
+			final ByteArrayId fieldId = SecondaryIndexUtils.getFieldName(cq);
 			Assert.assertTrue(fieldId.equals(GEOMETRY_FIELD_ID));
 			final String dataId = SecondaryIndexUtils.getDataId(cq);
 			Assert.assertTrue(dataId.equals(allDataIds.get(1)));
@@ -1077,7 +1077,7 @@ public class SecondaryIndexIT
 		for (final Entry<Key, Value> entry : scanner) {
 			numResults += 1;
 			final byte[] cq = entry.getKey().getColumnQualifierData().getBackingArray();
-			final ByteArrayId fieldId = SecondaryIndexUtils.getFieldId(cq);
+			final ByteArrayId fieldId = SecondaryIndexUtils.getFieldName(cq);
 			Assert.assertTrue(fieldId.equals(GEOMETRY_FIELD_ID));
 			final String dataId = SecondaryIndexUtils.getDataId(cq);
 			Assert.assertTrue(dataId.equals(allDataIds.get(1)));

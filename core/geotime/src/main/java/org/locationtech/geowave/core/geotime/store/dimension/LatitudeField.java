@@ -25,14 +25,14 @@ public class LatitudeField extends
 {
 	public LatitudeField() {
 		this(
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME);
+				GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME);
 	}
 
 	public LatitudeField(
 			final boolean useHalfRange ) {
 		this(
 				useHalfRange,
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME);
+				GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME);
 	}
 
 	public LatitudeField(

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -52,18 +52,23 @@ class BaseRowPrefixQuery<T> extends
 				sortKeyPrefix,
 				sortKeyPrefix,
 				false);
-		final List<SinglePartitionQueryRanges> ranges = new ArrayList<SinglePartitionQueryRanges>();
-		final Collection<ByteArrayRange> sortKeys = Collections.singleton(sortKeyPrefixRange);
-		ranges.add(new SinglePartitionQueryRanges(
-				partitionKey,
-				sortKeys));
+		final List<SinglePartitionQueryRanges> ranges = new ArrayList<>();
+		final Collection<ByteArrayRange> sortKeys = Collections
+				.singleton(
+						sortKeyPrefixRange);
+		ranges
+				.add(
+						new SinglePartitionQueryRanges(
+								partitionKey,
+								sortKeys));
 		queryRanges = new QueryRanges(
 				ranges);
 	}
 
 	@Override
 	protected QueryRanges getRanges(
-			int maxRangeDecomposition ) {
+			final int maxRangeDecomposition,
+			final double[] targetResolutionPerDimensionForHierarchicalIndex ) {
 		return queryRanges;
 	}
 

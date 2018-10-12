@@ -104,8 +104,8 @@ public class DateUtilities
 			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt = statisticsStore
 					.getDataStatistics(
 							adapterId,
-							query.getStatsType(),
 							query.getExtendedId(),
+							query.getStatsType(),
 							new String[0])) {
 				if (timeStatIt.hasNext()) {
 					final InternalDataStatistics<?, ?, ?> timeStat = timeStatIt.next();
@@ -125,8 +125,8 @@ public class DateUtilities
 			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt = statisticsStore
 					.getDataStatistics(
 							adapterId,
-							query.getStatsType(),
 							query.getExtendedId(),
+							query.getStatsType(),
 							new String[0])) {
 				if (timeStatIt.hasNext()) {
 					final InternalDataStatistics<?, ?, ?> timeStat = timeStatIt.next();
@@ -156,8 +156,8 @@ public class DateUtilities
 			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt = statisticsStore
 					.getDataStatistics(
 							adapterId,
-							query.getStatsType(),
 							query.getExtendedId(),
+							query.getStatsType(),
 							new String[0])) {
 				if (timeStatIt.hasNext()) {
 					final InternalDataStatistics<?, ?, ?> timeStat = timeStatIt.next();

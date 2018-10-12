@@ -36,8 +36,8 @@ import org.locationtech.geowave.datastore.hbase.server.RowMergingServerOp;
 import org.locationtech.geowave.datastore.hbase.server.RowMergingVisibilityServerOp;
 import org.locationtech.geowave.mapreduce.BaseMapReduceDataStore;
 
-public class HBaseDataStore<T> extends
-		BaseMapReduceDataStore<T>
+public class HBaseDataStore extends
+		BaseMapReduceDataStore
 {
 	public HBaseDataStore(
 			final HBaseOperations operations,

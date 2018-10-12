@@ -61,14 +61,6 @@ public class LongSerializationProvider implements
 			buf.putLong(fieldValue);
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Long fieldValue ) {
-			return new byte[] {};
-		}
 	}
 
 }

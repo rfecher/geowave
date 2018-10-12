@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,8 +11,6 @@
 package org.locationtech.geowave.analytic.mapreduce.kmeans;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -30,7 +28,6 @@ import org.locationtech.geowave.analytic.kmeans.AssociationNotification;
 import org.locationtech.geowave.analytic.mapreduce.CountofDoubleWritable;
 import org.locationtech.geowave.analytic.mapreduce.GroupIDText;
 import org.locationtech.geowave.analytic.param.CentroidParameters;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.mapreduce.GeoWaveWritableInputMapper;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 import org.locationtech.geowave.mapreduce.output.GeoWaveOutputKey;
@@ -40,31 +37,33 @@ import org.slf4j.LoggerFactory;
 /**
  * Update the SINGLE cost of the clustering as a measure of distance from all
  * points to their closest center.
- * 
+ *
  * As an FYI: During the clustering algorithm, the cost should be monotonic
  * decreasing.
- * 
+ *
  * @formatter:off
- * 
+ *
  *                Context configuration parameters include:
- * 
+ *
  *                "UpdateCentroidCostMapReduce.Common.DistanceFunctionClass" ->
  *                Used to determine distance to centroid
- * 
+ *
  *                "UpdateCentroidCostMapReduce.Centroid.WrapperFactoryClass" ->
  *                {@link AnalyticItemWrapperFactory} to extract wrap spatial
  *                objects with Centroid management functions
- * 
+ *
  * @see CentroidManagerGeoWave
- * 
+ *
  * @formatter:on
- * 
+ *
  */
 
 public class UpdateCentroidCostMapReduce
 {
 
-	protected static final Logger LOGGER = LoggerFactory.getLogger(UpdateCentroidCostMapReduce.class);
+	protected static final Logger LOGGER = LoggerFactory
+			.getLogger(
+					UpdateCentroidCostMapReduce.class);
 
 	public static class UpdateCentroidCostMap extends
 			GeoWaveWritableInputMapper<GroupIDText, CountofDoubleWritable>
@@ -78,9 +77,10 @@ public class UpdateCentroidCostMapReduce
 			@Override
 			public void notify(
 					final CentroidPairing<Object> pairing ) {
-				outputWritable.set(
-						pairing.getCentroid().getGroupID(),
-						pairing.getCentroid().getID());
+				outputWritable
+						.set(
+								pairing.getCentroid().getGroupID(),
+								pairing.getCentroid().getID());
 			}
 		};
 
@@ -91,16 +91,21 @@ public class UpdateCentroidCostMapReduce
 				final Mapper<GeoWaveInputKey, ObjectWritable, GroupIDText, CountofDoubleWritable>.Context context )
 				throws IOException,
 				InterruptedException {
-			final AnalyticItemWrapper<Object> wrappedItem = itemWrapperFactory.create(value);
-			dw.set(
-					nestedGroupCentroidAssigner.findCentroidForLevel(
-							wrappedItem,
-							centroidAssociationFn),
-					1.0);
+			final AnalyticItemWrapper<Object> wrappedItem = itemWrapperFactory
+					.create(
+							value);
+			dw
+					.set(
+							nestedGroupCentroidAssigner
+									.findCentroidForLevel(
+											wrappedItem,
+											centroidAssociationFn),
+							1.0);
 
-			context.write(
-					outputWritable,
-					dw);
+			context
+					.write(
+							outputWritable,
+							dw);
 		}
 
 		@Override
@@ -108,7 +113,8 @@ public class UpdateCentroidCostMapReduce
 				final Mapper<GeoWaveInputKey, ObjectWritable, GroupIDText, CountofDoubleWritable>.Context context )
 				throws IOException,
 				InterruptedException {
-			super.setup(context);
+			super.setup(
+					context);
 
 			final ScopedJobConfiguration config = new ScopedJobConfiguration(
 					context.getConfiguration(),
@@ -116,7 +122,7 @@ public class UpdateCentroidCostMapReduce
 					UpdateCentroidCostMapReduce.LOGGER);
 
 			try {
-				nestedGroupCentroidAssigner = new NestedGroupCentroidAssignment<Object>(
+				nestedGroupCentroidAssigner = new NestedGroupCentroidAssignment<>(
 						context,
 						UpdateCentroidCostMapReduce.class,
 						UpdateCentroidCostMapReduce.LOGGER);
@@ -128,15 +134,17 @@ public class UpdateCentroidCostMapReduce
 			}
 
 			try {
-				itemWrapperFactory = config.getInstance(
-						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-						AnalyticItemWrapperFactory.class,
-						SimpleFeatureItemWrapperFactory.class);
+				itemWrapperFactory = config
+						.getInstance(
+								CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+								AnalyticItemWrapperFactory.class,
+								SimpleFeatureItemWrapperFactory.class);
 
-				itemWrapperFactory.initialize(
-						context,
-						UpdateCentroidCostMapReduce.class,
-						UpdateCentroidCostMapReduce.LOGGER);
+				itemWrapperFactory
+						.initialize(
+								context,
+								UpdateCentroidCostMapReduce.class,
+								UpdateCentroidCostMapReduce.LOGGER);
 			}
 			catch (final Exception e1) {
 				throw new IOException(
@@ -164,12 +172,14 @@ public class UpdateCentroidCostMapReduce
 				expectation += value.getValue();
 				ptCount += value.getCount();
 			}
-			outputValue.set(
-					expectation,
-					ptCount);
-			context.write(
-					key,
-					outputValue);
+			outputValue
+					.set(
+							expectation,
+							ptCount);
+			context
+					.write(
+							key,
+							outputValue);
 		}
 	}
 
@@ -178,7 +188,7 @@ public class UpdateCentroidCostMapReduce
 	{
 
 		private CentroidManager<Object> centroidManager;
-		private List<ByteArrayId> indexIds;
+		private String[] indexNames;
 
 		@Override
 		protected void reduce(
@@ -205,22 +215,30 @@ public class UpdateCentroidCostMapReduce
 						groupID);
 			}
 			catch (final MatchingCentroidNotFoundException e) {
-				LOGGER.error(
-						"Unable to get centroid " + id + " for group " + groupID,
-						e);
+				LOGGER
+						.error(
+								"Unable to get centroid " + id + " for group " + groupID,
+								e);
 				return;
 			}
 
-			centroid.setCost(sum);
+			centroid
+					.setCost(
+							sum);
 			centroid.resetAssociatonCount();
-			centroid.incrementAssociationCount((long) count);
+			centroid
+					.incrementAssociationCount(
+							(long) count);
 
-			UpdateCentroidCostMapReduce.LOGGER.info("Update centroid " + centroid.toString());
-			context.write(
-					new GeoWaveOutputKey(
-							centroidManager.getDataTypeId(),
-							indexIds),
-					centroid.getWrappedItem());
+			UpdateCentroidCostMapReduce.LOGGER
+					.info(
+							"Update centroid " + centroid.toString());
+			context
+					.write(
+							new GeoWaveOutputKey(
+									centroidManager.getDataTypeName(),
+									indexNames),
+							centroid.getWrappedItem());
 		}
 
 		private AnalyticItemWrapper<Object> getFeatureForCentroid(
@@ -228,9 +246,10 @@ public class UpdateCentroidCostMapReduce
 				final String groupID )
 				throws IOException,
 				MatchingCentroidNotFoundException {
-			return centroidManager.getCentroidById(
-					id,
-					groupID);
+			return centroidManager
+					.getCentroidById(
+							id,
+							groupID);
 		}
 
 		@Override
@@ -238,21 +257,24 @@ public class UpdateCentroidCostMapReduce
 				final Reducer<GroupIDText, CountofDoubleWritable, GeoWaveOutputKey, Object>.Context context )
 				throws IOException,
 				InterruptedException {
-			super.setup(context);
+			super.setup(
+					context);
 
 			try {
-				centroidManager = new CentroidManagerGeoWave<Object>(
+				centroidManager = new CentroidManagerGeoWave<>(
 
 						context,
 						UpdateCentroidCostMapReduce.class,
 						UpdateCentroidCostMapReduce.LOGGER);
-				indexIds = new ArrayList<ByteArrayId>();
-				indexIds.add(centroidManager.getIndexId());
+				indexNames = new String[] {
+					centroidManager.getIndexName()
+				};
 			}
 			catch (final Exception e) {
-				UpdateCentroidCostMapReduce.LOGGER.warn(
-						"Unable to initialize centroid manager",
-						e);
+				UpdateCentroidCostMapReduce.LOGGER
+						.warn(
+								"Unable to initialize centroid manager",
+								e);
 				throw new IOException(
 						"Unable to initialize centroid manager");
 			}

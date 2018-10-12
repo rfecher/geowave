@@ -56,14 +56,6 @@ public class FloatSerializationProvider implements
 			buf.putFloat(fieldValue);
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Float fieldValue ) {
-			return new byte[] {};
-		}
 	}
 
 }

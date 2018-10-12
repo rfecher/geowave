@@ -1,6 +1,5 @@
 package org.locationtech.geowave.core.geotime.store.query.aggregate;
 
-import org.locationtech.geowave.core.geotime.store.dimension.GeometryAdapter;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.data.CommonIndexedPersistenceEncoding;
@@ -20,7 +19,7 @@ public class CommonIndexBoundingBoxAggregation<P extends Persistable> extends
 		final CommonIndexValue v = entry
 				.getCommonData()
 				.getValue(
-						GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME);
+						GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME);
 		if ((v != null) && (v instanceof GeometryWrapper)) {
 			return ((GeometryWrapper) v).getGeometry().getEnvelopeInternal();
 		}

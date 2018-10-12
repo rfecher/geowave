@@ -55,13 +55,5 @@ public class PrimitiveByteArraySerializationProvider implements
 			}
 			return fieldValue;
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final byte[] fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

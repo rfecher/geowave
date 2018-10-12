@@ -161,7 +161,7 @@ public class AggregationIterator extends
 			}
 		}
 		else if (((Short) (persistenceEncoding.getInternalAdapterId()))
-				.equals((Short) (adapter.getInternalAdapterId()))) {
+				.equals((Short) (adapter.getAdapterId()))) {
 			final PersistentDataset<Object> adapterExtendedValues = new PersistentDataset<Object>();
 			if (persistenceEncoding instanceof AbstractAdapterPersistenceEncoding) {
 				((AbstractAdapterPersistenceEncoding) persistenceEncoding).convertUnknownValues(
@@ -310,12 +310,11 @@ public class AggregationIterator extends
 
 	protected Value getTopStatValue() {
 		if (hasTopStat()) {
-			final Mergeable result = aggregationFunction.getResult();
+			final Object result = aggregationFunction.getResult();
 			if (result == null) {
 				return null;
 			}
-			return new Value(
-					PersistenceUtils.toBinary(result));
+			return new Value(aggregationFunction.resultToBinary(result));
 		}
 		return null;
 	}

@@ -44,14 +44,6 @@ public class ByteSerializationProvider implements
 			FieldWriter<Object, Byte>
 	{
 		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Byte fieldValue ) {
-			return new byte[] {};
-		}
-
-		@Override
 		public byte[] writeField(
 				final Byte fieldValue ) {
 			if (fieldValue == null) {

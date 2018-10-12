@@ -64,14 +64,6 @@ public class PrimitiveShortArraySerializationProvider implements
 			}
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final short[] fieldValue ) {
-			return new byte[] {};
-		}
 	}
 
 }

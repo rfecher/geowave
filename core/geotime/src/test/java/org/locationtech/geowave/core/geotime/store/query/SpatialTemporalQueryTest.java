@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -20,17 +20,14 @@ import org.junit.Test;
 import org.locationtech.geowave.core.geotime.index.dimension.TemporalBinningStrategy.Unit;
 import org.locationtech.geowave.core.geotime.ingest.SpatialTemporalDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialTemporalOptions;
-import org.locationtech.geowave.core.geotime.store.dimension.GeometryAdapter;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
-import org.locationtech.geowave.core.geotime.store.dimension.TimeField;
 import org.locationtech.geowave.core.geotime.store.dimension.Time.TimeRange;
+import org.locationtech.geowave.core.geotime.store.dimension.TimeField;
 import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter.CompareOperation;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.data.CommonIndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
-import org.locationtech.geowave.core.store.data.PersistentValue;
-import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
@@ -78,10 +75,10 @@ public class SpatialTemporalQueryTest
 			final Date end,
 			final Coordinate[] coordinates ) {
 		final GeometryFactory factory = new GeometryFactory();
-		final PersistentDataset<CommonIndexValue> commonData = new PersistentDataset<CommonIndexValue>();
+		final PersistentDataset<CommonIndexValue> commonData = new PersistentDataset<>();
 
 		commonData.addValue(
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME,
+				GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME,
 				new GeometryWrapper(
 						factory.createLineString(coordinates)));
 		commonData.addValue(

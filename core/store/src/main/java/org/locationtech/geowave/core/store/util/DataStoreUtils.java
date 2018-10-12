@@ -13,6 +13,7 @@ package org.locationtech.geowave.core.store.util;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,10 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayRange;
+import org.locationtech.geowave.core.index.HierarchicalNumericIndexStrategy;
+import org.locationtech.geowave.core.index.HierarchicalNumericIndexStrategy.SubStrategy;
 import org.locationtech.geowave.core.index.IndexMetaData;
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
@@ -58,6 +62,7 @@ import org.locationtech.geowave.core.store.flatten.FlattenedUnreadData;
 import org.locationtech.geowave.core.store.flatten.FlattenedUnreadDataSingleRow;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
+import org.locationtech.geowave.core.store.query.options.CommonQueryOptions.HintKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +76,12 @@ public class DataStoreUtils
 			.getLogger(
 					DataStoreUtils.class);
 
+	public static HintKey<double[]> MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION = new HintKey<>(
+			double[].class);
+	public static HintKey<Integer> MAX_RANGE_DECOMPOSITION = new HintKey<>(
+			Integer.class);
+	public static HintKey<double[]> TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX = new HintKey<>(
+			double[].class);
 	// we append a 0 byte, 8 bytes of timestamp, and 16 bytes of UUID
 	public final static int UNIQUE_ADDED_BYTES = 1 + 8 + 16;
 	public final static byte UNIQUE_ID_DELIMITER = 0;
@@ -354,10 +365,70 @@ public class DataStoreUtils
 
 	public static QueryRanges constraintsToQueryRanges(
 			final List<MultiDimensionalNumericData> constraints,
-			final NumericIndexStrategy indexStrategy,
+			NumericIndexStrategy indexStrategy,
+			final double[] targetResolutionPerDimensionForHierarchicalIndex,
 			final int maxRanges,
 			final IndexMetaData... hints ) {
+		SubStrategy targetIndexStrategy = null;
+		if ((targetResolutionPerDimensionForHierarchicalIndex != null)
+				&& (targetResolutionPerDimensionForHierarchicalIndex.length == indexStrategy
+						.getOrderedDimensionDefinitions().length)) {
+			// determine the correct tier to query for the given resolution
+			final HierarchicalNumericIndexStrategy strategy = CompoundHierarchicalIndexStrategyWrapper
+					.findHierarchicalStrategy(
+							indexStrategy);
+			if (strategy != null) {
+				final TreeMap<Double, SubStrategy> sortedStrategies = new TreeMap<>();
+				for (final SubStrategy subStrategy : strategy.getSubStrategies()) {
+					final double[] idRangePerDimension = subStrategy
+							.getIndexStrategy()
+							.getHighestPrecisionIdRangePerDimension();
+					double rangeSum = 0;
+					for (final double range : idRangePerDimension) {
+						rangeSum += range;
+					}
+					// sort by the sum of the range in each dimension
+					sortedStrategies
+							.put(
+									rangeSum,
+									subStrategy);
+				}
+				for (final SubStrategy subStrategy : sortedStrategies.descendingMap().values()) {
+					final double[] highestPrecisionIdRangePerDimension = subStrategy
+							.getIndexStrategy()
+							.getHighestPrecisionIdRangePerDimension();
+					// if the id range is less than or equal to the target
+					// resolution in each dimension, use this substrategy
+					boolean withinTargetResolution = true;
+					for (int d = 0; d < highestPrecisionIdRangePerDimension.length; d++) {
+						if (highestPrecisionIdRangePerDimension[d] > targetResolutionPerDimensionForHierarchicalIndex[d]) {
+							withinTargetResolution = false;
+							break;
+						}
+					}
+					if (withinTargetResolution) {
+						targetIndexStrategy = subStrategy;
+						break;
+					}
+				}
+				if (targetIndexStrategy == null) {
+					// if there is not a substrategy that is within the target
+					// resolution, use the first substrategy (the lowest range
+					// per dimension, which is the highest precision)
+					targetIndexStrategy = sortedStrategies.firstEntry().getValue();
+				}
+				indexStrategy = targetIndexStrategy.getIndexStrategy();
+			}
+		}
 		if ((constraints == null) || constraints.isEmpty()) {
+			if (targetIndexStrategy != null) {
+				// at least use the prefix of a substrategy if chosen
+				return new QueryRanges(
+						Collections
+								.singleton(
+										new ByteArrayId(
+												targetIndexStrategy.getPrefix())));
+			}
 			return new QueryRanges(); // implies in negative and
 			// positive infinity
 		}

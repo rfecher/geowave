@@ -50,14 +50,6 @@ public class BooleanSerializationProvider implements
 			FieldWriter<Object, Boolean>
 	{
 		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Boolean fieldValue ) {
-			return new byte[] {};
-		}
-
-		@Override
 		public byte[] writeField(
 				final Boolean fieldValue ) {
 			return new byte[] {

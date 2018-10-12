@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.locationtech.geowave.mapreduce.splits;
 
-import java.util.Collection;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;

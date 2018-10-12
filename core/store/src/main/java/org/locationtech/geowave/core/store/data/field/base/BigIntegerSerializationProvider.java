@@ -54,13 +54,5 @@ public class BigIntegerSerializationProvider implements
 			}
 			return fieldValue.toByteArray();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final BigInteger fieldValue ) {
-			return new byte[] {};
-		}
 	}
 }

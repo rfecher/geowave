@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,16 +10,13 @@
  ******************************************************************************/
 package org.locationtech.geowave.cli.debug;
 
-import java.io.IOException;
-
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.locationtech.geowave.core.cli.annotations.GeowaveOperation;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.DataStore;
-import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -33,7 +30,9 @@ import com.beust.jcommander.Parameters;
 public class ClientSideCQLQuery extends
 		AbstractGeoWaveQuery
 {
-	private static Logger LOGGER = LoggerFactory.getLogger(ClientSideCQLQuery.class);
+	private static Logger LOGGER = LoggerFactory
+			.getLogger(
+					ClientSideCQLQuery.class);
 
 	@Parameter(names = "--cql", required = true, description = "CQL Filter executed client side")
 	private String cql;
@@ -42,46 +41,52 @@ public class ClientSideCQLQuery extends
 
 	private void getFilter() {
 		try {
-			filter = ECQL.toFilter(cql);
+			filter = ECQL
+					.toFilter(
+							cql);
 		}
 		catch (final CQLException e) {
-			LOGGER.warn(
-					"Unable to retrive filter",
-					e);
+			LOGGER
+					.warn(
+							"Unable to retrive filter",
+							e);
 		}
 	}
 
 	@Override
 	protected long runQuery(
 			final GeotoolsFeatureDataAdapter adapter,
-			final ByteArrayId adapterId,
-			final ByteArrayId indexId,
+			final String typeName,
+			final String indexName,
 			final DataStore dataStore,
 			final boolean debug ) {
 		getFilter();
 
 		long count = 0;
-		try (final CloseableIterator<Object> it = dataStore.query(
-				new QueryOptions(
-						adapterId,
-						indexId),
-				null)) {
+		try (final CloseableIterator<Object> it = dataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										typeName)
+								.indexName(
+										indexName)
+								.build())) {
 			while (it.hasNext()) {
 				final Object o = it.next();
 				if (o instanceof SimpleFeature) {
-					if (filter.evaluate(o)) {
+					if (filter
+							.evaluate(
+									o)) {
 						if (debug) {
-							System.out.println(o);
+							System.out
+									.println(
+											o);
 						}
 						count++;
 					}
 				}
 			}
-		}
-		catch (final IOException e) {
-			LOGGER.warn(
-					"Unable to read result",
-					e);
 		}
 		return count;
 	}

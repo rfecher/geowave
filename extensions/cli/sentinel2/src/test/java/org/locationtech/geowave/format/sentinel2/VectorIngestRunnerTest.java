@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.locationtech.geowave.format.sentinel2;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,14 +25,10 @@ import org.locationtech.geowave.core.cli.parser.ManualOperationParams;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.GeoWaveStoreFinder;
 import org.locationtech.geowave.core.store.api.DataStore;
-import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.StoreLoader;
 import org.locationtech.geowave.core.store.memory.MemoryStoreFactoryFamily;
-import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
-import org.locationtech.geowave.format.sentinel2.Sentinel2BasicCommandLineOptions;
-import org.locationtech.geowave.format.sentinel2.Sentinel2ImageryProvider;
-import org.locationtech.geowave.format.sentinel2.VectorIngestRunner;
 
 import com.beust.jcommander.ParameterException;
 
@@ -43,62 +39,91 @@ public class VectorIngestRunnerTest
 	@BeforeClass
 	public static void setup()
 			throws IOException {
-		GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put(
-				"memory",
-				new MemoryStoreFactoryFamily());
+		GeoWaveStoreFinder
+				.getRegisteredStoreFactoryFamilies()
+				.put(
+						"memory",
+						new MemoryStoreFactoryFamily());
 	}
 
 	@Test
 	public void testIngestProviders()
 			throws Exception {
-		for (Sentinel2ImageryProvider provider : Sentinel2ImageryProvider.getProviders()) {
-			testIngest(provider.providerName());
+		for (final Sentinel2ImageryProvider provider : Sentinel2ImageryProvider.getProviders()) {
+			testIngest(
+					provider.providerName());
 		}
 	}
 
 	public void testIngest(
-			String providerName )
+			final String providerName )
 			throws Exception {
 		JAIExt.initJAIEXT();
 
-		Sentinel2ImageryProvider provider = Sentinel2ImageryProvider.getProvider(providerName);
+		final Sentinel2ImageryProvider provider = Sentinel2ImageryProvider
+				.getProvider(
+						providerName);
 		if (provider == null) {
 			throw new RuntimeException(
 					"Unable to find '" + providerName + "' Sentinel2 provider");
 		}
 
-		Date[] timePeriodSettings = Tests.timePeriodSettings(providerName);
-		Date startDate = timePeriodSettings[0];
-		Date endDate = timePeriodSettings[1];
+		final Date[] timePeriodSettings = Tests
+				.timePeriodSettings(
+						providerName);
+		final Date startDate = timePeriodSettings[0];
+		final Date endDate = timePeriodSettings[1];
 
-		Sentinel2BasicCommandLineOptions analyzeOptions = new Sentinel2BasicCommandLineOptions();
-		analyzeOptions.setWorkspaceDir(Tests.WORKSPACE_DIR);
-		analyzeOptions.setProviderName(providerName);
-		analyzeOptions.setCollection(provider.collections()[0]);
-		analyzeOptions.setLocation("T30TXN");
-		analyzeOptions.setStartDate(startDate);
-		analyzeOptions.setEndDate(endDate);
-		analyzeOptions.setCqlFilter("BBOX(shape,-1.8274,42.3253,-1.6256,42.4735) AND (band='B4' OR band='B8')");
+		final Sentinel2BasicCommandLineOptions analyzeOptions = new Sentinel2BasicCommandLineOptions();
+		analyzeOptions
+				.setWorkspaceDir(
+						Tests.WORKSPACE_DIR);
+		analyzeOptions
+				.setProviderName(
+						providerName);
+		analyzeOptions
+				.setCollection(
+						provider.collections()[0]);
+		analyzeOptions
+				.setLocation(
+						"T30TXN");
+		analyzeOptions
+				.setStartDate(
+						startDate);
+		analyzeOptions
+				.setEndDate(
+						endDate);
+		analyzeOptions
+				.setCqlFilter(
+						"BBOX(shape,-1.8274,42.3253,-1.6256,42.4735) AND (band='B4' OR band='B8')");
 
-		VectorIngestRunner runner = new VectorIngestRunner(
+		final VectorIngestRunner runner = new VectorIngestRunner(
 				analyzeOptions,
-				Arrays.asList(
-						"memorystore",
-						"spatialindex,spatempindex"));
+				Arrays
+						.asList(
+								"memorystore",
+								"spatialindex,spatempindex"));
 
-		ManualOperationParams params = new ManualOperationParams();
-		params.getContext().put(
-				ConfigOptions.PROPERTIES_FILE_CONTEXT,
-				new File(
-						VectorIngestRunnerTest.class.getClassLoader().getResource(
-								"geowave-config.properties").toURI()));
+		final ManualOperationParams params = new ManualOperationParams();
+		params
+				.getContext()
+				.put(
+						ConfigOptions.PROPERTIES_FILE_CONTEXT,
+						new File(
+								VectorIngestRunnerTest.class
+										.getClassLoader()
+										.getResource(
+												"geowave-config.properties")
+										.toURI()));
 
-		runner.runInternal(params);
+		runner
+				.runInternal(
+						params);
 
 		try (CloseableIterator<Object> results = getStore(
-				params).query(
-				new QueryOptions(),
-				new EverythingQuery())) {
+				params)
+						.query(
+								QueryBuilder.newBuilder().build())) {
 			assertTrue(
 					"Store is empty when it should have at least one result",
 					results.hasNext());
@@ -108,18 +133,22 @@ public class VectorIngestRunnerTest
 	}
 
 	private DataStore getStore(
-			OperationParams params ) {
-		File configFile = (File) params.getContext().get(
-				ConfigOptions.PROPERTIES_FILE_CONTEXT);
+			final OperationParams params ) {
+		final File configFile = (File) params
+				.getContext()
+				.get(
+						ConfigOptions.PROPERTIES_FILE_CONTEXT);
 
-		StoreLoader inputStoreLoader = new StoreLoader(
+		final StoreLoader inputStoreLoader = new StoreLoader(
 				"memorystore");
-		if (!inputStoreLoader.loadFromConfig(configFile)) {
+		if (!inputStoreLoader
+				.loadFromConfig(
+						configFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + inputStoreLoader.getStoreName());
 		}
 
-		DataStorePluginOptions storeOptions = inputStoreLoader.getDataStorePlugin();
+		final DataStorePluginOptions storeOptions = inputStoreLoader.getDataStorePlugin();
 		return storeOptions.createDataStore();
 	}
 }

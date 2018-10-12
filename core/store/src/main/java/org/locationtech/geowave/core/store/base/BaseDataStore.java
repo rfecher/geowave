@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.AdapterToIndexMapping;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -492,9 +491,9 @@ public class BaseDataStore implements
 						typeNames);
 	}
 
-	@Override
 	public <T> boolean delete(
-			Query<T> query ) {
+			Query<T> query,
+			final ScanCallback<T, ?> scanCallback ) {
 		if (query == null) {
 			query = (Query) QueryBuilder.newBuilder().build();
 		}
@@ -546,7 +545,8 @@ public class BaseDataStore implements
 		else {
 			try (CloseableIterator<?> dataIt = internalQuery(
 					query,
-					true)) {
+					true,
+					scanCallback)) {
 				while (dataIt.hasNext()) {
 					dataIt.next();
 				}
@@ -554,6 +554,14 @@ public class BaseDataStore implements
 		}
 
 		return true;
+	}
+
+	@Override
+	public <T> boolean delete(
+			final Query<T> query ) {
+		return delete(
+				query,
+				null);
 	}
 
 	protected boolean deleteEverything() {
@@ -650,6 +658,7 @@ public class BaseDataStore implements
 						baseOptions,
 						tempAdapterStore,
 						sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
+						sanitizedQueryOptions.getTargetResolutionPerDimensionForHierarchicalIndex(),
 						sanitizedQueryOptions.getLimit(),
 						sanitizedQueryOptions.getMaxRangeDecomposition(),
 						delete);
@@ -693,6 +702,7 @@ public class BaseDataStore implements
 						baseOperations,
 						baseOptions,
 						sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
+						sanitizedQueryOptions.getTargetResolutionPerDimensionForHierarchicalIndex(),
 						tempAdapterStore,
 						sanitizedQueryOptions.getLimit(),
 						sanitizedQueryOptions.getMaxRangeDecomposition(),
@@ -739,6 +749,7 @@ public class BaseDataStore implements
 						baseOptions,
 						tempAdapterStore,
 						sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
+						sanitizedQueryOptions.getTargetResolutionPerDimensionForHierarchicalIndex(),
 						sanitizedQueryOptions.getLimit(),
 						sanitizedQueryOptions.getMaxRangeDecomposition(),
 						delete);
@@ -1124,8 +1135,8 @@ public class BaseDataStore implements
 					it = (CloseableIterator) statisticsStore
 							.getDataStatistics(
 									adapterId,
-									query.getStatsType(),
 									query.getExtendedId(),
+									query.getStatsType(),
 									query.getAuthorizations());
 				}
 				else {
@@ -1159,8 +1170,8 @@ public class BaseDataStore implements
 				if (query.getExtendedId() != null) {
 					it = (CloseableIterator) statisticsStore
 							.getDataStatistics(
-									query.getStatsType(),
 									query.getExtendedId(),
+									query.getStatsType(),
 									query.getAuthorizations());
 				}
 				else {

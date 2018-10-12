@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -15,15 +15,12 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
-import org.locationtech.geowave.core.geotime.store.dimension.GeometryAdapter;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter.CompareOperation;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
-import org.locationtech.geowave.core.store.data.PersistentValue;
-import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
@@ -63,10 +60,10 @@ public class SpatialQueryTest
 
 	private IndexedPersistenceEncoding createData(
 			final Geometry geomData ) {
-		final PersistentDataset<CommonIndexValue> commonData = new PersistentDataset<CommonIndexValue>();
+		final PersistentDataset<CommonIndexValue> commonData = new PersistentDataset<>();
 
 		commonData.addValue(
-				GeometryAdapter.DEFAULT_GEOMETRY_FIELD_NAME,
+				GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME,
 				new GeometryWrapper(
 						geomData));
 
@@ -88,7 +85,7 @@ public class SpatialQueryTest
 			final boolean[] expectedResults ) {
 		final GeometryFactory factory = new GeometryFactory();
 		// query geometry for testing
-		Coordinate[] queryCoord = new Coordinate[] {
+		final Coordinate[] queryCoord = new Coordinate[] {
 			new Coordinate(
 					24,
 					33),

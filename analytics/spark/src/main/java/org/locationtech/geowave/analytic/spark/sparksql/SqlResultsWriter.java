@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.locationtech.geowave.analytic.spark.sparksql;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.Date;
@@ -26,7 +25,6 @@ import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.analytic.spark.sparksql.util.SchemaConverter;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
-import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Writer;
@@ -40,7 +38,9 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class SqlResultsWriter
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(SqlResultsWriter.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					SqlResultsWriter.class);
 
 	private static final String DEFAULT_TYPE_NAME = "sqlresults";
 
@@ -49,26 +49,31 @@ public class SqlResultsWriter
 	private final NumberFormat nf;
 
 	public SqlResultsWriter(
-			Dataset<Row> results,
-			DataStorePluginOptions outputDataStore ) {
+			final Dataset<Row> results,
+			final DataStorePluginOptions outputDataStore ) {
 		this.results = results;
 		this.outputDataStore = outputDataStore;
 
-		this.nf = NumberFormat.getIntegerInstance();
-		this.nf.setMinimumIntegerDigits(6);
+		nf = NumberFormat.getIntegerInstance();
+		nf
+				.setMinimumIntegerDigits(
+						6);
 	}
 
 	public void writeResults(
 			String typeName ) {
 		if (typeName == null) {
 			typeName = DEFAULT_TYPE_NAME;
-			LOGGER.warn("Using default type name (adapter id): '" + DEFAULT_TYPE_NAME + "' for SQL output");
+			LOGGER
+					.warn(
+							"Using default type name (adapter id): '" + DEFAULT_TYPE_NAME + "' for SQL output");
 		}
 
-		StructType schema = results.schema();
-		SimpleFeatureType featureType = SchemaConverter.schemaToFeatureType(
-				schema,
-				typeName);
+		final StructType schema = results.schema();
+		final SimpleFeatureType featureType = SchemaConverter
+				.schemaToFeatureType(
+						schema,
+						typeName);
 
 		final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(
 				featureType);
@@ -77,60 +82,75 @@ public class SqlResultsWriter
 				featureType);
 
 		final DataStore featureStore = outputDataStore.createDataStore();
-		final Index featureIndex = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		final Index featureIndex = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
+		featureStore
+				.addType(
+						featureAdapter);
+		featureStore
+				.addIndex(
+						featureAdapter.getTypeName(),
+						featureIndex);
+		try (Writer writer = featureStore
+				.createWriter(
+						featureAdapter.getTypeName())) {
 
-		try (Writer writer = featureStore.createWriter(
-				featureAdapter,
-				featureIndex)) {
-
-			List<Row> rows = results.collectAsList();
+			final List<Row> rows = results.collectAsList();
 
 			for (int r = 0; r < rows.size(); r++) {
-				Row row = rows.get(r);
+				final Row row = rows
+						.get(
+								r);
 
 				for (int i = 0; i < schema.fields().length; i++) {
-					StructField field = schema.apply(i);
-					Object rowObj = row.apply(i);
+					final StructField field = schema
+							.apply(
+									i);
+					final Object rowObj = row
+							.apply(
+									i);
 					if (rowObj != null) {
-						if (field.name().equals(
-								"geom")) {
-							Geometry geom = (Geometry) rowObj;
+						if (field
+								.name()
+								.equals(
+										"geom")) {
+							final Geometry geom = (Geometry) rowObj;
 
-							sfBuilder.set(
-									"geom",
-									geom);
+							sfBuilder
+									.set(
+											"geom",
+											geom);
 						}
 						else if (field.dataType() == DataTypes.TimestampType) {
-							long millis = ((Timestamp) rowObj).getTime();
-							Date date = new Date(
+							final long millis = ((Timestamp) rowObj).getTime();
+							final Date date = new Date(
 									millis);
 
-							sfBuilder.set(
-									field.name(),
-									date);
+							sfBuilder
+									.set(
+											field.name(),
+											date);
 						}
 						else {
-							sfBuilder.set(
-									field.name(),
-									rowObj);
+							sfBuilder
+									.set(
+											field.name(),
+											rowObj);
 						}
 					}
 				}
 
-				final SimpleFeature sf = sfBuilder.buildFeature("result-" + nf.format(r));
+				final SimpleFeature sf = sfBuilder
+						.buildFeature(
+								"result-" + nf
+										.format(
+												r));
 
-				writer.write(sf);
+				writer
+						.write(
+								sf);
 			}
-		}
-		catch (final MismatchedIndexToAdapterMapping e) {
-			LOGGER.error(
-					e.getMessage(),
-					e);
-		}
-		catch (final IOException e) {
-			LOGGER.error(
-					e.getMessage(),
-					e);
 		}
 	}
 }

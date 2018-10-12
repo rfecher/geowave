@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -21,13 +21,9 @@ import org.apache.accumulo.core.iterators.user.RowFilter;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.StringUtils;
-import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
-import org.locationtech.geowave.core.store.data.PersistentValue;
-import org.locationtech.geowave.core.store.query.filter.DistributableFilterList;
 import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
-import org.locationtech.geowave.datastore.accumulo.util.AccumuloUtils;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
 
 public class SecondaryIndexQueryFilterIterator extends
@@ -50,16 +46,28 @@ public class SecondaryIndexQueryFilterIterator extends
 				source,
 				options,
 				env);
-		if ((options == null) || (!options.containsKey(PRIMARY_INDEX_ID))) {
+		if ((options == null) || (!options
+				.containsKey(
+						PRIMARY_INDEX_ID))) {
 			throw new IllegalArgumentException(
 					"Arguments must be set for " + SecondaryIndexQueryFilterIterator.class.getName());
 		}
-		if (options.containsKey(FILTERS)) {
-			final String filterStr = options.get(FILTERS);
-			final byte[] filterBytes = ByteArrayUtils.byteArrayFromString(filterStr);
-			filter = (DistributableQueryFilter) URLClassloaderUtils.fromBinary(filterBytes);
+		if (options
+				.containsKey(
+						FILTERS)) {
+			final String filterStr = options
+					.get(
+							FILTERS);
+			final byte[] filterBytes = ByteArrayUtils
+					.byteArrayFromString(
+							filterStr);
+			filter = (DistributableQueryFilter) URLClassloaderUtils
+					.fromBinary(
+							filterBytes);
 		}
-		primaryIndexId = options.get(PRIMARY_INDEX_ID);
+		primaryIndexId = options
+				.get(
+						PRIMARY_INDEX_ID);
 	}
 
 	@Override
@@ -70,8 +78,12 @@ public class SecondaryIndexQueryFilterIterator extends
 			while (rowIterator.hasTop()) {
 				final Key key = rowIterator.getTopKey();
 				final Value value = rowIterator.getTopValue();
-				final String cq = StringUtils.stringFromBinary(key.getColumnQualifierData().getBackingArray());
-				if (!cq.equals(primaryIndexId)) {
+				final String cq = StringUtils
+						.stringFromBinary(
+								key.getColumnQualifierData().getBackingArray());
+				if (!cq
+						.equals(
+								primaryIndexId)) {
 					final IndexedPersistenceEncoding<ByteArrayId> persistenceEncoding = new IndexedPersistenceEncoding<ByteArrayId>(
 							null, // not needed
 							null, // not needed
@@ -79,14 +91,18 @@ public class SecondaryIndexQueryFilterIterator extends
 							null, // not needed
 							0, // not needed
 							new PersistentDataset<ByteArrayId>(
-									new ByteArrayId(
-											key.getColumnQualifierData().getBackingArray()),
+									StringUtils
+											.stringFromBinary(
+													key.getColumnQualifierData().getBackingArray()),
 									new ByteArrayId(
 											value.get())),
 							null);
-					if (filter.accept(
-							null,
-							persistenceEncoding)) return true;
+					if (filter
+							.accept(
+									null,
+									persistenceEncoding)) {
+						return true;
+					}
 				}
 				rowIterator.next();
 			}

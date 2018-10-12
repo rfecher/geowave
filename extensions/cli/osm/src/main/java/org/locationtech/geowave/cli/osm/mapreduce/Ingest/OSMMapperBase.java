@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -23,6 +23,7 @@ import org.locationtech.geowave.cli.osm.accumulo.osmschema.Constants;
 import org.locationtech.geowave.cli.osm.accumulo.osmschema.Schema;
 import org.locationtech.geowave.cli.osm.types.TypeUtils;
 import org.locationtech.geowave.cli.osm.types.generated.LongArray;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.data.field.FieldUtils;
 import org.locationtech.geowave.core.store.data.field.FieldWriter;
 import org.slf4j.Logger;
@@ -32,163 +33,246 @@ public class OSMMapperBase<T> extends
 		Mapper<AvroKey<T>, NullWritable, Text, Mutation>
 {
 
-	private static final Logger log = LoggerFactory.getLogger(OSMMapperBase.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(
+					OSMMapperBase.class);
 
-	protected final FieldWriter<?, Long> longWriter = FieldUtils.getDefaultWriterForClass(Long.class);
-	protected final FieldWriter<?, Integer> intWriter = FieldUtils.getDefaultWriterForClass(Integer.class);
-	protected final FieldWriter<?, String> stringWriter = FieldUtils.getDefaultWriterForClass(String.class);
-	protected final FieldWriter<?, Double> doubleWriter = FieldUtils.getDefaultWriterForClass(Double.class);
-	protected final FieldWriter<?, Boolean> booleanWriter = FieldUtils.getDefaultWriterForClass(Boolean.class);
-	protected final FieldWriter<?, Calendar> calendarWriter = FieldUtils.getDefaultWriterForClass(Calendar.class);
+	protected final FieldWriter<?, Long> longWriter = FieldUtils
+			.getDefaultWriterForClass(
+					Long.class);
+	protected final FieldWriter<?, Integer> intWriter = FieldUtils
+			.getDefaultWriterForClass(
+					Integer.class);
+	protected final FieldWriter<?, String> stringWriter = FieldUtils
+			.getDefaultWriterForClass(
+					String.class);
+	protected final FieldWriter<?, Double> doubleWriter = FieldUtils
+			.getDefaultWriterForClass(
+					Double.class);
+	protected final FieldWriter<?, Boolean> booleanWriter = FieldUtils
+			.getDefaultWriterForClass(
+					Boolean.class);
+	protected final FieldWriter<?, Calendar> calendarWriter = FieldUtils
+			.getDefaultWriterForClass(
+					Calendar.class);
 
 	protected ColumnVisibility _visibility = new ColumnVisibility(
-			"public".getBytes(Constants.CHARSET));
+			"public"
+					.getBytes(
+							Constants.CHARSET));
 
 	protected Text _tableName = new Text(
 			"OSM");
 
 	protected byte[] getIdHash(
-			long id ) {
-		return Schema.getIdHash(id);
+			final long id ) {
+		return Schema
+				.getIdHash(
+						id);
 	}
 
 	protected void put(
-			Mutation m,
-			byte[] cf,
-			byte[] cq,
-			Long val ) {
+			final Mutation m,
+			final String cf,
+			final String cq,
+			final Long val ) {
 		if (val != null) {
-			m.put(
-					cf,
-					cq,
-					_visibility,
-					longWriter.writeField(val));
+			m
+					.put(
+							StringUtils
+									.stringToBinary(
+											cf),
+							StringUtils
+									.stringToBinary(
+											cq),
+							_visibility,
+							longWriter
+									.writeField(
+											val));
 		}
 	}
 
 	protected void put(
-			Mutation m,
-			byte[] cf,
-			byte[] cq,
-			Integer val ) {
+			final Mutation m,
+			final String cf,
+			final String cq,
+			final Integer val ) {
 		if (val != null) {
-			m.put(
-					cf,
-					cq,
-					_visibility,
-					intWriter.writeField(val));
+			m
+					.put(
+							StringUtils
+									.stringToBinary(
+											cf),
+							StringUtils
+									.stringToBinary(
+											cq),
+							_visibility,
+							intWriter
+									.writeField(
+											val));
 		}
 	}
 
 	protected void put(
-			Mutation m,
-			byte[] cf,
-			byte[] cq,
-			Double val ) {
+			final Mutation m,
+			final String cf,
+			final String cq,
+			final Double val ) {
 		if (val != null) {
-			m.put(
-					cf,
-					cq,
-					_visibility,
-					doubleWriter.writeField(val));
+			m
+					.put(
+							StringUtils
+									.stringToBinary(
+											cf),
+							StringUtils
+									.stringToBinary(
+											cq),
+							_visibility,
+							doubleWriter
+									.writeField(
+											val));
 		}
 	}
 
 	protected void put(
-			Mutation m,
-			byte[] cf,
-			byte[] cq,
-			String val ) {
+			final Mutation m,
+			final String cf,
+			final String cq,
+			final String val ) {
 		if (val != null) {
-			m.put(
-					cf,
-					cq,
-					_visibility,
-					stringWriter.writeField(val));
+			m
+					.put(
+							StringUtils
+									.stringToBinary(
+											cf),
+							StringUtils
+									.stringToBinary(
+											cq),
+							_visibility,
+							stringWriter
+									.writeField(
+											val));
 		}
 	}
 
 	protected void put(
-			Mutation m,
-			byte[] cf,
-			byte[] cq,
-			CharSequence val ) {
+			final Mutation m,
+			final String cf,
+			final String cq,
+			final CharSequence val ) {
 		if (val != null) {
-			m.put(
-					cf,
-					cq,
-					_visibility,
-					stringWriter.writeField(val.toString()));
+			m
+					.put(
+							StringUtils
+									.stringToBinary(
+											cf),
+							StringUtils
+									.stringToBinary(
+											cq),
+							_visibility,
+							stringWriter
+									.writeField(
+											val.toString()));
 		}
 	}
 
 	protected void put(
-			Mutation m,
-			byte[] cf,
-			byte[] cq,
-			Boolean val ) {
+			final Mutation m,
+			final String cf,
+			final String cq,
+			final Boolean val ) {
 		if (val != null) {
-			m.put(
-					cf,
-					cq,
-					_visibility,
-					booleanWriter.writeField(val));
+			m
+					.put(
+							StringUtils
+									.stringToBinary(
+											cf),
+							StringUtils
+									.stringToBinary(
+											cq),
+							_visibility,
+							booleanWriter
+									.writeField(
+											val));
 		}
 	}
 
 	protected void put(
-			Mutation m,
-			byte[] cf,
-			byte[] cq,
-			Calendar val ) {
+			final Mutation m,
+			final String cf,
+			final String cq,
+			final Calendar val ) {
 		if (val != null) {
-			m.put(
-					cf,
-					cq,
-					_visibility,
-					calendarWriter.writeField(val));
+			m
+					.put(
+							StringUtils
+									.stringToBinary(
+											cf),
+							StringUtils
+									.stringToBinary(
+											cq),
+							_visibility,
+							calendarWriter
+									.writeField(
+											val));
 		}
 	}
 
 	protected void put(
-			Mutation m,
-			byte[] cf,
-			byte[] cq,
-			LongArray val ) {
+			final Mutation m,
+			final String cf,
+			final String cq,
+			final LongArray val ) {
 		if (val != null) {
 			try {
-				m.put(
-						cf,
-						cq,
-						_visibility,
-						TypeUtils.serializeLongArray(val));
+				m
+						.put(
+								StringUtils
+										.stringToBinary(
+												cf),
+								StringUtils
+										.stringToBinary(
+												cq),
+								_visibility,
+								TypeUtils
+										.serializeLongArray(
+												val));
 			}
-			catch (IOException e) {
-				log.error(
-						"Unable to serialize LongArray instance",
-						e);
+			catch (final IOException e) {
+				log
+						.error(
+								"Unable to serialize LongArray instance",
+								e);
 			}
 		}
 	}
 
 	@Override
 	public void setup(
-			Context context )
+			final Context context )
 			throws IOException,
 			InterruptedException {
-		String tn = context.getConfiguration().get(
-				"tableName");
-		if (tn != null && !tn.isEmpty()) {
-			_tableName.set(tn);
+		final String tn = context
+				.getConfiguration()
+				.get(
+						"tableName");
+		if ((tn != null) && !tn.isEmpty()) {
+			_tableName
+					.set(
+							tn);
 		}
-		String visibility = context.getConfiguration().get(
-				"osmVisibility");
+		String visibility = context
+				.getConfiguration()
+				.get(
+						"osmVisibility");
 		if (visibility == null) {
 			visibility = "";
 		}
 
 		_visibility = new ColumnVisibility(
-				visibility.getBytes(Constants.CHARSET));
+				visibility
+						.getBytes(
+								Constants.CHARSET));
 	}
 
 }

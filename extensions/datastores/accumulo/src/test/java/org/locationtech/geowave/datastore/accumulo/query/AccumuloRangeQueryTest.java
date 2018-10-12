@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -24,26 +24,26 @@ import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.locationtech.geowave.core.geotime.GeometryUtils;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.EntryVisibilityHandler;
 import org.locationtech.geowave.core.store.adapter.AbstractDataAdapter;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler;
-import org.locationtech.geowave.core.store.adapter.PersistentIndexFieldHandler;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler.RowBuilder;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatistics;
+import org.locationtech.geowave.core.store.adapter.PersistentIndexFieldHandler;
+import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsProvider;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.api.Writer;
-import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.data.PersistentValue;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
 import org.locationtech.geowave.core.store.data.field.FieldUtils;
@@ -72,20 +72,22 @@ public class AccumuloRangeQueryTest
 	private DataTypeAdapter<TestGeometry> adapter;
 	private final GeometryFactory factory = new GeometryFactory();
 	private final TestGeometry testdata = new TestGeometry(
-			factory.createPolygon(new Coordinate[] {
-				new Coordinate(
-						1.025,
-						1.032),
-				new Coordinate(
-						1.026,
-						1.032),
-				new Coordinate(
-						1.026,
-						1.033),
-				new Coordinate(
-						1.025,
-						1.032)
-			}),
+			factory
+					.createPolygon(
+							new Coordinate[] {
+								new Coordinate(
+										1.025,
+										1.032),
+								new Coordinate(
+										1.026,
+										1.032),
+								new Coordinate(
+										1.026,
+										1.033),
+								new Coordinate(
+										1.025,
+										1.032)
+							}),
 			"test_shape_1");
 
 	@Before
@@ -94,10 +96,11 @@ public class AccumuloRangeQueryTest
 			AccumuloSecurityException,
 			IOException {
 		final MockInstance mockInstance = new MockInstance();
-		final Connector mockConnector = mockInstance.getConnector(
-				"root",
-				new PasswordToken(
-						new byte[0]));
+		final Connector mockConnector = mockInstance
+				.getConnector(
+						"root",
+						new PasswordToken(
+								new byte[0]));
 
 		final AccumuloOptions options = new AccumuloOptions();
 		mockDataStore = new AccumuloDataStore(
@@ -106,62 +109,94 @@ public class AccumuloRangeQueryTest
 						options),
 				options);
 
-		index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		index = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
 		adapter = new TestGeometryAdapter();
-
-		try (Writer writer = mockDataStore.createWriter(
-				adapter,
-				index)) {
-			writer.write(testdata);
+		mockDataStore
+				.addType(
+						adapter);
+		mockDataStore
+				.addIndex(
+						adapter.getTypeName(),
+						index);
+		try (Writer writer = mockDataStore
+				.createWriter(
+						adapter.getTypeName())) {
+			writer
+					.write(
+							testdata);
 		}
 
 	}
 
 	@Test
 	public void testIntersection() {
-		final Geometry testGeo = factory.createPolygon(new Coordinate[] {
-			new Coordinate(
-					1.0249,
-					1.0319),
-			new Coordinate(
-					1.0261,
-					1.0319),
-			new Coordinate(
-					1.0261,
-					1.0323),
-			new Coordinate(
-					1.0249,
-					1.0319)
-		});
+		final Geometry testGeo = factory
+				.createPolygon(
+						new Coordinate[] {
+							new Coordinate(
+									1.0249,
+									1.0319),
+							new Coordinate(
+									1.0261,
+									1.0319),
+							new Coordinate(
+									1.0261,
+									1.0323),
+							new Coordinate(
+									1.0249,
+									1.0319)
+						});
 		final QueryConstraints intersectQuery = new SpatialQuery(
 				testGeo);
-		Assert.assertTrue(testdata.geom.intersects(testGeo));
-		final CloseableIterator<TestGeometry> resultOfIntersect = mockDataStore.query(
-				new QueryOptions(
-						adapter,
-						index),
-				intersectQuery);
-		Assert.assertTrue(resultOfIntersect.hasNext());
+		Assert
+				.assertTrue(
+						testdata.geom
+								.intersects(
+										testGeo));
+		final CloseableIterator<TestGeometry> resultOfIntersect = (CloseableIterator) mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										adapter.getTypeName())
+								.indexName(
+										index.getName())
+								.constraints(
+										intersectQuery)
+								.build());
+		Assert
+				.assertTrue(
+						resultOfIntersect.hasNext());
 	}
 
 	@Test
 	public void largeQuery() {
-		final Geometry largeGeo = createPolygon(50000);
+		final Geometry largeGeo = createPolygon(
+				50000);
 		final QueryConstraints largeQuery = new SpatialQuery(
 				largeGeo);
-		final CloseableIterator itr = mockDataStore.query(
-				new QueryOptions(
-						adapter,
-						index),
-				largeQuery);
+		final CloseableIterator itr = mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										adapter.getTypeName())
+								.indexName(
+										index.getName())
+								.constraints(
+										largeQuery)
+								.build());
 		int numfeats = 0;
 		while (itr.hasNext()) {
 			itr.next();
 			numfeats++;
 		}
-		Assert.assertEquals(
-				numfeats,
-				1);
+		Assert
+				.assertEquals(
+						numfeats,
+						1);
 	}
 
 	/**
@@ -173,119 +208,155 @@ public class AccumuloRangeQueryTest
 	@Test
 	public void testInterning()
 			throws ParseException {
-		final Geometry g = GeometryUtils.GEOMETRY_FACTORY.createPolygon(new Coordinate[] {
-			new Coordinate(
-					0,
-					0),
-			new Coordinate(
-					1,
-					0),
-			new Coordinate(
-					1,
-					1),
-			new Coordinate(
-					0,
-					1),
-			new Coordinate(
-					0,
-					0)
-		});
-		final Geometry gNewInstance = GeometryUtils.GEOMETRY_FACTORY.createPolygon(new Coordinate[] {
-			new Coordinate(
-					0,
-					0),
-			new Coordinate(
-					1,
-					0),
-			new Coordinate(
-					1,
-					1),
-			new Coordinate(
-					0,
-					1),
-			new Coordinate(
-					0,
-					0)
-		});
+		final Geometry g = GeometryUtils.GEOMETRY_FACTORY
+				.createPolygon(
+						new Coordinate[] {
+							new Coordinate(
+									0,
+									0),
+							new Coordinate(
+									1,
+									0),
+							new Coordinate(
+									1,
+									1),
+							new Coordinate(
+									0,
+									1),
+							new Coordinate(
+									0,
+									0)
+						});
+		final Geometry gNewInstance = GeometryUtils.GEOMETRY_FACTORY
+				.createPolygon(
+						new Coordinate[] {
+							new Coordinate(
+									0,
+									0),
+							new Coordinate(
+									1,
+									0),
+							new Coordinate(
+									1,
+									1),
+							new Coordinate(
+									0,
+									1),
+							new Coordinate(
+									0,
+									0)
+						});
 		final WKBWriter wkbWriter = new WKBWriter();
-		final byte[] b = wkbWriter.write(g);
+		final byte[] b = wkbWriter
+				.write(
+						g);
 		final byte[] b2 = new byte[b.length];
-		System.arraycopy(
-				b,
-				0,
-				b2,
-				0,
-				b.length);
+		System
+				.arraycopy(
+						b,
+						0,
+						b2,
+						0,
+						b.length);
 		final WKBReader wkbReader = new WKBReader();
-		final Geometry gSerialized = wkbReader.read(b);
-		final Geometry gSerializedArrayCopy = wkbReader.read(b2);
+		final Geometry gSerialized = wkbReader
+				.read(
+						b);
+		final Geometry gSerializedArrayCopy = wkbReader
+				.read(
+						b2);
 
-		Assert.assertEquals(
-				g,
-				gNewInstance);
-		Assert.assertEquals(
-				g,
-				gSerializedArrayCopy);
-		Assert.assertEquals(
-				gSerialized,
-				gSerializedArrayCopy);
-		Assert.assertEquals(
-				gSerialized,
-				gSerializedArrayCopy);
+		Assert
+				.assertEquals(
+						g,
+						gNewInstance);
+		Assert
+				.assertEquals(
+						g,
+						gSerializedArrayCopy);
+		Assert
+				.assertEquals(
+						gSerialized,
+						gSerializedArrayCopy);
+		Assert
+				.assertEquals(
+						gSerialized,
+						gSerializedArrayCopy);
 	}
 
 	@Test
 	public void testMiss() {
 		final QueryConstraints intersectQuery = new SpatialQuery(
-				factory.createPolygon(new Coordinate[] {
-					new Coordinate(
-							1.0247,
-							1.0319),
-					new Coordinate(
-							1.0249,
-							1.0319),
-					new Coordinate(
-							1.0249,
-							1.0323),
-					new Coordinate(
-							1.0247,
-							1.0319)
-				}));
-		final CloseableIterator<TestGeometry> resultOfIntersect = mockDataStore.query(
-				new QueryOptions(
-						adapter,
-						index),
-				intersectQuery);
-		Assert.assertFalse(resultOfIntersect.hasNext());
+				factory
+						.createPolygon(
+								new Coordinate[] {
+									new Coordinate(
+											1.0247,
+											1.0319),
+									new Coordinate(
+											1.0249,
+											1.0319),
+									new Coordinate(
+											1.0249,
+											1.0323),
+									new Coordinate(
+											1.0247,
+											1.0319)
+								}));
+		final CloseableIterator<TestGeometry> resultOfIntersect = (CloseableIterator) mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										adapter.getTypeName())
+								.indexName(
+										index.getName())
+								.constraints(
+										intersectQuery)
+								.build());
+		Assert
+				.assertFalse(
+						resultOfIntersect.hasNext());
 	}
 
 	@Test
 	public void testEncompass() {
 		final QueryConstraints encompassQuery = new SpatialQuery(
-				factory.createPolygon(new Coordinate[] {
-					new Coordinate(
-							1.0249,
-							1.0319),
-					new Coordinate(
-							1.0261,
-							1.0319),
-					new Coordinate(
-							1.0261,
-							1.0331),
-					new Coordinate(
-							1.0249,
-							1.0319)
-				}));
-		final CloseableIterator<TestGeometry> resultOfIntersect = mockDataStore.query(
-				new QueryOptions(
-						adapter,
-						index),
-				encompassQuery);
-		Assert.assertTrue(resultOfIntersect.hasNext());
+				factory
+						.createPolygon(
+								new Coordinate[] {
+									new Coordinate(
+											1.0249,
+											1.0319),
+									new Coordinate(
+											1.0261,
+											1.0319),
+									new Coordinate(
+											1.0261,
+											1.0331),
+									new Coordinate(
+											1.0249,
+											1.0319)
+								}));
+		final CloseableIterator<TestGeometry> resultOfIntersect = (CloseableIterator) mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										adapter.getTypeName())
+								.indexName(
+										index.getName())
+								.constraints(
+										encompassQuery)
+								.build());
+		Assert
+				.assertTrue(
+						resultOfIntersect.hasNext());
 		final TestGeometry geom1 = resultOfIntersect.next();
-		Assert.assertEquals(
-				"test_shape_1",
-				geom1.id);
+		Assert
+				.assertEquals(
+						"test_shape_1",
+						geom1.id);
 	}
 
 	private static Polygon createPolygon(
@@ -294,7 +365,7 @@ public class AccumuloRangeQueryTest
 		final double centerY = 12;
 		final int maxRadius = 80;
 
-		final List<Coordinate> coords = new ArrayList<Coordinate>();
+		final List<Coordinate> coords = new ArrayList<>();
 		final Random rand = new Random(
 				8675309l);
 
@@ -303,14 +374,28 @@ public class AccumuloRangeQueryTest
 		for (double theta = 0; theta <= 360; theta += increment) {
 			final double radius = (rand.nextDouble() * maxRadius) + 0.1;
 			final double rad = (theta * Math.PI) / 180.0;
-			final double x = centerX + (radius * Math.sin(rad));
-			final double y = centerY + (radius * Math.cos(rad));
-			coords.add(new Coordinate(
-					x,
-					y));
+			final double x = centerX + (radius * Math
+					.sin(
+							rad));
+			final double y = centerY + (radius * Math
+					.cos(
+							rad));
+			coords
+					.add(
+							new Coordinate(
+									x,
+									y));
 		}
-		coords.add(coords.get(0));
-		return GeometryUtils.GEOMETRY_FACTORY.createPolygon(coords.toArray(new Coordinate[coords.size()]));
+		coords
+				.add(
+						coords
+								.get(
+										0));
+		return GeometryUtils.GEOMETRY_FACTORY
+				.createPolygon(
+						coords
+								.toArray(
+										new Coordinate[coords.size()]));
 	}
 
 	protected static class TestGeometry
@@ -334,15 +419,13 @@ public class AccumuloRangeQueryTest
 			AbstractDataAdapter<TestGeometry> implements
 			StatisticsProvider<TestGeometry>
 	{
-		private static final ByteArrayId GEOM = new ByteArrayId(
-				"myGeo");
-		private static final ByteArrayId ID = new ByteArrayId(
-				"myId");
+		private static final String GEOM = "myGeo";
+		private static final String ID = "myId";
 		private static final PersistentIndexFieldHandler<TestGeometry, ? extends CommonIndexValue, Object> GEOM_FIELD_HANDLER = new PersistentIndexFieldHandler<TestGeometry, CommonIndexValue, Object>() {
 
 			@Override
-			public ByteArrayId[] getNativeFieldIds() {
-				return new ByteArrayId[] {
+			public String[] getNativeFieldNames() {
+				return new String[] {
 					GEOM
 				};
 			}
@@ -379,7 +462,7 @@ public class AccumuloRangeQueryTest
 		private static final NativeFieldHandler<TestGeometry, Object> ID_FIELD_HANDLER = new NativeFieldHandler<AccumuloRangeQueryTest.TestGeometry, Object>() {
 
 			@Override
-			public ByteArrayId getFieldId() {
+			public String getFieldName() {
 				return ID;
 			}
 
@@ -391,12 +474,16 @@ public class AccumuloRangeQueryTest
 
 		};
 
-		private static final List<NativeFieldHandler<TestGeometry, Object>> NATIVE_FIELD_HANDLER_LIST = new ArrayList<NativeFieldHandler<TestGeometry, Object>>();
-		private static final List<PersistentIndexFieldHandler<TestGeometry, ? extends CommonIndexValue, Object>> COMMON_FIELD_HANDLER_LIST = new ArrayList<PersistentIndexFieldHandler<TestGeometry, ? extends CommonIndexValue, Object>>();
+		private static final List<NativeFieldHandler<TestGeometry, Object>> NATIVE_FIELD_HANDLER_LIST = new ArrayList<>();
+		private static final List<PersistentIndexFieldHandler<TestGeometry, ? extends CommonIndexValue, Object>> COMMON_FIELD_HANDLER_LIST = new ArrayList<>();
 
 		static {
-			COMMON_FIELD_HANDLER_LIST.add(GEOM_FIELD_HANDLER);
-			NATIVE_FIELD_HANDLER_LIST.add(ID_FIELD_HANDLER);
+			COMMON_FIELD_HANDLER_LIST
+					.add(
+							GEOM_FIELD_HANDLER);
+			NATIVE_FIELD_HANDLER_LIST
+					.add(
+							ID_FIELD_HANDLER);
 		}
 
 		public TestGeometryAdapter() {
@@ -406,15 +493,8 @@ public class AccumuloRangeQueryTest
 		}
 
 		@Override
-		public ByteArrayId getAdapterId() {
-			return new ByteArrayId(
-					"test");
-		}
-
-		@Override
-		public boolean isSupported(
-				final TestGeometry entry ) {
-			return true;
+		public String getTypeName() {
+			return "test";
 		}
 
 		@Override
@@ -426,24 +506,40 @@ public class AccumuloRangeQueryTest
 
 		@Override
 		public FieldReader getReader(
-				final ByteArrayId fieldId ) {
-			if (fieldId.equals(GEOM)) {
-				return FieldUtils.getDefaultReaderForClass(Geometry.class);
+				final String fieldName ) {
+			if (fieldName
+					.equals(
+							GEOM)) {
+				return FieldUtils
+						.getDefaultReaderForClass(
+								Geometry.class);
 			}
-			else if (fieldId.equals(ID)) {
-				return FieldUtils.getDefaultReaderForClass(String.class);
+			else if (fieldName
+					.equals(
+							ID)) {
+				return FieldUtils
+						.getDefaultReaderForClass(
+								String.class);
 			}
 			return null;
 		}
 
 		@Override
 		public FieldWriter getWriter(
-				final ByteArrayId fieldId ) {
-			if (fieldId.equals(GEOM)) {
-				return FieldUtils.getDefaultWriterForClass(Geometry.class);
+				final String fieldName ) {
+			if (fieldName
+					.equals(
+							GEOM)) {
+				return FieldUtils
+						.getDefaultWriterForClass(
+								Geometry.class);
 			}
-			else if (fieldId.equals(ID)) {
-				return FieldUtils.getDefaultWriterForClass(String.class);
+			else if (fieldName
+					.equals(
+							ID)) {
+				return FieldUtils
+						.getDefaultWriterForClass(
+								String.class);
 			}
 			return null;
 		}
@@ -456,24 +552,36 @@ public class AccumuloRangeQueryTest
 
 				@Override
 				public void setField(
-						ByteArrayId id,
-						Object fieldValue ) {
-					if (id.equals(GEOM)) {
+						final String id,
+						final Object fieldValue ) {
+					if (id
+							.equals(
+									GEOM)) {
 						geom = (Geometry) fieldValue;
 					}
-					else if (id.equals(ID)) {
+					else if (id
+							.equals(
+									ID)) {
 						this.id = (String) fieldValue;
 					}
 				}
 
 				@Override
 				public void setFields(
-						Map<ByteArrayId, Object> values ) {
-					if (values.containsKey(GEOM)) {
-						geom = (Geometry) values.get(GEOM);
+						final Map<String, Object> values ) {
+					if (values
+							.containsKey(
+									GEOM)) {
+						geom = (Geometry) values
+								.get(
+										GEOM);
 					}
-					if (values.containsKey(ID)) {
-						this.id = (String) values.get(ID);
+					if (values
+							.containsKey(
+									ID)) {
+						id = (String) values
+								.get(
+										ID);
 					}
 				}
 
@@ -490,32 +598,38 @@ public class AccumuloRangeQueryTest
 		@Override
 		public int getPositionOfOrderedField(
 				final CommonIndexModel model,
-				final ByteArrayId fieldId ) {
+				final String fieldId ) {
 			int i = 0;
 			for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-				if (fieldId.equals(dimensionField.getFieldId())) {
+				if (fieldId
+						.equals(
+								dimensionField.getFieldName())) {
 					return i;
 				}
 				i++;
 			}
-			if (fieldId.equals(GEOM)) {
+			if (fieldId
+					.equals(
+							GEOM)) {
 				return i;
 			}
-			else if (fieldId.equals(ID)) {
+			else if (fieldId
+					.equals(
+							ID)) {
 				return i + 1;
 			}
 			return -1;
 		}
 
 		@Override
-		public ByteArrayId getFieldIdForPosition(
+		public String getFieldNameForPosition(
 				final CommonIndexModel model,
 				final int position ) {
 			if (position < model.getDimensions().length) {
 				int i = 0;
 				for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
 					if (i == position) {
-						return dimensionField.getFieldId();
+						return dimensionField.getFieldName();
 					}
 					i++;
 				}
@@ -533,13 +647,13 @@ public class AccumuloRangeQueryTest
 		}
 
 		@Override
-		public ByteArrayId[] getSupportedStatisticsTypes() {
-			return new ByteArrayId[0];
+		public StatisticsId[] getSupportedStatistics() {
+			return new StatisticsId[0];
 		}
 
 		@Override
-		public DataStatistics<TestGeometry> createDataStatistics(
-				final ByteArrayId statisticsId ) {
+		public InternalDataStatistics<TestGeometry, ?, ?> createDataStatistics(
+				final StatisticsId statisticsId ) {
 			return null;
 		}
 
@@ -547,7 +661,7 @@ public class AccumuloRangeQueryTest
 		public EntryVisibilityHandler<TestGeometry> getVisibilityHandler(
 				final CommonIndexModel indexModel,
 				final DataTypeAdapter<TestGeometry> adapter,
-				final ByteArrayId statisticsId ) {
+				final StatisticsId statisticsId ) {
 			// TODO Auto-generated method stub
 			return new EntryVisibilityHandler<AccumuloRangeQueryTest.TestGeometry>() {
 
@@ -558,13 +672,6 @@ public class AccumuloRangeQueryTest
 					return null;
 				}
 			};
-		}
-
-		@Override
-		public void init(
-				Index... indices ) {
-			// TODO Auto-generated method stub
-
 		}
 	}
 }

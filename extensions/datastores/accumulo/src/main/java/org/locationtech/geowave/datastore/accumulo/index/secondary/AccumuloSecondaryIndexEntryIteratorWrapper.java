@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,14 +10,12 @@
  ******************************************************************************/
 package org.locationtech.geowave.datastore.accumulo.index.secondary;
 
-import java.io.IOException;
 import java.util.Map.Entry;
 
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.util.SecondaryIndexEntryIteratorWrapper;
 import org.locationtech.geowave.datastore.accumulo.util.AccumuloSecondaryIndexUtils;
@@ -32,7 +30,9 @@ public class AccumuloSecondaryIndexEntryIteratorWrapper<T> extends
 		SecondaryIndexEntryIteratorWrapper<T, T>
 {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(AccumuloSecondaryIndexEntryIteratorWrapper.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					AccumuloSecondaryIndexEntryIteratorWrapper.class);
 	private final Scanner scanner;
 	private final Index index;
 
@@ -56,19 +56,21 @@ public class AccumuloSecondaryIndexEntryIteratorWrapper<T> extends
 			entry = (Entry<Key, Value>) row;
 		}
 		catch (final ClassCastException e) {
-			LOGGER.error("Row is not an accumulo row entry.");
+			LOGGER
+					.error(
+							"Row is not an accumulo row entry.");
 			return null;
 		}
-		return AccumuloSecondaryIndexUtils.decodeRow(
-				entry.getKey(),
-				entry.getValue(),
-				adapter,
-				index);
+		return AccumuloSecondaryIndexUtils
+				.decodeRow(
+						entry.getKey(),
+						entry.getValue(),
+						adapter,
+						index);
 	}
 
 	@Override
-	public void close()
-			throws IOException {
+	public void close() {
 		scanner.close();
 	}
 

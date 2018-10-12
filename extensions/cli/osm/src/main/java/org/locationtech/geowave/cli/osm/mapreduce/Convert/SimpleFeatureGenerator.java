@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -45,7 +45,9 @@ import com.vividsolutions.jts.geom.Geometry;
 public class SimpleFeatureGenerator
 {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleFeatureGenerator.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(
+					SimpleFeatureGenerator.class);
 
 	public List<SimpleFeature> mapOSMtoSimpleFeature(
 			final Map<Key, Value> items,
@@ -65,18 +67,23 @@ public class SimpleFeatureGenerator
 				if (osmunion.tags != null) { // later handle relations where
 												// tags on on ways
 					for (final Map.Entry<String, String> tag : osmunion.tags.entrySet()) {
-						if (tag.getKey().equals(
-								mapper)) {
+						if (tag
+								.getKey()
+								.equals(
+										mapper)) {
 							if ((fd.mappings != null) && (fd.mappings.size() > 0)) {
-								if (fd.isMappedValue(tag.getValue())) {
+								if (fd
+										.isMappedValue(
+												tag.getValue())) {
 									matched = true;
 									mappingVal = tag.getValue();
 								}
 							}
 							if ((fd.subMappings != null) && (fd.subMappings.size() > 0)) {
-								final String subval = fd.getSubMappingClass(
-										tag.getKey(),
-										tag.getValue());
+								final String subval = fd
+										.getSubMappingClass(
+												tag.getKey(),
+												tag.getValue());
 								if (subval != null) {
 									mappingKey = subval;
 									mappingVal = tag.getValue();
@@ -92,51 +99,101 @@ public class SimpleFeatureGenerator
 			}
 
 			// feature matches this osm entry, let's being
-			final SimpleFeatureType sft = FeatureDefinitionSet.featureTypes.get(fd.name);
+			final SimpleFeatureType sft = FeatureDefinitionSet.featureTypes
+					.get(
+							fd.name);
 			final SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(
 					sft);
 
 			for (final AttributeDefinition ad : fd.attributes) {
-				if (ad.type.equals("id")) {
-					sfb.set(
-							FeatureDefinitionSet.normalizeOsmNames(ad.name),
-							ad.convert(osmunion.Id));
+				if (ad.type
+						.equals(
+								"id")) {
+					sfb
+							.set(
+									FeatureDefinitionSet
+											.normalizeOsmNames(
+													ad.name),
+									ad
+											.convert(
+													osmunion.Id));
 				}
-				else if (ad.type.equals("geometry") || ad.type.equals("validated_geometry")) {
+				else if (ad.type
+						.equals(
+								"geometry")
+						|| ad.type
+								.equals(
+										"validated_geometry")) {
 					final Geometry geom = getGeometry(
 							osmunion,
 							osmProvider,
 							fd);
 					if (geom == null) {
-						LOGGER.error(
-								"Unable to generate geometry for {} of type {}",
-								osmunion.Id,
-								osmunion.OsmType.toString());
+						LOGGER
+								.error(
+										"Unable to generate geometry for {} of type {}",
+										osmunion.Id,
+										osmunion.OsmType.toString());
 						return null;
 					}
-					sfb.set(
-							FeatureDefinitionSet.normalizeOsmNames(ad.name),
-							geom);
+					sfb
+							.set(
+									FeatureDefinitionSet
+											.normalizeOsmNames(
+													ad.name),
+									geom);
 				}
-				else if (ad.type.equals("mapping_value")) {
-					sfb.set(
-							FeatureDefinitionSet.normalizeOsmNames(ad.name),
-							ad.convert(mappingVal));
+				else if (ad.type
+						.equals(
+								"mapping_value")) {
+					sfb
+							.set(
+									FeatureDefinitionSet
+											.normalizeOsmNames(
+													ad.name),
+									ad
+											.convert(
+													mappingVal));
 				}
-				else if (ad.type.equals("mapping_key")) {
-					sfb.set(
-							FeatureDefinitionSet.normalizeOsmNames(ad.name),
-							ad.convert(mappingKey));
+				else if (ad.type
+						.equals(
+								"mapping_key")) {
+					sfb
+							.set(
+									FeatureDefinitionSet
+											.normalizeOsmNames(
+													ad.name),
+									ad
+											.convert(
+													mappingKey));
 				}
-				else if ((ad.key != null) && !ad.key.equals("null")) {
-					if (osmunion.tags.containsKey(ad.key)) {
-						sfb.set(
-								FeatureDefinitionSet.normalizeOsmNames(ad.name),
-								ad.convert(osmunion.tags.get(ad.key)));
+				else if ((ad.key != null) && !ad.key
+						.equals(
+								"null")) {
+					if (osmunion.tags
+							.containsKey(
+									ad.key)) {
+						sfb
+								.set(
+										FeatureDefinitionSet
+												.normalizeOsmNames(
+														ad.name),
+										ad
+												.convert(
+														osmunion.tags
+																.get(
+																		ad.key)));
 					}
 				}
 			}
-			features.add(sfb.buildFeature(String.valueOf(osmunion.Id) + osmunion.OsmType.toString()));
+			features
+					.add(
+							sfb
+									.buildFeature(
+											String
+													.valueOf(
+															osmunion.Id)
+													+ osmunion.OsmType.toString()));
 		}
 		return features;
 	}
@@ -147,19 +204,23 @@ public class SimpleFeatureGenerator
 			final FeatureDefinition fd ) {
 		switch (osm.OsmType) {
 			case NODE: {
-				return GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
-						osm.Longitude,
-						osm.Lattitude));
+				return GeometryUtils.GEOMETRY_FACTORY
+						.createPoint(
+								new Coordinate(
+										osm.Longitude,
+										osm.Lattitude));
 			}
 			case RELATION: {
-				return provider.processRelation(
-						osm,
-						fd);
+				return provider
+						.processRelation(
+								osm,
+								fd);
 			}
 			case WAY: {
-				return provider.processWay(
-						osm,
-						fd);
+				return provider
+						.processWay(
+								osm,
+								fd);
 			}
 		}
 		return null;
@@ -175,14 +236,28 @@ public class SimpleFeatureGenerator
 	public static class OSMUnion
 	{
 
-		private final static Logger LOGGER = LoggerFactory.getLogger(OSMUnion.class);
+		private final static Logger LOGGER = LoggerFactory
+				.getLogger(
+						OSMUnion.class);
 
-		protected final FieldReader<Long> longReader = FieldUtils.getDefaultReaderForClass(Long.class);
-		protected final FieldReader<Integer> intReader = FieldUtils.getDefaultReaderForClass(Integer.class);
-		protected final FieldReader<String> stringReader = FieldUtils.getDefaultReaderForClass(String.class);
-		protected final FieldReader<Double> doubleReader = FieldUtils.getDefaultReaderForClass(Double.class);
-		protected final FieldReader<Boolean> booleanReader = FieldUtils.getDefaultReaderForClass(Boolean.class);
-		protected final FieldReader<Calendar> calendarReader = FieldUtils.getDefaultReaderForClass(Calendar.class);
+		protected final FieldReader<Long> longReader = FieldUtils
+				.getDefaultReaderForClass(
+						Long.class);
+		protected final FieldReader<Integer> intReader = FieldUtils
+				.getDefaultReaderForClass(
+						Integer.class);
+		protected final FieldReader<String> stringReader = FieldUtils
+				.getDefaultReaderForClass(
+						String.class);
+		protected final FieldReader<Double> doubleReader = FieldUtils
+				.getDefaultReaderForClass(
+						Double.class);
+		protected final FieldReader<Boolean> booleanReader = FieldUtils
+				.getDefaultReaderForClass(
+						Boolean.class);
+		protected final FieldReader<Calendar> calendarReader = FieldUtils
+				.getDefaultReaderForClass(
+						Calendar.class);
 
 		// Common
 		public Long Id = null;
@@ -212,145 +287,214 @@ public class SimpleFeatureGenerator
 		public OSMUnion(
 				final Map<Key, Value> osm ) {
 			for (final Map.Entry<Key, Value> item : osm.entrySet()) {
-				if (OsmType.equals(OSMType.UNSET)) {
-					final ByteSequence CF = item.getKey().getColumnFamilyData();
-					if (Schema.arraysEqual(
-							CF,
-							ColumnFamily.NODE)) {
+				if (OsmType
+						.equals(
+								OSMType.UNSET)) {
+					final String CF = item.getKey().getColumnFamily().toString();
+					if (CF
+							.equals(
+									ColumnFamily.NODE)) {
 						OsmType = OSMType.NODE;
 					}
-					else if (Schema.arraysEqual(
-							CF,
-							ColumnFamily.WAY)) {
+					else if (CF
+							.equals(
+									ColumnFamily.WAY)) {
 						OsmType = OSMType.WAY;
 					}
-					else if (Schema.arraysEqual(
-							CF,
-							ColumnFamily.RELATION)) {
+					else if (CF
+							.equals(
+									ColumnFamily.RELATION)) {
 						OsmType = OSMType.RELATION;
 					}
 				}
 
 				final ByteSequence CQ = item.getKey().getColumnQualifierData();
-				if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.ID)) {
-					Id = longReader.readField(item.getValue().get());
+				if (
+								CQ.equals(
+								ColumnQualifier.ID)) {
+					Id = longReader
+							.readField(
+									item.getValue().get());
 				}
-				else if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.VERSION)) {
-					Version = longReader.readField(item.getValue().get());
+				else if (
+								CQ.equals(
+								ColumnQualifier.VERSION)) {
+					Version = longReader
+							.readField(
+									item.getValue().get());
 				}
-				else if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.TIMESTAMP)) {
-					Timestamp = longReader.readField(item.getValue().get());
+				else if (
+								CQ.equals(
+								ColumnQualifier.TIMESTAMP)) {
+					Timestamp = longReader
+							.readField(
+									item.getValue().get());
 				}
-				else if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.CHANGESET)) {
-					Changeset = longReader.readField(item.getValue().get());
+				else if (
+						CQ.equals(
+								ColumnQualifier.CHANGESET)) {
+					Changeset = longReader
+							.readField(
+									item.getValue().get());
 				}
-				else if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.USER_ID)) {
-					UserId = longReader.readField(item.getValue().get());
+				else if (
+						CQ.equals(
+								ColumnQualifier.USER_ID)) {
+					UserId = longReader
+							.readField(
+									item.getValue().get());
 				}
-				else if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.USER_TEXT)) {
-					UserName = stringReader.readField(item.getValue().get());
+				else if (
+						CQ.equals(
+								ColumnQualifier.USER_TEXT)) {
+					UserName = stringReader
+							.readField(
+									item.getValue().get());
 				}
-				else if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.OSM_VISIBILITY)) {
-					Visible = booleanReader.readField(item.getValue().get());
+				else if (
+						CQ.equals(
+								ColumnQualifier.OSM_VISIBILITY)) {
+					Visible = booleanReader
+							.readField(
+									item.getValue().get());
 				}
-				else if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.LATITUDE)) {
-					Lattitude = doubleReader.readField(item.getValue().get());
+				else if (
+						CQ.equals(
+								ColumnQualifier.LATITUDE)) {
+					Lattitude = doubleReader
+							.readField(
+									item.getValue().get());
 				}
-				else if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.LONGITUDE)) {
-					Longitude = doubleReader.readField(item.getValue().get());
+				else if (
+						CQ.equals(
+								ColumnQualifier.LONGITUDE)) {
+					Longitude = doubleReader
+							.readField(
+									item.getValue().get());
 				}
-				else if (Schema.arraysEqual(
-						CQ,
-						ColumnQualifier.REFERENCES)) {
+				else if (
+						CQ.equals(
+								ColumnQualifier.REFERENCES)) {
 					try {
-						Nodes = TypeUtils.deserializeLongArray(
-								item.getValue().get(),
-								null).getIds();
+						Nodes = TypeUtils
+								.deserializeLongArray(
+										item.getValue().get(),
+										null)
+								.getIds();
 					}
 					catch (final IOException e) {
-						LOGGER.error(
-								"Error deserializing Avro encoded Relation member set",
-								e);
+						LOGGER
+								.error(
+										"Error deserializing Avro encoded Relation member set",
+										e);
 					}
 				}
-				else if (Schema.startsWith(
-						CQ,
-						ColumnQualifier.REFERENCE_MEMID_PREFIX.getBytes(Constants.CHARSET))) {
+				else if (Schema
+						.startsWith(
+								CQ,
+								ColumnQualifier.REFERENCE_MEMID_PREFIX
+										.getBytes(
+												Constants.CHARSET))) {
 					final String s = new String(
 							CQ.toArray(),
 							Constants.CHARSET);
-					final Integer id = Integer.valueOf(s.split("_")[1]);
+					final Integer id = Integer
+							.valueOf(
+									s
+											.split(
+													"_")[1]);
 					if (relationSets == null) {
 						relationSets = new HashMap<>();
 					}
-					if (!relationSets.containsKey(id)) {
-						relationSets.put(
-								id,
-								new RelationSet());
+					if (!relationSets
+							.containsKey(
+									id)) {
+						relationSets
+								.put(
+										id,
+										new RelationSet());
 					}
-					relationSets.get(id).memId = longReader.readField(item.getValue().get());
+					relationSets
+							.get(
+									id).memId = longReader
+											.readField(
+													item.getValue().get());
 				}
-				else if (Schema.startsWith(
-						CQ,
-						ColumnQualifier.REFERENCE_ROLEID_PREFIX.getBytes(Constants.CHARSET))) {
+				else if (Schema
+						.startsWith(
+								CQ,
+								ColumnQualifier.REFERENCE_ROLEID_PREFIX
+										.getBytes(
+												Constants.CHARSET))) {
 					final String s = new String(
 							CQ.toArray(),
 							Constants.CHARSET);
-					final Integer id = Integer.valueOf(s.split("_")[1]);
+					final Integer id = Integer
+							.valueOf(
+									s
+											.split(
+													"_")[1]);
 					if (relationSets == null) {
 						relationSets = new HashMap<>();
 					}
-					if (!relationSets.containsKey(id)) {
-						relationSets.put(
-								id,
-								new RelationSet());
+					if (!relationSets
+							.containsKey(
+									id)) {
+						relationSets
+								.put(
+										id,
+										new RelationSet());
 					}
-					relationSets.get(id).roleId = stringReader.readField(item.getValue().get());
+					relationSets
+							.get(
+									id).roleId = stringReader
+											.readField(
+													item.getValue().get());
 				}
-				else if (Schema.startsWith(
-						CQ,
-						ColumnQualifier.REFERENCE_TYPE_PREFIX.getBytes(Constants.CHARSET))) {
+				else if (Schema
+						.startsWith(
+								CQ,
+								ColumnQualifier.REFERENCE_TYPE_PREFIX
+										.getBytes(
+												Constants.CHARSET))) {
 					final String s = new String(
 							CQ.toArray(),
 							Constants.CHARSET);
-					final Integer id = Integer.valueOf(s.split("_")[1]);
+					final Integer id = Integer
+							.valueOf(
+									s
+											.split(
+													"_")[1]);
 					if (relationSets == null) {
 						relationSets = new HashMap<>();
 					}
-					if (!relationSets.containsKey(id)) {
-						relationSets.put(
-								id,
-								new RelationSet());
+					if (!relationSets
+							.containsKey(
+									id)) {
+						relationSets
+								.put(
+										id,
+										new RelationSet());
 					}
-					switch (stringReader.readField(item.getValue().get())) {
+					switch (stringReader
+							.readField(
+									item.getValue().get())) {
 						case "NODE": {
-							relationSets.get(id).memType = MemberType.NODE;
+							relationSets
+									.get(
+											id).memType = MemberType.NODE;
 							break;
 						}
 						case "WAY": {
-							relationSets.get(id).memType = MemberType.WAY;
+							relationSets
+									.get(
+											id).memType = MemberType.WAY;
 							break;
 						}
 						case "RELATION": {
-							relationSets.get(id).memType = MemberType.RELATION;
+							relationSets
+									.get(
+											id).memType = MemberType.RELATION;
 							break;
 						}
 						default:
@@ -362,11 +506,12 @@ public class SimpleFeatureGenerator
 					if (tags == null) {
 						tags = new HashMap<>();
 					}
-					tags.put(
-							item.getKey().getColumnQualifier().toString(),
-							new String(
-									item.getValue().get(),
-									Constants.CHARSET));
+					tags
+							.put(
+									item.getKey().getColumnQualifier().toString(),
+									new String(
+											item.getValue().get(),
+											Constants.CHARSET));
 				}
 			}
 		}

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -28,14 +28,10 @@ import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.user.TransformingIterator;
 import org.apache.accumulo.core.iterators.user.WholeRowIterator;
 import org.apache.hadoop.io.Text;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.flatten.BitmaskUtils;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 
 public class AttributeSubsettingIterator extends
 		TransformingIterator
@@ -63,15 +59,17 @@ public class AttributeSubsettingIterator extends
 			final Value wholeRowVal = input.getTopValue();
 			final SortedMap<Key, Value> rowMapping;
 			if (wholeRowEncoded) {
-				rowMapping = WholeRowIterator.decodeRow(
-						wholeRowKey,
-						wholeRowVal);
+				rowMapping = WholeRowIterator
+						.decodeRow(
+								wholeRowKey,
+								wholeRowVal);
 			}
 			else {
-				rowMapping = new TreeMap<Key, Value>();
-				rowMapping.put(
-						wholeRowKey,
-						wholeRowVal);
+				rowMapping = new TreeMap<>();
+				rowMapping
+						.put(
+								wholeRowKey,
+								wholeRowVal);
 			}
 			final List<Key> keyList = new ArrayList<>();
 			final List<Value> valList = new ArrayList<>();
@@ -84,26 +82,38 @@ public class AttributeSubsettingIterator extends
 					adapterId = currKey.getColumnFamily();
 				}
 				final byte[] originalBitmask = currKey.getColumnQualifierData().getBackingArray();
-				final byte[] newBitmask = BitmaskUtils.generateANDBitmask(
-						originalBitmask,
-						fieldSubsetBitmask);
-				if (BitmaskUtils.isAnyBitSet(newBitmask)) {
-					if (!Arrays.equals(
-							newBitmask,
-							originalBitmask)) {
-						keyList.add(replaceColumnQualifier(
-								currKey,
-								new Text(
-										newBitmask)));
-						valList.add(constructNewValue(
-								currVal,
+				final byte[] newBitmask = BitmaskUtils
+						.generateANDBitmask(
 								originalBitmask,
-								newBitmask));
+								fieldSubsetBitmask);
+				if (BitmaskUtils
+						.isAnyBitSet(
+								newBitmask)) {
+					if (!Arrays
+							.equals(
+									newBitmask,
+									originalBitmask)) {
+						keyList
+								.add(
+										replaceColumnQualifier(
+												currKey,
+												new Text(
+														newBitmask)));
+						valList
+								.add(
+										constructNewValue(
+												currVal,
+												originalBitmask,
+												newBitmask));
 					}
 					else {
 						// pass along unmodified
-						keyList.add(currKey);
-						valList.add(currVal);
+						keyList
+								.add(
+										currKey);
+						valList
+								.add(
+										currVal);
 					}
 				}
 			}
@@ -114,17 +124,23 @@ public class AttributeSubsettingIterator extends
 					outputKey = new Key(
 							wholeRowKey.getRow(),
 							adapterId);
-					outputVal = WholeRowIterator.encodeRow(
-							keyList,
-							valList);
+					outputVal = WholeRowIterator
+							.encodeRow(
+									keyList,
+									valList);
 				}
 				else {
-					outputKey = keyList.get(0);
-					outputVal = valList.get(0);
+					outputKey = keyList
+							.get(
+									0);
+					outputVal = valList
+							.get(
+									0);
 				}
-				output.append(
-						outputKey,
-						outputVal);
+				output
+						.append(
+								outputKey,
+								outputVal);
 			}
 			input.next();
 		}
@@ -134,10 +150,11 @@ public class AttributeSubsettingIterator extends
 			final Value original,
 			final byte[] originalBitmask,
 			final byte[] newBitmask ) {
-		final byte[] newBytes = BitmaskUtils.constructNewValue(
-				original.get(),
-				originalBitmask,
-				newBitmask);
+		final byte[] newBytes = BitmaskUtils
+				.constructNewValue(
+						original.get(),
+						originalBitmask,
+						newBitmask);
 		if (newBytes == null) {
 			return null;
 		}
@@ -156,20 +173,33 @@ public class AttributeSubsettingIterator extends
 				options,
 				env);
 		// get fieldIds and associated adapter
-		final String bitmaskStr = options.get(FIELD_SUBSET_BITMASK);
-		fieldSubsetBitmask = ByteArrayUtils.byteArrayFromString(bitmaskStr);
-		final String wholeRowEncodedStr = options.get(WHOLE_ROW_ENCODED_KEY);
+		final String bitmaskStr = options
+				.get(
+						FIELD_SUBSET_BITMASK);
+		fieldSubsetBitmask = ByteArrayUtils
+				.byteArrayFromString(
+						bitmaskStr);
+		final String wholeRowEncodedStr = options
+				.get(
+						WHOLE_ROW_ENCODED_KEY);
 		// default to whole row encoded if not specified
-		wholeRowEncoded = ((wholeRowEncodedStr == null) || !wholeRowEncodedStr.equals(Boolean.toString(false)));
+		wholeRowEncoded = ((wholeRowEncodedStr == null) || !wholeRowEncodedStr
+				.equals(
+						Boolean
+								.toString(
+										false)));
 	}
 
 	@Override
 	public boolean validateOptions(
 			final Map<String, String> options ) {
-		if ((!super.validateOptions(options)) || (options == null)) {
+		if ((!super.validateOptions(
+				options)) || (options == null)) {
 			return false;
 		}
-		final boolean hasFieldsBitmask = options.containsKey(FIELD_SUBSET_BITMASK);
+		final boolean hasFieldsBitmask = options
+				.containsKey(
+						FIELD_SUBSET_BITMASK);
 		if (!hasFieldsBitmask) {
 			// all are required
 			return false;
@@ -200,18 +230,22 @@ public class AttributeSubsettingIterator extends
 	 * @param numericDimensions
 	 *            the numeric dimension fields
 	 */
-	public static void setFieldIds(
+	public static void setFieldNames(
 			final IteratorSetting setting,
 			final DataTypeAdapter<?> adapterAssociatedWithFieldIds,
-			final List<String> fieldIds,
+			final String[] fieldNames,
 			final CommonIndexModel indexModel ) {
-		final byte[] fieldSubsetBitmask = BitmaskUtils.generateFieldSubsetBitmask(
-				indexModel,
-				ByteArrayId.transformStringList(fieldIds),
-				adapterAssociatedWithFieldIds);
+		final byte[] fieldSubsetBitmask = BitmaskUtils
+				.generateFieldSubsetBitmask(
+						indexModel,
+						fieldNames,
+						adapterAssociatedWithFieldIds);
 
-		setting.addOption(
-				FIELD_SUBSET_BITMASK,
-				ByteArrayUtils.byteArrayToString(fieldSubsetBitmask));
+		setting
+				.addOption(
+						FIELD_SUBSET_BITMASK,
+						ByteArrayUtils
+								.byteArrayToString(
+										fieldSubsetBitmask));
 	}
 }

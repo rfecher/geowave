@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -37,7 +37,9 @@ public class VectorIngestRunner extends
 		AnalyzeRunner
 {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(RasterIngestRunner.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					RasterIngestRunner.class);
 	protected final List<String> parameters;
 	private Writer bandWriter;
 	private Writer sceneWriter;
@@ -62,17 +64,25 @@ public class VectorIngestRunner extends
 				throw new ParameterException(
 						"Requires arguments: <storename> <comma delimited index/group list>");
 			}
-			final String inputStoreName = parameters.get(0);
-			final String indexList = parameters.get(1);
+			final String inputStoreName = parameters
+					.get(
+							0);
+			final String indexList = parameters
+					.get(
+							1);
 
 			// Config file
-			final File configFile = (File) params.getContext().get(
-					ConfigOptions.PROPERTIES_FILE_CONTEXT);
+			final File configFile = (File) params
+					.getContext()
+					.get(
+							ConfigOptions.PROPERTIES_FILE_CONTEXT);
 
 			// Attempt to load input store.
 			final StoreLoader inputStoreLoader = new StoreLoader(
 					inputStoreName);
-			if (!inputStoreLoader.loadFromConfig(configFile)) {
+			if (!inputStoreLoader
+					.loadFromConfig(
+							configFile)) {
 				throw new ParameterException(
 						"Cannot find store name: " + inputStoreLoader.getStoreName());
 			}
@@ -82,7 +92,9 @@ public class VectorIngestRunner extends
 			// Load the Indices
 			final IndexLoader indexLoader = new IndexLoader(
 					indexList);
-			if (!indexLoader.loadFromConfig(configFile)) {
+			if (!indexLoader
+					.loadFromConfig(
+							configFile)) {
 				throw new ParameterException(
 						"Cannot find index(s) by name: " + indexList);
 			}
@@ -93,7 +105,9 @@ public class VectorIngestRunner extends
 			for (final IndexPluginOptions dimensionType : indexOptions) {
 				final Index primaryIndex = dimensionType.createIndex();
 				if (primaryIndex == null) {
-					LOGGER.error("Could not get index instance, getIndex() returned null;");
+					LOGGER
+							.error(
+									"Could not get index instance, getIndex() returned null;");
 					throw new IOException(
 							"Could not get index instance, getIndex() returned null");
 				}
@@ -102,37 +116,40 @@ public class VectorIngestRunner extends
 			sceneType = SceneFeatureIterator.createFeatureType();
 			final FeatureDataAdapter sceneAdapter = new FeatureDataAdapter(
 					sceneType);
-			sceneWriter = store.createWriter(
-					sceneAdapter,
-					indices);
-			final SimpleFeatureType bandType = BandFeatureIterator.createFeatureType(sceneType);
+			store
+					.addType(
+							sceneAdapter);
+			store
+					.addIndex(
+							sceneAdapter.getTypeName(),
+							indices);
+			sceneWriter = store
+					.createWriter(
+							sceneAdapter.getTypeName());
+			final SimpleFeatureType bandType = BandFeatureIterator
+					.createFeatureType(
+							sceneType);
 			final FeatureDataAdapter bandAdapter = new FeatureDataAdapter(
 					bandType);
-			bandWriter = store.createWriter(
-					bandAdapter,
-					indices);
-			super.runInternal(params);
+			store
+					.addType(
+							bandAdapter);
+			store
+					.addIndex(
+							bandAdapter.getTypeName(),
+							indices);
+			bandWriter = store
+					.createWriter(
+							bandAdapter.getTypeName());
+			super.runInternal(
+					params);
 		}
 		finally {
 			if (sceneWriter != null) {
-				try {
-					sceneWriter.close();
-				}
-				catch (final IOException e) {
-					LOGGER.error(
-							"Unable to close writer for scene vectors",
-							e);
-				}
+				sceneWriter.close();
 			}
 			if (bandWriter != null) {
-				try {
-					bandWriter.close();
-				}
-				catch (final IOException e) {
-					LOGGER.error(
-							"Unable to close writer for band vectors",
-							e);
-				}
+				bandWriter.close();
 			}
 		}
 	}
@@ -141,7 +158,9 @@ public class VectorIngestRunner extends
 	protected void nextBand(
 			final SimpleFeature band,
 			final AnalysisInfo analysisInfo ) {
-		bandWriter.write(band);
+		bandWriter
+				.write(
+						band);
 		super.nextBand(
 				band,
 				analysisInfo);
@@ -168,20 +187,31 @@ public class VectorIngestRunner extends
 				sceneType);
 		String fid = null;
 		for (int i = 0; i < sceneType.getAttributeCount(); i++) {
-			final AttributeDescriptor attr = sceneType.getDescriptor(i);
+			final AttributeDescriptor attr = sceneType
+					.getDescriptor(
+							i);
 			final String attrName = attr.getLocalName();
-			final Object attrValue = firstBandOfScene.getAttribute(attrName);
+			final Object attrValue = firstBandOfScene
+					.getAttribute(
+							attrName);
 			if (attrValue != null) {
-				bldr.set(
-						i,
-						attrValue);
-				if (attrName.equals(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)) {
+				bldr
+						.set(
+								i,
+								attrValue);
+				if (attrName
+						.equals(
+								SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)) {
 					fid = attrValue.toString();
 				}
 			}
 		}
 		if (fid != null) {
-			sceneWriter.write(bldr.buildFeature(fid));
+			sceneWriter
+					.write(
+							bldr
+									.buildFeature(
+											fid));
 		}
 	}
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,8 +11,6 @@
 package org.locationtech.geowave.analytic.mapreduce.kmeans;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.ObjectWritable;
@@ -33,7 +31,6 @@ import org.locationtech.geowave.analytic.extract.SimpleFeatureCentroidExtractor;
 import org.locationtech.geowave.analytic.kmeans.AssociationNotification;
 import org.locationtech.geowave.analytic.mapreduce.GroupIDText;
 import org.locationtech.geowave.analytic.param.CentroidParameters;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.mapreduce.GeoWaveWritableInputMapper;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 import org.locationtech.geowave.mapreduce.output.GeoWaveOutputKey;
@@ -53,7 +50,7 @@ import com.vividsolutions.jts.geom.Point;
  * dimensions updated towards their respective mean for the assigned items.
  * <p/>
  * Properties:
- * 
+ *
  * @formatter:off "KMeansMapReduce.Common.DistanceFunctionClass" - Used to
  *                determine distance to centroid
  *                <p/>
@@ -71,7 +68,9 @@ import com.vividsolutions.jts.geom.Point;
 public class KMeansMapReduce
 {
 
-	protected static final Logger LOGGER = LoggerFactory.getLogger(KMeansMapReduce.class);
+	protected static final Logger LOGGER = LoggerFactory
+			.getLogger(
+					KMeansMapReduce.class);
 
 	public static class KMeansMapper extends
 			GeoWaveWritableInputMapper<GroupIDText, BytesWritable>
@@ -88,17 +87,21 @@ public class KMeansMapReduce
 			@Override
 			public void notify(
 					final CentroidPairing<Object> pairing ) {
-				outputKeyWritable.set(
-						pairing.getCentroid().getGroupID(),
-						pairing.getCentroid().getID());
+				outputKeyWritable
+						.set(
+								pairing.getCentroid().getGroupID(),
+								pairing.getCentroid().getID());
 				final double extra[] = pairing.getPairedItem().getDimensionValues();
-				final Point p = centroidExtractor.getCentroid(pairing.getPairedItem().getWrappedItem());
-				association.set(
-						p.getCoordinate().x,
-						p.getCoordinate().y,
-						p.getCoordinate().z,
-						extra,
-						pairing.getDistance());
+				final Point p = centroidExtractor
+						.getCentroid(
+								pairing.getPairedItem().getWrappedItem());
+				association
+						.set(
+								p.getCoordinate().x,
+								p.getCoordinate().y,
+								p.getCoordinate().z,
+								extra,
+								pairing.getDistance());
 			}
 		};
 
@@ -109,18 +112,23 @@ public class KMeansMapReduce
 				final org.apache.hadoop.mapreduce.Mapper<GeoWaveInputKey, ObjectWritable, GroupIDText, BytesWritable>.Context context )
 				throws IOException,
 				InterruptedException {
-			final AnalyticItemWrapper<Object> item = itemWrapperFactory.create(value);
-			nestedGroupCentroidAssigner.findCentroidForLevel(
-					item,
-					centroidAssociationFn);
+			final AnalyticItemWrapper<Object> item = itemWrapperFactory
+					.create(
+							value);
+			nestedGroupCentroidAssigner
+					.findCentroidForLevel(
+							item,
+							centroidAssociationFn);
 			final byte[] outData = association.toBinary();
-			outputValWritable.set(
-					outData,
-					0,
-					outData.length);
-			context.write(
-					outputKeyWritable,
-					outputValWritable);
+			outputValWritable
+					.set(
+							outData,
+							0,
+							outData.length);
+			context
+					.write(
+							outputKeyWritable,
+							outputValWritable);
 		}
 
 		@Override
@@ -128,14 +136,15 @@ public class KMeansMapReduce
 				final Mapper<GeoWaveInputKey, ObjectWritable, GroupIDText, BytesWritable>.Context context )
 				throws IOException,
 				InterruptedException {
-			super.setup(context);
+			super.setup(
+					context);
 			final ScopedJobConfiguration config = new ScopedJobConfiguration(
 					context.getConfiguration(),
 					KMeansMapReduce.class,
 					KMeansMapReduce.LOGGER);
 
 			try {
-				nestedGroupCentroidAssigner = new NestedGroupCentroidAssignment<Object>(
+				nestedGroupCentroidAssigner = new NestedGroupCentroidAssignment<>(
 						context,
 						KMeansMapReduce.class,
 						KMeansMapReduce.LOGGER);
@@ -146,10 +155,11 @@ public class KMeansMapReduce
 			}
 
 			try {
-				centroidExtractor = config.getInstance(
-						CentroidParameters.Centroid.EXTRACTOR_CLASS,
-						CentroidExtractor.class,
-						SimpleFeatureCentroidExtractor.class);
+				centroidExtractor = config
+						.getInstance(
+								CentroidParameters.Centroid.EXTRACTOR_CLASS,
+								CentroidExtractor.class,
+								SimpleFeatureCentroidExtractor.class);
 			}
 			catch (final Exception e1) {
 				throw new IOException(
@@ -157,15 +167,17 @@ public class KMeansMapReduce
 			}
 
 			try {
-				itemWrapperFactory = config.getInstance(
-						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-						AnalyticItemWrapperFactory.class,
-						SimpleFeatureItemWrapperFactory.class);
+				itemWrapperFactory = config
+						.getInstance(
+								CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+								AnalyticItemWrapperFactory.class,
+								SimpleFeatureItemWrapperFactory.class);
 
-				itemWrapperFactory.initialize(
-						context,
-						KMeansMapReduce.class,
-						KMeansMapReduce.LOGGER);
+				itemWrapperFactory
+						.initialize(
+								context,
+								KMeansMapReduce.class,
+								KMeansMapReduce.LOGGER);
 			}
 			catch (final Exception e1) {
 				throw new IOException(
@@ -193,17 +205,23 @@ public class KMeansMapReduce
 			final GeoObjectDimensionValues totals = new GeoObjectDimensionValues();
 
 			for (final BytesWritable value : values) {
-				geoObject.fromBinary(value.getBytes());
-				totals.add(geoObject);
+				geoObject
+						.fromBinary(
+								value.getBytes());
+				totals
+						.add(
+								geoObject);
 			}
 			final byte[] outData = totals.toBinary();
-			outputValWritable.set(
-					outData,
-					0,
-					outData.length);
-			context.write(
-					key,
-					outputValWritable);
+			outputValWritable
+					.set(
+							outData,
+							0,
+							outData.length);
+			context
+					.write(
+							key,
+							outputValWritable);
 		}
 	}
 
@@ -213,7 +231,7 @@ public class KMeansMapReduce
 
 		protected CentroidManager<Object> centroidManager;
 		private final GeoObjectDimensionValues geoObject = new GeoObjectDimensionValues();
-		private List<ByteArrayId> indexIds;
+		private String[] indexNames;
 
 		@Override
 		public void reduce(
@@ -227,8 +245,12 @@ public class KMeansMapReduce
 			final GeoObjectDimensionValues totals = new GeoObjectDimensionValues();
 
 			for (final BytesWritable value : values) {
-				geoObject.fromBinary(value.getBytes());
-				totals.add(geoObject);
+				geoObject
+						.fromBinary(
+								value.getBytes());
+				totals
+						.add(
+								geoObject);
 			}
 
 			AnalyticItemWrapper<Object> centroid;
@@ -238,9 +260,10 @@ public class KMeansMapReduce
 						groupID);
 			}
 			catch (final MatchingCentroidNotFoundException e) {
-				LOGGER.error(
-						"Unable to get centroid " + centroidID + " for group " + groupID,
-						e);
+				LOGGER
+						.error(
+								"Unable to get centroid " + centroidID + " for group " + groupID,
+								e);
 				return;
 			}
 
@@ -248,7 +271,9 @@ public class KMeansMapReduce
 			// centroid PRIOR to this update.
 			// centroid.setCost(totals.distance);
 			centroid.resetAssociatonCount();
-			centroid.incrementAssociationCount(totals.getCount());
+			centroid
+					.incrementAssociationCount(
+							totals.getCount());
 
 			final double ptCount = totals.getCount();
 			// mean
@@ -262,25 +287,29 @@ public class KMeansMapReduce
 			}
 
 			if (KMeansMapReduce.LOGGER.isTraceEnabled()) {
-				KMeansMapReduce.LOGGER.trace(groupID + " contains " + centroidID);
+				KMeansMapReduce.LOGGER
+						.trace(
+								groupID + " contains " + centroidID);
 			}
 
-			final AnalyticItemWrapper<Object> nextCentroid = centroidManager.createNextCentroid(
-					centroid.getWrappedItem(),
-					groupID,
-					new Coordinate(
-							totals.x,
-							totals.y,
-							totals.z),
-					centroid.getExtraDimensions(),
-					totals.values);
+			final AnalyticItemWrapper<Object> nextCentroid = centroidManager
+					.createNextCentroid(
+							centroid.getWrappedItem(),
+							groupID,
+							new Coordinate(
+									totals.x,
+									totals.y,
+									totals.z),
+							centroid.getExtraDimensions(),
+							totals.values);
 
 			// new center
-			context.write(
-					new GeoWaveOutputKey(
-							centroidManager.getDataTypeId(),
-							indexIds),
-					nextCentroid.getWrappedItem());
+			context
+					.write(
+							new GeoWaveOutputKey(
+									centroidManager.getDataTypeName(),
+									indexNames),
+							nextCentroid.getWrappedItem());
 
 		}
 
@@ -289,9 +318,10 @@ public class KMeansMapReduce
 				final String groupID )
 				throws IOException,
 				MatchingCentroidNotFoundException {
-			return centroidManager.getCentroidById(
-					id,
-					groupID);
+			return centroidManager
+					.getCentroidById(
+							id,
+							groupID);
 		}
 
 		@Override
@@ -299,14 +329,16 @@ public class KMeansMapReduce
 				final Reducer<GroupIDText, BytesWritable, GeoWaveOutputKey, Object>.Context context )
 				throws IOException,
 				InterruptedException {
-			super.setup(context);
+			super.setup(
+					context);
 			try {
-				centroidManager = new CentroidManagerGeoWave<Object>(
+				centroidManager = new CentroidManagerGeoWave<>(
 						context,
 						KMeansMapReduce.class,
 						KMeansMapReduce.LOGGER);
-				indexIds = new ArrayList<ByteArrayId>();
-				indexIds.add(centroidManager.getIndexId());
+				indexNames = new String[] {
+					centroidManager.getIndexName()
+				};
 			}
 			catch (final Exception e) {
 				throw new IOException(

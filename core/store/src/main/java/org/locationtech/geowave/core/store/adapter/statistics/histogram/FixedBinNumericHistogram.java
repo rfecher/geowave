@@ -51,7 +51,7 @@ public class FixedBinNumericHistogram implements
 	private long count[] = new long[32];
 	private long totalCount = 0;
 	private double minValue = Double.MAX_VALUE;
-	private double maxValue = Double.MIN_VALUE;
+	private double maxValue = -Double.MAX_VALUE;
 	private boolean constrainedRange = false;
 
 	/**

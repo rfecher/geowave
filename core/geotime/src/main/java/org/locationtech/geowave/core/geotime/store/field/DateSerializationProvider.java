@@ -60,14 +60,6 @@ public class DateSerializationProvider implements
 			buf.putLong(fieldData.getTime());
 			return buf.array();
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Date fieldValue ) {
-			return new byte[] {};
-		}
 	}
 
 }

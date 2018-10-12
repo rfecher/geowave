@@ -10,7 +10,7 @@ import org.locationtech.geowave.core.store.query.filter.BasicQueryFilter.BasicQu
 public interface QueryConstraintsFactory
 {
 	QueryConstraints dataIds(
-			final ByteArrayId[] dataIds );
+			final ByteArrayId... dataIds );
 
 	QueryConstraints prefix(
 			final ByteArrayId partitionKey,

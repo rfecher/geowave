@@ -43,8 +43,8 @@ public class FeatureGeometryUtils
 		try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> geoStatIt = statisticsStore
 				.getDataStatistics(
 						adapterId,
-						query.getStatsType(),
 						query.getExtendedId(),
+						query.getStatsType(),
 						query.getAuthorizations())) {
 			if (geoStatIt.hasNext()) {
 				final InternalDataStatistics<?, ?, ?> geoStat = geoStatIt.next();

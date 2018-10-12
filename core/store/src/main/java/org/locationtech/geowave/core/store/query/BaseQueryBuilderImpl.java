@@ -1,9 +1,13 @@
 package org.locationtech.geowave.core.store.query;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
+import org.locationtech.geowave.core.store.query.options.CommonQueryOptions.HintKey;
 import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
 import org.locationtech.geowave.core.store.query.options.QuerySingleIndex;
 
@@ -12,9 +16,8 @@ public abstract class BaseQueryBuilderImpl<T, Q extends BaseQuery<T, ?>, R exten
 {
 	protected String indexName = null;
 	protected String[] authorizations = new String[0];
-	protected double[] maxResolutionPerDimension = null;
 	protected Integer limit = null;
-	protected Integer maxRangeDecomposition = null;
+	protected Map<HintKey<?>, Object> hints = new HashMap<>();
 	protected QueryConstraints constraints = new EverythingQuery();
 
 	@Override
@@ -47,7 +50,7 @@ public abstract class BaseQueryBuilderImpl<T, Q extends BaseQuery<T, ?>, R exten
 			this.authorizations = new String[0];
 		}
 		else {
-		this.authorizations = authorizations;
+			this.authorizations = authorizations;
 		}
 		return (R) this;
 	}
@@ -55,19 +58,6 @@ public abstract class BaseQueryBuilderImpl<T, Q extends BaseQuery<T, ?>, R exten
 	@Override
 	public R noAuthorizations() {
 		this.authorizations = new String[0];
-		return (R) this;
-	}
-
-	@Override
-	public R subsampling(
-			final double[] maxResolutionPerDimension ) {
-		this.maxResolutionPerDimension = maxResolutionPerDimension;
-		return (R) this;
-	}
-
-	@Override
-	public R noSubsampling() {
-		maxResolutionPerDimension = null;
 		return (R) this;
 	}
 
@@ -85,21 +75,19 @@ public abstract class BaseQueryBuilderImpl<T, Q extends BaseQuery<T, ?>, R exten
 	}
 
 	@Override
-	public R maxRanges(
-			final int maxRangeDecomposition ) {
-		this.maxRangeDecomposition = maxRangeDecomposition;
+	public <HintValueType> R addHint(
+			final HintKey<HintValueType> key,
+			final HintValueType value ) {
+		this.hints
+				.put(
+						key,
+						value);
 		return (R) this;
 	}
 
 	@Override
-	public R noMaxRanges() {
-		this.maxRangeDecomposition = -1;
-		return (R) this;
-	}
-
-	@Override
-	public R defaultMaxRanges() {
-		this.maxRangeDecomposition = null;
+	public R noHints() {
+		hints.clear();
 		return (R) this;
 	}
 
@@ -112,9 +100,8 @@ public abstract class BaseQueryBuilderImpl<T, Q extends BaseQuery<T, ?>, R exten
 
 	protected CommonQueryOptions newCommonQueryOptions() {
 		return new CommonQueryOptions(
-				maxResolutionPerDimension,
-				maxRangeDecomposition,
 				limit,
+				hints,
 				authorizations);
 	}
 

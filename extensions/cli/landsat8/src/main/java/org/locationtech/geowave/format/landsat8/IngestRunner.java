@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -12,7 +12,6 @@ package org.locationtech.geowave.format.landsat8;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
@@ -32,13 +31,12 @@ import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.ParameterException;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-
 public class IngestRunner extends
 		RasterIngestRunner
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(IngestRunner.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					IngestRunner.class);
 	private Writer<SimpleFeature> bandWriter;
 	private Writer<SimpleFeature> sceneWriter;
 	private final VectorOverrideCommandLineOptions vectorOverrideOptions;
@@ -64,20 +62,25 @@ public class IngestRunner extends
 			final OperationParams params )
 			throws Exception { // Ensure we have all the required
 								// arguments
-		super.processParameters(params);
+		super.processParameters(
+				params);
 
 		final DataStore vectorStore;
 		final Index[] vectorIndices;
 		// Config file
-		final File configFile = (File) params.getContext().get(
-				ConfigOptions.PROPERTIES_FILE_CONTEXT);
+		final File configFile = (File) params
+				.getContext()
+				.get(
+						ConfigOptions.PROPERTIES_FILE_CONTEXT);
 
 		if ((vectorOverrideOptions.getVectorStore() != null)
 				&& !vectorOverrideOptions.getVectorStore().trim().isEmpty()) {
-			String vectorStoreName = vectorOverrideOptions.getVectorStore();
+			final String vectorStoreName = vectorOverrideOptions.getVectorStore();
 			final StoreLoader vectorStoreLoader = new StoreLoader(
 					vectorStoreName);
-			if (!vectorStoreLoader.loadFromConfig(configFile)) {
+			if (!vectorStoreLoader
+					.loadFromConfig(
+							configFile)) {
 				throw new ParameterException(
 						"Cannot find vector store name: " + vectorStoreLoader.getStoreName());
 			}
@@ -89,12 +92,14 @@ public class IngestRunner extends
 		}
 		if ((vectorOverrideOptions.getVectorIndex() != null)
 				&& !vectorOverrideOptions.getVectorIndex().trim().isEmpty()) {
-			String vectorIndexList = vectorOverrideOptions.getVectorIndex();
+			final String vectorIndexList = vectorOverrideOptions.getVectorIndex();
 
 			// Load the Indices
 			final IndexLoader indexLoader = new IndexLoader(
 					vectorIndexList);
-			if (!indexLoader.loadFromConfig(configFile)) {
+			if (!indexLoader
+					.loadFromConfig(
+							configFile)) {
 				throw new ParameterException(
 						"Cannot find index(s) by name: " + vectorIndexList);
 			}
@@ -105,7 +110,9 @@ public class IngestRunner extends
 			for (final IndexPluginOptions dimensionType : indexOptions) {
 				final Index primaryIndex = dimensionType.createIndex();
 				if (primaryIndex == null) {
-					LOGGER.error("Could not get index instance, getIndex() returned null;");
+					LOGGER
+							.error(
+									"Could not get index instance, getIndex() returned null;");
 					throw new IOException(
 							"Could not get index instance, getIndex() returned null");
 				}
@@ -118,22 +125,41 @@ public class IngestRunner extends
 		sceneType = SceneFeatureIterator.createFeatureType();
 		final FeatureDataAdapter sceneAdapter = new FeatureDataAdapter(
 				sceneType);
-		sceneWriter = vectorStore.createWriter(
-				sceneAdapter,
-				vectorIndices);
-		final SimpleFeatureType bandType = BandFeatureIterator.createFeatureType(sceneType);
+		vectorStore
+				.addType(
+						sceneAdapter);
+		vectorStore
+				.addIndex(
+						sceneAdapter.getTypeName(),
+						vectorIndices);
+		sceneWriter = vectorStore
+				.createWriter(
+						sceneAdapter.getTypeName());
+		final SimpleFeatureType bandType = BandFeatureIterator
+				.createFeatureType(
+						sceneType);
 		final FeatureDataAdapter bandAdapter = new FeatureDataAdapter(
 				bandType);
-		bandWriter = vectorStore.createWriter(
-				bandAdapter,
-				vectorIndices);
+
+		vectorStore
+				.addType(
+						bandAdapter);
+		vectorStore
+				.addIndex(
+						bandAdapter.getTypeName(),
+						vectorIndices);
+		bandWriter = vectorStore
+				.createWriter(
+						bandAdapter.getTypeName());
 	}
 
 	@Override
 	protected void nextBand(
 			final SimpleFeature band,
 			final AnalysisInfo analysisInfo ) {
-		bandWriter.write(band);
+		bandWriter
+				.write(
+						band);
 		super.nextBand(
 				band,
 				analysisInfo);
@@ -143,10 +169,11 @@ public class IngestRunner extends
 	protected void nextScene(
 			final SimpleFeature firstBandOfScene,
 			final AnalysisInfo analysisInfo ) {
-		VectorIngestRunner.writeScene(
-				sceneType,
-				firstBandOfScene,
-				sceneWriter);
+		VectorIngestRunner
+				.writeScene(
+						sceneType,
+						firstBandOfScene,
+						sceneWriter);
 		super.nextScene(
 				firstBandOfScene,
 				analysisInfo);
@@ -154,31 +181,18 @@ public class IngestRunner extends
 
 	@Override
 	protected void runInternal(
-			OperationParams params )
+			final OperationParams params )
 			throws Exception {
 		try {
-			super.runInternal(params);
+			super.runInternal(
+					params);
 		}
 		finally {
 			if (sceneWriter != null) {
-				try {
-					sceneWriter.close();
-				}
-				catch (final IOException e) {
-					LOGGER.error(
-							"Unable to close writer for scene vectors",
-							e);
-				}
+				sceneWriter.close();
 			}
 			if (bandWriter != null) {
-				try {
-					bandWriter.close();
-				}
-				catch (final IOException e) {
-					LOGGER.error(
-							"Unable to close writer for band vectors",
-							e);
-				}
+				bandWriter.close();
 			}
 		}
 	}

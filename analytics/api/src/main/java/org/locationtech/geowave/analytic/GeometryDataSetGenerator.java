@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -51,11 +51,13 @@ import com.vividsolutions.jts.geom.Point;
 
 /**
  * Generate clusters of geometries.
- * 
+ *
  */
 public class GeometryDataSetGenerator
 {
-	final static Logger LOGGER = LoggerFactory.getLogger(GeometryDataSetGenerator.class);
+	final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					GeometryDataSetGenerator.class);
 	private final Random rand = new Random();
 	private final GeometryFactory geoFactory = new GeometryFactory();
 	private final DistanceFn<SimpleFeature> distanceFunction;
@@ -99,29 +101,33 @@ public class GeometryDataSetGenerator
 		int num = 0;
 		int addCnt = 0;
 		final int dims = coordSystem.getDimension();
-		final int coords = (int) Math.pow(
-				dims,
-				2);
+		final int coords = (int) Math
+				.pow(
+						dims,
+						2);
 
 		final Coordinate[] coordinates = new Coordinate[coords + 1];
 		for (int i = 0; i < coords; i++) {
 			coordinates[i] = new Coordinate();
 			for (int j = 0; j < dims; j++) {
 				final boolean isMin = ((num >> j) % 2) == 0;
-				coordinates[i].setOrdinate(
-						j,
-						isMin ? minAxis[j] : maxAxis[j]);
+				coordinates[i]
+						.setOrdinate(
+								j,
+								isMin ? minAxis[j] : maxAxis[j]);
 			}
 			num += adder[addCnt];
 			addCnt = (addCnt + 1) % 4;
 		}
 		coordinates[coords] = coordinates[0];
-		return geoFactory.createPolygon(coordinates);
+		return geoFactory
+				.createPolygon(
+						coordinates);
 	}
 
 	/**
 	 * Calculate the range for the given bounds
-	 * 
+	 *
 	 * @param factor
 	 * @param minAxis
 	 * @param maxAxis
@@ -142,7 +148,7 @@ public class GeometryDataSetGenerator
 	 * Pick a random grid cell and supply the boundary. The grid is determined
 	 * by the parameter,which provides a percentage of distance over the total
 	 * range for each cell.
-	 * 
+	 *
 	 * @param minCenterDistanceFactor
 	 * @return
 	 */
@@ -162,37 +168,60 @@ public class GeometryDataSetGenerator
 			// related to security or cryptography
 			min[i] = Math
 					.max(
-							minAxis[i]
-									+ (minCenterDistanceFactor * (rand.nextInt(Integer.MAX_VALUE) % (range[i] / minCenterDistanceFactor))),
+							minAxis[i] + (minCenterDistanceFactor * (rand
+									.nextInt(
+											Integer.MAX_VALUE)
+									% (range[i] / minCenterDistanceFactor))),
 							minAxis[i]);
-			max[i] = Math.min(
-					min[i] + (minCenterDistanceFactor * range[i]),
-					maxAxis[i]);
+			max[i] = Math
+					.min(
+							min[i] + (minCenterDistanceFactor * range[i]),
+							maxAxis[i]);
 		}
-		return Pair.of(
-				min,
-				max);
+		return Pair
+				.of(
+						min,
+						max);
 	}
 
 	public void writeToGeoWave(
 			final DataStore dataStore,
 			final List<SimpleFeature> featureData )
 			throws IOException {
-		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		final Index index = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
 		final FeatureDataAdapter adapter = new FeatureDataAdapter(
-				featureData.get(
-						0).getFeatureType());
-		adapter.init(index);
+				featureData
+						.get(
+								0)
+						.getFeatureType());
+		adapter
+				.init(
+						index);
 		final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(
-				featureData.get(
-						0).getFeatureType());
+				featureData
+						.get(
+								0)
+						.getFeatureType());
 
-		LOGGER.info("Writing " + featureData.size() + " records to " + adapter.getFeatureType().getTypeName());
-		try (Writer writer = dataStore.createWriter(
-				adapter,
-				index)) {
+		LOGGER
+				.info(
+						"Writing " + featureData.size() + " records to " + adapter.getFeatureType().getTypeName());
+		dataStore
+				.addType(
+						adapter);
+		dataStore
+				.addIndex(
+						adapter.getTypeName(),
+						index);
+		try (Writer writer = dataStore
+				.createWriter(
+						adapter.getTypeName())) {
 			for (final SimpleFeature feature : featureData) {
-				writer.write(feature);
+				writer
+						.write(
+								feature);
 				featureBuilder.reset();
 
 			}
@@ -204,13 +233,14 @@ public class GeometryDataSetGenerator
 			final double outlierFactor,
 			final int numberOfCenters,
 			final int minSetSize ) {
-		return this.generatePointSet(
-				minCenterDistanceFactor,
-				outlierFactor,
-				numberOfCenters,
-				minSetSize,
-				minAxis,
-				maxAxis);
+		return this
+				.generatePointSet(
+						minCenterDistanceFactor,
+						outlierFactor,
+						numberOfCenters,
+						minSetSize,
+						minAxis,
+						maxAxis);
 	}
 
 	public List<SimpleFeature> generatePointSet(
@@ -218,11 +248,15 @@ public class GeometryDataSetGenerator
 			final double distanceFactor,
 			final int points ) {
 		final List<SimpleFeature> pointSet = new ArrayList<>();
-		for (final Point point : CurvedDensityDataGeneratorTool.generatePoints(
-				line,
-				distanceFactor,
-				points)) {
-			pointSet.add(createFeatureWithGeometry(point));
+		for (final Point point : CurvedDensityDataGeneratorTool
+				.generatePoints(
+						line,
+						distanceFactor,
+						points)) {
+			pointSet
+					.add(
+							createFeatureWithGeometry(
+									point));
 		}
 		return pointSet;
 	}
@@ -243,7 +277,9 @@ public class GeometryDataSetGenerator
 				minAxis,
 				maxAxis);
 		if (numberOfCenters >= minSetSize) {
-			LOGGER.error("The number of centers passed much be less than the minimum set size");
+			LOGGER
+					.error(
+							"The number of centers passed much be less than the minimum set size");
 			throw new IllegalArgumentException(
 					"The number of centers passed much be less than the minimum set size");
 		}
@@ -255,7 +291,7 @@ public class GeometryDataSetGenerator
 
 		/**
 		 * Pick the initial centers which have minimum distance from each other.
-		 * 
+		 *
 		 */
 		while (pointSet.size() < numberOfCenters) {
 
@@ -271,7 +307,9 @@ public class GeometryDataSetGenerator
 					nextFeature,
 					pointSet,
 					minDistance)) {
-				pointSet.add(nextFeature);
+				pointSet
+						.add(
+								nextFeature);
 			}
 		}
 
@@ -285,36 +323,59 @@ public class GeometryDataSetGenerator
 			final Geometry geo = (Geometry) center.getDefaultGeometry();
 			final Coordinate centerCoord = geo.getCentroid().getCoordinate();
 			for (int i = 0; i < centerMinAxis.length; i++) {
-				centerMinAxis[i] = centerCoord.getOrdinate(i) - (range[i] / 2.0);
-				centerMaxAxis[i] = centerCoord.getOrdinate(i) + (range[i] / 2.0);
+				centerMinAxis[i] = centerCoord
+						.getOrdinate(
+								i)
+						- (range[i] / 2.0);
+				centerMaxAxis[i] = centerCoord
+						.getOrdinate(
+								i)
+						+ (range[i] / 2.0);
 			}
-			minForCenter.add(centerMinAxis);
-			maxForCenter.add(centerMaxAxis);
+			minForCenter
+					.add(
+							centerMinAxis);
+			maxForCenter
+					.add(
+							centerMaxAxis);
 		}
 
 		/*
 		 * Pick a random center point and add a new geometry with the bounding
 		 * range around that point.
 		 */
-		final int clusterdItemsCount = (int) Math.ceil((minSetSize) * (1.0 - outlierFactor));
+		final int clusterdItemsCount = (int) Math
+				.ceil(
+						(minSetSize) * (1.0 - outlierFactor));
 		while (pointSet.size() < clusterdItemsCount) {
 			// HP Fortify "Insecure Randomness" false positive
 			// This random number is not used for any purpose
 			// related to security or cryptography
-			final int centerPos = rand.nextInt(Integer.MAX_VALUE) % minForCenter.size();
+			final int centerPos = rand
+					.nextInt(
+							Integer.MAX_VALUE)
+					% minForCenter.size();
 
-			pointSet.add(createNewFeature(
-					minForCenter.get(centerPos),
-					maxForCenter.get(centerPos)));
+			pointSet
+					.add(
+							createNewFeature(
+									minForCenter
+											.get(
+													centerPos),
+									maxForCenter
+											.get(
+													centerPos)));
 		}
 
 		/**
 		 * Add random points as potential outliers (no guarantees)
 		 */
 		while (pointSet.size() < minSetSize) {
-			pointSet.add(createNewFeature(
-					minAxis,
-					maxAxis));
+			pointSet
+					.add(
+							createNewFeature(
+									minAxis,
+									maxAxis));
 		}
 		return pointSet;
 	}
@@ -325,9 +386,11 @@ public class GeometryDataSetGenerator
 			final double[] minAxis,
 			final double[] maxAxis ) {
 		while (pointSet.size() < minSetSize) {
-			pointSet.add(createNewFeature(
-					minAxis,
-					maxAxis));
+			pointSet
+					.add(
+							createNewFeature(
+									minAxis,
+									maxAxis));
 		}
 		return pointSet;
 	}
@@ -338,7 +401,9 @@ public class GeometryDataSetGenerator
 		minAxis = new double[coordSystem.getDimension()];
 		maxAxis = new double[coordSystem.getDimension()];
 		for (int i = 0; i < coordSystem.getDimension(); i++) {
-			final CoordinateSystemAxis axis = coordSystem.getAxis(i);
+			final CoordinateSystemAxis axis = coordSystem
+					.getAxis(
+							i);
 			minAxis[i] = axis.getMinimumValue();
 			maxAxis[i] = axis.getMaximumValue();
 		}
@@ -346,11 +411,15 @@ public class GeometryDataSetGenerator
 
 		final Coordinate coordinate = new Coordinate();
 		for (int i = 0; i < dims; i++) {
-			coordinate.setOrdinate(
-					i,
-					minAxis[i]);
+			coordinate
+					.setOrdinate(
+							i,
+							minAxis[i]);
 		}
-		minFeature = createFeatureWithGeometry(geoFactory.createPoint(coordinate));
+		minFeature = createFeatureWithGeometry(
+				geoFactory
+						.createPoint(
+								coordinate));
 
 	}
 
@@ -359,9 +428,10 @@ public class GeometryDataSetGenerator
 			final List<SimpleFeature> set,
 			final double minDistance ) {
 		for (final SimpleFeature setItem : set) {
-			if (distanceFunction.measure(
-					feature,
-					setItem) < minDistance) {
+			if (distanceFunction
+					.measure(
+							feature,
+							setItem) < minDistance) {
 				return false;
 			}
 		}
@@ -372,7 +442,7 @@ public class GeometryDataSetGenerator
 	 * Find the distance maximum distance of the entire space and multiply that
 	 * by the distance factor to determine a minimum distance each initial
 	 * center point occurs from each other.
-	 * 
+	 *
 	 * @param minCenterDistanceFactor
 	 * @return
 	 */
@@ -386,24 +456,33 @@ public class GeometryDataSetGenerator
 
 		Coordinate coordinate = new Coordinate();
 		for (int i = 0; i < dims; i++) {
-			coordinate.setOrdinate(
-					i,
-					minAxis[i]);
+			coordinate
+					.setOrdinate(
+							i,
+							minAxis[i]);
 		}
-		final SimpleFeature minFeature = createFeatureWithGeometry(geoFactory.createPoint(coordinate));
+		final SimpleFeature minFeature = createFeatureWithGeometry(
+				geoFactory
+						.createPoint(
+								coordinate));
 
 		coordinate = new Coordinate();
 		for (int i = 0; i < dims; i++) {
-			coordinate.setOrdinate(
-					i,
-					maxAxis[i]);
+			coordinate
+					.setOrdinate(
+							i,
+							maxAxis[i]);
 		}
 
-		final SimpleFeature maxFeature = createFeatureWithGeometry(geoFactory.createPoint(coordinate));
+		final SimpleFeature maxFeature = createFeatureWithGeometry(
+				geoFactory
+						.createPoint(
+								coordinate));
 
-		return minCenterDistanceFactor * distanceFunction.measure(
-				minFeature,
-				maxFeature);
+		return minCenterDistanceFactor * distanceFunction
+				.measure(
+						minFeature,
+						maxFeature);
 	}
 
 	private SimpleFeature createNewFeature(
@@ -415,23 +494,30 @@ public class GeometryDataSetGenerator
 		// HP Fortify "Insecure Randomness" false positive
 		// This random number is not used for any purpose
 		// related to security or cryptography
-		final int shapeSize = includePolygons ? (rand.nextInt(Integer.MAX_VALUE) % 5) + 1 : 1;
+		final int shapeSize = includePolygons ? (rand
+				.nextInt(
+						Integer.MAX_VALUE)
+				% 5) + 1 : 1;
 		final Coordinate[] shape = new Coordinate[shapeSize > 2 ? shapeSize + 1 : shapeSize];
-		final double[] constrainedMaxAxis = Arrays.copyOf(
-				maxAxis,
-				maxAxis.length);
-		final double[] constrainedMinAxis = Arrays.copyOf(
-				minAxis,
-				minAxis.length);
+		final double[] constrainedMaxAxis = Arrays
+				.copyOf(
+						maxAxis,
+						maxAxis.length);
+		final double[] constrainedMinAxis = Arrays
+				.copyOf(
+						minAxis,
+						minAxis.length);
 		for (int s = 0; s < shapeSize; s++) {
 			final Coordinate coordinate = new Coordinate();
 			for (int i = 0; i < dims; i++) {
 				// HP Fortify "Insecure Randomness" false positive
 				// This random number is not used for any purpose
 				// related to security or cryptography
-				coordinate.setOrdinate(
-						i,
-						constrainedMinAxis[i] + (rand.nextDouble() * (constrainedMaxAxis[i] - constrainedMinAxis[i])));
+				coordinate
+						.setOrdinate(
+								i,
+								constrainedMinAxis[i]
+										+ (rand.nextDouble() * (constrainedMaxAxis[i] - constrainedMinAxis[i])));
 			}
 			shape[s] = coordinate;
 			if (s == 0) {
@@ -443,14 +529,23 @@ public class GeometryDataSetGenerator
 		}
 		if (shapeSize > 2) {
 			shape[shapeSize] = shape[0];
-			return createFeatureWithGeometry(geoFactory.createLinearRing(
-					shape).convexHull());
+			return createFeatureWithGeometry(
+					geoFactory
+							.createLinearRing(
+									shape)
+							.convexHull());
 		}
 		else if (shapeSize == 2) {
-			return createFeatureWithGeometry(geoFactory.createLineString(shape));
+			return createFeatureWithGeometry(
+					geoFactory
+							.createLineString(
+									shape));
 		}
 		else {
-			return createFeatureWithGeometry(geoFactory.createPoint(shape[0]));
+			return createFeatureWithGeometry(
+					geoFactory
+							.createPoint(
+									shape[0]));
 		}
 	}
 
@@ -461,7 +556,7 @@ public class GeometryDataSetGenerator
 	/**
 	 * Change the constrain min and max to center around the coordinate to keep
 	 * the polygons tight.
-	 * 
+	 *
 	 * @param coordinate
 	 * @param constrainedMaxAxis
 	 * @param constrainedMinAxis
@@ -472,12 +567,20 @@ public class GeometryDataSetGenerator
 			final double[] constrainedMinAxis ) {
 		for (int i = 0; i < constrainedMaxAxis.length; i++) {
 			final double range = (constrainedMaxAxis[i] - constrainedMinAxis[i]) * 0.001;
-			constrainedMaxAxis[i] = Math.min(
-					coordinate.getOrdinate(i) + range,
-					constrainedMaxAxis[i]);
-			constrainedMinAxis[i] = Math.max(
-					coordinate.getOrdinate(i) - range,
-					constrainedMinAxis[i]);
+			constrainedMaxAxis[i] = Math
+					.min(
+							coordinate
+									.getOrdinate(
+											i)
+									+ range,
+							constrainedMaxAxis[i]);
+			constrainedMinAxis[i] = Math
+					.max(
+							coordinate
+									.getOrdinate(
+											i)
+									- range,
+							constrainedMinAxis[i]);
 		}
 	}
 
@@ -485,21 +588,26 @@ public class GeometryDataSetGenerator
 			final Geometry geometry ) {
 		final Object[] values = new Object[builder.getFeatureType().getAttributeCount()];
 		for (int i = 0; i < values.length; i++) {
-			final AttributeDescriptor desc = builder.getFeatureType().getDescriptor(
-					i);
+			final AttributeDescriptor desc = builder
+					.getFeatureType()
+					.getDescriptor(
+							i);
 			if (desc.getType() instanceof GeometryType) {
 				values[i] = geometry;
 			}
 			else {
 				final Class<?> binding = desc.getType().getBinding();
-				if (String.class.isAssignableFrom(binding)) {
+				if (String.class
+						.isAssignableFrom(
+								binding)) {
 					values[i] = UUID.randomUUID().toString();
 				}
 			}
 		}
-		return builder.buildFeature(
-				UUID.randomUUID().toString(),
-				values);
+		return builder
+				.buildFeature(
+						UUID.randomUUID().toString(),
+						values);
 
 	}
 
@@ -596,21 +704,29 @@ public class GeometryDataSetGenerator
 			final String name )
 			throws FactoryException {
 		final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-		typeBuilder.setName(name);
-		typeBuilder.setCRS(CRS.decode(
-				"EPSG:4326",
-				true)); // <- Coordinate
-						// reference
+		typeBuilder
+				.setName(
+						name);
+		typeBuilder
+				.setCRS(
+						CRS
+								.decode(
+										"EPSG:4326",
+										true)); // <- Coordinate
+												// reference
 		// add attributes in order
-		typeBuilder.add(
-				"geom",
-				Geometry.class);
-		typeBuilder.add(
-				"name",
-				String.class);
-		typeBuilder.add(
-				"count",
-				Long.class);
+		typeBuilder
+				.add(
+						"geom",
+						Geometry.class);
+		typeBuilder
+				.add(
+						"name",
+						String.class);
+		typeBuilder
+				.add(
+						"count",
+						Long.class);
 
 		// build the type
 		return new SimpleFeatureBuilder(
@@ -635,9 +751,12 @@ public class GeometryDataSetGenerator
 			int i = 0;
 			for (final Coordinate coor : line.getCoordinates()) {
 				if (lastCoor != null) {
-					distancesBetweenCoords[i] = Math.abs(DISTANCE_FN.measure(
-							lastCoor,
-							coor));
+					distancesBetweenCoords[i] = Math
+							.abs(
+									DISTANCE_FN
+											.measure(
+													lastCoor,
+													coor));
 					distanceTotal += distancesBetweenCoords[i++];
 				}
 				lastCoor = coor;
@@ -646,12 +765,16 @@ public class GeometryDataSetGenerator
 			i = 0;
 			for (final Coordinate coor : line.getCoordinates()) {
 				if (lastCoor != null) {
-					results.addAll(generatePoints(
-							line.getFactory(),
-							toVec(coor),
-							toVec(lastCoor),
-							distanceFactor,
-							(int) ((points) * (distancesBetweenCoords[i++] / distanceTotal))));
+					results
+							.addAll(
+									generatePoints(
+											line.getFactory(),
+											toVec(
+													coor),
+											toVec(
+													lastCoor),
+											distanceFactor,
+											(int) ((points) * (distancesBetweenCoords[i++] / distanceTotal))));
 				}
 				lastCoor = coor;
 			}
@@ -667,22 +790,34 @@ public class GeometryDataSetGenerator
 				final int points ) {
 			final List<Point> results = new ArrayList<>();
 			final Random rand = new Random();
-			final Vector2D originVec = coordinateTwo.subtract(coordinateOne);
+			final Vector2D originVec = coordinateTwo
+					.subtract(
+							coordinateOne);
 			for (int i = 0; i < points; i++) {
 				// HP Fortify "Insecure Randomness" false positive
 				// This random number is not used for any purpose
 				// related to security or cryptography
 				final double factor = rand.nextDouble();
-				final Vector2D projectionPoint = originVec.scalarMultiply(factor);
+				final Vector2D projectionPoint = originVec
+						.scalarMultiply(
+								factor);
 				final double direction = rand.nextGaussian() * distanceFactor;
 				final Vector2D orthogonal = new Vector2D(
 						originVec.getY(),
 						-originVec.getX());
 
-				results.add(factory.createPoint(toCoordinate(orthogonal.scalarMultiply(
-						direction).add(
-						projectionPoint).add(
-						coordinateOne))));
+				results
+						.add(
+								factory
+										.createPoint(
+												toCoordinate(
+														orthogonal
+																.scalarMultiply(
+																		direction)
+																.add(
+																		projectionPoint)
+																.add(
+																		coordinateOne))));
 			}
 			return results;
 		}

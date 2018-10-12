@@ -125,6 +125,7 @@ public class ChooseBestMatchIndexQueryStrategy implements
 								.constraintsToQueryRanges(
 										constraints,
 										nextIdx.getIndexStrategy(),
+										null,
 										maxRangeDecomposition);
 						final long temp = DataStoreUtils
 								.cardinality(

@@ -64,7 +64,8 @@ class BaseInsertionIdQuery<T> extends
 
 	@Override
 	protected QueryRanges getRanges(
-			final int maxRangeDecomposition ) {
+			final int maxRangeDecomposition,
+			final double[] targetResolutionPerDimensionForHierarchicalIndex ) {
 		return ranges;
 	}
 }

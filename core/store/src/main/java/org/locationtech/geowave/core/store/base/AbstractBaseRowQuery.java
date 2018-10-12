@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.base;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
@@ -20,12 +17,11 @@ import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
-import org.locationtech.geowave.core.store.callback.ScanCallbackList;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
+import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.util.NativeEntryTransformer;
 
 /**
@@ -36,7 +32,9 @@ import org.locationtech.geowave.core.store.util.NativeEntryTransformer;
 abstract class AbstractBaseRowQuery<T> extends
 		BaseQuery
 {
-	private static final Logger LOGGER = Logger.getLogger(AbstractBaseRowQuery.class);
+	private static final Logger LOGGER = Logger
+			.getLogger(
+					AbstractBaseRowQuery.class);
 
 	public AbstractBaseRowQuery(
 			final Index index,
@@ -56,27 +54,30 @@ abstract class AbstractBaseRowQuery<T> extends
 			final DataStoreOperations operations,
 			final DataStoreOptions options,
 			final double[] maxResolutionSubsamplingPerDimension,
+			final double[] targetResolutionPerDimensionForHierarchicalIndex,
 			final PersistentAdapterStore adapterStore,
 			final Integer limit,
 			final Integer queryMaxRangeDecomposition,
-			boolean delete ) {
-		RowReader<T> reader = getReader(
+			final boolean delete ) {
+		final RowReader<T> reader = getReader(
 				operations,
 				options,
 				adapterStore,
 				maxResolutionSubsamplingPerDimension,
+				targetResolutionPerDimensionForHierarchicalIndex,
 				limit,
 				queryMaxRangeDecomposition,
-				new NativeEntryTransformer<T>(
+				new NativeEntryTransformer<>(
 						adapterStore,
 						index,
-						getClientFilter(options),
+						getClientFilter(
+								options),
 						(ScanCallback<T, ?>) scanCallback,
 						getFieldBitmask(),
 						maxResolutionSubsamplingPerDimension,
 						!isCommonIndexAggregation()),
 				delete);
-		return new CloseableIteratorWrapper<T>(
+		return new CloseableIteratorWrapper<>(
 				new ReaderClosableWrapper(
 						reader),
 				reader);

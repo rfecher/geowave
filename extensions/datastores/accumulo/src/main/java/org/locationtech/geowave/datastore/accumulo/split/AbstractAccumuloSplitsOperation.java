@@ -10,13 +10,10 @@
  ******************************************************************************/
 package org.locationtech.geowave.datastore.accumulo.split;
 
-import java.io.IOException;
-
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.commons.cli.ParseException;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
@@ -29,7 +26,9 @@ import org.slf4j.LoggerFactory;
 
 abstract public class AbstractAccumuloSplitsOperation
 {
-	private static Logger LOGGER = LoggerFactory.getLogger(AbstractAccumuloSplitsOperation.class);
+	private static Logger LOGGER = LoggerFactory
+			.getLogger(
+					AbstractAccumuloSplitsOperation.class);
 
 	private final DataStorePluginOptions storeOptions;
 	private final SplitCommandLineOptions splitOptions;
@@ -48,12 +47,14 @@ abstract public class AbstractAccumuloSplitsOperation
 			final IndexStore indexStore = storeOptions.createIndexStore();
 
 			final AccumuloRequiredOptions options = (AccumuloRequiredOptions) storeOptions.getFactoryOptions();
-			final AccumuloOperations operations = AccumuloOperations.createOperations(options);
+			final AccumuloOperations operations = AccumuloOperations
+					.createOperations(
+							options);
 
 			final Connector connector = operations.getConnector();
 			final String namespace = options.getGeowaveNamespace();
 			final long number = splitOptions.getNumber();
-			if (splitOptions.getIndexId() == null) {
+			if (splitOptions.getIndexName() == null) {
 				boolean retVal = false;
 				try (CloseableIterator<Index> indices = indexStore.getIndices()) {
 					if (indices.hasNext()) {
@@ -70,14 +71,10 @@ abstract public class AbstractAccumuloSplitsOperation
 						}
 					}
 				}
-				catch (final IOException e) {
-					LOGGER.error(
-							"unable to close index store",
-							e);
-					return false;
-				}
 				if (!retVal) {
-					LOGGER.error("no indices were successfully split, try providing an indexId");
+					LOGGER
+							.error(
+									"no indices were successfully split, try providing an indexId");
 				}
 				return retVal;
 			}
@@ -85,27 +82,32 @@ abstract public class AbstractAccumuloSplitsOperation
 				setSplits(
 						connector,
 						new NullIndex(
-								splitOptions.getIndexId()),
+								splitOptions.getIndexName()),
 						namespace,
 						number);
 			}
 			else {
-				final Index index = indexStore.getIndex(new ByteArrayId(
-						splitOptions.getIndexId()));
+				final Index index = indexStore
+						.getIndex(
+								splitOptions.getIndexName());
 				if (index == null) {
-					LOGGER.error("index '" + splitOptions.getIndexId() + "' does not exist; unable to create splits");
+					LOGGER
+							.error(
+									"index '" + splitOptions.getIndexName()
+											+ "' does not exist; unable to create splits");
 				}
 				return setSplits(
 						connector,
-						(Index) index,
+						index,
 						namespace,
 						number);
 			}
 		}
 		catch (final AccumuloSecurityException | AccumuloException e) {
-			LOGGER.error(
-					"unable to create index store",
-					e);
+			LOGGER
+					.error(
+							"unable to create index store",
+							e);
 			return false;
 		}
 		return true;

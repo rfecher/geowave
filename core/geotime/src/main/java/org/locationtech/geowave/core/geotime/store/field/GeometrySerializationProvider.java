@@ -54,14 +54,6 @@ public class GeometrySerializationProvider implements
 			}
 			return GeometryUtils.geometryToBinary(fieldValue);
 		}
-
-		@Override
-		public byte[] getVisibility(
-				final Object rowValue,
-				final String fieldName,
-				final Geometry fieldValue ) {
-			return new byte[] {};
-		}
 	}
 
 }
