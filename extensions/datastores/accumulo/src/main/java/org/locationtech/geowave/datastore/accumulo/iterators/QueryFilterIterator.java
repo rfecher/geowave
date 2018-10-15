@@ -219,7 +219,7 @@ public class QueryFilterIterator extends
 				currentRow.copyBytes(),
 				partitionKeyLength);
 		return new DeferredReadCommonIndexedPersistenceEncoding(
-				rowId.getInternalAdapterId(),
+				rowId.getAdapterId(),
 				new ByteArrayId(
 						rowId.getDataId()),
 				new ByteArrayId(

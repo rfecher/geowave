@@ -26,8 +26,8 @@ import org.locationtech.geowave.core.store.metadata.SecondaryIndexStoreImpl;
 import org.locationtech.geowave.datastore.dynamodb.operations.DynamoDBOperations;
 import org.locationtech.geowave.mapreduce.BaseMapReduceDataStore;
 
-public class DynamoDBDataStore<T> extends
-		BaseMapReduceDataStore<T>
+public class DynamoDBDataStore extends
+		BaseMapReduceDataStore
 {
 	public final static String TYPE = "dynamodb";
 
@@ -72,6 +72,8 @@ public class DynamoDBDataStore<T> extends
 				options,
 				internalAdapterStore);
 
-		secondaryIndexDataStore.setDataStore(this);
+		secondaryIndexDataStore
+				.setDataStore(
+						this);
 	}
 }

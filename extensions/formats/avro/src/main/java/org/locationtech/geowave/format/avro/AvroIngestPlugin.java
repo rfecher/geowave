@@ -128,9 +128,15 @@ public class AvroIngestPlugin extends
 				}
 
 				@Override
-				public void close()
-						throws IOException {
-					reader.close();
+				public void close() {
+					try {
+						reader.close();
+					}
+					catch (IOException e) {
+						LOGGER.warn(
+								"Unable to close file '" + input.getPath() + "'",
+								e);
+					}
 				}
 
 			};
@@ -164,7 +170,7 @@ public class AvroIngestPlugin extends
 	@Override
 	protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
 			final AvroSimpleFeatureCollection featureCollection,
-			final Collection<ByteArrayId> primaryIndexIds,
+			final String[] indexNames,
 			final String globalVisibility ) {
 		final FeatureDefinition featureDefinition = featureCollection.getFeatureType();
 		final List<GeoWaveData<SimpleFeature>> retVal = new ArrayList<GeoWaveData<SimpleFeature>>();
@@ -182,8 +188,7 @@ public class AvroIngestPlugin extends
 							attributeTypes,
 							attributeValues);
 					retVal.add(new GeoWaveData<SimpleFeature>(
-							adapter,
-							primaryIndexIds,
+							adapter,indexNames,
 							simpleFeature));
 				}
 				catch (final Exception e) {

@@ -274,6 +274,7 @@ public class GeoWaveRecordReader<T> extends
 								new AdapterStoreWrapper(
 										adapterStore,
 										internalAdapterStore),
+								internalAdapterStore,
 								sanitizedQueryOptions
 										.getAdapterIds(
 												internalAdapterStore),

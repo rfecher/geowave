@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -30,10 +30,8 @@ import org.locationtech.geowave.core.store.index.CommonIndexValue;
 public class ImageChipDataAdapter implements
 		DataTypeAdapter<ImageChip>
 {
-	public final static ByteArrayId ADAPTER_ID = new ByteArrayId(
-			"image");
-	private final static ByteArrayId IMAGE_FIELD_ID = new ByteArrayId(
-			"image");
+	public final static String ADAPTER_TYPE_NAME = "image";
+	private final static String IMAGE_FIELD_NAME = "image";
 	private final FieldVisibilityHandler<ImageChip, Object> imageChipVisibilityHandler;
 
 	public ImageChipDataAdapter() {
@@ -47,14 +45,8 @@ public class ImageChipDataAdapter implements
 	}
 
 	@Override
-	public ByteArrayId getAdapterId() {
-		return ADAPTER_ID;
-	}
-
-	@Override
-	public boolean isSupported(
-			final ImageChip entry ) {
-		return true;
+	public String getTypeName() {
+		return ADAPTER_TYPE_NAME;
 	}
 
 	@Override
@@ -67,32 +59,40 @@ public class ImageChipDataAdapter implements
 	public ImageChip decode(
 			final IndexedAdapterPersistenceEncoding data,
 			final Index index ) {
-		return ImageChipUtils.fromDataIdAndValue(
-				data.getDataId(),
-				(byte[]) data.getAdapterExtendedData().getValue(
-						IMAGE_FIELD_ID));
+		return ImageChipUtils
+				.fromDataIdAndValue(
+						data.getDataId(),
+						(byte[]) data
+								.getAdapterExtendedData()
+								.getValue(
+										IMAGE_FIELD_NAME));
 	}
 
 	@Override
 	public AdapterPersistenceEncoding encode(
 			final ImageChip entry,
 			final CommonIndexModel indexModel ) {
-		final Map<ByteArrayId, Object> fieldIdToValueMap = new HashMap<ByteArrayId, Object>();
-		fieldIdToValueMap.put(
-				IMAGE_FIELD_ID,
-				entry.getImageBinary());
+		final Map<String, Object> fieldIdToValueMap = new HashMap<>();
+		fieldIdToValueMap
+				.put(
+						IMAGE_FIELD_NAME,
+						entry.getImageBinary());
 		return new AdapterPersistenceEncoding(
 				entry.getDataId(),
 				new PersistentDataset<CommonIndexValue>(),
-				new PersistentDataset<Object>(
+				new PersistentDataset<>(
 						fieldIdToValueMap));
 	}
 
 	@Override
 	public FieldReader<Object> getReader(
-			final ByteArrayId fieldId ) {
-		if (IMAGE_FIELD_ID.equals(fieldId)) {
-			return (FieldReader) FieldUtils.getDefaultReaderForClass(byte[].class);
+			final String fieldId ) {
+		if (IMAGE_FIELD_NAME
+				.equals(
+						fieldId)) {
+			return (FieldReader) FieldUtils
+					.getDefaultReaderForClass(
+							byte[].class);
 		}
 		return null;
 	}
@@ -108,15 +108,20 @@ public class ImageChipDataAdapter implements
 
 	@Override
 	public FieldWriter<ImageChip, Object> getWriter(
-			final ByteArrayId fieldId ) {
-		if (IMAGE_FIELD_ID.equals(fieldId)) {
+			final String fieldId ) {
+		if (IMAGE_FIELD_NAME
+				.equals(
+						fieldId)) {
 			if (imageChipVisibilityHandler != null) {
-				return (FieldWriter) FieldUtils.getDefaultWriterForClass(
-						byte[].class,
-						imageChipVisibilityHandler);
+				return (FieldWriter) FieldUtils
+						.getDefaultWriterForClass(
+								byte[].class,
+								imageChipVisibilityHandler);
 			}
 			else {
-				return (FieldWriter) FieldUtils.getDefaultWriterForClass(byte[].class);
+				return (FieldWriter) FieldUtils
+						.getDefaultWriterForClass(
+								byte[].class);
 			}
 		}
 		return null;
@@ -125,29 +130,33 @@ public class ImageChipDataAdapter implements
 	@Override
 	public int getPositionOfOrderedField(
 			final CommonIndexModel model,
-			final ByteArrayId fieldId ) {
+			final String fieldId ) {
 		int i = 0;
 		for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-			if (fieldId.equals(dimensionField.getFieldId())) {
+			if (fieldId
+					.equals(
+							dimensionField.getFieldName())) {
 				return i;
 			}
 			i++;
 		}
-		if (fieldId.equals(IMAGE_FIELD_ID)) {
+		if (fieldId
+				.equals(
+						IMAGE_FIELD_NAME)) {
 			return i;
 		}
 		return -1;
 	}
 
 	@Override
-	public ByteArrayId getFieldIdForPosition(
+	public String getFieldNameForPosition(
 			final CommonIndexModel model,
 			final int position ) {
 		if (position < model.getDimensions().length) {
 			int i = 0;
 			for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
 				if (i == position) {
-					return dimensionField.getFieldId();
+					return dimensionField.getFieldName();
 				}
 				i++;
 			}
@@ -155,16 +164,9 @@ public class ImageChipDataAdapter implements
 		else {
 			final int numDimensions = model.getDimensions().length;
 			if (position == numDimensions) {
-				return IMAGE_FIELD_ID;
+				return IMAGE_FIELD_NAME;
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public void init(
-			Index... indices ) {
-		// TODO Auto-generated method stub
-
 	}
 }

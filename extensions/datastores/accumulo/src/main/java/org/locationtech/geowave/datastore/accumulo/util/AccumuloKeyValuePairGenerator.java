@@ -57,7 +57,6 @@ public class AccumuloKeyValuePairGenerator<T>
 	}
 
 	public List<KeyValue> constructKeyValuePairs(
-			final byte[] adapterId,
 			final T entry ) {
 		final List<KeyValue> keyValuePairs = new ArrayList<>();
 		final GeoWaveRow[] rows = BaseDataStoreUtils.getGeoWaveRows(

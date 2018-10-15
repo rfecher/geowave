@@ -107,14 +107,14 @@ public class GeowaveBasicURLIngestIT extends
 				// 0 count and make sure the count matches the number of results
 				final BoundingBoxDataStatistics<?> bboxStat = (BoundingBoxDataStatistics<SimpleFeature>) statsStore
 						.getDataStatistics(
-								internalDataAdapter.getInternalAdapterId(),
+								internalDataAdapter.getAdapterId(),
 								FeatureBoundingBoxStatistics.composeId(adapter
 										.getFeatureType()
 										.getGeometryDescriptor()
 										.getLocalName()));
 				final CountDataStatistics<?> countStat = (CountDataStatistics<SimpleFeature>) statsStore
 						.getDataStatistics(
-								internalDataAdapter.getInternalAdapterId(),
+								internalDataAdapter.getAdapterId(),
 								CountDataStatistics.STATS_TYPE);
 				// then query it
 				final GeometryFactory factory = new GeometryFactory();

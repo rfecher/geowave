@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -55,11 +55,11 @@ import org.jcodec.scale.AWTUtil;
 import org.jcodec.scale.RgbToYuv420p;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.GeoWaveStoreFinder;
 import org.locationtech.geowave.core.store.api.DataStore;
-import org.locationtech.geowave.core.store.api.QueryOptions;
-import org.locationtech.geowave.core.store.query.constraints.PrefixIdQuery;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.format.stanag4676.Stanag4676IngestPlugin;
 import org.locationtech.geowave.format.stanag4676.image.ImageChip;
 import org.locationtech.geowave.format.stanag4676.image.ImageChipDataAdapter;
@@ -72,7 +72,9 @@ import com.google.common.io.Files;
 @Path("stanag4676")
 public class Stanag4676ImageryChipService
 {
-	private static Logger LOGGER = LoggerFactory.getLogger(Stanag4676ImageryChipService.class);
+	private static Logger LOGGER = LoggerFactory
+			.getLogger(
+					Stanag4676ImageryChipService.class);
 	@Context
 	ServletContext context;
 	private static DataStore dataStore;
@@ -102,84 +104,121 @@ public class Stanag4676ImageryChipService
 			@QueryParam("size")
 			@DefaultValue("-1")
 			final int targetPixelSize ) {
-		final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		cal.set(
-				year,
-				month - 1,
-				day,
-				hour,
-				minute,
-				second);
-		cal.set(
-				Calendar.MILLISECOND,
-				millis);
+		final Calendar cal = Calendar
+				.getInstance(
+						TimeZone
+								.getTimeZone(
+										"GMT"));
+		cal
+				.set(
+						year,
+						month - 1,
+						day,
+						hour,
+						minute,
+						second);
+		cal
+				.set(
+						Calendar.MILLISECOND,
+						millis);
 		final DataStore dataStore = getSingletonInstance();
 		if (null == dataStore) {
-			return Response.serverError().entity(
-					"Error accessing datastore!!").build();
+			return Response
+					.serverError()
+					.entity(
+							"Error accessing datastore!!")
+					.build();
 		}
 		final String chipNameStr = "mission = '" + mission + "', track = '" + track + "'";
 
 		Object imageChip = null;
+		final QueryBuilder<?, ?> bldr = QueryBuilder.newBuilder();
 		// ImageChipUtils.getDataId(mission,track,cal.getTimeInMillis()).getBytes()
-		try (CloseableIterator<Object> imageChipIt = dataStore.query(
-				new QueryOptions(
-						ImageChipDataAdapter.ADAPTER_ID,
-						Stanag4676IngestPlugin.IMAGE_CHIP_INDEX.getId()),
-				new PrefixIdQuery(
-						null,
-						new ByteArrayId(
-								ByteArrayUtils.combineArrays(
-										ImageChipDataAdapter.ADAPTER_ID.getBytes(),
-										ImageChipUtils.getDataId(
-												mission,
-												track,
-												cal.getTimeInMillis()).getBytes()))))) {
+		try (CloseableIterator<?> imageChipIt = dataStore
+				.query(
+						bldr
+								.addTypeName(
+										ImageChipDataAdapter.ADAPTER_TYPE_NAME)
+								.indexName(
+										Stanag4676IngestPlugin.IMAGE_CHIP_INDEX.getName())
+								.constraints(
+										bldr
+												.constraintsFactory()
+												.prefix(
+														null,
+														new ByteArrayId(
+																ByteArrayUtils
+																		.combineArrays(
+																				StringUtils
+																						.stringToBinary(
+																								ImageChipDataAdapter.ADAPTER_TYPE_NAME),
+																				ImageChipUtils
+																						.getDataId(
+																								mission,
+																								track,
+																								cal.getTimeInMillis())
+																						.getBytes()))))
+								.build())) {
 
 			imageChip = (imageChipIt.hasNext()) ? imageChipIt.next() : null;
-		}
-		catch (final IOException e1) {
-			LOGGER.error(
-					"Unablable to find image chip for " + chipNameStr + " at " + cal,
-					e1);
-			return Response.serverError().entity(
-					"Error generating JPEG from image chip").build();
 		}
 
 		if ((imageChip != null) && (imageChip instanceof ImageChip)) {
 			if (targetPixelSize <= 0) {
-				LOGGER.info("Sending ImageChip for " + chipNameStr);
+				LOGGER
+						.info(
+								"Sending ImageChip for " + chipNameStr);
 
 				final byte[] imageData = ((ImageChip) imageChip).getImageBinary();
-				return Response.ok().entity(
-						imageData).type(
-						"image/jpeg").build();
+				return Response
+						.ok()
+						.entity(
+								imageData)
+						.type(
+								"image/jpeg")
+						.build();
 			}
 			else {
-				LOGGER.info("Sending BufferedImage for " + chipNameStr);
-				final BufferedImage image = ((ImageChip) imageChip).getImage(targetPixelSize);
+				LOGGER
+						.info(
+								"Sending BufferedImage for " + chipNameStr);
+				final BufferedImage image = ((ImageChip) imageChip)
+						.getImage(
+								targetPixelSize);
 				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				try {
-					ImageIO.write(
-							image,
-							"jpeg",
-							baos);
+					ImageIO
+							.write(
+									image,
+									"jpeg",
+									baos);
 
-					return Response.ok().entity(
-							baos.toByteArray()).type(
-							"image/jpeg").build();
+					return Response
+							.ok()
+							.entity(
+									baos.toByteArray())
+							.type(
+									"image/jpeg")
+							.build();
 				}
 				catch (final IOException e) {
-					LOGGER.error(
-							"Unable to write image chip content to JPEG",
-							e);
-					return Response.serverError().entity(
-							"Error generating JPEG from image chip for mission/track.").build();
+					LOGGER
+							.error(
+									"Unable to write image chip content to JPEG",
+									e);
+					return Response
+							.serverError()
+							.entity(
+									"Error generating JPEG from image chip for mission/track.")
+							.build();
 				}
 			}
 		}
-		return Response.serverError().entity(
-				"Cannot find image chip with mission/track/time.").build();
+		return Response
+				.serverError()
+				.entity(
+						"Cannot find image chip with mission/track/time.")
+				.build();
 	}
 
 	// ------------------------------------------------------------------------------
@@ -204,63 +243,89 @@ public class Stanag4676ImageryChipService
 				+ "'";
 
 		final DataStore dataStore = getSingletonInstance();
-		final TreeMap<Long, BufferedImage> imageChips = new TreeMap<Long, BufferedImage>();
+		final TreeMap<Long, BufferedImage> imageChips = new TreeMap<>();
 		int width = -1;
 		int height = -1;
-		try (CloseableIterator<Object> imageChipIt = dataStore.query(
-				new QueryOptions(
-						ImageChipDataAdapter.ADAPTER_ID,
-						Stanag4676IngestPlugin.IMAGE_CHIP_INDEX.getId()),
-				new PrefixIdQuery(
-						null,
-						new ByteArrayId(
-								ByteArrayUtils.combineArrays(
-										ImageChipDataAdapter.ADAPTER_ID.getBytes(),
-										ImageChipUtils.getTrackDataIdPrefix(
-												mission,
-												track).getBytes()))))) {
+		final QueryBuilder<?, ?> bldr = QueryBuilder.newBuilder();
+		try (CloseableIterator<?> imageChipIt = dataStore
+				.query(
+						bldr
+								.addTypeName(
+										ImageChipDataAdapter.ADAPTER_TYPE_NAME)
+								.indexName(
+										Stanag4676IngestPlugin.IMAGE_CHIP_INDEX.getName())
+								.constraints(
+										bldr
+												.constraintsFactory()
+												.prefix(
+														null,
+														new ByteArrayId(
+																ByteArrayUtils
+																		.combineArrays(
+																				StringUtils
+																						.stringToBinary(
+																								ImageChipDataAdapter.ADAPTER_TYPE_NAME),
+																				ImageChipUtils
+																						.getTrackDataIdPrefix(
+																								mission,
+																								track)
+																						.getBytes()))))
+								.build())) {
 
 			while (imageChipIt.hasNext()) {
 				final Object imageChipObj = imageChipIt.next();
 				if ((imageChipObj != null) && (imageChipObj instanceof ImageChip)) {
 					final ImageChip imageChip = (ImageChip) imageChipObj;
-					final BufferedImage image = imageChip.getImage(targetPixelSize);
+					final BufferedImage image = imageChip
+							.getImage(
+									targetPixelSize);
 					if ((width < 0) || (image.getWidth() > width)) {
 						width = image.getWidth();
 					}
 					if ((height < 0) || (image.getHeight() > height)) {
 						height = image.getHeight();
 					}
-					imageChips.put(
-							imageChip.getTimeMillis(),
-							image);
+					imageChips
+							.put(
+									imageChip.getTimeMillis(),
+									image);
 				}
 			}
 		}
 		catch (final Exception e1) {
-			LOGGER.error(
-					"Unable to read data to compose video file",
-					e1);
+			LOGGER
+					.error(
+							"Unable to read data to compose video file",
+							e1);
 			return Response
 					.serverError()
 					.entity(
 							"Video generation failed \nException: " + e1.getLocalizedMessage() + "\n stack trace: "
-									+ Arrays.toString(e1.getStackTrace()))
+									+ Arrays
+											.toString(
+													e1.getStackTrace()))
 					.build();
 		}
 
 		// ----------------------------------------------------
 
 		if (imageChips.isEmpty()) {
-			return Response.serverError().entity(
-					"Unable to retrieve image chips").build();
+			return Response
+					.serverError()
+					.entity(
+							"Unable to retrieve image chips")
+					.build();
 		}
 		else {
-			LOGGER.info("Sending Video for " + videoNameStr);
+			LOGGER
+					.info(
+							"Sending Video for " + videoNameStr);
 
 			try {
 				final File responseBody;
-				LOGGER.debug("Attempting to build the video the new way ...");
+				LOGGER
+						.debug(
+								"Attempting to build the video the new way ...");
 				responseBody = buildVideo2(
 						mission,
 						track,
@@ -268,7 +333,9 @@ public class Stanag4676ImageryChipService
 						width,
 						height,
 						speed);
-				LOGGER.debug("Got a response body (path): " + responseBody.getAbsolutePath());
+				LOGGER
+						.debug(
+								"Got a response body (path): " + responseBody.getAbsolutePath());
 				try (FileInputStream fis = new FileInputStream(
 						responseBody) {
 
@@ -280,41 +347,63 @@ public class Stanag4676ImageryChipService
 						// returned
 
 						if (!responseBody.delete()) {
-							LOGGER.warn("Cannot delete response body");
+							LOGGER
+									.warn(
+											"Cannot delete response body");
 						}
 
 						if (!responseBody.getParentFile().delete()) {
-							LOGGER.warn("Cannot delete response body's parent file");
+							LOGGER
+									.warn(
+											"Cannot delete response body's parent file");
 						}
 					}
 				}) {
-					LOGGER.info("Returning video object: " + fis);
-					return Response.ok().entity(
-							fis).type(
-							"video/webm").build();
+					LOGGER
+							.info(
+									"Returning video object: " + fis);
+					return Response
+							.ok()
+							.entity(
+									fis)
+							.type(
+									"video/webm")
+							.build();
 				}
 				catch (final FileNotFoundException fnfe) {
-					LOGGER.error(
-							"Unable to find video file",
-							fnfe);
-					return Response.serverError().entity(
-							"Video generation failed.").build();
+					LOGGER
+							.error(
+									"Unable to find video file",
+									fnfe);
+					return Response
+							.serverError()
+							.entity(
+									"Video generation failed.")
+							.build();
 				}
 				catch (final IOException e) {
-					LOGGER.error(
-							"Unable to write video file",
-							e);
-					return Response.serverError().entity(
-							"Video generation failed.").build();
+					LOGGER
+							.error(
+									"Unable to write video file",
+									e);
+					return Response
+							.serverError()
+							.entity(
+									"Video generation failed.")
+							.build();
 				}
 
 			}
 			catch (final IOException e) {
-				LOGGER.error(
-						"Unable to write video file",
-						e);
-				return Response.serverError().entity(
-						"Video generation failed.").build();
+				LOGGER
+						.error(
+								"Unable to write video file",
+								e);
+				return Response
+						.serverError()
+						.entity(
+								"Video generation failed.")
+						.build();
 			}
 		}
 	}
@@ -394,7 +483,9 @@ public class Stanag4676ImageryChipService
 		FileChannelWrapper sink = null;
 
 		try {
-			sink = NIOUtils.writableFileChannel(videoFile.getAbsolutePath());
+			sink = NIOUtils
+					.writableFileChannel(
+							videoFile.getAbsolutePath());
 
 			/*
 			 * Version 0.1.9
@@ -418,29 +509,38 @@ public class Stanag4676ImageryChipService
 				final BufferedImage rgb = e.getValue();
 
 				if (videoTrack == null) {
-					videoTrack = muxer.createVideoTrack(
-							new Size(
-									rgb.getWidth(),
-									rgb.getHeight()),
-							"V_VP8");
+					videoTrack = muxer
+							.createVideoTrack(
+									new Size(
+											rgb.getWidth(),
+											rgb.getHeight()),
+									"V_VP8");
 				}
-				final Picture yuv = Picture.create(
-						rgb.getWidth(),
-						rgb.getHeight(),
-						ColorSpace.YUV420);
-				transform.transform(
-						AWTUtil.fromBufferedImage(rgb),
-						yuv);
-				final ByteBuffer buf = ByteBuffer.allocate(rgb.getWidth() * rgb.getHeight() * 3);
+				final Picture yuv = Picture
+						.create(
+								rgb.getWidth(),
+								rgb.getHeight(),
+								ColorSpace.YUV420);
+				transform
+						.transform(
+								AWTUtil
+										.fromBufferedImage(
+												rgb),
+								yuv);
+				final ByteBuffer buf = ByteBuffer
+						.allocate(
+								rgb.getWidth() * rgb.getHeight() * 3);
 
-				final ByteBuffer ff = encoder.encodeFrame(
-						yuv,
-						buf);
+				final ByteBuffer ff = encoder
+						.encodeFrame(
+								yuv,
+								buf);
 
 				// Frame number must be from 1 to ...
-				videoTrack.addSampleEntry(
-						ff,
-						(int) (i * timeScaleFactor) + 1);
+				videoTrack
+						.addSampleEntry(
+								ff,
+								(int) (i * timeScaleFactor) + 1);
 
 				++y;
 				if ((++i) > MAX_FRAMES) {
@@ -448,14 +548,20 @@ public class Stanag4676ImageryChipService
 				}
 			}
 			if (i == 1) {
-				LOGGER.error("Image sequence not found");
+				LOGGER
+						.error(
+								"Image sequence not found");
 				return null;
 			}
 			if (videoTrack != null) {
-				LOGGER.debug("Found " + y + " of " + i + " new frames." + "  videoTrack timescale is "
-						+ videoTrack.getTimescale());
+				LOGGER
+						.debug(
+								"Found " + y + " of " + i + " new frames." + "  videoTrack timescale is "
+										+ videoTrack.getTimescale());
 			}
-			muxer.mux(sink);
+			muxer
+					.mux(
+							sink);
 
 			// ------------------------------------------------------------------
 			// Version 0.2.0
@@ -507,7 +613,9 @@ public class Stanag4676ImageryChipService
 		finally {
 			if (sink != null) {
 				sink.close();
-				IOUtils.closeQuietly(sink);
+				IOUtils
+						.closeQuietly(
+								sink);
 			}
 		}
 		return videoFile;
@@ -520,25 +628,34 @@ public class Stanag4676ImageryChipService
 		if (dataStore != null) {
 			return dataStore;
 		}
-		final String confPropFilename = context.getInitParameter("config.properties");
+		final String confPropFilename = context
+				.getInitParameter(
+						"config.properties");
 		// HP Fortify "Log Forging" false positive
 		// What Fortify considers "user input" comes only
 		// from users with OS-level access anyway
-		LOGGER.info("Creating datastore singleton for 4676 service.   conf prop filename: " + confPropFilename);
+		LOGGER
+				.info(
+						"Creating datastore singleton for 4676 service.   conf prop filename: " + confPropFilename);
 		Properties props = null;
-		try (InputStream is = context.getResourceAsStream(confPropFilename)) {
-			props = loadProperties(is);
+		try (InputStream is = context
+				.getResourceAsStream(
+						confPropFilename)) {
+			props = loadProperties(
+					is);
 		}
 		catch (final IOException e) {
-			LOGGER.error(
-					e.getLocalizedMessage(),
-					e);
+			LOGGER
+					.error(
+							e.getLocalizedMessage(),
+							e);
 		}
-		LOGGER.info(
-				"Found {} props",
-				(props != null ? props.size() : 0));
+		LOGGER
+				.info(
+						"Found {} props",
+						(props != null ? props.size() : 0));
 		if (props != null) {
-			final Map<String, String> strMap = new HashMap<String, String>();
+			final Map<String, String> strMap = new HashMap<>();
 
 			final Set<Object> keySet = props.keySet();
 			final Iterator<Object> it = keySet.iterator();
@@ -547,21 +664,30 @@ public class Stanag4676ImageryChipService
 				final String value = getProperty(
 						props,
 						key);
-				strMap.put(
-						key,
-						value);
+				strMap
+						.put(
+								key,
+								value);
 				// HP Fortify "Log Forging" false positive
 				// What Fortify considers "user input" comes only
 				// from users with OS-level access anyway
-				LOGGER.info("    Key/Value: " + key + "/" + value);
+				LOGGER
+						.info(
+								"    Key/Value: " + key + "/" + value);
 			}
 
-			dataStore = GeoWaveStoreFinder.createDataStore(strMap);
+			dataStore = GeoWaveStoreFinder
+					.createDataStore(
+							strMap);
 
-			dataStore = GeoWaveStoreFinder.createDataStore(strMap);
+			dataStore = GeoWaveStoreFinder
+					.createDataStore(
+							strMap);
 		}
 		if (dataStore == null) {
-			LOGGER.error("Unable to create datastore for 4676 service");
+			LOGGER
+					.error(
+							"Unable to create datastore for 4676 service");
 		}
 		return dataStore;
 	}
@@ -571,12 +697,15 @@ public class Stanag4676ImageryChipService
 		final Properties props = new Properties();
 		if (is != null) {
 			try {
-				props.load(is);
+				props
+						.load(
+								is);
 			}
 			catch (final IOException e) {
-				LOGGER.error(
-						"Could not load properties from InputStream",
-						e);
+				LOGGER
+						.error(
+								"Could not load properties from InputStream",
+								e);
 			}
 		}
 		return props;
@@ -585,11 +714,19 @@ public class Stanag4676ImageryChipService
 	private static String getProperty(
 			final Properties props,
 			final String name ) {
-		if (System.getProperty(name) != null) {
-			return System.getProperty(name);
+		if (System
+				.getProperty(
+						name) != null) {
+			return System
+					.getProperty(
+							name);
 		}
-		else if (props.containsKey(name)) {
-			return props.getProperty(name);
+		else if (props
+				.containsKey(
+						name)) {
+			return props
+					.getProperty(
+							name);
 		}
 		else {
 			return null;

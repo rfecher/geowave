@@ -386,7 +386,7 @@ public class GeoWaveGrpcIT extends
 		Assert.assertTrue(client.VersionCommand());
 
 		result = client.ListAdapterCommand();
-		Assert.assertTrue(result.contains(GeoWaveGrpcTestUtils.adapterId));
+		Assert.assertTrue(result.contains(GeoWaveGrpcTestUtils.typeName));
 
 		result = client.ListIndexCommand();
 		Assert.assertTrue(result.contains("SPATIAL_IDX"));
@@ -395,8 +395,8 @@ public class GeoWaveGrpcIT extends
 		Assert.assertTrue(!result.equalsIgnoreCase(""));
 
 		result = client.AddIndexGroupCommand();
-		Assert.assertTrue(result.contains("indexgroup." + GeoWaveGrpcTestUtils.indexId + "-group.opts."
-				+ GeoWaveGrpcTestUtils.indexId + ".numPartitions=1"));
+		Assert.assertTrue(result.contains("indexgroup." + GeoWaveGrpcTestUtils.indexName + "-group.opts."
+				+ GeoWaveGrpcTestUtils.indexName + ".numPartitions=1"));
 
 		Assert.assertTrue(client.CalculateStatCommand());
 		Assert.assertTrue(client.RecalculateStatsCommand());
@@ -407,12 +407,12 @@ public class GeoWaveGrpcIT extends
 
 		result = client.RemoveIndexGroupCommand();
 		Assert.assertEquals(
-				"indexgroup." + GeoWaveGrpcTestUtils.indexId + "-group successfully removed",
+				"indexgroup." + GeoWaveGrpcTestUtils.indexName + "-group successfully removed",
 				result);
 
 		result = client.RemoveIndexCommand();
 		Assert.assertEquals(
-				"index." + GeoWaveGrpcTestUtils.indexId + " successfully removed",
+				"index." + GeoWaveGrpcTestUtils.indexName + " successfully removed",
 				result);
 
 		Assert.assertTrue(client.RemoveAdapterCommand());
@@ -476,7 +476,7 @@ public class GeoWaveGrpcIT extends
 
 		final AddIndexCommand indexCommand = new AddIndexCommand();
 		indexCommand.setType("spatial");
-		indexCommand.setParameters(GeoWaveGrpcTestUtils.indexId);
+		indexCommand.setParameters(GeoWaveGrpcTestUtils.indexName);
 		BasicIndexOptions basicIndexOpts = new BasicIndexOptions();
 		basicIndexOpts.setNumPartitions(32);
 		basicIndexOpts.setPartitionStrategy(PartitionStrategy.ROUND_ROBIN);

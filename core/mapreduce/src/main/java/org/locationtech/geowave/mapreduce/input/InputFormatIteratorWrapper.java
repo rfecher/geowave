@@ -71,7 +71,7 @@ public class InputFormatIteratorWrapper<T> implements
 				final Entry<GeoWaveInputKey, T> decodedValue = decodeRow(
 						nextRow,
 						queryFilter,
-						(InternalDataAdapter<T>) serializationTool.getInternalAdapter(nextRow.getInternalAdapterId()),
+						(InternalDataAdapter<T>) serializationTool.getInternalAdapter(nextRow.getAdapterId()),
 						index);
 				if (decodedValue != null) {
 					nextEntry = decodedValue;
@@ -105,7 +105,7 @@ public class InputFormatIteratorWrapper<T> implements
 		if (value == null) {
 			return null;
 		}
-		final short adapterId = row.getInternalAdapterId();
+		final short adapterId = row.getAdapterId();
 		final T result = (T) (isOutputWritable ? serializationTool.getHadoopWritableSerializerForAdapter(
 				adapterId).toWritable(
 				value) : value);

@@ -63,15 +63,10 @@ public class TwitterIngestPlugin extends
 	private SimpleFeatureBuilder twitterSftBuilder;
 	private SimpleFeatureType twitterSft;
 
-	private final ByteArrayId sftNameKey;
-
 	public TwitterIngestPlugin() {
 		twitterSft = TwitterUtils.createTwitterEventDataType();
 		twitterSftBuilder = new SimpleFeatureBuilder(
 				twitterSft);
-
-		sftNameKey = new ByteArrayId(
-				StringUtils.stringToBinary(TwitterUtils.TWITTER_SFT_NAME));
 	}
 
 	@Override
@@ -147,8 +142,7 @@ public class TwitterIngestPlugin extends
 		"REC_CATCH_EXCEPTION"
 	}, justification = "Intentionally catching any possible exception as there may be unknown format issues in a file and we don't want to error partially through parsing")
 	protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-			final WholeFile hfile,
-			final Collection<ByteArrayId> primaryIndexIds,
+			final WholeFile hfile,String[] indexNames,
 			final String globalVisibility ) {
 
 		final List<GeoWaveData<SimpleFeature>> featureData = new ArrayList<GeoWaveData<SimpleFeature>>();
@@ -296,8 +290,8 @@ public class TwitterIngestPlugin extends
 						// LOGGER.warn(tweetSft.toString());
 
 						featureData.add(new GeoWaveData<SimpleFeature>(
-								sftNameKey,
-								primaryIndexIds,
+								TwitterUtils.TWITTER_SFT_NAME,
+								indexNames,
 								tweetSft));
 					}
 					catch (final Exception e) {

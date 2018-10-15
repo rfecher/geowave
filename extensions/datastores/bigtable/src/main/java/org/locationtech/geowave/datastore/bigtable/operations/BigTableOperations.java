@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -18,7 +18,6 @@ import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.datastore.bigtable.BigTableConnectionPool;
@@ -37,9 +36,11 @@ public class BigTableOperations extends
 			final BigTableOptions options )
 			throws IOException {
 		super(
-				BigTableConnectionPool.getInstance().getConnection(
-						options.getProjectId(),
-						options.getInstanceId()),
+				BigTableConnectionPool
+						.getInstance()
+						.getConnection(
+								options.getProjectId(),
+								options.getInstanceId()),
 				options.getGeowaveNamespace(),
 				options.getHBaseOptions());
 	}
@@ -48,22 +49,25 @@ public class BigTableOperations extends
 	public RegionLocator getRegionLocator(
 			final String tableName )
 			throws IOException {
-		final BigtableRegionLocator regionLocator = (BigtableRegionLocator) super.getRegionLocator(tableName);
+		final BigtableRegionLocator regionLocator = (BigtableRegionLocator) super.getRegionLocator(
+				tableName);
 
 		if (regionLocator != null) {
 			// Force region update
 			if (regionLocator.getAllRegionLocations().size() <= 1) {
-				regionLocator.getRegionLocation(
-						HConstants.EMPTY_BYTE_ARRAY,
-						true);
+				regionLocator
+						.getRegionLocation(
+								HConstants.EMPTY_BYTE_ARRAY,
+								true);
 			}
 		}
 
 		return regionLocator;
 	}
 
+	@Override
 	protected String getMetadataTableName(
-			MetadataType type ) {
+			final MetadataType type ) {
 		return AbstractGeoWavePersistence.METADATA_TABLE + "_" + type.name();
 	}
 
@@ -81,20 +85,24 @@ public class BigTableOperations extends
 
 	@Override
 	public Iterable<Result> getScannedResults(
-			Scan scanner,
-			String tableName )
+			final Scan scanner,
+			final String tableName )
 			throws IOException {
 
 		// Check the local cache
-		boolean tableAvailable = tableCache.contains(tableName);
+		boolean tableAvailable = tableCache
+				.contains(
+						tableName);
 
 		// No local cache. Check the server and update cache
 		if (!tableAvailable) {
-			if (indexExists(new ByteArrayId(
-					tableName))) {
+			if (indexExists(
+					tableName)) {
 				tableAvailable = true;
 
-				tableCache.add(tableName);
+				tableCache
+						.add(
+								tableName);
 			}
 		}
 

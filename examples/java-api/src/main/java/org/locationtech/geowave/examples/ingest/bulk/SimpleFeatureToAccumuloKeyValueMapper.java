@@ -24,6 +24,7 @@ import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
+import org.locationtech.geowave.core.store.adapter.InitializeWithIndicesDataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
@@ -50,7 +51,7 @@ public class SimpleFeatureToAccumuloKeyValueMapper extends
 			// but is simple and will work in a majority of cases
 			new InternalDataAdapterWrapper<>(
 					adapter,
-					InternalAdapterStoreImpl.getInitialInternalAdapterId(adapter.getAdapterId())),
+					InternalAdapterStoreImpl.getInitialAdapterId(adapter.getTypeName())),
 			index,
 			visibilityWriter);
 	private SimpleFeature simpleFeature;
@@ -72,11 +73,12 @@ public class SimpleFeatureToAccumuloKeyValueMapper extends
 			InterruptedException {
 
 		simpleFeature = parseGeonamesValue(value);
-		adapter.init(index);
+		if (adapter instanceof InitializeWithIndicesDataAdapter) {
+		((InitializeWithIndicesDataAdapter) adapter).init(index);
+		}
 
 		// build Geowave-formatted Accumulo [Key,Value] pairs
 		keyValuePairs = generator.constructKeyValuePairs(
-				adapter.getAdapterId().getBytes(),
 				simpleFeature);
 
 		// output each [Key,Value] pair to shuffle-and-sort phase where we rely

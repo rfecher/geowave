@@ -108,7 +108,7 @@ public class BaseDataStoreUtils
 			final byte[] fieldSubsetBitmask,
 			final boolean decodeRow )
 			throws AdapterException {
-		final short internalAdapterId = geowaveRow.getInternalAdapterId();
+		final short internalAdapterId = geowaveRow.getAdapterId();
 
 		if ((adapter == null) && (adapterStore == null)) {
 			final String msg = "Could not decode row from iterator. Either adapter or adapter store must be non-null.";

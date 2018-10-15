@@ -88,24 +88,24 @@ public class HBaseDataStore extends
 	protected <T> void initOnIndexWriterCreate(
 			final InternalDataAdapter<T> adapter,
 			final Index index ) {
-		final String indexName = index.getId().getString();
+		final String indexName = index.getName();
 		final boolean rowMerging = adapter.getAdapter() instanceof RowMergingDataAdapter;
 		if (rowMerging) {
 			if (!((HBaseOperations) baseOperations).isRowMergingEnabled(
-					adapter.getInternalAdapterId(),
+					adapter.getAdapterId(),
 					indexName)) {
 				if (baseOptions.isCreateTable()) {
 					((HBaseOperations) baseOperations).createTable(
 							index.getIndexStrategy().getPredefinedSplits(),
-							index.getId(),
+							index.getName(),
 							false,
-							adapter.getInternalAdapterId());
+							adapter.getAdapterId());
 				}
 				if (baseOptions.isServerSideLibraryEnabled()) {
-					((HBaseOperations) baseOperations).ensureServerSideOperationsObserverAttached(index.getId());
+					((HBaseOperations) baseOperations).ensureServerSideOperationsObserverAttached(index.getName());
 					ServerOpHelper.addServerSideRowMerging(
 							((RowMergingDataAdapter<?, ?>) adapter.getAdapter()),
-							adapter.getInternalAdapterId(),
+							adapter.getAdapterId(),
 							(ServerSideOperations) baseOperations,
 							RowMergingServerOp.class.getName(),
 							RowMergingVisibilityServerOp.class.getName(),
@@ -113,7 +113,7 @@ public class HBaseDataStore extends
 				}
 
 				((HBaseOperations) baseOperations).verifyColumnFamily(
-						adapter.getInternalAdapterId(),
+						adapter.getAdapterId(),
 						false,
 						indexName,
 						true);

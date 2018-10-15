@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
-
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -26,7 +25,6 @@ import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider.SpatialIndexBuilder;
 import org.locationtech.geowave.core.geotime.store.query.api.VectorQueryBuilder;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.DataStoreFactory;
@@ -35,15 +33,14 @@ import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.memory.MemoryRequiredOptions;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is intended to provide a few examples on running Geowave queries
@@ -54,7 +51,9 @@ import org.slf4j.LoggerFactory;
  */
 public class SpatialQueryExample
 {
-	private static Logger log = LoggerFactory.getLogger(SpatialQueryExample.class);
+	private static Logger log = LoggerFactory
+			.getLogger(
+					SpatialQueryExample.class);
 
 	private static DataStore dataStore;
 
@@ -66,11 +65,19 @@ public class SpatialQueryExample
 			CQLException,
 			IOException {
 		final SpatialQueryExample example = new SpatialQueryExample();
-		log.info("Setting up datastores");
-		dataStore = DataStoreFactory.createDataStore(new MemoryRequiredOptions());
-		log.info("Running point query examples");
+		log
+				.info(
+						"Setting up datastores");
+		dataStore = DataStoreFactory
+				.createDataStore(
+						new MemoryRequiredOptions());
+		log
+				.info(
+						"Running point query examples");
 		example.runPointExamples();
-		log.info("Running polygon query examples");
+		log
+				.info(
+						"Running polygon query examples");
 		example.runPolygonExamples();
 	}
 
@@ -88,28 +95,36 @@ public class SpatialQueryExample
 	}
 
 	private void ingestPointData() {
-		log.info("Ingesting point data");
+		log
+				.info(
+						"Ingesting point data");
 		ingestPointBasicFeature();
 		ingestPointComplexFeature();
-		log.info("Point data ingested");
+		log
+				.info(
+						"Point data ingested");
 	}
 
 	private void ingest(
 			final FeatureDataAdapter adapter,
 			final Index index,
 			final List<SimpleFeature> features ) {
-		try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(
-				adapter,
-				index)) {
+		dataStore
+				.addType(
+						adapter);
+		dataStore
+				.addIndex(
+						adapter.getTypeName(),
+						index);
+		try (Writer<SimpleFeature> indexWriter = dataStore
+				.createWriter(
+						adapter.getTypeName())) {
 			for (final SimpleFeature sf : features) {
-				indexWriter.write(sf);
+				indexWriter
+						.write(
+								sf);
 
 			}
-		}
-		catch (final IOException e) {
-			log.error(
-					"Could not create writter",
-					e);
 		}
 	}
 
@@ -122,19 +137,31 @@ public class SpatialQueryExample
 		final AttributeTypeBuilder attrBuilder = new AttributeTypeBuilder();
 		// Here we're setting the SimpleFeature name. Later on, we'll be able to
 		// query GW just by this particular feature.
-		sftBuilder.setName("basic-feature");
+		sftBuilder
+				.setName(
+						"basic-feature");
 		// Add the attributes to the feature
 		// Add the geometry attribute, which is mandatory for GeoWave to be able
 		// to construct an index out of the SimpleFeature
-		sftBuilder.add(attrBuilder.binding(
-				Point.class).nillable(
-				false).buildDescriptor(
-				"geometry"));
+		sftBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Point.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"geometry"));
 		// Add another attribute just to be able to filter by it in CQL
-		sftBuilder.add(attrBuilder.binding(
-				String.class).nillable(
-				false).buildDescriptor(
-				"filter"));
+		sftBuilder
+				.add(
+						attrBuilder
+								.binding(
+										String.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"filter"));
 
 		// Create the SimpleFeatureType
 		final SimpleFeatureType sfType = sftBuilder.buildFeatureType();
@@ -146,32 +173,48 @@ public class SpatialQueryExample
 		// First point
 		final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(
 				sfType);
-		sfBuilder.set(
-				"geometry",
-				GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
-						-80.211181640625,
-						25.848101000701597)));
-		sfBuilder.set(
-				"filter",
-				"Basic-Stadium");
+		sfBuilder
+				.set(
+						"geometry",
+						GeometryUtils.GEOMETRY_FACTORY
+								.createPoint(
+										new Coordinate(
+												-80.211181640625,
+												25.848101000701597)));
+		sfBuilder
+				.set(
+						"filter",
+						"Basic-Stadium");
 		// When calling buildFeature, we need to pass an unique id for that
 		// feature, or it will be overwritten.
-		final SimpleFeature basicPoint1 = sfBuilder.buildFeature("1");
+		final SimpleFeature basicPoint1 = sfBuilder
+				.buildFeature(
+						"1");
 
 		// Construct the second feature.
-		sfBuilder.set(
-				"geometry",
-				GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
-						-80.191360,
-						25.777804)));
-		sfBuilder.set(
-				"filter",
-				"Basic-College");
-		final SimpleFeature basicPoint2 = sfBuilder.buildFeature("2");
+		sfBuilder
+				.set(
+						"geometry",
+						GeometryUtils.GEOMETRY_FACTORY
+								.createPoint(
+										new Coordinate(
+												-80.191360,
+												25.777804)));
+		sfBuilder
+				.set(
+						"filter",
+						"Basic-College");
+		final SimpleFeature basicPoint2 = sfBuilder
+				.buildFeature(
+						"2");
 
-		final ArrayList<SimpleFeature> features = new ArrayList<SimpleFeature>();
-		features.add(basicPoint1);
-		features.add(basicPoint2);
+		final ArrayList<SimpleFeature> features = new ArrayList<>();
+		features
+				.add(
+						basicPoint1);
+		features
+				.add(
+						basicPoint2);
 
 		// Ingest the data. For that purpose, we need the feature adapter,
 		// the index type (the default spatial index is used here),
@@ -194,28 +237,50 @@ public class SpatialQueryExample
 		final AttributeTypeBuilder attrBuilder = new AttributeTypeBuilder();
 		// Here we're setting the SimpleFeature name. Later on, we'll be able to
 		// query GW just by this particular feature.
-		sftBuilder.setName("complex-feature");
+		sftBuilder
+				.setName(
+						"complex-feature");
 		// Add the attributes to the feature
 		// Add the geometry attribute, which is mandatory for GeoWave to be able
 		// to construct an index out of the SimpleFeature
-		sftBuilder.add(attrBuilder.binding(
-				Point.class).nillable(
-				false).buildDescriptor(
-				"geometry"));
+		sftBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Point.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"geometry"));
 		// Add another attribute just to be able to filter by it in CQL
-		sftBuilder.add(attrBuilder.binding(
-				String.class).nillable(
-				false).buildDescriptor(
-				"filter"));
+		sftBuilder
+				.add(
+						attrBuilder
+								.binding(
+										String.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"filter"));
 		// Add more attributes to use with CQL filtering later on.
-		sftBuilder.add(attrBuilder.binding(
-				Double.class).nillable(
-				false).buildDescriptor(
-				"latitude"));
-		sftBuilder.add(attrBuilder.binding(
-				Double.class).nillable(
-				false).buildDescriptor(
-				"longitude"));
+		sftBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Double.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"latitude"));
+		sftBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Double.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"longitude"));
 
 		// Create the SimpleFeatureType
 		final SimpleFeatureType sfType = sftBuilder.buildFeatureType();
@@ -227,44 +292,64 @@ public class SpatialQueryExample
 		// First point
 		final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(
 				sfType);
-		sfBuilder.set(
-				"geometry",
-				GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
-						-80.193388,
-						25.780538)));
-		sfBuilder.set(
-				"filter",
-				"Complex-Station");
-		sfBuilder.set(
-				"latitude",
-				25.780538);
-		sfBuilder.set(
-				"longitude",
-				-80.193388);
+		sfBuilder
+				.set(
+						"geometry",
+						GeometryUtils.GEOMETRY_FACTORY
+								.createPoint(
+										new Coordinate(
+												-80.193388,
+												25.780538)));
+		sfBuilder
+				.set(
+						"filter",
+						"Complex-Station");
+		sfBuilder
+				.set(
+						"latitude",
+						25.780538);
+		sfBuilder
+				.set(
+						"longitude",
+						-80.193388);
 		// When calling buildFeature, we need to pass an unique id for that
 		// feature, or it will be overwritten.
-		final SimpleFeature basicPoint1 = sfBuilder.buildFeature("1");
+		final SimpleFeature basicPoint1 = sfBuilder
+				.buildFeature(
+						"1");
 
 		// Construct the second feature.
-		sfBuilder.set(
-				"geometry",
-				GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
-						-118.26713562011719,
-						33.988349152677955)));
-		sfBuilder.set(
-				"filter",
-				"Complex-LA");
-		sfBuilder.set(
-				"latitude",
-				33.988349152677955);
-		sfBuilder.set(
-				"longitude",
-				-118.26713562011719);
-		final SimpleFeature basicPoint2 = sfBuilder.buildFeature("2");
+		sfBuilder
+				.set(
+						"geometry",
+						GeometryUtils.GEOMETRY_FACTORY
+								.createPoint(
+										new Coordinate(
+												-118.26713562011719,
+												33.988349152677955)));
+		sfBuilder
+				.set(
+						"filter",
+						"Complex-LA");
+		sfBuilder
+				.set(
+						"latitude",
+						33.988349152677955);
+		sfBuilder
+				.set(
+						"longitude",
+						-118.26713562011719);
+		final SimpleFeature basicPoint2 = sfBuilder
+				.buildFeature(
+						"2");
 
-		final ArrayList<SimpleFeature> features = new ArrayList<SimpleFeature>();
-		features.add(basicPoint1);
-		features.add(basicPoint2);
+		final ArrayList<SimpleFeature> features = new ArrayList<>();
+		features
+				.add(
+						basicPoint1);
+		features
+				.add(
+						basicPoint2);
 
 		// Ingest the data. For that purpose, we need the feature adapter,
 		// the index type (the default spatial index is used here),
@@ -294,13 +379,14 @@ public class SpatialQueryExample
 	private void pointQuery()
 			throws ParseException,
 			IOException {
-		log.info("Running Point Query Case 2");
+		log
+				.info(
+						"Running Point Query Case 2");
 		// First, we need to obtain the adapter for the SimpleFeature we want to
 		// query.
 		// We'll query complex-feature in this example.
 		// Obtain adapter for our "complex-feature" type
-		final ByteArrayId bfAdId = new ByteArrayId(
-				"complex-feature");
+		final String typeName = "complex-feature";
 
 		// Define the geometry to query. We'll find all points that fall inside
 		// that geometry.
@@ -309,7 +395,9 @@ public class SpatialQueryExample
 				+ "-117.80502319335938 33.75688594085081, " + "-118.50059509277344 33.75688594085081" + "))";
 
 		final Geometry queryPolygon = new WKTReader(
-				JTSFactoryFinder.getGeometryFactory()).read(queryPolygonDefinition);
+				JTSFactoryFinder.getGeometryFactory())
+						.read(
+								queryPolygonDefinition);
 
 		// Perform the query.Parameters are
 		/**
@@ -322,26 +410,41 @@ public class SpatialQueryExample
 		 */
 
 		int count = 0;
-		try (final CloseableIterator<SimpleFeature> iterator = dataStore.query(VectorQueryBuilder
-				.newBuilder()
-				.addDataId(
-						bfAdId)
-				.indexId(
-						new ByteArrayId(
-								"SPATIAL_IDX"))
-				.addAuthorization(
-						"root")
-				.spatialConstraint(
-						queryPolygon)
-				.build())) {
+
+		final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
+		try (final CloseableIterator<SimpleFeature> iterator = dataStore
+				.query(
+						bldr
+								.addTypeName(
+										typeName)
+								.indexName(
+										"SPATIAL_IDX")
+								.addAuthorization(
+										"root")
+								.constraints(
+										bldr
+												.constraintsFactory()
+												.spatialTemporalConstraints()
+												.spatialConstraints(
+														queryPolygon)
+												.build())
+								.build())) {
 
 			while (iterator.hasNext()) {
 				final SimpleFeature sf = iterator.next();
-				log.info("Obtained SimpleFeature " + sf.getName().toString() + " - " + sf.getAttribute("filter"));
+				log
+						.info(
+								"Obtained SimpleFeature " + sf.getName().toString() + " - " + sf
+										.getAttribute(
+												"filter"));
 				count++;
-				System.out.println("Query match: " + sf.getID());
+				System.out
+						.println(
+								"Query match: " + sf.getID());
 			}
-			log.info("Should have obtained 1 feature. -> " + (count == 1));
+			log
+					.info(
+							"Should have obtained 1 feature. -> " + (count == 1));
 		}
 	}
 
@@ -359,7 +462,9 @@ public class SpatialQueryExample
 
 	private void ingestPolygonFeature()
 			throws ParseException {
-		log.info("Ingesting polygon data");
+		log
+				.info(
+						"Ingesting polygon data");
 		// First, we'll build our third kind of SimpleFeature, which we'll call
 		// "polygon-feature"
 		// We need the type builder to build the feature type
@@ -368,20 +473,32 @@ public class SpatialQueryExample
 		final AttributeTypeBuilder attrBuilder = new AttributeTypeBuilder();
 		// Here we're setting the SimpleFeature name. Later on, we'll be able to
 		// query GW just by this particular feature.
-		sftBuilder.setName("polygon-feature");
+		sftBuilder
+				.setName(
+						"polygon-feature");
 		// Add the attributes to the feature
 		// Add the geometry attribute, which is mandatory for GeoWave to be able
 		// to construct an index out of the SimpleFeature
 		// Will be any arbitrary geometry; in this case, a polygon.
-		sftBuilder.add(attrBuilder.binding(
-				Geometry.class).nillable(
-				false).buildDescriptor(
-				"geometry"));
+		sftBuilder
+				.add(
+						attrBuilder
+								.binding(
+										Geometry.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"geometry"));
 		// Add another attribute just to be able to filter by it in CQL
-		sftBuilder.add(attrBuilder.binding(
-				String.class).nillable(
-				false).buildDescriptor(
-				"filter"));
+		sftBuilder
+				.add(
+						attrBuilder
+								.binding(
+										String.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"filter"));
 
 		// Create the SimpleFeatureType
 		final SimpleFeatureType sfType = sftBuilder.buildFeatureType();
@@ -399,19 +516,27 @@ public class SpatialQueryExample
 				+ "-80.123291015625 25.808545671771615, " + "-80.19195556640625 25.7244467526159, "
 				+ "-80.34233093261719 25.772068899816585, " + "-80.3045654296875 25.852426562716428" + "))";
 		final Geometry geom = new WKTReader(
-				JTSFactoryFinder.getGeometryFactory()).read(polygonDefinition);
-		sfBuilder.set(
-				"geometry",
-				geom);
-		sfBuilder.set(
-				"filter",
-				"Polygon");
+				JTSFactoryFinder.getGeometryFactory())
+						.read(
+								polygonDefinition);
+		sfBuilder
+				.set(
+						"geometry",
+						geom);
+		sfBuilder
+				.set(
+						"filter",
+						"Polygon");
 		// When calling buildFeature, we need to pass an unique id for that
 		// feature, or it will be overwritten.
-		final SimpleFeature polygon = sfBuilder.buildFeature("1");
+		final SimpleFeature polygon = sfBuilder
+				.buildFeature(
+						"1");
 
-		final ArrayList<SimpleFeature> features = new ArrayList<SimpleFeature>();
-		features.add(polygon);
+		final ArrayList<SimpleFeature> features = new ArrayList<>();
+		features
+				.add(
+						polygon);
 
 		// Ingest the data. For that purpose, we need the feature adapter,
 		// the index type (the default spatial index is used here),
@@ -420,7 +545,9 @@ public class SpatialQueryExample
 				sfAdapter,
 				new SpatialIndexBuilder().createIndex(),
 				features);
-		log.info("Polygon data ingested");
+		log
+				.info(
+						"Polygon data ingested");
 	}
 
 	/**
@@ -429,13 +556,14 @@ public class SpatialQueryExample
 	private void polygonQuery()
 			throws ParseException,
 			IOException {
-		log.info("Running Point Query Case 4");
+		log
+				.info(
+						"Running Point Query Case 4");
 		// First, we need to obtain the adapter for the SimpleFeature we want to
 		// query.
 		// We'll query polygon-feature in this example.
 		// Obtain adapter for our "polygon-feature" type
-		final ByteArrayId bfAdId = new ByteArrayId(
-				"polygon-feature");
+		final String typeName = "polygon-feature";
 		// Define the geometry to query. We'll find all polygons that intersect
 		// with this geometry.
 		final String queryPolygonDefinition = "POLYGON (( " + "-80.4037857055664 25.81596330265488, "
@@ -443,7 +571,9 @@ public class SpatialQueryExample
 				+ "-80.44567108154297 25.896291175546626, " + "-80.4037857055664  25.81596330265488" + "))";
 
 		final Geometry queryPolygon = new WKTReader(
-				JTSFactoryFinder.getGeometryFactory()).read(queryPolygonDefinition);
+				JTSFactoryFinder.getGeometryFactory())
+						.read(
+								queryPolygonDefinition);
 
 		// Perform the query.Parameters are
 		/**
@@ -456,26 +586,41 @@ public class SpatialQueryExample
 		 */
 
 		int count = 0;
-		try (final CloseableIterator<SimpleFeature> iterator = dataStore.query(VectorQueryBuilder
-				.newBuilder()
-				.addDataId(
-						bfAdId)
-				.indexId(
-						new ByteArrayId(
-								"SPATIAL_IDX"))
-				.addAuthorization(
-						"root")
-				.spatialConstraint(
-						queryPolygon)
-				.build())) {
+
+		final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
+		try (final CloseableIterator<SimpleFeature> iterator = dataStore
+				.query(
+						bldr
+								.addTypeName(
+										typeName)
+								.indexName(
+										"SPATIAL_IDX")
+								.addAuthorization(
+										"root")
+								.constraints(
+										bldr
+												.constraintsFactory()
+												.spatialTemporalConstraints()
+												.spatialConstraints(
+														queryPolygon)
+												.build())
+								.build())) {
 
 			while (iterator.hasNext()) {
 				final SimpleFeature sf = iterator.next();
-				log.info("Obtained SimpleFeature " + sf.getName().toString() + " - " + sf.getAttribute("filter"));
+				log
+						.info(
+								"Obtained SimpleFeature " + sf.getName().toString() + " - " + sf
+										.getAttribute(
+												"filter"));
 				count++;
-				System.out.println("Query match: " + sf.getID());
+				System.out
+						.println(
+								"Query match: " + sf.getID());
 			}
-			log.info("Should have obtained 1 feature. -> " + (count == 1));
+			log
+					.info(
+							"Should have obtained 1 feature. -> " + (count == 1));
 		}
 	}
 }

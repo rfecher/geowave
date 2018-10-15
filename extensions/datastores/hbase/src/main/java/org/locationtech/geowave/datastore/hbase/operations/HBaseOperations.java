@@ -586,7 +586,8 @@ public class HBaseOperations implements
 			}
 			try (final CloseableIterator<GeoWaveMetadata> it = createMetadataReader(
 					MetadataType.INDEX).query(
-					new MetadataQuery(StringUtils.stringToBinary(indexName),
+					new MetadataQuery(
+							StringUtils.stringToBinary(indexName),
 							null,
 							additionalAuthorizations))) {
 				if (!it.hasNext()) {
@@ -898,17 +899,18 @@ public class HBaseOperations implements
 	public void ensureServerSideOperationsObserverAttached(
 			final String indexName ) {
 		// Use the server-side operations observer
-		verifyCoprocessor(indexName,
+		verifyCoprocessor(
+				indexName,
 				"org.locationtech.geowave.datastore.hbase.coprocessors.ServerSideOperationsObserver",
 				options.getCoprocessorJar());
 	}
 
 	public void createTable(
 			Set<ByteArrayId> preSplits,
-			final ByteArrayId indexId,
+			final String indexName,
 			final boolean enableVersioning,
 			final short internalAdapterId ) {
-		final TableName tableName = getTableName(indexId.getString());
+		final TableName tableName = getTableName(indexName);
 
 		final GeoWaveColumnFamily[] columnFamilies = new GeoWaveColumnFamily[1];
 		columnFamilies[0] = new StringColumnFamily(
@@ -923,7 +925,7 @@ public class HBaseOperations implements
 		}
 		catch (final IOException e) {
 			LOGGER.error(
-					"Error creating table: " + indexId.getString(),
+					"Error creating table: " +indexName,
 					e);
 		}
 	}
@@ -937,8 +939,7 @@ public class HBaseOperations implements
 	public RowWriter createWriter(
 			final Index index,
 			final short internalAdapterId ) {
-		ByteArrayId indexId = index.getId();
-		final TableName tableName = getTableName(indexId.getString());
+		final TableName tableName = getTableName(index.getName());
 		try {
 			final GeoWaveColumnFamily[] columnFamilies = new GeoWaveColumnFamily[1];
 			columnFamilies[0] = new StringColumnFamily(
@@ -970,7 +971,7 @@ public class HBaseOperations implements
 		}
 		catch (final IOException e) {
 			LOGGER.error(
-					"Error creating table: " + indexId.getString(),
+					"Error creating table: " + index.getName(),
 					e);
 		}
 
@@ -996,8 +997,7 @@ public class HBaseOperations implements
 
 						final BasicOptionProvider optionProvider = new BasicOptionProvider(
 								new HashMap<>());
-						ensureServerSideOperationsObserverAttached(
-								getMetadataTableName(metadataType));
+						ensureServerSideOperationsObserverAttached(getMetadataTableName(metadataType));
 						ServerOpHelper.addServerSideMerging(
 								this,
 								DataStatisticsStoreImpl.STATISTICS_COMBINER_NAME,
@@ -1370,12 +1370,13 @@ public class HBaseOperations implements
 			final MultiRowRangeFilter multiFilter = getMultiRowRangeFilter(DataStoreUtils.constraintsToQueryRanges(
 					readerParams.getConstraints(),
 					readerParams.getIndex().getIndexStrategy(),
+					null,
 					maxRangeDecomposition).getCompositeQueryRanges());
 			if (multiFilter != null) {
 				requestBuilder.setRangeFilter(ByteString.copyFrom(multiFilter.toByteArray()));
 			}
-			if ((adapterIds != null) && !adapterIds.isEmpty()) {
-				final ByteBuffer buf = ByteBuffer.allocate(2 * adapterIds.size());
+			if ((adapterIds != null) && adapterIds.length > 0) {
+				final ByteBuffer buf = ByteBuffer.allocate(2 * adapterIds.length);
 				for (final Short a : adapterIds) {
 					buf.putShort(a);
 				}
@@ -1772,8 +1773,8 @@ public class HBaseOperations implements
 			// doesn't matter anyways)
 			MetadataType type = MetadataType.INDEX;
 			String tableName = getMetadataTableName(type);
-			if (!indexExists(new ByteArrayId(
-					tableName))) {
+			if (!indexExists(
+					tableName)) {
 				createTable(
 						Collections.EMPTY_SET,
 						HBaseOperations.METADATA_CFS_VERSIONING,
@@ -1846,7 +1847,7 @@ public class HBaseOperations implements
 				new GeoWaveColumnFamily[0],
 				StringColumnFamilyFactory.getSingletonInstance(),
 				options.isServerSideLibraryEnabled(),
-				getTableName(index.getId().getString()));
+				getTableName(index.getName()));
 		return true;
 	}
 
@@ -1860,7 +1861,7 @@ public class HBaseOperations implements
 		}
 		else {
 			final RowDeleter rowDeleter = createDeleter(
-					readerParams.getIndex().getId(),
+					readerParams.getIndex().getName(),
 					readerParams.getAdditionalAuthorizations());
 			if (rowDeleter != null) {
 				return new QueryAndDeleteByRow<>(

@@ -58,7 +58,7 @@ import org.locationtech.geowave.core.ingest.spark.SparkCommandLineOptions;
 import org.locationtech.geowave.core.ingest.spark.SparkIngestDriver;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.cli.config.AddIndexCommand;
 import org.locationtech.geowave.core.store.cli.config.AddStoreCommand;
 import org.locationtech.geowave.core.store.cli.remote.ListStatsCommand;
@@ -66,7 +66,7 @@ import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOpt
 import org.locationtech.geowave.core.store.cli.remote.options.IndexPluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.VisibilityOptions;
 import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
@@ -191,9 +191,7 @@ public class TestUtils
 
 	public static void deleteAll(
 			final DataStorePluginOptions dataStore ) {
-		dataStore.createDataStore().delete(
-				new QueryOptions(),
-				null);
+		dataStore.createDataStore().delete(QueryBuilder.newBuilder().build());
 	}
 
 	public static void testLocalIngest(
@@ -587,7 +585,7 @@ public class TestUtils
 				expectedResultCount);
 	}
 
-	public static DistributableQueryConstrain resourceToQuery(
+	public static DistributableQueryConstraints resourceToQuery(
 			final URL filterResource )
 			throws IOException {
 		return featureToQuery(resourceToFeature(filterResource));
@@ -628,7 +626,7 @@ public class TestUtils
 		return savedFilter;
 	}
 
-	protected static DistributableQueryConstrain featureToQuery(
+	protected static DistributableQueryConstraints featureToQuery(
 			final SimpleFeature savedFilter ) {
 		final Geometry filterGeometry = (Geometry) savedFilter.getDefaultGeometry();
 		final Object startObj = savedFilter.getAttribute(TEST_FILTER_START_TIME_ATTRIBUTE_NAME);

@@ -288,7 +288,7 @@ public class MemoryDataStoreOperations implements
 													.accept(
 															readerParams.getIndex().getIndexModel(),
 															new DeferredReadCommonIndexedPersistenceEncoding(
-																	input.getRow().getInternalAdapterId(),
+																	input.getRow().getAdapterId(),
 																	new ByteArrayId(
 																			input.getRow().getDataId()),
 																	new ByteArrayId(
@@ -521,10 +521,10 @@ public class MemoryDataStoreOperations implements
 					.compare(
 							ByteArrayUtils
 									.shortToByteArray(
-											row.getInternalAdapterId()),
+											row.getAdapterId()),
 							ByteArrayUtils
 									.shortToByteArray(
-											other.getRow().getInternalAdapterId()));
+											other.getRow().getAdapterId()));
 			if (adapterIdCompare != 0) {
 				return adapterIdCompare;
 			}

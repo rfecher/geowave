@@ -32,7 +32,6 @@ import org.locationtech.geowave.core.store.index.temporal.TemporalIndexStrategy;
 import org.locationtech.geowave.core.store.index.text.TextExactMatchFilter;
 import org.locationtech.geowave.core.store.index.text.TextIndexStrategy;
 import org.locationtech.geowave.core.store.query.aggregate.CountAggregation;
-import org.locationtech.geowave.core.store.query.aggregate.CountResult;
 import org.locationtech.geowave.core.store.query.aggregate.DataStatisticsAggregation;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
 import org.locationtech.geowave.core.store.query.constraints.CoordinateRangeQuery;
@@ -136,9 +135,10 @@ public class StorePersistableRegistry implements
 			new PersistableIdAndConstructor(
 					(short) 230,
 					CoordinateRangeQueryFilter::new),
-			new PersistableIdAndConstructor(
-					(short) 231,
-					CountResult::new),
+			//231 is available
+//			new PersistableIdAndConstructor(
+//					(short) 231,
+//					CountResult::new),
 			//232 is available
 //			new PersistableIdAndConstructor(
 //					(short) 232,

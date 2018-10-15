@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,23 +10,16 @@
  ******************************************************************************/
 package org.locationtech.geowave.format.twitter;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.StringUtils;
-import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.ingest.GeoWaveData;
-import org.locationtech.geowave.format.twitter.TwitterIngestPlugin;
-import org.locationtech.geowave.format.twitter.TwitterUtils;
-import org.opengis.feature.simple.SimpleFeature;
+import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.ingest.GeoWaveData;
+import org.opengis.feature.simple.SimpleFeature;
 
 public class TwitterIngestTest
 {
@@ -37,7 +30,9 @@ public class TwitterIngestTest
 	@Before
 	public void setup() {
 		ingester = new TwitterIngestPlugin();
-		ingester.init(null);
+		ingester
+				.init(
+						null);
 
 		filePath = "01234567-010101.txt.gz";
 		expectedCount = 24;
@@ -47,25 +42,33 @@ public class TwitterIngestTest
 	public void testIngest()
 			throws IOException {
 
-		final URL toIngest = this.getClass().getClassLoader().getResource(
-				filePath);
+		final URL toIngest = this
+				.getClass()
+				.getClassLoader()
+				.getResource(
+						filePath);
 
-		assertTrue(TwitterUtils.validate(toIngest));
-		final Collection<ByteArrayId> indexIds = new ArrayList<ByteArrayId>();
-		indexIds.add(new ByteArrayId(
-				"123".getBytes(StringUtils.UTF8_CHARSET)));
-		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester.toGeoWaveData(
-				toIngest,
-				indexIds,
-				"");
+		assertTrue(
+				TwitterUtils
+						.validate(
+								toIngest));
+		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester
+				.toGeoWaveData(
+						toIngest,
+						new String[] {
+							"123"
+						},
+						"");
 
-		assertTrue((features != null) && features.hasNext());
+		assertTrue(
+				(features != null) && features.hasNext());
 
 		int featureCount = 0;
 		while (features.hasNext()) {
 			final GeoWaveData<SimpleFeature> feature = features.next();
 
-			if (isValidTwitterFeature(feature)) {
+			if (isValidTwitterFeature(
+					feature)) {
 				featureCount++;
 			}
 		}
@@ -73,17 +76,28 @@ public class TwitterIngestTest
 
 		final boolean readExpectedCount = (featureCount == expectedCount);
 		if (!readExpectedCount) {
-			System.out.println("Expected " + expectedCount + " features, ingested " + featureCount);
+			System.out
+					.println(
+							"Expected " + expectedCount + " features, ingested " + featureCount);
 		}
-		assertTrue(readExpectedCount);
+		assertTrue(
+				readExpectedCount);
 	}
 
 	private boolean isValidTwitterFeature(
 			final GeoWaveData<SimpleFeature> feature ) {
-		if ((feature.getValue().getAttribute(
-				TwitterUtils.TWITTER_TEXT_ATTRIBUTE) == null) || (feature.getValue().getAttribute(
-				TwitterUtils.TWITTER_GEOMETRY_ATTRIBUTE) == null) || (feature.getValue().getAttribute(
-				TwitterUtils.TWITTER_DTG_ATTRIBUTE) == null)) {
+		if ((feature
+				.getValue()
+				.getAttribute(
+						TwitterUtils.TWITTER_TEXT_ATTRIBUTE) == null)
+				|| (feature
+						.getValue()
+						.getAttribute(
+								TwitterUtils.TWITTER_GEOMETRY_ATTRIBUTE) == null)
+				|| (feature
+						.getValue()
+						.getAttribute(
+								TwitterUtils.TWITTER_DTG_ATTRIBUTE) == null)) {
 			return false;
 		}
 		return true;

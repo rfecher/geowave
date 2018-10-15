@@ -227,7 +227,7 @@ public class HBaseReader<T> implements
 		try {
 			resultScanner = operations.getScannedResults(
 					rscanner,
-					recordReaderParams.getIndex().getId().getString());
+					recordReaderParams.getIndex().getName());
 			if (resultScanner instanceof ResultScanner) {
 				this.scanner = (Closeable) resultScanner;
 			}
@@ -291,7 +291,7 @@ public class HBaseReader<T> implements
 			try {
 				operations.startParallelScan(
 						parallelScanner,
-						readerParams.getIndex().getId().getString());
+						readerParams.getIndex().getName());
 				scanner = parallelScanner;
 			}
 			catch (final Exception e) {
@@ -308,7 +308,7 @@ public class HBaseReader<T> implements
 			try {
 				Iterable<Result> iterable = operations.getScannedResults(
 						multiScanner,
-						readerParams.getIndex().getId().getString());
+						readerParams.getIndex().getName());
 				if (iterable instanceof ResultScanner) {
 					this.scanner = (ResultScanner) iterable;
 				}
@@ -356,7 +356,7 @@ public class HBaseReader<T> implements
 					.getIndex()
 					.getIndexStrategy()
 					.getOrderedDimensionDefinitions().length) {
-				LOGGER.warn("Unable to subsample for table '" + params.getIndex().getId().getString()
+				LOGGER.warn("Unable to subsample for table '" + params.getIndex().getName()
 						+ "'. Subsample dimensions = " + params.getMaxResolutionSubsamplingPerDimension().length
 						+ " when indexed dimensions = "
 						+ params.getIndex().getIndexStrategy().getOrderedDimensionDefinitions().length);
@@ -452,7 +452,7 @@ public class HBaseReader<T> implements
 		final boolean cacheBlocks = operations.isEnableBlockCache();
 		final Integer limit = readerParams.getLimit();
 		final List<byte[]> families = Lists.newArrayList();
-		if ((readerParams.getAdapterIds() != null) && !readerParams.getAdapterIds().isEmpty()) {
+		if ((readerParams.getAdapterIds() != null) && readerParams.getAdapterIds().length > 0) {
 			for (final Short adapterId : readerParams.getAdapterIds()) {
 				// TODO: This prevents the client from sending bad
 				// column family
@@ -463,13 +463,13 @@ public class HBaseReader<T> implements
 				if (operations.verifyColumnFamily(
 						adapterId,
 						true, // because they're not added
-						readerParams.getIndex().getId().getString(),
+						readerParams.getIndex().getName(),
 						false)) {
 					families.add(StringUtils.stringToBinary(ByteArrayUtils.shortToString(adapterId)));
 				}
 				else {
 					LOGGER.warn("Adapter ID: " + adapterId + " not found in table: "
-							+ readerParams.getIndex().getId().getString());
+							+ readerParams.getIndex().getName());
 				}
 			}
 		}

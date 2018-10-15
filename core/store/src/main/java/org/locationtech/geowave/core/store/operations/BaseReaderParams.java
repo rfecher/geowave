@@ -15,6 +15,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.MultiDimensionalCoordinateRangesArray;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
+import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
@@ -27,6 +28,7 @@ abstract public class BaseReaderParams<T>
 
 	private final Index index;
 	private final PersistentAdapterStore adapterStore;
+	private final InternalAdapterStore internalAdapterStore;
 	private final short[] adapterIds;
 	private final double[] maxResolutionSubsamplingPerDimension;
 	private final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation;
@@ -41,6 +43,7 @@ abstract public class BaseReaderParams<T>
 	public BaseReaderParams(
 			final Index index,
 			final PersistentAdapterStore adapterStore,
+			InternalAdapterStore internalAdapterStore,
 			final short[] adapterIds,
 			final double[] maxResolutionSubsamplingPerDimension,
 			final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
@@ -53,6 +56,7 @@ abstract public class BaseReaderParams<T>
 			final String... additionalAuthorizations ) {
 		this.index = index;
 		this.adapterStore = adapterStore;
+		this.internalAdapterStore = internalAdapterStore;
 		this.adapterIds = adapterIds;
 		this.maxResolutionSubsamplingPerDimension = maxResolutionSubsamplingPerDimension;
 		this.aggregation = aggregation;
@@ -71,6 +75,10 @@ abstract public class BaseReaderParams<T>
 
 	public PersistentAdapterStore getAdapterStore() {
 		return adapterStore;
+	}
+
+	public InternalAdapterStore getInternalAdapterStore() {
+		return internalAdapterStore;
 	}
 
 	public short[] getAdapterIds() {

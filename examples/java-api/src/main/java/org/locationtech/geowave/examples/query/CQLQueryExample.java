@@ -50,7 +50,9 @@ public class CQLQueryExample
 {
 	private static DataStore dataStore;
 
-	private static final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+	private static final Index index = new SpatialDimensionalityTypeProvider()
+			.createIndex(
+					new SpatialOptions());
 
 	// Points (to be ingested into GeoWave Data Store)
 	private static final Coordinate washingtonMonument = new Coordinate(
@@ -72,21 +74,26 @@ public class CQLQueryExample
 	private static final Map<String, Coordinate> cannedData = new HashMap<>();
 
 	static {
-		cannedData.put(
-				"Washington Monument",
-				washingtonMonument);
-		cannedData.put(
-				"White House",
-				whiteHouse);
-		cannedData.put(
-				"FedEx Field",
-				fedexField);
-		cannedData.put(
-				"Bay Bridge Airport",
-				bayBridgeAirport);
-		cannedData.put(
-				"Wide Water Beach",
-				wideWater);
+		cannedData
+				.put(
+						"Washington Monument",
+						washingtonMonument);
+		cannedData
+				.put(
+						"White House",
+						whiteHouse);
+		cannedData
+				.put(
+						"FedEx Field",
+						fedexField);
+		cannedData
+				.put(
+						"Bay Bridge Airport",
+						bayBridgeAirport);
+		cannedData
+				.put(
+						"Wide Water Beach",
+						wideWater);
 	}
 
 	final static FeatureDataAdapter ADAPTER = new FeatureDataAdapter(
@@ -96,7 +103,9 @@ public class CQLQueryExample
 			final String[] args )
 			throws IOException,
 			CQLException {
-		dataStore = DataStoreFactory.createDataStore(new MemoryRequiredOptions());
+		dataStore = DataStoreFactory
+				.createDataStore(
+						new MemoryRequiredOptions());
 		// ingest 3 points represented as SimpleFeatures: Washington Monument,
 		// White House, FedEx Field
 		ingestCannedData();
@@ -109,15 +118,28 @@ public class CQLQueryExample
 			throws IOException,
 			CQLException {
 
-		System.out.println("Executing query, expecting to match two points...");
-
-		try (final CloseableIterator<SimpleFeature> iterator = dataStore.query(VectorQueryBuilder.newBuilder().index(
-				index).addType(
-				ADAPTER).cqlConstraint(
-				"BBOX(geometry,-77.6167,38.6833,-76.6,38.9200) and locationName like 'W%'").build())) {
+		System.out
+				.println(
+						"Executing query, expecting to match two points...");
+		final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
+		try (final CloseableIterator<SimpleFeature> iterator = dataStore
+				.query(
+						bldr
+								.indexName(
+										index.getName())
+								.addTypeName(
+										ADAPTER.getTypeName())
+								.constraints(
+										bldr
+												.constraintsFactory()
+												.cqlConstraints(
+														"BBOX(geometry,-77.6167,38.6833,-76.6,38.9200) and locationName like 'W%'"))
+								.build())) {
 
 			while (iterator.hasNext()) {
-				System.out.println("Query match: " + iterator.next().getID());
+				System.out
+						.println(
+								"Query match: " + iterator.next().getID());
 			}
 		}
 
@@ -128,28 +150,46 @@ public class CQLQueryExample
 
 		final List<SimpleFeature> points = new ArrayList<>();
 
-		System.out.println("Building SimpleFeatures from canned data set...");
+		System.out
+				.println(
+						"Building SimpleFeatures from canned data set...");
 
 		for (final Entry<String, Coordinate> entry : cannedData.entrySet()) {
-			System.out.println("Added point: " + entry.getKey());
-			points.add(buildSimpleFeature(
-					entry.getKey(),
-					entry.getValue()));
+			System.out
+					.println(
+							"Added point: " + entry.getKey());
+			points
+					.add(
+							buildSimpleFeature(
+									entry.getKey(),
+									entry.getValue()));
 		}
 
-		System.out.println("Ingesting canned data...");
-
-		try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(
-				ADAPTER,
-				index)) {
+		System.out
+				.println(
+						"Ingesting canned data...");
+		dataStore
+				.addType(
+						ADAPTER);
+		dataStore
+				.addIndex(
+						ADAPTER.getTypeName(),
+						index);
+		try (Writer<SimpleFeature> indexWriter = dataStore
+				.createWriter(
+						ADAPTER.getTypeName())) {
 			for (final SimpleFeature sf : points) {
 				//
-				indexWriter.write(sf);
+				indexWriter
+						.write(
+								sf);
 
 			}
 		}
 
-		System.out.println("Ingest complete.");
+		System.out
+				.println(
+						"Ingest complete.");
 	}
 
 	private static SimpleFeatureType getPointSimpleFeatureType() {
@@ -157,22 +197,37 @@ public class CQLQueryExample
 		final String NAME = "PointSimpleFeatureType";
 		final SimpleFeatureTypeBuilder sftBuilder = new SimpleFeatureTypeBuilder();
 		final AttributeTypeBuilder atBuilder = new AttributeTypeBuilder();
-		sftBuilder.setName(NAME);
-		sftBuilder.add(atBuilder.binding(
-				String.class).nillable(
-				false).buildDescriptor(
-				"locationName"));
-		sftBuilder.add(atBuilder.binding(
-				Geometry.class).nillable(
-				false).buildDescriptor(
-				"geometry"));
+		sftBuilder
+				.setName(
+						NAME);
+		sftBuilder
+				.add(
+						atBuilder
+								.binding(
+										String.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"locationName"));
+		sftBuilder
+				.add(
+						atBuilder
+								.binding(
+										Geometry.class)
+								.nillable(
+										false)
+								.buildDescriptor(
+										"geometry"));
 
 		// TURN ON SECONDARY INDEXING
 		final SimpleFeatureType type = sftBuilder.buildFeatureType();
-		type.getDescriptor(
-				"locationName").getUserData().put(
-				TextSecondaryIndexConfiguration.INDEX_KEY,
-				"FULL");
+		type
+				.getDescriptor(
+						"locationName")
+				.getUserData()
+				.put(
+						TextSecondaryIndexConfiguration.INDEX_KEY,
+						"FULL");
 		return type;
 	}
 
@@ -182,14 +237,20 @@ public class CQLQueryExample
 
 		final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(
 				getPointSimpleFeatureType());
-		builder.set(
-				"locationName",
-				locationName);
-		builder.set(
-				"geometry",
-				GeometryUtils.GEOMETRY_FACTORY.createPoint(coordinate));
+		builder
+				.set(
+						"locationName",
+						locationName);
+		builder
+				.set(
+						"geometry",
+						GeometryUtils.GEOMETRY_FACTORY
+								.createPoint(
+										coordinate));
 
-		return builder.buildFeature(locationName);
+		return builder
+				.buildFeature(
+						locationName);
 	}
 
 }

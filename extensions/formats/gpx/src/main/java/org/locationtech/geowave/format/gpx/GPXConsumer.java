@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -17,7 +17,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -26,52 +25,46 @@ import java.util.Stack;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
-import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
-
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.ingest.GeoWaveData;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.geometry.BoundingBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
  * Consumes a GPX file. The consumer is an iterator, parsing the input stream
  * and returning results as the stream is parsed. Data is emitted for each
  * element at the 'end' tag.
- * 
+ *
  * Caution: Developers should maintain the cohesiveness of attribute names
  * associated with each feature type defined in {@link GpxUtils}.
- * 
+ *
  * Route way points and way points are treated similarly except way points do
  * not include the parent ID information in their ID. The assumption is that the
  * name, lat and lon attributes are globally unique. In contrast, Route way
  * points include the file name and parent route name as part of their ID.
  * Routes are not assumed to be global.
- * 
- * 
+ *
+ *
  */
 public class GPXConsumer implements
 		CloseableIterator<GeoWaveData<SimpleFeature>>
 {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(GpxIngestPlugin.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					GpxIngestPlugin.class);
 
 	private final SimpleFeatureBuilder pointBuilder;
 	private final SimpleFeatureBuilder waypointBuilder;
@@ -83,17 +76,8 @@ public class GPXConsumer implements
 	protected static final SimpleFeatureType trackType = GpxUtils.createGPXTrackDataType();
 	protected static final SimpleFeatureType routeType = GpxUtils.createGPXRouteDataType();
 
-	protected static final ByteArrayId pointKey = new ByteArrayId(
-			StringUtils.stringToBinary(GpxUtils.GPX_POINT_FEATURE));
-	protected static final ByteArrayId waypointKey = new ByteArrayId(
-			StringUtils.stringToBinary(GpxUtils.GPX_WAYPOINT_FEATURE));
-	protected static final ByteArrayId trackKey = new ByteArrayId(
-			StringUtils.stringToBinary(GpxUtils.GPX_TRACK_FEATURE));
-	protected static final ByteArrayId routeKey = new ByteArrayId(
-			StringUtils.stringToBinary(GpxUtils.GPX_ROUTE_FEATURE));
-
 	final InputStream fileStream;
-	final Collection<ByteArrayId> primaryIndexIds;
+	final String[] indexNames;
 	final String inputID;
 	final String globalVisibility;
 	final Map<String, Map<String, String>> additionalData;
@@ -102,7 +86,7 @@ public class GPXConsumer implements
 
 	final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
-	final Stack<GPXDataElement> currentElementStack = new Stack<GPXDataElement>();
+	final Stack<GPXDataElement> currentElementStack = new Stack<>();
 	GPXDataElement top = null;
 
 	static final NumberFormat LatLongFormat = new DecimalFormat(
@@ -112,7 +96,7 @@ public class GPXConsumer implements
 	GeoWaveData<SimpleFeature> nextFeature = null;
 
 	/**
-	 * 
+	 *
 	 * @param fileStream
 	 * @param primaryIndexId
 	 * @param inputID
@@ -125,12 +109,12 @@ public class GPXConsumer implements
 	 *            if true, waypoints are globally unique, otherwise are unique
 	 *            to this file and should have inputID and other components
 	 *            added to the identifier
-	 * 
+	 *
 	 * @param globalVisibility
 	 */
 	public GPXConsumer(
 			final InputStream fileStream,
-			final Collection<ByteArrayId> primaryIndexIds,
+			final String[] indexNames,
 			final String inputID,
 			final Map<String, Map<String, String>> additionalData,
 			final boolean uniqueWayPoints,
@@ -138,13 +122,13 @@ public class GPXConsumer implements
 			final double maxLength ) {
 		super();
 		this.fileStream = fileStream;
-		this.primaryIndexIds = primaryIndexIds;
+		this.indexNames = indexNames;
 		this.inputID = inputID != null ? inputID : "";
 		this.uniqueWayPoints = uniqueWayPoints;
 		this.additionalData = additionalData;
 		this.globalVisibility = globalVisibility;
 		this.maxLength = maxLength;
-		this.top = new GPXDataElement(
+		top = new GPXDataElement(
 				"gpx",
 				this.maxLength);
 		pointBuilder = new SimpleFeatureBuilder(
@@ -156,10 +140,13 @@ public class GPXConsumer implements
 		routeBuilder = new SimpleFeatureBuilder(
 				routeType);
 		try {
-			inputFactory.setProperty(
-					"javax.xml.stream.isSupportingExternalEntities",
-					false);
-			eventReader = inputFactory.createXMLEventReader(fileStream);
+			inputFactory
+					.setProperty(
+							"javax.xml.stream.isSupportingExternalEntities",
+							false);
+			eventReader = inputFactory
+					.createXMLEventReader(
+							fileStream);
 			init();
 			if (!currentElementStack.isEmpty()) {
 				nextFeature = getNext();
@@ -168,10 +155,11 @@ public class GPXConsumer implements
 				nextFeature = null;
 			}
 		}
-		catch (Exception e) {
-			LOGGER.error(
-					"Error processing GPX input stream",
-					e);
+		catch (final Exception e) {
+			LOGGER
+					.error(
+							"Error processing GPX input stream",
+							e);
 			nextFeature = null;
 		}
 	}
@@ -188,9 +176,10 @@ public class GPXConsumer implements
 			nextFeature = getNext();
 		}
 		catch (final Exception e) {
-			LOGGER.error(
-					"Error processing GPX input stream",
-					e);
+			LOGGER
+					.error(
+							"Error processing GPX input stream",
+							e);
 			nextFeature = null;
 		}
 		return ret;
@@ -200,17 +189,19 @@ public class GPXConsumer implements
 	public void remove() {}
 
 	@Override
-	public void close()
-			throws IOException {
+	public void close() {
 		try {
 			eventReader.close();
 		}
 		catch (final Exception e2) {
-			LOGGER.warn(
-					"Unable to close track XML stream",
-					e2);
+			LOGGER
+					.warn(
+							"Unable to close track XML stream",
+							e2);
 		}
-		IOUtils.closeQuietly(fileStream);
+		IOUtils
+				.closeQuietly(
+						fileStream);
 
 	}
 
@@ -222,8 +213,12 @@ public class GPXConsumer implements
 			final XMLEvent event = eventReader.nextEvent();
 			if (event.isStartElement()) {
 				final StartElement node = event.asStartElement();
-				if ("gpx".equals(node.getName().getLocalPart())) {
-					currentElementStack.push(top);
+				if ("gpx"
+						.equals(
+								node.getName().getLocalPart())) {
+					currentElementStack
+							.push(
+									top);
 					processElementAttributes(
 							node,
 							top);
@@ -248,25 +243,36 @@ public class GPXConsumer implements
 						currentElement)) {
 					final GPXDataElement newElement = new GPXDataElement(
 							event.asStartElement().getName().getLocalPart(),
-							this.maxLength);
-					currentElement.addChild(newElement);
+							maxLength);
+					currentElement
+							.addChild(
+									newElement);
 					currentElement = newElement;
-					currentElementStack.push(currentElement);
+					currentElementStack
+							.push(
+									currentElement);
 					processElementAttributes(
 							node,
 							currentElement);
 				}
 			}
-			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(
-					currentElement.elementType)) {
+			else if (event.isEndElement() && event
+					.asEndElement()
+					.getName()
+					.getLocalPart()
+					.equals(
+							currentElement.elementType)) {
 				final GPXDataElement child = currentElementStack.pop();
-				newFeature = postProcess(child);
+				newFeature = postProcess(
+						child);
 				if ((newFeature == null) && !currentElementStack.isEmpty()) {
 					currentElement = currentElementStack.peek();
 					// currentElement.removeChild(child);
 				}
 				else if (currentElementStack.size() == 1) {
-					top.children.remove(child);
+					top.children
+							.remove(
+									child);
 				}
 			}
 		}
@@ -279,10 +285,16 @@ public class GPXConsumer implements
 			throws Exception {
 		final StringBuilder buf = new StringBuilder();
 		XMLEvent event = eventReader.nextEvent();
-		while (!(event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(
-				elType))) {
+		while (!(event.isEndElement() && event
+				.asEndElement()
+				.getName()
+				.getLocalPart()
+				.equals(
+						elType))) {
 			if (event.isCharacters()) {
-				buf.append(event.asCharacters().getData());
+				buf
+						.append(
+								event.asCharacters().getData());
 			}
 			event = eventReader.nextEvent();
 		}
@@ -298,13 +310,23 @@ public class GPXConsumer implements
 		final Iterator<Attribute> attributes = node.getAttributes();
 		while (attributes.hasNext()) {
 			final Attribute a = attributes.next();
-			if (a.getName().getLocalPart().equals(
-					"lon")) {
-				element.lon = Double.parseDouble(a.getValue());
+			if (a
+					.getName()
+					.getLocalPart()
+					.equals(
+							"lon")) {
+				element.lon = Double
+						.parseDouble(
+								a.getValue());
 			}
-			else if (a.getName().getLocalPart().equals(
-					"lat")) {
-				element.lat = Double.parseDouble(a.getValue());
+			else if (a
+					.getName()
+					.getLocalPart()
+					.equals(
+							"lat")) {
+				element.lat = Double
+						.parseDouble(
+								a.getValue());
 			}
 		}
 	}
@@ -315,21 +337,27 @@ public class GPXConsumer implements
 			throws Exception {
 		switch (node.getName().getLocalPart()) {
 			case "ele": {
-				element.elevation = Double.parseDouble(getChildCharacters(
-						eventReader,
-						"ele"));
+				element.elevation = Double
+						.parseDouble(
+								getChildCharacters(
+										eventReader,
+										"ele"));
 				break;
 			}
 			case "magvar": {
-				element.magvar = Double.parseDouble(getChildCharacters(
-						eventReader,
-						"magvar"));
+				element.magvar = Double
+						.parseDouble(
+								getChildCharacters(
+										eventReader,
+										"magvar"));
 				break;
 			}
 			case "geoidheight": {
-				element.geoidheight = Double.parseDouble(getChildCharacters(
-						eventReader,
-						"geoidheight"));
+				element.geoidheight = Double
+						.parseDouble(
+								getChildCharacters(
+										eventReader,
+										"geoidheight"));
 				break;
 			}
 			case "name": {
@@ -375,21 +403,27 @@ public class GPXConsumer implements
 				break;
 			}
 			case "sat": {
-				element.sat = Integer.parseInt(getChildCharacters(
-						eventReader,
-						"sat"));
+				element.sat = Integer
+						.parseInt(
+								getChildCharacters(
+										eventReader,
+										"sat"));
 				break;
 			}
 			case "dgpsid": {
-				element.dgpsid = Integer.parseInt(getChildCharacters(
-						eventReader,
-						"dgpsid"));
+				element.dgpsid = Integer
+						.parseInt(
+								getChildCharacters(
+										eventReader,
+										"dgpsid"));
 				break;
 			}
 			case "vdop": {
-				element.vdop = Double.parseDouble(getChildCharacters(
-						eventReader,
-						"vdop"));
+				element.vdop = Double
+						.parseDouble(
+								getChildCharacters(
+										eventReader,
+										"vdop"));
 				break;
 			}
 			case "fix": {
@@ -399,27 +433,35 @@ public class GPXConsumer implements
 				break;
 			}
 			case "course": {
-				element.course = Double.parseDouble(getChildCharacters(
-						eventReader,
-						"course"));
+				element.course = Double
+						.parseDouble(
+								getChildCharacters(
+										eventReader,
+										"course"));
 				break;
 			}
 			case "speed": {
-				element.speed = Double.parseDouble(getChildCharacters(
-						eventReader,
-						"speed"));
+				element.speed = Double
+						.parseDouble(
+								getChildCharacters(
+										eventReader,
+										"speed"));
 				break;
 			}
 			case "hdop": {
-				element.hdop = Double.parseDouble(getChildCharacters(
-						eventReader,
-						"hdop"));
+				element.hdop = Double
+						.parseDouble(
+								getChildCharacters(
+										eventReader,
+										"hdop"));
 				break;
 			}
 			case "pdop": {
-				element.pdop = Double.parseDouble(getChildCharacters(
-						eventReader,
-						"pdop"));
+				element.pdop = Double
+						.parseDouble(
+								getChildCharacters(
+										eventReader,
+										"pdop"));
 				break;
 			}
 			case "url": {
@@ -442,26 +484,32 @@ public class GPXConsumer implements
 			}
 			case "time": {
 				try {
-					element.timestamp = GpxUtils.parseDateSeconds(
-							getChildCharacters(
-									eventReader,
-									"time")).getTime();
+					element.timestamp = GpxUtils
+							.parseDateSeconds(
+									getChildCharacters(
+											eventReader,
+											"time"))
+							.getTime();
 
 				}
 				catch (final ParseException e) {
-					LOGGER.warn(
-							"Unable to parse date in seconds",
-							e);
+					LOGGER
+							.warn(
+									"Unable to parse date in seconds",
+									e);
 					try {
-						element.timestamp = GpxUtils.parseDateMillis(
-								getChildCharacters(
-										eventReader,
-										"time")).getTime();
+						element.timestamp = GpxUtils
+								.parseDateMillis(
+										getChildCharacters(
+												eventReader,
+												"time"))
+								.getTime();
 					}
 					catch (final ParseException e2) {
-						LOGGER.warn(
-								"Unable to parse date in millis",
-								e2);
+						LOGGER
+								.warn(
+										"Unable to parse date in millis",
+										e2);
 					}
 				}
 				break;
@@ -531,14 +579,18 @@ public class GPXConsumer implements
 		public String getPath() {
 			final StringBuffer buf = new StringBuffer();
 			GPXDataElement currentGP = parent;
-			buf.append(elementType);
+			buf
+					.append(
+							elementType);
 			while (currentGP != null) {
-				buf.insert(
-						0,
-						'.');
-				buf.insert(
-						0,
-						currentGP.elementType);
+				buf
+						.insert(
+								0,
+								'.');
+				buf
+						.insert(
+								0,
+								currentGP.elementType);
 				currentGP = currentGP.parent;
 			}
 			return buf.toString();
@@ -548,9 +600,11 @@ public class GPXConsumer implements
 				final GPXDataElement child ) {
 
 			if (children == null) {
-				children = new ArrayList<GPXDataElement>();
+				children = new ArrayList<>();
 			}
-			children.add(child);
+			children
+					.add(
+							child);
 			child.parent = this;
 			child.id = ++childIdCounter;
 		}
@@ -568,37 +622,62 @@ public class GPXConsumer implements
 
 			final StringBuffer buf = new StringBuffer();
 			if ((parent != null) && includeParent) {
-				final String parentID = parent.composeID(
-						prefix,
-						false,
-						true);
+				final String parentID = parent
+						.composeID(
+								prefix,
+								false,
+								true);
 				if (parentID.length() > 0) {
-					buf.append(parentID);
-					buf.append('_');
+					buf
+							.append(
+									parentID);
+					buf
+							.append(
+									'_');
 				}
 				if ((number != null) && (number.length() > 0)) {
-					buf.append(number);
+					buf
+							.append(
+									number);
 				}
 				else {
-					buf.append(id);
+					buf
+							.append(
+									id);
 				}
-				buf.append('_');
+				buf
+						.append(
+								'_');
 			}
 			if ((name != null) && (name.length() > 0)) {
-				buf.append(name.replaceAll(
-						"\\s+",
-						"_"));
-				buf.append('_');
+				buf
+						.append(
+								name
+										.replaceAll(
+												"\\s+",
+												"_"));
+				buf
+						.append(
+								'_');
 			}
 			if (includeLatLong && (lat != null) && (lon != null)) {
-				buf.append(
-						toID(lat)).append(
-						'_').append(
-						toID(lon));
-				buf.append('_');
+				buf
+						.append(
+								toID(
+										lat))
+						.append(
+								'_')
+						.append(
+								toID(
+										lon));
+				buf
+						.append(
+								'_');
 			}
 			if (buf.length() > 0) {
-				buf.deleteCharAt(buf.length() - 1);
+				buf
+						.deleteCharAt(
+								buf.length() - 1);
 			}
 			return buf.toString();
 		}
@@ -621,12 +700,18 @@ public class GPXConsumer implements
 
 		public List<Coordinate> buildCoordinates() {
 			if (isCoordinate()) {
-				return Arrays.asList(getCoordinate());
+				return Arrays
+						.asList(
+								getCoordinate());
 			}
-			final ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
+			final ArrayList<Coordinate> coords = new ArrayList<>();
 			for (int i = 0; (children != null) && (i < children.size()); i++) {
-				coords.addAll(children.get(
-						i).buildCoordinates());
+				coords
+						.addAll(
+								children
+										.get(
+												i)
+										.buildCoordinates());
 			}
 			return coords;
 		}
@@ -639,12 +724,16 @@ public class GPXConsumer implements
 			for (final GPXDataElement element : children) {
 				final Long t = element.getStartTime();
 				if (t != null) {
-					minTime = Math.min(
-							t.longValue(),
-							minTime);
+					minTime = Math
+							.min(
+									t.longValue(),
+									minTime);
 				}
 			}
-			return (minTime < Long.MAX_VALUE) ? Long.valueOf(minTime) : null;
+			return (minTime < Long.MAX_VALUE) ? Long
+					.valueOf(
+							minTime)
+					: null;
 		}
 
 		private Long getEndTime() {
@@ -655,27 +744,36 @@ public class GPXConsumer implements
 			for (final GPXDataElement element : children) {
 				final Long t = element.getEndTime();
 				if (t != null) {
-					maxTime = Math.max(
-							t.longValue(),
-							maxTime);
+					maxTime = Math
+							.max(
+									t.longValue(),
+									maxTime);
 				}
 			}
-			return (maxTime > 0) ? Long.valueOf(maxTime) : null;
+			return (maxTime > 0) ? Long
+					.valueOf(
+							maxTime)
+					: null;
 		}
 
 		public boolean build(
 				final SimpleFeatureBuilder builder ) {
 			if ((lon != null) && (lat != null)) {
 				final Coordinate p = getCoordinate();
-				builder.set(
-						"geometry",
-						GeometryUtils.GEOMETRY_FACTORY.createPoint(p));
-				builder.set(
-						"Latitude",
-						lat);
-				builder.set(
-						"Longitude",
-						lon);
+				builder
+						.set(
+								"geometry",
+								GeometryUtils.GEOMETRY_FACTORY
+										.createPoint(
+												p));
+				builder
+						.set(
+								"Latitude",
+								lat);
+				builder
+						.set(
+								"Longitude",
+								lon);
 			}
 			setAttribute(
 					builder,
@@ -774,52 +872,61 @@ public class GPXConsumer implements
 
 				final List<Coordinate> childSequence = buildCoordinates();
 
-				int childCoordCount = childSequence.size();
+				final int childCoordCount = childSequence.size();
 				if (childCoordCount <= 1) {
 					return false;
 				}
 
-				LineString geom = GeometryUtils.GEOMETRY_FACTORY.createLineString(childSequence
-						.toArray(new Coordinate[childSequence.size()]));
+				final LineString geom = GeometryUtils.GEOMETRY_FACTORY
+						.createLineString(
+								childSequence
+										.toArray(
+												new Coordinate[childSequence.size()]));
 
 				// Filter gpx track based on maxExtent
-				if (geom.isEmpty() || geom.getEnvelopeInternal().maxExtent() > this.maxLineLength) {
+				if (geom.isEmpty() || (geom.getEnvelopeInternal().maxExtent() > maxLineLength)) {
 					return false;
 				}
 
-				builder.set(
-						"geometry",
-						geom);
+				builder
+						.set(
+								"geometry",
+								geom);
 
 				setAttribute(
 						builder,
 						"NumberPoints",
-						Long.valueOf(childCoordCount));
+						Long
+								.valueOf(
+										childCoordCount));
 
 				final Long minTime = getStartTime();
 				if (minTime != null) {
-					builder.set(
-							"StartTimeStamp",
-							new Date(
-									minTime));
+					builder
+							.set(
+									"StartTimeStamp",
+									new Date(
+											minTime));
 				}
 				else {
 					setDuration = false;
 				}
 				final Long maxTime = getEndTime();
 				if (maxTime != null) {
-					builder.set(
-							"EndTimeStamp",
-							new Date(
-									maxTime));
+					builder
+							.set(
+									"EndTimeStamp",
+									new Date(
+											maxTime));
 				}
 				else {
 					setDuration = false;
 				}
 				if (setDuration) {
-					builder.set(
-							"Duration",
-							maxTime - minTime);
+					builder
+							.set(
+									"Duration",
+									maxTime - minTime);
 				}
 			}
 			return true;
@@ -831,72 +938,98 @@ public class GPXConsumer implements
 
 		switch (element.elementType) {
 			case "trk": {
-				if ((element.children != null) && element.build(trackBuilder)) {
-					trackBuilder.set(
-							"TrackId",
-							inputID.length() > 0 ? inputID : element.composeID(
-									"",
-									false,
-									true));
+				if ((element.children != null) && element
+						.build(
+								trackBuilder)) {
+					trackBuilder
+							.set(
+									"TrackId",
+									inputID.length() > 0 ? inputID
+											: element
+													.composeID(
+															"",
+															false,
+															true));
 					return buildGeoWaveDataInstance(
-							element.composeID(
-									inputID,
-									false,
-									true),
-							primaryIndexIds,
-							trackKey,
+							element
+									.composeID(
+											inputID,
+											false,
+											true),
+							indexNames,
+							GpxUtils.GPX_TRACK_FEATURE,
 							trackBuilder,
-							additionalData.get(element.getPath()));
+							additionalData
+									.get(
+											element.getPath()));
 				}
 				break;
 			}
 			case "rte": {
 
-				if ((element.children != null) && element.build(routeBuilder)) {
-					trackBuilder.set(
-							"TrackId",
-							inputID.length() > 0 ? inputID : element.composeID(
-									"",
-									false,
-									true));
+				if ((element.children != null) && element
+						.build(
+								routeBuilder)) {
+					trackBuilder
+							.set(
+									"TrackId",
+									inputID.length() > 0 ? inputID
+											: element
+													.composeID(
+															"",
+															false,
+															true));
 					return buildGeoWaveDataInstance(
-							element.composeID(
-									inputID,
-									false,
-									true),
-							primaryIndexIds,
-							routeKey,
+							element
+									.composeID(
+											inputID,
+											false,
+											true),
+							indexNames,
+							GpxUtils.GPX_ROUTE_FEATURE,
 							routeBuilder,
-							additionalData.get(element.getPath()));
+							additionalData
+									.get(
+											element.getPath()));
 				}
 				break;
 			}
 			case "wpt": {
 
-				if (element.build(waypointBuilder)) {
+				if (element
+						.build(
+								waypointBuilder)) {
 					return buildGeoWaveDataInstance(
-							element.composeID(
-									uniqueWayPoints ? "" : inputID,
-									true,
-									!uniqueWayPoints),
-							primaryIndexIds,
-							waypointKey,
+							element
+									.composeID(
+											uniqueWayPoints ? "" : inputID,
+											true,
+											!uniqueWayPoints),
+							indexNames,
+							GpxUtils.GPX_WAYPOINT_FEATURE,
 							waypointBuilder,
-							additionalData.get(element.getPath()));
+							additionalData
+									.get(
+											element.getPath()));
 				}
 				break;
 			}
 			case "rtept": {
-				if (element.build(waypointBuilder)) {
+				if (element
+						.build(
+								waypointBuilder)) {
 					return buildGeoWaveDataInstance(
-							element.composeID(
-									inputID,
-									true,
-									true),
-							primaryIndexIds,
-							waypointKey,
+							element
+									.composeID(
+											inputID,
+											true,
+											true),
+							indexNames,
+							GpxUtils.GPX_WAYPOINT_FEATURE,
 							waypointBuilder,
-							additionalData.get(element.getPath()));
+							additionalData
+									.get(
+											element.getPath()));
 				}
 				break;
 			}
@@ -905,21 +1038,27 @@ public class GPXConsumer implements
 			}
 			case "trkpt": {
 
-				if (element.build(pointBuilder)) {
+				if (element
+						.build(
+								pointBuilder)) {
 					if (element.timestamp == null) {
-						pointBuilder.set(
-								"Timestamp",
-								null);
+						pointBuilder
+								.set(
+										"Timestamp",
+										null);
 					}
 					return buildGeoWaveDataInstance(
-							element.composeID(
-									inputID,
-									false,
-									true),
-							primaryIndexIds,
-							pointKey,
+							element
+									.composeID(
+											inputID,
+											false,
+											true),
+							indexNames,
+							GpxUtils.GPX_POINT_FEATURE,
 							pointBuilder,
-							additionalData.get(element.getPath()));
+							additionalData
+									.get(
+											element.getPath()));
 				}
 				break;
 			}
@@ -931,36 +1070,45 @@ public class GPXConsumer implements
 			final SimpleFeatureBuilder builder,
 			final String name,
 			final Object obj ) {
-		if ((builder.getFeatureType().getDescriptor(
-				name) != null) && (obj != null)) {
-			builder.set(
-					name,
-					obj);
+		if ((builder
+				.getFeatureType()
+				.getDescriptor(
+						name) != null)
+				&& (obj != null)) {
+			builder
+					.set(
+							name,
+							obj);
 		}
 	}
 
 	private static GeoWaveData<SimpleFeature> buildGeoWaveDataInstance(
 			final String id,
-			final Collection<ByteArrayId> primaryIndexIds,
-			final ByteArrayId key,
+			final String[] indexNames,
+			final String key,
 			final SimpleFeatureBuilder builder,
 			final Map<String, String> additionalDataSet ) {
 
 		if (additionalDataSet != null) {
 			for (final Map.Entry<String, String> entry : additionalDataSet.entrySet()) {
-				builder.set(
-						entry.getKey(),
-						entry.getValue());
+				builder
+						.set(
+								entry.getKey(),
+								entry.getValue());
 			}
 		}
-		return new GeoWaveData<SimpleFeature>(
+		return new GeoWaveData<>(
 				key,
-				primaryIndexIds,
-				builder.buildFeature(id));
+				indexNames,
+				builder
+						.buildFeature(
+								id));
 	}
 
 	private static String toID(
 			final Double val ) {
-		return LatLongFormat.format(val.doubleValue() * 10000000);
+		return LatLongFormat
+				.format(
+						val.doubleValue() * 10000000);
 	}
 }

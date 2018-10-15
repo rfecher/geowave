@@ -16,6 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.MultiDimensionalCoordinateRangesArray;
 import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
+import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
@@ -36,6 +37,7 @@ public class ReaderParams<T> extends
 	public ReaderParams(
 			final Index index,
 			final PersistentAdapterStore adapterStore,
+			final InternalAdapterStore internalAdapterStore,
 			final short[] adapterIds,
 			final double[] maxResolutionSubsamplingPerDimension,
 			final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
@@ -55,6 +57,7 @@ public class ReaderParams<T> extends
 		super(
 				index,
 				adapterStore,
+				internalAdapterStore,
 				adapterIds,
 				maxResolutionSubsamplingPerDimension,
 				aggregation,

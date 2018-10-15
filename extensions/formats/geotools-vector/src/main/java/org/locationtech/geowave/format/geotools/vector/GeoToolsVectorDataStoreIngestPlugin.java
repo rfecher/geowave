@@ -154,7 +154,7 @@ public class GeoToolsVectorDataStoreIngestPlugin implements
 	@Override
 	public CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveData(
 			final URL input,
-			final Collection<ByteArrayId> primaryIndexIds,
+			final String[] indexNames,
 			final String visibility ) {
 		DataStore dataStore = null;
 		try {
@@ -211,7 +211,7 @@ public class GeoToolsVectorDataStoreIngestPlugin implements
 			}
 			return new SimpleFeatureGeoWaveWrapper(
 					featureCollections,
-					primaryIndexIds,
+					indexNames,
 					visibility,
 					dataStore,
 					retypingPlugin,

@@ -214,7 +214,7 @@ public class AggregationEndpoint extends
 			}
 
 			try {
-				final Mergeable mvalue = getValue(
+				final Object result = getValue(
 						aggregation,
 						filterList,
 						dataAdapter,
@@ -224,7 +224,8 @@ public class AggregationEndpoint extends
 						request.getCacheSize(),
 						authorizations);
 
-				final byte[] bvalue = URLClassloaderUtils.toBinary(mvalue);
+				URLClassloaderUtils.initClassLoader();
+				final byte[] bvalue = aggregation.resultToBinary(result);
 				value = ByteString.copyFrom(bvalue);
 			}
 			catch (final IOException ioe) {
@@ -249,7 +250,7 @@ public class AggregationEndpoint extends
 		done.run(response);
 	}
 
-	private Mergeable getValue(
+	private Object getValue(
 			final Aggregation aggregation,
 			final Filter filter,
 			final DataTypeAdapter dataAdapter,

@@ -22,7 +22,6 @@ import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
-import org.locationtech.geowave.core.store.api.QueryOptionsInt;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.metadata.AdapterIndexMappingStoreImpl;
@@ -31,13 +30,16 @@ import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.metadata.IndexStoreImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
 import org.locationtech.geowave.core.store.metadata.SecondaryIndexStoreImpl;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
+import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
+import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
 import org.locationtech.geowave.datastore.cassandra.operations.CassandraOperations;
 import org.locationtech.geowave.datastore.cassandra.operations.config.CassandraOptions;
 import org.locationtech.geowave.mapreduce.BaseMapReduceDataStore;
 
-public class CassandraDataStore<T> extends
-		BaseMapReduceDataStore<T>
+public class CassandraDataStore extends
+		BaseMapReduceDataStore
 {
 	public CassandraDataStore(
 			final CassandraOperations operations,
@@ -81,7 +83,9 @@ public class CassandraDataStore<T> extends
 				options,
 				internalAdapterStore);
 
-		secondaryIndexDataStore.setDataStore(this);
+		secondaryIndexDataStore
+				.setDataStore(
+						this);
 	}
 
 	@Override
@@ -90,15 +94,18 @@ public class CassandraDataStore<T> extends
 		// because datastax cassandra driver requires guava 19.0, this user
 		// classpath must override the default hadoop classpath which has an old
 		// version of guava or there will be incompatibility issues
-		conf.setBoolean(
-				MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,
-				true);
+		conf
+				.setBoolean(
+						MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,
+						true);
 	}
 
 	@Override
 	public List<InputSplit> getSplits(
-			final DistributableQueryConstrain query,
-			final QueryOptionsInt queryOptions,
+			final CommonQueryOptions commonOptions,
+			final DataTypeQueryOptions<?> typeOptions,
+			final IndexQueryOptions indexOptions,
+			final DistributableQueryConstraints constraints,
 			final TransientAdapterStore adapterStore,
 			final AdapterIndexMappingStore aimStore,
 			final DataStatisticsStore statsStore,
@@ -109,12 +116,16 @@ public class CassandraDataStore<T> extends
 			final Integer maxSplits )
 			throws IOException,
 			InterruptedException {
-		context.getConfiguration().setBoolean(
-				MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,
-				true);
+		context
+				.getConfiguration()
+				.setBoolean(
+						MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,
+						true);
 		return super.getSplits(
-				query,
-				queryOptions,
+				commonOptions,
+				typeOptions,
+				indexOptions,
+				constraints,
 				adapterStore,
 				aimStore,
 				statsStore,

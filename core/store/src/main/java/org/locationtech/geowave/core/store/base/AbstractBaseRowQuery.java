@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.DataStoreOptions;
+import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
@@ -56,6 +57,7 @@ abstract class AbstractBaseRowQuery<T> extends
 			final double[] maxResolutionSubsamplingPerDimension,
 			final double[] targetResolutionPerDimensionForHierarchicalIndex,
 			final PersistentAdapterStore adapterStore,
+			final InternalAdapterStore internalAdapterStore,
 			final Integer limit,
 			final Integer queryMaxRangeDecomposition,
 			final boolean delete ) {
@@ -63,6 +65,7 @@ abstract class AbstractBaseRowQuery<T> extends
 				operations,
 				options,
 				adapterStore,
+				internalAdapterStore,
 				maxResolutionSubsamplingPerDimension,
 				targetResolutionPerDimensionForHierarchicalIndex,
 				limit,

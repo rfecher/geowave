@@ -61,12 +61,9 @@ public class GDELTIngestTest
 				filePath);
 
 		assertTrue(GDELTUtils.validate(toIngest));
-		final Collection<ByteArrayId> indexIds = new ArrayList<ByteArrayId>();
-		indexIds.add(new ByteArrayId(
-				"123".getBytes(StringUtils.UTF8_CHARSET)));
 		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester.toGeoWaveData(
 				toIngest,
-				indexIds,
+				new String[] {"123"},
 				"");
 
 		assertTrue((features != null) && features.hasNext());
@@ -83,7 +80,7 @@ public class GDELTIngestTest
 
 		final CloseableIterator<GeoWaveData<SimpleFeature>> featuresExt = ingesterExt.toGeoWaveData(
 				toIngest,
-				indexIds,
+				new String[] {"123"},
 				"");
 
 		assertTrue((featuresExt != null) && featuresExt.hasNext());

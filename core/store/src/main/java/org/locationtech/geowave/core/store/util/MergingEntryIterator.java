@@ -63,7 +63,7 @@ public class MergingEntryIterator<T> extends
 	protected GeoWaveRow getNextEncodedResult() {
 		GeoWaveRow nextResult = scannerIt.next();
 
-		final short internalAdapterId = nextResult.getInternalAdapterId();
+		final short internalAdapterId = nextResult.getAdapterId();
 
 		final RowMergingDataAdapter mergingAdapter = mergingAdapters.get(internalAdapterId);
 
@@ -119,7 +119,7 @@ public class MergingEntryIterator<T> extends
 
 		for (GeoWaveValue fieldValue : singleRow.getFieldValues()) {
 			final Mergeable mergeable = rowTransform.getRowAsMergeableObject(
-					singleRow.getInternalAdapterId(),
+					singleRow.getAdapterId(),
 					new ByteArrayId(
 							fieldValue.getFieldMask()),
 					fieldValue.getValue());
@@ -142,7 +142,7 @@ public class MergingEntryIterator<T> extends
 		return new GeoWaveRowImpl(
 				new GeoWaveKeyImpl(
 						singleRow.getDataId(),
-						singleRow.getInternalAdapterId(),
+						singleRow.getAdapterId(),
 						singleRow.getPartitionKey(),
 						singleRow.getSortKey(),
 						singleRow.getNumberOfDuplicates()),

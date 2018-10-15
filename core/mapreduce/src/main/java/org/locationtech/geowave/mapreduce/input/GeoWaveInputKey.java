@@ -51,7 +51,7 @@ public class GeoWaveInputKey implements
 			final org.locationtech.geowave.core.store.entities.GeoWaveKey key,
 			final String indexName ) {
 		this(
-				key.getInternalAdapterId(),
+				key.getAdapterId(),
 				key,
 				indexName);
 	}

@@ -657,6 +657,7 @@ public class BaseDataStore implements
 						baseOperations,
 						baseOptions,
 						tempAdapterStore,
+						internalAdapterStore,
 						sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
 						sanitizedQueryOptions.getTargetResolutionPerDimensionForHierarchicalIndex(),
 						sanitizedQueryOptions.getLimit(),
@@ -704,6 +705,7 @@ public class BaseDataStore implements
 						sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
 						sanitizedQueryOptions.getTargetResolutionPerDimensionForHierarchicalIndex(),
 						tempAdapterStore,
+						internalAdapterStore,
 						sanitizedQueryOptions.getLimit(),
 						sanitizedQueryOptions.getMaxRangeDecomposition(),
 						delete);
@@ -748,6 +750,7 @@ public class BaseDataStore implements
 						baseOperations,
 						baseOptions,
 						tempAdapterStore,
+						internalAdapterStore,
 						sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
 						sanitizedQueryOptions.getTargetResolutionPerDimensionForHierarchicalIndex(),
 						sanitizedQueryOptions.getLimit(),

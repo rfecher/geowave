@@ -57,7 +57,8 @@ public class MapReduceMemoryOperations extends
 		return createReader((ReaderParams) new ReaderParams(
 				readerParams.getIndex(),
 				readerParams.getAdapterStore(),
-				Lists.newArrayList(readerParams.getAdapterIds()),
+				readerParams.getInternalAdapterStore(),
+				readerParams.getAdapterIds(),
 				readerParams.getMaxResolutionSubsamplingPerDimension(),
 				readerParams.getAggregation(),
 				readerParams.getFieldSubsets(),

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -12,21 +12,14 @@ package org.locationtech.geowave.format.tdrive;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.locationtech.geowave.adapter.vector.ingest.DataSchemaOptionProvider;
-import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.ingest.GeoWaveData;
-import org.locationtech.geowave.format.tdrive.TdriveIngestPlugin;
-import org.locationtech.geowave.format.tdrive.TdriveUtils;
 import org.opengis.feature.simple.SimpleFeature;
 
 public class TDRIVEIngestTest
@@ -39,10 +32,14 @@ public class TDRIVEIngestTest
 	@Before
 	public void setup() {
 		optionsProvider = new DataSchemaOptionProvider();
-		optionsProvider.setSupplementalFields(true);
+		optionsProvider
+				.setSupplementalFields(
+						true);
 
 		ingester = new TdriveIngestPlugin();
-		ingester.init(null);
+		ingester
+				.init(
+						null);
 
 		filePath = "9879.txt";
 		expectedCount = 232;
@@ -52,25 +49,33 @@ public class TDRIVEIngestTest
 	public void testIngest()
 			throws IOException {
 
-		final URL toIngest = this.getClass().getClassLoader().getResource(
-				filePath);
+		final URL toIngest = this
+				.getClass()
+				.getClassLoader()
+				.getResource(
+						filePath);
 
-		assertTrue(TdriveUtils.validate(toIngest));
-		final Collection<ByteArrayId> indexIds = new ArrayList<ByteArrayId>();
-		indexIds.add(new ByteArrayId(
-				"123".getBytes(StringUtils.UTF8_CHARSET)));
-		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester.toGeoWaveData(
-				toIngest,
-				indexIds,
-				"");
+		assertTrue(
+				TdriveUtils
+						.validate(
+								toIngest));
+		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester
+				.toGeoWaveData(
+						toIngest,
+						new String[] {
+							"123"
+						},
+						"");
 
-		assertTrue((features != null) && features.hasNext());
+		assertTrue(
+				(features != null) && features.hasNext());
 
 		int featureCount = 0;
 		while (features.hasNext()) {
 			final GeoWaveData<SimpleFeature> feature = features.next();
 
-			if (isValidTDRIVEFeature(feature)) {
+			if (isValidTDRIVEFeature(
+					feature)) {
 				featureCount++;
 			}
 		}
@@ -78,21 +83,41 @@ public class TDRIVEIngestTest
 
 		final boolean readExpectedCount = (featureCount == expectedCount);
 		if (!readExpectedCount) {
-			System.out.println("Expected " + expectedCount + " features, ingested " + featureCount);
+			System.out
+					.println(
+							"Expected " + expectedCount + " features, ingested " + featureCount);
 		}
 
-		assertTrue(readExpectedCount);
+		assertTrue(
+				readExpectedCount);
 	}
 
 	private boolean isValidTDRIVEFeature(
 			final GeoWaveData<SimpleFeature> feature ) {
-		if ((feature.getValue().getAttribute(
-				"geometry") == null) || (feature.getValue().getAttribute(
-				"taxiid") == null) || (feature.getValue().getAttribute(
-				"pointinstance") == null) || (feature.getValue().getAttribute(
-				"Timestamp") == null) || (feature.getValue().getAttribute(
-				"Latitude") == null) || (feature.getValue().getAttribute(
-				"Longitude") == null)) {
+		if ((feature
+				.getValue()
+				.getAttribute(
+						"geometry") == null)
+				|| (feature
+						.getValue()
+						.getAttribute(
+								"taxiid") == null)
+				|| (feature
+						.getValue()
+						.getAttribute(
+								"pointinstance") == null)
+				|| (feature
+						.getValue()
+						.getAttribute(
+								"Timestamp") == null)
+				|| (feature
+						.getValue()
+						.getAttribute(
+								"Latitude") == null)
+				|| (feature
+						.getValue()
+						.getAttribute(
+								"Longitude") == null)) {
 			return false;
 		}
 		return true;

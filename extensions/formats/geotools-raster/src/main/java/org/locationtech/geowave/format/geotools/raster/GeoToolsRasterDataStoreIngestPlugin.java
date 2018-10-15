@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,11 +10,9 @@
  ******************************************************************************/
 package org.locationtech.geowave.format.geotools.raster;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -34,7 +30,6 @@ import org.geotools.referencing.CRS;
 import org.locationtech.geowave.adapter.raster.RasterUtils;
 import org.locationtech.geowave.adapter.raster.adapter.RasterDataAdapter;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIterator.Wrapper;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
@@ -44,6 +39,8 @@ import org.locationtech.geowave.core.store.ingest.GeoWaveData;
 import org.locationtech.geowave.core.store.ingest.LocalFileIngestPlugin;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This plugin is used for ingesting any GeoTools supported file data store from
@@ -55,7 +52,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 public class GeoToolsRasterDataStoreIngestPlugin implements
 		LocalFileIngestPlugin<GridCoverage>
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(GeoToolsRasterDataStoreIngestPlugin.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					GeoToolsRasterDataStoreIngestPlugin.class);
 	private final RasterOptionProvider optionProvider;
 
 	public GeoToolsRasterDataStoreIngestPlugin() {
@@ -82,12 +81,15 @@ public class GeoToolsRasterDataStoreIngestPlugin implements
 			final URL file ) {
 		AbstractGridFormat format = null;
 		try {
-			format = GridFormatFinder.findFormat(file);
+			format = GridFormatFinder
+					.findFormat(
+							file);
 		}
 		catch (final Exception e) {
-			LOGGER.info(
-					"Unable to support as raster file",
-					e);
+			LOGGER
+					.info(
+							"Unable to support as raster file",
+							e);
 		}
 		// the null check is enough and we don't need to check the format
 		// accepts this file because the finder should have previously validated
@@ -99,20 +101,28 @@ public class GeoToolsRasterDataStoreIngestPlugin implements
 			final URL input ) {
 		final AbstractGridFormat format = null;
 		try {
-			final Set<AbstractGridFormat> formats = GridFormatFinder.findFormats(input);
+			final Set<AbstractGridFormat> formats = GridFormatFinder
+					.findFormats(
+							input);
 			if ((formats == null) || formats.isEmpty()) {
-				LOGGER.warn("Unable to support raster file " + input.getPath());
+				LOGGER
+						.warn(
+								"Unable to support raster file " + input.getPath());
 				return null;
 			}
 			// world image and geotiff can both open tif files, give
 			// priority to gdalgeotiff, followed by geotiff
 			for (final AbstractGridFormat f : formats) {
-				if ("GDALGeoTiff".equals(f.getName())) {
+				if ("GDALGeoTiff"
+						.equals(
+								f.getName())) {
 					return f;
 				}
 			}
 			for (final AbstractGridFormat f : formats) {
-				if ("GeoTIFF".equals(f.getName())) {
+				if ("GeoTIFF"
+						.equals(
+								f.getName())) {
 					return f;
 				}
 			}
@@ -124,9 +134,10 @@ public class GeoToolsRasterDataStoreIngestPlugin implements
 			}
 		}
 		catch (final Exception e) {
-			LOGGER.warn(
-					"Error while trying read raster file",
-					e);
+			LOGGER
+					.warn(
+							"Error while trying read raster file",
+							e);
 			return null;
 		}
 		return format;
@@ -135,9 +146,10 @@ public class GeoToolsRasterDataStoreIngestPlugin implements
 	@Override
 	public CloseableIterator<GeoWaveData<GridCoverage>> toGeoWaveData(
 			final URL input,
-			final Collection<ByteArrayId> primaryIndexIds,
+			final String[] indexNames,
 			final String globalVisibility ) {
-		final AbstractGridFormat format = prioritizedFindFormat(input);
+		final AbstractGridFormat format = prioritizedFindFormat(
+				input);
 		if (format == null) {
 			return new Wrapper(
 					Collections.emptyIterator());
@@ -145,78 +157,100 @@ public class GeoToolsRasterDataStoreIngestPlugin implements
 		Hints hints = null;
 		if ((optionProvider.getCrs() != null) && !optionProvider.getCrs().trim().isEmpty()) {
 			try {
-				final CoordinateReferenceSystem crs = CRS.decode(optionProvider.getCrs());
+				final CoordinateReferenceSystem crs = CRS
+						.decode(
+								optionProvider.getCrs());
 				if (crs != null) {
 					hints = new Hints();
-					hints.put(
-							Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM,
-							crs);
+					hints
+							.put(
+									Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM,
+									crs);
 				}
 			}
 			catch (final Exception e) {
-				LOGGER.warn(
-						"Unable to find coordinate reference system, continuing without hint",
-						e);
+				LOGGER
+						.warn(
+								"Unable to find coordinate reference system, continuing without hint",
+								e);
 			}
 		}
-		final GridCoverage2DReader reader = format.getReader(
-				input,
-				hints);
+		final GridCoverage2DReader reader = format
+				.getReader(
+						input,
+						hints);
 		if (reader == null) {
-			LOGGER.error("Unable to get reader instance, getReader returned null");
+			LOGGER
+					.error(
+							"Unable to get reader instance, getReader returned null");
 			return new Wrapper(
 					Collections.emptyIterator());
 		}
 		try {
-			final GridCoverage2D coverage = reader.read(null);
+			final GridCoverage2D coverage = reader
+					.read(
+							null);
 			if (coverage != null) {
-				final Map<String, String> metadata = new HashMap<String, String>();
+				final Map<String, String> metadata = new HashMap<>();
 				final String coverageName = coverage.getName().toString();
 				try {
 					// wrapping with try-catch block because often the reader
 					// does not support operations on coverage name
 					// if not, we just don't have metadata, and continue
-					final String[] mdNames = reader.getMetadataNames(coverageName);
+					final String[] mdNames = reader
+							.getMetadataNames(
+									coverageName);
 					if ((mdNames != null) && (mdNames.length > 0)) {
 						for (final String mdName : mdNames) {
-							metadata.put(
-									mdName,
-									reader.getMetadataValue(
-											coverageName,
-											mdName));
+							metadata
+									.put(
+											mdName,
+											reader
+													.getMetadataValue(
+															coverageName,
+															mdName));
 						}
 					}
 				}
 				catch (final Exception e) {
-					LOGGER.debug(
-							"Unable to find metadata from coverage reader",
-							e);
+					LOGGER
+							.debug(
+									"Unable to find metadata from coverage reader",
+									e);
 				}
-				final List<GeoWaveData<GridCoverage>> coverages = new ArrayList<GeoWaveData<GridCoverage>>();
+				final List<GeoWaveData<GridCoverage>> coverages = new ArrayList<>();
 
 				if (optionProvider.isSeparateBands() && (coverage.getNumSampleDimensions() > 1)) {
 					final String baseName = optionProvider.getCoverageName() != null ? optionProvider.getCoverageName()
-							: FilenameUtils.getName(input.getPath());
-					final double[][] nodata = optionProvider.getNodata(coverage.getNumSampleDimensions());
+							: FilenameUtils
+									.getName(
+											input.getPath());
+					final double[][] nodata = optionProvider
+							.getNodata(
+									coverage.getNumSampleDimensions());
 					for (int b = 0; b < coverage.getNumSampleDimensions(); b++) {
 						final RasterDataAdapter adapter = new RasterDataAdapter(
 								baseName + "_B" + b,
 								metadata,
-								(GridCoverage2D) RasterUtils.getCoverageOperations().selectSampleDimension(
-										coverage,
-										new int[] {
-											b
-										}),
+								(GridCoverage2D) RasterUtils
+										.getCoverageOperations()
+										.selectSampleDimension(
+												coverage,
+												new int[] {
+													b
+												}),
 								optionProvider.getTileSize(),
 								optionProvider.isBuildPyramid(),
 								optionProvider.isBuildHistogram(),
 								new double[][] {
 									nodata[b]
 								});
-						coverages.add(new GeoWaveData<GridCoverage>(
-								adapter,
-								primaryIndexIds,
-								coverage));
+						coverages
+								.add(
+										new GeoWaveData<>(
+												adapter,
+												indexNames,
+												coverage));
 					}
 				}
 				else {
@@ -228,32 +262,46 @@ public class GeoToolsRasterDataStoreIngestPlugin implements
 							optionProvider.getTileSize(),
 							optionProvider.isBuildPyramid(),
 							optionProvider.isBuildHistogram(),
-							optionProvider.getNodata(coverage.getNumSampleDimensions()));
-					coverages.add(new GeoWaveData<GridCoverage>(
-							adapter,
-							primaryIndexIds,
-							coverage));
+							optionProvider
+									.getNodata(
+											coverage.getNumSampleDimensions()));
+					coverages
+							.add(
+									new GeoWaveData<>(
+											adapter,
+											indexNames,
+											coverage));
 				}
 				return new Wrapper(
 						coverages.iterator()) {
 
 					@Override
-					public void close()
-							throws IOException {
-						reader.dispose();
+					public void close() {
+						try {
+							reader.dispose();
+						}
+						catch (final IOException e) {
+							LOGGER
+									.warn(
+											"unable to dispose of reader resources",
+											e);
+						}
 					}
 				};
 			}
 			else {
-				LOGGER.warn("Null grid coverage from file '" + input.getPath() + "' for discovered geotools format '"
-						+ format.getName() + "'");
+				LOGGER
+						.warn(
+								"Null grid coverage from file '" + input.getPath()
+										+ "' for discovered geotools format '" + format.getName() + "'");
 			}
 		}
 		catch (final IOException e) {
-			LOGGER.warn(
-					"Unable to read grid coverage of file '" + input.getPath() + "' for discovered geotools format '"
-							+ format.getName() + "'",
-					e);
+			LOGGER
+					.warn(
+							"Unable to read grid coverage of file '" + input.getPath()
+									+ "' for discovered geotools format '" + format.getName() + "'",
+							e);
 		}
 		return new Wrapper(
 				Collections.emptyIterator());

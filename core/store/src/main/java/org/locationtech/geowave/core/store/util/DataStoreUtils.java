@@ -258,7 +258,7 @@ public class DataStoreUtils
 						rowId2.getSortKey())) {
 			return false;
 		}
-		if (rowId1.getInternalAdapterId() != rowId2.getInternalAdapterId()) {
+		if (rowId1.getAdapterId() != rowId2.getAdapterId()) {
 			return false;
 		}
 

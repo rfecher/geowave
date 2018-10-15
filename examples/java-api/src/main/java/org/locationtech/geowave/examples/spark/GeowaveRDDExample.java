@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -19,9 +19,10 @@ import org.locationtech.geowave.analytic.spark.GeoWaveRDDLoader;
 import org.locationtech.geowave.analytic.spark.RDDOptions;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.StoreLoader;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstrain;
+import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 import org.opengis.feature.simple.SimpleFeature;
 
@@ -36,71 +37,111 @@ public class GeowaveRDDExample
 	public boolean loadRddFromStore(
 			final String[] args ) {
 		if (args.length < 1) {
-			System.err.println("Missing required arg 'storename'");
+			System.err
+					.println(
+							"Missing required arg 'storename'");
 			return false;
 		}
 
-		String storeName = args[0];
+		final String storeName = args[0];
 
 		int minSplits = -1;
 		int maxSplits = -1;
-		DistributableQueryConstrain query = null;
+		DistributableQueryConstraints query = null;
 
 		if (args.length > 1) {
-			if (args[1].equals("--splits")) {
+			if (args[1]
+					.equals(
+							"--splits")) {
 				if (args.length < 4) {
-					System.err.println("USAGE: storename --splits min max");
+					System.err
+							.println(
+									"USAGE: storename --splits min max");
 					return false;
 				}
 
-				minSplits = Integer.parseInt(args[2]);
-				maxSplits = Integer.parseInt(args[3]);
+				minSplits = Integer
+						.parseInt(
+								args[2]);
+				maxSplits = Integer
+						.parseInt(
+								args[3]);
 
 				if (args.length > 4) {
-					if (args[4].equals("--bbox")) {
+					if (args[4]
+							.equals(
+									"--bbox")) {
 						if (args.length < 9) {
-							System.err.println("USAGE: storename --splits min max --bbox west south east north");
+							System.err
+									.println(
+											"USAGE: storename --splits min max --bbox west south east north");
 							return false;
 						}
 
-						double west = Double.parseDouble(args[5]);
-						double south = Double.parseDouble(args[6]);
-						double east = Double.parseDouble(args[7]);
-						double north = Double.parseDouble(args[8]);
+						final double west = Double
+								.parseDouble(
+										args[5]);
+						final double south = Double
+								.parseDouble(
+										args[6]);
+						final double east = Double
+								.parseDouble(
+										args[7]);
+						final double north = Double
+								.parseDouble(
+										args[8]);
 
-						Geometry bbox = new GeometryFactory().toGeometry(new Envelope(
-								west,
-								south,
-								east,
-								north));
+						final Geometry bbox = new GeometryFactory()
+								.toGeometry(
+										new Envelope(
+												west,
+												south,
+												east,
+												north));
 
 						query = new SpatialQuery(
 								bbox);
 					}
 				}
 			}
-			else if (args[1].equals("--bbox")) {
+			else if (args[1]
+					.equals(
+							"--bbox")) {
 				if (args.length < 6) {
-					System.err.println("USAGE: storename --bbox west south east north");
+					System.err
+							.println(
+									"USAGE: storename --bbox west south east north");
 					return false;
 				}
 
-				double west = Double.parseDouble(args[2]);
-				double south = Double.parseDouble(args[3]);
-				double east = Double.parseDouble(args[4]);
-				double north = Double.parseDouble(args[5]);
+				final double west = Double
+						.parseDouble(
+								args[2]);
+				final double south = Double
+						.parseDouble(
+								args[3]);
+				final double east = Double
+						.parseDouble(
+								args[4]);
+				final double north = Double
+						.parseDouble(
+								args[5]);
 
-				Geometry bbox = new GeometryFactory().toGeometry(new Envelope(
-						west,
-						south,
-						east,
-						north));
+				final Geometry bbox = new GeometryFactory()
+						.toGeometry(
+								new Envelope(
+										west,
+										south,
+										east,
+										north));
 
 				query = new SpatialQuery(
 						bbox);
 			}
 			else {
-				System.err.println("USAGE: storename --splits min max --bbox west south east north");
+				System.err
+						.println(
+								"USAGE: storename --splits min max --bbox west south east north");
 				return false;
 			}
 		}
@@ -110,33 +151,55 @@ public class GeowaveRDDExample
 
 			final StoreLoader inputStoreLoader = new StoreLoader(
 					storeName);
-			if (!inputStoreLoader.loadFromConfig(ConfigOptions.getDefaultPropertyFile())) {
+			if (!inputStoreLoader
+					.loadFromConfig(
+							ConfigOptions.getDefaultPropertyFile())) {
 				throw new IOException(
 						"Cannot find store name: " + inputStoreLoader.getStoreName());
 			}
 			inputStoreOptions = inputStoreLoader.getDataStorePlugin();
 
-			SparkConf sparkConf = new SparkConf();
+			final SparkConf sparkConf = new SparkConf();
 
-			sparkConf.setAppName("GeoWaveRDD");
-			sparkConf.setMaster("local");
-			JavaSparkContext context = new JavaSparkContext(
+			sparkConf
+					.setAppName(
+							"GeoWaveRDD");
+			sparkConf
+					.setMaster(
+							"local");
+			final JavaSparkContext context = new JavaSparkContext(
 					sparkConf);
-			RDDOptions rddOpts = new RDDOptions();
-			rddOpts.setQuery(query);
-			rddOpts.setMinSplits(minSplits);
-			rddOpts.setMaxSplits(maxSplits);
-			JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd = GeoWaveRDDLoader.loadRDD(
-					context.sc(),
-					inputStoreOptions,
-					rddOpts).getRawRDD();
+			final RDDOptions rddOpts = new RDDOptions();
+			rddOpts
+					.setQuery(
+							QueryBuilder
+									.newBuilder()
+									.constraints(
+											query)
+									.build());
+			rddOpts
+					.setMinSplits(
+							minSplits);
+			rddOpts
+					.setMaxSplits(
+							maxSplits);
+			final JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd = GeoWaveRDDLoader
+					.loadRDD(
+							context.sc(),
+							inputStoreOptions,
+							rddOpts)
+					.getRawRDD();
 
-			System.out.println("DataStore " + storeName + " loaded into RDD with " + javaRdd.count() + " features.");
+			System.out
+					.println(
+							"DataStore " + storeName + " loaded into RDD with " + javaRdd.count() + " features.");
 
 			context.close();
 		}
-		catch (IOException e) {
-			System.err.println(e.getMessage());
+		catch (final IOException e) {
+			System.err
+					.println(
+							e.getMessage());
 		}
 
 		return true;

@@ -20,6 +20,7 @@ import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.DataStoreOptions;
+import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
@@ -102,6 +103,7 @@ abstract class BaseQuery
 			final DataStoreOperations operations,
 			final DataStoreOptions options,
 			final PersistentAdapterStore adapterStore,
+			final InternalAdapterStore internalAdapterStore,
 			final double[] maxResolutionSubsamplingPerDimension,
 			final double[] targetResolutionPerDimensionForHierarchicalIndex,
 			final Integer limit,
@@ -119,6 +121,7 @@ abstract class BaseQuery
 		final ReaderParams<C> readerParams = new ReaderParams<>(
 				index,
 				adapterStore,
+				internalAdapterStore,
 				adapterIds,
 				maxResolutionSubsamplingPerDimension,
 				getAggregation(),

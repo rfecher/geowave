@@ -27,13 +27,13 @@ import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
+import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.MetadataWriter;
 import org.locationtech.geowave.core.store.operations.QueryAndDeleteByRow;
-import org.locationtech.geowave.core.store.operations.Reader;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
@@ -146,7 +146,7 @@ public class DynamoDBOperations implements
 							final DynamoDBRow input ) {
 						return dataIdsSet.contains(new ByteArrayId(
 								input.getDataId())) && Short.valueOf(
-								input.getInternalAdapterId()).equals(
+								input.getAdapterId()).equals(
 								adapterIdObj);
 					}
 				});
@@ -167,12 +167,12 @@ public class DynamoDBOperations implements
 
 	@Override
 	public boolean indexExists(
-			final ByteArrayId indexId )
+			final String indexName )
 			throws IOException {
 		try {
 			return TableStatus.ACTIVE.name().equals(
 					client.describeTable(
-							getQualifiedTableName(indexId.getString())).getTable().getTableStatus());
+							getQualifiedTableName(indexName)).getTable().getTableStatus());
 		}
 		catch (final AmazonDynamoDBException e) {
 			LOGGER.info(
@@ -184,8 +184,8 @@ public class DynamoDBOperations implements
 
 	@Override
 	public boolean deleteAll(
-			final ByteArrayId indexId,
-			Short internalAdapterId,
+			final String indexName,
+			Short adapterId,
 			final String... additionalAuthorizations ) {
 		// TODO Auto-generated method stub
 		return false;
@@ -202,7 +202,7 @@ public class DynamoDBOperations implements
 	public RowWriter createWriter(
 			final Index index,
 			short internalAdapterId ) {
-		final String qName = getQualifiedTableName(index.getId().getString());
+		final String qName = getQualifiedTableName(index.getName());
 
 		final DynamoDBWriter writer = new DynamoDBWriter(
 				client,
@@ -345,11 +345,11 @@ public class DynamoDBOperations implements
 	}
 
 	public RowDeleter createDeleter(
-			final ByteArrayId indexId,
+			final String indexName,
 			final String... authorizations ) {
 		return new DynamoDBDeleter(
 				this,
-				getQualifiedTableName(indexId.getString()));
+				getQualifiedTableName(indexName));
 	}
 
 	@Override
@@ -393,7 +393,7 @@ public class DynamoDBOperations implements
 	public boolean createIndex(
 			Index index )
 			throws IOException {
-		return createTable(getQualifiedTableName(index.getId().getString()));
+		return createTable(getQualifiedTableName(index.getName()));
 	}
 
 	@Override
@@ -401,7 +401,7 @@ public class DynamoDBOperations implements
 			ReaderParams<T> readerParams ) {
 		return new QueryAndDeleteByRow<>(
 				createDeleter(
-						readerParams.getIndex().getId(),
+						readerParams.getIndex().getName(),
 						readerParams.getAdditionalAuthorizations()),
 				createReader(readerParams));
 	}

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,8 +11,7 @@
 package org.locationtech.geowave.service.grpc.services;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -28,51 +27,43 @@ import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.adapter.vector.plugin.GeoWaveGTDataStore;
 import org.locationtech.geowave.adapter.vector.plugin.GeoWavePluginConfig;
 import org.locationtech.geowave.adapter.vector.plugin.GeoWavePluginException;
-import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
-import org.locationtech.geowave.core.geotime.store.query.ExplicitCQLQuery;
-import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
-import org.locationtech.geowave.core.geotime.store.query.SpatialTemporalQuery;
-import org.locationtech.geowave.core.geotime.store.query.TemporalRange;
+import org.locationtech.geowave.core.geotime.store.query.api.SpatialTemporalConstraintsBuilder;
+import org.locationtech.geowave.core.geotime.store.query.api.VectorQueryBuilder;
 import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter.CompareOperation;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.adapter.AdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
-import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
-import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Writer;
-import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.IndexLoader;
 import org.locationtech.geowave.core.store.cli.remote.options.IndexPluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.StoreLoader;
-import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.service.grpc.GeoWaveGrpcServiceOptions;
 import org.locationtech.geowave.service.grpc.GeoWaveGrpcServiceSpi;
 import org.locationtech.geowave.service.grpc.protobuf.CQLQueryParameters;
 import org.locationtech.geowave.service.grpc.protobuf.Feature;
 import org.locationtech.geowave.service.grpc.protobuf.FeatureAttribute;
+import org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypes.StringResponse;
 import org.locationtech.geowave.service.grpc.protobuf.SpatialQueryParameters;
 import org.locationtech.geowave.service.grpc.protobuf.SpatialTemporalQueryParameters;
 import org.locationtech.geowave.service.grpc.protobuf.TemporalConstraints;
 import org.locationtech.geowave.service.grpc.protobuf.VectorGrpc;
 import org.locationtech.geowave.service.grpc.protobuf.VectorIngestParameters;
 import org.locationtech.geowave.service.grpc.protobuf.VectorQueryParameters;
-import org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypes.StringResponse;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.extra.Interval;
 
 import com.beust.jcommander.ParameterException;
 import com.google.protobuf.util.Timestamps;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.WKBReader;
 
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
@@ -81,7 +72,9 @@ public class GeoWaveGrpcVectorService extends
 		VectorGrpc.VectorImplBase implements
 		GeoWaveGrpcServiceSpi
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveGrpcVectorService.class.getName());
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(
+					GeoWaveGrpcVectorService.class.getName());
 
 	@Override
 	public BindableService getBindableService() {
@@ -96,7 +89,9 @@ public class GeoWaveGrpcVectorService extends
 		final StoreLoader storeLoader = new StoreLoader(
 				storeName);
 		// first check to make sure the data store exists
-		if (!storeLoader.loadFromConfig(GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
+		if (!storeLoader
+				.loadFromConfig(
+						GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + storeLoader.getStoreName());
 		}
@@ -108,33 +103,39 @@ public class GeoWaveGrpcVectorService extends
 							storeLoader.getDataStorePlugin()));
 		}
 		catch (final IOException | GeoWavePluginException e) {
-			LOGGER.error(
-					"Exception encountered instantiating GeoWaveGTDataStore",
-					e);
+			LOGGER
+					.error(
+							"Exception encountered instantiating GeoWaveGTDataStore",
+							e);
 		}
 
 		Filter filter = null;
 		try {
-			filter = CQL.toFilter(request.getQuery());
+			filter = CQL
+					.toFilter(
+							request.getQuery());
 		}
 		catch (final CQLException e) {
-			LOGGER.error(
-					"Exception encountered creating filter from CQL",
-					e);
+			LOGGER
+					.error(
+							"Exception encountered creating filter from CQL",
+							e);
 		}
 
 		ContentFeatureCollection featureCollection = null;
 		try {
-			final ByteArrayId adapterId = new ByteArrayId(
-					request.getAdapterId().toByteArray());
-			featureCollection = gtStore.getFeatureSource(
-					adapterId.getString()).getFeatures(
-					filter);
+			final String typeName = request.getTypeName();
+			featureCollection = gtStore
+					.getFeatureSource(
+							typeName)
+					.getFeatures(
+							filter);
 		}
 		catch (final IOException | NullPointerException e) {
-			LOGGER.error(
-					"Exception encountered getting feature collection",
-					e);
+			LOGGER
+					.error(
+							"Exception encountered getting feature collection",
+							e);
 		}
 
 		try (final SimpleFeatureIterator iterator = featureCollection.features()) {
@@ -147,12 +148,18 @@ public class GeoWaveGrpcVectorService extends
 
 				for (int i = 0; i < type.getAttributeDescriptors().size(); i++) {
 					SetAttributeBuilderValue(
-							simpleFeature.getAttribute(i),
+							simpleFeature
+									.getAttribute(
+											i),
 							attBuilder);
-					b.putAttributes(
-							type.getAttributeDescriptors().get(
-									i).getLocalName(),
-							attBuilder.build());
+					b
+							.putAttributes(
+									type
+											.getAttributeDescriptors()
+											.get(
+													i)
+											.getLocalName(),
+									attBuilder.build());
 					/*
 					 * b.putAttributes( type.getAttributeDescriptors().get(
 					 * i).getLocalName(), simpleFeature.getAttribute(i) == null
@@ -160,14 +167,17 @@ public class GeoWaveGrpcVectorService extends
 					 */
 				}
 				final Feature f = b.build();
-				responseObserver.onNext(f);
+				responseObserver
+						.onNext(
+								f);
 			}
 			responseObserver.onCompleted();
 		}
 		catch (final NullPointerException e) {
-			LOGGER.error(
-					"Exception encountered",
-					e);
+			LOGGER
+					.error(
+							"Exception encountered",
+							e);
 		}
 	}
 
@@ -178,8 +188,8 @@ public class GeoWaveGrpcVectorService extends
 			private boolean firstFeature = true;
 			private String storeName = null;
 			private DataStore dataStore = null;
-			private ByteArrayId adapterId = null;
-			private ByteArrayId indexId = null;
+			private String typeName = null;
+			private String indexName = null;
 			private Writer<SimpleFeature> writer = null;
 
 			private DataTypeAdapter adapter = null;
@@ -202,10 +212,9 @@ public class GeoWaveGrpcVectorService extends
 					final StoreLoader storeLoader = new StoreLoader(
 							storeName);
 
-					adapterId = new ByteArrayId(
-							f.getBaseParams().getAdapterId().toByteArray());
-					indexId = new ByteArrayId(
-							f.getBaseParams().getIndexId().toByteArray());
+					typeName = f.getBaseParams().getTypeName();
+
+					indexName = f.getBaseParams().getIndexName();
 
 					// In order to store data we need to determine the type of
 					// the feature data
@@ -216,39 +225,45 @@ public class GeoWaveGrpcVectorService extends
 						for (final Map.Entry<String, FeatureAttribute> mapEntry : f.getFeatureMap().entrySet()) {
 							switch (mapEntry.getValue().getValueCase()) {
 								case VALSTRING: {
-									typeBuilder.add(
-											mapEntry.getKey(),
-											String.class);
+									typeBuilder
+											.add(
+													mapEntry.getKey(),
+													String.class);
 									break;
 								}
 								case VALINT32: {
-									typeBuilder.add(
-											mapEntry.getKey(),
-											Integer.class);
+									typeBuilder
+											.add(
+													mapEntry.getKey(),
+													Integer.class);
 									break;
 								}
 								case VALINT64: {
-									typeBuilder.add(
-											mapEntry.getKey(),
-											Long.class);
+									typeBuilder
+											.add(
+													mapEntry.getKey(),
+													Long.class);
 									break;
 								}
 								case VALFLOAT: {
-									typeBuilder.add(
-											mapEntry.getKey(),
-											Float.class);
+									typeBuilder
+											.add(
+													mapEntry.getKey(),
+													Float.class);
 									break;
 								}
 								case VALDOUBLE: {
-									typeBuilder.add(
-											mapEntry.getKey(),
-											Double.class);
+									typeBuilder
+											.add(
+													mapEntry.getKey(),
+													Double.class);
 									break;
 								}
 								case VALGEOMETRY: {
-									typeBuilder.add(
-											mapEntry.getKey(),
-											Geometry.class);
+									typeBuilder
+											.add(
+													mapEntry.getKey(),
+													Geometry.class);
 									break;
 								}
 								default:
@@ -261,13 +276,17 @@ public class GeoWaveGrpcVectorService extends
 					// based
 					// on the
 					// type
-					typeBuilder.setName(adapterId.getString());
+					typeBuilder
+							.setName(
+									typeName);
 					final SimpleFeatureType featureType = typeBuilder.buildFeatureType();
 					featureBuilder = new SimpleFeatureBuilder(
 							featureType);
 
 					// get a handle to the relevant stores
-					if (!storeLoader.loadFromConfig(GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
+					if (!storeLoader
+							.loadFromConfig(
+									GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
 						throw new ParameterException(
 								"Cannot find store name: " + storeLoader.getStoreName());
 					}
@@ -275,9 +294,13 @@ public class GeoWaveGrpcVectorService extends
 					dataStore = storeLoader.createDataStore();
 					final PersistentAdapterStore adapterStore = storeLoader.createAdapterStore();
 					final InternalAdapterStore internalAdapterStore = storeLoader.createInternalAdapterStore();
-					Short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapterId);
+					final Short internalAdapterId = internalAdapterStore
+							.getAdapterId(
+									typeName);
 					if (internalAdapterId != null) {
-						adapter = adapterStore.getAdapter(internalAdapterId);
+						adapter = adapterStore
+								.getAdapter(
+										internalAdapterId);
 					}
 					else {
 						adapter = null;
@@ -289,33 +312,37 @@ public class GeoWaveGrpcVectorService extends
 
 					// Load the Indexes
 					final IndexLoader indexLoader = new IndexLoader(
-							indexId.getString());
-					if (!indexLoader.loadFromConfig(GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
+							indexName);
+					if (!indexLoader
+							.loadFromConfig(
+									GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
 						throw new ParameterException(
-								"Cannot find index(s) by name: " + indexId.toString());
+								"Cannot find index(s) by name: " + indexName.toString());
 					}
 					final List<IndexPluginOptions> indexOptions = indexLoader.getLoadedIndexes();
 
 					// assuming one index for now
-					pIndex = indexOptions.get(
-							0).createIndex();// (PrimaryIndex)
-												// indexStore.getIndex(indexId);
+					pIndex = indexOptions
+							.get(
+									0)
+							.createIndex();// (PrimaryIndex)
+											// indexStore.getIndex(indexId);
 					if (pIndex == null) {
 						throw new ParameterException(
 								"Failed to instantiate primary index");
 					}
 
 					// create index writer to actually write data
-					try {
-						writer = dataStore.createWriter(
-								adapter,
-								pIndex);
-					}
-					catch (final IOException e) {
-						LOGGER.error(
-								"Unable to create index writer",
-								e);
-					}
+					dataStore
+							.addType(
+									adapter);
+					dataStore
+							.addIndex(
+									adapter.getTypeName(),
+									pIndex);
+					writer = dataStore
+							.createWriter(
+									adapter.getTypeName());
 
 				} // end first-time initialization
 
@@ -323,54 +350,61 @@ public class GeoWaveGrpcVectorService extends
 				for (final Map.Entry<String, FeatureAttribute> attribute : f.getFeatureMap().entrySet()) {
 					switch (attribute.getValue().getValueCase()) {
 						case VALSTRING: {
-							featureBuilder.set(
-									attribute.getKey(),
-									attribute.getValue().getValString());
+							featureBuilder
+									.set(
+											attribute.getKey(),
+											attribute.getValue().getValString());
 							break;
 						}
 						case VALINT32: {
-							featureBuilder.set(
-									attribute.getKey(),
-									attribute.getValue().getValInt32());
+							featureBuilder
+									.set(
+											attribute.getKey(),
+											attribute.getValue().getValInt32());
 							break;
 						}
 						case VALINT64: {
-							featureBuilder.set(
-									attribute.getKey(),
-									attribute.getValue().getValInt64());
+							featureBuilder
+									.set(
+											attribute.getKey(),
+											attribute.getValue().getValInt64());
 							break;
 						}
 						case VALFLOAT: {
-							featureBuilder.set(
-									attribute.getKey(),
-									attribute.getValue().getValFloat());
+							featureBuilder
+									.set(
+											attribute.getKey(),
+											attribute.getValue().getValFloat());
 							break;
 						}
 						case VALDOUBLE: {
-							featureBuilder.set(
-									attribute.getKey(),
-									attribute.getValue().getValDouble());
+							featureBuilder
+									.set(
+											attribute.getKey(),
+											attribute.getValue().getValDouble());
 							break;
 						}
 						case VALGEOMETRY: {
 
 							Geometry geom = null;
 							try {
-								geom = new WKTReader(
-										JTSFactoryFinder.getGeometryFactory()).read(attribute
-										.getValue()
-										.getValGeometry());
+								geom = new WKBReader(
+										JTSFactoryFinder.getGeometryFactory())
+												.read(
+														attribute.getValue().getValGeometry().toByteArray());
 							}
 							catch (FactoryRegistryException | com.vividsolutions.jts.io.ParseException e) {
-								LOGGER.error(
-										"Failed to parse string for geometry",
-										e);
+								LOGGER
+										.error(
+												"Failed to parse string for geometry",
+												e);
 							}
 
 							if (geom != null) {
-								featureBuilder.set(
-										attribute.getKey(),
-										geom);
+								featureBuilder
+										.set(
+												attribute.getKey(),
+												geom);
 							}
 							break;
 						}
@@ -379,8 +413,14 @@ public class GeoWaveGrpcVectorService extends
 					}
 					;
 				}
-				final SimpleFeature sf = featureBuilder.buildFeature(String.valueOf(totalCount));
-				final InsertionIds ids = writer.write(sf);
+				final SimpleFeature sf = featureBuilder
+						.buildFeature(
+								String
+										.valueOf(
+												totalCount));
+				final InsertionIds ids = writer
+						.write(
+								sf);
 
 				// The writer is finally flushed and closed in the methods for
 				// onComplete and onError
@@ -389,47 +429,51 @@ public class GeoWaveGrpcVectorService extends
 					batchCount = 0;
 				}
 
-				final StringResponse resp = StringResponse.newBuilder().setResponseValue(
-						String.valueOf(++totalCount)).build();
-				responseObserver.onNext(resp);
+				final StringResponse resp = StringResponse
+						.newBuilder()
+						.setResponseValue(
+								String
+										.valueOf(
+												++totalCount))
+						.build();
+				responseObserver
+						.onNext(
+								resp);
 			}
 
 			@Override
 			public void onError(
 					final Throwable t ) {
-				LOGGER.error(
-						"Exception encountered during vectorIngest",
-						t);
-				try {
-					writer.flush();
-					writer.close();
-				}
-				catch (final IOException e) {
-					LOGGER.error(
-							"Unable to close index writer",
-							e);
-				}
+				LOGGER
+						.error(
+								"Exception encountered during vectorIngest",
+								t);
+				writer.flush();
+				writer.close();
 
-				final StringResponse resp = StringResponse.newBuilder().setResponseValue(
-						"Error during ingest: ").build();
-				responseObserver.onNext(resp);
+				final StringResponse resp = StringResponse
+						.newBuilder()
+						.setResponseValue(
+								"Error during ingest: ")
+						.build();
+				responseObserver
+						.onNext(
+								resp);
 				responseObserver.onCompleted();
 			}
 
 			@Override
 			public void onCompleted() {
-				try {
-					writer.flush();
-					writer.close();
-				}
-				catch (final IOException e) {
-					LOGGER.error(
-							"Unable to close index writer",
-							e);
-				}
-				final StringResponse resp = StringResponse.newBuilder().setResponseValue(
-						"Ingest completed successfully").build();
-				responseObserver.onNext(resp);
+				writer.flush();
+				writer.close();
+				final StringResponse resp = StringResponse
+						.newBuilder()
+						.setResponseValue(
+								"Ingest completed successfully")
+						.build();
+				responseObserver
+						.onNext(
+								resp);
 				responseObserver.onCompleted();
 			}
 		};
@@ -445,60 +489,52 @@ public class GeoWaveGrpcVectorService extends
 		final StoreLoader storeLoader = new StoreLoader(
 				storeName);
 
-		ByteArrayId adapterId = new ByteArrayId(
-				request.getBaseParams().getAdapterId().toByteArray());
-		ByteArrayId indexId = new ByteArrayId(
-				request.getBaseParams().getIndexId().toByteArray());
+		String typeName = request.getBaseParams().getTypeName();
+		String indexName = request.getBaseParams().getIndexName();
 
-		if (adapterId.getString().equalsIgnoreCase(
-				"")) {
-			adapterId = null;
+		if (typeName
+				.equalsIgnoreCase(
+						"")) {
+			typeName = null;
 		}
-		if (indexId.getString().equalsIgnoreCase(
-				"")) {
-			indexId = null;
+		if (indexName
+				.equalsIgnoreCase(
+						"")) {
+			indexName = null;
 		}
 
 		// first check to make sure the data store exists
-		if (!storeLoader.loadFromConfig(GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
+		if (!storeLoader
+				.loadFromConfig(
+						GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + storeLoader.getStoreName());
 		}
 
 		// get a handle to the relevant stores
 		final DataStore dataStore = storeLoader.createDataStore();
-		final PersistentAdapterStore adapterStore = storeLoader.createAdapterStore();
-		final InternalAdapterStore internalAdapterStore = storeLoader.createInternalAdapterStore();
-		final IndexStore indexStore = storeLoader.createIndexStore();
 
-		GeotoolsFeatureDataAdapter adapter = null;
-		Index pIndex = null;
-		if (adapterId != null) {
-			Short internalAdapterId = internalAdapterStore.getInternalAdapterId(adapterId);
-			if (internalAdapterId != null) {
-				DataTypeAdapter genericAdapter = adapterStore.getAdapter(internalAdapterId);
-				if (genericAdapter instanceof GeotoolsFeatureDataAdapter) {
-					adapter = (GeotoolsFeatureDataAdapter) genericAdapter;
-				}
-				else if ((genericAdapter instanceof InternalDataAdapter && ((InternalDataAdapter) genericAdapter)
-						.getAdapter() instanceof GeotoolsFeatureDataAdapter)) {
-					adapter = (GeotoolsFeatureDataAdapter) ((InternalDataAdapter) genericAdapter).getAdapter();
-				}
-			}
+		VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
+		if (typeName != null) {
+			bldr = bldr
+					.addTypeName(
+							typeName);
 		}
 
-		if (indexId != null) {
-			pIndex = (Index) indexStore.getIndex(indexId);
+		if (indexName != null) {
+			bldr = bldr
+					.indexName(
+							indexName);
 		}
-
-		try (final CloseableIterator<SimpleFeature> iterator = dataStore.query(
-				new QueryOptions(
-						adapterId,
-						indexId),
-				ExplicitCQLQuery.createOptimalQuery(
-						cql,
-						adapter,
-						pIndex))) {
+		try (final CloseableIterator<SimpleFeature> iterator = dataStore
+				.query(
+						bldr
+								.constraints(
+										bldr
+												.constraintsFactory()
+												.cqlConstraints(
+														cql))
+								.build())) {
 
 			while (iterator.hasNext()) {
 				final SimpleFeature simpleFeature = iterator.next();
@@ -508,29 +544,26 @@ public class GeoWaveGrpcVectorService extends
 
 				for (int i = 0; i < type.getAttributeDescriptors().size(); i++) {
 					SetAttributeBuilderValue(
-							simpleFeature.getAttribute(i),
+							simpleFeature
+									.getAttribute(
+											i),
 							attBuilder);
-					b.putAttributes(
-							type.getAttributeDescriptors().get(
-									i).getLocalName(),
-							attBuilder.build());
+					b
+							.putAttributes(
+									type
+											.getAttributeDescriptors()
+											.get(
+													i)
+											.getLocalName(),
+									attBuilder.build());
 				}
 				final Feature f = b.build();
-				responseObserver.onNext(f);
+				responseObserver
+						.onNext(
+								f);
 			}
 			responseObserver.onCompleted();
 		}
-		catch (final CQLException e) {
-			LOGGER.error(
-					"Exception encountered CQL.createOptimalQuery",
-					e);
-		}
-		catch (final IOException e) {
-			LOGGER.error(
-					"Exception encountered closing iterator",
-					e);
-		}
-
 	}
 
 	@Override
@@ -542,49 +575,66 @@ public class GeoWaveGrpcVectorService extends
 		final StoreLoader storeLoader = new StoreLoader(
 				storeName);
 
-		ByteArrayId adapterId = new ByteArrayId(
-				request.getBaseParams().getAdapterId().toByteArray());
-		ByteArrayId indexId = new ByteArrayId(
-				request.getBaseParams().getIndexId().toByteArray());
-
-		if (adapterId.getString().equalsIgnoreCase(
-				"")) {
-			adapterId = null;
+		String typeName = request.getBaseParams().getTypeName();
+		String indexName = request.getBaseParams().getIndexName();
+		VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
+		if (typeName
+				.equalsIgnoreCase(
+						"")) {
+			typeName = null;
 		}
-		if (indexId.getString().equalsIgnoreCase(
-				"")) {
-			indexId = null;
+		else {
+			bldr = bldr
+					.addTypeName(
+							typeName);
+		}
+		if (indexName
+				.equalsIgnoreCase(
+						"")) {
+			indexName = null;
+		}
+		else {
+			bldr = bldr
+					.indexName(
+							indexName);
 		}
 
 		// first check to make sure the data store exists
-		if (!storeLoader.loadFromConfig(GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
+		if (!storeLoader
+				.loadFromConfig(
+						GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + storeLoader.getStoreName());
 		}
 
 		final DataStore dataStore = storeLoader.createDataStore();
 
-		final String geomDefinition = request.getGeometry();
 		Geometry queryGeom = null;
 
 		try {
-			queryGeom = new WKTReader(
-					JTSFactoryFinder.getGeometryFactory()).read(geomDefinition);
+			queryGeom = new WKBReader(
+					JTSFactoryFinder.getGeometryFactory())
+							.read(
+									request.getGeometry().toByteArray());
 		}
 		catch (final FactoryRegistryException | com.vividsolutions.jts.io.ParseException e) {
-			LOGGER.error(
-					"Exception encountered creating query geometry",
-					e);
+			LOGGER
+					.error(
+							"Exception encountered creating query geometry",
+							e);
 		}
 
-		final QueryOptions options = new QueryOptions(
-				adapterId,
-				indexId);
-
-		try (final CloseableIterator<SimpleFeature> iterator = dataStore.query(
-				options,
-				new SpatialQuery(
-						queryGeom))) {
+		try (final CloseableIterator<SimpleFeature> iterator = dataStore
+				.query(
+						bldr
+								.constraints(
+										bldr
+												.constraintsFactory()
+												.spatialTemporalConstraints()
+												.spatialConstraints(
+														queryGeom)
+												.build())
+								.build())) {
 			while (iterator.hasNext()) {
 				final SimpleFeature simpleFeature = iterator.next();
 				final SimpleFeatureType type = simpleFeature.getType();
@@ -593,22 +643,25 @@ public class GeoWaveGrpcVectorService extends
 
 				for (int i = 0; i < type.getAttributeDescriptors().size(); i++) {
 					SetAttributeBuilderValue(
-							simpleFeature.getAttribute(i),
+							simpleFeature
+									.getAttribute(
+											i),
 							attBuilder);
-					b.putAttributes(
-							type.getAttributeDescriptors().get(
-									i).getLocalName(),
-							attBuilder.build());
+					b
+							.putAttributes(
+									type
+											.getAttributeDescriptors()
+											.get(
+													i)
+											.getLocalName(),
+									attBuilder.build());
 				}
 				final Feature f = b.build();
-				responseObserver.onNext(f);
+				responseObserver
+						.onNext(
+								f);
 			}
 			responseObserver.onCompleted();
-		}
-		catch (final IOException e) {
-			LOGGER.error(
-					"Exception encountered closing iterator",
-					e);
 		}
 	}
 
@@ -622,68 +675,90 @@ public class GeoWaveGrpcVectorService extends
 				storeName);
 
 		// first check to make sure the data store exists
-		if (!storeLoader.loadFromConfig(GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
+		if (!storeLoader
+				.loadFromConfig(
+						GeoWaveGrpcServiceOptions.geowaveConfigFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + storeLoader.getStoreName());
 		}
 
 		final DataStore dataStore = storeLoader.createDataStore();
+		VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
 
-		ByteArrayId adapterId = new ByteArrayId(
-				request.getSpatialParams().getBaseParams().getAdapterId().toByteArray());
-		ByteArrayId indexId = new ByteArrayId(
-				request.getSpatialParams().getBaseParams().getIndexId().toByteArray());
+		String typeName = request.getSpatialParams().getBaseParams().getTypeName();
+		String indexName = request.getSpatialParams().getBaseParams().getIndexName();
 
-		if (adapterId.getString().equalsIgnoreCase(
-				"")) {
-			adapterId = null;
+		if (typeName
+				.equalsIgnoreCase(
+						"")) {
+			typeName = null;
 		}
-		if (indexId.getString().equalsIgnoreCase(
-				"")) {
-			indexId = null;
+		else {
+			bldr = bldr
+					.addTypeName(
+							typeName);
+		}
+		if (indexName
+				.equalsIgnoreCase(
+						"")) {
+			indexName = null;
+		}
+		else {
+			bldr = bldr
+					.indexName(
+							indexName);
 		}
 
 		final int constraintCount = request.getTemporalConstraintsCount();
-		final ArrayList<TemporalRange> temporalRanges = new ArrayList<>();
+		final SpatialTemporalConstraintsBuilder stBldr = bldr.constraintsFactory().spatialTemporalConstraints();
 		for (int i = 0; i < constraintCount; i++) {
-			final TemporalConstraints t = request.getTemporalConstraints(i);
-			temporalRanges.add(new TemporalRange(
-					new Date(
-							Timestamps.toMillis(t.getStartTime())),
-					new Date(
-							Timestamps.toMillis(t.getEndTime()))));
+			final TemporalConstraints t = request
+					.getTemporalConstraints(
+							i);
+			stBldr
+					.addTimeRange(
+							Interval
+									.of(
+											Instant
+													.ofEpochMilli(
+															Timestamps
+																	.toMillis(
+																			t.getStartTime())),
+											Instant
+													.ofEpochMilli(
+															Timestamps
+																	.toMillis(
+																			t.getEndTime()))));
 		}
 
-		final String geomDefinition = request.getSpatialParams().getGeometry();
 		Geometry queryGeom = null;
-		org.locationtech.geowave.core.geotime.store.query.TemporalConstraints temporalConstraints = null;
 
 		try {
-			queryGeom = new WKTReader(
-					JTSFactoryFinder.getGeometryFactory()).read(geomDefinition);
+			queryGeom = new WKBReader(
+					JTSFactoryFinder.getGeometryFactory())
+							.read(
+									request.getSpatialParams().getGeometry().toByteArray());
+			stBldr
+					.spatialConstraints(
+							queryGeom);
 		}
 		catch (final FactoryRegistryException | com.vividsolutions.jts.io.ParseException e) {
-			LOGGER.error(
-					"Exception encountered creating query geometry",
-					e);
+			LOGGER
+					.error(
+							"Exception encountered creating query geometry",
+							e);
 		}
 
-		temporalConstraints = new org.locationtech.geowave.core.geotime.store.query.TemporalConstraints(
-				temporalRanges,
-				"ignored"); // the name is not used in this case
+		final CompareOperation op = CompareOperation
+				.valueOf(
+						request.getCompareOperation());
 
-		final QueryOptions options = new QueryOptions(
-				adapterId,
-				indexId);
-		final CompareOperation op = CompareOperation.valueOf(request.getCompareOperation());
-		final SpatialTemporalQuery spatialTemporalQuery = new SpatialTemporalQuery(
-				temporalConstraints,
-				queryGeom,
-				op);
-
-		try (final CloseableIterator<SimpleFeature> iterator = dataStore.query(
-				options,
-				spatialTemporalQuery)) {
+		try (final CloseableIterator<SimpleFeature> iterator = dataStore
+				.query(
+						bldr
+								.constraints(
+										stBldr.build())
+								.build())) {
 			while (iterator.hasNext()) {
 				final SimpleFeature simpleFeature = iterator.next();
 				final SimpleFeatureType type = simpleFeature.getType();
@@ -692,22 +767,25 @@ public class GeoWaveGrpcVectorService extends
 
 				for (int i = 0; i < type.getAttributeDescriptors().size(); i++) {
 					SetAttributeBuilderValue(
-							simpleFeature.getAttribute(i),
+							simpleFeature
+									.getAttribute(
+											i),
 							attBuilder);
-					b.putAttributes(
-							type.getAttributeDescriptors().get(
-									i).getLocalName(),
-							attBuilder.build());
+					b
+							.putAttributes(
+									type
+											.getAttributeDescriptors()
+											.get(
+													i)
+											.getLocalName(),
+									attBuilder.build());
 				}
 				final Feature f = b.build();
-				responseObserver.onNext(f);
+				responseObserver
+						.onNext(
+								f);
 			}
 			responseObserver.onCompleted();
-		}
-		catch (final IOException e) {
-			LOGGER.error(
-					"Exception encountered closing iterator",
-					e);
 		}
 	}
 
@@ -717,23 +795,33 @@ public class GeoWaveGrpcVectorService extends
 		if (simpleFeatureAttribute != null) {
 			switch (simpleFeatureAttribute.getClass().getSimpleName()) {
 				case "String": {
-					attBuilder.setValString((String) simpleFeatureAttribute);
+					attBuilder
+							.setValString(
+									(String) simpleFeatureAttribute);
 					break;
 				}
 				case "Integer": {
-					attBuilder.setValInt32((Integer) simpleFeatureAttribute);
+					attBuilder
+							.setValInt32(
+									(Integer) simpleFeatureAttribute);
 					break;
 				}
 				case "Long": {
-					attBuilder.setValInt64((Long) simpleFeatureAttribute);
+					attBuilder
+							.setValInt64(
+									(Long) simpleFeatureAttribute);
 					break;
 				}
 				case "Float": {
-					attBuilder.setValFloat((Float) simpleFeatureAttribute);
+					attBuilder
+							.setValFloat(
+									(Float) simpleFeatureAttribute);
 					break;
 				}
 				case "Double": {
-					attBuilder.setValDouble((Double) simpleFeatureAttribute);
+					attBuilder
+							.setValDouble(
+									(Double) simpleFeatureAttribute);
 					break;
 				}
 				case "Geoemetry": {

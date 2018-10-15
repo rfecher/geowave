@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,30 +11,22 @@
 package org.locationtech.geowave.format.tdrive;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.avro.Schema;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.geowave.adapter.vector.ingest.AbstractSimpleFeatureIngestPlugin;
 import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigurationSet;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.dimension.Time;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithMapper;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithReducer;
@@ -46,6 +38,8 @@ import org.locationtech.geowave.core.store.ingest.IngestPluginBase;
 import org.mortbay.log.Log;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -55,19 +49,17 @@ public class TdriveIngestPlugin extends
 		AbstractSimpleFeatureIngestPlugin<TdrivePoint>
 {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(TdriveIngestPlugin.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					TdriveIngestPlugin.class);
 
 	private final SimpleFeatureBuilder tdrivepointBuilder;
 	private final SimpleFeatureType tdrivepointType;
-
-	private final ByteArrayId pointKey;
 
 	public TdriveIngestPlugin() {
 
 		tdrivepointType = TdriveUtils.createTdrivePointDataType();
 
-		pointKey = new ByteArrayId(
-				StringUtils.stringToBinary(TdriveUtils.TDRIVE_POINT_FEATURE));
 		tdrivepointBuilder = new SimpleFeatureBuilder(
 				tdrivepointType);
 	}
@@ -89,13 +81,17 @@ public class TdriveIngestPlugin extends
 	@Override
 	public boolean supportsFile(
 			final URL file ) {
-		return TdriveUtils.validate(file);
+		return TdriveUtils
+				.validate(
+						file);
 	}
 
 	@Override
 	protected SimpleFeatureType[] getTypes() {
 		return new SimpleFeatureType[] {
-			SimpleFeatureUserDataConfigurationSet.configureType(tdrivepointType)
+			SimpleFeatureUserDataConfigurationSet
+					.configureType(
+							tdrivepointType)
 		};
 	}
 
@@ -124,29 +120,53 @@ public class TdriveIngestPlugin extends
 						String line;
 						try {
 							if ((line = br.readLine()) != null) {
-								final String[] vals = line.split(",");
+								final String[] vals = line
+										.split(
+												",");
 								next = new TdrivePoint();
-								next.setTaxiid(Integer.parseInt(vals[0]));
+								next
+										.setTaxiid(
+												Integer
+														.parseInt(
+																vals[0]));
 								try {
-									next.setTimestamp(TdriveUtils.parseDate(
-											vals[1]).getTime());
+									next
+											.setTimestamp(
+													TdriveUtils
+															.parseDate(
+																	vals[1])
+															.getTime());
 								}
 								catch (final ParseException e) {
-									next.setTimestamp(0l);
-									LOGGER.warn(
-											"Couldn't parse time format: " + vals[1],
-											e);
+									next
+											.setTimestamp(
+													0l);
+									LOGGER
+											.warn(
+													"Couldn't parse time format: " + vals[1],
+													e);
 								}
-								next.setLongitude(Double.parseDouble(vals[2]));
-								next.setLatitude(Double.parseDouble(vals[3]));
-								next.setPointinstance(pointInstance);
+								next
+										.setLongitude(
+												Double
+														.parseDouble(
+																vals[2]));
+								next
+										.setLatitude(
+												Double
+														.parseDouble(
+																vals[3]));
+								next
+										.setPointinstance(
+												pointInstance);
 								pointInstance++;
 							}
 						}
-						catch (Exception e) {
-							Log.warn(
-									"Error parsing tdrive file: " + input.getPath(),
-									e);
+						catch (final Exception e) {
+							Log
+									.warn(
+											"Error parsing tdrive file: " + input.getPath(),
+											e);
 						}
 					}
 				}
@@ -160,26 +180,34 @@ public class TdriveIngestPlugin extends
 				@Override
 				public TdrivePoint next() {
 					computeNext();
-					TdrivePoint retVal = next;
+					final TdrivePoint retVal = next;
 					next = null;
 					return retVal;
 				}
 
 				@Override
-				public void close()
-						throws IOException {
-					br.close();
-					fr.close();
-					fis.close();
+				public void close() {
+					try {
+						br.close();
+						fr.close();
+						fis.close();
+					}
+					catch (final IOException e) {
+						LOGGER
+								.warn(
+										"unable to close native resources",
+										e);
+					}
 
 				}
 
 			};
 		}
 		catch (final IOException e) {
-			Log.warn(
-					"Error parsing tdrive file: " + input.getPath(),
-					e);
+			Log
+					.warn(
+							"Error parsing tdrive file: " + input.getPath(),
+							e);
 		}
 		return new CloseableIterator.Empty<>();
 	}
@@ -205,39 +233,51 @@ public class TdriveIngestPlugin extends
 	@Override
 	protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
 			final TdrivePoint tdrivePoint,
-			final Collection<ByteArrayId> primaryIndexIds,
+			final String[] indexNames,
 			final String globalVisibility ) {
 
-		final List<GeoWaveData<SimpleFeature>> featureData = new ArrayList<GeoWaveData<SimpleFeature>>();
+		final List<GeoWaveData<SimpleFeature>> featureData = new ArrayList<>();
 
 		// tdrivepointBuilder = new SimpleFeatureBuilder(tdrivepointType);
-		tdrivepointBuilder.set(
-				"geometry",
-				GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
-						tdrivePoint.getLongitude(),
-						tdrivePoint.getLatitude())));
-		tdrivepointBuilder.set(
-				"taxiid",
-				tdrivePoint.getTaxiid());
-		tdrivepointBuilder.set(
-				"pointinstance",
-				tdrivePoint.getPointinstance());
-		tdrivepointBuilder.set(
-				"Timestamp",
-				new Date(
-						tdrivePoint.getTimestamp()));
-		tdrivepointBuilder.set(
-				"Latitude",
-				tdrivePoint.getLatitude());
-		tdrivepointBuilder.set(
-				"Longitude",
-				tdrivePoint.getLongitude());
-		featureData.add(new GeoWaveData<SimpleFeature>(
-				pointKey,
-				primaryIndexIds,
-				tdrivepointBuilder.buildFeature(tdrivePoint.getTaxiid() + "_" + tdrivePoint.getPointinstance())));
+		tdrivepointBuilder
+				.set(
+						"geometry",
+						GeometryUtils.GEOMETRY_FACTORY
+								.createPoint(
+										new Coordinate(
+												tdrivePoint.getLongitude(),
+												tdrivePoint.getLatitude())));
+		tdrivepointBuilder
+				.set(
+						"taxiid",
+						tdrivePoint.getTaxiid());
+		tdrivepointBuilder
+				.set(
+						"pointinstance",
+						tdrivePoint.getPointinstance());
+		tdrivepointBuilder
+				.set(
+						"Timestamp",
+						new Date(
+								tdrivePoint.getTimestamp()));
+		tdrivepointBuilder
+				.set(
+						"Latitude",
+						tdrivePoint.getLatitude());
+		tdrivepointBuilder
+				.set(
+						"Longitude",
+						tdrivePoint.getLongitude());
+		featureData
+				.add(
+						new GeoWaveData<SimpleFeature>(
+								TdriveUtils.TDRIVE_POINT_FEATURE,
+								indexNames,
+								tdrivepointBuilder
+										.buildFeature(
+												tdrivePoint.getTaxiid() + "_" + tdrivePoint.getPointinstance())));
 
-		return new CloseableIterator.Wrapper<GeoWaveData<SimpleFeature>>(
+		return new CloseableIterator.Wrapper<>(
 				featureData.iterator());
 	}
 
