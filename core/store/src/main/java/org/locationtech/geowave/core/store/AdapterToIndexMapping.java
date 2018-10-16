@@ -66,9 +66,7 @@ public class AdapterToIndexMapping implements
 			final IndexStore indexStore ) {
 		final Index[] indices = new Index[indexNames.length];
 		for (int i = 0; i < indexNames.length; i++) {
-			indices[i] = indexStore
-					.getIndex(
-							indexNames[i]);
+			indices[i] = indexStore.getIndex(indexNames[i]);
 		}
 		return indices;
 	}
@@ -77,13 +75,8 @@ public class AdapterToIndexMapping implements
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + ((adapterId == 0) ? 0
-				: Short
-						.hashCode(
-								adapterId));
-		result = (prime * result) + Arrays
-				.hashCode(
-						indexNames);
+		result = (prime * result) + ((adapterId == 0) ? 0 : Short.hashCode(adapterId));
+		result = (prime * result) + Arrays.hashCode(indexNames);
 		return result;
 	}
 
@@ -108,10 +101,9 @@ public class AdapterToIndexMapping implements
 		else if (adapterId != other.adapterId) {
 			return false;
 		}
-		if (!Arrays
-				.equals(
-						indexNames,
-						other.indexNames)) {
+		if (!Arrays.equals(
+				indexNames,
+				other.indexNames)) {
 			return false;
 		}
 		return true;
@@ -120,9 +112,7 @@ public class AdapterToIndexMapping implements
 	public boolean contains(
 			final String indexName ) {
 		for (final String id : indexNames) {
-			if (id
-					.equals(
-							indexName)) {
+			if (id.equals(indexName)) {
 				return true;
 			}
 		}
@@ -135,34 +125,20 @@ public class AdapterToIndexMapping implements
 
 	@Override
 	public byte[] toBinary() {
-		final byte[] indexIdBytes = StringUtils
-				.stringsToBinary(
-						indexNames);
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						2 + indexIdBytes.length);
-		buf
-				.putShort(
-						adapterId);
-		buf
-				.put(
-						indexIdBytes);
+		final byte[] indexIdBytes = StringUtils.stringsToBinary(indexNames);
+		final ByteBuffer buf = ByteBuffer.allocate(2 + indexIdBytes.length);
+		buf.putShort(adapterId);
+		buf.put(indexIdBytes);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer
-				.wrap(
-						bytes);
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
 		adapterId = buf.getShort();
 		final byte[] indexNamesBytes = new byte[bytes.length - 2];
-		buf
-				.get(
-						indexNamesBytes);
-		indexNames = StringUtils
-				.stringsFromBinary(
-						indexNamesBytes);
+		buf.get(indexNamesBytes);
+		indexNames = StringUtils.stringsFromBinary(indexNamesBytes);
 	}
 }

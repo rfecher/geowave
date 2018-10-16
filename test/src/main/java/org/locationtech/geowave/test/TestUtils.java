@@ -66,7 +66,7 @@ import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOpt
 import org.locationtech.geowave.core.store.cli.remote.options.IndexPluginOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.VisibilityOptions;
 import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
@@ -585,7 +585,7 @@ public class TestUtils
 				expectedResultCount);
 	}
 
-	public static DistributableQueryConstraints resourceToQuery(
+	public static QueryConstraints resourceToQuery(
 			final URL filterResource )
 			throws IOException {
 		return featureToQuery(resourceToFeature(filterResource));
@@ -626,7 +626,7 @@ public class TestUtils
 		return savedFilter;
 	}
 
-	protected static DistributableQueryConstraints featureToQuery(
+	protected static QueryConstraints featureToQuery(
 			final SimpleFeature savedFilter ) {
 		final Geometry filterGeometry = (Geometry) savedFilter.getDefaultGeometry();
 		final Object startObj = savedFilter.getAttribute(TEST_FILTER_START_TIME_ATTRIBUTE_NAME);

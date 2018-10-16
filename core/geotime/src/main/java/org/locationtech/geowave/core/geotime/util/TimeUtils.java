@@ -30,9 +30,7 @@ import org.threeten.extra.Interval;
  */
 public class TimeUtils
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					TimeUtils.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(TimeUtils.class);
 
 	/**
 	 * Convert a calendar object to a long in the form of milliseconds since the
@@ -68,8 +66,7 @@ public class TimeUtils
 		// handle dates, calendars, and Numbers only
 		if (timeObj != null) {
 			if (timeObj instanceof Calendar) {
-				return calendarToGMTMillis(
-						((Calendar) timeObj));
+				return calendarToGMTMillis(((Calendar) timeObj));
 			}
 			else if (timeObj instanceof Date) {
 				return ((Date) timeObj).getTime();
@@ -78,10 +75,8 @@ public class TimeUtils
 				return ((Number) timeObj).longValue();
 			}
 			else {
-				LOGGER
-						.warn(
-								"Time value '" + timeObj + "' of type '" + timeObj.getClass()
-										+ "' is not of expected temporal type");
+				LOGGER.warn("Time value '" + timeObj + "' of type '" + timeObj.getClass()
+						+ "' is not of expected temporal type");
 			}
 		}
 		return -1;
@@ -101,12 +96,7 @@ public class TimeUtils
 			final Class<?> bindingClass ) {
 		// because Longs can also be numeric, just allow Dates and Calendars
 		// class bindings to be temporal
-		return (Calendar.class
-				.isAssignableFrom(
-						bindingClass)
-				|| Date.class
-						.isAssignableFrom(
-								bindingClass));
+		return (Calendar.class.isAssignableFrom(bindingClass) || Date.class.isAssignableFrom(bindingClass));
 	}
 
 	/**
@@ -130,36 +120,19 @@ public class TimeUtils
 			// indicator that the time value is null;
 			return null;
 		}
-		if (Calendar.class
-				.isAssignableFrom(
-						bindingClass)) {
-			final Calendar cal = Calendar
-					.getInstance(
-							TimeZone
-									.getTimeZone(
-											"GMT"));
-			cal
-					.setTimeInMillis(
-							longVal);
+		if (Calendar.class.isAssignableFrom(bindingClass)) {
+			final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			cal.setTimeInMillis(longVal);
 			return cal;
 		}
-		else if (Date.class
-				.isAssignableFrom(
-						bindingClass)) {
+		else if (Date.class.isAssignableFrom(bindingClass)) {
 			return new Date(
 					longVal);
 		}
-		else if (Long.class
-				.isAssignableFrom(
-						bindingClass)) {
-			return Long
-					.valueOf(
-							longVal);
+		else if (Long.class.isAssignableFrom(bindingClass)) {
+			return Long.valueOf(longVal);
 		}
-		LOGGER
-				.warn(
-						"Numeric value '" + longVal + "' of type '" + bindingClass
-								+ "' is not of expected temporal type");
+		LOGGER.warn("Numeric value '" + longVal + "' of type '" + bindingClass + "' is not of expected temporal type");
 		return null;
 	}
 
@@ -175,12 +148,9 @@ public class TimeUtils
 					timeDescriptors,
 					timeBoundsSet);
 		}
-		else if ((timeDescriptors.getTime() != null) && timeBoundsSet
-				.hasConstraintsFor(
-						timeDescriptors.getTime().getLocalName())) {
-			return timeBoundsSet
-					.getConstraintsFor(
-							timeDescriptors.getTime().getLocalName());
+		else if ((timeDescriptors.getTime() != null)
+				&& timeBoundsSet.hasConstraintsFor(timeDescriptors.getTime().getLocalName())) {
+			return timeBoundsSet.getConstraintsFor(timeDescriptors.getTime().getLocalName());
 		}
 
 		return new TemporalConstraints();
@@ -203,23 +173,18 @@ public class TimeUtils
 			final String ename = timeDescriptors.getEndRange().getLocalName();
 			final String sname = timeDescriptors.getStartRange().getLocalName();
 
-			if (constraintsSet
-					.hasConstraintsForRange(
-							sname,
-							ename)) {
-				return constraintsSet
-						.getConstraintsForRange(
-								sname,
-								ename);
+			if (constraintsSet.hasConstraintsForRange(
+					sname,
+					ename)) {
+				return constraintsSet.getConstraintsForRange(
+						sname,
+						ename);
 			}
 
 		}
-		else if ((timeDescriptors.getTime() != null) && constraintsSet
-				.hasConstraintsFor(
-						timeDescriptors.getTime().getLocalName())) {
-			return constraintsSet
-					.getConstraintsFor(
-							timeDescriptors.getTime().getLocalName());
+		else if ((timeDescriptors.getTime() != null)
+				&& constraintsSet.hasConstraintsFor(timeDescriptors.getTime().getLocalName())) {
+			return constraintsSet.getConstraintsFor(timeDescriptors.getTime().getLocalName());
 		}
 		return new TemporalConstraints();
 	}
@@ -228,38 +193,24 @@ public class TimeUtils
 			final SimpleFeature entry,
 			final String fieldName ) {
 
-		final Object o = entry
-				.getAttribute(fieldName);
-		final Calendar c = Calendar
-				.getInstance(
-						TimeZone
-								.getTimeZone(
-										"GMT"));
+		final Object o = entry.getAttribute(fieldName);
+		final Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		if (o == null) {
 			return null;
 		}
 		if (o instanceof Date) {
-			c
-					.setTime(
-							(Date) o);
+			c.setTime((Date) o);
 		}
 		else if (o instanceof Calendar) {
-			c
-					.setTime(
-							c.getTime());
+			c.setTime(c.getTime());
 		}
 		else if (o instanceof Number) {
-			c
-					.setTimeInMillis(
-							((Number) o).longValue());
+			c.setTimeInMillis(((Number) o).longValue());
 		}
-		final Instant time = Instant
-				.ofEpochMilli(
-						c.getTimeInMillis());
-		return Interval
-				.of(
-						time,
-						time);
+		final Instant time = Instant.ofEpochMilli(c.getTimeInMillis());
+		return Interval.of(
+				time,
+				time);
 	}
 
 	/**

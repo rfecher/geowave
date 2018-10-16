@@ -32,7 +32,7 @@ abstract public class BoundingBoxAggregation<P extends Persistable, T> implement
 
 	@Override
 	public void setParameters(
-			final Persistable parameters ) {}
+			final P parameters ) {}
 
 	public boolean isSet() {
 		if ((minX == Double.MAX_VALUE) || (minY == Double.MAX_VALUE) || (maxX == -Double.MAX_VALUE)
@@ -64,22 +64,18 @@ abstract public class BoundingBoxAggregation<P extends Persistable, T> implement
 		else if (result2.isNull()) {
 			return result1;
 		}
-		final double minX = Math
-				.min(
-						result1.getMinX(),
-						result2.getMinX());
-		final double minY = Math
-				.min(
-						result1.getMinY(),
-						result2.getMinY());
-		final double maxX = Math
-				.max(
-						result1.getMaxX(),
-						result2.getMaxX());
-		final double maxY = Math
-				.max(
-						result1.getMaxY(),
-						result2.getMaxY());
+		final double minX = Math.min(
+				result1.getMinX(),
+				result2.getMinX());
+		final double minY = Math.min(
+				result1.getMinY(),
+				result2.getMinY());
+		final double maxX = Math.max(
+				result1.getMaxX(),
+				result2.getMaxX());
+		final double maxY = Math.max(
+				result1.getMaxY(),
+				result2.getMaxY());
 		return new Envelope(
 				minX,
 				maxX,
@@ -90,30 +86,18 @@ abstract public class BoundingBoxAggregation<P extends Persistable, T> implement
 	@Override
 	public byte[] resultToBinary(
 			final Envelope result ) {
-		final ByteBuffer buffer = ByteBuffer
-				.allocate(
-						32);
-		buffer
-				.putDouble(
-						minX);
-		buffer
-				.putDouble(
-						minY);
-		buffer
-				.putDouble(
-						maxX);
-		buffer
-				.putDouble(
-						maxY);
+		final ByteBuffer buffer = ByteBuffer.allocate(32);
+		buffer.putDouble(minX);
+		buffer.putDouble(minY);
+		buffer.putDouble(maxX);
+		buffer.putDouble(maxY);
 		return buffer.array();
 	}
 
 	@Override
 	public Envelope resultFromBinary(
 			final byte[] binary ) {
-		final ByteBuffer buffer = ByteBuffer
-				.wrap(
-						binary);
+		final ByteBuffer buffer = ByteBuffer.wrap(binary);
 		final double minX = buffer.getDouble();
 		final double minY = buffer.getDouble();
 		final double maxX = buffer.getDouble();
@@ -136,31 +120,25 @@ abstract public class BoundingBoxAggregation<P extends Persistable, T> implement
 	@Override
 	public void aggregate(
 			final T entry ) {
-		final Envelope env = getEnvelope(
-				entry);
-		aggregate(
-				env);
+		final Envelope env = getEnvelope(entry);
+		aggregate(env);
 	}
 
 	protected void aggregate(
 			final Envelope env ) {
 		if ((env != null) && !env.isNull()) {
-			minX = Math
-					.min(
-							minX,
-							env.getMinX());
-			minY = Math
-					.min(
-							minY,
-							env.getMinY());
-			maxX = Math
-					.max(
-							maxX,
-							env.getMaxX());
-			maxY = Math
-					.max(
-							maxY,
-							env.getMaxY());
+			minX = Math.min(
+					minX,
+					env.getMinX());
+			minY = Math.min(
+					minY,
+					env.getMinY());
+			maxX = Math.max(
+					maxX,
+					env.getMaxX());
+			maxY = Math.max(
+					maxY,
+					env.getMaxY());
 		}
 	}
 

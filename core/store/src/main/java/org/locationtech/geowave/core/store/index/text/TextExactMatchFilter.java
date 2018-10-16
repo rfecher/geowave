@@ -16,10 +16,10 @@ import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 public class TextExactMatchFilter implements
-		DistributableQueryFilter
+		QueryFilter
 {
 
 	private String fieldName;
@@ -84,8 +84,7 @@ public class TextExactMatchFilter implements
 		final ByteBuffer bb = ByteBuffer.wrap(bytes);
 		final byte[] fieldNameBytes = new byte[bb.getInt()];
 		bb.get(fieldNameBytes);
-		fieldName = StringUtils.stringFromBinary(
-				fieldNameBytes);
+		fieldName = StringUtils.stringFromBinary(fieldNameBytes);
 		final byte[] matchValueBytes = new byte[bb.getInt()];
 		bb.get(matchValueBytes);
 		matchValue = StringUtils.stringFromBinary(matchValueBytes);

@@ -45,21 +45,17 @@ public class JobContextIndexStore implements
 	@Override
 	public void addIndex(
 			final Index index ) {
-		indexCache
-				.put(
-						index.getName(),
-						index);
+		indexCache.put(
+				index.getName(),
+				index);
 	}
 
 	@Override
 	public Index getIndex(
 			final String indexName ) {
-		Index index = indexCache
-				.get(
-						indexName);
+		Index index = indexCache.get(indexName);
 		if (index == null) {
-			index = getIndexInternal(
-					indexName);
+			index = getIndexInternal(indexName);
 		}
 		return index;
 	}
@@ -67,13 +63,10 @@ public class JobContextIndexStore implements
 	@Override
 	public boolean indexExists(
 			final String indexName ) {
-		if (indexCache
-				.containsKey(
-						indexName)) {
+		if (indexCache.containsKey(indexName)) {
 			return true;
 		}
-		final Index index = getIndexInternal(
-				indexName);
+		final Index index = getIndexInternal(indexName);
 		return index != null;
 	}
 
@@ -85,16 +78,13 @@ public class JobContextIndexStore implements
 				indexName);
 		if (index == null) {
 			// then try to get it from the accumulo persistent store
-			index = persistentIndexStore
-					.getIndex(
-							indexName);
+			index = persistentIndexStore.getIndex(indexName);
 		}
 
 		if (index != null) {
-			indexCache
-					.put(
-							indexName,
-							index);
+			indexCache.put(
+					indexName,
+					index);
 		}
 		return index;
 	}
@@ -110,49 +100,44 @@ public class JobContextIndexStore implements
 		// cache any results
 		return new CloseableIteratorWrapper<Index>(
 				it,
-				IteratorUtils
-						.transformedIterator(
-								it,
-								new Transformer() {
+				IteratorUtils.transformedIterator(
+						it,
+						new Transformer() {
 
-									@Override
-									public Object transform(
-											final Object obj ) {
-										indexCache
-												.put(
-														((Index) obj).getName(),
-														(Index) obj);
-										return obj;
-									}
-								}));
+							@Override
+							public Object transform(
+									final Object obj ) {
+								indexCache.put(
+										((Index) obj).getName(),
+										(Index) obj);
+								return obj;
+							}
+						}));
 	}
 
 	public static void addIndex(
 			final Configuration config,
 			final Index index ) {
-		GeoWaveConfiguratorBase
-				.addIndex(
-						CLASS,
-						config,
-						index);
+		GeoWaveConfiguratorBase.addIndex(
+				CLASS,
+				config,
+				index);
 	}
 
 	protected static Index getIndex(
 			final JobContext context,
 			final String indexName ) {
-		return GeoWaveConfiguratorBase
-				.getIndex(
-						CLASS,
-						context,
-						indexName);
+		return GeoWaveConfiguratorBase.getIndex(
+				CLASS,
+				context,
+				indexName);
 	}
 
 	public static Index[] getIndices(
 			final JobContext context ) {
-		return GeoWaveConfiguratorBase
-				.getIndices(
-						CLASS,
-						context);
+		return GeoWaveConfiguratorBase.getIndices(
+				CLASS,
+				context);
 	}
 
 }

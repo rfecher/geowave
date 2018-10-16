@@ -25,7 +25,7 @@ import org.locationtech.geowave.core.store.callback.IngestCallback;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 
-public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R,B>> implements
+public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R, B>> implements
 		IngestCallback<T>,
 		DeleteCallback<T, GeoWaveRow>,
 		ScanCallback<T, GeoWaveRow>
@@ -42,11 +42,10 @@ public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R,B>> 
 			final StatisticsId statisticsId ) {
 		this.statisticsProvider = statisticsProvider;
 		this.statisticsId = statisticsId;
-		this.visibilityHandler = statisticsProvider
-				.getVisibilityHandler(
-						index.getIndexModel(),
-						adapter,
-						statisticsId);
+		this.visibilityHandler = statisticsProvider.getVisibilityHandler(
+				index.getIndexModel(),
+				adapter,
+				statisticsId);
 	}
 
 	@Override
@@ -54,32 +53,23 @@ public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R,B>> 
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		final ByteArrayId visibility = new ByteArrayId(
-				visibilityHandler
-						.getVisibility(
-								entry,
-								kvs));
-		InternalDataStatistics<T, R,B> statistics = statisticsMap
-				.get(
-						visibility);
+				visibilityHandler.getVisibility(
+						entry,
+						kvs));
+		InternalDataStatistics<T, R, B> statistics = statisticsMap.get(visibility);
 		if (statistics == null) {
-			statistics = statisticsProvider
-					.createDataStatistics(
-							statisticsId);
+			statistics = statisticsProvider.createDataStatistics(statisticsId);
 			if (statistics == null) {
 				return;
 			}
-			statistics
-					.setVisibility(
-							visibility.getBytes());
-			statisticsMap
-					.put(
-							visibility,
-							statistics);
+			statistics.setVisibility(visibility.getBytes());
+			statisticsMap.put(
+					visibility,
+					statistics);
 		}
-		statistics
-				.entryIngested(
-						entry,
-						kvs);
+		statistics.entryIngested(
+				entry,
+				kvs);
 	}
 
 	public Collection<InternalDataStatistics<T, R, B>> getStatistics() {
@@ -92,30 +82,21 @@ public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R,B>> 
 			final T entry,
 			final GeoWaveRow... kv ) {
 		final ByteArrayId visibilityByteArray = new ByteArrayId(
-				visibilityHandler
-						.getVisibility(
-								entry,
-								kv));
-		InternalDataStatistics<T, R, B> statistics = statisticsMap
-				.get(
-						visibilityByteArray);
+				visibilityHandler.getVisibility(
+						entry,
+						kv));
+		InternalDataStatistics<T, R, B> statistics = statisticsMap.get(visibilityByteArray);
 		if (statistics == null) {
-			statistics = statisticsProvider
-					.createDataStatistics(
-							statisticsId);
-			statistics
-					.setVisibility(
-							visibilityByteArray.getBytes());
-			statisticsMap
-					.put(
-							visibilityByteArray,
-							statistics);
+			statistics = statisticsProvider.createDataStatistics(statisticsId);
+			statistics.setVisibility(visibilityByteArray.getBytes());
+			statisticsMap.put(
+					visibilityByteArray,
+					statistics);
 		}
 		if (statistics instanceof DeleteCallback) {
-			((DeleteCallback<T, GeoWaveRow>) statistics)
-					.entryDeleted(
-							entry,
-							kv);
+			((DeleteCallback<T, GeoWaveRow>) statistics).entryDeleted(
+					entry,
+					kv);
 		}
 	}
 
@@ -124,32 +105,23 @@ public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R,B>> 
 			final T entry,
 			final GeoWaveRow kv ) {
 		final ByteArrayId visibility = new ByteArrayId(
-				visibilityHandler
-						.getVisibility(
-								entry,
-								kv));
-		InternalDataStatistics<T, R, B> statistics = statisticsMap
-				.get(
-						visibility);
+				visibilityHandler.getVisibility(
+						entry,
+						kv));
+		InternalDataStatistics<T, R, B> statistics = statisticsMap.get(visibility);
 		if (statistics == null) {
-			statistics = statisticsProvider
-					.createDataStatistics(
-							statisticsId);
+			statistics = statisticsProvider.createDataStatistics(statisticsId);
 			if (statistics == null) {
 				return;
 			}
-			statistics
-					.setVisibility(
-							visibility.getBytes());
-			statisticsMap
-					.put(
-							visibility,
-							statistics);
+			statistics.setVisibility(visibility.getBytes());
+			statisticsMap.put(
+					visibility,
+					statistics);
 		}
-		statistics
-				.entryIngested(
-						entry,
-						kv);
+		statistics.entryIngested(
+				entry,
+				kv);
 
 	}
 }

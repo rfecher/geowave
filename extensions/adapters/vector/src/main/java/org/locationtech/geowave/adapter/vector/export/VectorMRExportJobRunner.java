@@ -38,7 +38,7 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.mapreduce.GeoWaveConfiguratorBase;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputFormat;
 import org.slf4j.Logger;
@@ -50,9 +50,7 @@ public class VectorMRExportJobRunner extends
 		Configured implements
 		Tool
 {
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					VectorMRExportCommand.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(VectorMRExportCommand.class);
 
 	public static final String BATCH_SIZE_KEY = "BATCH_SIZE";
 	private final DataStorePluginOptions storeOptions;
@@ -82,14 +80,12 @@ public class VectorMRExportJobRunner extends
 		Configuration conf = super.getConf();
 		if (conf == null) {
 			conf = new Configuration();
-			setConf(
-					conf);
+			setConf(conf);
 		}
-		GeoWaveConfiguratorBase
-				.setRemoteInvocationParams(
-						hdfsHostPort,
-						mrOptions.getResourceManagerHostPort(),
-						conf);
+		GeoWaveConfiguratorBase.setRemoteInvocationParams(
+				hdfsHostPort,
+				mrOptions.getResourceManagerHostPort(),
+				conf);
 		final String[] typeNames = mrOptions.getTypeNames();
 		final PersistentAdapterStore adapterStore = storeOptions.createAdapterStore();
 		final InternalAdapterStore internalAdapterStore = storeOptions.createInternalAdapterStore();
@@ -110,139 +106,98 @@ public class VectorMRExportJobRunner extends
 			// }
 			// }));
 		}
-		conf
-				.setInt(
-						BATCH_SIZE_KEY,
-						mrOptions.getBatchSize());
-		IndexStore indexStore = storeOptions
-		.createIndexStore();
+		conf.setInt(
+				BATCH_SIZE_KEY,
+				mrOptions.getBatchSize());
+		IndexStore indexStore = storeOptions.createIndexStore();
 		if (mrOptions.getIndexName() != null) {
-			final Index index = 
-					indexStore.getIndex(
-							mrOptions.getIndexName());
+			final Index index = indexStore.getIndex(mrOptions.getIndexName());
 			if (index == null) {
-				JCommander
-						.getConsole()
-						.println(
-								"Unable to find index '" + mrOptions.getIndexName() + "' in store");
+				JCommander.getConsole().println(
+						"Unable to find index '" + mrOptions.getIndexName() + "' in store");
 				return -1;
 			}
 			bldr.indexName(mrOptions.getIndexName());
 		}
 		if (mrOptions.getCqlFilter() != null) {
 			if ((typeNames == null) || (typeNames.length != 1)) {
-				JCommander
-						.getConsole()
-						.println(
-								"Exactly one type is expected when using CQL filter");
+				JCommander.getConsole().println(
+						"Exactly one type is expected when using CQL filter");
 				return -1;
 			}
 			final String typeName = typeNames[0];
 
-			final Short internalAdpaterId = internalAdapterStore
-					.getAdapterId(
-							typeName);
-			final InternalDataAdapter<?> adapter = storeOptions
-					.createAdapterStore()
-					.getAdapter(
-							internalAdpaterId);
+			final Short internalAdpaterId = internalAdapterStore.getAdapterId(typeName);
+			final InternalDataAdapter<?> adapter = storeOptions.createAdapterStore().getAdapter(
+					internalAdpaterId);
 			if (adapter == null) {
-				JCommander
-						.getConsole()
-						.println(
-								"Type '" + typeName + "' not found");
+				JCommander.getConsole().println(
+						"Type '" + typeName + "' not found");
 				return -1;
 			}
 			if (!(adapter.getAdapter() instanceof GeotoolsFeatureDataAdapter)) {
-				JCommander
-						.getConsole()
-						.println(
-								"Type '" + typeName + "' does not support vector export");
+				JCommander.getConsole().println(
+						"Type '" + typeName + "' does not support vector export");
 
 				return -1;
 			}
-			bldr.constraints(bldr.constraintsFactory().cqlConstraints(mrOptions.getCqlFilter()));
+			bldr.constraints(bldr.constraintsFactory().cqlConstraints(
+					mrOptions.getCqlFilter()));
 		}
-		GeoWaveInputFormat
-				.setStoreOptions(
-						conf,
-						storeOptions);
+		GeoWaveInputFormat.setStoreOptions(
+				conf,
+				storeOptions);
 		// the above code is a temporary placeholder until this gets merged with
 		// the new commandline options
-		GeoWaveInputFormat
-				.setQuery(conf, bldr.build(), adapterStore, internalAdapterStore, indexStore);
+		GeoWaveInputFormat.setQuery(
+				conf,
+				bldr.build(),
+				adapterStore,
+				internalAdapterStore,
+				indexStore);
 		final Job job = new Job(
 				conf);
 
-		job
-				.setJarByClass(
-						this.getClass());
+		job.setJarByClass(this.getClass());
 
-		job
-				.setJobName(
-						"Exporting to " + hdfsPath);
-		FileOutputFormat
-				.setCompressOutput(
-						job,
-						true);
-		FileOutputFormat
-				.setOutputPath(
-						job,
-						new Path(
-								hdfsPath));
-		job
-				.setMapperClass(
-						VectorExportMapper.class);
-		job
-				.setInputFormatClass(
-						GeoWaveInputFormat.class);
-		job
-				.setOutputFormatClass(
-						AvroKeyOutputFormat.class);
-		job
-				.setMapOutputKeyClass(
-						AvroKey.class);
-		job
-				.setMapOutputValueClass(
-						NullWritable.class);
-		job
-				.setOutputKeyClass(
-						AvroKey.class);
-		job
-				.setOutputValueClass(
-						NullWritable.class);
-		job
-				.setNumReduceTasks(
-						0);
-		AvroJob
-				.setOutputKeySchema(
-						job,
-						AvroSimpleFeatureCollection.SCHEMA$);
-		AvroJob
-				.setMapOutputKeySchema(
-						job,
-						AvroSimpleFeatureCollection.SCHEMA$);
+		job.setJobName("Exporting to " + hdfsPath);
+		FileOutputFormat.setCompressOutput(
+				job,
+				true);
+		FileOutputFormat.setOutputPath(
+				job,
+				new Path(
+						hdfsPath));
+		job.setMapperClass(VectorExportMapper.class);
+		job.setInputFormatClass(GeoWaveInputFormat.class);
+		job.setOutputFormatClass(AvroKeyOutputFormat.class);
+		job.setMapOutputKeyClass(AvroKey.class);
+		job.setMapOutputValueClass(NullWritable.class);
+		job.setOutputKeyClass(AvroKey.class);
+		job.setOutputValueClass(NullWritable.class);
+		job.setNumReduceTasks(0);
+		AvroJob.setOutputKeySchema(
+				job,
+				AvroSimpleFeatureCollection.SCHEMA$);
+		AvroJob.setMapOutputKeySchema(
+				job,
+				AvroSimpleFeatureCollection.SCHEMA$);
 
-		GeoWaveInputFormat
-				.setMinimumSplitCount(
-						job.getConfiguration(),
-						mrOptions.getMinSplits());
-		GeoWaveInputFormat
-				.setMaximumSplitCount(
-						job.getConfiguration(),
-						mrOptions.getMaxSplits());
+		GeoWaveInputFormat.setMinimumSplitCount(
+				job.getConfiguration(),
+				mrOptions.getMinSplits());
+		GeoWaveInputFormat.setMaximumSplitCount(
+				job.getConfiguration(),
+				mrOptions.getMaxSplits());
 
 		boolean retVal = false;
 		try {
-			retVal = job
-					.waitForCompletion(
-							true);
+			retVal = job.waitForCompletion(true);
 		}
 		catch (final IOException ex) {
-			LOGGER
-					.error(
-							"Error waiting for map reduce tile resize job: ",
-							ex);
+			LOGGER.error(
+					"Error waiting for map reduce tile resize job: ",
+					ex);
 		}
 		return retVal ? 0 : 1;
 	}
@@ -252,27 +207,17 @@ public class VectorMRExportJobRunner extends
 			throws Exception {
 		final ConfigOptions opts = new ConfigOptions();
 		final OperationParser parser = new OperationParser();
-		parser
-				.addAdditionalObject(
-						opts);
+		parser.addAdditionalObject(opts);
 		final VectorMRExportCommand command = new VectorMRExportCommand();
-		final CommandLineOperationParams params = parser
-				.parse(
-						command,
-						args);
-		opts
-				.prepare(
-						params);
-		final int res = ToolRunner
-				.run(
-						new Configuration(),
-						command
-								.createRunner(
-										params),
-						args);
-		System
-				.exit(
-						res);
+		final CommandLineOperationParams params = parser.parse(
+				command,
+				args);
+		opts.prepare(params);
+		final int res = ToolRunner.run(
+				new Configuration(),
+				command.createRunner(params),
+				args);
+		System.exit(res);
 	}
 
 	@Override

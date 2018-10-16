@@ -31,7 +31,7 @@ import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.operations.RowReader;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.options.FilterByTypeQueryOptions;
 import org.locationtech.geowave.core.store.query.options.QuerySingleIndex;
 import org.locationtech.geowave.examples.ingest.SimpleIngest;
@@ -137,7 +137,7 @@ public class SplitsProviderIT extends
 
 	@Test
 	public void testUniform() {
-		final DistributableQueryConstraints query = new SpatialQuery(
+		final QueryConstraints query = new SpatialQuery(
 				new GeometryFactory()
 						.toGeometry(
 								new Envelope(
@@ -155,7 +155,7 @@ public class SplitsProviderIT extends
 
 	@Test
 	public void testBimodal() {
-		DistributableQueryConstraints query = new SpatialQuery(
+		QueryConstraints query = new SpatialQuery(
 				new GeometryFactory()
 						.toGeometry(
 								new Envelope(
@@ -203,7 +203,7 @@ public class SplitsProviderIT extends
 
 	@Test
 	public void testSkewed() {
-		DistributableQueryConstraints query = new SpatialQuery(
+		QueryConstraints query = new SpatialQuery(
 				new GeometryFactory()
 						.toGeometry(
 								new Envelope(
@@ -325,7 +325,7 @@ public class SplitsProviderIT extends
 
 	private double getSplitsMSE(
 			final DataStoreInfo dataStoreInfo,
-			final DistributableQueryConstraints query,
+			final QueryConstraints query,
 			final int minSplits,
 			final int maxSplits ) {
 

@@ -62,8 +62,6 @@ public class LatitudeField extends
 	@Override
 	public NumericData getNumericData(
 			final GeometryWrapper geometry ) {
-		return GeometryUtils
-				.yRangeFromGeometry(
-						geometry.getGeometry());
+		return GeometryUtils.yRangeFromGeometry(geometry.getGeometry());
 	}
 }

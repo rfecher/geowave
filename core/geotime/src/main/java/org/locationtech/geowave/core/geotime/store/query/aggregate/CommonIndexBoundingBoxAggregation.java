@@ -16,10 +16,8 @@ public class CommonIndexBoundingBoxAggregation<P extends Persistable> extends
 	@Override
 	protected Envelope getEnvelope(
 			final CommonIndexedPersistenceEncoding entry ) {
-		final CommonIndexValue v = entry
-				.getCommonData()
-				.getValue(
-						GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME);
+		final CommonIndexValue v = entry.getCommonData().getValue(
+				GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME);
 		if ((v != null) && (v instanceof GeometryWrapper)) {
 			return ((GeometryWrapper) v).getGeometry().getEnvelopeInternal();
 		}

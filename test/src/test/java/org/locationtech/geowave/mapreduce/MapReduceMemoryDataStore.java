@@ -27,7 +27,7 @@ import org.locationtech.geowave.core.store.metadata.AdapterStoreImpl;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.metadata.IndexStoreImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
 import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
 import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
@@ -67,7 +67,7 @@ public class MapReduceMemoryDataStore extends
 			final CommonQueryOptions commonOptions,
 			final DataTypeQueryOptions<?> typeOptions,
 			final IndexQueryOptions indexOptions,
-			final DistributableQueryConstraints constraints,
+			final QueryConstraints constraints,
 			final TransientAdapterStore adapterStore,
 			final AdapterIndexMappingStore aimStore,
 			final DataStatisticsStore statsStore,

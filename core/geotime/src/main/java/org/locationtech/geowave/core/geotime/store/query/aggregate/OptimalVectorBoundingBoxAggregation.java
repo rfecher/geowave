@@ -23,13 +23,9 @@ public class OptimalVectorBoundingBoxAggregation<P extends Persistable, T> exten
 	protected boolean isCommonIndex(
 			final Index index,
 			final GeotoolsFeatureDataAdapter adapter ) {
-		return fieldNameParam
-				.getFieldName()
-				.equals(
-						adapter.getFeatureType().getGeometryDescriptor().getLocalName())
-				&& IndexOptimizationUtils
-						.hasAtLeastSpatial(
-								index);
+		return fieldNameParam.getFieldName().equals(
+				adapter.getFeatureType().getGeometryDescriptor().getLocalName())
+				&& IndexOptimizationUtils.hasAtLeastSpatial(index);
 	}
 
 	@Override

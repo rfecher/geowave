@@ -11,7 +11,7 @@
 package org.locationtech.geowave.core.store.index;
 
 import org.locationtech.geowave.core.index.IndexConstraints;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 public interface FilterableConstraints extends
 		IndexConstraints
@@ -19,7 +19,7 @@ public interface FilterableConstraints extends
 
 	public String getFieldName();
 
-	public DistributableQueryFilter getFilter();
+	public QueryFilter getFilter();
 
 	public FilterableConstraints intersect(
 			FilterableConstraints constaints );

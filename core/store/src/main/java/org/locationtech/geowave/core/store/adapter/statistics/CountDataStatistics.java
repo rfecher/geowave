@@ -49,19 +49,15 @@ public class CountDataStatistics<T> extends
 
 	@Override
 	public byte[] toBinary() {
-		final ByteBuffer buffer = super.binaryBuffer(
-				8);
-		buffer
-				.putLong(
-						count);
+		final ByteBuffer buffer = super.binaryBuffer(8);
+		buffer.putLong(count);
 		return buffer.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buffer = super.binaryBuffer(bytes);
 		count = buffer.getLong();
 	}
 
@@ -101,10 +97,8 @@ public class CountDataStatistics<T> extends
 			final T entry,
 			final GeoWaveRow... kv ) {
 		if (kv.length > 0) {
-			if (ids
-					.add(
-							new ByteArrayId(
-									kv[0].getDataId()))) {
+			if (ids.add(new ByteArrayId(
+					kv[0].getDataId()))) {
 				if (!isSet()) {
 					count = 0;
 				}
@@ -116,19 +110,13 @@ public class CountDataStatistics<T> extends
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer
-				.append(
-						"count[adapterId=")
-				.append(
-						super.getAdapterId());
-		buffer
-				.append(
-						", count=")
-				.append(
-						count);
-		buffer
-				.append(
-						"]");
+		buffer.append(
+				"count[adapterId=").append(
+				super.getAdapterId());
+		buffer.append(
+				", count=").append(
+				count);
+		buffer.append("]");
 		return buffer.toString();
 	}
 
@@ -144,8 +132,6 @@ public class CountDataStatistics<T> extends
 
 	@Override
 	protected Object resultsValue() {
-		return Long
-				.toString(
-						count);
+		return Long.toString(count);
 	}
 }

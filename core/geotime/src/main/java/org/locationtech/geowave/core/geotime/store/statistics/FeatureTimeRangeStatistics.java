@@ -50,36 +50,23 @@ public class FeatureTimeRangeStatistics extends
 	}
 
 	public Date getMaxTime() {
-		final Calendar c = Calendar
-				.getInstance(
-						TimeZone
-								.getTimeZone(
-										"GMT"));
-		c
-				.setTimeInMillis(
-						getMax());
+		final Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		c.setTimeInMillis(getMax());
 		return c.getTime();
 	}
 
 	public Date getMinTime() {
-		final Calendar c = Calendar
-				.getInstance(
-						TimeZone
-								.getTimeZone(
-										"GMT"));
-		c
-				.setTimeInMillis(
-						getMin());
+		final Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		c.setTimeInMillis(getMin());
 		return c.getTime();
 	}
 
 	@Override
 	protected Interval getInterval(
 			final SimpleFeature entry ) {
-		return TimeUtils
-				.getInterval(
-						entry,
-						getFieldName());
+		return TimeUtils.getInterval(
+				entry,
+				getFieldName());
 	}
 
 	@Override

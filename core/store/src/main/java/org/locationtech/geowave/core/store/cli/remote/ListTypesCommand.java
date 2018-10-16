@@ -33,9 +33,7 @@ public class ListTypesCommand extends
 		ServiceEnabledCommand<String>
 {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					RecalculateStatsCommand.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RecalculateStatsCommand.class);
 
 	@Parameter(description = "<store name>")
 	private List<String> parameters = new ArrayList<>();
@@ -45,11 +43,8 @@ public class ListTypesCommand extends
 	@Override
 	public void execute(
 			final OperationParams params ) {
-		JCommander
-				.getConsole()
-				.println(
-						"Available types: " + computeResults(
-								params));
+		JCommander.getConsole().println(
+				"Available types: " + computeResults(params));
 	}
 
 	public List<String> getParameters() {
@@ -59,9 +54,7 @@ public class ListTypesCommand extends
 	public void setParameters(
 			final String storeName ) {
 		parameters = new ArrayList<>();
-		parameters
-				.add(
-						storeName);
+		parameters.add(storeName);
 	}
 
 	public DataStorePluginOptions getInputStoreOptions() {
@@ -76,20 +69,15 @@ public class ListTypesCommand extends
 					"Must specify store name");
 		}
 
-		final String inputStoreName = parameters
-				.get(
-						0);
+		final String inputStoreName = parameters.get(0);
 
 		// Attempt to load store.
-		final File configFile = getGeoWaveConfigFile(
-				params);
+		final File configFile = getGeoWaveConfigFile(params);
 
 		// Attempt to load input store.
 		final StoreLoader inputStoreLoader = new StoreLoader(
 				inputStoreName);
-		if (!inputStoreLoader
-				.loadFromConfig(
-						configFile)) {
+		if (!inputStoreLoader.loadFromConfig(configFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + inputStoreLoader.getStoreName());
 		}
@@ -97,11 +85,9 @@ public class ListTypesCommand extends
 		final String[] typeNames = inputStoreOptions.createInternalAdapterStore().getTypeNames();
 		final StringBuffer buffer = new StringBuffer();
 		for (final String typeName : typeNames) {
-			buffer
-					.append(
-							typeName)
-					.append(
-							' ');
+			buffer.append(
+					typeName).append(
+					' ');
 		}
 		return buffer.toString();
 	}

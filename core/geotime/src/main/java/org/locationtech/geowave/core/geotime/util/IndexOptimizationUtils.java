@@ -31,8 +31,7 @@ public class IndexOptimizationUtils
 	public static boolean hasTime(
 			final Index index,
 			final GeotoolsFeatureDataAdapter adapter ) {
-		return hasTime(
-				index) && adapter.hasTemporalConstraints();
+		return hasTime(index) && adapter.hasTemporalConstraints();
 	}
 
 	public static boolean hasTime(

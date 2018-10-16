@@ -39,9 +39,7 @@ public class AdapterStoreWrapper implements
 	@Override
 	public void addAdapter(
 			final InternalDataAdapter<?> adapter ) {
-		adapterStore
-				.addAdapter(
-						adapter.getAdapter());
+		adapterStore.addAdapter(adapter.getAdapter());
 	}
 
 	@Override
@@ -51,11 +49,7 @@ public class AdapterStoreWrapper implements
 			return null;
 		}
 		return new InternalDataAdapterWrapper<>(
-				(DataTypeAdapter<?>) adapterStore
-						.getAdapter(
-								internalAdapterStore
-										.getTypeName(
-												adapterId)),
+				(DataTypeAdapter<?>) adapterStore.getAdapter(internalAdapterStore.getTypeName(adapterId)),
 				adapterId);
 	}
 
@@ -63,9 +57,7 @@ public class AdapterStoreWrapper implements
 	public boolean adapterExists(
 			final Short adapterId ) {
 		if (adapterId != null) {
-			return internalAdapterStore
-					.getTypeName(
-							adapterId) != null;
+			return internalAdapterStore.getTypeName(adapterId) != null;
 
 		}
 		return false;
@@ -76,22 +68,19 @@ public class AdapterStoreWrapper implements
 		final CloseableIterator<DataTypeAdapter<?>> it = adapterStore.getAdapters();
 		return new CloseableIteratorWrapper<>(
 				it,
-				Iterators
-						.transform(
-								it,
-								new Function<DataTypeAdapter<?>, InternalDataAdapter<?>>() {
+				Iterators.transform(
+						it,
+						new Function<DataTypeAdapter<?>, InternalDataAdapter<?>>() {
 
-									@Override
-									public InternalDataAdapter<?> apply(
-											final DataTypeAdapter<?> input ) {
-										return new InternalDataAdapterWrapper<>(
-												(DataTypeAdapter<?>) input,
-												internalAdapterStore
-														.getAdapterId(
-																input.getTypeName()));
-									}
+							@Override
+							public InternalDataAdapter<?> apply(
+									final DataTypeAdapter<?> input ) {
+								return new InternalDataAdapterWrapper<>(
+										(DataTypeAdapter<?>) input,
+										internalAdapterStore.getAdapterId(input.getTypeName()));
+							}
 
-								}));
+						}));
 	}
 
 	@Override
@@ -102,13 +91,9 @@ public class AdapterStoreWrapper implements
 	@Override
 	public void removeAdapter(
 			final Short adapterId ) {
-		final String typeName = internalAdapterStore
-				.getTypeName(
-						adapterId);
+		final String typeName = internalAdapterStore.getTypeName(adapterId);
 		if (typeName != null) {
-			adapterStore
-					.removeAdapter(
-							typeName);
+			adapterStore.removeAdapter(typeName);
 		}
 	}
 

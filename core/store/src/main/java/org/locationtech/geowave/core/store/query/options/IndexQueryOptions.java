@@ -6,6 +6,6 @@ public interface IndexQueryOptions extends
 		Persistable
 {
 	public String getIndexName();
-	
+
 	public boolean isAllIndicies();
 }

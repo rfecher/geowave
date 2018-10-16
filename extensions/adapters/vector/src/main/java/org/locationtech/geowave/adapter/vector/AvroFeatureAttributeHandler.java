@@ -21,8 +21,7 @@ import org.opengis.feature.simple.SimpleFeature;
 public class AvroFeatureAttributeHandler implements
 		NativeFieldHandler<SimpleFeature, Object>
 {
-	public static final String FIELD_NAME =
-			"field";
+	public static final String FIELD_NAME = "field";
 
 	public AvroFeatureAttributeHandler() {}
 

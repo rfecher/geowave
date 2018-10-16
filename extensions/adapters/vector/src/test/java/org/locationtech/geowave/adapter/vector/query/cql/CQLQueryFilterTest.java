@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -33,8 +33,7 @@ import org.locationtech.geowave.core.index.SinglePartitionInsertionIds;
 import org.locationtech.geowave.core.store.adapter.AdapterPersistenceEncoding;
 import org.locationtech.geowave.core.store.adapter.IndexedAdapterPersistenceEncoding;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.query.filter.DistributableFilterList;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.FilterList;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -90,12 +89,12 @@ public class CQLQueryFilterTest
 				adapter);
 
 		final List<QueryFilter> filters = cqlQuery.createFilters(spatialIndex);
-		final List<DistributableQueryFilter> dFilters = new ArrayList<DistributableQueryFilter>();
+		final List<QueryFilter> dFilters = new ArrayList<>();
 		for (final QueryFilter filter : filters) {
-			dFilters.add((DistributableQueryFilter) filter);
+			dFilters.add(filter);
 		}
 
-		final DistributableFilterList dFilterList = new DistributableFilterList(
+		final FilterList dFilterList = new FilterList(
 				dFilters);
 
 		assertTrue(dFilterList.accept(
@@ -112,7 +111,7 @@ public class CQLQueryFilterTest
 			final Index index,
 			final AdapterPersistenceEncoding encoding ) {
 		final InsertionIds ids = encoding.getInsertionIds(index);
-		final ArrayList<IndexedAdapterPersistenceEncoding> encodings = new ArrayList<IndexedAdapterPersistenceEncoding>();
+		final ArrayList<IndexedAdapterPersistenceEncoding> encodings = new ArrayList<>();
 
 		for (final SinglePartitionInsertionIds partitionIds : ids.getPartitionKeys()) {
 			for (final ByteArrayId sortKey : partitionIds.getSortKeys()) {

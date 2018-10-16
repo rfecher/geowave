@@ -23,7 +23,7 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
 
 public class SecondaryIndexQueryFilterIterator extends
@@ -33,7 +33,7 @@ public class SecondaryIndexQueryFilterIterator extends
 	public static final int ITERATOR_PRIORITY = 50;
 	public static final String FILTERS = "filters";
 	public static final String PRIMARY_INDEX_ID = "primaryIndexId";
-	private DistributableQueryFilter filter;
+	private QueryFilter filter;
 	private String primaryIndexId;
 
 	@Override
@@ -61,7 +61,7 @@ public class SecondaryIndexQueryFilterIterator extends
 			final byte[] filterBytes = ByteArrayUtils
 					.byteArrayFromString(
 							filterStr);
-			filter = (DistributableQueryFilter) URLClassloaderUtils
+			filter = (QueryFilter) URLClassloaderUtils
 					.fromBinary(
 							filterBytes);
 		}

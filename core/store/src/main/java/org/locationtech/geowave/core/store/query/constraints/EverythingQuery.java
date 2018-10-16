@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -34,5 +34,14 @@ public class EverythingQuery implements
 			final Index index ) {
 		return Collections.emptyList();
 	}
+
+	@Override
+	public byte[] toBinary() {
+		return new byte[0];
+	}
+
+	@Override
+	public void fromBinary(
+			final byte[] bytes ) {}
 
 }

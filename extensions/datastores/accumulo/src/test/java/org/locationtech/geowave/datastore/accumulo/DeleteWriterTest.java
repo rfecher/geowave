@@ -334,7 +334,7 @@ public class DeleteWriterTest
 		CountDataStatistics countStats = (CountDataStatistics) statsStore
 				.getDataStatistics(
 						internalAdapterId,
-						CountDataStatistics.STATS_TYPE);
+						CountDataStatistics.STATS_TYPE).next();
 		assertEquals(
 				3,
 				countStats.getCount());
@@ -395,7 +395,7 @@ public class DeleteWriterTest
 		countStats = (CountDataStatistics) statsStore
 				.getDataStatistics(
 						internalAdapterId,
-						CountDataStatistics.STATS_TYPE);
+						CountDataStatistics.STATS_TYPE).next();
 		assertEquals(
 				2,
 				countStats.getCount());
@@ -410,7 +410,7 @@ public class DeleteWriterTest
 		CountDataStatistics countStats = (CountDataStatistics) statsStore
 				.getDataStatistics(
 						internalAdapterId,
-						CountDataStatistics.STATS_TYPE);
+						CountDataStatistics.STATS_TYPE).next();
 		assertEquals(
 				3,
 				countStats.getCount());
@@ -460,7 +460,7 @@ public class DeleteWriterTest
 		countStats = (CountDataStatistics) statsStore
 				.getDataStatistics(
 						internalAdapterId,
-						CountDataStatistics.STATS_TYPE);
+						CountDataStatistics.STATS_TYPE).next();
 		assertEquals(
 				2,
 				countStats.getCount());
@@ -475,7 +475,7 @@ public class DeleteWriterTest
 		CountDataStatistics countStats = (CountDataStatistics) statsStore
 				.getDataStatistics(
 						internalAdapterId,
-						CountDataStatistics.STATS_TYPE);
+						CountDataStatistics.STATS_TYPE).next();
 		assertEquals(
 				3,
 				countStats.getCount());
@@ -530,7 +530,7 @@ public class DeleteWriterTest
 		countStats = (CountDataStatistics) statsStore
 				.getDataStatistics(
 						internalAdapterId,
-						CountDataStatistics.STATS_TYPE);
+						CountDataStatistics.STATS_TYPE).next();
 		assertEquals(
 				2,
 				countStats.getCount());
@@ -545,7 +545,7 @@ public class DeleteWriterTest
 		CountDataStatistics countStats = (CountDataStatistics) statsStore
 				.getDataStatistics(
 						internalAdapterId,
-						CountDataStatistics.STATS_TYPE);
+						CountDataStatistics.STATS_TYPE).next();
 		assertEquals(
 				3,
 				countStats.getCount());
@@ -601,7 +601,7 @@ public class DeleteWriterTest
 		countStats = (CountDataStatistics) statsStore
 				.getDataStatistics(
 						internalAdapterId,
-						CountDataStatistics.STATS_TYPE);
+						CountDataStatistics.STATS_TYPE).next();
 
 		assertEquals(
 				2,

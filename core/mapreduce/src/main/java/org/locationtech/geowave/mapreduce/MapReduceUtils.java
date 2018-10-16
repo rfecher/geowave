@@ -21,15 +21,14 @@ public class MapReduceUtils
 {
 	public static List<String> idsFromAdapters(
 			final List<DataTypeAdapter<Object>> adapters ) {
-		return Lists
-				.transform(
-						adapters,
-						new Function<DataTypeAdapter<Object>, String>() {
-							@Override
-							public String apply(
-									final DataTypeAdapter<Object> adapter ) {
-								return adapter == null ? "" : adapter.getTypeName();
-							}
-						});
+		return Lists.transform(
+				adapters,
+				new Function<DataTypeAdapter<Object>, String>() {
+					@Override
+					public String apply(
+							final DataTypeAdapter<Object> adapter ) {
+						return adapter == null ? "" : adapter.getTypeName();
+					}
+				});
 	}
 }

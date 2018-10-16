@@ -87,8 +87,7 @@ public class GeoWaveInputSplit extends
 			final int indexNameLength = in.readInt();
 			final byte[] indexNameBytes = new byte[indexNameLength];
 			in.readFully(indexNameBytes);
-			final String indexName =StringUtils.stringFromBinary(
-					indexNameBytes);
+			final String indexName = StringUtils.stringFromBinary(indexNameBytes);
 			final SplitInfo si = new SplitInfo();
 			si.readFields(in);
 			splitInfo.put(

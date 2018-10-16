@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
+import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.DeleteCallback;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
@@ -70,19 +71,15 @@ public class DuplicateEntryCount<T> extends
 
 	@Override
 	public byte[] toBinary() {
-		final ByteBuffer buf = super.binaryBuffer(
-				8);
-		buf
-				.putLong(
-						entriesWithDuplicates);
+		final ByteBuffer buf = super.binaryBuffer(8);
+		buf.putLong(entriesWithDuplicates);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buf = super.binaryBuffer(bytes);
 		entriesWithDuplicates = buf.getLong();
 	}
 
@@ -91,8 +88,7 @@ public class DuplicateEntryCount<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		if (kvs.length > 0) {
-			if (entryHasDuplicates(
-					kvs[0])) {
+			if (entryHasDuplicates(kvs[0])) {
 				entriesWithDuplicates++;
 			}
 		}
@@ -109,12 +105,9 @@ public class DuplicateEntryCount<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		if (kvs.length > 0) {
-			if (entryHasDuplicates(
-					kvs[0])) {
-				if (ids
-						.add(
-								new ByteArrayId(
-										kvs[0].getDataId()))) {
+			if (entryHasDuplicates(kvs[0])) {
+				if (ids.add(new ByteArrayId(
+						kvs[0].getDataId()))) {
 					entriesWithDuplicates--;
 				}
 			}
@@ -141,19 +134,22 @@ public class DuplicateEntryCount<T> extends
 			final String... authorizations ) {
 		DuplicateEntryCount combinedDuplicateCount = null;
 		for (final short adapterId : adapterIdsToQuery) {
-			final DuplicateEntryCount adapterVisibilityCount = (DuplicateEntryCount) statisticsStore
+			try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> adapterVisibilityCountIt = statisticsStore
 					.getDataStatistics(
 							adapterId,
 							index.getName(),
 							STATS_TYPE,
-							authorizations);
-			if (combinedDuplicateCount == null) {
-				combinedDuplicateCount = adapterVisibilityCount;
-			}
-			else {
-				combinedDuplicateCount
-						.merge(
-								adapterVisibilityCount);
+							authorizations)) {
+				if (adapterVisibilityCountIt.hasNext()) {
+					final DuplicateEntryCount adapterVisibilityCount = (DuplicateEntryCount) adapterVisibilityCountIt
+							.next();
+					if (combinedDuplicateCount == null) {
+						combinedDuplicateCount = adapterVisibilityCount;
+					}
+					else {
+						combinedDuplicateCount.merge(adapterVisibilityCount);
+					}
+				}
 			}
 		}
 		return combinedDuplicateCount;
@@ -171,8 +167,6 @@ public class DuplicateEntryCount<T> extends
 
 	@Override
 	protected Object resultsValue() {
-		return Long
-				.toString(
-						entriesWithDuplicates);
+		return Long.toString(entriesWithDuplicates);
 	}
 }

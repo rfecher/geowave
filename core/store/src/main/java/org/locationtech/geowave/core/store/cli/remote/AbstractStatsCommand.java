@@ -88,7 +88,8 @@ public abstract class AbstractStatsCommand<T> extends
 					LOGGER.error("Unknown adapter " + adapterId);
 					final StringBuffer buffer = new StringBuffer();
 					for (String t : internalAdapterStore.getTypeNames()) {
-						buffer.append(t).append(
+						buffer.append(
+								t).append(
 								' ');
 					}
 					LOGGER.info("Available data types: " + buffer.toString());
@@ -103,8 +104,7 @@ public abstract class AbstractStatsCommand<T> extends
 								inputStoreOptions,
 								adapter,
 								statsOptions)) {
-							LOGGER.info("Unable to calculate statistics for data type: "
-									+ adapter.getTypeName());
+							LOGGER.info("Unable to calculate statistics for data type: " + adapter.getTypeName());
 						}
 					}
 				}

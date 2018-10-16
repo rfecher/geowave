@@ -13,7 +13,7 @@ package org.locationtech.geowave.core.geotime.store.query;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -47,7 +47,7 @@ public class IndexOnlySpatialQuery extends
 	}
 
 	@Override
-	protected DistributableQueryFilter createQueryFilter(
+	protected QueryFilter createQueryFilter(
 			final MultiDimensionalNumericData constraints,
 			final NumericDimensionField<?>[] orderedConstrainedDimensionFields,
 			final NumericDimensionField<?>[] unconstrainedDimensionDefinitions,

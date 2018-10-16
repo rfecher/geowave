@@ -20,8 +20,10 @@ import org.locationtech.geowave.core.store.index.CommonIndexModel;
 public class InternalDataAdapterWrapper<T> implements
 		InternalDataAdapter<T>
 {
-	private final DataTypeAdapter<T> adapter;
-	private final short adapterId;
+	private DataTypeAdapter<T> adapter;
+	private short adapterId;
+
+	public InternalDataAdapterWrapper() {}
 
 	public InternalDataAdapterWrapper(
 			final DataTypeAdapter<T> adapter,
@@ -33,9 +35,7 @@ public class InternalDataAdapterWrapper<T> implements
 	@Override
 	public FieldWriter<T, Object> getWriter(
 			final String fieldName ) {
-		return adapter
-				.getWriter(
-						fieldName);
+		return adapter.getWriter(fieldName);
 	}
 
 	@Override
@@ -51,17 +51,13 @@ public class InternalDataAdapterWrapper<T> implements
 	@Override
 	public FieldReader<Object> getReader(
 			final String fieldName ) {
-		return adapter
-				.getReader(
-						fieldName);
+		return adapter.getReader(fieldName);
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		adapter
-				.fromBinary(
-						bytes);
+		adapter.fromBinary(bytes);
 	}
 
 	@Override
@@ -72,32 +68,26 @@ public class InternalDataAdapterWrapper<T> implements
 	@Override
 	public ByteArrayId getDataId(
 			final T entry ) {
-		return adapter
-				.getDataId(
-						entry);
+		return adapter.getDataId(entry);
 	}
 
 	@Override
 	public T decode(
 			final IndexedAdapterPersistenceEncoding data,
 			final Index index ) {
-		return adapter
-				.decode(
-						data,
-						index);
+		return adapter.decode(
+				data,
+				index);
 	}
 
 	@Override
 	public AdapterPersistenceEncoding encode(
 			final T entry,
 			final CommonIndexModel indexModel ) {
-		final AdapterPersistenceEncoding retVal = adapter
-				.encode(
-						entry,
-						indexModel);
-		retVal
-				.setInternalAdapterId(
-						adapterId);
+		final AdapterPersistenceEncoding retVal = adapter.encode(
+				entry,
+				indexModel);
+		retVal.setInternalAdapterId(adapterId);
 		return retVal;
 	}
 
@@ -105,20 +95,18 @@ public class InternalDataAdapterWrapper<T> implements
 	public int getPositionOfOrderedField(
 			final CommonIndexModel model,
 			final String fieldName ) {
-		return adapter
-				.getPositionOfOrderedField(
-						model,
-						fieldName);
+		return adapter.getPositionOfOrderedField(
+				model,
+				fieldName);
 	}
 
 	@Override
 	public String getFieldNameForPosition(
 			final CommonIndexModel model,
 			final int position ) {
-		return adapter
-				.getFieldNameForPosition(
-						model,
-						position);
+		return adapter.getFieldNameForPosition(
+				model,
+				position);
 	}
 
 	@Override

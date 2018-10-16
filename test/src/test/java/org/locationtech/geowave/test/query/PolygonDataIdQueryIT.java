@@ -29,9 +29,10 @@ import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.api.Writer;
-import org.locationtech.geowave.core.store.api.QueryOptions;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
 import org.locationtech.geowave.test.GeoWaveITRunner;
@@ -51,12 +52,16 @@ import com.vividsolutions.jts.geom.Geometry;
 public class PolygonDataIdQueryIT extends
 		AbstractGeoWaveIT
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PolygonDataIdQueryIT.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(
+					PolygonDataIdQueryIT.class);
 	private static SimpleFeatureType simpleFeatureType;
 	private static FeatureDataAdapter dataAdapter;
 	private static final String GEOMETRY_ATTRIBUTE = "geometry";
 	private static final String DATA_ID = "dataId";
-	private static Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+	private static Index index = new SpatialDimensionalityTypeProvider()
+			.createIndex(
+					new SpatialOptions());
 
 	@GeoWaveTestStore({
 		GeoWaveStoreType.ACCUMULO,
@@ -75,21 +80,31 @@ public class PolygonDataIdQueryIT extends
 
 	@Test
 	public void testPolygonDataIdQueryResults() {
-		final CloseableIterator<SimpleFeature> matches = dataStore.createDataStore().query(
-				new QueryOptions(
-						dataAdapter,
-						TestUtils.DEFAULT_SPATIAL_INDEX),
-				new DataIdQuery(
-						new ByteArrayId(
-								StringUtils.stringToBinary(DATA_ID))));
+		final CloseableIterator<SimpleFeature> matches = (CloseableIterator) dataStore
+				.createDataStore()
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										dataAdapter.getTypeName())
+								.indexName(
+										TestUtils.DEFAULT_SPATIAL_INDEX.getName())
+								.constraints(
+										new DataIdQuery(
+												new ByteArrayId(
+														StringUtils
+																.stringToBinary(
+																		DATA_ID))))
+								.build());
 		int numResults = 0;
 		while (matches.hasNext()) {
 			matches.next();
 			numResults++;
 		}
-		Assert.assertTrue(
-				"Expected 1 result, but returned " + numResults,
-				numResults == 1);
+		Assert
+				.assertTrue(
+						"Expected 1 result, but returned " + numResults,
+						numResults == 1);
 	}
 
 	@BeforeClass
@@ -98,51 +113,87 @@ public class PolygonDataIdQueryIT extends
 		simpleFeatureType = getSimpleFeatureType();
 		dataAdapter = new FeatureDataAdapter(
 				simpleFeatureType);
-		dataAdapter.init(index);
+		dataAdapter
+				.init(
+						index);
 
 		startMillis = System.currentTimeMillis();
-		LOGGER.warn("-----------------------------------------");
-		LOGGER.warn("*                                       *");
-		LOGGER.warn("*         RUNNING PolygonDataIdQueryIT  *");
-		LOGGER.warn("*                                       *");
-		LOGGER.warn("-----------------------------------------");
+		LOGGER
+				.warn(
+						"-----------------------------------------");
+		LOGGER
+				.warn(
+						"*                                       *");
+		LOGGER
+				.warn(
+						"*         RUNNING PolygonDataIdQueryIT  *");
+		LOGGER
+				.warn(
+						"*                                       *");
+		LOGGER
+				.warn(
+						"-----------------------------------------");
 	}
 
 	@AfterClass
 	public static void reportTest() {
-		LOGGER.warn("-----------------------------------------");
-		LOGGER.warn("*                                       *");
-		LOGGER.warn("*      FINISHED PolygonDataIdQueryIT    *");
 		LOGGER
-				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-						+ "s elapsed.                 *");
-		LOGGER.warn("*                                       *");
-		LOGGER.warn("-----------------------------------------");
+				.warn(
+						"-----------------------------------------");
+		LOGGER
+				.warn(
+						"*                                       *");
+		LOGGER
+				.warn(
+						"*      FINISHED PolygonDataIdQueryIT    *");
+		LOGGER
+				.warn(
+						"*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+								+ "s elapsed.                 *");
+		LOGGER
+				.warn(
+						"*                                       *");
+		LOGGER
+				.warn(
+						"-----------------------------------------");
 	}
 
 	@Before
 	public void ingestSampleData()
 			throws IOException {
+		final DataStore store = dataStore.createDataStore();
+		store
+				.addType(
+						dataAdapter);
+		store
+				.addIndex(
+						dataAdapter.getTypeName(),
+						TestUtils.DEFAULT_SPATIAL_INDEX);
 		try (@SuppressWarnings("unchecked")
-		Writer writer = dataStore.createDataStore().createWriter(
-				dataAdapter,
-				TestUtils.DEFAULT_SPATIAL_INDEX)) {
-			writer.write(buildSimpleFeature(
-					DATA_ID,
-					GeometryUtils.GEOMETRY_FACTORY.createPolygon(new Coordinate[] {
-						new Coordinate(
-								1.0249,
-								1.0319),
-						new Coordinate(
-								1.0261,
-								1.0319),
-						new Coordinate(
-								1.0261,
-								1.0323),
-						new Coordinate(
-								1.0249,
-								1.0319)
-					})));
+
+		Writer writer = store
+				.createWriter(
+						dataAdapter.getTypeName())) {
+			writer
+					.write(
+							buildSimpleFeature(
+									DATA_ID,
+									GeometryUtils.GEOMETRY_FACTORY
+											.createPolygon(
+													new Coordinate[] {
+														new Coordinate(
+																1.0249,
+																1.0319),
+														new Coordinate(
+																1.0261,
+																1.0319),
+														new Coordinate(
+																1.0261,
+																1.0323),
+														new Coordinate(
+																1.0249,
+																1.0319)
+													})));
 		}
 	}
 
@@ -150,22 +201,30 @@ public class PolygonDataIdQueryIT extends
 	public void deleteSampleData()
 			throws IOException {
 
-		LOGGER.info("Deleting canned data...");
-		TestUtils.deleteAll(dataStore);
-		LOGGER.info("Delete complete.");
+		LOGGER
+				.info(
+						"Deleting canned data...");
+		TestUtils
+				.deleteAll(
+						dataStore);
+		LOGGER
+				.info(
+						"Delete complete.");
 	}
 
 	private static SimpleFeatureType getSimpleFeatureType() {
 		SimpleFeatureType type = null;
 		try {
-			type = DataUtilities.createType(
-					"data",
-					GEOMETRY_ATTRIBUTE + ":Geometry");
+			type = DataUtilities
+					.createType(
+							"data",
+							GEOMETRY_ATTRIBUTE + ":Geometry");
 		}
 		catch (final SchemaException e) {
-			LOGGER.error(
-					"Unable to create SimpleFeatureType",
-					e);
+			LOGGER
+					.error(
+							"Unable to create SimpleFeatureType",
+							e);
 		}
 		return type;
 	}
@@ -175,9 +234,12 @@ public class PolygonDataIdQueryIT extends
 			final Geometry geo ) {
 		final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(
 				simpleFeatureType);
-		builder.set(
-				GEOMETRY_ATTRIBUTE,
-				geo);
-		return builder.buildFeature(dataId);
+		builder
+				.set(
+						GEOMETRY_ATTRIBUTE,
+						geo);
+		return builder
+				.buildFeature(
+						dataId);
 	}
 }

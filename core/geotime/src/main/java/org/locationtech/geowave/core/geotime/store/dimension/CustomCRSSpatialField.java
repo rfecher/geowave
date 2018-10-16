@@ -39,12 +39,8 @@ public class CustomCRSSpatialField extends
 			final GeometryWrapper geometry ) {
 		// TODO if this can be generalized to n-dimensional that would be better
 		if (((CustomCRSSpatialDimension) baseDefinition).getAxis() == 0) {
-			return GeometryUtils
-					.xRangeFromGeometry(
-							geometry.getGeometry());
+			return GeometryUtils.xRangeFromGeometry(geometry.getGeometry());
 		}
-		return GeometryUtils
-				.yRangeFromGeometry(
-						geometry.getGeometry());
+		return GeometryUtils.yRangeFromGeometry(geometry.getGeometry());
 	}
 }

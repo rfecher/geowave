@@ -35,13 +35,10 @@ public class JobContextInternalAdapterStore implements
 	@Override
 	public String getTypeName(
 			final short adapterId ) {
-		String typeName = cache
-				.inverse()
-				.get(
-						adapterId);
+		String typeName = cache.inverse().get(
+				adapterId);
 		if (typeName == null) {
-			typeName = getTypeNameIInternal(
-					adapterId);
+			typeName = getTypeNameIInternal(adapterId);
 		}
 		return typeName;
 	}
@@ -49,20 +46,16 @@ public class JobContextInternalAdapterStore implements
 	private String getTypeNameIInternal(
 			final short adapterId ) {
 		// first try to get it from the job context
-		String typeName = getAdapterIdFromJobContext(
-				adapterId);
+		String typeName = getAdapterIdFromJobContext(adapterId);
 		if (typeName == null) {
 			// then try to get it from the persistent store
-			typeName = persistentInternalAdapterStore
-					.getTypeName(
-							adapterId);
+			typeName = persistentInternalAdapterStore.getTypeName(adapterId);
 		}
 
 		if (typeName != null) {
-			cache
-					.put(
-							typeName,
-							adapterId);
+			cache.put(
+					typeName,
+					adapterId);
 		}
 		return typeName;
 	}
@@ -70,20 +63,16 @@ public class JobContextInternalAdapterStore implements
 	private Short getAdapterIdInternal(
 			final String typeName ) {
 		// first try to get it from the job context
-		Short internalAdapterId = getAdapterIdFromJobContext(
-				typeName);
+		Short internalAdapterId = getAdapterIdFromJobContext(typeName);
 		if (internalAdapterId == null) {
 			// then try to get it from the persistent store
-			internalAdapterId = persistentInternalAdapterStore
-					.getAdapterId(
-							typeName);
+			internalAdapterId = persistentInternalAdapterStore.getAdapterId(typeName);
 		}
 
 		if (internalAdapterId != null) {
-			cache
-					.put(
-							typeName,
-							internalAdapterId);
+			cache.put(
+					typeName,
+					internalAdapterId);
 		}
 		return internalAdapterId;
 	}
@@ -91,72 +80,58 @@ public class JobContextInternalAdapterStore implements
 	@Override
 	public Short getAdapterId(
 			final String typeName ) {
-		Short internalAdapterId = cache
-				.get(
-						typeName);
+		Short internalAdapterId = cache.get(typeName);
 		if (internalAdapterId == null) {
-			internalAdapterId = getAdapterIdInternal(
-					typeName);
+			internalAdapterId = getAdapterIdInternal(typeName);
 		}
 		return internalAdapterId;
 	}
 
 	protected Short getAdapterIdFromJobContext(
 			final String typeName ) {
-		return GeoWaveConfiguratorBase
-				.getAdapterId(
-						CLASS,
-						context,
-						typeName);
+		return GeoWaveConfiguratorBase.getAdapterId(
+				CLASS,
+				context,
+				typeName);
 	}
 
 	protected String getAdapterIdFromJobContext(
 			final short internalAdapterId ) {
-		return GeoWaveConfiguratorBase
-				.getTypeName(
-						CLASS,
-						context,
-						internalAdapterId);
+		return GeoWaveConfiguratorBase.getTypeName(
+				CLASS,
+				context,
+				internalAdapterId);
 	}
 
 	@Override
 	public short addTypeName(
 			final String typeName ) {
-		return persistentInternalAdapterStore
-				.addTypeName(
-						typeName);
+		return persistentInternalAdapterStore.addTypeName(typeName);
 	}
 
 	@Override
 	public boolean remove(
 			final String typeName ) {
-		return persistentInternalAdapterStore
-				.remove(
-						typeName);
+		return persistentInternalAdapterStore.remove(typeName);
 	}
 
 	public static void addTypeName(
 			final Configuration configuration,
 			final String typeName,
 			final short adapterId ) {
-		GeoWaveConfiguratorBase
-				.addTypeName(
-						CLASS,
-						configuration,
-						typeName,
-						adapterId);
+		GeoWaveConfiguratorBase.addTypeName(
+				CLASS,
+				configuration,
+				typeName,
+				adapterId);
 	}
 
 	@Override
 	public boolean remove(
 			final short adapterId ) {
-		cache
-				.inverse()
-				.remove(
-						adapterId);
-		return persistentInternalAdapterStore
-				.remove(
-						adapterId);
+		cache.inverse().remove(
+				adapterId);
+		return persistentInternalAdapterStore.remove(adapterId);
 	}
 
 	@Override

@@ -17,9 +17,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class SpatialTemporalConstraintsBuilderImpl implements
 		SpatialTemporalConstraintsBuilder
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					SpatialTemporalConstraintsBuilderImpl.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(SpatialTemporalConstraintsBuilderImpl.class);
 	private String crsCode;
 	private Geometry geometry;
 	private CompareOperation spatialCompareOp;
@@ -65,24 +63,17 @@ public class SpatialTemporalConstraintsBuilderImpl implements
 	public SpatialTemporalConstraintsBuilder addTimeRange(
 			final Date startTime,
 			final Date endTime ) {
-		return addTimeRange(
-				Interval
-						.of(
-								Instant
-										.ofEpochMilli(
-												startTime.getTime()),
-								Instant
-										.ofEpochMilli(
-												endTime.getTime())));
+		return addTimeRange(Interval.of(
+				Instant.ofEpochMilli(startTime.getTime()),
+				Instant.ofEpochMilli(endTime.getTime())));
 	}
 
 	@Override
 	public SpatialTemporalConstraintsBuilder addTimeRange(
 			final Interval timeRange ) {
-		ArrayUtils
-				.add(
-						timeRanges,
-						timeRange);
+		ArrayUtils.add(
+				timeRanges,
+				timeRange);
 		return this;
 	}
 
@@ -99,15 +90,11 @@ public class SpatialTemporalConstraintsBuilderImpl implements
 	@Override
 	public QueryConstraints build() {
 		if ((crsCode != null) && (geometry == null)) {
-			LOGGER
-					.warn(
-							"CRS code `" + crsCode + "` cannot be applied without a geometry.  Ignoring CRS.");
+			LOGGER.warn("CRS code `" + crsCode + "` cannot be applied without a geometry.  Ignoring CRS.");
 		}
 		if ((spatialCompareOp != null) && (geometry == null)) {
-			LOGGER
-					.warn(
-							"Spatial compare operator `" + spatialCompareOp.name()
-									+ "` cannot be applied without a geometry.  Ignoring compare operator.");
+			LOGGER.warn("Spatial compare operator `" + spatialCompareOp.name()
+					+ "` cannot be applied without a geometry.  Ignoring compare operator.");
 		}
 		if (geometry != null) {
 			// its at least spatial

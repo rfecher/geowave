@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -21,8 +21,8 @@ import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
-import org.locationtech.geowave.core.store.query.filter.DistributableFilterList;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.FilterList;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,9 +97,9 @@ public abstract class BaseSecondaryIndexDataStore implements
 		}
 	}
 
-	protected static DistributableQueryFilter getFilter(
-			final List<DistributableQueryFilter> constraints ) {
-		final DistributableQueryFilter filter;
+	protected static QueryFilter getFilter(
+			final List<QueryFilter> constraints ) {
+		final QueryFilter filter;
 		if (constraints.isEmpty()) {
 			filter = null;
 		}
@@ -107,7 +107,7 @@ public abstract class BaseSecondaryIndexDataStore implements
 			filter = constraints.get(0);
 		}
 		else {
-			filter = new DistributableFilterList(
+			filter = new FilterList(
 					false,
 					constraints);
 		}

@@ -75,9 +75,7 @@ public class LocalIngestRunData implements
 					return false;
 				}
 			}
-			else if (!typeName
-					.equals(
-							other.typeName)) {
+			else if (!typeName.equals(other.typeName)) {
 				return false;
 			}
 			return true;
@@ -96,23 +94,17 @@ public class LocalIngestRunData implements
 		indexWriterPool = new GenericKeyedObjectPool<>(
 				new IndexWriterFactory());
 		adapterStore = new MemoryAdapterStore(
-				adapters
-						.toArray(
-								new DataTypeAdapter[0]));
+				adapters.toArray(new DataTypeAdapter[0]));
 	}
 
 	public DataTypeAdapter<?> getDataAdapter(
 			final GeoWaveData<?> data ) {
-		return data
-				.getAdapter(
-						adapterStore);
+		return data.getAdapter(adapterStore);
 	}
 
 	public void addAdapter(
 			final DataTypeAdapter<?> adapter ) {
-		adapterStore
-				.addAdapter(
-						adapter);
+		adapterStore.addAdapter(adapter);
 	}
 
 	/**
@@ -128,13 +120,9 @@ public class LocalIngestRunData implements
 			final String typeName,
 			final List<Index> indices )
 			throws Exception {
-		return indexWriterPool
-				.borrowObject(
-						new TypeNameKeyWithIndices(
-								typeName,
-								indices
-										.toArray(
-												new Index[0])));
+		return indexWriterPool.borrowObject(new TypeNameKeyWithIndices(
+				typeName,
+				indices.toArray(new Index[0])));
 	}
 
 	/**
@@ -149,12 +137,11 @@ public class LocalIngestRunData implements
 			final String typeName,
 			final Writer writer )
 			throws Exception {
-		indexWriterPool
-				.returnObject(
-						new TypeNameKeyWithIndices(
-								typeName,
-								new Index[0]),
-						writer);
+		indexWriterPool.returnObject(
+				new TypeNameKeyWithIndices(
+						typeName,
+						new Index[0]),
+				writer);
 	}
 
 	@Override
@@ -175,18 +162,11 @@ public class LocalIngestRunData implements
 		public Writer<?> create(
 				final TypeNameKeyWithIndices adapterWithIndices )
 				throws Exception {
-			dataStore
-					.addType(
-							adapterStore
-									.getAdapter(
-											adapterWithIndices.typeName));
-			dataStore
-					.addIndex(
-							adapterWithIndices.typeName,
-							adapterWithIndices.indices);
-			return dataStore
-					.createWriter(
-							adapterWithIndices.typeName);
+			dataStore.addType(adapterStore.getAdapter(adapterWithIndices.typeName));
+			dataStore.addIndex(
+					adapterWithIndices.typeName,
+					adapterWithIndices.indices);
+			return dataStore.createWriter(adapterWithIndices.typeName);
 		}
 
 		@Override

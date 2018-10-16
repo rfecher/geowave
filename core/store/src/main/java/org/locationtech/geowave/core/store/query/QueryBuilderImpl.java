@@ -22,10 +22,9 @@ public class QueryBuilderImpl<T, R extends QueryBuilder<T, R>> extends
 	public R addTypeName(
 			final String typeName ) {
 		if ((fieldNames == null) || (fieldNames.length == 0)) {
-			ArrayUtils
-					.add(
-							typeNames,
-							typeName);
+			ArrayUtils.add(
+					typeNames,
+					typeName);
 		}
 		else {
 			throw new IllegalStateException(
@@ -75,9 +74,8 @@ public class QueryBuilderImpl<T, R extends QueryBuilder<T, R>> extends
 	protected FilterByTypeQueryOptions<T> newFilterByTypeQueryOptions() {
 		return typeNames.length == 1 ? new FilterByTypeQueryOptions<>(
 				typeNames[0],
-				fieldNames)
-				: new FilterByTypeQueryOptions<>(
-						typeNames);
+				fieldNames) : new FilterByTypeQueryOptions<>(
+				typeNames);
 	}
 
 	@Override

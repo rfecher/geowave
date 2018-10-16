@@ -42,8 +42,7 @@ import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregatio
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.filter.CoordinateRangeQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.DedupeFilter;
-import org.locationtech.geowave.core.store.query.filter.DistributableFilterList;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.FilterList;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 
@@ -57,14 +56,12 @@ public class BaseConstraintsQuery extends
 		BaseFilteredIndexQuery
 {
 
-	private final static Logger LOGGER = Logger
-			.getLogger(
-					BaseConstraintsQuery.class);
+	private final static Logger LOGGER = Logger.getLogger(BaseConstraintsQuery.class);
 	private boolean queryFiltersEnabled;
 
 	public final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation;
 	public final List<MultiDimensionalNumericData> constraints;
-	public final List<DistributableQueryFilter> distributableFilters;
+	public final List<QueryFilter> distributableFilters;
 
 	public final IndexMetaData[] indexMetaData;
 	private final Index index;
@@ -85,14 +82,8 @@ public class BaseConstraintsQuery extends
 		this(
 				adapterIds,
 				index,
-				query != null ? query
-						.getIndexConstraints(
-								index)
-						: null,
-				query != null ? query
-						.createFilters(
-								index)
-						: null,
+				query != null ? query.getIndexConstraints(index) : null,
+				query != null ? query.createFilters(index) : null,
 				clientDedupeFilter,
 				scanCallback,
 				aggregation,
@@ -130,17 +121,14 @@ public class BaseConstraintsQuery extends
 		this.aggregation = aggregation;
 		this.indexMetaData = indexMetaData != null ? indexMetaData : new IndexMetaData[] {};
 		this.index = index;
-		final SplitFilterLists lists = splitList(
-				queryFilters);
+		final SplitFilterLists lists = splitList(queryFilters);
 		final List<QueryFilter> clientFilters = lists.clientFilters;
 		if ((duplicateCounts != null) && !duplicateCounts.isAnyEntryHaveDuplicates()) {
 			clientDedupeFilter = null;
 		}
 		distributableFilters = lists.distributableFilters;
 		if (clientDedupeFilter != null) {
-			clientFilters
-					.add(
-							clientDedupeFilter);
+			clientFilters.add(clientDedupeFilter);
 		}
 		this.clientFilters = clientFilters;
 
@@ -148,20 +136,18 @@ public class BaseConstraintsQuery extends
 	}
 
 	@Override
-	public DistributableQueryFilter getServerFilter(
+	public QueryFilter getServerFilter(
 			final DataStoreOptions options ) {
 		// TODO GEOWAVE-1018 is options necessary? is this correct?
 		if ((distributableFilters == null) || distributableFilters.isEmpty()) {
 			return null;
 		}
 		else if (distributableFilters.size() > 1) {
-			return new DistributableFilterList(
+			return new FilterList(
 					distributableFilters);
 		}
 		else {
-			return distributableFilters
-					.get(
-							0);
+			return distributableFilters.get(0);
 		}
 	}
 
@@ -199,10 +185,9 @@ public class BaseConstraintsQuery extends
 						limit,
 						queryMaxRangeDecomposition,
 						false);
-				return BaseDataStoreUtils
-						.aggregate(
-								it,
-								(Aggregation<?, ?, Object>) aggregation.getValue());
+				return BaseDataStoreUtils.aggregate(
+						it,
+						(Aggregation<?, ?, Object>) aggregation.getValue());
 			}
 			else {
 				// the aggregation is run server-side use the reader to
@@ -214,16 +199,11 @@ public class BaseConstraintsQuery extends
 				// still won't be effective and the aggregation will return
 				// incorrect results
 				if (!clientFilters.isEmpty()) {
-					final QueryFilter f = clientFilters
-							.get(
-									clientFilters.size() - 1);
+					final QueryFilter f = clientFilters.get(clientFilters.size() - 1);
 					if (f instanceof DedupeFilter) {
-						distributableFilters
-								.add(
-										(DedupeFilter) f);
+						distributableFilters.add(f);
 						LOGGER
-								.warn(
-										"Aggregating results when duplicates exist in the table may result in duplicate aggregation");
+								.warn("Aggregating results when duplicates exist in the table may result in duplicate aggregation");
 					}
 				}
 				try (final RowReader<GeoWaveRow> reader = getReader(
@@ -247,31 +227,24 @@ public class BaseConstraintsQuery extends
 							for (final GeoWaveValue value : row.getFieldValues()) {
 								if ((value.getValue() != null) && (value.getValue().length > 0)) {
 									if (mergedAggregationResult == null) {
-										mergedAggregationResult = (Mergeable) PersistenceUtils
-												.fromBinary(
-														value.getValue());
+										mergedAggregationResult = (Mergeable) PersistenceUtils.fromBinary(value
+												.getValue());
 									}
 									else {
-										mergedAggregationResult
-												.merge(
-														(Mergeable) PersistenceUtils
-																.fromBinary(
-																		value.getValue()));
+										mergedAggregationResult.merge((Mergeable) PersistenceUtils.fromBinary(value
+												.getValue()));
 									}
 								}
 							}
 						}
 						return new CloseableIterator.Wrapper<>(
-								Iterators
-										.singletonIterator(
-												mergedAggregationResult));
+								Iterators.singletonIterator(mergedAggregationResult));
 					}
 				}
 				catch (final Exception e) {
-					LOGGER
-							.warn(
-									"Unable to close reader for aggregation",
-									e);
+					LOGGER.warn(
+							"Unable to close reader for aggregation",
+							e);
 				}
 			}
 		}
@@ -298,31 +271,23 @@ public class BaseConstraintsQuery extends
 		}
 		// add a index filter to the front of the list if there isn't already a
 		// filter
-		if (distributableFilters.isEmpty() || ((distributableFilters.size() == 1) && (distributableFilters
-				.get(
-						0) instanceof DedupeFilter))) {
+		if (distributableFilters.isEmpty()
+				|| ((distributableFilters.size() == 1) && (distributableFilters.get(0) instanceof DedupeFilter))) {
 			final List<MultiDimensionalCoordinateRangesArray> coords = getCoordinateRanges();
 			if (!coords.isEmpty()) {
-				clientFilters
-						.add(
-								0,
-								new CoordinateRangeQueryFilter(
-										index.getIndexStrategy(),
-										coords
-												.toArray(
-														new MultiDimensionalCoordinateRangesArray[] {})));
+				clientFilters.add(
+						0,
+						new CoordinateRangeQueryFilter(
+								index.getIndexStrategy(),
+								coords.toArray(new MultiDimensionalCoordinateRangesArray[] {})));
 			}
 		}
 		else {
 			// Without custom filters, we need all the filters on the client
 			// side
 			for (final QueryFilter distributable : distributableFilters) {
-				if (!clientFilters
-						.contains(
-								distributable)) {
-					clientFilters
-							.add(
-									distributable);
+				if (!clientFilters.contains(distributable)) {
+					clientFilters.add(distributable);
 				}
 			}
 		}
@@ -353,13 +318,10 @@ public class BaseConstraintsQuery extends
 			final NumericIndexStrategy indexStrategy = index.getIndexStrategy();
 			final List<MultiDimensionalCoordinateRangesArray> ranges = new ArrayList<>();
 			for (final MultiDimensionalNumericData nd : constraints) {
-				ranges
-						.add(
-								new MultiDimensionalCoordinateRangesArray(
-										indexStrategy
-												.getCoordinateRangesPerDimension(
-														nd,
-														indexMetaData)));
+				ranges.add(new MultiDimensionalCoordinateRangesArray(
+						indexStrategy.getCoordinateRangesPerDimension(
+								nd,
+								indexMetaData)));
 			}
 			return ranges;
 		}
@@ -369,18 +331,17 @@ public class BaseConstraintsQuery extends
 	protected QueryRanges getRanges(
 			final int maxRangeDecomposition,
 			final double[] targetResolutionPerDimensionForHierarchicalIndex ) {
-		return DataStoreUtils
-				.constraintsToQueryRanges(
-						constraints,
-						index.getIndexStrategy(),
-						targetResolutionPerDimensionForHierarchicalIndex,
-						maxRangeDecomposition,
-						indexMetaData);
+		return DataStoreUtils.constraintsToQueryRanges(
+				constraints,
+				index.getIndexStrategy(),
+				targetResolutionPerDimensionForHierarchicalIndex,
+				maxRangeDecomposition,
+				indexMetaData);
 	}
 
 	private SplitFilterLists splitList(
 			final List<QueryFilter> allFilters ) {
-		final List<DistributableQueryFilter> distributableFilters = new ArrayList<>();
+		final List<QueryFilter> distributableFilters = new ArrayList<>();
 		final List<QueryFilter> clientFilters = new ArrayList<>();
 		if ((allFilters == null) || allFilters.isEmpty()) {
 			return new SplitFilterLists(
@@ -388,15 +349,11 @@ public class BaseConstraintsQuery extends
 					clientFilters);
 		}
 		for (final QueryFilter filter : allFilters) {
-			if (filter instanceof DistributableQueryFilter) {
-				distributableFilters
-						.add(
-								(DistributableQueryFilter) filter);
+			if (filter instanceof QueryFilter) {
+				distributableFilters.add(filter);
 			}
 			else {
-				clientFilters
-						.add(
-								filter);
+				clientFilters.add(filter);
 			}
 		}
 		return new SplitFilterLists(
@@ -406,11 +363,11 @@ public class BaseConstraintsQuery extends
 
 	private static class SplitFilterLists
 	{
-		private final List<DistributableQueryFilter> distributableFilters;
+		private final List<QueryFilter> distributableFilters;
 		private final List<QueryFilter> clientFilters;
 
 		public SplitFilterLists(
-				final List<DistributableQueryFilter> distributableFilters,
+				final List<QueryFilter> distributableFilters,
 				final List<QueryFilter> clientFilters ) {
 			this.distributableFilters = distributableFilters;
 			this.clientFilters = clientFilters;

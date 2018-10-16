@@ -399,7 +399,8 @@ public abstract class AbstractGeoWavePersistence<T extends Persistable>
 		}
 		try (final MetadataDeleter deleter = operations.createMetadataDeleter(type)) {
 			if (primaryId != null) {
-				//TODO look at issue #1443, this should delete multiple - also in general does this delete from the cache???
+				// TODO look at issue #1443, this should delete multiple - also
+				// in general does this delete from the cache???
 				return deleter.delete(new MetadataQuery(
 						primaryId.getBytes(),
 						secondaryId != null ? secondaryId.getBytes() : null,

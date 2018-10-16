@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -24,10 +24,6 @@ import org.locationtech.geowave.core.index.sfc.data.NumericRange;
 import org.locationtech.geowave.core.index.sfc.data.NumericValue;
 import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
 import org.locationtech.geowave.core.store.query.BasicQueryTest;
-import org.locationtech.geowave.core.store.query.filter.BasicQueryFilter;
-import org.locationtech.geowave.core.store.query.filter.DedupeFilter;
-import org.locationtech.geowave.core.store.query.filter.DistributableFilterList;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.BasicQueryFilter.BasicQueryCompareOperation;
 
 public class DistributedQueryFilterTest
@@ -35,7 +31,7 @@ public class DistributedQueryFilterTest
 
 	@Test
 	public void test() {
-		List<DistributableQueryFilter> filters = new ArrayList<DistributableQueryFilter>();
+		List<QueryFilter> filters = new ArrayList<>();
 		filters.add(new BasicQueryFilter(
 				new BasicNumericDataset(
 						new NumericData[] {
@@ -47,7 +43,7 @@ public class DistributedQueryFilterTest
 				},
 				BasicQueryCompareOperation.CONTAINS));
 		filters.add(new DedupeFilter());
-		DistributableFilterList list = new DistributableFilterList(
+		FilterList list = new FilterList(
 				false,
 				filters);
 		list.fromBinary(list.toBinary());
@@ -64,7 +60,7 @@ public class DistributedQueryFilterTest
 									0.4)
 						}));
 
-		filters = new ArrayList<DistributableQueryFilter>();
+		filters = new ArrayList<>();
 		filters.add(new BasicQueryFilter(
 				new BasicNumericDataset(
 						new NumericData[] {
@@ -76,7 +72,7 @@ public class DistributedQueryFilterTest
 				},
 				BasicQueryCompareOperation.INTERSECTS));
 		filters.add(new DedupeFilter());
-		list = new DistributableFilterList(
+		list = new FilterList(
 				true,
 				filters);
 		list.fromBinary(list.toBinary());

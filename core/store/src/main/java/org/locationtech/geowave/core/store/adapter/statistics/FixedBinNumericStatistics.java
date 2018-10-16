@@ -95,32 +95,23 @@ public abstract class FixedBinNumericStatistics<T> extends
 
 	public double[] quantile(
 			final int bins ) {
-		return histogram
-				.quantile(
-						bins);
+		return histogram.quantile(bins);
 	}
 
 	public double cdf(
 			final double val ) {
-		return histogram
-				.cdf(
-						val);
+		return histogram.cdf(val);
 	}
 
 	public double quantile(
 			final double percentage ) {
-		return histogram
-				.quantile(
-						percentage);
+		return histogram.quantile(percentage);
 	}
 
 	public double percentPopulationOverRange(
 			final double start,
 			final double stop ) {
-		return cdf(
-				stop)
-				- cdf(
-						start);
+		return cdf(stop) - cdf(start);
 	}
 
 	public long totalSampleSize() {
@@ -129,9 +120,7 @@ public abstract class FixedBinNumericStatistics<T> extends
 
 	public long[] count(
 			final int binSize ) {
-		return histogram
-				.count(
-						binSize);
+		return histogram.count(binSize);
 	}
 
 	@Override
@@ -139,45 +128,34 @@ public abstract class FixedBinNumericStatistics<T> extends
 			final Mergeable mergeable ) {
 		if (mergeable instanceof FixedBinNumericStatistics) {
 			final FixedBinNumericStatistics tobeMerged = (FixedBinNumericStatistics) mergeable;
-			histogram
-					.merge(
-							tobeMerged.histogram);
+			histogram.merge(tobeMerged.histogram);
 		}
 	}
 
 	@Override
 	public byte[] toBinary() {
 
-		final ByteBuffer buffer = super.binaryBuffer(
-				histogram.bufferSize());
-		histogram
-				.toBinary(
-						buffer);
+		final ByteBuffer buffer = super.binaryBuffer(histogram.bufferSize());
+		histogram.toBinary(buffer);
 		final byte result[] = new byte[buffer.position()];
 		buffer.rewind();
-		buffer
-				.get(
-						result);
+		buffer.get(result);
 		return result;
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(
-				bytes);
-		histogram
-				.fromBinary(
-						buffer);
+		final ByteBuffer buffer = super.binaryBuffer(bytes);
+		histogram.fromBinary(buffer);
 	}
 
 	protected void add(
 			final long amount,
 			final double num ) {
-		this.histogram
-				.add(
-						amount,
-						num);
+		this.histogram.add(
+				amount,
+				num);
 	}
 
 	public abstract String getFieldIdentifier();
@@ -185,85 +163,42 @@ public abstract class FixedBinNumericStatistics<T> extends
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer
-				.append(
-						"histogram[adapterId=")
-				.append(
-						super.getAdapterId());
-		buffer
-				.append(
-						", identifier=")
-				.append(
-						getFieldIdentifier());
+		buffer.append(
+				"histogram[adapterId=").append(
+				super.getAdapterId());
+		buffer.append(
+				", identifier=").append(
+				getFieldIdentifier());
 		final MessageFormat mf = new MessageFormat(
 				"{0,number,#.######}");
-		buffer
-				.append(
-						", range={");
-		buffer
-				.append(
-						mf
-								.format(
-										new Object[] {
-											Double
-													.valueOf(
-															histogram.getMinValue())
-										}))
-				.append(
-						' ');
-		buffer
-				.append(
-						mf
-								.format(
-										new Object[] {
-											Double
-													.valueOf(
-															histogram.getMaxValue())
-										}));
-		buffer
-				.append(
-						"}, bins={");
-		for (final double v : this
-				.quantile(
-						10)) {
-			buffer
-					.append(
-							mf
-									.format(
-											new Object[] {
-												Double
-														.valueOf(
-																v)
-											}))
-					.append(
-							' ');
+		buffer.append(", range={");
+		buffer.append(
+				mf.format(new Object[] {
+					Double.valueOf(histogram.getMinValue())
+				})).append(
+				' ');
+		buffer.append(mf.format(new Object[] {
+			Double.valueOf(histogram.getMaxValue())
+		}));
+		buffer.append("}, bins={");
+		for (final double v : this.quantile(10)) {
+			buffer.append(
+					mf.format(new Object[] {
+						Double.valueOf(v)
+					})).append(
+					' ');
 		}
-		buffer
-				.deleteCharAt(
-						buffer.length() - 1);
-		buffer
-				.append(
-						"}, counts={");
-		for (final long v : count(
-				10)) {
-			buffer
-					.append(
-							mf
-									.format(
-											new Object[] {
-												Long
-														.valueOf(
-																v)
-											}))
-					.append(
-							' ');
+		buffer.deleteCharAt(buffer.length() - 1);
+		buffer.append("}, counts={");
+		for (final long v : count(10)) {
+			buffer.append(
+					mf.format(new Object[] {
+						Long.valueOf(v)
+					})).append(
+					' ');
 		}
-		buffer
-				.deleteCharAt(
-						buffer.length() - 1);
-		buffer
-				.append(
-						"}]");
+		buffer.deleteCharAt(buffer.length() - 1);
+		buffer.append("}]");
 		return buffer.toString();
 	}
 
@@ -276,38 +211,27 @@ public abstract class FixedBinNumericStatistics<T> extends
 	protected Object resultsValue() {
 		final Map<String, Object> value = new HashMap<>();
 
-		value
-				.put(
-						"range_min",
-						histogram.getMinValue());
-		value
-				.put(
-						"range_max",
-						histogram.getMaxValue());
+		value.put(
+				"range_min",
+				histogram.getMinValue());
+		value.put(
+				"range_max",
+				histogram.getMaxValue());
 		final Collection<Double> binsArray = new ArrayList<>();
-		for (final double v : this
-				.quantile(
-						10)) {
-			binsArray
-					.add(
-							v);
+		for (final double v : this.quantile(10)) {
+			binsArray.add(v);
 		}
-		value
-				.put(
-						"bins",
-						binsArray);
+		value.put(
+				"bins",
+				binsArray);
 
 		final Collection<Long> countsArray = new ArrayList<>();
-		for (final long v : count(
-				10)) {
-			countsArray
-					.add(
-							v);
+		for (final long v : count(10)) {
+			countsArray.add(v);
 		}
-		value
-				.put(
-						"counts",
-						countsArray);
+		value.put(
+				"counts",
+				countsArray);
 		return value;
 	}
 

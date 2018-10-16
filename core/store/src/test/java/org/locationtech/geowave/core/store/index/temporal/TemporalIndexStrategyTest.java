@@ -23,8 +23,7 @@ import org.locationtech.geowave.core.index.lexicoder.Lexicoders;
 public class TemporalIndexStrategyTest
 {
 	private final TemporalIndexStrategy strategy = new TemporalIndexStrategy();
-	private final String fieldId =
-			"fieldId";
+	private final String fieldId = "fieldId";
 	private final Date date = new Date(
 			1440080038544L);
 

@@ -49,11 +49,6 @@ abstract public class StatisticsType<R, B extends StatisticsQueryBuilder<R, B>> 
 	}
 
 	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
-
-	@Override
 	public boolean equals(
 			final Object obj ) {
 		// If all we know is the name of the stat type,
@@ -70,9 +65,8 @@ abstract public class StatisticsType<R, B extends StatisticsQueryBuilder<R, B>> 
 			return false;
 		}
 		final StatisticsType<?, ?> other = (StatisticsType<?, ?>) obj;
-		return Arrays
-				.equals(
-						id,
-						other.getBytes());
+		return Arrays.equals(
+				id,
+				other.getBytes());
 	}
 }

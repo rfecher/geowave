@@ -94,28 +94,18 @@ abstract public class BoundingBoxDataStatistics<T> extends
 
 	@Override
 	public byte[] toBinary() {
-		final ByteBuffer buffer = super.binaryBuffer(
-				32);
-		buffer
-				.putDouble(
-						minX);
-		buffer
-				.putDouble(
-						minY);
-		buffer
-				.putDouble(
-						maxX);
-		buffer
-				.putDouble(
-						maxY);
+		final ByteBuffer buffer = super.binaryBuffer(32);
+		buffer.putDouble(minX);
+		buffer.putDouble(minY);
+		buffer.putDouble(maxX);
+		buffer.putDouble(maxY);
 		return buffer.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buffer = super.binaryBuffer(bytes);
 		minX = buffer.getDouble();
 		minY = buffer.getDouble();
 		maxX = buffer.getDouble();
@@ -126,25 +116,20 @@ abstract public class BoundingBoxDataStatistics<T> extends
 	public void entryIngested(
 			final T entry,
 			final GeoWaveRow... rows ) {
-		final Envelope env = getEnvelope(
-				entry);
+		final Envelope env = getEnvelope(entry);
 		if (env != null) {
-			minX = Math
-					.min(
-							minX,
-							env.getMinX());
-			minY = Math
-					.min(
-							minY,
-							env.getMinY());
-			maxX = Math
-					.max(
-							maxX,
-							env.getMaxX());
-			maxY = Math
-					.max(
-							maxY,
-							env.getMaxY());
+			minX = Math.min(
+					minX,
+					env.getMinX());
+			minY = Math.min(
+					minY,
+					env.getMinY());
+			maxX = Math.max(
+					maxX,
+					env.getMaxX());
+			maxY = Math.max(
+					maxY,
+					env.getMaxY());
 		}
 	}
 
@@ -162,18 +147,16 @@ abstract public class BoundingBoxDataStatistics<T> extends
 		final Map<Class<? extends NumericDimensionDefinition>, ConstraintData> constraintsPerDimension = new HashMap<>();
 		// Create and return a new IndexRange array with an x and y axis
 		// range
-		constraintsPerDimension
-				.put(
-						LongitudeDefinition.class,
-						new ConstraintData(
-								rangeLongitude,
-								true));
-		constraintsPerDimension
-				.put(
-						LatitudeDefinition.class,
-						new ConstraintData(
-								rangeLatitude,
-								true));
+		constraintsPerDimension.put(
+				LongitudeDefinition.class,
+				new ConstraintData(
+						rangeLongitude,
+						true));
+		constraintsPerDimension.put(
+				LatitudeDefinition.class,
+				new ConstraintData(
+						rangeLatitude,
+						true));
 		return new ConstraintSet(
 				constraintsPerDimension);
 	}
@@ -187,22 +170,18 @@ abstract public class BoundingBoxDataStatistics<T> extends
 		if ((statistics != null) && (statistics instanceof BoundingBoxDataStatistics)) {
 			final BoundingBoxDataStatistics<T> bboxStats = (BoundingBoxDataStatistics<T>) statistics;
 			if (bboxStats.isSet()) {
-				minX = Math
-						.min(
-								minX,
-								bboxStats.minX);
-				minY = Math
-						.min(
-								minY,
-								bboxStats.minY);
-				maxX = Math
-						.max(
-								maxX,
-								bboxStats.maxX);
-				maxY = Math
-						.max(
-								maxY,
-								bboxStats.maxY);
+				minX = Math.min(
+						minX,
+						bboxStats.minX);
+				minY = Math.min(
+						minY,
+						bboxStats.minY);
+				maxX = Math.max(
+						maxX,
+						bboxStats.maxX);
+				maxY = Math.max(
+						maxY,
+						bboxStats.maxY);
 			}
 		}
 	}
@@ -210,43 +189,27 @@ abstract public class BoundingBoxDataStatistics<T> extends
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer
-				.append(
-						"bbox[internalAdapter=")
-				.append(
-						Short
-								.toString(
-										super.getAdapterId()));
+		buffer.append(
+				"bbox[internalAdapter=").append(
+				Short.toString(super.getAdapterId()));
 		if (isSet()) {
-			buffer
-					.append(
-							", minX=")
-					.append(
-							minX);
-			buffer
-					.append(
-							", maxX=")
-					.append(
-							maxX);
-			buffer
-					.append(
-							", minY=")
-					.append(
-							minY);
-			buffer
-					.append(
-							", maxY=")
-					.append(
-							maxY);
+			buffer.append(
+					", minX=").append(
+					minX);
+			buffer.append(
+					", maxX=").append(
+					maxX);
+			buffer.append(
+					", minY=").append(
+					minY);
+			buffer.append(
+					", maxY=").append(
+					maxY);
 		}
 		else {
-			buffer
-					.append(
-							", No Values");
+			buffer.append(", No Values");
 		}
-		buffer
-				.append(
-						"]");
+		buffer.append("]");
 		return buffer.toString();
 	}
 
@@ -277,22 +240,18 @@ abstract public class BoundingBoxDataStatistics<T> extends
 	protected Object resultsValue() {
 		if (isSet()) {
 			final Map<String, Double> map = new HashMap<>();
-			map
-					.put(
-							"minX",
-							minX);
-			map
-					.put(
-							"maxX",
-							maxX);
-			map
-					.put(
-							"minY",
-							minY);
-			map
-					.put(
-							"maxY",
-							maxY);
+			map.put(
+					"minX",
+					minX);
+			map.put(
+					"maxX",
+					maxX);
+			map.put(
+					"minY",
+					minY);
+			map.put(
+					"maxY",
+					maxY);
 			return map;
 		}
 		else {

@@ -39,9 +39,7 @@ public class IndexPluginOptions extends
 	public static final String INDEX_PROPERTY_NAMESPACE = "index";
 	public static final String DEFAULT_PROPERTY_NAMESPACE = "indexdefault";
 
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					IndexPluginOptions.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(IndexPluginOptions.class);
 
 	private String indexType;
 	@ParametersDelegate
@@ -72,9 +70,7 @@ public class IndexPluginOptions extends
 		// Load the Index options.
 		indexType = qualifier;
 		if (qualifier != null) {
-			indexPlugin = DimensionalityTypeRegistry
-					.getSelectedDimensionalityProvider(
-							qualifier);
+			indexPlugin = DimensionalityTypeRegistry.getSelectedDimensionalityProvider(qualifier);
 			if (indexPlugin == null) {
 				throw new ParameterException(
 						"Unknown index type specified");
@@ -118,9 +114,7 @@ public class IndexPluginOptions extends
 	}
 
 	public Index createIndex() {
-		final Index index = indexPlugin
-				.createIndex(
-						indexOptions);
+		final Index index = indexPlugin.createIndex(indexOptions);
 		return wrapIndexWithOptions(
 				index,
 				this);
@@ -130,9 +124,8 @@ public class IndexPluginOptions extends
 			final Index index,
 			final IndexPluginOptions options ) {
 		Index retVal = index;
-		if ((options.basicIndexOptions.getNumPartitions() > 1) && options.basicIndexOptions
-				.getPartitionStrategy()
-				.equals(
+		if ((options.basicIndexOptions.getNumPartitions() > 1)
+				&& options.basicIndexOptions.getPartitionStrategy().equals(
 						PartitionStrategy.ROUND_ROBIN)) {
 			retVal = new CustomNameIndex(
 					new CompoundIndexStrategy(
@@ -146,13 +139,10 @@ public class IndexPluginOptions extends
 		else if (options.basicIndexOptions.getNumPartitions() > 1) {
 			// default to round robin partitioning (none is not valid if there
 			// are more than 1 partition)
-			if (options.basicIndexOptions
-					.getPartitionStrategy()
-					.equals(
-							PartitionStrategy.NONE)) {
+			if (options.basicIndexOptions.getPartitionStrategy().equals(
+					PartitionStrategy.NONE)) {
 				LOGGER
-						.warn(
-								"Partition strategy is necessary when using more than 1 partition, defaulting to 'hash' partitioning.");
+						.warn("Partition strategy is necessary when using more than 1 partition, defaulting to 'hash' partitioning.");
 			}
 			retVal = new CustomNameIndex(
 					new CompoundIndexStrategy(
@@ -174,11 +164,10 @@ public class IndexPluginOptions extends
 
 	public static String getIndexNamespace(
 			final String name ) {
-		return String
-				.format(
-						"%s.%s",
-						INDEX_PROPERTY_NAMESPACE,
-						name);
+		return String.format(
+				"%s.%s",
+				INDEX_PROPERTY_NAMESPACE,
+				name);
 	}
 
 	public static enum PartitionStrategy {
@@ -204,25 +193,19 @@ public class IndexPluginOptions extends
 
 		public T setNumPartitions(
 				final int numPartitions ) {
-			options.basicIndexOptions
-					.setNumPartitions(
-							numPartitions);
+			options.basicIndexOptions.setNumPartitions(numPartitions);
 			return (T) this;
 		}
 
 		public T setPartitionStrategy(
 				final PartitionStrategy partitionStrategy ) {
-			options.basicIndexOptions
-					.setPartitionStrategy(
-							partitionStrategy);
+			options.basicIndexOptions.setPartitionStrategy(partitionStrategy);
 			return (T) this;
 		}
 
 		public T setNameOverride(
 				final String nameOverride ) {
-			options.basicIndexOptions
-					.setNameOverride(
-							nameOverride);
+			options.basicIndexOptions.setNameOverride(nameOverride);
 			return (T) this;
 		}
 

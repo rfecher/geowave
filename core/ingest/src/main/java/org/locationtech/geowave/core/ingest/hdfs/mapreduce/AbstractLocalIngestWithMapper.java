@@ -40,9 +40,7 @@ abstract public class AbstractLocalIngestWithMapper<T> extends
 		IngestFromHdfsPlugin<WholeFile, T>,
 		Persistable
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					AbstractLocalIngestWithMapper.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(AbstractLocalIngestWithMapper.class);
 
 	@Override
 	public boolean isUseReducerPreferred() {
@@ -67,10 +65,9 @@ abstract public class AbstractLocalIngestWithMapper<T> extends
 					globalVisibility);
 		}
 		catch (final IOException e) {
-			LOGGER
-					.warn(
-							"Cannot open file, unable to ingest",
-							e);
+			LOGGER.warn(
+					"Cannot open file, unable to ingest",
+					e);
 		}
 		return new CloseableIterator.Wrapper(
 				Collections.emptyIterator());
@@ -101,9 +98,7 @@ abstract public class AbstractLocalIngestWithMapper<T> extends
 		@Override
 		public DataTypeAdapter<T>[] getDataAdapters(
 				final String globalVisibility ) {
-			return parentPlugin
-					.getDataAdapters(
-							globalVisibility);
+			return parentPlugin.getDataAdapters(globalVisibility);
 		}
 
 		@Override
@@ -113,26 +108,21 @@ abstract public class AbstractLocalIngestWithMapper<T> extends
 				final String globalVisibility ) {
 			final InputStream inputStream = new ByteBufferBackedInputStream(
 					input.getOriginalFile());
-			return parentPlugin
-					.toGeoWaveDataInternal(
-							inputStream,
-							indexNames,
-							globalVisibility);
+			return parentPlugin.toGeoWaveDataInternal(
+					inputStream,
+					indexNames,
+					globalVisibility);
 		}
 
 		@Override
 		public byte[] toBinary() {
-			return PersistenceUtils
-					.toClassId(
-							parentPlugin);
+			return PersistenceUtils.toClassId(parentPlugin);
 		}
 
 		@Override
 		public void fromBinary(
 				final byte[] bytes ) {
-			parentPlugin = (AbstractLocalIngestWithMapper) PersistenceUtils
-					.fromClassId(
-							bytes);
+			parentPlugin = (AbstractLocalIngestWithMapper) PersistenceUtils.fromClassId(bytes);
 		}
 
 		@Override

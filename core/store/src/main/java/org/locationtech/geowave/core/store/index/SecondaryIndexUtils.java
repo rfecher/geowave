@@ -30,14 +30,12 @@ public class SecondaryIndexUtils
 	public static byte[] constructColumnFamily(
 			final String typeName,
 			final String indexedAttributeFieldName ) {
-		Preconditions
-				.checkNotNull(
-						typeName,
-						"adapterId cannot be null");
-		Preconditions
-				.checkNotNull(
-						indexedAttributeFieldName,
-						"indexedAttributeFieldId cannot be null");
+		Preconditions.checkNotNull(
+				typeName,
+				"adapterId cannot be null");
+		Preconditions.checkNotNull(
+				indexedAttributeFieldName,
+				"indexedAttributeFieldId cannot be null");
 		return constructColumnFamily(
 				typeName,
 				indexedAttributeFieldName);
@@ -54,10 +52,9 @@ public class SecondaryIndexUtils
 	public static byte[] constructColumnFamily(
 			final byte[] adapterId,
 			final byte[] indexedAttributeFieldId ) {
-		return ByteArrayUtils
-				.combineArrays(
-						adapterId,
-						indexedAttributeFieldId);
+		return ByteArrayUtils.combineArrays(
+				adapterId,
+				indexedAttributeFieldId);
 	}
 
 	/**
@@ -71,14 +68,12 @@ public class SecondaryIndexUtils
 	public static byte[] constructColumnQualifier(
 			final ByteArrayId partOne,
 			final ByteArrayId partTwo ) {
-		Preconditions
-				.checkNotNull(
-						partOne,
-						"partOne cannot be null");
-		Preconditions
-				.checkNotNull(
-						partTwo,
-						"partTwo cannot be null");
+		Preconditions.checkNotNull(
+				partOne,
+				"partOne cannot be null");
+		Preconditions.checkNotNull(
+				partTwo,
+				"partTwo cannot be null");
 		return constructColumnQualifier(
 				partOne.getBytes(),
 				partTwo.getBytes());
@@ -95,10 +90,9 @@ public class SecondaryIndexUtils
 	public static byte[] constructColumnQualifier(
 			final byte[] partOne,
 			final byte[] partTwo ) {
-		return ByteArrayUtils
-				.combineVariableLengthArrays(
-						partOne,
-						partTwo);
+		return ByteArrayUtils.combineVariableLengthArrays(
+				partOne,
+				partTwo);
 	}
 
 	/**
@@ -112,10 +106,8 @@ public class SecondaryIndexUtils
 	public static ByteArrayId getPrimaryRowId(
 			final byte[] cq ) {
 		return new ByteArrayId(
-				ByteArrayUtils
-						.splitVariableLengthArrays(
-								cq)
-						.getRight());
+				ByteArrayUtils.splitVariableLengthArrays(
+						cq).getRight());
 	}
 
 	/**
@@ -129,10 +121,8 @@ public class SecondaryIndexUtils
 	public static String getDataId(
 			final byte[] cq ) {
 		return new ByteArrayId(
-				ByteArrayUtils
-						.splitVariableLengthArrays(
-								cq)
-						.getRight()).getString();
+				ByteArrayUtils.splitVariableLengthArrays(
+						cq).getRight()).getString();
 	}
 
 	/**
@@ -145,12 +135,8 @@ public class SecondaryIndexUtils
 	 */
 	public static String getFieldName(
 			final byte[] cq ) {
-		return StringUtils
-				.stringFromBinary(
-						ByteArrayUtils
-								.splitVariableLengthArrays(
-										cq)
-								.getLeft());
+		return StringUtils.stringFromBinary(ByteArrayUtils.splitVariableLengthArrays(
+				cq).getLeft());
 	}
 
 	/**
@@ -163,12 +149,8 @@ public class SecondaryIndexUtils
 	 */
 	public static String getIndexName(
 			final byte[] cq ) {
-		return StringUtils
-				.stringFromBinary(
-						ByteArrayUtils
-								.splitVariableLengthArrays(
-										cq)
-								.getLeft());
+		return StringUtils.stringFromBinary(ByteArrayUtils.splitVariableLengthArrays(
+				cq).getLeft());
 	}
 
 }

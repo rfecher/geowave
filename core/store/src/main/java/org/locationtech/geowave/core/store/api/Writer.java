@@ -38,5 +38,5 @@ public interface Writer<T> extends
 
 	void flush();
 
-    void close();
+	void close();
 }

@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
 import org.locationtech.geowave.core.index.IndexConstraints;
@@ -38,8 +37,7 @@ import org.locationtech.geowave.core.store.index.FilterableConstraints;
 import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
 import org.locationtech.geowave.core.store.query.filter.BasicQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.BasicQueryFilter.BasicQueryCompareOperation;
-import org.locationtech.geowave.core.store.query.filter.DistributableFilterList;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.FilterList;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +54,7 @@ import com.google.common.math.DoubleMath;
  *
  */
 public class BasicQuery implements
-		DistributableQueryConstraints
+		QueryConstraints
 {
 	private final static double DOUBLE_TOLERANCE = 1E-12d;
 	private final static Logger LOGGER = LoggerFactory.getLogger(BasicQuery.class);
@@ -201,7 +199,7 @@ public class BasicQuery implements
 					dataPerDimension);
 		}
 
-		protected DistributableQueryFilter createFilter(
+		protected QueryFilter createFilter(
 				final Index index,
 				final BasicQuery basicQuery ) {
 			final CommonIndexModel indexModel = index.getIndexModel();
@@ -615,9 +613,9 @@ public class BasicQuery implements
 	@Override
 	public List<QueryFilter> createFilters(
 			final Index index ) {
-		final List<DistributableQueryFilter> filters = new ArrayList<>();
+		final List<QueryFilter> filters = new ArrayList<>();
 		for (final ConstraintSet constraint : constraints.constraintsSets) {
-			final DistributableQueryFilter filter = constraint.createFilter(
+			final QueryFilter filter = constraint.createFilter(
 					index,
 					this);
 			if (filter != null) {
@@ -625,15 +623,14 @@ public class BasicQuery implements
 			}
 		}
 		if (!filters.isEmpty()) {
-			return Collections.<QueryFilter> singletonList(filters.size() == 1 ? filters.get(0)
-					: new DistributableFilterList(
-							false,
-							filters));
+			return Collections.<QueryFilter> singletonList(filters.size() == 1 ? filters.get(0) : new FilterList(
+					false,
+					filters));
 		}
 		return Collections.emptyList();
 	}
 
-	protected DistributableQueryFilter createQueryFilter(
+	protected QueryFilter createQueryFilter(
 			final MultiDimensionalNumericData constraints,
 			final NumericDimensionField<?>[] orderedConstrainedDimensionFields,
 			final NumericDimensionField<?>[] unconstrainedDimensionFields,
@@ -698,7 +695,6 @@ public class BasicQuery implements
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public List<ByteArrayRange> getSecondaryIndexConstraints(
 			final SecondaryIndexImpl<?> index ) {
 		final List<ByteArrayRange> allRanges = new ArrayList<>();
@@ -714,13 +710,12 @@ public class BasicQuery implements
 		return allRanges;
 	}
 
-	@Override
-	public List<DistributableQueryFilter> getSecondaryQueryFilter(
+	public List<QueryFilter> getSecondaryQueryFilter(
 			final SecondaryIndexImpl<?> index ) {
-		final List<DistributableQueryFilter> allFilters = new ArrayList<>();
+		final List<QueryFilter> allFilters = new ArrayList<>();
 		final List<FilterableConstraints> queryConstraints = getSecondaryIndexQueryConstraints(index);
 		for (final FilterableConstraints queryConstraint : queryConstraints) {
-			final DistributableQueryFilter filter = queryConstraint.getFilter();
+			final QueryFilter filter = queryConstraint.getFilter();
 			if (filter != null) {
 				allFilters.add(filter);
 			}

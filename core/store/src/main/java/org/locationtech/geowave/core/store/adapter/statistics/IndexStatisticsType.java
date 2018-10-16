@@ -1,6 +1,7 @@
 package org.locationtech.geowave.core.store.adapter.statistics;
 
-public class IndexStatisticsType<R> extends StatisticsType<R, IndexStatisticsQueryBuilder<R>>
+public class IndexStatisticsType<R> extends
+		StatisticsType<R, IndexStatisticsQueryBuilder<R>>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -22,7 +23,8 @@ public class IndexStatisticsType<R> extends StatisticsType<R, IndexStatisticsQue
 
 	@Override
 	public IndexStatisticsQueryBuilder<R> newBuilder() {
-		return new IndexStatisticsQueryBuilder<>(this);
+		return new IndexStatisticsQueryBuilder<>(
+				this);
 	}
 
 }

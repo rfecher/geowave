@@ -37,14 +37,9 @@ public class StoreCopyReducer extends
 			final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveOutputKey, Object>.Context context )
 			throws IOException,
 			InterruptedException {
-		super.setup(
-				context);
-		store = GeoWaveOutputFormat
-				.getJobContextAdapterIndexMappingStore(
-						context);
-		internalAdapterStore = GeoWaveOutputFormat
-				.getJobContextInternalAdapterStore(
-						context);
+		super.setup(context);
+		store = GeoWaveOutputFormat.getJobContextAdapterIndexMappingStore(context);
+		internalAdapterStore = GeoWaveOutputFormat.getJobContextInternalAdapterStore(context);
 	}
 
 	@Override
@@ -56,17 +51,12 @@ public class StoreCopyReducer extends
 			InterruptedException {
 		final Iterator<Object> objects = values.iterator();
 		while (objects.hasNext()) {
-			final AdapterToIndexMapping mapping = store
-					.getIndicesForAdapter(
-							key.getInternalAdapterId());
-			context
-					.write(
-							new GeoWaveOutputKey<>(
-									internalAdapterStore
-											.getTypeName(
-													mapping.getAdapterId()),
-									mapping.getIndexNames()),
-							objects.next());
+			final AdapterToIndexMapping mapping = store.getIndicesForAdapter(key.getInternalAdapterId());
+			context.write(
+					new GeoWaveOutputKey<>(
+							internalAdapterStore.getTypeName(mapping.getAdapterId()),
+							mapping.getIndexNames()),
+					objects.next());
 		}
 	}
 

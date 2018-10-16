@@ -9,9 +9,7 @@ import org.slf4j.LoggerFactory;
 public class PartitionStatisticsQueryBuilder<R> extends
 		StatisticsQueryBuilderImpl<R, PartitionStatisticsQueryBuilder<R>>
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					PartitionStatisticsQueryBuilder.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(PartitionStatisticsQueryBuilder.class);
 	private static final String STATS_ID_SEPARATOR = "#";
 	private String indexName;
 	private ByteArrayId partitionKey;
@@ -42,27 +40,18 @@ public class PartitionStatisticsQueryBuilder<R> extends
 
 	protected static Pair<String, ByteArrayId> decomposeIndexAndPartitionFromId(
 			final String idString ) {
-		final int pos = idString
-				.lastIndexOf(
-						STATS_ID_SEPARATOR);
+		final int pos = idString.lastIndexOf(STATS_ID_SEPARATOR);
 		if (pos < 0) {
-			return Pair
-					.of(
-							idString,
-							null);
+			return Pair.of(
+					idString,
+					null);
 		}
-		return Pair
-				.of(
-						idString
-								.substring(
-										0,
-										pos),
-						new ByteArrayId(
-								ByteArrayUtils
-										.byteArrayFromString(
-												idString
-														.substring(
-																pos + 1))));
+		return Pair.of(
+				idString.substring(
+						0,
+						pos),
+				new ByteArrayId(
+						ByteArrayUtils.byteArrayFromString(idString.substring(pos + 1))));
 	}
 
 	protected static String composeId(
@@ -70,18 +59,14 @@ public class PartitionStatisticsQueryBuilder<R> extends
 			final ByteArrayId partitionKey ) {
 		if (indexName == null) {
 			if ((partitionKey != null) && (partitionKey.getBytes() != null) && (partitionKey.getBytes().length > 0)) {
-				LOGGER
-						.warn(
-								"Cannot set partitionKey without index. Ignoring Partition Key in statistics query.");
+				LOGGER.warn("Cannot set partitionKey without index. Ignoring Partition Key in statistics query.");
 			}
 			return null;
 		}
 		if ((partitionKey == null) || (partitionKey.getBytes() == null) || (partitionKey.getBytes().length == 0)) {
 			return indexName;
 		}
-		return indexName + STATS_ID_SEPARATOR + ByteArrayUtils
-				.byteArrayToString(
-						partitionKey.getBytes());
+		return indexName + STATS_ID_SEPARATOR + ByteArrayUtils.byteArrayToString(partitionKey.getBytes());
 	}
 
 }

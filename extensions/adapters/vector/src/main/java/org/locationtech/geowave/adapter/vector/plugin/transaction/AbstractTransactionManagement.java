@@ -37,33 +37,26 @@ public abstract class AbstractTransactionManagement implements
 	public Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> getDataStatistics() {
 		final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats = new HashMap<>();
 		final GeotoolsFeatureDataAdapter adapter = components.getAdapter();
-		final short internalAdapterId = components
-				.getGTstore()
-				.getInternalAdapterStore()
-				.getAdapterId(
-						adapter.getTypeName());
+		final short internalAdapterId = components.getGTstore().getInternalAdapterStore().getAdapterId(
+				adapter.getTypeName());
 
-		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it = components
-				.getStatsStore()
-				.getDataStatistics(
-						internalAdapterId,
-						composeAuthorizations())) {
+		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it = components.getStatsStore().getDataStatistics(
+				internalAdapterId,
+				composeAuthorizations())) {
 			while (it.hasNext()) {
 				final InternalDataStatistics<?, ?, ?> stat = it.next();
-				stats
-						.put(
-								new StatisticsId(
-										stat.getType(),
-										stat.getExtendedId()),
-								(InternalDataStatistics<SimpleFeature, ?, ?>) stat);
+				stats.put(
+						new StatisticsId(
+								stat.getType(),
+								stat.getExtendedId()),
+						(InternalDataStatistics<SimpleFeature, ?, ?>) stat);
 			}
 
 		}
 		catch (final Exception e) {
-			GeoWaveTransactionManagement.LOGGER
-					.error(
-							"Failed to access statistics from data store",
-							e);
+			GeoWaveTransactionManagement.LOGGER.error(
+					"Failed to access statistics from data store",
+					e);
 		}
 		return stats;
 	}

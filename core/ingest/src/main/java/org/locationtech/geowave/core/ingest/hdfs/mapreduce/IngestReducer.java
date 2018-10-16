@@ -39,19 +39,17 @@ public class IngestReducer extends
 			final Context context )
 			throws IOException,
 			InterruptedException {
-		try (CloseableIterator<GeoWaveData> data = ingestWithReducer
-				.toGeoWaveData(
-						key,
-						indexNames,
-						globalVisibility,
-						values)) {
+		try (CloseableIterator<GeoWaveData> data = ingestWithReducer.toGeoWaveData(
+				key,
+				indexNames,
+				globalVisibility,
+				values)) {
 			while (data.hasNext()) {
 				final GeoWaveData d = data.next();
-				context
-						.write(
-								new GeoWaveOutputKey<>(
-										d),
-								d.getValue());
+				context.write(
+						new GeoWaveOutputKey<>(
+								d),
+						d.getValue());
 			}
 		}
 	}
@@ -61,26 +59,15 @@ public class IngestReducer extends
 			final Context context )
 			throws IOException,
 			InterruptedException {
-		super.setup(
-				context);
+		super.setup(context);
 		try {
-			final String ingestWithReducerStr = context
-					.getConfiguration()
-					.get(
-							AbstractMapReduceIngest.INGEST_PLUGIN_KEY);
-			final byte[] ingestWithReducerBytes = ByteArrayUtils
-					.byteArrayFromString(
-							ingestWithReducerStr);
-			ingestWithReducer = (IngestWithReducer) PersistenceUtils
-					.fromBinary(
-							ingestWithReducerBytes);
-			globalVisibility = context
-					.getConfiguration()
-					.get(
-							AbstractMapReduceIngest.GLOBAL_VISIBILITY_KEY);
-			indexNames = AbstractMapReduceIngest
-					.getIndexNames(
-							context.getConfiguration());
+			final String ingestWithReducerStr = context.getConfiguration().get(
+					AbstractMapReduceIngest.INGEST_PLUGIN_KEY);
+			final byte[] ingestWithReducerBytes = ByteArrayUtils.byteArrayFromString(ingestWithReducerStr);
+			ingestWithReducer = (IngestWithReducer) PersistenceUtils.fromBinary(ingestWithReducerBytes);
+			globalVisibility = context.getConfiguration().get(
+					AbstractMapReduceIngest.GLOBAL_VISIBILITY_KEY);
+			indexNames = AbstractMapReduceIngest.getIndexNames(context.getConfiguration());
 		}
 		catch (final Exception e) {
 			throw new IllegalArgumentException(

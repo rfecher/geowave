@@ -184,7 +184,8 @@ public class SecondaryIndexDataManager<T> implements
 			}
 			if (delete) {
 				// capture statistics
-				for (final InternalDataStatistics<T,?,?> associatedStatistic : secondaryIndex.getAssociatedStatistics()) {
+				for (final InternalDataStatistics<T, ?, ?> associatedStatistic : secondaryIndex
+						.getAssociatedStatistics()) {
 					associatedStatistic.entryIngested(
 							entry,
 							kvs);

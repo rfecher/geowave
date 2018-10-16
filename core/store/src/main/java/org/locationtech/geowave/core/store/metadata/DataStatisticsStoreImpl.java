@@ -64,13 +64,10 @@ public class DataStatisticsStoreImpl extends
 
 	@Override
 	protected void buildCache() {
-		final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder
-				.newBuilder()
-				.maximumSize(
-						MAX_ENTRIES)
-				.expireAfterWrite(
-						STATISTICS_CACHE_TIMEOUT,
-						TimeUnit.MILLISECONDS);
+		final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder().maximumSize(
+				MAX_ENTRIES).expireAfterWrite(
+				STATISTICS_CACHE_TIMEOUT,
+				TimeUnit.MILLISECONDS);
 		cache = cacheBuilder.<ByteArrayId, Map<String, InternalDataStatistics<?, ?, ?>>> build();
 	}
 
@@ -78,17 +75,11 @@ public class DataStatisticsStoreImpl extends
 			final String[] authorizations ) {
 		final StringBuilder sb = new StringBuilder();
 		if (authorizations != null) {
-			Arrays
-					.sort(
-							authorizations);
+			Arrays.sort(authorizations);
 			for (int i = 0; i < authorizations.length; i++) {
-				sb
-						.append(
-								authorizations[i]);
+				sb.append(authorizations[i]);
 				if ((i + 1) < authorizations.length) {
-					sb
-							.append(
-									"&");
+					sb.append("&");
 				}
 			}
 		}
@@ -100,13 +91,10 @@ public class DataStatisticsStoreImpl extends
 			final InternalDataStatistics<?, ?, ?> statistics ) {
 		// because we're using the combiner, we should simply be able to add the
 		// object
-		addObject(
-				statistics);
+		addObject(statistics);
 		deleteObjectFromCache(
-				getPrimaryId(
-						statistics),
-				getSecondaryId(
-						statistics));
+				getPrimaryId(statistics),
+				getSecondaryId(statistics));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -121,20 +109,16 @@ public class DataStatisticsStoreImpl extends
 				secondaryId);
 
 		Map<String, InternalDataStatistics<?, ?, ?>> cached = (Map<String, InternalDataStatistics<?, ?, ?>>) cache
-				.getIfPresent(
-						combinedId);
+				.getIfPresent(combinedId);
 		if (cached == null) {
 			cached = new ConcurrentHashMap<>();
-			cache
-					.put(
-							combinedId,
-							cached);
+			cache.put(
+					combinedId,
+					cached);
 		}
-		cached
-				.put(
-						getCombinedAuths(
-								authorizations),
-						object);
+		cached.put(
+				getCombinedAuths(authorizations),
+				object);
 
 	}
 
@@ -148,13 +132,9 @@ public class DataStatisticsStoreImpl extends
 				primaryId,
 				secondaryId);
 		final Map<String, InternalDataStatistics<?, ?, ?>> cached = (Map<String, InternalDataStatistics<?, ?, ?>>) cache
-				.getIfPresent(
-						combinedId);
+				.getIfPresent(combinedId);
 		if (cached != null) {
-			return cached
-					.get(
-							getCombinedAuths(
-									authorizations));
+			return cached.get(getCombinedAuths(authorizations));
 		}
 		return null;
 	}
@@ -162,16 +142,12 @@ public class DataStatisticsStoreImpl extends
 	protected ByteArrayId shortToByteArrayId(
 			final short internalAdapterId ) {
 		return new ByteArrayId(
-				ByteArrayUtils
-						.shortToByteArray(
-								internalAdapterId));
+				ByteArrayUtils.shortToByteArray(internalAdapterId));
 	}
 
 	protected short byteArrayToShort(
 			final byte[] bytes ) {
-		return ByteArrayUtils
-				.byteArrayToShort(
-						bytes);
+		return ByteArrayUtils.byteArrayToShort(bytes);
 	}
 
 	@Override
@@ -190,9 +166,7 @@ public class DataStatisticsStoreImpl extends
 			final ByteArrayId primaryId,
 			final String... authorizations ) {
 
-		final ByteArrayId secondaryId = adapterId == null ? null
-				: shortToByteArrayId(
-						adapterId);
+		final ByteArrayId secondaryId = adapterId == null ? null : shortToByteArrayId(adapterId);
 		final Object cacheResult = getObjectFromCache(
 				primaryId,
 				secondaryId,
@@ -201,18 +175,15 @@ public class DataStatisticsStoreImpl extends
 		// if there's an exact match in the cache return a singleton
 		if (cacheResult != null) {
 			return new CloseableIterator.Wrapper<>(
-					Iterators
-							.singletonIterator(
-									(InternalDataStatistics<?, ?, ?>) cacheResult));
+					Iterators.singletonIterator((InternalDataStatistics<?, ?, ?>) cacheResult));
 		}
 
 		// otherwise scan
 		// TODO issue 1443 will enable prefix scans on the primary ID
-		return internalGetObjects(
-				new MetadataQuery(
-						primaryId.getBytes(),
-						secondaryId == null ? null : secondaryId.getBytes(),
-						authorizations));
+		return internalGetObjects(new MetadataQuery(
+				primaryId.getBytes(),
+				secondaryId == null ? null : secondaryId.getBytes(),
+				authorizations));
 	}
 
 	@Override
@@ -223,45 +194,29 @@ public class DataStatisticsStoreImpl extends
 				entry,
 				authorizations);
 		if (stats != null) {
-			stats
-					.setAdapterId(
-							byteArrayToShort(
-									entry.getSecondaryId()));
-			final int index = Bytes
-					.indexOf(
-							entry.getPrimaryId(),
-							(byte) 0);
+			stats.setAdapterId(byteArrayToShort(entry.getSecondaryId()));
+			final int index = Bytes.indexOf(
+					entry.getPrimaryId(),
+					(byte) 0);
 			if ((index > 0) && (index < (entry.getPrimaryId().length - 1))) {
-				stats
-						.setType(
-								new BaseStatisticsType(
-										Arrays
-												.copyOfRange(
-														entry.getPrimaryId(),
-														0,
-														index)));
+				stats.setType(new BaseStatisticsType(
+						Arrays.copyOfRange(
+								entry.getPrimaryId(),
+								0,
+								index)));
 
-				stats
-						.setExtendedId(
-								StringUtils
-										.stringFromBinary(
-												Arrays
-														.copyOfRange(
-																entry.getPrimaryId(),
-																index + 1,
-																entry.getPrimaryId().length)));
+				stats.setExtendedId(StringUtils.stringFromBinary(Arrays.copyOfRange(
+						entry.getPrimaryId(),
+						index + 1,
+						entry.getPrimaryId().length)));
 			}
 			else {
-				stats
-						.setType(
-								new BaseStatisticsType(
-										entry.getPrimaryId()));
+				stats.setType(new BaseStatisticsType(
+						entry.getPrimaryId()));
 			}
 			final byte[] visibility = entry.getVisibility();
 			if (visibility != null) {
-				stats
-						.setVisibility(
-								visibility);
+				stats.setVisibility(visibility);
 			}
 		}
 		return stats;
@@ -280,15 +235,12 @@ public class DataStatisticsStoreImpl extends
 			final String extendedId ) {
 		if ((extendedId != null) && (extendedId.length() > 0)) {
 			return new ByteArrayId(
-					Bytes
-							.concat(
-									type.getBytes(),
-									new byte[] {
-										(byte) 0
-									},
-									StringUtils
-											.stringToBinary(
-													extendedId)));
+					Bytes.concat(
+							type.getBytes(),
+							new byte[] {
+								(byte) 0
+							},
+							StringUtils.stringToBinary(extendedId)));
 		}
 		return type;
 	}
@@ -296,8 +248,7 @@ public class DataStatisticsStoreImpl extends
 	@Override
 	protected ByteArrayId getSecondaryId(
 			final InternalDataStatistics<?, ?, ?> persistedObject ) {
-		return shortToByteArrayId(
-				persistedObject.getAdapterId());
+		return shortToByteArrayId(persistedObject.getAdapterId());
 	}
 
 	@Override
@@ -306,15 +257,13 @@ public class DataStatisticsStoreImpl extends
 		removeStatistics(
 				statistics.getAdapterId(),
 				statistics.getType());
-		addObject(
-				statistics);
+		addObject(statistics);
 	}
 
 	@Override
 	public CloseableIterator<InternalDataStatistics<?, ?, ?>> getAllDataStatistics(
 			final String... authorizations ) {
-		return getObjects(
-				authorizations);
+		return getObjects(authorizations);
 	}
 
 	@Override
@@ -324,8 +273,7 @@ public class DataStatisticsStoreImpl extends
 			final String... authorizations ) {
 		return deleteObject(
 				statisticsType,
-				shortToByteArrayId(
-						adapterId),
+				shortToByteArrayId(adapterId),
 				authorizations);
 	}
 
@@ -334,8 +282,7 @@ public class DataStatisticsStoreImpl extends
 			final short adapterId,
 			final String... authorizations ) {
 		return getAllObjectsWithSecondaryId(
-				shortToByteArrayId(
-						adapterId),
+				shortToByteArrayId(adapterId),
 				authorizations);
 	}
 
@@ -350,8 +297,7 @@ public class DataStatisticsStoreImpl extends
 			final short adapterId,
 			final String... authorizations ) {
 		deleteObjects(
-				shortToByteArrayId(
-						adapterId),
+				shortToByteArrayId(adapterId),
 				authorizations);
 	}
 
@@ -379,8 +325,7 @@ public class DataStatisticsStoreImpl extends
 				getPrimaryId(
 						statisticsType,
 						extendedId),
-				shortToByteArrayId(
-						adapterId),
+				shortToByteArrayId(adapterId),
 				authorizations);
 	}
 

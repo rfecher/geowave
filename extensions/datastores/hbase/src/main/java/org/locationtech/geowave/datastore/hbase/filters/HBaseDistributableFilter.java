@@ -36,7 +36,7 @@ import org.locationtech.geowave.core.store.flatten.FlattenedUnreadData;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class HBaseDistributableFilter extends
 					HBaseDistributableFilter.class);
 
 	private boolean wholeRowFilter = false;
-	private final List<DistributableQueryFilter> filterList;
+	private final List<QueryFilter> filterList;
 	protected CommonIndexModel model;
 	private List<String> commonIndexFieldIds = new ArrayList<>();
 
@@ -159,10 +159,10 @@ public class HBaseDistributableFilter extends
 			}
 
 			for (final Persistable decodedFilter : decodedFilterList) {
-				if (decodedFilter instanceof DistributableQueryFilter) {
+				if (decodedFilter instanceof QueryFilter) {
 					filterList
 							.add(
-									(DistributableQueryFilter) decodedFilter);
+									(QueryFilter) decodedFilter);
 				}
 				else {
 					LOGGER
@@ -191,7 +191,7 @@ public class HBaseDistributableFilter extends
 	}
 
 	public boolean init(
-			final List<DistributableQueryFilter> filterList,
+			final List<QueryFilter> filterList,
 			final CommonIndexModel model,
 			final String[] visList ) {
 		this.filterList.clear();
@@ -409,7 +409,7 @@ public class HBaseDistributableFilter extends
 			return false;
 		}
 
-		for (final DistributableQueryFilter filter : filterList) {
+		for (final QueryFilter filter : filterList) {
 			if (!filter
 					.accept(
 							model,

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -25,24 +25,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.analytic.spark.kmeans.KMeansHullGenerator;
 import org.locationtech.geowave.analytic.spark.kmeans.KMeansRunner;
-import org.locationtech.geowave.core.geotime.TimeUtils;
-import org.locationtech.geowave.core.index.ByteArrayId;
-import org.locationtech.geowave.core.index.StringUtils;
+import org.locationtech.geowave.core.geotime.util.TimeUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.DataStore;
-import org.locationtech.geowave.core.store.api.QueryOptions;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
 import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.TestUtils.DimensionalityType;
 import org.locationtech.geowave.test.annotation.Environments;
-import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
 import org.locationtech.geowave.test.annotation.Environments.Environment;
+import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
-import org.locationtech.geowave.test.spark.SparkTestEnvironment;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.slf4j.Logger;
@@ -58,7 +53,9 @@ import scala.Tuple2;
 })
 public class GeoWaveJavaSparkKMeansIT
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveJavaSparkKMeansIT.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					GeoWaveJavaSparkKMeansIT.class);
 
 	protected static final String HAIL_TEST_CASE_PACKAGE = TestUtils.TEST_CASE_BASE + "hail_test_case/";
 	protected static final String HAIL_SHAPEFILE_FILE = HAIL_TEST_CASE_PACKAGE + "hail.shp";
@@ -78,54 +75,96 @@ public class GeoWaveJavaSparkKMeansIT
 	@BeforeClass
 	public static void reportTestStart() {
 		startMillis = System.currentTimeMillis();
-		LOGGER.warn("-----------------------------------------");
-		LOGGER.warn("*                                       *");
-		LOGGER.warn("*  RUNNING GeoWaveJavaSparkKMeansIT     *");
-		LOGGER.warn("*                                       *");
-		LOGGER.warn("-----------------------------------------");
+		LOGGER
+				.warn(
+						"-----------------------------------------");
+		LOGGER
+				.warn(
+						"*                                       *");
+		LOGGER
+				.warn(
+						"*  RUNNING GeoWaveJavaSparkKMeansIT     *");
+		LOGGER
+				.warn(
+						"*                                       *");
+		LOGGER
+				.warn(
+						"-----------------------------------------");
 	}
 
 	@AfterClass
 	public static void reportTestFinish() {
-		LOGGER.warn("-----------------------------------------");
-		LOGGER.warn("*                                       *");
-		LOGGER.warn("* FINISHED GeoWaveJavaSparkKMeansIT     *");
 		LOGGER
-				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-						+ "s elapsed.                 *");
-		LOGGER.warn("*                                       *");
-		LOGGER.warn("-----------------------------------------");
+				.warn(
+						"-----------------------------------------");
+		LOGGER
+				.warn(
+						"*                                       *");
+		LOGGER
+				.warn(
+						"* FINISHED GeoWaveJavaSparkKMeansIT     *");
+		LOGGER
+				.warn(
+						"*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+								+ "s elapsed.                 *");
+		LOGGER
+				.warn(
+						"*                                       *");
+		LOGGER
+				.warn(
+						"-----------------------------------------");
 	}
 
 	@Test
 	public void testKMeansRunner()
 			throws Exception {
-		SparkContext context = SparkTestEnvironment.getInstance().getDefaultContext();
+		final SparkContext context = SparkTestEnvironment.getInstance().getDefaultContext();
 
 		// Load data
-		TestUtils.testLocalIngest(
-				inputDataStore,
-				DimensionalityType.SPATIAL,
-				HAIL_SHAPEFILE_FILE,
-				1);
-
-		String adapterId = "hail";
+		TestUtils
+				.testLocalIngest(
+						inputDataStore,
+						DimensionalityType.SPATIAL,
+						HAIL_SHAPEFILE_FILE,
+						1);
 
 		// Create the runner
 		long mark = System.currentTimeMillis();
 		final KMeansRunner runner = new KMeansRunner();
-		runner.setJavaSparkContext(JavaSparkContext.fromSparkContext(context));
-		runner.setInputDataStore(inputDataStore);
-		runner.setAdapterId(adapterId);
-		runner.setCqlFilter(CQL_FILTER);
-		runner.setUseTime(true);
+		runner
+				.setJavaSparkContext(
+						JavaSparkContext
+								.fromSparkContext(
+										context));
+		runner
+				.setInputDataStore(
+						inputDataStore);
+		runner
+				.setTypeName(
+						"hail");
+		runner
+				.setCqlFilter(
+						CQL_FILTER);
+		runner
+				.setUseTime(
+						true);
 		// Set output params to write centroids + hulls to store.
-		runner.setOutputDataStore(inputDataStore);
-		runner.setCentroidTypeName("kmeans-centroids-test");
+		runner
+				.setOutputDataStore(
+						inputDataStore);
+		runner
+				.setCentroidTypeName(
+						"kmeans-centroids-test");
 
-		runner.setGenerateHulls(true);
-		runner.setComputeHullData(true);
-		runner.setHullTypeName("kmeans-hulls-test");
+		runner
+				.setGenerateHulls(
+						true);
+		runner
+				.setComputeHullData(
+						true);
+		runner
+				.setHullTypeName(
+						"kmeans-hulls-test");
 
 		// Run kmeans
 		try {
@@ -140,14 +179,20 @@ public class GeoWaveJavaSparkKMeansIT
 		final KMeansModel clusterModel = runner.getOutputModel();
 
 		long dur = (System.currentTimeMillis() - mark);
-		LOGGER.warn("KMeans duration: " + dur + " ms.");
+		LOGGER
+				.warn(
+						"KMeans duration: " + dur + " ms.");
 		// Write out the centroid features
 
-		short centroidInternalAdapterId = inputDataStore.createInternalAdapterStore().getInternalAdapterId(
-				new ByteArrayId(
-						"kmeans-centroids-test"));
-		DataTypeAdapter centroidAdapter = inputDataStore.createAdapterStore().getAdapter(
-				centroidInternalAdapterId);
+		final short centroidInternalAdapterId = inputDataStore
+				.createInternalAdapterStore()
+				.getAdapterId(
+
+						"kmeans-centroids-test");
+		final DataTypeAdapter centroidAdapter = inputDataStore
+				.createAdapterStore()
+				.getAdapter(
+						centroidInternalAdapterId);
 
 		// Query back from the new adapter
 		mark = System.currentTimeMillis();
@@ -155,32 +200,47 @@ public class GeoWaveJavaSparkKMeansIT
 				centroidAdapter,
 				clusterModel.clusterCenters().length);
 		dur = (System.currentTimeMillis() - mark);
-		LOGGER.warn("Centroid verify: " + dur + " ms.");
+		LOGGER
+				.warn(
+						"Centroid verify: " + dur + " ms.");
 
 		// Generate the hulls
-		final JavaPairRDD<Integer, Iterable<Vector>> groupByRDD = KMeansHullGenerator.groupByIndex(
-				runner.getInputCentroids(),
-				clusterModel);
-		final JavaPairRDD<Integer, Geometry> hullsRDD = KMeansHullGenerator.generateHullsRDD(groupByRDD);
+		final JavaPairRDD<Integer, Iterable<Vector>> groupByRDD = KMeansHullGenerator
+				.groupByIndex(
+						runner.getInputCentroids(),
+						clusterModel);
+		final JavaPairRDD<Integer, Geometry> hullsRDD = KMeansHullGenerator
+				.generateHullsRDD(
+						groupByRDD);
 
-		Assert.assertTrue(
-				"centroids from the model should match the hull count",
-				clusterModel.clusterCenters().length == hullsRDD.count());
+		Assert
+				.assertTrue(
+						"centroids from the model should match the hull count",
+						clusterModel.clusterCenters().length == hullsRDD.count());
 
-		System.out.println("KMeans cluster hulls:");
+		System.out
+				.println(
+						"KMeans cluster hulls:");
 		for (final Tuple2<Integer, Geometry> hull : hullsRDD.collect()) {
-			System.out.println("> Hull size (verts): " + hull._2.getNumPoints());
+			System.out
+					.println(
+							"> Hull size (verts): " + hull._2.getNumPoints());
 
-			System.out.println("> Hull centroid: " + hull._2.getCentroid().toString());
+			System.out
+					.println(
+							"> Hull centroid: " + hull._2.getCentroid().toString());
 
 		}
 
-		short hullInternalAdapterId = inputDataStore.createInternalAdapterStore().getInternalAdapterId(
-				new ByteArrayId(
-						"kmeans-hulls-test"));
+		final short hullInternalAdapterId = inputDataStore
+				.createInternalAdapterStore()
+				.getAdapterId(
+						"kmeans-hulls-test");
 		// Write out the hull features w/ metadata
-		DataTypeAdapter hullAdapter = inputDataStore.createAdapterStore().getAdapter(
-				hullInternalAdapterId);
+		final DataTypeAdapter hullAdapter = inputDataStore
+				.createAdapterStore()
+				.getAdapter(
+						hullInternalAdapterId);
 
 		mark = System.currentTimeMillis();
 		// Query back from the new adapter
@@ -188,9 +248,13 @@ public class GeoWaveJavaSparkKMeansIT
 				hullAdapter,
 				clusterModel.clusterCenters().length);
 		dur = (System.currentTimeMillis() - mark);
-		LOGGER.warn("Hull verify: " + dur + " ms.");
+		LOGGER
+				.warn(
+						"Hull verify: " + dur + " ms.");
 
-		TestUtils.deleteAll(inputDataStore);
+		TestUtils
+				.deleteAll(
+						inputDataStore);
 
 	}
 
@@ -200,49 +264,70 @@ public class GeoWaveJavaSparkKMeansIT
 		final DataStore featureStore = inputDataStore.createDataStore();
 		int count = 0;
 
-		try (final CloseableIterator<?> iter = featureStore.query(
-				new QueryOptions(
-						dataAdapter.getAdapterId(),
-						TestUtils.DEFAULT_SPATIAL_INDEX.getId()),
-				new EverythingQuery())) {
+		try (final CloseableIterator<?> iter = featureStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										dataAdapter.getTypeName())
+								.indexName(
+										TestUtils.DEFAULT_SPATIAL_INDEX.getName())
+								.build())) {
 
 			while (iter.hasNext()) {
 				final Object maybeFeat = iter.next();
-				Assert.assertTrue(
-						"Iterator should return simple feature in this test",
-						maybeFeat instanceof SimpleFeature);
+				Assert
+						.assertTrue(
+								"Iterator should return simple feature in this test",
+								maybeFeat instanceof SimpleFeature);
 
 				final SimpleFeature isFeat = (SimpleFeature) maybeFeat;
 
-				final Geometry geom = (Geometry) isFeat.getAttribute(0);
+				final Geometry geom = (Geometry) isFeat
+						.getAttribute(
+								0);
 
 				count++;
-				LOGGER.warn(count + ": " + isFeat.getID() + " - " + geom.toString());
+				LOGGER
+						.warn(
+								count + ": " + isFeat.getID() + " - " + geom.toString());
 
-				for (AttributeDescriptor attrDesc : isFeat.getFeatureType().getAttributeDescriptors()) {
+				for (final AttributeDescriptor attrDesc : isFeat.getFeatureType().getAttributeDescriptors()) {
 					final Class<?> bindingClass = attrDesc.getType().getBinding();
-					if (TimeUtils.isTemporal(bindingClass)) {
-						String timeField = attrDesc.getLocalName();
-						Date time = (Date) isFeat.getAttribute(timeField);
-						LOGGER.warn("  time = " + time);
+					if (TimeUtils
+							.isTemporal(
+									bindingClass)) {
+						final String timeField = attrDesc.getLocalName();
+						final Date time = (Date) isFeat
+								.getAttribute(
+										timeField);
+						LOGGER
+								.warn(
+										"  time = " + time);
 					}
 					else {
-						LOGGER.warn(attrDesc.getLocalName() + " = " + isFeat.getAttribute(attrDesc.getLocalName()));
+						LOGGER
+								.warn(
+										attrDesc.getLocalName() + " = " + isFeat
+												.getAttribute(
+														attrDesc.getLocalName()));
 					}
 				}
 
 			}
 
-			LOGGER.warn("Counted " + count + " features in datastore for "
-					+ StringUtils.stringFromBinary(dataAdapter.getAdapterId().getBytes()));
+			LOGGER
+					.warn(
+							"Counted " + count + " features in datastore for " + dataAdapter.getTypeName());
 		}
 		catch (final Exception e) {
 			e.printStackTrace();
 		}
 
-		Assert.assertTrue(
-				"Iterator should return " + expectedCount + " features in this test",
-				count == expectedCount);
+		Assert
+				.assertTrue(
+						"Iterator should return " + expectedCount + " features in this test",
+						count == expectedCount);
 
 	}
 }

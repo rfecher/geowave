@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
+import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.statistics.AbstractDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.adapter.statistics.IndexStatisticsQueryBuilder;
@@ -35,8 +36,7 @@ import org.locationtech.geowave.core.store.util.VisibilityExpression;
 import com.google.common.collect.Sets;
 
 public class FieldVisibilityCount<T> extends
-		AbstractDataStatistics<T, Map<ByteArrayId, Long>, IndexStatisticsQueryBuilder<Map<ByteArrayId, Long>>>
-		implements
+		AbstractDataStatistics<T, Map<ByteArrayId, Long>, IndexStatisticsQueryBuilder<Map<ByteArrayId, Long>>> implements
 		DeleteCallback<T, GeoWaveRow>
 {
 	public static final IndexStatisticsType<Map<ByteArrayId, Long>> STATS_TYPE = new IndexStatisticsType<>(
@@ -75,34 +75,19 @@ public class FieldVisibilityCount<T> extends
 		for (final Entry<ByteArrayId, Long> entry : countsPerVisibility.entrySet()) {
 			if (entry.getValue() != 0) {
 				final byte[] key = entry.getKey().getBytes();
-				final ByteBuffer buf = ByteBuffer
-						.allocate(
-								key.length + 12);
-				buf
-						.putInt(
-								key.length);
-				buf
-						.put(
-								key);
-				buf
-						.putLong(
-								entry.getValue());
+				final ByteBuffer buf = ByteBuffer.allocate(key.length + 12);
+				buf.putInt(key.length);
+				buf.put(key);
+				buf.putLong(entry.getValue());
 				final byte[] serializedEntry = buf.array();
-				serializedCounts
-						.add(
-								serializedEntry);
+				serializedCounts.add(serializedEntry);
 				bufferSize += serializedEntry.length;
 			}
 		}
-		final ByteBuffer buf = super.binaryBuffer(
-				bufferSize);
-		buf
-				.putInt(
-						serializedCounts.size());
+		final ByteBuffer buf = super.binaryBuffer(bufferSize);
+		buf.putInt(serializedCounts.size());
 		for (final byte[] count : serializedCounts) {
-			buf
-					.put(
-							count);
+			buf.put(count);
 		}
 		return buf.array();
 	}
@@ -118,23 +103,19 @@ public class FieldVisibilityCount<T> extends
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buf = super.binaryBuffer(bytes);
 		final int size = buf.getInt();
 		countsPerVisibility.clear();
 		for (int i = 0; i < size; i++) {
 			final int idCount = buf.getInt();
 			final byte[] id = new byte[idCount];
-			buf
-					.get(
-							id);
+			buf.get(id);
 			final long count = buf.getLong();
 			if (count != 0) {
-				countsPerVisibility
-						.put(
-								new ByteArrayId(
-										id),
-								count);
+				countsPerVisibility.put(
+						new ByteArrayId(
+								id),
+						count);
 			}
 		}
 	}
@@ -160,16 +141,13 @@ public class FieldVisibilityCount<T> extends
 					visibility = new ByteArrayId(
 							v.getVisibility());
 				}
-				Long count = countsPerVisibility
-						.get(
-								visibility);
+				Long count = countsPerVisibility.get(visibility);
 				if (count == null) {
 					count = 0L;
 				}
-				countsPerVisibility
-						.put(
-								visibility,
-								count + incrementValue);
+				countsPerVisibility.put(
+						visibility,
+						count + incrementValue);
 			}
 		}
 	}
@@ -185,15 +163,12 @@ public class FieldVisibilityCount<T> extends
 
 	public boolean isAuthorizationsLimiting(
 			final String... authorizations ) {
-		final Set<String> set = Sets
-				.newHashSet(
-						authorizations);
+		final Set<String> set = Sets.newHashSet(authorizations);
 		for (final Entry<ByteArrayId, Long> vis : countsPerVisibility.entrySet()) {
 			if ((vis.getValue() > 0) && (vis.getKey() != null) && (vis.getKey().getBytes().length > 0)
-					&& !VisibilityExpression
-							.evaluate(
-									vis.getKey().getString(),
-									set)) {
+					&& !VisibilityExpression.evaluate(
+							vis.getKey().getString(),
+							set)) {
 				return true;
 			}
 		}
@@ -206,16 +181,13 @@ public class FieldVisibilityCount<T> extends
 		if ((merge != null) && (merge instanceof FieldVisibilityCount)) {
 			final Map<ByteArrayId, Long> otherCounts = ((FieldVisibilityCount) merge).countsPerVisibility;
 			for (final Entry<ByteArrayId, Long> entry : otherCounts.entrySet()) {
-				Long count = countsPerVisibility
-						.get(
-								entry.getKey());
+				Long count = countsPerVisibility.get(entry.getKey());
 				if (count == null) {
 					count = 0L;
 				}
-				countsPerVisibility
-						.put(
-								entry.getKey(),
-								count + entry.getValue());
+				countsPerVisibility.put(
+						entry.getKey(),
+						count + entry.getValue());
 			}
 		}
 	}
@@ -227,19 +199,22 @@ public class FieldVisibilityCount<T> extends
 			final String... authorizations ) {
 		FieldVisibilityCount combinedVisibilityCount = null;
 		for (final short adapterId : adapterIdsToQuery) {
-			final FieldVisibilityCount adapterVisibilityCount = (FieldVisibilityCount) statisticsStore
+			try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> adapterVisibilityCountIt = statisticsStore
 					.getDataStatistics(
 							adapterId,
 							index.getName(),
 							STATS_TYPE,
-							authorizations);
-			if (combinedVisibilityCount == null) {
-				combinedVisibilityCount = adapterVisibilityCount;
-			}
-			else {
-				combinedVisibilityCount
-						.merge(
-								adapterVisibilityCount);
+							authorizations)) {
+				if (adapterVisibilityCountIt.hasNext()) {
+					final FieldVisibilityCount adapterVisibilityCount = (FieldVisibilityCount) adapterVisibilityCountIt
+							.next();
+					if (combinedVisibilityCount == null) {
+						combinedVisibilityCount = adapterVisibilityCount;
+					}
+					else {
+						combinedVisibilityCount.merge(adapterVisibilityCount);
+					}
+				}
 			}
 		}
 		return combinedVisibilityCount;
@@ -259,10 +234,9 @@ public class FieldVisibilityCount<T> extends
 	protected Object resultsValue() {
 		final Map<String, Object> retVal = new HashMap<>();
 		for (final Entry<ByteArrayId, Long> entry : countsPerVisibility.entrySet()) {
-			retVal
-					.put(
-							entry.getKey().getString(),
-							entry.getValue());
+			retVal.put(
+					entry.getKey().getString(),
+					entry.getValue());
 		}
 		return retVal;
 	}

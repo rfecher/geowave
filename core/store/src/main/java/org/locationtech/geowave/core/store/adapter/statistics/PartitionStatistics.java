@@ -64,9 +64,7 @@ public class PartitionStatistics<T> extends
 	public void merge(
 			final Mergeable mergeable ) {
 		if (mergeable instanceof PartitionStatistics) {
-			partitions
-					.addAll(
-							((PartitionStatistics<?>) mergeable).partitions);
+			partitions.addAll(((PartitionStatistics<?>) mergeable).partitions);
 		}
 	}
 
@@ -77,15 +75,10 @@ public class PartitionStatistics<T> extends
 			// of the partition keys
 			final ByteArrayId first = partitions.iterator().next();
 			if ((first != null) && (first.getBytes() != null)) {
-				final ByteBuffer buffer = super.binaryBuffer(
-						(first.getBytes().length * partitions.size()) + 1);
-				buffer
-						.put(
-								(byte) first.getBytes().length);
+				final ByteBuffer buffer = super.binaryBuffer((first.getBytes().length * partitions.size()) + 1);
+				buffer.put((byte) first.getBytes().length);
 				for (final ByteArrayId e : partitions) {
-					buffer
-							.put(
-									e.getBytes());
+					buffer.put(e.getBytes());
 				}
 				return buffer.array();
 			}
@@ -97,23 +90,17 @@ public class PartitionStatistics<T> extends
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buffer = super.binaryBuffer(bytes);
 		partitions = new HashSet<>();
 		if (buffer.remaining() > 0) {
-			final int partitionKeySize = unsignedToBytes(
-					buffer.get());
+			final int partitionKeySize = unsignedToBytes(buffer.get());
 			if (partitionKeySize > 0) {
 				final int numPartitions = buffer.remaining() / partitionKeySize;
 				for (int i = 0; i < numPartitions; i++) {
 					final byte[] partition = new byte[partitionKeySize];
-					buffer
-							.get(
-									partition);
-					partitions
-							.add(
-									new ByteArrayId(
-											partition));
+					buffer.get(partition);
+					partitions.add(new ByteArrayId(
+							partition));
 				}
 			}
 		}
@@ -129,62 +116,45 @@ public class PartitionStatistics<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		for (final GeoWaveRow kv : kvs) {
-			add(
-					getPartitionKey(
-							kv.getPartitionKey()));
+			add(getPartitionKey(kv.getPartitionKey()));
 
 		}
 	}
 
 	protected static ByteArrayId getPartitionKey(
 			final byte[] partitionBytes ) {
-		return ((partitionBytes == null) || (partitionBytes.length == 0)) ? null
-				: new ByteArrayId(
-						partitionBytes);
+		return ((partitionBytes == null) || (partitionBytes.length == 0)) ? null : new ByteArrayId(
+				partitionBytes);
 	}
 
 	protected void add(
 			final ByteArrayId partition ) {
-		partitions
-				.add(
-						partition);
+		partitions.add(partition);
 	}
 
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer(
-				statisticsType.getString())
-						.append(
-								" (")
-						.append(
-								extendedId)
-						.append(
-								")")
-						.append(
-								"=");
+				statisticsType.getString()).append(
+				" (").append(
+				extendedId).append(
+				")").append(
+				"=");
 		if (!partitions.isEmpty()) {
 			for (final ByteArrayId p : partitions) {
 				if ((p == null) || (p.getBytes() == null)) {
-					buffer
-							.append(
-									"null,");
+					buffer.append("null,");
 				}
 				else {
-					buffer
-							.append(
-									p.getHexString())
-							.append(
-									",");
+					buffer.append(
+							p.getHexString()).append(
+							",");
 				}
 			}
-			buffer
-					.deleteCharAt(
-							buffer.length() - 1);
+			buffer.deleteCharAt(buffer.length() - 1);
 		}
 		else {
-			buffer
-					.append(
-							"none");
+			buffer.append("none");
 		}
 		return buffer.toString();
 	}
@@ -210,20 +180,16 @@ public class PartitionStatistics<T> extends
 			final Map<String, String> partition = new HashMap<>();
 
 			if ((p == null) || (p.getBytes() == null)) {
-				partition
-						.put(
-								"partition",
-								"null");
+				partition.put(
+						"partition",
+						"null");
 			}
 			else {
-				partition
-						.put(
-								"partition",
-								p.getHexString());
+				partition.put(
+						"partition",
+						p.getHexString());
 			}
-			partitionsArray
-					.add(
-							partition);
+			partitionsArray.add(partition);
 		}
 		return partitionsArray;
 	}

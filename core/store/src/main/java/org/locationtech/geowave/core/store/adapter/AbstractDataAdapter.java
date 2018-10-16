@@ -185,10 +185,8 @@ abstract public class AbstractDataAdapter<T> implements
 				if (LOGGER.isInfoEnabled()) {
 					// Don't waste time converting IDs to String if "info" level
 					// is not enabled
-					LOGGER.info("Unable to find field handler for data adapter '"
-					// + StringUtils.stringFromBinary(getAdapterId().getBytes())
-					// + "' and indexed field '"
-							+ StringUtils.stringFromBinary(dimension.getFieldName().getBytes()));
+					LOGGER.info("Unable to find field handler for field '"
+							+ dimension.getFieldName());
 				}
 				continue;
 			}
@@ -236,9 +234,9 @@ abstract public class AbstractDataAdapter<T> implements
 						// dont waste time converting IDs to String if info is
 						// not
 						// enabled
-						LOGGER.info("Unable to find field handler for data adapter '"
-								+ getTypeName() + "' and indexed field '"
-								+ StringUtils.stringFromBinary(dimension.getFieldName().getBytes()));
+						LOGGER.info("Unable to find field handler for data adapter '" + getTypeName()
+								+ "' and indexed field '"
+								+ dimension.getFieldName());
 					}
 					continue;
 				}

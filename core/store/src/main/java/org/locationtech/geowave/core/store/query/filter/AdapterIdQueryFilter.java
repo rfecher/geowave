@@ -15,7 +15,7 @@ import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 
 public class AdapterIdQueryFilter implements
-		DistributableQueryFilter
+		QueryFilter
 {
 	private Short adapterId;
 

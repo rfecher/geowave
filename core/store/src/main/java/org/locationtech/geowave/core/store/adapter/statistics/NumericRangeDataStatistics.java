@@ -61,22 +61,16 @@ abstract public class NumericRangeDataStatistics<T> extends
 
 	@Override
 	public byte[] toBinary() {
-		final ByteBuffer buffer = super.binaryBuffer(
-				16);
-		buffer
-				.putDouble(
-						min);
-		buffer
-				.putDouble(
-						max);
+		final ByteBuffer buffer = super.binaryBuffer(16);
+		buffer.putDouble(min);
+		buffer.putDouble(max);
 		return buffer.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buffer = super.binaryBuffer(bytes);
 		min = buffer.getDouble();
 		max = buffer.getDouble();
 	}
@@ -85,17 +79,14 @@ abstract public class NumericRangeDataStatistics<T> extends
 	public void entryIngested(
 			final T entry,
 			final GeoWaveRow... kvs ) {
-		final NumericRange range = getRange(
-				entry);
+		final NumericRange range = getRange(entry);
 		if (range != null) {
-			min = Math
-					.min(
-							min,
-							range.getMin());
-			max = Math
-					.max(
-							max,
-							range.getMax());
+			min = Math.min(
+					min,
+					range.getMin());
+			max = Math.max(
+					max,
+					range.getMax());
 		}
 	}
 
@@ -108,14 +99,12 @@ abstract public class NumericRangeDataStatistics<T> extends
 		if ((statistics != null) && (statistics instanceof NumericRangeDataStatistics)) {
 			final NumericRangeDataStatistics<T> stats = (NumericRangeDataStatistics<T>) statistics;
 			if (stats.isSet()) {
-				min = Math
-						.min(
-								min,
-								stats.getMin());
-				max = Math
-						.max(
-								max,
-								stats.getMax());
+				min = Math.min(
+						min,
+						stats.getMin());
+				max = Math.max(
+						max,
+						stats.getMax());
 			}
 		}
 	}
@@ -123,31 +112,21 @@ abstract public class NumericRangeDataStatistics<T> extends
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer
-				.append(
-						"range[adapterId=")
-				.append(
-						super.getAdapterId());
+		buffer.append(
+				"range[adapterId=").append(
+				super.getAdapterId());
 		if (isSet()) {
-			buffer
-					.append(
-							", min=")
-					.append(
-							getMin());
-			buffer
-					.append(
-							", max=")
-					.append(
-							getMax());
+			buffer.append(
+					", min=").append(
+					getMin());
+			buffer.append(
+					", max=").append(
+					getMax());
 		}
 		else {
-			buffer
-					.append(
-							", No Values");
+			buffer.append(", No Values");
 		}
-		buffer
-				.append(
-						"]");
+		buffer.append("]");
 		return buffer.toString();
 	}
 
@@ -158,10 +137,14 @@ abstract public class NumericRangeDataStatistics<T> extends
 
 	@Override
 	protected Object resultsValue() {
-		if(isSet()) {
+		if (isSet()) {
 			Map<String, Double> map = new HashMap<>();
-			map.put("min", min);
-			map.put("max", max);
+			map.put(
+					"min",
+					min);
+			map.put(
+					"max",
+					max);
 			return map;
 		}
 		else {
@@ -172,10 +155,9 @@ abstract public class NumericRangeDataStatistics<T> extends
 	@Override
 	public Range<Double> getResult() {
 		if (isSet()) {
-			return Range
-					.between(
-							min,
-							max);
+			return Range.between(
+					min,
+					max);
 		}
 		return null;
 	}

@@ -10,9 +10,12 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.query.constraints;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
@@ -23,7 +26,9 @@ import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 public class DataIdQuery implements
 		QueryConstraints
 {
-	private final ByteArrayId[] dataIds;
+	private ByteArrayId[] dataIds;
+
+	public DataIdQuery() {}
 
 	public DataIdQuery(
 			final ByteArrayId dataId ) {
@@ -45,10 +50,8 @@ public class DataIdQuery implements
 	public List<QueryFilter> createFilters(
 			final Index index ) {
 		final List<QueryFilter> filters = new ArrayList<>();
-		filters
-				.add(
-						new DataIdQueryFilter(
-								dataIds));
+		filters.add(new DataIdQueryFilter(
+				dataIds));
 		return filters;
 	}
 
@@ -56,6 +59,48 @@ public class DataIdQuery implements
 	public List<MultiDimensionalNumericData> getIndexConstraints(
 			final Index index ) {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public byte[] toBinary() {
+		final Stream<byte[]> arrays = Arrays
+				.stream(
+						dataIds)
+				.map(
+						i -> i.getBytes());
+		final int length = arrays
+				.map(
+						i -> i.length)
+				.reduce(
+						4,
+						Integer::sum);
+		final ByteBuffer buf = ByteBuffer
+				.allocate(
+						length);
+		arrays
+				.forEach(
+						i -> buf
+								.putInt(
+										i.length)
+								.put(
+										i));
+		return buf.array();
+	}
+
+	@Override
+	public void fromBinary(
+			final byte[] bytes ) {
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
+		final int length = buf.getInt();
+		final ByteArrayId[] dataIds = new ByteArrayId[length];
+		for (int i = 0; i < length; i++) {
+			final int iLength = buf.getInt();
+			final byte[] dataIdBinary = new byte[iLength];
+			buf.get(dataIdBinary);
+			dataIds[i] = new ByteArrayId(
+					dataIdBinary);
+		}
+		this.dataIds = dataIds;
 	}
 
 }

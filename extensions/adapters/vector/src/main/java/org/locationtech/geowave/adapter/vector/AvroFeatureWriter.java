@@ -29,9 +29,7 @@ import org.slf4j.LoggerFactory;
 public class AvroFeatureWriter implements
 		FieldWriter<SimpleFeature, Object>
 {
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					AvroFeatureWriter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AvroFeatureWriter.class);
 
 	private final EncoderFactory ef = EncoderFactory.get();
 
@@ -58,11 +56,9 @@ public class AvroFeatureWriter implements
 		}
 		catch (final IOException e) {
 			e.printStackTrace();
-			LOGGER
-					.error(
-							"Error, failed to serialize SimpleFeature with id '" + ((SimpleFeature) fieldValue).getID()
-									+ "'",
-							e);
+			LOGGER.error(
+					"Error, failed to serialize SimpleFeature with id '" + ((SimpleFeature) fieldValue).getID() + "'",
+					e);
 		}
 
 		// there is no need to preface the payload with the class name and a
@@ -83,17 +79,13 @@ public class AvroFeatureWriter implements
 			final AvroSimpleFeature avroObject )
 			throws IOException {
 		final ByteArrayOutputStream os = new ByteArrayOutputStream();
-		final BinaryEncoder encoder = ef
-				.binaryEncoder(
-						os,
-						null);
-		datumWriter
-				.setSchema(
-						avroObject.getSchema());
-		datumWriter
-				.write(
-						avroObject,
-						encoder);
+		final BinaryEncoder encoder = ef.binaryEncoder(
+				os,
+				null);
+		datumWriter.setSchema(avroObject.getSchema());
+		datumWriter.write(
+				avroObject,
+				encoder);
 		encoder.flush();
 		return os.toByteArray();
 	}
@@ -137,25 +129,18 @@ public class AvroFeatureWriter implements
 			avroObjectToReuse = new AvroSimpleFeature();
 		}
 
-		final FeatureDefinition fd = AvroFeatureUtils
-				.buildFeatureDefinition(
-						avroObjectToReuse.getFeatureType(),
-						sft,
-						defaultClassifications,
-						defaultClassification);
-		avroObjectToReuse
-				.setFeatureType(
-						fd);
+		final FeatureDefinition fd = AvroFeatureUtils.buildFeatureDefinition(
+				avroObjectToReuse.getFeatureType(),
+				sft,
+				defaultClassifications,
+				defaultClassification);
+		avroObjectToReuse.setFeatureType(fd);
 
-		final AttributeValues av = AvroFeatureUtils
-				.buildAttributeValue(
-						sf,
-						sft);
-		avroObjectToReuse
-				.setValue(
-						av);
+		final AttributeValues av = AvroFeatureUtils.buildAttributeValue(
+				sf,
+				sft);
+		avroObjectToReuse.setValue(av);
 
-		return serializeAvroSimpleFeature(
-				avroObjectToReuse);
+		return serializeAvroSimpleFeature(avroObjectToReuse);
 	}
 }

@@ -23,9 +23,7 @@ public class TimeReader implements
 			// it must be a timestamp
 			retVal = new Timestamp();
 		}
-		retVal
-				.fromBinary(
-						bytes);
+		retVal.fromBinary(bytes);
 		return retVal;
 	}
 }

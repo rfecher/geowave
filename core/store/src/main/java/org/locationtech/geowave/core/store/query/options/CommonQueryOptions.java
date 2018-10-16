@@ -20,12 +20,8 @@ public class CommonQueryOptions implements
 				final Class<HintValueType> cls ) {
 			this(
 					cls,
-					FieldUtils
-							.getDefaultReaderForClass(
-									cls),
-					FieldUtils
-							.getDefaultWriterForClass(
-									cls));
+					FieldUtils.getDefaultReaderForClass(cls),
+					FieldUtils.getDefaultWriterForClass(cls));
 		}
 
 		public HintKey(

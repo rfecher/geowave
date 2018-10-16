@@ -16,7 +16,7 @@ import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 
 /**
  * This is responsible for persisting secondary index entries
@@ -89,7 +89,7 @@ public interface SecondaryIndexDataStore
 			final String indexedAttributeFieldName,
 			final InternalDataAdapter<T> adapter,
 			final Index primaryIndex,
-			final DistributableQueryConstraints query,
+			final QueryConstraints query,
 			final String... authorizations );
 
 	public void deleteJoinEntry(

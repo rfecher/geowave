@@ -3,7 +3,7 @@ package org.locationtech.geowave.core.geotime.store.query.aggregate;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.persist.Persistable;
 
-class FieldNameParam implements
+public class FieldNameParam implements
 		Persistable
 {
 	// TODO we can also include a requested CRS in case we want to reproject
@@ -26,18 +26,14 @@ class FieldNameParam implements
 		if ((fieldName == null) || fieldName.isEmpty()) {
 			return new byte[0];
 		}
-		return StringUtils
-				.stringToBinary(
-						fieldName);
+		return StringUtils.stringToBinary(fieldName);
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
 		if (bytes.length > 0) {
-			fieldName = StringUtils
-					.stringFromBinary(
-							bytes);
+			fieldName = StringUtils.stringFromBinary(bytes);
 		}
 		else {
 			fieldName = null;

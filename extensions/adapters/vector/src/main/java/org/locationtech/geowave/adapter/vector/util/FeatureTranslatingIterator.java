@@ -42,9 +42,7 @@ public class FeatureTranslatingIterator implements
 
 	@Override
 	public SimpleFeature next() {
-		return translator
-				.translate(
-						iteratorDelegate.next());
+		return translator.translate(iteratorDelegate.next());
 	}
 
 	@Override
@@ -68,24 +66,18 @@ public class FeatureTranslatingIterator implements
 				final SimpleFeatureType originalType,
 				final Collection<String> fields ) {
 			this.fields = fields;
-			initialize(
-					originalType);
+			initialize(originalType);
 		}
 
 		private void initialize(
 				final SimpleFeatureType originalType ) {
 			final SimpleFeatureTypeBuilder sftBuilder = new SimpleFeatureTypeBuilder();
-			sftBuilder
-					.setName(
-							originalType.getName());
+			sftBuilder.setName(originalType.getName());
 			for (final AttributeDescriptor ad : originalType.getAttributeDescriptors()) {
-				if (fields
-						.contains(
-								ad.getLocalName())) {
-					sftBuilder
-							.add(
-									ad.getLocalName(),
-									ad.getClass());
+				if (fields.contains(ad.getLocalName())) {
+					sftBuilder.add(
+							ad.getLocalName(),
+							ad.getClass());
 				}
 			}
 			newType = sftBuilder.buildFeatureType();
@@ -96,19 +88,14 @@ public class FeatureTranslatingIterator implements
 		public SimpleFeature translate(
 				final SimpleFeature original ) {
 			for (final String field : fields) {
-				final Object value = original
-						.getAttribute(
-								field);
+				final Object value = original.getAttribute(field);
 				if (value != null) {
-					sfBuilder
-							.set(
-									field,
-									value);
+					sfBuilder.set(
+							field,
+							value);
 				}
 			}
-			return sfBuilder
-					.buildFeature(
-							original.getID());
+			return sfBuilder.buildFeature(original.getID());
 		}
 
 	}

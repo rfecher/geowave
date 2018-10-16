@@ -10,8 +10,11 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.query.filter;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 
@@ -21,13 +24,13 @@ import org.locationtech.geowave.core.store.index.CommonIndexModel;
  * 
  * @param <T>
  */
-public class FilterList<T extends QueryFilter> implements
+public class FilterList implements
 		QueryFilter
 {
-	protected List<T> filters;
+	protected List<QueryFilter> filters;
 	protected boolean logicalAnd = true;
 
-	protected FilterList() {}
+	public FilterList() {}
 
 	protected FilterList(
 			boolean logicalAnd ) {
@@ -35,13 +38,13 @@ public class FilterList<T extends QueryFilter> implements
 	}
 
 	public FilterList(
-			final List<T> filters ) {
+			final List<QueryFilter> filters ) {
 		this.filters = filters;
 	}
 
 	public FilterList(
 			boolean logicalAnd,
-			final List<T> filters ) {
+			final List<QueryFilter> filters ) {
 		this.logicalAnd = logicalAnd;
 		this.filters = filters;
 	}
@@ -62,4 +65,38 @@ public class FilterList<T extends QueryFilter> implements
 		return logicalAnd;
 	}
 
+	@Override
+	public byte[] toBinary() {
+		int byteBufferLength = 8;
+		final List<byte[]> filterBinaries = new ArrayList<byte[]>(
+				filters.size());
+		for (final QueryFilter filter : filters) {
+			final byte[] filterBinary = PersistenceUtils.toBinary(filter);
+			byteBufferLength += (4 + filterBinary.length);
+			filterBinaries.add(filterBinary);
+		}
+		final ByteBuffer buf = ByteBuffer.allocate(byteBufferLength);
+		buf.putInt(logicalAnd ? 1 : 0);
+		buf.putInt(filters.size());
+		for (final byte[] filterBinary : filterBinaries) {
+			buf.putInt(filterBinary.length);
+			buf.put(filterBinary);
+		}
+		return buf.array();
+	}
+
+	@Override
+	public void fromBinary(
+			final byte[] bytes ) {
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
+		logicalAnd = buf.getInt() > 0;
+		final int numFilters = buf.getInt();
+		filters = new ArrayList<>(
+				numFilters);
+		for (int i = 0; i < numFilters; i++) {
+			final byte[] filter = new byte[buf.getInt()];
+			buf.get(filter);
+			filters.add((QueryFilter) PersistenceUtils.fromBinary(filter));
+		}
+	}
 }

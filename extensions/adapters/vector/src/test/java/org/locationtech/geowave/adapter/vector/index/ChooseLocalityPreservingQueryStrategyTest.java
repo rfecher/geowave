@@ -58,27 +58,18 @@ public class ChooseLocalityPreservingQueryStrategyTest
 	final Index IMAGE_CHIP_INDEX2 = new NullIndex(
 			"IMAGERY_CHIPS2");
 
-	protected final List<Index> indices = Arrays
-			.asList(
-					IMAGE_CHIP_INDEX1,
-					new SpatialTemporalIndexBuilder()
-							.setNumPartitions(
-									5)
-							.setBias(
-									SpatialTemporalDimensionalityTypeProvider.Bias.BALANCED)
-							.setPeriodicity(
-									Unit.YEAR)
-							.createIndex(),
-					new SpatialTemporalIndexBuilder()
-							.setNumPartitions(
-									10)
-							.setBias(
-									SpatialTemporalDimensionalityTypeProvider.Bias.BALANCED)
-							.setPeriodicity(
-									Unit.DAY)
-							.createIndex(),
-					new SpatialIndexBuilder().createIndex(),
-					IMAGE_CHIP_INDEX2);
+	protected final List<Index> indices = Arrays.asList(
+			IMAGE_CHIP_INDEX1,
+			new SpatialTemporalIndexBuilder().setNumPartitions(
+					5).setBias(
+					SpatialTemporalDimensionalityTypeProvider.Bias.BALANCED).setPeriodicity(
+					Unit.YEAR).createIndex(),
+			new SpatialTemporalIndexBuilder().setNumPartitions(
+					10).setBias(
+					SpatialTemporalDimensionalityTypeProvider.Bias.BALANCED).setPeriodicity(
+					Unit.DAY).createIndex(),
+			new SpatialIndexBuilder().createIndex(),
+			IMAGE_CHIP_INDEX2);
 
 	@Test
 	public void testChooseTemporalWithoutStatsHouseHour() {
@@ -92,16 +83,12 @@ public class ChooseLocalityPreservingQueryStrategyTest
 								HOUSE,
 								HOUR)),
 				strategy);
-		assertTrue(
-				it.hasNext());
+		assertTrue(it.hasNext());
 		assertEquals(
-				indices
-						.get(
-								1)
-						.getName(),
+				indices.get(
+						1).getName(),
 				it.next().getName());
-		assertFalse(
-				it.hasNext());
+		assertFalse(it.hasNext());
 
 	}
 
@@ -117,16 +104,12 @@ public class ChooseLocalityPreservingQueryStrategyTest
 								HOUSE,
 								DAY)),
 				strategy);
-		assertTrue(
-				it.hasNext());
+		assertTrue(it.hasNext());
 		assertEquals(
-				indices
-						.get(
-								3)
-						.getName(),
+				indices.get(
+						3).getName(),
 				it.next().getName());
-		assertFalse(
-				it.hasNext());
+		assertFalse(it.hasNext());
 
 	}
 
@@ -142,16 +125,12 @@ public class ChooseLocalityPreservingQueryStrategyTest
 								HOUSE,
 								WEEK)),
 				strategy);
-		assertTrue(
-				it.hasNext());
+		assertTrue(it.hasNext());
 		assertEquals(
-				indices
-						.get(
-								3)
-						.getName(),
+				indices.get(
+						3).getName(),
 				it.next().getName());
-		assertFalse(
-				it.hasNext());
+		assertFalse(it.hasNext());
 
 	}
 
@@ -167,16 +146,12 @@ public class ChooseLocalityPreservingQueryStrategyTest
 								BLOCK,
 								HOUR)),
 				strategy);
-		assertTrue(
-				it.hasNext());
+		assertTrue(it.hasNext());
 		assertEquals(
-				indices
-						.get(
-								1)
-						.getName(),
+				indices.get(
+						1).getName(),
 				it.next().getName());
-		assertFalse(
-				it.hasNext());
+		assertFalse(it.hasNext());
 
 	}
 
@@ -192,16 +167,12 @@ public class ChooseLocalityPreservingQueryStrategyTest
 								BLOCK,
 								DAY)),
 				strategy);
-		assertTrue(
-				it.hasNext());
+		assertTrue(it.hasNext());
 		assertEquals(
-				indices
-						.get(
-								3)
-						.getName(),
+				indices.get(
+						3).getName(),
 				it.next().getName());
-		assertFalse(
-				it.hasNext());
+		assertFalse(it.hasNext());
 
 	}
 
@@ -217,16 +188,12 @@ public class ChooseLocalityPreservingQueryStrategyTest
 								BLOCK,
 								WEEK)),
 				strategy);
-		assertTrue(
-				it.hasNext());
+		assertTrue(it.hasNext());
 		assertEquals(
-				indices
-						.get(
-								3)
-						.getName(),
+				indices.get(
+						3).getName(),
 				it.next().getName());
-		assertFalse(
-				it.hasNext());
+		assertFalse(it.hasNext());
 
 	}
 
@@ -242,16 +209,12 @@ public class ChooseLocalityPreservingQueryStrategyTest
 								CITY,
 								HOUR)),
 				strategy);
-		assertTrue(
-				it.hasNext());
+		assertTrue(it.hasNext());
 		assertEquals(
-				indices
-						.get(
-								1)
-						.getName(),
+				indices.get(
+						1).getName(),
 				it.next().getName());
-		assertFalse(
-				it.hasNext());
+		assertFalse(it.hasNext());
 
 	}
 
@@ -267,16 +230,12 @@ public class ChooseLocalityPreservingQueryStrategyTest
 								CITY,
 								DAY)),
 				strategy);
-		assertTrue(
-				it.hasNext());
+		assertTrue(it.hasNext());
 		assertEquals(
-				indices
-						.get(
-								1)
-						.getName(),
+				indices.get(
+						1).getName(),
 				it.next().getName());
-		assertFalse(
-				it.hasNext());
+		assertFalse(it.hasNext());
 
 	}
 
@@ -292,16 +251,12 @@ public class ChooseLocalityPreservingQueryStrategyTest
 								CITY,
 								WEEK)),
 				strategy);
-		assertTrue(
-				it.hasNext());
+		assertTrue(it.hasNext());
 		assertEquals(
-				indices
-						.get(
-								3)
-						.getName(),
+				indices.get(
+						3).getName(),
 				it.next().getName());
-		assertFalse(
-				it.hasNext());
+		assertFalse(it.hasNext());
 
 	}
 
@@ -309,14 +264,11 @@ public class ChooseLocalityPreservingQueryStrategyTest
 			final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats,
 			final BasicQuery query,
 			final ChooseLocalityPreservingQueryStrategy strategy ) {
-		return strategy
-				.getIndices(
-						stats,
-						query,
-						indices
-								.toArray(
-										new Index[indices.size()]),
-						Maps.newHashMap());
+		return strategy.getIndices(
+				stats,
+				query,
+				indices.toArray(new Index[indices.size()]),
+				Maps.newHashMap());
 	}
 
 	public static class ConstrainedIndexValue extends
@@ -363,41 +315,32 @@ public class ChooseLocalityPreservingQueryStrategyTest
 			final double lon,
 			final double time ) {
 		final ConstraintSet cs1 = new ConstraintSet();
-		cs1
-				.addConstraint(
-						LatitudeDefinition.class,
-						new ConstraintData(
-								new ConstrainedIndexValue(
-										0,
-										lat),
-								true));
+		cs1.addConstraint(
+				LatitudeDefinition.class,
+				new ConstraintData(
+						new ConstrainedIndexValue(
+								0,
+								lat),
+						true));
 
-		cs1
-				.addConstraint(
-						LongitudeDefinition.class,
-						new ConstraintData(
-								new ConstrainedIndexValue(
-										0,
-										lon),
-								true));
+		cs1.addConstraint(
+				LongitudeDefinition.class,
+				new ConstraintData(
+						new ConstrainedIndexValue(
+								0,
+								lon),
+						true));
 
 		final ConstraintSet cs2a = new ConstraintSet();
-		cs2a
-				.addConstraint(
-						TimeDefinition.class,
-						new ConstraintData(
-								new ConstrainedIndexValue(
-										0,
-										time),
-								true));
+		cs2a.addConstraint(
+				TimeDefinition.class,
+				new ConstraintData(
+						new ConstrainedIndexValue(
+								0,
+								time),
+						true));
 
 		return new Constraints(
-				Arrays
-						.asList(
-								cs2a))
-										.merge(
-												Collections
-														.singletonList(
-																cs1));
+				Arrays.asList(cs2a)).merge(Collections.singletonList(cs1));
 	}
 }

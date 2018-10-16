@@ -62,12 +62,8 @@ public class ChooseLocalityPreservingQueryStrategy implements
 					if (nextIdx.getIndexStrategy().getOrderedDimensionDefinitions().length == 0) {
 						continue;
 					}
-					final List<MultiDimensionalNumericData> queryRanges = query
-							.getIndexConstraints(
-									nextIdx);
-					if (IndexUtils
-							.isFullTableScan(
-									queryRanges)) {
+					final List<MultiDimensionalNumericData> queryRanges = query.getIndexConstraints(nextIdx);
+					if (IndexUtils.isFullTableScan(queryRanges)) {
 						// keep this is as a default in case all indices
 						// result in a full table scan
 						if (bestIdx == null) {
@@ -82,10 +78,9 @@ public class ChooseLocalityPreservingQueryStrategy implements
 								dataRangePerDimension[d] = qr.getMaxValuesPerDimension()[d]
 										- qr.getMinValuesPerDimension()[d];
 							}
-							totalMax += IndexUtils
-									.getDimensionalBitsUsed(
-											nextIdx.getIndexStrategy(),
-											dataRangePerDimension);
+							totalMax += IndexUtils.getDimensionalBitsUsed(
+									nextIdx.getIndexStrategy(),
+									dataRangePerDimension);
 						}
 						if (totalMax > indexMax) {
 							indexMax = totalMax;

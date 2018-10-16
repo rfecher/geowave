@@ -42,45 +42,26 @@ public class CustomNameIndex extends
 	@Override
 	public byte[] toBinary() {
 		final byte[] selfBinary = super.toBinary();
-		final byte[] idBinary = StringUtils
-				.stringToBinary(
-						name);
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						4 + idBinary.length + selfBinary.length);
-		buf
-				.putInt(
-						selfBinary.length);
-		buf
-				.put(
-						selfBinary);
-		buf
-				.put(
-						idBinary);
+		final byte[] idBinary = StringUtils.stringToBinary(name);
+		final ByteBuffer buf = ByteBuffer.allocate(4 + idBinary.length + selfBinary.length);
+		buf.putInt(selfBinary.length);
+		buf.put(selfBinary);
+		buf.put(idBinary);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer
-				.wrap(
-						bytes);
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
 		final int selfBinaryLength = buf.getInt();
 		final byte[] selfBinary = new byte[selfBinaryLength];
-		buf
-				.get(
-						selfBinary);
+		buf.get(selfBinary);
 
-		super.fromBinary(
-				selfBinary);
+		super.fromBinary(selfBinary);
 		final byte[] nameBinary = new byte[bytes.length - selfBinaryLength - 4];
-		buf
-				.get(
-						nameBinary);
-		name = StringUtils
-				.stringFromBinary(
-						nameBinary);
+		buf.get(nameBinary);
+		name = StringUtils.stringFromBinary(nameBinary);
 	}
 
 	@Override
@@ -89,8 +70,7 @@ public class CustomNameIndex extends
 		if (!(obj instanceof CustomNameIndex)) {
 			return false;
 		}
-		return super.equals(
-				obj);
+		return super.equals(obj);
 	}
 
 	@Override

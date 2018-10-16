@@ -85,7 +85,8 @@ public class ListStatsCommand extends
 
 		final StringBuilder builder = new StringBuilder();
 
-		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> statsIt = statsStore.getAllDataStatistics(authorizations)) {
+		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> statsIt = statsStore
+				.getAllDataStatistics(authorizations)) {
 			if (statsOptions.getJsonFormatFlag()) {
 				final JSONArray resultsArray = new JSONArray();
 				final JSONObject outputObject = new JSONObject();

@@ -18,6 +18,7 @@ import org.locationtech.geowave.adapter.vector.index.TextSecondaryIndexConfigura
 import org.locationtech.geowave.adapter.vector.ingest.CQLFilterOptionProvider;
 import org.locationtech.geowave.adapter.vector.ingest.DataSchemaOptionProvider;
 import org.locationtech.geowave.adapter.vector.ingest.FeatureSerializationOptionProvider;
+import org.locationtech.geowave.adapter.vector.ingest.GeometrySimpOptionProvider;
 import org.locationtech.geowave.adapter.vector.ingest.TypeNameOptionProvider;
 import org.locationtech.geowave.adapter.vector.plugin.visibility.VisibilityConfiguration;
 import org.locationtech.geowave.adapter.vector.render.DistributedRenderAggregation;
@@ -160,7 +161,10 @@ public class FeatureAdapterPersistableRegistry implements
 					TemporalSecondaryIndexConfiguration::new),
 			new PersistableIdAndConstructor(
 					(short) 535,
-					TextSecondaryIndexConfiguration::new)
+					TextSecondaryIndexConfiguration::new),
+			new PersistableIdAndConstructor(
+					(short) 536,
+					GeometrySimpOptionProvider::new)			
 		};
 	}
 }

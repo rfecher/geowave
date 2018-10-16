@@ -39,9 +39,7 @@ public class FeatureHyperLogLogStatistics extends
 		AbstractDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>> implements
 		FieldNameStatistic
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					FeatureHyperLogLogStatistics.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(FeatureHyperLogLogStatistics.class);
 	public static final FieldStatisticsType<HyperLogLogPlus> STATS_TYPE = new FieldStatisticsType<>(
 			"ATT_HYPERLLP");
 
@@ -104,9 +102,7 @@ public class FeatureHyperLogLogStatistics extends
 			final Mergeable mergeable ) {
 		if (mergeable instanceof FeatureHyperLogLogStatistics) {
 			try {
-				loglog = (HyperLogLogPlus) ((FeatureHyperLogLogStatistics) mergeable).loglog
-						.merge(
-								loglog);
+				loglog = (HyperLogLogPlus) ((FeatureHyperLogLogStatistics) mergeable).loglog.merge(loglog);
 			}
 			catch (final CardinalityMergeException e) {
 				throw new RuntimeException(
@@ -123,21 +119,15 @@ public class FeatureHyperLogLogStatistics extends
 		try {
 			final byte[] data = loglog.getBytes();
 
-			final ByteBuffer buffer = super.binaryBuffer(
-					4 + data.length);
-			buffer
-					.putInt(
-							data.length);
-			buffer
-					.put(
-							data);
+			final ByteBuffer buffer = super.binaryBuffer(4 + data.length);
+			buffer.putInt(data.length);
+			buffer.put(data);
 			return buffer.array();
 		}
 		catch (final IOException e) {
-			LOGGER
-					.error(
-							"Exception while writing statistic",
-							e);
+			LOGGER.error(
+					"Exception while writing statistic",
+					e);
 		}
 		return new byte[0];
 	}
@@ -145,22 +135,16 @@ public class FeatureHyperLogLogStatistics extends
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buffer = super.binaryBuffer(bytes);
 		final byte[] data = new byte[buffer.getInt()];
-		buffer
-				.get(
-						data);
+		buffer.get(data);
 		try {
-			loglog = HyperLogLogPlus.Builder
-					.build(
-							data);
+			loglog = HyperLogLogPlus.Builder.build(data);
 		}
 		catch (final IOException e) {
-			LOGGER
-					.error(
-							"Exception while reading statistic",
-							e);
+			LOGGER.error(
+					"Exception while reading statistic",
+					e);
 		}
 	}
 
@@ -168,38 +152,26 @@ public class FeatureHyperLogLogStatistics extends
 	public void entryIngested(
 			final SimpleFeature entry,
 			final GeoWaveRow... rows ) {
-		final Object o = entry
-				.getAttribute(
-						getFieldName());
+		final Object o = entry.getAttribute(getFieldName());
 		if (o == null) {
 			return;
 		}
-		loglog
-				.offer(
-						o.toString());
+		loglog.offer(o.toString());
 	}
 
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer
-				.append(
-						"hyperloglog[internalDataAdapterId=")
-				.append(
-						super.getAdapterId());
-		buffer
-				.append(
-						", field=")
-				.append(
-						getFieldName());
-		buffer
-				.append(
-						", cardinality=")
-				.append(
-						loglog.cardinality());
-		buffer
-				.append(
-						"]");
+		buffer.append(
+				"hyperloglog[internalDataAdapterId=").append(
+				super.getAdapterId());
+		buffer.append(
+				", field=").append(
+				getFieldName());
+		buffer.append(
+				", cardinality=").append(
+				loglog.cardinality());
+		buffer.append("]");
 		return buffer.toString();
 	}
 
@@ -216,15 +188,13 @@ public class FeatureHyperLogLogStatistics extends
 	@Override
 	protected Object resultsValue() {
 		final Map<String, Long> result = new HashMap<>();
-		result
-				.put(
-						"cardinality",
-						loglog.cardinality());
+		result.put(
+				"cardinality",
+				loglog.cardinality());
 
-		result
-				.put(
-						"precision",
-						(long) precision);
+		result.put(
+				"precision",
+				(long) precision);
 		return result;
 	}
 
@@ -268,21 +238,16 @@ public class FeatureHyperLogLogStatistics extends
 
 		@Override
 		public byte[] toBinary() {
-			return ByteBuffer
-					.allocate(
-							4)
-					.putInt(
-							precision)
-					.array();
+			return ByteBuffer.allocate(
+					4).putInt(
+					precision).array();
 		}
 
 		@Override
 		public void fromBinary(
 				final byte[] bytes ) {
-			precision = ByteBuffer
-					.wrap(
-							bytes)
-					.getInt();
+			precision = ByteBuffer.wrap(
+					bytes).getInt();
 		}
 	}
 }

@@ -25,5 +25,5 @@ public interface GeotoolsFeatureDataAdapter extends
 	public TimeDescriptors getTimeDescriptors();
 
 	public boolean hasTemporalConstraints();
-	
+
 }

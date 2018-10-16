@@ -18,7 +18,7 @@ import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 
 public class SecondaryIndexStoreImpl implements
@@ -32,19 +32,17 @@ public class SecondaryIndexStoreImpl implements
 
 	}
 
-
 	@Override
 	public <T> CloseableIterator<T> query(
 			final SecondaryIndexImpl<T> secondaryIndex,
 			final String indexedAttributeFieldName,
 			final InternalDataAdapter<T> adapter,
 			final Index primaryIndex,
-			final DistributableQueryConstraints query,
+			final QueryConstraints query,
 			final String... authorizations ) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	@Override
 	public void storeJoinEntry(
@@ -57,9 +55,8 @@ public class SecondaryIndexStoreImpl implements
 			ByteArrayId primaryIndexSortKey,
 			ByteArrayId attributeVisibility ) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 	@Override
 	public void storeEntry(
@@ -70,9 +67,8 @@ public class SecondaryIndexStoreImpl implements
 			ByteArrayId dataId,
 			GeoWaveValue... originalFields ) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 	@Override
 	public void deleteJoinEntry(
@@ -85,9 +81,8 @@ public class SecondaryIndexStoreImpl implements
 			ByteArrayId primaryIndexSortKey,
 			ByteArrayId attributeVisibility ) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 	@Override
 	public void deleteEntry(
@@ -98,9 +93,8 @@ public class SecondaryIndexStoreImpl implements
 			ByteArrayId dataId,
 			GeoWaveValue... originalFields ) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 	@Override
 	public void flush() {

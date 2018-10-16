@@ -41,7 +41,8 @@ public class BaseDataStoreTest
 		// delete existing data
 		new GeoWavePluginConfig(
 				storeFactoryFamily,
-				params).getDataStore().delete(QueryBuilder.newBuilder().build());
+				params).getDataStore().delete(
+				QueryBuilder.newBuilder().build());
 
 		return new GeoWaveGTDataStoreFactory(
 				storeFactoryFamily).createNewDataStore(params);

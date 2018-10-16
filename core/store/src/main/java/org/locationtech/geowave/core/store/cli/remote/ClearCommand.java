@@ -41,9 +41,7 @@ public class ClearCommand extends
 		return true;
 	}
 
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					ClearCommand.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ClearCommand.class);
 
 	@Parameter(description = "<store name>")
 	private List<String> parameters = new ArrayList<>();
@@ -53,8 +51,7 @@ public class ClearCommand extends
 	@Override
 	public void execute(
 			final OperationParams params ) {
-		computeResults(
-				params);
+		computeResults(params);
 	}
 
 	public List<String> getParameters() {
@@ -64,9 +61,7 @@ public class ClearCommand extends
 	public void setParameters(
 			final String storeName ) {
 		parameters = new ArrayList<>();
-		parameters
-				.add(
-						storeName);
+		parameters.add(storeName);
 	}
 
 	public DataStorePluginOptions getInputStoreOptions() {
@@ -81,33 +76,24 @@ public class ClearCommand extends
 					"Must specify store name");
 		}
 
-		final String inputStoreName = parameters
-				.get(
-						0);
+		final String inputStoreName = parameters.get(0);
 
 		// Attempt to load store.
-		final File configFile = getGeoWaveConfigFile(
-				params);
+		final File configFile = getGeoWaveConfigFile(params);
 
 		// Attempt to load input store.
 		final StoreLoader inputStoreLoader = new StoreLoader(
 				inputStoreName);
-		if (!inputStoreLoader
-				.loadFromConfig(
-						configFile)) {
+		if (!inputStoreLoader.loadFromConfig(configFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + inputStoreLoader.getStoreName());
 		}
 		inputStoreOptions = inputStoreLoader.getDataStorePlugin();
 
-		LOGGER
-				.info(
-						"Deleting everything in store: " + inputStoreName);
+		LOGGER.info("Deleting everything in store: " + inputStoreName);
 
-		inputStoreOptions
-				.createDataStore()
-				.delete(
-						QueryBuilder.newBuilder().build());
+		inputStoreOptions.createDataStore().delete(
+				QueryBuilder.newBuilder().build());
 		return null;
 	}
 }

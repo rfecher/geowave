@@ -46,9 +46,7 @@ public class CQLDelete extends
 		DefaultOperation implements
 		Command
 {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					CQLDelete.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(CQLDelete.class);
 
 	@Parameter(description = "<storename>")
 	private final List<String> parameters = new ArrayList<>();
@@ -70,10 +68,8 @@ public class CQLDelete extends
 			final OperationParams params )
 			throws ParseException {
 		if (debug) {
-			org.apache.log4j.Logger
-					.getRootLogger()
-					.setLevel(
-							org.apache.log4j.Level.DEBUG);
+			org.apache.log4j.Logger.getRootLogger().setLevel(
+					org.apache.log4j.Level.DEBUG);
 		}
 
 		final StopWatch stopWatch = new StopWatch();
@@ -84,20 +80,15 @@ public class CQLDelete extends
 					"Requires arguments: <storename>");
 		}
 
-		final String storeName = parameters
-				.get(
-						0);
+		final String storeName = parameters.get(0);
 
 		// Config file
-		final File configFile = getGeoWaveConfigFile(
-				params);
+		final File configFile = getGeoWaveConfigFile(params);
 
 		// Attempt to load store.
 		final StoreLoader storeOptions = new StoreLoader(
 				storeName);
-		if (!storeOptions
-				.loadFromConfig(
-						configFile)) {
+		if (!storeOptions.loadFromConfig(configFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + storeOptions.getStoreName());
 		}
@@ -106,41 +97,33 @@ public class CQLDelete extends
 		final PersistentAdapterStore adapterStore = storeOptions.createAdapterStore();
 		final InternalAdapterStore internalAdapterStore = storeOptions.createInternalAdapterStore();
 
-			final GeotoolsFeatureDataAdapter adapter;
-			if (typeName != null) {
-				adapter = (GeotoolsFeatureDataAdapter) adapterStore
-						.getAdapter(
-								internalAdapterStore
-										.getAdapterId(
-												typeName))
-						.getAdapter();
-			}
-			else {
-				final CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters();
-				adapter = (GeotoolsFeatureDataAdapter) it.next().getAdapter();
-				it.close();
-			}
+		final GeotoolsFeatureDataAdapter adapter;
+		if (typeName != null) {
+			adapter = (GeotoolsFeatureDataAdapter) adapterStore.getAdapter(
+					internalAdapterStore.getAdapterId(typeName)).getAdapter();
+		}
+		else {
+			final CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters();
+			adapter = (GeotoolsFeatureDataAdapter) it.next().getAdapter();
+			it.close();
+		}
 
-			if (debug && (adapter != null)) {
-				LOGGER
-						.debug(
-								adapter.toString());
-			}
+		if (debug && (adapter != null)) {
+			LOGGER.debug(adapter.toString());
+		}
 
-			stopWatch.start();
-			final long results = delete(
-					adapter,
-					typeName,
-					indexName,
-					dataStore,
-					debug);
-			stopWatch.stop();
+		stopWatch.start();
+		final long results = delete(
+				adapter,
+				typeName,
+				indexName,
+				dataStore,
+				debug);
+		stopWatch.stop();
 
-			if (debug) {
-				LOGGER
-						.debug(
-								results + " results remaining after delete; time = " + stopWatch.toString());
-			}
+		if (debug) {
+			LOGGER.debug(results + " results remaining after delete; time = " + stopWatch.toString());
+		}
 	}
 
 	protected long delete(
@@ -152,32 +135,20 @@ public class CQLDelete extends
 		long missed = 0;
 
 		final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
-		final Query<SimpleFeature> query = bldr
-				.addTypeName(
-						typeName)
-				.indexName(
-						indexName)
-				.constraints(
-						bldr
-								.constraintsFactory()
-								.cqlConstraints(
-										cqlStr))
-				.build();
-		final boolean success = dataStore
-				.delete(
-						query);
+		final Query<SimpleFeature> query = bldr.addTypeName(
+				typeName).indexName(
+				indexName).constraints(
+				bldr.constraintsFactory().cqlConstraints(
+						cqlStr)).build();
+		final boolean success = dataStore.delete(query);
 
 		if (debug) {
-			LOGGER
-					.debug(
-							"CQL Delete " + (success ? "Success" : "Failure"));
+			LOGGER.debug("CQL Delete " + (success ? "Success" : "Failure"));
 		}
 
 		// Verify delete by running the CQL query
 		if (debug) {
-			try (final CloseableIterator<SimpleFeature> it = dataStore
-					.query(
-							query)) {
+			try (final CloseableIterator<SimpleFeature> it = dataStore.query(query)) {
 
 				while (it.hasNext()) {
 					it.next();

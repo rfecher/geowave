@@ -32,9 +32,7 @@ import com.beust.jcommander.Parameters;
 public class RemoveTypeCommand extends
 		ServiceEnabledCommand<Void>
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					RemoveTypeCommand.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(RemoveTypeCommand.class);
 
 	@Parameter(description = "<store name> <type name>")
 	private List<String> parameters = new ArrayList<>();
@@ -52,8 +50,7 @@ public class RemoveTypeCommand extends
 	@Override
 	public void execute(
 			final OperationParams params ) {
-		computeResults(
-				params);
+		computeResults(params);
 	}
 
 	public List<String> getParameters() {
@@ -64,12 +61,8 @@ public class RemoveTypeCommand extends
 			final String storeName,
 			final String adapterId ) {
 		parameters = new ArrayList<>();
-		parameters
-				.add(
-						storeName);
-		parameters
-				.add(
-						adapterId);
+		parameters.add(storeName);
+		parameters.add(adapterId);
 	}
 
 	public DataStorePluginOptions getInputStoreOptions() {
@@ -85,38 +78,24 @@ public class RemoveTypeCommand extends
 					"Requires arguments: <store name> <type name>");
 		}
 
-		final String inputStoreName = parameters
-				.get(
-						0);
-		final String typeName = parameters
-				.get(
-						1);
+		final String inputStoreName = parameters.get(0);
+		final String typeName = parameters.get(1);
 
 		// Attempt to load store.
-		final File configFile = getGeoWaveConfigFile(
-				params);
+		final File configFile = getGeoWaveConfigFile(params);
 
 		final StoreLoader inputStoreLoader = new StoreLoader(
 				inputStoreName);
-		if (!inputStoreLoader
-				.loadFromConfig(
-						configFile)) {
+		if (!inputStoreLoader.loadFromConfig(configFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + inputStoreLoader.getStoreName());
 		}
 		inputStoreOptions = inputStoreLoader.getDataStorePlugin();
 
-		LOGGER
-				.info(
-						"Deleting everything in store: " + inputStoreName + " with type name: " + typeName);
-		inputStoreOptions
-				.createDataStore()
-				.delete(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										typeName)
-								.build());
+		LOGGER.info("Deleting everything in store: " + inputStoreName + " with type name: " + typeName);
+		inputStoreOptions.createDataStore().delete(
+				QueryBuilder.newBuilder().addTypeName(
+						typeName).build());
 		return null;
 	}
 

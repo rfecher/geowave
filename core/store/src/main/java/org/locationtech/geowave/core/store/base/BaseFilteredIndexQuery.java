@@ -48,9 +48,7 @@ abstract class BaseFilteredIndexQuery extends
 		BaseQuery
 {
 	protected List<QueryFilter> clientFilters;
-	private final static Logger LOGGER = Logger
-			.getLogger(
-					BaseFilteredIndexQuery.class);
+	private final static Logger LOGGER = Logger.getLogger(BaseFilteredIndexQuery.class);
 
 	public BaseFilteredIndexQuery(
 			final short[] adapterIds,
@@ -108,10 +106,9 @@ abstract class BaseFilteredIndexQuery extends
 		}
 		Iterator it = reader;
 		if ((limit != null) && (limit > 0)) {
-			it = Iterators
-					.limit(
-							it,
-							limit);
+			it = Iterators.limit(
+					it,
+					limit);
 		}
 		return new CloseableIteratorWrapper(
 				new ReaderClosableWrapper(
@@ -133,20 +130,15 @@ abstract class BaseFilteredIndexQuery extends
 			final boolean delete ) {
 		boolean exists = false;
 		try {
-			exists = datastoreOperations
-					.indexExists(
-							index.getName());
+			exists = datastoreOperations.indexExists(index.getName());
 		}
 		catch (final IOException e) {
-			LOGGER
-					.error(
-							"Table does not exist",
-							e);
+			LOGGER.error(
+					"Table does not exist",
+					e);
 		}
 		if (!exists) {
-			LOGGER
-					.warn(
-							"Table does not exist " + index.getName());
+			LOGGER.warn("Table does not exist " + index.getName());
 			return null;
 		}
 
@@ -167,16 +159,13 @@ abstract class BaseFilteredIndexQuery extends
 			final PersistentAdapterStore adapterStore ) {
 		final Map<Short, RowMergingDataAdapter> mergingAdapters = new HashMap<>();
 		for (final Short adapterId : adapterIds) {
-			final DataTypeAdapter<?> adapter = adapterStore
-					.getAdapter(
-							adapterId)
-					.getAdapter();
+			final DataTypeAdapter<?> adapter = adapterStore.getAdapter(
+					adapterId).getAdapter();
 			if ((adapter instanceof RowMergingDataAdapter)
 					&& (((RowMergingDataAdapter) adapter).getTransform() != null)) {
-				mergingAdapters
-						.put(
-								adapterId,
-								(RowMergingDataAdapter) adapter);
+				mergingAdapters.put(
+						adapterId,
+						(RowMergingDataAdapter) adapter);
 			}
 		}
 
@@ -188,11 +177,9 @@ abstract class BaseFilteredIndexQuery extends
 			final PersistentAdapterStore adapterStore,
 			final double[] maxResolutionSubsamplingPerDimension,
 			final boolean decodePersistenceEncoding ) {
-		final @Nullable QueryFilter clientFilter = getClientFilter(
-				options);
+		final @Nullable QueryFilter clientFilter = getClientFilter(options);
 		if ((options == null) || !options.isServerSideLibraryEnabled()) {
-			final Map<Short, RowMergingDataAdapter> mergingAdapters = getMergingAdapters(
-					adapterStore);
+			final Map<Short, RowMergingDataAdapter> mergingAdapters = getMergingAdapters(adapterStore);
 
 			if (!mergingAdapters.isEmpty()) {
 				return new GeoWaveRowIteratorTransformer<T>() {
@@ -246,14 +233,10 @@ abstract class BaseFilteredIndexQuery extends
 	@Override
 	protected QueryFilter getClientFilter(
 			final DataStoreOptions options ) {
-		final List<QueryFilter> internalClientFilters = getClientFiltersList(
-				options);
-		return internalClientFilters.isEmpty() ? null
-				: internalClientFilters.size() == 1 ? internalClientFilters
-						.get(
-								0)
-						: new FilterList<>(
-								internalClientFilters);
+		final List<QueryFilter> internalClientFilters = getClientFiltersList(options);
+		return internalClientFilters.isEmpty() ? null : internalClientFilters.size() == 1 ? internalClientFilters
+				.get(0) : new FilterList(
+				internalClientFilters);
 	}
 
 	protected List<QueryFilter> getClientFiltersList(

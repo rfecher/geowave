@@ -41,9 +41,7 @@ public class AdapterIndexMappingStoreImpl extends
 		AbstractGeoWavePersistence<AdapterToIndexMapping> implements
 		AdapterIndexMappingStore
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					AdapterIndexMappingStoreImpl.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(AdapterIndexMappingStoreImpl.class);
 
 	public AdapterIndexMappingStoreImpl(
 			final DataStoreOperations operations,
@@ -58,9 +56,7 @@ public class AdapterIndexMappingStoreImpl extends
 			final AdapterToIndexMapping persistedObject ) {
 		return objectExists(
 				new ByteArrayId(
-						ByteArrayUtils
-								.shortToByteArray(
-										persistedObject.getAdapterId())),
+						ByteArrayUtils.shortToByteArray(persistedObject.getAdapterId())),
 				null);
 	}
 
@@ -68,9 +64,7 @@ public class AdapterIndexMappingStoreImpl extends
 	protected ByteArrayId getPrimaryId(
 			final AdapterToIndexMapping persistedObject ) {
 		return new ByteArrayId(
-				ByteArrayUtils
-						.shortToByteArray(
-								persistedObject.getAdapterId()));
+				ByteArrayUtils.shortToByteArray(persistedObject.getAdapterId()));
 	}
 
 	@Override
@@ -79,15 +73,12 @@ public class AdapterIndexMappingStoreImpl extends
 
 		final AdapterToIndexMapping mapping = super.getObject(
 				new ByteArrayId(
-						ByteArrayUtils
-								.shortToByteArray(
-										adapterId)),
+						ByteArrayUtils.shortToByteArray(adapterId)),
 				null,
 				null);
-		return (mapping != null) ? mapping
-				: new AdapterToIndexMapping(
-						adapterId,
-						new String[0]);
+		return (mapping != null) ? mapping : new AdapterToIndexMapping(
+				adapterId,
+				new String[0]);
 	}
 
 	@Override
@@ -145,10 +136,7 @@ public class AdapterIndexMappingStoreImpl extends
 	@Override
 	public void remove(
 			final short internalAdapterId ) {
-		super.remove(
-				new ByteArrayId(
-						ByteArrayUtils
-								.shortToByteArray(
-										internalAdapterId)));
+		super.remove(new ByteArrayId(
+				ByteArrayUtils.shortToByteArray(internalAdapterId)));
 	}
 }

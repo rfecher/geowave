@@ -78,33 +78,25 @@ public class TimeField implements
 	@Override
 	public double normalize(
 			final double value ) {
-		return baseDefinition
-				.normalize(
-						value);
+		return baseDefinition.normalize(value);
 	}
 
 	@Override
 	public double denormalize(
 			final double value ) {
-		return baseDefinition
-				.denormalize(
-						value);
+		return baseDefinition.denormalize(value);
 	}
 
 	@Override
 	public BinRange[] getNormalizedRanges(
 			final NumericData index ) {
-		return baseDefinition
-				.getNormalizedRanges(
-						index);
+		return baseDefinition.getNormalizedRanges(index);
 	}
 
 	@Override
 	public NumericRange getDenormalizedRange(
 			final BinRange range ) {
-		return baseDefinition
-				.getDenormalizedRange(
-						range);
+		return baseDefinition.getDenormalizedRange(range);
 	}
 
 	@Override
@@ -150,49 +142,27 @@ public class TimeField implements
 
 	@Override
 	public byte[] toBinary() {
-		final byte[] dimensionBinary = PersistenceUtils
-				.toBinary(
-						baseDefinition);
-		final byte[] fieldNameBytes = StringUtils
-				.stringToBinary(
-						fieldName);
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						dimensionBinary.length + fieldNameBytes.length + 4);
-		buf
-				.putInt(
-						fieldNameBytes.length);
-		buf
-				.put(
-						fieldNameBytes);
-		buf
-				.put(
-						dimensionBinary);
+		final byte[] dimensionBinary = PersistenceUtils.toBinary(baseDefinition);
+		final byte[] fieldNameBytes = StringUtils.stringToBinary(fieldName);
+		final ByteBuffer buf = ByteBuffer.allocate(dimensionBinary.length + fieldNameBytes.length + 4);
+		buf.putInt(fieldNameBytes.length);
+		buf.put(fieldNameBytes);
+		buf.put(dimensionBinary);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer
-				.wrap(
-						bytes);
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
 		final int fieldNameLength = buf.getInt();
 		final byte[] fieldNameBinary = new byte[fieldNameLength];
-		buf
-				.get(
-						fieldNameBinary);
-		fieldName = StringUtils
-				.stringFromBinary(
-						fieldNameBinary);
+		buf.get(fieldNameBinary);
+		fieldName = StringUtils.stringFromBinary(fieldNameBinary);
 
 		final byte[] dimensionBinary = new byte[bytes.length - fieldNameLength - 4];
-		buf
-				.get(
-						dimensionBinary);
-		baseDefinition = (NumericDimensionDefinition) PersistenceUtils
-				.fromBinary(
-						dimensionBinary);
+		buf.get(dimensionBinary);
+		baseDefinition = (NumericDimensionDefinition) PersistenceUtils.fromBinary(dimensionBinary);
 	}
 
 	@Override
@@ -222,9 +192,7 @@ public class TimeField implements
 				return false;
 			}
 		}
-		else if (!baseDefinition
-				.equals(
-						other.baseDefinition)) {
+		else if (!baseDefinition.equals(other.baseDefinition)) {
 			return false;
 		}
 		if (fieldName == null) {
@@ -232,9 +200,7 @@ public class TimeField implements
 				return false;
 			}
 		}
-		else if (!fieldName
-				.equals(
-						other.fieldName)) {
+		else if (!fieldName.equals(other.fieldName)) {
 			return false;
 		}
 		return true;

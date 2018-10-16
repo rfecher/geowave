@@ -29,14 +29,10 @@ public class CountAggregation implements
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer
-				.append(
-						"count[count=")
-				.append(
-						count);
-		buffer
-				.append(
-						"]");
+		buffer.append(
+				"count[count=").append(
+				count);
+		buffer.append("]");
 		return buffer.toString();
 	}
 
@@ -84,20 +80,15 @@ public class CountAggregation implements
 	@Override
 	public byte[] resultToBinary(
 			final Long result ) {
-		return ByteBuffer
-				.allocate(
-						8)
-				.putLong(
-						result)
-				.array();
+		return ByteBuffer.allocate(
+				8).putLong(
+				result).array();
 	}
 
 	@Override
 	public Long resultFromBinary(
 			final byte[] binary ) {
-		return ByteBuffer
-				.wrap(
-						binary)
-				.getLong();
+		return ByteBuffer.wrap(
+				binary).getLong();
 	}
 }

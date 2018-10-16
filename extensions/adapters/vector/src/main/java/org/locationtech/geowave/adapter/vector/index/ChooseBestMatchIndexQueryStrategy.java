@@ -34,9 +34,7 @@ public class ChooseBestMatchIndexQueryStrategy implements
 		IndexQueryStrategySPI
 {
 	public static final String NAME = "Best Match";
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					ChooseBestMatchIndexQueryStrategy.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ChooseBestMatchIndexQueryStrategy.class);
 
 	@Override
 	public String toString() {
@@ -64,9 +62,7 @@ public class ChooseBestMatchIndexQueryStrategy implements
 					if (nextIdx.getIndexStrategy().getOrderedDimensionDefinitions().length == 0) {
 						continue;
 					}
-					final List<MultiDimensionalNumericData> constraints = query
-							.getIndexConstraints(
-									nextIdx);
+					final List<MultiDimensionalNumericData> constraints = query.getIndexConstraints(nextIdx);
 					boolean containsRowRangeHistograms = false;
 
 					final StatisticsQuery<NumericHistogram> query = VectorStatisticsQueryBuilder
@@ -79,27 +75,19 @@ public class ChooseBestMatchIndexQueryStrategy implements
 					for (final StatisticsId statsId : stats.keySet()) {
 						// find out if any partition histograms exist for this
 						// index ID by checking the prefix
-						if (statsId
-								.getType()
-								.equals(
-										query.getStatsType())
-								&& statsId
-										.getExtendedId()
-										.startsWith(
-												query.getExtendedId())) {
+						if (statsId.getType().equals(
+								query.getStatsType()) && statsId.getExtendedId().startsWith(
+								query.getExtendedId())) {
 							containsRowRangeHistograms = true;
 							break;
 						}
 					}
 					if (!containsRowRangeHistograms) {
 						LOGGER
-								.warn(
-										"Best Match Heuristic requires statistic RowRangeHistogramStatistics for each index to properly choose an index.");
+								.warn("Best Match Heuristic requires statistic RowRangeHistogramStatistics for each index to properly choose an index.");
 					}
 
-					if (IndexUtils
-							.isFullTableScan(
-									constraints)) {
+					if (IndexUtils.isFullTableScan(constraints)) {
 						// keep this is as a default in case all indices
 						// result in a full table scan
 						if (bestIdx == null) {
@@ -108,30 +96,23 @@ public class ChooseBestMatchIndexQueryStrategy implements
 					}
 					else {
 						final int maxRangeDecomposition;
-						if (hints
-								.containsKey(
-										QueryHint.MAX_RANGE_DECOMPOSITION)) {
-							maxRangeDecomposition = (Integer) hints
-									.get(
-											QueryHint.MAX_RANGE_DECOMPOSITION);
+						if (hints.containsKey(QueryHint.MAX_RANGE_DECOMPOSITION)) {
+							maxRangeDecomposition = (Integer) hints.get(QueryHint.MAX_RANGE_DECOMPOSITION);
 						}
 						else {
 							LOGGER
-									.warn(
-											"No max range decomposition hint was provided, this should be provided from the data store options");
+									.warn("No max range decomposition hint was provided, this should be provided from the data store options");
 							maxRangeDecomposition = 2000;
 						}
-						final QueryRanges ranges = DataStoreUtils
-								.constraintsToQueryRanges(
-										constraints,
-										nextIdx.getIndexStrategy(),
-										null,
-										maxRangeDecomposition);
-						final long temp = DataStoreUtils
-								.cardinality(
-										nextIdx,
-										stats,
-										ranges);
+						final QueryRanges ranges = DataStoreUtils.constraintsToQueryRanges(
+								constraints,
+								nextIdx.getIndexStrategy(),
+								null,
+								maxRangeDecomposition);
+						final long temp = DataStoreUtils.cardinality(
+								nextIdx,
+								stats,
+								ranges);
 						if (temp < min) {
 							bestIdx = nextIdx;
 							min = temp;

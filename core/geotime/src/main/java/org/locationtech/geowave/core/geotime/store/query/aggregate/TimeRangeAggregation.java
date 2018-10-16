@@ -30,7 +30,7 @@ abstract public class TimeRangeAggregation<P extends Persistable, T> implements
 
 	@Override
 	public void setParameters(
-			final Persistable parameters ) {}
+			final P parameters ) {}
 
 	public boolean isSet() {
 		if ((min == Long.MAX_VALUE) || (max == Long.MIN_VALUE)) {
@@ -44,14 +44,9 @@ abstract public class TimeRangeAggregation<P extends Persistable, T> implements
 		if (!isSet()) {
 			return null;
 		}
-		return Interval
-				.of(
-						Instant
-								.ofEpochMilli(
-										min),
-						Instant
-								.ofEpochMilli(
-										max));
+		return Interval.of(
+				Instant.ofEpochMilli(min),
+				Instant.ofEpochMilli(max));
 	}
 
 	@Override
@@ -64,46 +59,30 @@ abstract public class TimeRangeAggregation<P extends Persistable, T> implements
 		else if (result2 == null) {
 			return result1;
 		}
-		final long min = Math
-				.min(
-						result1.getStart().toEpochMilli(),
-						result1.getEnd().toEpochMilli());
-		final long max = Math
-				.max(
-						result2.getStart().toEpochMilli(),
-						result2.getEnd().toEpochMilli());
-		return Interval
-				.of(
-						Instant
-								.ofEpochMilli(
-										min),
-						Instant
-								.ofEpochMilli(
-										max));
+		final long min = Math.min(
+				result1.getStart().toEpochMilli(),
+				result1.getEnd().toEpochMilli());
+		final long max = Math.max(
+				result2.getStart().toEpochMilli(),
+				result2.getEnd().toEpochMilli());
+		return Interval.of(
+				Instant.ofEpochMilli(min),
+				Instant.ofEpochMilli(max));
 	}
 
 	@Override
 	public byte[] resultToBinary(
 			final Interval result ) {
-		final ByteBuffer buffer = ByteBuffer
-				.allocate(
-						16);
+		final ByteBuffer buffer = ByteBuffer.allocate(16);
 		if (result == null) {
-			buffer
-					.putLong(
-							Long.MAX_VALUE);
-			buffer
-					.putLong(
-							Long.MIN_VALUE);
+			buffer.putLong(Long.MAX_VALUE);
+			buffer.putLong(Long.MIN_VALUE);
 		}
 		else {
-			buffer
-					.putLong(
-							result.getStart().toEpochMilli());
-			buffer
-					.putLong(
+			buffer.putLong(result.getStart().toEpochMilli());
+			buffer.putLong(
 
-							result.getEnd().toEpochMilli());
+			result.getEnd().toEpochMilli());
 		}
 		return buffer.array();
 	}
@@ -111,22 +90,15 @@ abstract public class TimeRangeAggregation<P extends Persistable, T> implements
 	@Override
 	public Interval resultFromBinary(
 			final byte[] binary ) {
-		final ByteBuffer buffer = ByteBuffer
-				.wrap(
-						binary);
+		final ByteBuffer buffer = ByteBuffer.wrap(binary);
 		final long minTime = buffer.getLong();
 		final long maxTime = buffer.getLong();
 		if ((min == Long.MAX_VALUE) || (max == Long.MIN_VALUE)) {
 			return null;
 		}
-		return Interval
-				.of(
-						Instant
-								.ofEpochMilli(
-										minTime),
-						Instant
-								.ofEpochMilli(
-										maxTime));
+		return Interval.of(
+				Instant.ofEpochMilli(minTime),
+				Instant.ofEpochMilli(maxTime));
 	}
 
 	@Override
@@ -138,23 +110,19 @@ abstract public class TimeRangeAggregation<P extends Persistable, T> implements
 	@Override
 	public void aggregate(
 			final T entry ) {
-		final Interval env = getInterval(
-				entry);
-		aggregate(
-				env);
+		final Interval env = getInterval(entry);
+		aggregate(env);
 	}
 
 	protected void aggregate(
 			final Interval interval ) {
 		if (interval != null) {
-			min = Math
-					.min(
-							min,
-							interval.getStart().toEpochMilli());
-			max = Math
-					.max(
-							max,
-							interval.getEnd().toEpochMilli());
+			min = Math.min(
+					min,
+					interval.getStart().toEpochMilli());
+			max = Math.max(
+					max,
+					interval.getEnd().toEpochMilli());
 		}
 	}
 

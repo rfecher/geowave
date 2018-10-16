@@ -23,7 +23,8 @@ public class FieldStatisticsType<R> extends
 
 	@Override
 	public FieldStatisticsQueryBuilder<R> newBuilder() {
-		return new FieldStatisticsQueryBuilder<>(this);
+		return new FieldStatisticsQueryBuilder<>(
+				this);
 	}
 
 }

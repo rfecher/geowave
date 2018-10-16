@@ -57,9 +57,7 @@ class BaseInsertionIdQuery<T> extends
 				authorizations);
 		this.ranges = new InsertionIds(
 				query.getPartitionKey(),
-				Lists
-						.newArrayList(
-								query.getSortKey())).asQueryRanges();
+				Lists.newArrayList(query.getSortKey())).asQueryRanges();
 	}
 
 	@Override

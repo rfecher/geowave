@@ -36,7 +36,7 @@ import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.locationtech.geowave.core.store.flatten.FlattenedUnreadData;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class QueryFilterIterator extends
 	public static final String FILTER = "filter";
 	public static final String MODEL = "model";
 	public static final String PARTITION_KEY_LENGTH = "partitionLength";
-	private DistributableQueryFilter filter;
+	private QueryFilter filter;
 	protected CommonIndexModel model;
 	protected int partitionKeyLength = 0;
 	protected Text currentRow = new Text();
@@ -265,7 +265,7 @@ public class QueryFilterIterator extends
 			if (options.containsKey(FILTER)) {
 				final String filterStr = options.get(FILTER);
 				final byte[] filterBytes = ByteArrayUtils.byteArrayFromString(filterStr);
-				filter = (DistributableQueryFilter) URLClassloaderUtils.fromBinary(filterBytes);
+				filter = (QueryFilter) URLClassloaderUtils.fromBinary(filterBytes);
 			}
 			if (options.containsKey(MODEL)) {
 				final String modelStr = options.get(MODEL);

@@ -68,7 +68,7 @@ public class BasicQueryTest
 							new ExampleDimensionOne(),
 							new ExampleDimensionTwo()
 						}),
-						"22");
+				"22");
 		final List<MultiDimensionalNumericData> expectedResults = new ArrayList<>();
 		expectedResults.add(new BasicNumericDataset(
 				new NumericData[] {
@@ -210,7 +210,7 @@ public class BasicQueryTest
 							new ExampleDimensionOne(),
 							new ExampleDimensionTwo()
 						}),
-						"22");
+				"22");
 		assertEquals(
 				expectedResults,
 				query.getIndexConstraints(index));
@@ -221,16 +221,14 @@ public class BasicQueryTest
 				1,
 				filters.size());
 
-		final Map<ByteArrayId, ConstrainedIndexValue> fieldIdToValueMap = new HashMap<>();
+		final Map<String, ConstrainedIndexValue> fieldIdToValueMap = new HashMap<>();
 		fieldIdToValueMap.put(
-				new ByteArrayId(
-						"one"),
+				"one",
 				new ConstrainedIndexValue(
 						0.4,
 						0.4));
 		fieldIdToValueMap.put(
-				new ByteArrayId(
-						"two"),
+				"two",
 				new ConstrainedIndexValue(
 						0.5,
 						0.5));
@@ -252,8 +250,7 @@ public class BasicQueryTest
 								fieldIdToValueMap),
 						null)));
 		fieldIdToValueMap.put(
-				new ByteArrayId(
-						"one"),
+				"one",
 				new ConstrainedIndexValue(
 						0.1,
 						0.1));
@@ -274,14 +271,12 @@ public class BasicQueryTest
 						null)));
 
 		fieldIdToValueMap.put(
-				new ByteArrayId(
-						"one"),
+				"one",
 				new ConstrainedIndexValue(
 						0.4,
 						0.4));
 		fieldIdToValueMap.put(
-				new ByteArrayId(
-						"two"),
+				"two",
 				new ConstrainedIndexValue(
 						5.0,
 						5.0));
@@ -305,8 +300,7 @@ public class BasicQueryTest
 		 * Tests the 'OR' Case
 		 */
 		fieldIdToValueMap.put(
-				new ByteArrayId(
-						"two"),
+				"two",
 				new ConstrainedIndexValue(
 						3.5,
 						3.5));
@@ -555,8 +549,7 @@ public class BasicQueryTest
 
 		@Override
 		public String getFieldName() {
-			return
-					"one";
+			return "one";
 		}
 
 		@Override
@@ -585,8 +578,7 @@ public class BasicQueryTest
 
 		@Override
 		public String getFieldName() {
-			return
-					"two";
+			return "two";
 		}
 
 	}
@@ -601,8 +593,7 @@ public class BasicQueryTest
 
 		@Override
 		public String getFieldName() {
-			return
-					"three";
+			return "three";
 		}
 
 	}

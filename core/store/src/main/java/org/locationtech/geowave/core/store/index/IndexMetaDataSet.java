@@ -20,12 +20,12 @@ import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.SortedIndexStrategy;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
+import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.statistics.AbstractDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.adapter.statistics.IndexStatisticsQueryBuilder;
 import org.locationtech.geowave.core.store.adapter.statistics.IndexStatisticsType;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
-import org.locationtech.geowave.core.store.adapter.statistics.StatisticsType;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.DeleteCallback;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
@@ -76,14 +76,9 @@ public class IndexMetaDataSet<T> extends
 
 	@Override
 	public byte[] toBinary() {
-		final byte[] metaBytes = PersistenceUtils
-				.toBinary(
-						metaData);
-		final ByteBuffer buffer = super.binaryBuffer(
-				metaBytes.length);
-		buffer
-				.put(
-						metaBytes);
+		final byte[] metaBytes = PersistenceUtils.toBinary(metaData);
+		final ByteBuffer buffer = super.binaryBuffer(metaBytes.length);
+		buffer.put(metaBytes);
 		return buffer.array();
 	}
 
@@ -91,22 +86,15 @@ public class IndexMetaDataSet<T> extends
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buffer = super.binaryBuffer(bytes);
 		final byte[] metaBytes = new byte[buffer.remaining()];
-		buffer
-				.get(
-						metaBytes);
+		buffer.get(metaBytes);
 
-		metaData = (List) PersistenceUtils
-				.fromBinaryAsList(
-						metaBytes);
+		metaData = (List) PersistenceUtils.fromBinaryAsList(metaBytes);
 	}
 
 	public IndexMetaData[] toArray() {
-		return metaData
-				.toArray(
-						new IndexMetaData[metaData.size()]);
+		return metaData.toArray(new IndexMetaData[metaData.size()]);
 	}
 
 	@Override
@@ -114,15 +102,9 @@ public class IndexMetaDataSet<T> extends
 			final Mergeable merge ) {
 		if ((merge != null) && (merge instanceof IndexMetaDataSet)) {
 			for (int i = 0; i < metaData.size(); i++) {
-				final IndexMetaData imd = metaData
-						.get(
-								i);
-				final IndexMetaData imd2 = ((IndexMetaDataSet<T>) merge).metaData
-						.get(
-								i);
-				imd
-						.merge(
-								imd2);
+				final IndexMetaData imd = metaData.get(i);
+				final IndexMetaData imd2 = ((IndexMetaDataSet<T>) merge).metaData.get(i);
+				imd.merge(imd2);
 			}
 		}
 	}
@@ -132,13 +114,9 @@ public class IndexMetaDataSet<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		if (!this.metaData.isEmpty()) {
-			final InsertionIds insertionIds = DataStoreUtils
-					.keysToInsertionIds(
-							kvs);
+			final InsertionIds insertionIds = DataStoreUtils.keysToInsertionIds(kvs);
 			for (final IndexMetaData imd : this.metaData) {
-				imd
-						.insertionIdsAdded(
-								insertionIds);
+				imd.insertionIdsAdded(insertionIds);
 			}
 		}
 	}
@@ -148,13 +126,9 @@ public class IndexMetaDataSet<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		if (!this.metaData.isEmpty()) {
-			final InsertionIds insertionIds = DataStoreUtils
-					.keysToInsertionIds(
-							kvs);
+			final InsertionIds insertionIds = DataStoreUtils.keysToInsertionIds(kvs);
 			for (final IndexMetaData imd : this.metaData) {
-				imd
-						.insertionIdsRemoved(
-								insertionIds);
+				imd.insertionIdsRemoved(insertionIds);
 			}
 		}
 	}
@@ -166,19 +140,21 @@ public class IndexMetaDataSet<T> extends
 			final String... authorizations ) {
 		IndexMetaDataSet combinedMetaData = null;
 		for (final short adapterId : adapterIdsToQuery) {
-			final IndexMetaDataSet adapterMetadata = (IndexMetaDataSet) statisticsStore
+			try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> adapterMetadataIt = statisticsStore
 					.getDataStatistics(
 							adapterId,
 							index.getName(),
 							STATS_TYPE,
-							authorizations);
-			if (combinedMetaData == null) {
-				combinedMetaData = adapterMetadata;
-			}
-			else {
-				combinedMetaData
-						.merge(
-								adapterMetadata);
+							authorizations)) {
+				if (adapterMetadataIt.hasNext()) {
+					final IndexMetaDataSet adapterMetadata = (IndexMetaDataSet) adapterMetadataIt.next();
+					if (combinedMetaData == null) {
+						combinedMetaData = adapterMetadata;
+					}
+					else {
+						combinedMetaData.merge(adapterMetadata);
+					}
+				}
 			}
 		}
 		return combinedMetaData != null ? combinedMetaData.toArray() : null;
@@ -193,9 +169,7 @@ public class IndexMetaDataSet<T> extends
 	protected Object resultsValue() {
 		final Collection<Object> mdArray = new ArrayList<>();
 		for (final IndexMetaData imd : this.metaData) {
-			mdArray
-					.add(
-							imd.toJSONObject());
+			mdArray.add(imd.toJSONObject());
 		}
 		return mdArray;
 	}

@@ -76,35 +76,20 @@ public class SecondaryIndexManager implements
 			SecondaryIndexType secondaryIndexType = null;
 			final List<String> fieldsForPartial = new ArrayList<>();
 
-			if (userData
-					.containsKey(
-							NumericSecondaryIndexConfiguration.INDEX_KEY)) {
+			if (userData.containsKey(NumericSecondaryIndexConfiguration.INDEX_KEY)) {
 				secondaryIndex = NumericSecondaryIndexConfiguration.INDEX_KEY;
-				secondaryIndexType = SecondaryIndexType
-						.valueOf(
-								(String) userData
-										.get(
-												NumericSecondaryIndexConfiguration.INDEX_KEY));
+				secondaryIndexType = SecondaryIndexType.valueOf((String) userData
+						.get(NumericSecondaryIndexConfiguration.INDEX_KEY));
 			}
-			else if (userData
-					.containsKey(
-							TextSecondaryIndexConfiguration.INDEX_KEY)) {
+			else if (userData.containsKey(TextSecondaryIndexConfiguration.INDEX_KEY)) {
 				secondaryIndex = TextSecondaryIndexConfiguration.INDEX_KEY;
-				secondaryIndexType = SecondaryIndexType
-						.valueOf(
-								(String) userData
-										.get(
-												TextSecondaryIndexConfiguration.INDEX_KEY));
+				secondaryIndexType = SecondaryIndexType.valueOf((String) userData
+						.get(TextSecondaryIndexConfiguration.INDEX_KEY));
 			}
-			else if (userData
-					.containsKey(
-							TemporalSecondaryIndexConfiguration.INDEX_KEY)) {
+			else if (userData.containsKey(TemporalSecondaryIndexConfiguration.INDEX_KEY)) {
 				secondaryIndex = TemporalSecondaryIndexConfiguration.INDEX_KEY;
-				secondaryIndexType = SecondaryIndexType
-						.valueOf(
-								(String) userData
-										.get(
-												TemporalSecondaryIndexConfiguration.INDEX_KEY));
+				secondaryIndexType = SecondaryIndexType.valueOf((String) userData
+						.get(TemporalSecondaryIndexConfiguration.INDEX_KEY));
 			}
 
 			// If a valid secondary index type is provided, and the type is
@@ -113,21 +98,13 @@ public class SecondaryIndexManager implements
 			// fieldsForPartial
 
 			if (secondaryIndexType != null) {
-				if (secondaryIndexType
-						.equals(
-								SecondaryIndexType.PARTIAL)) {
-					final String joined = (String) userData
-							.get(
-									SecondaryIndexType.PARTIAL.getValue());
-					final Iterable<String> split = Splitter
-							.on(
-									",")
-							.split(
-									joined);
+				if (secondaryIndexType.equals(SecondaryIndexType.PARTIAL)) {
+					final String joined = (String) userData.get(SecondaryIndexType.PARTIAL.getValue());
+					final Iterable<String> split = Splitter.on(
+							",").split(
+							joined);
 					for (final String field : split) {
-						fieldsForPartial
-								.add(
-										field);
+						fieldsForPartial.add(field);
 					}
 				}
 				addIndex(
@@ -165,50 +142,38 @@ public class SecondaryIndexManager implements
 			case NumericSecondaryIndexConfiguration.INDEX_KEY:
 				stat = new FeatureNumericHistogramStatistics(
 						fieldName);
-				statistics
-						.add(
-								stat);
-				supportedSecondaryIndices
-						.add(
-								new SecondaryIndexImpl<>(
-										new NumericFieldIndexStrategy(),
-										fieldName,
-										statistics,
-										secondaryIndexType,
-										fieldsForPartial));
+				statistics.add(stat);
+				supportedSecondaryIndices.add(new SecondaryIndexImpl<>(
+						new NumericFieldIndexStrategy(),
+						fieldName,
+						statistics,
+						secondaryIndexType,
+						fieldsForPartial));
 				break;
 
 			case TextSecondaryIndexConfiguration.INDEX_KEY:
 				stat = new FeatureHyperLogLogStatistics(
 						fieldName,
 						16);
-				statistics
-						.add(
-								stat);
-				supportedSecondaryIndices
-						.add(
-								new SecondaryIndexImpl<>(
-										new TextIndexStrategy(),
-										fieldName,
-										statistics,
-										secondaryIndexType,
-										fieldsForPartial));
+				statistics.add(stat);
+				supportedSecondaryIndices.add(new SecondaryIndexImpl<>(
+						new TextIndexStrategy(),
+						fieldName,
+						statistics,
+						secondaryIndexType,
+						fieldsForPartial));
 				break;
 
 			case TemporalSecondaryIndexConfiguration.INDEX_KEY:
 				stat = new FeatureNumericHistogramStatistics(
 						fieldName);
-				statistics
-						.add(
-								stat);
-				supportedSecondaryIndices
-						.add(
-								new SecondaryIndexImpl<>(
-										new TemporalIndexStrategy(),
-										fieldName,
-										statistics,
-										secondaryIndexType,
-										fieldsForPartial));
+				statistics.add(stat);
+				supportedSecondaryIndices.add(new SecondaryIndexImpl<>(
+						new TemporalIndexStrategy(),
+						fieldName,
+						statistics,
+						secondaryIndexType,
+						fieldsForPartial));
 				break;
 
 			default:
@@ -216,10 +181,9 @@ public class SecondaryIndexManager implements
 
 		}
 		for (final InternalDataStatistics<SimpleFeature, ?, ?> statistic : statistics) {
-			statsManager
-					.addStats(
-							statistic,
-							fieldName);
+			statsManager.addStats(
+					statistic,
+					fieldName);
 		}
 	}
 
@@ -232,13 +196,9 @@ public class SecondaryIndexManager implements
 	public byte[] toBinary() {
 		final List<Persistable> persistables = new ArrayList<>();
 		for (final SecondaryIndexImpl<SimpleFeature> secondaryIndex : supportedSecondaryIndices) {
-			persistables
-					.add(
-							secondaryIndex);
+			persistables.add(secondaryIndex);
 		}
-		return PersistenceUtils
-				.toBinary(
-						persistables);
+		return PersistenceUtils.toBinary(persistables);
 	}
 
 	/**
@@ -251,13 +211,9 @@ public class SecondaryIndexManager implements
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final List<Persistable> persistables = PersistenceUtils
-				.fromBinaryAsList(
-						bytes);
+		final List<Persistable> persistables = PersistenceUtils.fromBinaryAsList(bytes);
 		for (final Persistable persistable : persistables) {
-			supportedSecondaryIndices
-					.add(
-							(SecondaryIndexImpl<SimpleFeature>) persistable);
+			supportedSecondaryIndices.add((SecondaryIndexImpl<SimpleFeature>) persistable);
 		}
 	}
 

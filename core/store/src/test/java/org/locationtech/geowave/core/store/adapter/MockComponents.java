@@ -28,6 +28,7 @@ import org.locationtech.geowave.core.index.NumericIndexStrategy;
 import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.index.dimension.NumericDimensionDefinition;
 import org.locationtech.geowave.core.index.dimension.bin.BinRange;
+import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.index.sfc.data.NumericData;
 import org.locationtech.geowave.core.index.sfc.data.NumericRange;
@@ -75,49 +76,49 @@ public class MockComponents
 					Lists.newArrayList());
 			this.id = id;
 			final List<IndexFieldHandler<Integer, TestIndexFieldType, Object>> handlers = new ArrayList<>();
-			handlers
-					.add(
-							new IndexFieldHandler<Integer, TestIndexFieldType, Object>() {
-
-								@Override
-								public String[] getNativeFieldNames() {
-									return new String[] {
-										INTEGER
-									};
-								}
-
-								@Override
-								public TestIndexFieldType toIndexValue(
-										final Integer row ) {
-									return new TestIndexFieldType(
-											row);
-								}
-
-								@Override
-								public PersistentValue<Object>[] toNativeValues(
-										final TestIndexFieldType indexValue ) {
-									return new PersistentValue[] {
-										new PersistentValue<>(
-												INTEGER,
-												indexValue.indexValue)
-									};
-								}
-
-							});
+			handlers.add(new TestIndexFieldHandler());
 			super.init(
 					handlers,
 					null);
 		}
 
-		public MockAbstractDataAdapter(
-				final List<PersistentIndexFieldHandler<Integer, ? extends CommonIndexValue, Object>> indexFieldHandlers,
-				final List<NativeFieldHandler<Integer, Object>> nativeFieldHandlers,
-				final Object defaultTypeData ) {
-			super(
-					indexFieldHandlers,
-					nativeFieldHandlers,
-					null,
-					defaultTypeData);
+		public static class TestIndexFieldHandler implements
+				IndexFieldHandler<Integer, TestIndexFieldType, Object>,
+				Persistable
+		{
+			@Override
+			public String[] getNativeFieldNames() {
+				return new String[] {
+					INTEGER
+				};
+			}
+
+			@Override
+			public TestIndexFieldType toIndexValue(
+					final Integer row ) {
+				return new TestIndexFieldType(
+						row);
+			}
+
+			@Override
+			public PersistentValue<Object>[] toNativeValues(
+					final TestIndexFieldType indexValue ) {
+				return new PersistentValue[] {
+					new PersistentValue<>(
+							INTEGER,
+							indexValue.indexValue)
+				};
+			}
+
+			@Override
+			public byte[] toBinary() {
+				return new byte[0];
+			}
+
+			@Override
+			public void fromBinary(
+					byte[] bytes ) {}
+
 		}
 
 		protected static final String INTEGER = "TestInteger";
@@ -125,11 +126,11 @@ public class MockComponents
 
 		public MockAbstractDataAdapter(
 				final List<PersistentIndexFieldHandler<Integer, // RowType
-						? extends CommonIndexValue, // IndexFieldType
-						Object // NativeFieldType
+				? extends CommonIndexValue, // IndexFieldType
+				Object // NativeFieldType
 				>> _indexFieldHandlers,
 				final List<NativeFieldHandler<Integer, // RowType
-						Object // FieldType
+				Object // FieldType
 				>> _nativeFieldHandlers ) {
 			super(
 					_indexFieldHandlers,
@@ -155,19 +156,11 @@ public class MockComponents
 		@Override
 		public FieldReader getReader(
 				final String fieldId ) {
-			if (fieldId
-					.equals(
-							INTEGER)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								Integer.class);
+			if (fieldId.equals(INTEGER)) {
+				return FieldUtils.getDefaultReaderForClass(Integer.class);
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								String.class);
+			else if (fieldId.equals(ID)) {
+				return FieldUtils.getDefaultReaderForClass(String.class);
 			}
 			return null;
 		}
@@ -179,19 +172,11 @@ public class MockComponents
 		@Override
 		public FieldWriter getWriter(
 				final String fieldId ) {
-			if (fieldId
-					.equals(
-							INTEGER)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								Integer.class);
+			if (fieldId.equals(INTEGER)) {
+				return FieldUtils.getDefaultWriterForClass(Integer.class);
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								String.class);
+			else if (fieldId.equals(ID)) {
+				return FieldUtils.getDefaultWriterForClass(String.class);
 			}
 			return null;
 		}
@@ -207,14 +192,10 @@ public class MockComponents
 				public void setField(
 						final String id,
 						final Object fieldValue ) {
-					if (id
-							.equals(
-									INTEGER)) {
+					if (id.equals(INTEGER)) {
 						intValue = (Integer) fieldValue;
 					}
-					else if (id
-							.equals(
-									ID)) {
+					else if (id.equals(ID)) {
 						myid = (String) fieldValue;
 					}
 				}
@@ -222,19 +203,11 @@ public class MockComponents
 				@Override
 				public void setFields(
 						final Map<String, Object> values ) {
-					if (values
-							.containsKey(
-									INTEGER)) {
-						intValue = (Integer) values
-								.get(
-										INTEGER);
+					if (values.containsKey(INTEGER)) {
+						intValue = (Integer) values.get(INTEGER);
 					}
-					if (values
-							.containsKey(
-									ID)) {
-						myid = (String) values
-								.get(
-										ID);
+					if (values.containsKey(ID)) {
+						myid = (String) values.get(ID);
 					}
 				}
 
@@ -258,10 +231,8 @@ public class MockComponents
 		@Override
 		public <R, B extends StatisticsQueryBuilder<R, B>> InternalDataStatistics<Integer, R, B> createDataStatistics(
 				final StatisticsId statisticsId ) {
-			if (statisticsId
-					.getType()
-					.equals(
-							CountDataStatistics.STATS_TYPE)) {
+			if (statisticsId.getType().equals(
+					CountDataStatistics.STATS_TYPE)) {
 				return (InternalDataStatistics<Integer, R, B>) new CountDataStatistics<Integer>();
 			}
 			return (InternalDataStatistics<Integer, R, B>) new IntegerRangeDataStatistics(
@@ -274,21 +245,15 @@ public class MockComponents
 				final String fieldName ) {
 			int i = 0;
 			for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-				if (fieldName
-						.equals(
-								dimensionField.getFieldName())) {
+				if (fieldName.equals(dimensionField.getFieldName())) {
 					return i;
 				}
 				i++;
 			}
-			if (fieldName
-					.equals(
-							INTEGER)) {
+			if (fieldName.equals(INTEGER)) {
 				return i;
 			}
-			else if (fieldName
-					.equals(
-							ID)) {
+			else if (fieldName.equals(ID)) {
 				return i + 1;
 			}
 			return -1;
@@ -421,9 +386,7 @@ public class MockComponents
 			String sNewRow = new String();
 			final char[] newDigit = new char[1];
 			for (int i = 0; i < numDigits; i++) {
-				final char digit = sRow
-						.charAt(
-								i);
+				final char digit = sRow.charAt(i);
 				switch (digit) {
 					case '0':
 						newDigit[0] = '1';
@@ -456,15 +419,11 @@ public class MockComponents
 						newDigit[0] = '0';
 						break;
 				}
-				sNewRow = sNewRow
-						.concat(
-								new String(
-										newDigit));
+				sNewRow = sNewRow.concat(new String(
+						newDigit));
 			}
 			return new TestIndexFieldType(
-					Integer
-							.decode(
-									sNewRow));
+					Integer.decode(sNewRow));
 		}
 
 		// toNativeValues decrements each digit in the value.
@@ -478,9 +437,7 @@ public class MockComponents
 			String sNewRow = new String();
 			final char[] newDigit = new char[1];
 			for (int i = 0; i < numDigits; i++) {
-				final char digit = sRow
-						.charAt(
-								i);
+				final char digit = sRow.charAt(i);
 				switch (digit) {
 					case '0':
 						newDigit[0] = '9';
@@ -513,14 +470,10 @@ public class MockComponents
 						newDigit[0] = '8';
 						break;
 				}
-				sNewRow = sNewRow
-						.concat(
-								new String(
-										newDigit));
+				sNewRow = sNewRow.concat(new String(
+						newDigit));
 			}
-			final Integer newValue = Integer
-					.decode(
-							sNewRow);
+			final Integer newValue = Integer.decode(sNewRow);
 
 			return new PersistentValue[] {
 				new PersistentValue<Object>(
@@ -591,7 +544,7 @@ public class MockComponents
 
 		@Override
 		public byte[] toBinary() {
-			return null;
+			return new byte[0];
 		}
 
 		@Override
@@ -694,13 +647,9 @@ public class MockComponents
 				final MultiDimensionalNumericData indexedData ) {
 			final List<ByteArrayId> ids = new ArrayList<>();
 			for (final NumericData data : indexedData.getDataPerDimension()) {
-				ids
-						.add(
-								new ByteArrayId(
-										Double
-												.toString(
-														data.getCentroid())
-												.getBytes()));
+				ids.add(new ByteArrayId(
+						Double.toString(
+								data.getCentroid()).getBytes()));
 			}
 			return new InsertionIds(
 					ids);
@@ -710,9 +659,7 @@ public class MockComponents
 		public InsertionIds getInsertionIds(
 				final MultiDimensionalNumericData indexedData,
 				final int maxEstimatedDuplicateIds ) {
-			return this
-					.getInsertionIds(
-							indexedData);
+			return this.getInsertionIds(indexedData);
 		}
 
 		@Override
@@ -741,8 +688,7 @@ public class MockComponents
 		public MultiDimensionalCoordinateRanges[] getCoordinateRangesPerDimension(
 				final MultiDimensionalNumericData dataRange,
 				final IndexMetaData... hints ) {
-			final CoordinateRange[][] coordinateRangesPerDimension = new CoordinateRange[dataRange
-					.getDimensionCount()][];
+			final CoordinateRange[][] coordinateRangesPerDimension = new CoordinateRange[dataRange.getDimensionCount()][];
 			for (int d = 0; d < coordinateRangesPerDimension.length; d++) {
 				coordinateRangesPerDimension[d] = new CoordinateRange[1];
 				coordinateRangesPerDimension[d][0] = new CoordinateRange(
@@ -786,10 +732,8 @@ public class MockComponents
 					new byte[] {},
 					new Coordinate[] {
 						new Coordinate(
-								(long) Double
-										.parseDouble(
-												new String(
-														sortKey.getBytes())),
+								(long) Double.parseDouble(new String(
+										sortKey.getBytes())),
 								new byte[] {})
 					});
 		}
@@ -873,10 +817,8 @@ public class MockComponents
 		public TestIndexFieldType readField(
 				final byte[] fieldData ) {
 			return new TestIndexFieldType(
-					Integer
-							.parseInt(
-									new String(
-											fieldData)));
+					Integer.parseInt(new String(
+							fieldData)));
 		}
 	}
 
@@ -895,10 +837,8 @@ public class MockComponents
 		@Override
 		public byte[] writeField(
 				final TestIndexFieldType fieldValue ) {
-			return Integer
-					.toString(
-							fieldValue.indexValue)
-					.getBytes();
+			return Integer.toString(
+					fieldValue.indexValue).getBytes();
 		}
 	}
 }

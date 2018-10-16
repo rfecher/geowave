@@ -17,10 +17,10 @@ import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.lexicoder.Lexicoders;
 import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 public class NumberRangeFilter implements
-		DistributableQueryFilter
+		QueryFilter
 {
 	protected String fieldName;
 	protected Number lowerValue;
@@ -70,14 +70,10 @@ public class NumberRangeFilter implements
 	public boolean accept(
 			final CommonIndexModel indexModel,
 			final IndexedPersistenceEncoding<?> persistenceEncoding ) {
-		final ByteArrayId value = (ByteArrayId) persistenceEncoding
-				.getCommonData()
-				.getValue(
-						fieldName);
+		final ByteArrayId value = (ByteArrayId) persistenceEncoding.getCommonData().getValue(
+				fieldName);
 		if (value != null) {
-			final double val = Lexicoders.DOUBLE
-					.fromByteArray(
-							value.getBytes());
+			final double val = Lexicoders.DOUBLE.fromByteArray(value.getBytes());
 			if (inclusiveLow && inclusiveHigh) {
 				return (val >= lowerValue.doubleValue()) && (val <= upperValue.doubleValue());
 			}
@@ -96,40 +92,22 @@ public class NumberRangeFilter implements
 
 	@Override
 	public byte[] toBinary() {
-		final byte[] fieldNameBytes = StringUtils
-				.stringToBinary(
-						fieldName);
-		final ByteBuffer bb = ByteBuffer
-				.allocate(
-						4 + fieldNameBytes.length + 16);
-		bb
-				.putInt(
-						fieldNameBytes.length);
-		bb
-				.put(
-						fieldNameBytes);
-		bb
-				.putDouble(
-						lowerValue.doubleValue());
-		bb
-				.putDouble(
-						upperValue.doubleValue());
+		final byte[] fieldNameBytes = StringUtils.stringToBinary(fieldName);
+		final ByteBuffer bb = ByteBuffer.allocate(4 + fieldNameBytes.length + 16);
+		bb.putInt(fieldNameBytes.length);
+		bb.put(fieldNameBytes);
+		bb.putDouble(lowerValue.doubleValue());
+		bb.putDouble(upperValue.doubleValue());
 		return bb.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer bb = ByteBuffer
-				.wrap(
-						bytes);
+		final ByteBuffer bb = ByteBuffer.wrap(bytes);
 		final byte[] fieldNameBytes = new byte[bb.getInt()];
-		bb
-				.get(
-						fieldNameBytes);
-		fieldName = StringUtils
-				.stringFromBinary(
-						fieldNameBytes);
+		bb.get(fieldNameBytes);
+		fieldName = StringUtils.stringFromBinary(fieldNameBytes);
 		lowerValue = new Double(
 				bb.getDouble());
 		upperValue = new Double(

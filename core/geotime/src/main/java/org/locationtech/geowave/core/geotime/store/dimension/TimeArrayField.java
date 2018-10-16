@@ -54,8 +54,7 @@ public class TimeArrayField extends
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		super.fromBinary(
-				bytes);
+		super.fromBinary(bytes);
 		reader = new ArrayWrapperReader<>(
 				new FixedSizeObjectArrayReader<>(
 						elementField.getReader()));

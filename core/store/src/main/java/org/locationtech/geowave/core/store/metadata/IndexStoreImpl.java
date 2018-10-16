@@ -52,21 +52,24 @@ public class IndexStoreImpl extends
 	public Index getIndex(
 			final String indexName ) {
 		return getObject(
-				new ByteArrayId(indexName),
+				new ByteArrayId(
+						indexName),
 				null);
 	}
 
 	@Override
 	protected ByteArrayId getPrimaryId(
 			final Index persistedObject ) {
-		return new ByteArrayId(persistedObject.getName());
+		return new ByteArrayId(
+				persistedObject.getName());
 	}
 
 	@Override
 	public boolean indexExists(
 			final String indexName ) {
 		return objectExists(
-				new ByteArrayId(indexName),
+				new ByteArrayId(
+						indexName),
 				null);
 	}
 

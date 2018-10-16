@@ -25,18 +25,16 @@ import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.PrimaryIndex;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CQLQueryFilter implements
-		DistributableQueryFilter
+		QueryFilter
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					CQLQueryFilter.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(CQLQueryFilter.class);
 	private GeotoolsFeatureDataAdapter adapter;
 	private Filter filter;
 
@@ -47,9 +45,7 @@ public class CQLQueryFilter implements
 	public CQLQueryFilter(
 			final Filter filter,
 			final GeotoolsFeatureDataAdapter adapter ) {
-		this.filter = FilterToCQLTool
-				.fixDWithin(
-						filter);
+		this.filter = FilterToCQLTool.fixDWithin(filter);
 		this.adapter = adapter;
 	}
 
@@ -64,16 +60,13 @@ public class CQLQueryFilter implements
 		if ((filter != null) && (indexModel != null) && (adapter != null)) {
 			final PersistentDataset<Object> adapterExtendedValues = new PersistentDataset<>();
 			if (persistenceEncoding instanceof AbstractAdapterPersistenceEncoding) {
-				((AbstractAdapterPersistenceEncoding) persistenceEncoding)
-						.convertUnknownValues(
-								adapter,
-								indexModel);
+				((AbstractAdapterPersistenceEncoding) persistenceEncoding).convertUnknownValues(
+						adapter,
+						indexModel);
 				final PersistentDataset<Object> existingExtValues = ((AbstractAdapterPersistenceEncoding) persistenceEncoding)
 						.getAdapterExtendedData();
 				if (existingExtValues != null) {
-					adapterExtendedValues
-							.addValues(
-									existingExtValues.getValues());
+					adapterExtendedValues.addValues(existingExtValues.getValues());
 				}
 			}
 			final IndexedAdapterPersistenceEncoding encoding = new IndexedAdapterPersistenceEncoding(
@@ -86,29 +79,26 @@ public class CQLQueryFilter implements
 					new PersistentDataset<byte[]>(),
 					adapterExtendedValues);
 
-			final SimpleFeature feature = adapter
-					.decode(
-							encoding,
-							new PrimaryIndex(
-									null, // because we know the feature data
-											// adapter doesn't use the numeric
-											// index
-											// strategy and only the common
-											// index
-											// model to decode the simple
-											// feature,
-											// we pass along a null strategy to
-											// eliminate the necessity to send a
-											// serialization of the strategy in
-											// the
-											// options of this iterator
-									indexModel));
+			final SimpleFeature feature = adapter.decode(
+					encoding,
+					new PrimaryIndex(
+							null, // because we know the feature data
+									// adapter doesn't use the numeric
+									// index
+									// strategy and only the common
+									// index
+									// model to decode the simple
+									// feature,
+									// we pass along a null strategy to
+									// eliminate the necessity to send a
+									// serialization of the strategy in
+									// the
+									// options of this iterator
+							indexModel));
 			if (feature == null) {
 				return false;
 			}
-			return filter
-					.evaluate(
-							feature);
+			return filter.evaluate(feature);
 
 		}
 		return true;
@@ -118,42 +108,24 @@ public class CQLQueryFilter implements
 	public byte[] toBinary() {
 		byte[] filterBytes;
 		if (filter == null) {
-			LOGGER
-					.warn(
-							"CQL filter is null");
+			LOGGER.warn("CQL filter is null");
 			filterBytes = new byte[] {};
 		}
 		else {
-			filterBytes = StringUtils
-					.stringToBinary(
-							ECQL
-									.toCQL(
-											filter));
+			filterBytes = StringUtils.stringToBinary(ECQL.toCQL(filter));
 		}
 		byte[] adapterBytes;
 		if (adapter != null) {
-			adapterBytes = PersistenceUtils
-					.toBinary(
-							adapter);
+			adapterBytes = PersistenceUtils.toBinary(adapter);
 		}
 		else {
-			LOGGER
-					.warn(
-							"Feature Data Adapter is null");
+			LOGGER.warn("Feature Data Adapter is null");
 			adapterBytes = new byte[] {};
 		}
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						filterBytes.length + adapterBytes.length + 4);
-		buf
-				.putInt(
-						filterBytes.length);
-		buf
-				.put(
-						filterBytes);
-		buf
-				.put(
-						adapterBytes);
+		final ByteBuffer buf = ByteBuffer.allocate(filterBytes.length + adapterBytes.length + 4);
+		buf.putInt(filterBytes.length);
+		buf.put(filterBytes);
+		buf.put(adapterBytes);
 		return buf.array();
 	}
 
@@ -164,28 +136,19 @@ public class CQLQueryFilter implements
 			GeometryUtils.initClassLoader();
 		}
 		catch (final MalformedURLException e) {
-			LOGGER
-					.error(
-							"Unable to initialize GeoTools class loader",
-							e);
+			LOGGER.error(
+					"Unable to initialize GeoTools class loader",
+					e);
 		}
-		final ByteBuffer buf = ByteBuffer
-				.wrap(
-						bytes);
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
 		final int filterBytesLength = buf.getInt();
 		final int adapterBytesLength = bytes.length - filterBytesLength - 4;
 		if (filterBytesLength > 0) {
 			final byte[] filterBytes = new byte[filterBytesLength];
-			buf
-					.get(
-							filterBytes);
-			final String cql = StringUtils
-					.stringFromBinary(
-							filterBytes);
+			buf.get(filterBytes);
+			final String cql = StringUtils.stringFromBinary(filterBytes);
 			try {
-				filter = ECQL
-						.toFilter(
-								cql);
+				filter = ECQL.toFilter(cql);
 			}
 			catch (final Exception e) {
 				throw new IllegalArgumentException(
@@ -194,22 +157,16 @@ public class CQLQueryFilter implements
 			}
 		}
 		else {
-			LOGGER
-					.warn(
-							"CQL filter is empty bytes");
+			LOGGER.warn("CQL filter is empty bytes");
 			filter = null;
 		}
 
 		if (adapterBytesLength > 0) {
 			final byte[] adapterBytes = new byte[adapterBytesLength];
-			buf
-					.get(
-							adapterBytes);
+			buf.get(adapterBytes);
 
 			try {
-				adapter = (GeotoolsFeatureDataAdapter) PersistenceUtils
-						.fromBinary(
-								adapterBytes);
+				adapter = (GeotoolsFeatureDataAdapter) PersistenceUtils.fromBinary(adapterBytes);
 			}
 			catch (final Exception e) {
 				throw new IllegalArgumentException(
@@ -217,9 +174,7 @@ public class CQLQueryFilter implements
 			}
 		}
 		else {
-			LOGGER
-					.warn(
-							"Feature Data Adapter is empty bytes");
+			LOGGER.warn("Feature Data Adapter is empty bytes");
 			adapter = null;
 		}
 	}

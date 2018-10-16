@@ -18,7 +18,7 @@ import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.store.index.FilterableConstraints;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 /**
  * A class based on FilterableConstraints that uses temporal values and includes
@@ -77,7 +77,7 @@ public class TemporalQueryConstraint implements
 	}
 
 	@Override
-	public DistributableQueryFilter getFilter() {
+	public QueryFilter getFilter() {
 		return new DateRangeFilter(
 				fieldName,
 				start,

@@ -28,11 +28,9 @@ public class OptimalVectorTimeRangeAggregation<P extends Persistable, T> extends
 		return ((fieldNameParam == null) || ((adapter.getTimeDescriptors().getTime() != null) && fieldNameParam
 				.getFieldName()
 				.equals(
-						adapter.getTimeDescriptors().getTime().getLocalName())))
-				&& IndexOptimizationUtils
-						.hasTime(
-								index,
-								adapter);
+						adapter.getTimeDescriptors().getTime().getLocalName()))) && IndexOptimizationUtils.hasTime(
+				index,
+				adapter);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.query.constraints;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,8 +24,10 @@ import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 public class PrefixIdQuery implements
 		QueryConstraints
 {
-	private final ByteArrayId sortKeyPrefix;
-	private final ByteArrayId partitionKey;
+	private ByteArrayId sortKeyPrefix;
+	private ByteArrayId partitionKey;
+
+	public PrefixIdQuery() {}
 
 	public PrefixIdQuery(
 			final ByteArrayId partitionKey,
@@ -55,6 +58,52 @@ public class PrefixIdQuery implements
 	public List<MultiDimensionalNumericData> getIndexConstraints(
 			final Index index ) {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public byte[] toBinary() {
+		byte[] sortKeyPrefixBinary, partitionKeyBinary;
+		if (partitionKey != null) {
+			partitionKeyBinary = partitionKey.getBytes();
+		}
+		else {
+			partitionKeyBinary = new byte[0];
+		}
+		if (sortKeyPrefix != null) {
+			sortKeyPrefixBinary = sortKeyPrefix.getBytes();
+		}
+		else {
+			sortKeyPrefixBinary = new byte[0];
+		}
+		final ByteBuffer buf = ByteBuffer.allocate(4 + sortKeyPrefixBinary.length + partitionKeyBinary.length);
+		buf.putInt(partitionKeyBinary.length);
+		buf.put(partitionKeyBinary);
+		buf.put(sortKeyPrefixBinary);
+		return buf.array();
+	}
+
+	@Override
+	public void fromBinary(
+			final byte[] bytes ) {
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
+		final byte[] partitionKeyBinary = new byte[buf.getInt()];
+		if (partitionKeyBinary.length == 0) {
+			partitionKey = null;
+		}
+		else {
+			buf.get(partitionKeyBinary);
+			partitionKey = new ByteArrayId(
+					partitionKeyBinary);
+		}
+		final byte[] sortKeyPrefixBinary = new byte[bytes.length - 4 - partitionKeyBinary.length];
+		if (sortKeyPrefixBinary.length == 0) {
+			sortKeyPrefix = null;
+		}
+		else {
+			buf.get(sortKeyPrefixBinary);
+			sortKeyPrefix = new ByteArrayId(
+					sortKeyPrefixBinary);
+		}
 	}
 
 }

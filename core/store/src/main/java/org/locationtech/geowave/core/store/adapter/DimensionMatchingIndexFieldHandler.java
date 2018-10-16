@@ -21,8 +21,7 @@ import org.locationtech.geowave.core.store.index.CommonIndexValue;
  * @param <IndexFieldType>
  * @param <NativeFieldType>
  */
-public interface DimensionMatchingIndexFieldHandler<RowType, IndexFieldType extends CommonIndexValue, NativeFieldType>
-		extends
+public interface DimensionMatchingIndexFieldHandler<RowType, IndexFieldType extends CommonIndexValue, NativeFieldType> extends
 		IndexFieldHandler<RowType, IndexFieldType, NativeFieldType>
 {
 	/**

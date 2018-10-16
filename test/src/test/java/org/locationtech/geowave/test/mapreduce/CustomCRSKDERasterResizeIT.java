@@ -267,8 +267,8 @@ public class CustomCRSKDERasterResizeIT
 					env.getJobtracker());
 			command.getOptions().setOutputCoverageName(
 					resizeTileSizeCoverageName);
-			command.getOptions().setIndexId(
-					TestUtils.createCustomCRSPrimaryIndex().getId().getString());
+			command.getOptions().setIndexName(
+					TestUtils.createCustomCRSPrimaryIndex().getName());
 
 			// due to time considerations when running the test, downsample to
 			// at most 2 powers of 2 lower

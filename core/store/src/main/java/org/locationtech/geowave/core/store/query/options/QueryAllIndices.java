@@ -1,24 +1,21 @@
 package org.locationtech.geowave.core.store.query.options;
 
-public class QueryAllIndices extends QuerySingleIndex
+public class QueryAllIndices extends
+		QuerySingleIndex
 {
 
-	public QueryAllIndices( ) {
+	public QueryAllIndices() {
 		super(
 				null);
 	}
 
 	@Override
 	public byte[] toBinary() {
-		// TODO Auto-generated method stub
-		return null;
+		return new byte[0];
 	}
 
 	@Override
 	public void fromBinary(
-			byte[] bytes ) {
-		// TODO Auto-generated method stub
-
-	}
+			final byte[] bytes ) {}
 
 }

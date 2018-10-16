@@ -77,7 +77,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 		final ChooseHeuristicMatchIndexQueryStrategy strategy = new ChooseHeuristicMatchIndexQueryStrategy();
 
 		final Iterator<Index> it = getIndices(
-				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>>(),
+				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>>(),
 				new BasicQuery(
 						createConstraints(
 								HOUSE,
@@ -98,7 +98,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 		final ChooseHeuristicMatchIndexQueryStrategy strategy = new ChooseHeuristicMatchIndexQueryStrategy();
 
 		final Iterator<Index> it = getIndices(
-				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>>(),
+				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>>(),
 				new BasicQuery(
 						createConstraints(
 								HOUSE,
@@ -119,7 +119,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 		final ChooseHeuristicMatchIndexQueryStrategy strategy = new ChooseHeuristicMatchIndexQueryStrategy();
 
 		final Iterator<Index> it = getIndices(
-				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>>(),
+				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>>(),
 				new BasicQuery(
 						createConstraints(
 								HOUSE,
@@ -140,7 +140,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 		final ChooseHeuristicMatchIndexQueryStrategy strategy = new ChooseHeuristicMatchIndexQueryStrategy();
 
 		final Iterator<Index> it = getIndices(
-				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>>(),
+				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>>(),
 				new BasicQuery(
 						createConstraints(
 								BLOCK,
@@ -161,7 +161,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 		final ChooseHeuristicMatchIndexQueryStrategy strategy = new ChooseHeuristicMatchIndexQueryStrategy();
 
 		final Iterator<Index> it = getIndices(
-				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>>(),
+				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>>(),
 				new BasicQuery(
 						createConstraints(
 								BLOCK,
@@ -182,7 +182,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 		final ChooseHeuristicMatchIndexQueryStrategy strategy = new ChooseHeuristicMatchIndexQueryStrategy();
 
 		final Iterator<Index> it = getIndices(
-				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>>(),
+				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>>(),
 				new BasicQuery(
 						createConstraints(
 								BLOCK,
@@ -203,7 +203,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 		final ChooseHeuristicMatchIndexQueryStrategy strategy = new ChooseHeuristicMatchIndexQueryStrategy();
 
 		final Iterator<Index> it = getIndices(
-				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>>(),
+				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>>(),
 				new BasicQuery(
 						createConstraints(
 								CITY,
@@ -224,7 +224,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 		final ChooseHeuristicMatchIndexQueryStrategy strategy = new ChooseHeuristicMatchIndexQueryStrategy();
 
 		final Iterator<Index> it = getIndices(
-				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>>(),
+				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>>(),
 				new BasicQuery(
 						createConstraints(
 								CITY,
@@ -245,7 +245,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 		final ChooseHeuristicMatchIndexQueryStrategy strategy = new ChooseHeuristicMatchIndexQueryStrategy();
 
 		final Iterator<Index> it = getIndices(
-				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>>(),
+				new HashMap<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>>(),
 				new BasicQuery(
 						createConstraints(
 								CITY,
@@ -262,7 +262,7 @@ public class ChooseHeuristicMatchQueryStrategyTest
 	}
 
 	public Iterator<Index> getIndices(
-			final Map<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>> stats,
+			final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats,
 			final BasicQuery query,
 			final ChooseHeuristicMatchIndexQueryStrategy strategy ) {
 		return strategy.getIndices(

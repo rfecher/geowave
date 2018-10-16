@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -11,12 +11,19 @@
 package org.locationtech.geowave.core.store;
 
 import org.locationtech.geowave.core.index.persist.PersistableRegistrySpi;
+import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
+import org.locationtech.geowave.core.store.adapter.statistics.BaseStatisticsType;
 import org.locationtech.geowave.core.store.adapter.statistics.CountDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DuplicateEntryCount;
+import org.locationtech.geowave.core.store.adapter.statistics.FieldStatisticsType;
+import org.locationtech.geowave.core.store.adapter.statistics.IndexStatisticsType;
 import org.locationtech.geowave.core.store.adapter.statistics.MaxDuplicatesStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.PartitionStatistics;
+import org.locationtech.geowave.core.store.adapter.statistics.PartitionStatisticsType;
 import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
-import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatisticsSet;
+import org.locationtech.geowave.core.store.api.AggregationQuery;
+import org.locationtech.geowave.core.store.api.Query;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 import org.locationtech.geowave.core.store.index.BasicIndexModel;
@@ -35,14 +42,24 @@ import org.locationtech.geowave.core.store.query.aggregate.CountAggregation;
 import org.locationtech.geowave.core.store.query.aggregate.DataStatisticsAggregation;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
 import org.locationtech.geowave.core.store.query.constraints.CoordinateRangeQuery;
+import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
+import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
+import org.locationtech.geowave.core.store.query.constraints.InsertionIdQuery;
+import org.locationtech.geowave.core.store.query.constraints.PrefixIdQuery;
 import org.locationtech.geowave.core.store.query.filter.AdapterIdQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.BasicQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.CoordinateRangeQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.DataIdQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.DedupeFilter;
-import org.locationtech.geowave.core.store.query.filter.DistributableFilterList;
+import org.locationtech.geowave.core.store.query.filter.FilterList;
 import org.locationtech.geowave.core.store.query.filter.InsertionIdQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.PrefixIdQueryFilter;
+import org.locationtech.geowave.core.store.query.options.AggregateTypeQueryOptions;
+import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
+import org.locationtech.geowave.core.store.query.options.FilterByTypeQueryOptions;
+import org.locationtech.geowave.core.store.query.options.QueryAllIndices;
+import org.locationtech.geowave.core.store.query.options.QueryAllTypes;
+import org.locationtech.geowave.core.store.query.options.QuerySingleIndex;
 
 public class StorePersistableRegistry implements
 		PersistableRegistrySpi
@@ -86,7 +103,7 @@ public class StorePersistableRegistry implements
 					DedupeFilter::new),
 			new PersistableIdAndConstructor(
 					(short) 212,
-					DistributableFilterList::new),
+					DataIdQuery::new),
 			new PersistableIdAndConstructor(
 					(short) 213,
 					PrefixIdQueryFilter::new),
@@ -135,14 +152,12 @@ public class StorePersistableRegistry implements
 			new PersistableIdAndConstructor(
 					(short) 230,
 					CoordinateRangeQueryFilter::new),
-			//231 is available
-//			new PersistableIdAndConstructor(
-//					(short) 231,
-//					CountResult::new),
-			//232 is available
-//			new PersistableIdAndConstructor(
-//					(short) 232,
-//					QueryOptions::new),
+			new PersistableIdAndConstructor(
+					(short) 231,
+					CommonQueryOptions::new),
+			new PersistableIdAndConstructor(
+					(short) 232,
+					InternalDataAdapterWrapper::new),
 			new PersistableIdAndConstructor(
 					(short) 233,
 					CountAggregation::new),
@@ -154,7 +169,58 @@ public class StorePersistableRegistry implements
 					InsertionIdQueryFilter::new),
 			new PersistableIdAndConstructor(
 					(short) 236,
-					PartitionStatistics::new)
+					PartitionStatistics::new),
+			new PersistableIdAndConstructor(
+					(short) 237,
+					FilterByTypeQueryOptions::new),
+			new PersistableIdAndConstructor(
+					(short) 238,
+					QueryAllIndices::new),
+			new PersistableIdAndConstructor(
+					(short) 239,
+					IndexStatisticsType::new),
+			new PersistableIdAndConstructor(
+					(short) 240,
+					BaseStatisticsType::new),
+			new PersistableIdAndConstructor(
+					(short) 241,
+					AggregateTypeQueryOptions::new),
+			new PersistableIdAndConstructor(
+					(short) 242,
+					AdapterMapping::new),
+			new PersistableIdAndConstructor(
+					(short) 243,
+					RowRangeHistogramStatisticsSet::new),
+			new PersistableIdAndConstructor(
+					(short) 244,
+					Query::new),
+			new PersistableIdAndConstructor(
+					(short) 245,
+					AggregationQuery::new),
+			new PersistableIdAndConstructor(
+					(short) 246,
+					PartitionStatisticsType::new),
+			new PersistableIdAndConstructor(
+					(short) 247,
+					FieldStatisticsType::new),
+			new PersistableIdAndConstructor(
+					(short) 248,
+					QuerySingleIndex::new),
+			new PersistableIdAndConstructor(
+					(short) 249,
+					QueryAllTypes::new),
+			new PersistableIdAndConstructor(
+					(short) 250,
+					FilterList::new),
+			new PersistableIdAndConstructor(
+					(short) 251,
+					PrefixIdQuery::new),
+			new PersistableIdAndConstructor(
+					(short) 252,
+					InsertionIdQuery::new),
+			new PersistableIdAndConstructor(
+					(short) 253,
+					EverythingQuery::new)
 		};
 	}
 }

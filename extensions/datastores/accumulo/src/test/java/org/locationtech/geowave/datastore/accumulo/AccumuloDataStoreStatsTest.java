@@ -349,7 +349,7 @@ public class AccumuloDataStoreStatsTest
 						new String[] {
 							"aaa",
 							"bbb"
-						});
+						}).next();
 		assertEquals(
 				3,
 				countStats.getCount());
@@ -360,7 +360,7 @@ public class AccumuloDataStoreStatsTest
 						CountDataStatistics.STATS_TYPE,
 						new String[] {
 							"aaa"
-						});
+						}).next();
 		assertEquals(
 				2,
 				countStats.getCount());
@@ -371,7 +371,7 @@ public class AccumuloDataStoreStatsTest
 						CountDataStatistics.STATS_TYPE,
 						new String[] {
 							"bbb"
-						});
+						}).next();
 		assertEquals(
 				1,
 				countStats.getCount());
@@ -382,7 +382,7 @@ public class AccumuloDataStoreStatsTest
 						BoundingBoxDataStatistics.STATS_TYPE,
 						new String[] {
 							"aaa"
-						});
+						}).next();
 		assertTrue(
 				(bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 26) && (bboxStats.getMinY() == 32)
 						&& (bboxStats.getMaxY() == 32));
@@ -393,7 +393,7 @@ public class AccumuloDataStoreStatsTest
 						BoundingBoxDataStatistics.STATS_TYPE,
 						new String[] {
 							"bbb"
-						});
+						}).next();
 		assertTrue(
 				(bboxStats.getMinX() == 27) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
 						&& (bboxStats.getMaxY() == 32));
@@ -405,7 +405,7 @@ public class AccumuloDataStoreStatsTest
 						new String[] {
 							"aaa",
 							"bbb"
-						});
+						}).next();
 		assertTrue(
 				(bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
 						&& (bboxStats.getMaxY() == 32));
@@ -478,7 +478,7 @@ public class AccumuloDataStoreStatsTest
 						new String[] {
 							"aaa",
 							"bbb"
-						});
+						}).next();
 		assertEquals(
 				3,
 				countStats.getCount());
@@ -535,7 +535,7 @@ public class AccumuloDataStoreStatsTest
 						new String[] {
 							"aaa",
 							"bbb"
-						});
+						}).next();
 
 		assertEquals(
 				2,
@@ -546,7 +546,7 @@ public class AccumuloDataStoreStatsTest
 						CountDataStatistics.STATS_TYPE,
 						new String[] {
 							"aaa"
-						});
+						}).next();
 		assertEquals(
 				1,
 				countStats.getCount());
@@ -556,7 +556,7 @@ public class AccumuloDataStoreStatsTest
 						CountDataStatistics.STATS_TYPE,
 						new String[] {
 							"bbb"
-						});
+						}).next();
 		assertEquals(
 				1,
 				countStats.getCount());
@@ -567,7 +567,7 @@ public class AccumuloDataStoreStatsTest
 						BoundingBoxDataStatistics.STATS_TYPE,
 						new String[] {
 							"aaa"
-						});
+						}).next();
 		assertTrue(
 				(bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 26) && (bboxStats.getMinY() == 32)
 						&& (bboxStats.getMaxY() == 32));
@@ -578,7 +578,7 @@ public class AccumuloDataStoreStatsTest
 						BoundingBoxDataStatistics.STATS_TYPE,
 						new String[] {
 							"bbb"
-						});
+						}).next();
 		assertTrue(
 				(bboxStats.getMinX() == 27) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
 						&& (bboxStats.getMaxY() == 32));
@@ -590,7 +590,7 @@ public class AccumuloDataStoreStatsTest
 						new String[] {
 							"aaa",
 							"bbb"
-						});
+						}).next();
 		assertTrue(
 				(bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
 						&& (bboxStats.getMaxY() == 32));
@@ -675,16 +675,14 @@ public class AccumuloDataStoreStatsTest
 					count);
 		}
 
-		countStats = (CountDataStatistics<?>) statsStore
+		assertFalse( statsStore
 				.getDataStatistics(
 						internalAdapterId,
 						CountDataStatistics.STATS_TYPE,
 						new String[] {
 							"aaa",
 							"bbb"
-						});
-		assertNull(
-				countStats);
+						}).hasNext());
 		mockDataStore
 				.addType(
 						adapter);
@@ -712,7 +710,7 @@ public class AccumuloDataStoreStatsTest
 						CountDataStatistics.STATS_TYPE,
 						new String[] {
 							"bbb"
-						});
+						}).next();
 		assertTrue(
 				countStats != null);
 		assertTrue(
@@ -728,43 +726,44 @@ public class AccumuloDataStoreStatsTest
 						partitionKey)
 				.build()
 				.getId();
-		RowRangeHistogramStatistics<?> histogramStats = (RowRangeHistogramStatistics<?>) statsStore
+		RowRangeHistogramStatistics<?> histogramStats;
+		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it = statsStore
 				.getDataStatistics(
 						internalAdapterId,
 						id.getExtendedId(),
 						id.getType(),
 						new String[] {
 							"bbb"
-						});
+						})) {
+			histogramStats = (RowRangeHistogramStatistics<?>) it.next();
+			assertTrue(
+					histogramStats != null);
+		}
 
-		assertTrue(
-				histogramStats != null);
 		statsStore
 				.removeAllStatistics(
 						internalAdapterId,
 						"bbb");
+		assertFalse(
+				 statsStore
+					.getDataStatistics(
+							internalAdapterId,
+							CountDataStatistics.STATS_TYPE,
+							new String[] {
+								"bbb"
+							}).hasNext());
 
-		countStats = (CountDataStatistics<?>) statsStore
-				.getDataStatistics(
-						internalAdapterId,
-						CountDataStatistics.STATS_TYPE,
-						new String[] {
-							"bbb"
-						});
-		assertNull(
-				countStats);
-
-		histogramStats = (RowRangeHistogramStatistics<?>) statsStore
+		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it = statsStore
 				.getDataStatistics(
 						internalAdapterId,
 						id.getExtendedId(),
 						id.getType(),
 						new String[] {
 							"bbb"
-						});
-
-		assertNull(
-				histogramStats);
+						})) {
+			assertFalse(
+					it.hasNext());
+		}
 	}
 
 	protected static class TestGeometry

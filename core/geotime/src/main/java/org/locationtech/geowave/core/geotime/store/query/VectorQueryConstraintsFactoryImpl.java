@@ -17,9 +17,7 @@ public class VectorQueryConstraintsFactoryImpl extends
 		QueryConstraintsFactoryImpl implements
 		VectorQueryConstraintsFactory
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					OptimalCQLQuery.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(OptimalCQLQuery.class);
 
 	public static final VectorQueryConstraintsFactoryImpl SINGLETON_INSTANCE = new VectorQueryConstraintsFactoryImpl();
 
@@ -36,23 +34,19 @@ public class VectorQueryConstraintsFactoryImpl extends
 			GeometryUtils.initClassLoader();
 		}
 		catch (final MalformedURLException e) {
-			LOGGER
-					.error(
-							"Unable to initialize GeoTools class loader",
-							e);
+			LOGGER.error(
+					"Unable to initialize GeoTools class loader",
+					e);
 		}
 		try {
-			final Filter cqlFilter = ECQL
-					.toFilter(
-							cqlExpression);
+			final Filter cqlFilter = ECQL.toFilter(cqlExpression);
 			return new OptimalCQLQuery(
 					cqlFilter);
 		}
 		catch (final CQLException e) {
-			LOGGER
-					.error(
-							"Unable to parse CQL expresion",
-							e);
+			LOGGER.error(
+					"Unable to parse CQL expresion",
+					e);
 		}
 		return null;
 	}

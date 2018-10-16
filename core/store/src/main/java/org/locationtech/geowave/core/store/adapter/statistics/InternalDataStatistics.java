@@ -51,10 +51,10 @@ public interface InternalDataStatistics<T, R, B extends StatisticsQueryBuilder<R
 
 	InternalDataStatistics<T, R, B> clone();
 
-	static <T, R, B extends StatisticsQueryBuilder<R, B>> InternalDataStatistics<T, R, B> reduce(
-			final InternalDataStatistics<T, R, B> a,
-			final InternalDataStatistics<T, R, B> b ) {
-		final InternalDataStatistics<T, R, B> c = a.clone();
+	static < R> InternalDataStatistics<?, R, ?> reduce(
+			final InternalDataStatistics<?, R, ?> a,
+			final InternalDataStatistics<?, R, ?> b ) {
+		final InternalDataStatistics<?, R, ?> c = a.clone();
 		c
 				.merge(
 						b);

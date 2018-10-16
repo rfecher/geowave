@@ -72,9 +72,7 @@ import com.google.common.collect.Iterators;
  */
 public class DataStoreUtils
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					DataStoreUtils.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(DataStoreUtils.class);
 
 	public static HintKey<double[]> MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION = new HintKey<>(
 			double[].class);
@@ -97,18 +95,14 @@ public class DataStoreUtils
 	public static DataTypeAdapter getDataAdapter(
 			final DataStorePluginOptions dataStore,
 			final String typeName ) {
-		final Short adapterId = dataStore
-				.createInternalAdapterStore()
-				.getAdapterId(
-						typeName);
+		final Short adapterId = dataStore.createInternalAdapterStore().getAdapterId(
+				typeName);
 		if (adapterId == null) {
 			return null;
 		}
 
-		final DataTypeAdapter adapter = dataStore
-				.createAdapterStore()
-				.getAdapter(
-						adapterId);
+		final DataTypeAdapter adapter = dataStore.createAdapterStore().getAdapter(
+				adapterId);
 		if (adapter == null) {
 			return null;
 		}
@@ -124,39 +118,27 @@ public class DataStoreUtils
 			final List<String> commonIndexFieldIds ) {
 		final byte[] fieldMask = value.getFieldMask();
 		final byte[] valueBytes = value.getValue();
-		final FlattenedDataSet dataSet = DataStoreUtils
-				.decomposeFlattenedFields(
-						fieldMask,
-						valueBytes,
-						value.getVisibility(),
-						commonIndexFieldIds.size() - 1);
+		final FlattenedDataSet dataSet = DataStoreUtils.decomposeFlattenedFields(
+				fieldMask,
+				valueBytes,
+				value.getVisibility(),
+				commonIndexFieldIds.size() - 1);
 		final List<FlattenedFieldInfo> fieldInfos = dataSet.getFieldsRead();
 
 		for (final FlattenedFieldInfo fieldInfo : fieldInfos) {
 			final int ordinal = fieldInfo.getFieldPosition();
 			if (ordinal < commonIndexFieldIds.size()) {
-				final String commonIndexFieldName = commonIndexFieldIds
-						.get(
-								ordinal);
-				final FieldReader<? extends CommonIndexValue> reader = model
-						.getReader(
-								commonIndexFieldName);
+				final String commonIndexFieldName = commonIndexFieldIds.get(ordinal);
+				final FieldReader<? extends CommonIndexValue> reader = model.getReader(commonIndexFieldName);
 				if (reader != null) {
-					final CommonIndexValue fieldValue = reader
-							.readField(
-									fieldInfo.getValue());
-					fieldValue
-							.setVisibility(
-									value.getVisibility());
-					commonData
-							.addValue(
-									commonIndexFieldName,
-									fieldValue);
+					final CommonIndexValue fieldValue = reader.readField(fieldInfo.getValue());
+					fieldValue.setVisibility(value.getVisibility());
+					commonData.addValue(
+							commonIndexFieldName,
+							fieldValue);
 				}
 				else {
-					LOGGER
-							.error(
-									"Could not find reader for common index field: " + commonIndexFieldName);
+					LOGGER.error("Could not find reader for common index field: " + commonIndexFieldName);
 				}
 			}
 		}
@@ -167,12 +149,8 @@ public class DataStoreUtils
 			final CommonIndexModel model ) {
 		final List<String> dimensionFieldIds = new ArrayList<>();
 		for (final NumericDimensionField<? extends CommonIndexValue> dimension : model.getDimensions()) {
-			if (!dimensionFieldIds
-					.contains(
-							dimension.getFieldName())) {
-				dimensionFieldIds
-						.add(
-								dimension.getFieldName());
+			if (!dimensionFieldIds.contains(dimension.getFieldName())) {
+				dimensionFieldIds.add(dimension.getFieldName());
 			}
 		}
 		return dimensionFieldIds;
@@ -186,25 +164,16 @@ public class DataStoreUtils
 		long count = 0;
 		for (final SinglePartitionQueryRanges partitionRange : queryRanges.getPartitionQueryRanges()) {
 			final RowRangeHistogramStatistics rangeStats = (RowRangeHistogramStatistics) stats
-					.get(
-							StatisticsQueryBuilder
-									.newBuilder()
-									.factory()
-									.rowHistogram()
-									.indexName(
-											index.getName())
-									.partition(
-											partitionRange.getPartitionKey())
-									.build()
-									.getExtendedId());
+					.get(StatisticsQueryBuilder.newBuilder().factory().rowHistogram().indexName(
+							index.getName()).partition(
+							partitionRange.getPartitionKey()).build().getExtendedId());
 			if (rangeStats == null) {
 				return Long.MAX_VALUE - 1;
 			}
 			for (final ByteArrayRange range : partitionRange.getSortKeyRanges()) {
-				count += rangeStats
-						.cardinality(
-								range.getStart().getBytes(),
-								range.getEnd().getBytes());
+				count += rangeStats.cardinality(
+						range.getStart().getBytes(),
+						range.getEnd().getBytes());
 			}
 		}
 		return count;
@@ -216,28 +185,21 @@ public class DataStoreUtils
 		for (final GeoWaveKey key : geoWaveKeys) {
 			final ByteArrayId partitionKey = new ByteArrayId(
 					key.getPartitionKey());
-			List<ByteArrayId> sortKeys = sortKeysPerPartition
-					.get(
-							partitionKey);
+			List<ByteArrayId> sortKeys = sortKeysPerPartition.get(partitionKey);
 			if (sortKeys == null) {
 				sortKeys = new ArrayList<>();
-				sortKeysPerPartition
-						.put(
-								partitionKey,
-								sortKeys);
+				sortKeysPerPartition.put(
+						partitionKey,
+						sortKeys);
 			}
-			sortKeys
-					.add(
-							new ByteArrayId(
-									key.getSortKey()));
+			sortKeys.add(new ByteArrayId(
+					key.getSortKey()));
 		}
 		final Set<SinglePartitionInsertionIds> insertionIds = new HashSet<>();
 		for (final Entry<ByteArrayId, List<ByteArrayId>> e : sortKeysPerPartition.entrySet()) {
-			insertionIds
-					.add(
-							new SinglePartitionInsertionIds(
-									e.getKey(),
-									e.getValue()));
+			insertionIds.add(new SinglePartitionInsertionIds(
+					e.getKey(),
+					e.getValue()));
 		}
 		return new InsertionIds(
 				insertionIds);
@@ -246,47 +208,41 @@ public class DataStoreUtils
 	public static boolean rowIdsMatch(
 			final GeoWaveKey rowId1,
 			final GeoWaveKey rowId2 ) {
-		if (!Arrays
-				.equals(
-						rowId1.getPartitionKey(),
-						rowId2.getPartitionKey())) {
+		if (!Arrays.equals(
+				rowId1.getPartitionKey(),
+				rowId2.getPartitionKey())) {
 			return false;
 		}
-		if (!Arrays
-				.equals(
-						rowId1.getSortKey(),
-						rowId2.getSortKey())) {
+		if (!Arrays.equals(
+				rowId1.getSortKey(),
+				rowId2.getSortKey())) {
 			return false;
 		}
 		if (rowId1.getAdapterId() != rowId2.getAdapterId()) {
 			return false;
 		}
 
-		if (Arrays
-				.equals(
-						rowId1.getDataId(),
-						rowId2.getDataId())) {
+		if (Arrays.equals(
+				rowId1.getDataId(),
+				rowId2.getDataId())) {
 			return true;
 		}
 
-		return Arrays
-				.equals(
-						rowId1.getDataId(),
-						rowId2.getDataId());
+		return Arrays.equals(
+				rowId1.getDataId(),
+				rowId2.getDataId());
 	}
 
 	public static byte[] removeUniqueId(
 			byte[] dataId ) {
-		if ((dataId.length < UNIQUE_ADDED_BYTES)
-				|| (dataId[dataId.length - UNIQUE_ADDED_BYTES] != UNIQUE_ID_DELIMITER)) {
+		if ((dataId.length < UNIQUE_ADDED_BYTES) || (dataId[dataId.length - UNIQUE_ADDED_BYTES] != UNIQUE_ID_DELIMITER)) {
 			return dataId;
 		}
 
-		dataId = Arrays
-				.copyOfRange(
-						dataId,
-						0,
-						dataId.length - UNIQUE_ADDED_BYTES);
+		dataId = Arrays.copyOfRange(
+				dataId,
+				0,
+				dataId.length - UNIQUE_ADDED_BYTES);
 
 		return dataId;
 	}
@@ -315,19 +271,13 @@ public class DataStoreUtils
 			final byte[] commonVisibility,
 			final int maxFieldPosition ) {
 		final List<FlattenedFieldInfo> fieldInfoList = new LinkedList<>();
-		final List<Integer> fieldPositions = BitmaskUtils
-				.getFieldPositions(
-						bitmask);
+		final List<Integer> fieldPositions = BitmaskUtils.getFieldPositions(bitmask);
 
 		final boolean sharedVisibility = fieldPositions.size() > 1;
 		if (sharedVisibility) {
-			final ByteBuffer input = ByteBuffer
-					.wrap(
-							flattenedValue);
+			final ByteBuffer input = ByteBuffer.wrap(flattenedValue);
 			for (int i = 0; i < fieldPositions.size(); i++) {
-				final Integer fieldPosition = fieldPositions
-						.get(
-								i);
+				final Integer fieldPosition = fieldPositions.get(i);
 				if ((maxFieldPosition > -1) && (fieldPosition > maxFieldPosition)) {
 					return new FlattenedDataSet(
 							fieldInfoList,
@@ -338,24 +288,16 @@ public class DataStoreUtils
 				}
 				final int fieldLength = input.getInt();
 				final byte[] fieldValueBytes = new byte[fieldLength];
-				input
-						.get(
-								fieldValueBytes);
-				fieldInfoList
-						.add(
-								new FlattenedFieldInfo(
-										fieldPosition,
-										fieldValueBytes));
+				input.get(fieldValueBytes);
+				fieldInfoList.add(new FlattenedFieldInfo(
+						fieldPosition,
+						fieldValueBytes));
 			}
 		}
 		else {
-			fieldInfoList
-					.add(
-							new FlattenedFieldInfo(
-									fieldPositions
-											.get(
-													0),
-									flattenedValue));
+			fieldInfoList.add(new FlattenedFieldInfo(
+					fieldPositions.get(0),
+					flattenedValue));
 
 		}
 		return new FlattenedDataSet(
@@ -375,8 +317,7 @@ public class DataStoreUtils
 						.getOrderedDimensionDefinitions().length)) {
 			// determine the correct tier to query for the given resolution
 			final HierarchicalNumericIndexStrategy strategy = CompoundHierarchicalIndexStrategyWrapper
-					.findHierarchicalStrategy(
-							indexStrategy);
+					.findHierarchicalStrategy(indexStrategy);
 			if (strategy != null) {
 				final TreeMap<Double, SubStrategy> sortedStrategies = new TreeMap<>();
 				for (final SubStrategy subStrategy : strategy.getSubStrategies()) {
@@ -388,10 +329,9 @@ public class DataStoreUtils
 						rangeSum += range;
 					}
 					// sort by the sum of the range in each dimension
-					sortedStrategies
-							.put(
-									rangeSum,
-									subStrategy);
+					sortedStrategies.put(
+							rangeSum,
+							subStrategy);
 				}
 				for (final SubStrategy subStrategy : sortedStrategies.descendingMap().values()) {
 					final double[] highestPrecisionIdRangePerDimension = subStrategy
@@ -424,10 +364,8 @@ public class DataStoreUtils
 			if (targetIndexStrategy != null) {
 				// at least use the prefix of a substrategy if chosen
 				return new QueryRanges(
-						Collections
-								.singleton(
-										new ByteArrayId(
-												targetIndexStrategy.getPrefix())));
+						Collections.singleton(new ByteArrayId(
+								targetIndexStrategy.getPrefix())));
 			}
 			return new QueryRanges(); // implies in negative and
 			// positive infinity
@@ -436,115 +374,79 @@ public class DataStoreUtils
 			final List<QueryRanges> ranges = new ArrayList<>(
 					constraints.size());
 			for (final MultiDimensionalNumericData nd : constraints) {
-				ranges
-						.add(
-								indexStrategy
-										.getQueryRanges(
-												nd,
-												maxRanges,
-												hints));
+				ranges.add(indexStrategy.getQueryRanges(
+						nd,
+						maxRanges,
+						hints));
 			}
 			return ranges.size() > 1 ? new QueryRanges(
-					ranges)
-					: ranges
-							.get(
-									0);
+					ranges) : ranges.get(0);
 		}
 	}
 
 	public static String getQualifiedTableName(
 			final String tableNamespace,
 			final String unqualifiedTableName ) {
-		return ((tableNamespace == null) || tableNamespace.isEmpty()) ? unqualifiedTableName
-				: tableNamespace + "_" + unqualifiedTableName;
+		return ((tableNamespace == null) || tableNamespace.isEmpty()) ? unqualifiedTableName : tableNamespace + "_"
+				+ unqualifiedTableName;
 	}
 
 	public static ByteArrayId ensureUniqueId(
 			final byte[] id,
 			final boolean hasMetadata ) {
 
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						id.length + UNIQUE_ADDED_BYTES);
+		final ByteBuffer buf = ByteBuffer.allocate(id.length + UNIQUE_ADDED_BYTES);
 
 		byte[] metadata = null;
 		byte[] dataId;
 		if (hasMetadata) {
 			final int metadataStartIdx = id.length - 12;
-			final byte[] lengths = Arrays
-					.copyOfRange(
-							id,
-							metadataStartIdx,
-							id.length);
+			final byte[] lengths = Arrays.copyOfRange(
+					id,
+					metadataStartIdx,
+					id.length);
 
-			final ByteBuffer lengthsBuf = ByteBuffer
-					.wrap(
-							lengths);
+			final ByteBuffer lengthsBuf = ByteBuffer.wrap(lengths);
 			final int adapterIdLength = lengthsBuf.getInt();
 			int dataIdLength = lengthsBuf.getInt();
 			dataIdLength += UNIQUE_ADDED_BYTES;
 			final int duplicates = lengthsBuf.getInt();
 
-			final ByteBuffer newLengths = ByteBuffer
-					.allocate(
-							12);
-			newLengths
-					.putInt(
-							adapterIdLength);
-			newLengths
-					.putInt(
-							dataIdLength);
-			newLengths
-					.putInt(
-							duplicates);
+			final ByteBuffer newLengths = ByteBuffer.allocate(12);
+			newLengths.putInt(adapterIdLength);
+			newLengths.putInt(dataIdLength);
+			newLengths.putInt(duplicates);
 			newLengths.rewind();
 			metadata = newLengths.array();
-			dataId = Arrays
-					.copyOfRange(
-							id,
-							0,
-							metadataStartIdx);
+			dataId = Arrays.copyOfRange(
+					id,
+					0,
+					metadataStartIdx);
 		}
 		else {
 			dataId = id;
 		}
 
-		buf
-				.put(
-						dataId);
+		buf.put(dataId);
 
 		final long timestamp = System.currentTimeMillis();
-		buf
-				.put(
-						new byte[] {
-							UNIQUE_ID_DELIMITER
-						});
+		buf.put(new byte[] {
+			UNIQUE_ID_DELIMITER
+		});
 		final UUID uuid = UUID.randomUUID();
-		buf
-				.putLong(
-						timestamp);
-		buf
-				.putLong(
-						uuid.getLeastSignificantBits());
-		buf
-				.putLong(
-						uuid.getMostSignificantBits());
+		buf.putLong(timestamp);
+		buf.putLong(uuid.getLeastSignificantBits());
+		buf.putLong(uuid.getMostSignificantBits());
 		if (hasMetadata) {
-			buf
-					.put(
-							metadata);
+			buf.put(metadata);
 		}
 
 		return new ByteArrayId(
 				buf.array());
 	}
 
-	private static final byte[] BEG_AND_BYTE = "&"
-			.getBytes(
-					StringUtils.getGeoWaveCharset());
-	private static final byte[] END_AND_BYTE = ")"
-			.getBytes(
-					StringUtils.getGeoWaveCharset());
+	private static final byte[] BEG_AND_BYTE = "&".getBytes(StringUtils.getGeoWaveCharset());
+	private static final byte[] END_AND_BYTE = ")".getBytes(StringUtils.getGeoWaveCharset());
 
 	public static byte[] mergeVisibilities(
 			final byte vis1[],
@@ -556,27 +458,13 @@ public class DataStoreUtils
 			return vis1;
 		}
 
-		final ByteBuffer buffer = ByteBuffer
-				.allocate(
-						vis1.length + 3 + vis2.length);
-		buffer
-				.putChar(
-						'(');
-		buffer
-				.put(
-						vis1);
-		buffer
-				.putChar(
-						')');
-		buffer
-				.put(
-						BEG_AND_BYTE);
-		buffer
-				.put(
-						vis2);
-		buffer
-				.put(
-						END_AND_BYTE);
+		final ByteBuffer buffer = ByteBuffer.allocate(vis1.length + 3 + vis2.length);
+		buffer.putChar('(');
+		buffer.put(vis1);
+		buffer.putChar(')');
+		buffer.put(BEG_AND_BYTE);
+		buffer.put(vis2);
+		buffer.put(END_AND_BYTE);
 		return buffer.array();
 	}
 
@@ -587,21 +475,15 @@ public class DataStoreUtils
 		for (final short adapterId : internalAdapterStore.getAdapterIds()) {
 			InternalDataStatistics<?, ?, ?>[] statsArray;
 			try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> stats = statsStore
-					.getDataStatistics(
-							adapterId)) {
-				statsArray = Iterators
-						.toArray(
-								stats,
-								InternalDataStatistics.class);
+					.getDataStatistics(adapterId)) {
+				statsArray = Iterators.toArray(
+						stats,
+						InternalDataStatistics.class);
 			}
 			// Clear all existing stats
-			statsStore
-					.removeAllStatistics(
-							adapterId);
+			statsStore.removeAllStatistics(adapterId);
 			for (final InternalDataStatistics<?, ?, ?> stats : statsArray) {
-				statsStore
-						.incorporateStatistics(
-								stats);
+				statsStore.incorporateStatistics(stats);
 			}
 		}
 		return true;

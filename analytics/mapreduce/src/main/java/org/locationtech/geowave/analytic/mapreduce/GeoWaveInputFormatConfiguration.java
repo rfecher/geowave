@@ -25,7 +25,7 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Query;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputFormat;
 
 public class GeoWaveInputFormatConfiguration implements
@@ -59,11 +59,11 @@ public class GeoWaveInputFormatConfiguration implements
 
 		if (query != null) {
 			if ((query.getQueryConstraints() != null)
-					&& (query.getQueryConstraints() instanceof DistributableQueryConstraints)) {
+					&& (query.getQueryConstraints() instanceof QueryConstraints)) {
 				GeoWaveInputFormat
 						.setQueryConstraints(
 								configuration,
-								(DistributableQueryConstraints) query.getQueryConstraints());
+								(QueryConstraints) query.getQueryConstraints());
 			}
 
 			if (query.getCommonQueryOptions() != null) {

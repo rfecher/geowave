@@ -37,33 +37,25 @@ public class DateUtilities
 				"yyyy-MM-dd'T'HH:mm:ssz");
 
 		// this is zero time so we need to add that TZ indicator for
-		if (input
-				.endsWith(
-						"Z")) {
-			input = input
-					.substring(
-							0,
-							input.length() - 1)
-					+ "GMT-00:00";
+		if (input.endsWith("Z")) {
+			input = input.substring(
+					0,
+					input.length() - 1) + "GMT-00:00";
 		}
 		else {
 			final int inset = 6;
 
-			final String s0 = input
-					.substring(
-							0,
-							input.length() - inset);
-			final String s1 = input
-					.substring(
-							input.length() - inset,
-							input.length());
+			final String s0 = input.substring(
+					0,
+					input.length() - inset);
+			final String s1 = input.substring(
+					input.length() - inset,
+					input.length());
 
 			input = s0 + "GMT" + s1;
 		}
 
-		return df
-				.parse(
-						input);
+		return df.parse(input);
 
 	}
 
@@ -73,23 +65,14 @@ public class DateUtilities
 			final String timeField ) {
 		final DataStatisticsStore statisticsStore = dataStorePlugin.createDataStatisticsStore();
 		final InternalAdapterStore internalAdapterStore = dataStorePlugin.createInternalAdapterStore();
-		final short adapterId = internalAdapterStore
-				.getAdapterId(
-						typeName);
+		final short adapterId = internalAdapterStore.getAdapterId(typeName);
 		// if this is a ranged schema, we have to get complete bounds
-		if (timeField
-				.contains(
-						"|")) {
-			final int pipeIndex = timeField
-					.indexOf(
-							"|");
-			final String startField = timeField
-					.substring(
-							0,
-							pipeIndex);
-			final String endField = timeField
-					.substring(
-							pipeIndex + 1);
+		if (timeField.contains("|")) {
+			final int pipeIndex = timeField.indexOf("|");
+			final String startField = timeField.substring(
+					0,
+					pipeIndex);
+			final String endField = timeField.substring(pipeIndex + 1);
 
 			Date start = null;
 			Date end = null;
@@ -101,12 +84,11 @@ public class DateUtilities
 					.fieldName(
 							startField)
 					.build();
-			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt = statisticsStore
-					.getDataStatistics(
-							adapterId,
-							query.getExtendedId(),
-							query.getStatsType(),
-							new String[0])) {
+			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt = statisticsStore.getDataStatistics(
+					adapterId,
+					query.getExtendedId(),
+					query.getStatsType(),
+					new String[0])) {
 				if (timeStatIt.hasNext()) {
 					final InternalDataStatistics<?, ?, ?> timeStat = timeStatIt.next();
 					if (timeStat instanceof FeatureTimeRangeStatistics) {
@@ -115,19 +97,13 @@ public class DateUtilities
 					}
 				}
 			}
-			query = VectorStatisticsQueryBuilder
-					.newBuilder()
-					.factory()
-					.timeRange()
-					.fieldName(
-							endField)
-					.build();
-			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt = statisticsStore
-					.getDataStatistics(
-							adapterId,
-							query.getExtendedId(),
-							query.getStatsType(),
-							new String[0])) {
+			query = VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(
+					endField).build();
+			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt = statisticsStore.getDataStatistics(
+					adapterId,
+					query.getExtendedId(),
+					query.getStatsType(),
+					new String[0])) {
 				if (timeStatIt.hasNext()) {
 					final InternalDataStatistics<?, ?, ?> timeStat = timeStatIt.next();
 					if (timeStat instanceof FeatureTimeRangeStatistics) {
@@ -153,12 +129,11 @@ public class DateUtilities
 					.fieldName(
 							timeField)
 					.build();
-			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt = statisticsStore
-					.getDataStatistics(
-							adapterId,
-							query.getExtendedId(),
-							query.getStatsType(),
-							new String[0])) {
+			try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt = statisticsStore.getDataStatistics(
+					adapterId,
+					query.getExtendedId(),
+					query.getStatsType(),
+					new String[0])) {
 				if (timeStatIt.hasNext()) {
 					final InternalDataStatistics<?, ?, ?> timeStat = timeStatIt.next();
 					if (timeStat instanceof FeatureTimeRangeStatistics) {

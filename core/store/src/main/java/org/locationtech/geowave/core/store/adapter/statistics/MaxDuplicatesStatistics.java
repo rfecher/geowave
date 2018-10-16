@@ -60,19 +60,15 @@ public class MaxDuplicatesStatistics<T> extends
 
 	@Override
 	public byte[] toBinary() {
-		final ByteBuffer buf = super.binaryBuffer(
-				8);
-		buf
-				.putInt(
-						maxDuplicates);
+		final ByteBuffer buf = super.binaryBuffer(8);
+		buf.putInt(maxDuplicates);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buf = super.binaryBuffer(bytes);
 		maxDuplicates = buf.getInt();
 	}
 
@@ -81,10 +77,9 @@ public class MaxDuplicatesStatistics<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		for (final GeoWaveRow kv : kvs) {
-			maxDuplicates = Math
-					.max(
-							maxDuplicates,
-							kv.getNumberOfDuplicates());
+			maxDuplicates = Math.max(
+					maxDuplicates,
+					kv.getNumberOfDuplicates());
 		}
 	}
 
@@ -92,10 +87,9 @@ public class MaxDuplicatesStatistics<T> extends
 	public void merge(
 			final Mergeable merge ) {
 		if ((merge != null) && (merge instanceof MaxDuplicatesStatistics)) {
-			maxDuplicates = Math
-					.max(
-							maxDuplicates,
-							((MaxDuplicatesStatistics) merge).maxDuplicates);
+			maxDuplicates = Math.max(
+					maxDuplicates,
+					((MaxDuplicatesStatistics) merge).maxDuplicates);
 		}
 	}
 
@@ -111,8 +105,6 @@ public class MaxDuplicatesStatistics<T> extends
 
 	@Override
 	protected String resultsValue() {
-		return Integer
-				.toString(
-						maxDuplicates);
+		return Integer.toString(maxDuplicates);
 	}
 }

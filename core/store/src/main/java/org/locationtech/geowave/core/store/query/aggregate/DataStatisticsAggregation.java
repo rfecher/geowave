@@ -27,18 +27,14 @@ public class DataStatisticsAggregation<T> implements
 	public DataStatisticsAggregation(
 			final InternalDataStatistics<T, ?, ?> statistics ) {
 		this.statisticsResult = statistics;
-		this.defaultResultBinary = PersistenceUtils
-				.toBinary(
-						statisticsResult);
+		this.defaultResultBinary = PersistenceUtils.toBinary(statisticsResult);
 		this.statisticsParam = statistics;
 	}
 
 	@Override
 	public void aggregate(
 			final T entry ) {
-		statisticsResult
-				.entryIngested(
-						entry);
+		statisticsResult.entryIngested(entry);
 	}
 
 	@Override
@@ -54,9 +50,7 @@ public class DataStatisticsAggregation<T> implements
 
 	@Override
 	public void clearResult() {
-		this.statisticsResult = (InternalDataStatistics<T, ?, ?>) PersistenceUtils
-				.fromBinary(
-						defaultResultBinary);
+		this.statisticsResult = (InternalDataStatistics<T, ?, ?>) PersistenceUtils.fromBinary(defaultResultBinary);
 	}
 
 	@Override
@@ -84,17 +78,13 @@ public class DataStatisticsAggregation<T> implements
 	@Override
 	public byte[] resultToBinary(
 			final InternalDataStatistics<T, ?, ?> result ) {
-		return PersistenceUtils
-				.toBinary(
-						result);
+		return PersistenceUtils.toBinary(result);
 	}
 
 	@Override
 	public InternalDataStatistics<T, ?, ?> resultFromBinary(
 			final byte[] binary ) {
-		return (InternalDataStatistics<T, ?, ?>) PersistenceUtils
-				.fromBinary(
-						binary);
+		return (InternalDataStatistics<T, ?, ?>) PersistenceUtils.fromBinary(binary);
 	}
 
 }

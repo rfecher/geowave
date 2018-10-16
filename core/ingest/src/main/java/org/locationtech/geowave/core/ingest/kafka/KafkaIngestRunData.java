@@ -41,40 +41,28 @@ public class KafkaIngestRunData implements
 			final DataStore dataStore ) {
 		this.dataStore = dataStore;
 		adapterCache = new MemoryAdapterStore(
-				adapters
-						.toArray(
-								new DataTypeAdapter[adapters.size()]));
+				adapters.toArray(new DataTypeAdapter[adapters.size()]));
 	}
 
 	public DataTypeAdapter<?> getDataAdapter(
 			final GeoWaveData<?> data ) {
-		return data
-				.getAdapter(
-						adapterCache);
+		return data.getAdapter(adapterCache);
 	}
 
 	public synchronized Writer getIndexWriter(
 			final DataTypeAdapter<?> adapter,
 			final Index... requiredIndices )
 			throws MismatchedIndexToAdapterMapping {
-		Writer indexWriter = adapterIdToWriterCache
-				.get(
-						adapter.getTypeName());
+		Writer indexWriter = adapterIdToWriterCache.get(adapter.getTypeName());
 		if (indexWriter == null) {
-			dataStore
-					.addType(
-							adapter);
-			dataStore
-					.addIndex(
-							adapter.getTypeName(),
-							requiredIndices);
-			indexWriter = dataStore
-					.createWriter(
-							adapter.getTypeName());
-			adapterIdToWriterCache
-					.put(
-							adapter.getTypeName(),
-							indexWriter);
+			dataStore.addType(adapter);
+			dataStore.addIndex(
+					adapter.getTypeName(),
+					requiredIndices);
+			indexWriter = dataStore.createWriter(adapter.getTypeName());
+			adapterIdToWriterCache.put(
+					adapter.getTypeName(),
+					indexWriter);
 		}
 		return indexWriter;
 	}

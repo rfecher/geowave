@@ -38,18 +38,16 @@ public class IngestMapper extends
 			final org.apache.hadoop.mapreduce.Mapper.Context context )
 			throws IOException,
 			InterruptedException {
-		try (CloseableIterator<GeoWaveData> data = ingestWithMapper
-				.toGeoWaveData(
-						key.datum(),
-						indexNames,
-						globalVisibility)) {
+		try (CloseableIterator<GeoWaveData> data = ingestWithMapper.toGeoWaveData(
+				key.datum(),
+				indexNames,
+				globalVisibility)) {
 			while (data.hasNext()) {
 				final GeoWaveData d = data.next();
-				context
-						.write(
-								new GeoWaveOutputKey<>(
-										d),
-								d.getValue());
+				context.write(
+						new GeoWaveOutputKey<>(
+								d),
+						d.getValue());
 			}
 		}
 	}
@@ -59,26 +57,15 @@ public class IngestMapper extends
 			final org.apache.hadoop.mapreduce.Mapper.Context context )
 			throws IOException,
 			InterruptedException {
-		super.setup(
-				context);
+		super.setup(context);
 		try {
-			final String ingestWithMapperStr = context
-					.getConfiguration()
-					.get(
-							AbstractMapReduceIngest.INGEST_PLUGIN_KEY);
-			final byte[] ingestWithMapperBytes = ByteArrayUtils
-					.byteArrayFromString(
-							ingestWithMapperStr);
-			ingestWithMapper = (IngestWithMapper) PersistenceUtils
-					.fromBinary(
-							ingestWithMapperBytes);
-			globalVisibility = context
-					.getConfiguration()
-					.get(
-							AbstractMapReduceIngest.GLOBAL_VISIBILITY_KEY);
-			indexNames = AbstractMapReduceIngest
-					.getIndexNames(
-							context.getConfiguration());
+			final String ingestWithMapperStr = context.getConfiguration().get(
+					AbstractMapReduceIngest.INGEST_PLUGIN_KEY);
+			final byte[] ingestWithMapperBytes = ByteArrayUtils.byteArrayFromString(ingestWithMapperStr);
+			ingestWithMapper = (IngestWithMapper) PersistenceUtils.fromBinary(ingestWithMapperBytes);
+			globalVisibility = context.getConfiguration().get(
+					AbstractMapReduceIngest.GLOBAL_VISIBILITY_KEY);
+			indexNames = AbstractMapReduceIngest.getIndexNames(context.getConfiguration());
 		}
 		catch (final Exception e) {
 			throw new IllegalArgumentException(

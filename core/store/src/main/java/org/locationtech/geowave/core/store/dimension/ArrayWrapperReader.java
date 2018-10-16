@@ -22,8 +22,6 @@ public class ArrayWrapperReader<T> implements
 	public ArrayWrapper<T> readField(
 			final byte[] fieldData ) {
 		return new ArrayWrapper<>(
-				reader
-						.readField(
-								fieldData));
+				reader.readField(fieldData));
 	}
 }

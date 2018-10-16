@@ -163,10 +163,12 @@ public class QueryIndexHelperTest
 		final Date stime1 = DateUtilities.parseISO("2005-05-18T20:32:56Z");
 		final Date etime1 = DateUtilities.parseISO("2005-05-19T20:32:56Z");
 
-		final Map<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>> statsMap = new HashMap<>();
+		final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = new HashMap<>();
 		final FeatureTimeRangeStatistics whenStats = new FeatureTimeRangeStatistics(
 				"when");
-		statsMap.put(VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName("when").build().getId(),
+		statsMap.put(
+				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(
+						"when").build().getId(),
 				whenStats);
 
 		final TemporalConstraintsSet constraintsSet = new TemporalConstraintsSet();
@@ -230,17 +232,19 @@ public class QueryIndexHelperTest
 	public void testGetTemporalConstraintsForRangeClippedFullRange()
 			throws ParseException {
 
-		final Map<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>> statsMap = new HashMap<>();
+		final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = new HashMap<>();
 		final FeatureTimeRangeStatistics startStats = new FeatureTimeRangeStatistics(
 				"start");
 		statsMap.put(
-				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName("start").build().getId(),
+				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(
+						"start").build().getId(),
 				startStats);
 
 		final FeatureTimeRangeStatistics endStats = new FeatureTimeRangeStatistics(
 				"end");
 		statsMap.put(
-				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName("end").build().getId(),
+				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(
+						"end").build().getId(),
 				endStats);
 
 		final Date statsStart1 = DateUtilities.parseISO("2005-05-18T20:32:56Z");
@@ -300,17 +304,19 @@ public class QueryIndexHelperTest
 	public void testComposeQueryWithTimeRange()
 			throws ParseException {
 
-		final Map<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>> statsMap = new HashMap<>();
+		final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = new HashMap<>();
 		final FeatureTimeRangeStatistics startStats = new FeatureTimeRangeStatistics(
 				"start");
 		statsMap.put(
-				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName("start").build().getId(),
+				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(
+						"start").build().getId(),
 				startStats);
 
 		final FeatureTimeRangeStatistics endStats = new FeatureTimeRangeStatistics(
 				"end");
 		statsMap.put(
-				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName("end").build().getId(),
+				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(
+						"end").build().getId(),
 				endStats);
 
 		final Date statsStart1 = DateUtilities.parseISO("2005-05-18T20:32:56Z");
@@ -390,11 +396,12 @@ public class QueryIndexHelperTest
 
 	@Test
 	public void testComposeQueryWithOutTimeRange() {
-		final Map<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>> statsMap = new HashMap<>();
+		final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = new HashMap<>();
 		final FeatureBoundingBoxStatistics geoStats = new FeatureBoundingBoxStatistics(
 				"geometry");
 		statsMap.put(
-				VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName("geometry").build().getId(),
+				VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
+						"geometry").build().getId(),
 				geoStats);
 
 		final SimpleFeature firstFeature = createGeoFeature(factory.createPoint(new Coordinate(
@@ -449,11 +456,12 @@ public class QueryIndexHelperTest
 
 	@Test
 	public void testGetBBOX() {
-		final Map<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>> statsMap = new HashMap<>();
+		final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = new HashMap<>();
 		final FeatureBoundingBoxStatistics geoStats = new FeatureBoundingBoxStatistics(
 				"geometry");
 		statsMap.put(
-				VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName("geometry").build().getId(),
+				VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
+						"geometry").build().getId(),
 				geoStats);
 
 		final SimpleFeature firstFeature = createGeoFeature(factory.createPoint(new Coordinate(
@@ -607,17 +615,19 @@ public class QueryIndexHelperTest
 	public void testComposeSubsetConstraints()
 			throws ParseException {
 
-		final Map<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>> statsMap = new HashMap<>();
+		final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = new HashMap<>();
 		final FeatureTimeRangeStatistics startStats = new FeatureTimeRangeStatistics(
 				"start");
 		statsMap.put(
-				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName("start").build().getId(),
+				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(
+						"start").build().getId(),
 				startStats);
 
 		final FeatureTimeRangeStatistics endStats = new FeatureTimeRangeStatistics(
 				"end");
 		statsMap.put(
-				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName("end").build().getId(),
+				VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(
+						"end").build().getId(),
 				endStats);
 
 		final Date statsStart1 = DateUtilities.parseISO("2005-05-18T20:32:56Z");
@@ -664,7 +674,8 @@ public class QueryIndexHelperTest
 		final FeatureBoundingBoxStatistics geoStats = new FeatureBoundingBoxStatistics(
 				"geometry");
 		statsMap.put(
-				VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName("geometry").build().getId(),
+				VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
+						"geometry").build().getId(),
 				geoStats);
 
 		final SimpleFeature firstFeature = createGeoFeature(factory.createPoint(new Coordinate(

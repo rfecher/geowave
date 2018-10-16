@@ -28,9 +28,9 @@ import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
 import org.locationtech.geowave.core.store.query.constraints.AdapterAndIndexBasedQueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery.Constraints;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -40,11 +40,9 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class OptimalCQLQuery implements
 		AdapterAndIndexBasedQueryConstraints,
-		DistributableQueryConstraints
+		QueryConstraints
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					OptimalCQLQuery.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(OptimalCQLQuery.class);
 
 	public static QueryConstraints createOptimalQuery(
 			final String cql,
@@ -79,9 +77,7 @@ public class OptimalCQLQuery implements
 			final Index index,
 			final BasicQuery baseQuery )
 			throws CQLException {
-		final Filter cqlFilter = CQL
-				.toFilter(
-						cql);
+		final Filter cqlFilter = CQL.toFilter(cql);
 		return createOptimalQuery(
 				cqlFilter,
 				adapter,
@@ -122,10 +118,9 @@ public class OptimalCQLQuery implements
 			BasicQuery baseQuery ) {
 		final ExtractAttributesFilter attributesVisitor = new ExtractAttributesFilter();
 
-		final Object obj = cqlFilter
-				.accept(
-						attributesVisitor,
-						null);
+		final Object obj = cqlFilter.accept(
+				attributesVisitor,
+				null);
 
 		final Collection<String> attrs;
 		if ((obj != null) && (obj instanceof Collection)) {
@@ -136,39 +131,28 @@ public class OptimalCQLQuery implements
 		}
 		// assume the index can't handle spatial or temporal constraints if its
 		// null
-		final boolean isSpatial = IndexOptimizationUtils
-				.hasAtLeastSpatial(
-						index);
-		final boolean isTemporal = IndexOptimizationUtils
-				.hasTime(
-						index,
-						adapter);
+		final boolean isSpatial = IndexOptimizationUtils.hasAtLeastSpatial(index);
+		final boolean isTemporal = IndexOptimizationUtils.hasTime(
+				index,
+				adapter);
 		if (isSpatial) {
 			final String geomName = adapter.getFeatureType().getGeometryDescriptor().getLocalName();
-			attrs
-					.remove(
-							geomName);
+			attrs.remove(geomName);
 		}
 		if (isTemporal) {
 			final TimeDescriptors timeDescriptors = adapter.getTimeDescriptors();
 			if (timeDescriptors != null) {
 				final AttributeDescriptor timeDesc = timeDescriptors.getTime();
 				if (timeDesc != null) {
-					attrs
-							.remove(
-									timeDesc.getLocalName());
+					attrs.remove(timeDesc.getLocalName());
 				}
 				final AttributeDescriptor startDesc = timeDescriptors.getStartRange();
 				if (startDesc != null) {
-					attrs
-							.remove(
-									startDesc.getLocalName());
+					attrs.remove(startDesc.getLocalName());
 				}
 				final AttributeDescriptor endDesc = timeDescriptors.getEndRange();
 				if (endDesc != null) {
-					attrs
-							.remove(
-									endDesc.getLocalName());
+					attrs.remove(endDesc.getLocalName());
 				}
 			}
 		}
@@ -180,15 +164,12 @@ public class OptimalCQLQuery implements
 							adapter.getFeatureType().getCoordinateReferenceSystem(),
 							adapter.getFeatureType().getGeometryDescriptor().getLocalName());
 			final TemporalConstraintsSet timeConstraintSet = new ExtractTimeFilterVisitor(
-					adapter.getTimeDescriptors())
-							.getConstraints(
-									cqlFilter);
+					adapter.getTimeDescriptors()).getConstraints(cqlFilter);
 
 			if (geometryAndCompareOp != null) {
 				final Geometry geometry = geometryAndCompareOp.getGeometry();
 				final GeoConstraintsWrapper geoConstraints = GeometryUtils
-						.basicGeoConstraintsWrapperFromGeometry(
-								geometry);
+						.basicGeoConstraintsWrapperFromGeometry(geometry);
 
 				Constraints constraints = geoConstraints.getConstraints();
 				final CompareOperation extractedCompareOp = geometryAndCompareOp.getCompareOp();
@@ -196,19 +177,15 @@ public class OptimalCQLQuery implements
 					// determine which time constraints are associated with an
 					// indexable
 					// field
-					final TemporalConstraints temporalConstraints = TimeUtils
-							.getTemporalConstraintsForDescriptors(
-									adapter.getTimeDescriptors(),
-									timeConstraintSet);
+					final TemporalConstraints temporalConstraints = TimeUtils.getTemporalConstraintsForDescriptors(
+							adapter.getTimeDescriptors(),
+							timeConstraintSet);
 					// convert to constraints
-					final Constraints timeConstraints = SpatialTemporalQuery
-							.createConstraints(
-									temporalConstraints,
-									false);
-					constraints = geoConstraints
-							.getConstraints()
-							.merge(
-									timeConstraints);
+					final Constraints timeConstraints = SpatialTemporalQuery.createConstraints(
+							temporalConstraints,
+							false);
+					constraints = geoConstraints.getConstraints().merge(
+							timeConstraints);
 				}
 				// TODO: this actually doesn't boost performance much, if at
 				// all, and one key is missing - the query geometry has to be
@@ -239,9 +216,7 @@ public class OptimalCQLQuery implements
 				// represent CQL expression but use
 				// linear constraint from baseQuery
 				if (extractedCompareOp == null) {
-					baseQuery
-							.setExact(
-									false);
+					baseQuery.setExact(false);
 				}
 				// }
 			}
@@ -249,10 +224,9 @@ public class OptimalCQLQuery implements
 				// determine which time constraints are associated with an
 				// indexable
 				// field
-				final TemporalConstraints temporalConstraints = TimeUtils
-						.getTemporalConstraintsForDescriptors(
-								adapter.getTimeDescriptors(),
-								timeConstraintSet);
+				final TemporalConstraints temporalConstraints = TimeUtils.getTemporalConstraintsForDescriptors(
+						adapter.getTimeDescriptors(),
+						timeConstraintSet);
 				baseQuery = new TemporalQuery(
 						temporalConstraints);
 			}
@@ -297,21 +271,7 @@ public class OptimalCQLQuery implements
 					(GeotoolsFeatureDataAdapter) ((InternalDataAdapter) adapter).getAdapter(),
 					index);
 		}
-		LOGGER
-				.error(
-						"Adapter is not a geotools feature adapter.  Cannot apply CQL filter.");
-		return null;
-	}
-
-	@Override
-	public List<ByteArrayRange> getSecondaryIndexConstraints(
-			final SecondaryIndexImpl<?> index ) {
-		return null;
-	}
-
-	@Override
-	public List<DistributableQueryFilter> getSecondaryQueryFilter(
-			final SecondaryIndexImpl<?> index ) {
+		LOGGER.error("Adapter is not a geotools feature adapter.  Cannot apply CQL filter.");
 		return null;
 	}
 
@@ -319,17 +279,11 @@ public class OptimalCQLQuery implements
 	public byte[] toBinary() {
 		byte[] filterBytes;
 		if (filter == null) {
-			LOGGER
-					.warn(
-							"CQL filter is null");
+			LOGGER.warn("CQL filter is null");
 			filterBytes = new byte[] {};
 		}
 		else {
-			filterBytes = StringUtils
-					.stringToBinary(
-							ECQL
-									.toCQL(
-											filter));
+			filterBytes = StringUtils.stringToBinary(ECQL.toCQL(filter));
 		}
 		return filterBytes;
 	}
@@ -341,19 +295,14 @@ public class OptimalCQLQuery implements
 			GeometryUtils.initClassLoader();
 		}
 		catch (final MalformedURLException e) {
-			LOGGER
-					.error(
-							"Unable to initialize GeoTools class loader",
-							e);
+			LOGGER.error(
+					"Unable to initialize GeoTools class loader",
+					e);
 		}
 		if (bytes.length > 0) {
-			final String cql = StringUtils
-					.stringFromBinary(
-							bytes);
+			final String cql = StringUtils.stringFromBinary(bytes);
 			try {
-				filter = ECQL
-						.toFilter(
-								cql);
+				filter = ECQL.toFilter(cql);
 			}
 			catch (final Exception e) {
 				throw new IllegalArgumentException(
@@ -362,9 +311,7 @@ public class OptimalCQLQuery implements
 			}
 		}
 		else {
-			LOGGER
-					.warn(
-							"CQL filter is empty bytes");
+			LOGGER.warn("CQL filter is empty bytes");
 			filter = null;
 		}
 	}

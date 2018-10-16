@@ -53,9 +53,7 @@ import kafka.javaapi.consumer.ConsumerConnector;
  */
 public class IngestFromKafkaDriver
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					IngestFromKafkaDriver.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(IngestFromKafkaDriver.class);
 
 	private final DataStorePluginOptions storeOptions;
 	private final List<IndexPluginOptions> indexOptions;
@@ -95,39 +93,28 @@ public class IngestFromKafkaDriver
 		while (queue.size() > 0) {
 			if (counter > 30) {
 				for (final String pluginFormatName : queue) {
-					LOGGER
-							.error(
-									"Unable to start up Kafka consumer for plugin [" + pluginFormatName + "]");
+					LOGGER.error("Unable to start up Kafka consumer for plugin [" + pluginFormatName + "]");
 				}
 				break;
 			}
 			try {
-				Thread
-						.sleep(
-								1000);
+				Thread.sleep(1000);
 			}
 			catch (final InterruptedException e) {
-				LOGGER
-						.error(
-								"Thread interrupted",
-								e);
+				LOGGER.error(
+						"Thread interrupted",
+						e);
 			}
 			counter++;
 		}
 
 		if (queue.size() == 0) {
-			LOGGER
-					.info(
-							"All format plugins are now listening on Kafka topics");
+			LOGGER.info("All format plugins are now listening on Kafka topics");
 		}
 		else {
-			LOGGER
-					.warn(
-							"Unable to setup Kafka consumers for the following format plugins:");
+			LOGGER.warn("Unable to setup Kafka consumers for the following format plugins:");
 			for (final String formatPluginName : queue) {
-				LOGGER
-						.warn(
-								"\t[" + formatPluginName + "]");
+				LOGGER.warn("\t[" + formatPluginName + "]");
 			}
 			return false;
 		}
@@ -137,9 +124,7 @@ public class IngestFromKafkaDriver
 	private void addPluginsToQueue(
 			final Map<String, AvroFormatPlugin<?, ?>> pluginProviders,
 			final List<String> queue ) {
-		queue
-				.addAll(
-						pluginProviders.keySet());
+		queue.addAll(pluginProviders.keySet());
 	}
 
 	private void configureAndLaunchPlugins(
@@ -155,41 +140,31 @@ public class IngestFromKafkaDriver
 					avroFormatPlugin = pluginProvider.getValue();
 
 					final IngestPluginBase<?, ?> ingestWithAvroPlugin = avroFormatPlugin.getIngestWithAvroPlugin();
-					final DataTypeAdapter<?>[] dataAdapters = ingestWithAvroPlugin
-							.getDataAdapters(
-									ingestOptions.getVisibility());
-					adapters
-							.addAll(
-									Arrays
-											.asList(
-													dataAdapters));
+					final DataTypeAdapter<?>[] dataAdapters = ingestWithAvroPlugin.getDataAdapters(ingestOptions
+							.getVisibility());
+					adapters.addAll(Arrays.asList(dataAdapters));
 					final KafkaIngestRunData runData = new KafkaIngestRunData(
 							adapters,
 							dataStore);
 
-					futures
-							.add(
-									launchTopicConsumer(
-											pluginProvider.getKey(),
-											avroFormatPlugin,
-											runData,
-											queue));
+					futures.add(launchTopicConsumer(
+							pluginProvider.getKey(),
+							avroFormatPlugin,
+							runData,
+							queue));
 				}
 				catch (final UnsupportedOperationException e) {
-					LOGGER
-							.warn(
-									"Plugin provider '" + pluginProvider.getKey()
-											+ "' does not support ingest from Kafka",
-									e);
+					LOGGER.warn(
+							"Plugin provider '" + pluginProvider.getKey() + "' does not support ingest from Kafka",
+							e);
 					continue;
 				}
 			}
 		}
 		catch (final Exception e) {
-			LOGGER
-					.warn(
-							"Error in accessing Kafka stream",
-							e);
+			LOGGER.warn(
+					"Error in accessing Kafka stream",
+					e);
 		}
 	}
 
@@ -197,10 +172,8 @@ public class IngestFromKafkaDriver
 
 		final Properties kafkaProperties = kafkaOptions.getProperties();
 
-		final ConsumerConnector consumer = Consumer
-				.createJavaConsumerConnector(
-						new ConsumerConfig(
-								kafkaProperties));
+		final ConsumerConnector consumer = Consumer.createJavaConsumerConnector(new ConsumerConfig(
+				kafkaProperties));
 
 		return consumer;
 	}
@@ -211,30 +184,25 @@ public class IngestFromKafkaDriver
 			final KafkaIngestRunData ingestRunData,
 			final List<String> queue )
 			throws IllegalArgumentException {
-		final ExecutorService executorService = Executors
-				.newFixedThreadPool(
-						queue.size());
-		return executorService
-				.submit(
-						new Runnable() {
+		final ExecutorService executorService = Executors.newFixedThreadPool(queue.size());
+		return executorService.submit(new Runnable() {
 
-							@Override
-							public void run() {
-								try {
-									consumeFromTopic(
-											formatPluginName,
-											avroFormatPlugin,
-											ingestRunData,
-											queue);
-								}
-								catch (final Exception e) {
-									LOGGER
-											.error(
-													"Error consuming from Kafka topic [" + formatPluginName + "]",
-													e);
-								}
-							}
-						});
+			@Override
+			public void run() {
+				try {
+					consumeFromTopic(
+							formatPluginName,
+							avroFormatPlugin,
+							ingestRunData,
+							queue);
+				}
+				catch (final Exception e) {
+					LOGGER.error(
+							"Error consuming from Kafka topic [" + formatPluginName + "]",
+							e);
+				}
+			}
+		});
 	}
 
 	public <T> void consumeFromTopic(
@@ -249,33 +217,23 @@ public class IngestFromKafkaDriver
 					"Kafka consumer connector is null, unable to create message streams");
 		}
 		try {
-			LOGGER
-					.debug(
-							"Kafka consumer setup for format [" + formatPluginName + "] against topic ["
-									+ formatPluginName + "]");
+			LOGGER.debug("Kafka consumer setup for format [" + formatPluginName + "] against topic ["
+					+ formatPluginName + "]");
 			final Map<String, Integer> topicCount = new HashMap<>();
-			topicCount
-					.put(
-							formatPluginName,
-							1);
+			topicCount.put(
+					formatPluginName,
+					1);
 
 			final Map<String, List<KafkaStream<byte[], byte[]>>> consumerStreams = consumer
-					.createMessageStreams(
-							topicCount);
-			final List<KafkaStream<byte[], byte[]>> streams = consumerStreams
-					.get(
-							formatPluginName);
+					.createMessageStreams(topicCount);
+			final List<KafkaStream<byte[], byte[]>> streams = consumerStreams.get(formatPluginName);
 
-			queue
-					.remove(
-							formatPluginName);
+			queue.remove(formatPluginName);
 			consumeMessages(
 					formatPluginName,
 					avroFormatPlugin,
 					ingestRunData,
-					streams
-							.get(
-									0));
+					streams.get(0));
 		}
 		finally {
 			consumer.shutdown();
@@ -293,13 +251,10 @@ public class IngestFromKafkaDriver
 			final ConsumerIterator<byte[], byte[]> messageIterator = stream.iterator();
 			while (messageIterator.hasNext()) {
 				final byte[] msg = messageIterator.next().message();
-				LOGGER
-						.info(
-								"[" + formatPluginName + "] message received");
-				final T dataRecord = GenericAvroSerializer
-						.deserialize(
-								msg,
-								avroFormatPlugin.getAvroSchema());
+				LOGGER.info("[" + formatPluginName + "] message received");
+				final T dataRecord = GenericAvroSerializer.deserialize(
+						msg,
+						avroFormatPlugin.getAvroSchema());
 
 				if (dataRecord != null) {
 					try {
@@ -309,22 +264,18 @@ public class IngestFromKafkaDriver
 								avroFormatPlugin);
 						if (++currentBatchId > batchSize) {
 							if (LOGGER.isDebugEnabled()) {
-								LOGGER
-										.debug(
-												String
-														.format(
-																"Flushing %d items",
-																currentBatchId));
+								LOGGER.debug(String.format(
+										"Flushing %d items",
+										currentBatchId));
 							}
 							ingestRunData.flush();
 							currentBatchId = 0;
 						}
 					}
 					catch (final Exception e) {
-						LOGGER
-								.error(
-										"Error processing message: " + e.getMessage(),
-										e);
+						LOGGER.error(
+								"Error processing message: " + e.getMessage(),
+								e);
 					}
 				}
 			}
@@ -333,21 +284,17 @@ public class IngestFromKafkaDriver
 			// Flush any outstanding items
 			if (currentBatchId > 0) {
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER
-							.debug(
-									String
-											.format(
-													"Flushing %d items",
-													currentBatchId));
+					LOGGER.debug(String.format(
+							"Flushing %d items",
+							currentBatchId));
 				}
 				ingestRunData.flush();
 				currentBatchId = 0;
 			}
 			if (kafkaOptions.isFlushAndReconnect()) {
-				LOGGER
-						.info(
-								"Consumer timed out from Kafka topic [" + formatPluginName + "]... Reconnecting...",
-								te);
+				LOGGER.info(
+						"Consumer timed out from Kafka topic [" + formatPluginName + "]... Reconnecting...",
+						te);
 				consumeMessages(
 						formatPluginName,
 						avroFormatPlugin,
@@ -355,17 +302,15 @@ public class IngestFromKafkaDriver
 						stream);
 			}
 			else {
-				LOGGER
-						.info(
-								"Consumer timed out from Kafka topic [" + formatPluginName + "]... ",
-								te);
+				LOGGER.info(
+						"Consumer timed out from Kafka topic [" + formatPluginName + "]... ",
+						te);
 			}
 		}
 		catch (final Exception e) {
-			LOGGER
-					.warn(
-							"Consuming from Kafka topic [" + formatPluginName + "] was interrupted... ",
-							e);
+			LOGGER.warn(
+					"Consuming from Kafka topic [" + formatPluginName + "] was interrupted... ",
+					e);
 		}
 
 	}
@@ -385,81 +330,56 @@ public class IngestFromKafkaDriver
 		for (final IndexPluginOptions indexOption : indexOptions) {
 			final Index primaryIndex = indexOption.createIndex();
 			if (primaryIndex == null) {
-				LOGGER
-						.error(
-								"Could not get index instance, getIndex() returned null;");
+				LOGGER.error("Could not get index instance, getIndex() returned null;");
 				throw new IOException(
 						"Could not get index instance, getIndex() returned null");
 			}
-			indexMap
-					.put(
-							primaryIndex.getName(),
-							primaryIndex);
+			indexMap.put(
+					primaryIndex.getName(),
+					primaryIndex);
 		}
 
 		final Index[] requiredIndices = indexProvider.getRequiredIndices();
 		if ((requiredIndices != null) && (requiredIndices.length > 0)) {
 			for (final Index requiredIndex : requiredIndices) {
-				indexMap
-						.put(
-								requiredIndex.getName(),
-								requiredIndex);
+				indexMap.put(
+						requiredIndex.getName(),
+						requiredIndex);
 			}
 		}
 
-		try (CloseableIterator<?> geowaveDataIt = ingestPlugin
-				.toGeoWaveData(
-						dataRecord,
-						indexMap
-								.keySet()
-								.toArray(
-										new String[0]),
-						ingestOptions.getVisibility())) {
+		try (CloseableIterator<?> geowaveDataIt = ingestPlugin.toGeoWaveData(
+				dataRecord,
+				indexMap.keySet().toArray(
+						new String[0]),
+				ingestOptions.getVisibility())) {
 			while (geowaveDataIt.hasNext()) {
 				final GeoWaveData<?> geowaveData = (GeoWaveData<?>) geowaveDataIt.next();
-				final DataTypeAdapter adapter = ingestRunData
-						.getDataAdapter(
-								geowaveData);
+				final DataTypeAdapter adapter = ingestRunData.getDataAdapter(geowaveData);
 				if (adapter == null) {
-					LOGGER
-							.warn(
-									"Adapter not found for " + geowaveData.getValue());
+					LOGGER.warn("Adapter not found for " + geowaveData.getValue());
 					continue;
 				}
-				Writer indexWriter = writerMap
-						.get(
-								adapter.getTypeName());
+				Writer indexWriter = writerMap.get(adapter.getTypeName());
 				if (indexWriter == null) {
 					final List<Index> indexList = new ArrayList<>();
 					for (final String indexName : geowaveData.getIndexNames()) {
-						final Index index = indexMap
-								.get(
-										indexName);
+						final Index index = indexMap.get(indexName);
 						if (index == null) {
-							LOGGER
-									.warn(
-											"Index '" + indexName + "' not found for " + geowaveData.getValue());
+							LOGGER.warn("Index '" + indexName + "' not found for " + geowaveData.getValue());
 							continue;
 						}
-						indexList
-								.add(
-										index);
+						indexList.add(index);
 					}
-					indexWriter = ingestRunData
-							.getIndexWriter(
-									adapter,
-									indexList
-											.toArray(
-													new Index[indexList.size()]));
-					writerMap
-							.put(
-									adapter.getTypeName(),
-									indexWriter);
+					indexWriter = ingestRunData.getIndexWriter(
+							adapter,
+							indexList.toArray(new Index[indexList.size()]));
+					writerMap.put(
+							adapter.getTypeName(),
+							indexWriter);
 				}
 
-				indexWriter
-						.write(
-								geowaveData.getValue());
+				indexWriter.write(geowaveData.getValue());
 
 			}
 		}
@@ -495,9 +415,7 @@ public class IngestFromKafkaDriver
 			ExecutionException {
 		final List<Object> results = new ArrayList<>();
 		for (final Future<?> future : futures) {
-			results
-					.add(
-							future.get());
+			results.add(future.get());
 		}
 		return results;
 	}

@@ -18,7 +18,7 @@ import java.util.Map;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.store.index.FilterableConstraints;
 import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 public class PropertyConstraintSet
 {
@@ -41,13 +41,9 @@ public class PropertyConstraintSet
 			final String[] fieldIds ) {
 		final List<FilterableConstraints> result = new LinkedList<>();
 		for (final String fieldId : fieldIds) {
-			final FilterableConstraints c = constraints
-					.get(
-							fieldId);
+			final FilterableConstraints c = constraints.get(fieldId);
 			if (c != null) {
-				result
-						.add(
-								c);
+				result.add(c);
 			}
 
 		}
@@ -57,34 +53,23 @@ public class PropertyConstraintSet
 	public List<ByteArrayRange> getRangesFor(
 			final SecondaryIndexImpl<?> index ) {
 		final List<ByteArrayRange> result = new LinkedList<>();
-		final FilterableConstraints c = constraints
-				.get(
-						index.getFieldName());
+		final FilterableConstraints c = constraints.get(index.getFieldName());
 		if (c != null) {
 			// TODO GEOWAVE-1018 how to handle secondary index ranges?
-			result
-					.addAll(
-							index
-									.getIndexStrategy()
-									.getQueryRanges(
-											c)
-									.getCompositeQueryRanges());
+			result.addAll(index.getIndexStrategy().getQueryRanges(
+					c).getCompositeQueryRanges());
 		}
 		return result;
 	}
 
-	public List<DistributableQueryFilter> getFiltersFor(
+	public List<QueryFilter> getFiltersFor(
 			final SecondaryIndexImpl<?> index ) {
-		final List<DistributableQueryFilter> result = new LinkedList<>();
-		final FilterableConstraints c = constraints
-				.get(
-						index.getFieldName());
+		final List<QueryFilter> result = new LinkedList<>();
+		final FilterableConstraints c = constraints.get(index.getFieldName());
 		if (c != null) {
-			final DistributableQueryFilter filter = c.getFilter();
+			final QueryFilter filter = c.getFilter();
 			if (filter != null) {
-				result
-						.add(
-								filter);
+				result.add(filter);
 			}
 		}
 		return result;
@@ -94,30 +79,21 @@ public class PropertyConstraintSet
 			final FilterableConstraints constraint,
 			final boolean intersect ) {
 		final String id = constraint.getFieldName();
-		final FilterableConstraints constraintsForId = constraints
-				.get(
-						id);
+		final FilterableConstraints constraintsForId = constraints.get(id);
 		if (constraintsForId == null) {
-			constraints
-					.put(
-							id,
-							constraint);
+			constraints.put(
+					id,
+					constraint);
 		}
 		else if (intersect) {
-			constraints
-					.put(
-							id,
-							constraintsForId
-									.intersect(
-											constraint));
+			constraints.put(
+					id,
+					constraintsForId.intersect(constraint));
 		}
 		else {
-			constraints
-					.put(
-							id,
-							constraintsForId
-									.union(
-											constraint));
+			constraints.put(
+					id,
+					constraintsForId.union(constraint));
 		}
 	}
 
@@ -141,9 +117,7 @@ public class PropertyConstraintSet
 
 	public FilterableConstraints getConstraintsByName(
 			final String id ) {
-		return constraints
-				.get(
-						id);
+		return constraints.get(id);
 	}
 
 }

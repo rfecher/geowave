@@ -51,9 +51,7 @@ import com.google.common.collect.Lists;
 
 public class BaseQueryOptions
 {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					BaseQueryOptions.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(BaseQueryOptions.class);
 	private static ScanCallback<Object, GeoWaveRow> DEFAULT_CALLBACK = new ScanCallback<Object, GeoWaveRow>() {
 		@Override
 		public void entryScanned(
@@ -143,18 +141,12 @@ public class BaseQueryOptions
 		}
 		indexName = indexOptions.getIndexName();
 		limit = commonOptions.getLimit();
-		maxRangeDecomposition = (Integer) commonOptions
-				.getHints()
-				.get(
-						DataStoreUtils.MAX_RANGE_DECOMPOSITION);
-		maxResolutionSubsamplingPerDimension = (double[]) commonOptions
-				.getHints()
-				.get(
-						DataStoreUtils.MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION);
-		targetResolutionPerDimensionForHierarchicalIndex = (double[]) commonOptions
-				.getHints()
-				.get(
-						DataStoreUtils.TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX);
+		maxRangeDecomposition = (Integer) commonOptions.getHints().get(
+				DataStoreUtils.MAX_RANGE_DECOMPOSITION);
+		maxResolutionSubsamplingPerDimension = (double[]) commonOptions.getHints().get(
+				DataStoreUtils.MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION);
+		targetResolutionPerDimensionForHierarchicalIndex = (double[]) commonOptions.getHints().get(
+				DataStoreUtils.TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX);
 		authorizations = commonOptions.getAuthorizations();
 
 		if ((typeOptions instanceof AggregateTypeQueryOptions)
@@ -172,13 +164,9 @@ public class BaseQueryOptions
 			// for commonindexaggregation)
 			if (((FilterByTypeQueryOptions) typeOptions).getTypeNames().length > 0) {
 				final String typeName = ((FilterByTypeQueryOptions) typeOptions).getTypeNames()[0];
-				final Short adapterId = internalAdapterStore
-						.getAdapterId(
-								typeName);
+				final Short adapterId = internalAdapterStore.getAdapterId(typeName);
 				if (adapterId != null) {
-					final DataTypeAdapter<?> adapter = adapterStore
-							.getAdapter(
-									adapterId);
+					final DataTypeAdapter<?> adapter = adapterStore.getAdapter(adapterId);
 					aggregationAdapterPair = new ImmutablePair<>(
 							new InternalDataAdapterWrapper<>(
 									adapter,
@@ -193,22 +181,18 @@ public class BaseQueryOptions
 		}
 
 		if ((typeOptions instanceof FilterByTypeQueryOptions)
-				&& (((FilterByTypeQueryOptions) typeOptions).getFieldIds() != null)
-				&& (((FilterByTypeQueryOptions) typeOptions).getFieldIds().length > 0)
+				&& (((FilterByTypeQueryOptions) typeOptions).getFieldNames() != null)
+				&& (((FilterByTypeQueryOptions) typeOptions).getFieldNames().length > 0)
 				&& (((FilterByTypeQueryOptions) typeOptions).getTypeNames().length > 0)) {
 			// filter by type for field subsetting only allows a single type
 			// name
 			final String typeName = ((FilterByTypeQueryOptions) typeOptions).getTypeNames()[0];
 			if (typeName == null) {
-				final Short adapterId = internalAdapterStore
-						.getAdapterId(
-								typeName);
+				final Short adapterId = internalAdapterStore.getAdapterId(typeName);
 				if (adapterId != null) {
-					final DataTypeAdapter<?> adapter = adapterStore
-							.getAdapter(
-									adapterId);
+					final DataTypeAdapter<?> adapter = adapterStore.getAdapter(adapterId);
 					fieldIdsAdapterPair = new ImmutablePair<>(
-							((FilterByTypeQueryOptions) typeOptions).getFieldIds(),
+							((FilterByTypeQueryOptions) typeOptions).getFieldNames(),
 							new InternalDataAdapterWrapper<>(
 									adapter,
 									adapterId));
@@ -221,37 +205,28 @@ public class BaseQueryOptions
 		}
 
 		if ((typeOptions.getTypeNames() != null) && (typeOptions.getTypeNames().length > 0)) {
-			adapterIds = ArrayUtils
-					.toPrimitive(
-							Collections2
-									.filter(
-											Lists
-													.transform(
-															Arrays
-																	.asList(
-																			typeOptions.getTypeNames()),
-															new Function<String, Short>() {
-																@Override
-																public Short apply(
-																		final String input ) {
-																	return internalAdapterStore
-																			.getAdapterId(
-																					input);
-																}
-															}),
-											new Predicate<Short>() {
-												@Override
-												public boolean apply(
-														final Short input ) {
-													if (input == null) {
-														nullId = true;
-														return false;
-													}
-													return true;
-												}
-											})
-									.toArray(
-											new Short[0]));
+			adapterIds = ArrayUtils.toPrimitive(Collections2.filter(
+					Lists.transform(
+							Arrays.asList(typeOptions.getTypeNames()),
+							new Function<String, Short>() {
+								@Override
+								public Short apply(
+										final String input ) {
+									return internalAdapterStore.getAdapterId(input);
+								}
+							}),
+					new Predicate<Short>() {
+						@Override
+						public boolean apply(
+								final Short input ) {
+							if (input == null) {
+								nullId = true;
+								return false;
+							}
+							return true;
+						}
+					}).toArray(
+					new Short[0]));
 		}
 	}
 
@@ -282,12 +257,10 @@ public class BaseQueryOptions
 			final AdapterIndexMappingStore adapterIndexMappingStore,
 			final IndexStore indexStore )
 			throws IOException {
-		return BaseDataStoreUtils
-				.combineByIndex(
-						compileIndicesForAdapters(
-								adapterStore,
-								adapterIndexMappingStore,
-								indexStore));
+		return BaseDataStoreUtils.combineByIndex(compileIndicesForAdapters(
+				adapterStore,
+				adapterIndexMappingStore,
+				indexStore));
 	}
 
 	public InternalDataAdapter<?>[] getAdaptersArray(
@@ -301,22 +274,16 @@ public class BaseQueryOptions
 						nullId = true;
 						continue;
 					}
-					final InternalDataAdapter<?> adapter = adapterStore
-							.getAdapter(
-									id);
+					final InternalDataAdapter<?> adapter = adapterStore.getAdapter(id);
 					if (adapter != null) {
-						adapters
-								.add(
-										adapter);
+						adapters.add(adapter);
 					}
 					else {
 						nullId = true;
 					}
 				}
 			}
-			return adapters
-					.toArray(
-							new InternalDataAdapter[adapters.size()]);
+			return adapters.toArray(new InternalDataAdapter[adapters.size()]);
 		}
 		if (nullId) {
 			return new InternalDataAdapter[] {};
@@ -326,16 +293,12 @@ public class BaseQueryOptions
 			final CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters();
 			if (it != null) {
 				while (it.hasNext()) {
-					list
-							.add(
-									it.next());
+					list.add(it.next());
 				}
 				it.close();
 			}
 		}
-		return list
-				.toArray(
-						new InternalDataAdapter[list.size()]);
+		return list.toArray(new InternalDataAdapter[list.size()]);
 	}
 
 	public void setAdapterId(
@@ -360,13 +323,9 @@ public class BaseQueryOptions
 			if ((adapters == null) || adapters.isEmpty()) {
 				adapters = new ArrayList<>();
 				for (final short id : adapterIds) {
-					final InternalDataAdapter<?> adapter = adapterStore
-							.getAdapter(
-									id);
+					final InternalDataAdapter<?> adapter = adapterStore.getAdapter(id);
 					if (adapter != null) {
-						adapters
-								.add(
-										adapter);
+						adapters.add(adapter);
 					}
 				}
 			}
@@ -375,9 +334,7 @@ public class BaseQueryOptions
 			adapters = new ArrayList<>();
 			try (CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters()) {
 				while (it.hasNext()) {
-					adapters
-							.add(
-									it.next());
+					adapters.add(it.next());
 				}
 			}
 		}
@@ -386,45 +343,28 @@ public class BaseQueryOptions
 		}
 		final List<Pair<Index, InternalDataAdapter<?>>> result = new ArrayList<>();
 		for (final InternalDataAdapter<?> adapter : adapters) {
-			final AdapterToIndexMapping indices = adapterIndexMappingStore
-					.getIndicesForAdapter(
-							adapter.getAdapterId());
+			final AdapterToIndexMapping indices = adapterIndexMappingStore.getIndicesForAdapter(adapter.getAdapterId());
 			if (index != null) {
-				result
-						.add(
-								Pair
-										.of(
-												index,
-												adapter));
+				result.add(Pair.of(
+						index,
+						adapter));
 			}
-			else if ((indexName != null) && indices
-					.contains(
-							indexName)) {
+			else if ((indexName != null) && indices.contains(indexName)) {
 				if (index == null) {
-					index = indexStore
-							.getIndex(
-									indexName);
-					result
-							.add(
-									Pair
-											.of(
-													index,
-													adapter));
+					index = indexStore.getIndex(indexName);
+					result.add(Pair.of(
+							index,
+							adapter));
 				}
 			}
 			else if (indices.isNotEmpty()) {
 				for (final String name : indices.getIndexNames()) {
-					final Index pIndex = indexStore
-							.getIndex(
-									name);
+					final Index pIndex = indexStore.getIndex(name);
 					// this could happen if persistent was turned off
 					if (pIndex != null) {
-						result
-								.add(
-										Pair
-												.of(
-														pIndex,
-														adapter));
+						result.add(Pair.of(
+								pIndex,
+								adapter));
 					}
 				}
 			}
@@ -553,12 +493,10 @@ public class BaseQueryOptions
 			throws IOException {
 		// TODO this probably doesn't have to use PrimaryIndex and should be
 		// sufficient to use index IDs
-		return BaseDataStoreUtils
-				.reduceIndicesAndGroupByIndex(
-						compileIndicesForAdapters(
-								adapterStore,
-								adapterIndexMappingStore,
-								indexStore));
+		return BaseDataStoreUtils.reduceIndicesAndGroupByIndex(compileIndicesForAdapters(
+				adapterStore,
+				adapterIndexMappingStore,
+				indexStore));
 	}
 
 	/**
@@ -576,30 +514,19 @@ public class BaseQueryOptions
 			throws IOException {
 		// Grab the list of adapter ids, either from the query (if included),
 		// Or the whole list from the adapter store...
-		final short[] adapterIds = getAdapterIds(
-				adapterStore);
+		final short[] adapterIds = getAdapterIds(adapterStore);
 
 		// Then for each adapter, verify that it exists in the index-adapter
 		// mapping
 		final List<Short> validIds = new ArrayList<>();
 		for (final short adapterId : adapterIds) {
-			final AdapterToIndexMapping mapping = adapterIndexMappingStore
-					.getIndicesForAdapter(
-							adapterId);
-			if (mapping
-					.contains(
-							indexName)) {
-				validIds
-						.add(
-								adapterId);
+			final AdapterToIndexMapping mapping = adapterIndexMappingStore.getIndicesForAdapter(adapterId);
+			if (mapping.contains(indexName)) {
+				validIds.add(adapterId);
 			}
 		}
 
-		return ArrayUtils
-				.toPrimitive(
-						validIds
-								.toArray(
-										new Short[0]));
+		return ArrayUtils.toPrimitive(validIds.toArray(new Short[0]));
 	}
 
 	public short[] getAdapterIds(

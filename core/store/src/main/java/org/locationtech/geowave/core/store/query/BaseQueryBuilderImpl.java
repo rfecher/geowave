@@ -36,10 +36,9 @@ public abstract class BaseQueryBuilderImpl<T, Q extends BaseQuery<T, ?>, R exten
 	@Override
 	public R addAuthorization(
 			final String authorization ) {
-		ArrayUtils
-				.add(
-						authorizations,
-						authorization);
+		authorizations = (String[]) ArrayUtils.add(
+				authorizations,
+				authorization);
 		return (R) this;
 	}
 
@@ -78,10 +77,9 @@ public abstract class BaseQueryBuilderImpl<T, Q extends BaseQuery<T, ?>, R exten
 	public <HintValueType> R addHint(
 			final HintKey<HintValueType> key,
 			final HintValueType value ) {
-		this.hints
-				.put(
-						key,
-						value);
+		this.hints.put(
+				key,
+				value);
 		return (R) this;
 	}
 

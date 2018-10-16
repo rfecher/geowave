@@ -36,9 +36,7 @@ public class ListIndicesCommand extends
 		ServiceEnabledCommand<String>
 {
 
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					RecalculateStatsCommand.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(RecalculateStatsCommand.class);
 
 	@Parameter(description = "<store name>")
 	private final List<String> parameters = new ArrayList<>();
@@ -47,11 +45,8 @@ public class ListIndicesCommand extends
 	public void execute(
 			final OperationParams params )
 			throws TargetNotFoundException {
-		JCommander
-				.getConsole()
-				.println(
-						computeResults(
-								params));
+		JCommander.getConsole().println(
+				computeResults(params));
 	}
 
 	@Override
@@ -63,14 +58,11 @@ public class ListIndicesCommand extends
 					"Must specify store name");
 		}
 
-		final String inputStoreName = parameters
-				.get(
-						0);
+		final String inputStoreName = parameters.get(0);
 
 		// Get the config options from the properties file
 
-		final File configFile = getGeoWaveConfigFile(
-				params);
+		final File configFile = getGeoWaveConfigFile(params);
 
 		// Attempt to load the desired input store
 
@@ -78,9 +70,7 @@ public class ListIndicesCommand extends
 
 		final StoreLoader inputStoreLoader = new StoreLoader(
 				inputStoreName);
-		if (!inputStoreLoader
-				.loadFromConfig(
-						configFile)) {
+		if (!inputStoreLoader.loadFromConfig(configFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + inputStoreLoader.getStoreName());
 		}
@@ -94,11 +84,9 @@ public class ListIndicesCommand extends
 			try (final CloseableIterator<Index> it = inputStoreOptions.createIndexStore().getIndices()) {
 				while (it.hasNext()) {
 					final Index index = it.next();
-					buffer
-							.append(
-									index.getName())
-							.append(
-									' ');
+					buffer.append(
+							index.getName()).append(
+							' ');
 				}
 			}
 			result = "Available indexes: " + buffer.toString();

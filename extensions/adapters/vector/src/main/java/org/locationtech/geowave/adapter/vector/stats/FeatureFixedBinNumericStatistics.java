@@ -87,8 +87,8 @@ public class FeatureFixedBinNumericStatistics extends
 			final double maxValue ) {
 		super(
 				internalDataAdapterId,
-						STATS_TYPE,
-						fieldName,
+				STATS_TYPE,
+				fieldName,
 				bins,
 				minValue,
 				maxValue);
@@ -100,7 +100,7 @@ public class FeatureFixedBinNumericStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature,FixedBinNumericHistogram,FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> clone() {
+	public InternalDataStatistics<SimpleFeature, FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> clone() {
 		return new FeatureFixedBinNumericStatistics(
 				adapterId,
 				getFieldName());
@@ -110,9 +110,7 @@ public class FeatureFixedBinNumericStatistics extends
 	public void entryIngested(
 			final SimpleFeature entry,
 			final GeoWaveRow... rows ) {
-		final Object o = entry
-				.getAttribute(
-						getFieldName());
+		final Object o = entry.getAttribute(getFieldName());
 		if (o == null) {
 			return;
 		}
@@ -186,7 +184,7 @@ public class FeatureFixedBinNumericStatistics extends
 		}
 
 		@Override
-		public InternalDataStatistics<SimpleFeature,FixedBinNumericHistogram,FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> create(
+		public InternalDataStatistics<SimpleFeature, FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> create(
 				final Short internalDataAdapterId,
 				final String fieldName ) {
 			return new FeatureFixedBinNumericStatistics(
@@ -199,24 +197,16 @@ public class FeatureFixedBinNumericStatistics extends
 
 		@Override
 		public byte[] toBinary() {
-			final ByteBuffer buf = ByteBuffer
-					.allocate(
-							16);
-			buf
-					.putDouble(
-							minValue);
-			buf
-					.putDouble(
-							maxValue);
+			final ByteBuffer buf = ByteBuffer.allocate(16);
+			buf.putDouble(minValue);
+			buf.putDouble(maxValue);
 			return buf.array();
 		}
 
 		@Override
 		public void fromBinary(
 				final byte[] bytes ) {
-			final ByteBuffer buf = ByteBuffer
-					.wrap(
-							bytes);
+			final ByteBuffer buf = ByteBuffer.wrap(bytes);
 			minValue = buf.getDouble();
 			maxValue = buf.getDouble();
 		}

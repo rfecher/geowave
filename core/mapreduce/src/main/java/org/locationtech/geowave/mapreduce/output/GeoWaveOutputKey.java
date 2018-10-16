@@ -31,9 +31,7 @@ public class GeoWaveOutputKey<T> implements
 		WritableComparable<GeoWaveOutputKey>,
 		java.io.Serializable
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					GeoWaveOutputKey.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveOutputKey.class);
 	/**
 	 *
 	 */
@@ -95,31 +93,24 @@ public class GeoWaveOutputKey<T> implements
 		if (adapter != null) {
 			return adapter;
 		}
-		return (DataTypeAdapter<T>) adapterCache
-				.getAdapter(
-						typeName);
+		return (DataTypeAdapter<T>) adapterCache.getAdapter(typeName);
 	}
 
 	@Override
 	public int compareTo(
 			final GeoWaveOutputKey o ) {
-		final int adapterCompare = typeName
-				.compareTo(
-						o.typeName);
+		final int adapterCompare = typeName.compareTo(o.typeName);
 		if (adapterCompare != 0) {
 			return adapterCompare;
 		}
-		final int lengthCompare = Integer
-				.compare(
-						indexNames.length,
-						o.indexNames.length);
+		final int lengthCompare = Integer.compare(
+				indexNames.length,
+				o.indexNames.length);
 		if (lengthCompare != 0) {
 			return lengthCompare;
 		}
 		for (int i = 0; i < indexNames.length; i++) {
-			final int indexNameCompare = indexNames[i]
-					.compareTo(
-							o.indexNames[i]);
+			final int indexNameCompare = indexNames[i].compareTo(o.indexNames[i]);
 			if (indexNameCompare != 0) {
 				return indexNameCompare;
 			}
@@ -133,23 +124,15 @@ public class GeoWaveOutputKey<T> implements
 			throws IOException {
 		final int typeNameLength = input.readInt();
 		final byte[] typeNameBinary = new byte[typeNameLength];
-		input
-				.readFully(
-						typeNameBinary);
-		typeName = StringUtils
-				.stringFromBinary(
-						typeNameBinary);
+		input.readFully(typeNameBinary);
+		typeName = StringUtils.stringFromBinary(typeNameBinary);
 		final byte indexNameCount = input.readByte();
 		indexNames = new String[indexNameCount];
 		for (int i = 0; i < indexNameCount; i++) {
 			final int indexNameLength = input.readInt();
 			final byte[] indexNameBytes = new byte[indexNameLength];
-			input
-					.readFully(
-							indexNameBytes);
-			indexNames[i] = StringUtils
-					.stringFromBinary(
-							indexNameBytes);
+			input.readFully(indexNameBytes);
+			indexNames[i] = StringUtils.stringFromBinary(indexNameBytes);
 		}
 	}
 
@@ -157,28 +140,14 @@ public class GeoWaveOutputKey<T> implements
 	public void write(
 			final DataOutput output )
 			throws IOException {
-		final byte[] typeNameBinary = StringUtils
-				.stringToBinary(
-						typeName);
-		output
-				.writeInt(
-						typeNameBinary.length);
-		output
-				.write(
-						typeNameBinary);
-		output
-				.writeByte(
-						indexNames.length);
+		final byte[] typeNameBinary = StringUtils.stringToBinary(typeName);
+		output.writeInt(typeNameBinary.length);
+		output.write(typeNameBinary);
+		output.writeByte(indexNames.length);
 		for (final String indexName : indexNames) {
-			final byte[] indexNameBytes = StringUtils
-					.stringToBinary(
-							indexName);
-			output
-					.writeInt(
-							indexNameBytes.length);
-			output
-					.write(
-							indexNameBytes);
+			final byte[] indexNameBytes = StringUtils.stringToBinary(indexName);
+			output.writeInt(indexNameBytes.length);
+			output.write(indexNameBytes);
 		}
 	}
 }

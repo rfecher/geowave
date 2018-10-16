@@ -89,9 +89,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class GeoWaveFeatureReader implements
 		FeatureReader<SimpleFeatureType, SimpleFeature>
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					GeoWaveFeatureReader.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveFeatureReader.class);
 
 	private final GeoWaveDataStoreComponents components;
 	private final GeoWaveFeatureCollection featureCollection;
@@ -123,9 +121,7 @@ public class GeoWaveFeatureReader implements
 	public void close()
 			throws IOException {
 		if (featureCollection.getOpenIterator() != null) {
-			featureCollection
-					.closeIterator(
-							featureCollection.getOpenIterator());
+			featureCollection.closeIterator(featureCollection.getOpenIterator());
 		}
 	}
 
@@ -190,18 +186,16 @@ public class GeoWaveFeatureReader implements
 			final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap,
 			final Geometry jtsBounds,
 			final TemporalConstraintsSet timeBounds ) {
-		final Constraints timeConstraints = QueryIndexHelper
-				.composeTimeBoundedConstraints(
-						components.getAdapter().getFeatureType(),
-						components.getAdapter().getTimeDescriptors(),
-						statsMap,
-						timeBounds);
+		final Constraints timeConstraints = QueryIndexHelper.composeTimeBoundedConstraints(
+				components.getAdapter().getFeatureType(),
+				components.getAdapter().getTimeDescriptors(),
+				statsMap,
+				timeBounds);
 
-		final GeoConstraintsWrapper geoConstraints = QueryIndexHelper
-				.composeGeometricConstraints(
-						getFeatureType(),
-						statsMap,
-						jtsBounds);
+		final GeoConstraintsWrapper geoConstraints = QueryIndexHelper.composeGeometricConstraints(
+				getFeatureType(),
+				statsMap,
+				jtsBounds);
 
 		/**
 		 * NOTE: query to an index that requires a constraint and the constraint
@@ -211,9 +205,7 @@ public class GeoWaveFeatureReader implements
 		final BasicQuery query = composeQuery(
 				geoConstraints,
 				timeConstraints);
-		query
-				.setExact(
-						timeBounds.isExact());
+		query.setExact(timeBounds.isExact());
 		return query;
 	}
 
@@ -231,32 +223,23 @@ public class GeoWaveFeatureReader implements
 				timeBounds);
 
 		boolean spatialOnly = false;
-		if (this.query
-				.getHints()
-				.containsKey(
-						SubsampleProcess.SUBSAMPLE_ENABLED)
-				&& (Boolean) this.query
-						.getHints()
-						.get(
-								SubsampleProcess.SUBSAMPLE_ENABLED)) {
+		if (this.query.getHints().containsKey(
+				SubsampleProcess.SUBSAMPLE_ENABLED) && (Boolean) this.query.getHints().get(
+				SubsampleProcess.SUBSAMPLE_ENABLED)) {
 			spatialOnly = true;
 		}
-		try (CloseableIterator<Index> indexIt = getComponents()
-				.getIndices(
-						statsMap,
-						query,
-						spatialOnly)) {
+		try (CloseableIterator<Index> indexIt = getComponents().getIndices(
+				statsMap,
+				query,
+				spatialOnly)) {
 			while (indexIt.hasNext()) {
 				final Index index = indexIt.next();
 
-				final CloseableIterator<SimpleFeature> it = issuer
-						.query(
-								index,
-								query);
+				final CloseableIterator<SimpleFeature> it = issuer.query(
+						index,
+						query);
 				if (it != null) {
-					results
-							.add(
-									it);
+					results.add(it);
 				}
 			}
 		}
@@ -277,9 +260,7 @@ public class GeoWaveFeatureReader implements
 								}
 							}
 						},
-						Iterators
-								.concat(
-										results.iterator())));
+						Iterators.concat(results.iterator())));
 	}
 
 	protected static boolean hasAtLeastSpatial(
@@ -335,36 +316,25 @@ public class GeoWaveFeatureReader implements
 		public CloseableIterator<SimpleFeature> query(
 				final Index index,
 				final BasicQuery query ) {
-			VectorQueryBuilder bldr = VectorQueryBuilder
-					.newBuilder()
-					.addTypeName(
-							components.getAdapter().getTypeName())
-					.indexName(
-							index.getName())
-					.setAuthorizations(
-							transaction.composeAuthorizations())
-					.constraints(
-							OptimalCQLQuery
-									.createOptimalQuery(
-											filter,
-											components.getAdapter(),
-											index,
-											query));
+			VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder().addTypeName(
+					components.getAdapter().getTypeName()).indexName(
+					index.getName()).setAuthorizations(
+					transaction.composeAuthorizations()).constraints(
+					OptimalCQLQuery.createOptimalQuery(
+							filter,
+							components.getAdapter(),
+							index,
+							query));
 			if (limit != null) {
-				bldr = bldr
-						.limit(
-								limit);
+				bldr = bldr.limit(limit);
 			}
 			if (subsetRequested()) {
-				bldr = bldr
-						.subsetFields(
-								components.getAdapter().getTypeName(),
-								getSubset());
+				bldr = bldr.subsetFields(
+						components.getAdapter().getTypeName(),
+						getSubset());
 			}
-			return components
-					.getDataStore()
-					.query(
-							bldr.build());
+			return components.getDataStore().query(
+					bldr.build());
 		}
 
 		@Override
@@ -405,21 +375,16 @@ public class GeoWaveFeatureReader implements
 					.setAuthorizations(
 							transaction.composeAuthorizations())
 					.constraints(
-							OptimalCQLQuery
-									.createOptimalQuery(
-											filter,
-											components.getAdapter(),
-											index,
-											query));
+							OptimalCQLQuery.createOptimalQuery(
+									filter,
+									components.getAdapter(),
+									index,
+									query));
 			if (limit != null) {
-				bldr = bldr
-						.limit(
-								limit);
+				bldr = bldr.limit(limit);
 			}
-			final Long count = components
-					.getDataStore()
-					.aggregate(
-							bldr.build());
+			final Long count = components.getDataStore().aggregate(
+					bldr.build());
 			if (count != null) {
 				this.count = count;
 			}
@@ -458,31 +423,22 @@ public class GeoWaveFeatureReader implements
 				final Index index,
 				final BasicQuery query ) {
 
-			VectorQueryBuilder bldr = VectorQueryBuilder
-					.newBuilder()
-					.addTypeName(
-							components.getAdapter().getTypeName())
-					.indexName(
-							index.getName())
-					.setAuthorizations(
-							transaction.composeAuthorizations())
-					.constraints(
-							OptimalCQLQuery
-									.createOptimalQuery(
-											filter,
-											components.getAdapter(),
-											index,
-											query));
+			VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder().addTypeName(
+					components.getAdapter().getTypeName()).indexName(
+					index.getName()).setAuthorizations(
+					transaction.composeAuthorizations()).constraints(
+					OptimalCQLQuery.createOptimalQuery(
+							filter,
+							components.getAdapter(),
+							index,
+							query));
 			if (limit != null) {
-				bldr = bldr
-						.limit(
-								limit);
+				bldr = bldr.limit(limit);
 			}
 			if (subsetRequested()) {
-				bldr = bldr
-						.subsetFields(
-								components.getAdapter().getTypeName(),
-								getSubset());
+				bldr = bldr.subsetFields(
+						components.getAdapter().getTypeName(),
+						getSubset());
 			}
 			final double east = envelope.getMaxX();
 			final double west = envelope.getMinX();
@@ -490,40 +446,31 @@ public class GeoWaveFeatureReader implements
 			final double south = envelope.getMinY();
 
 			try {
-				final AffineTransform worldToScreen = RendererUtilities
-						.worldToScreenTransform(
-								new ReferencedEnvelope(
-										new Envelope(
-												west,
-												east,
-												south,
-												north),
-										CRS
-												.decode(
-														"EPSG:4326")),
-								new Rectangle(
-										width,
-										height));
-				final MathTransform2D fullTransform = (MathTransform2D) ProjectiveTransform
-						.create(
-								worldToScreen);
+				final AffineTransform worldToScreen = RendererUtilities.worldToScreenTransform(
+						new ReferencedEnvelope(
+								new Envelope(
+										west,
+										east,
+										south,
+										north),
+								CRS.decode("EPSG:4326")),
+						new Rectangle(
+								width,
+								height));
+				final MathTransform2D fullTransform = (MathTransform2D) ProjectiveTransform.create(worldToScreen);
 				// calculate spans
 				try {
-					final double[] spans = Decimator
-							.computeGeneralizationDistances(
-									fullTransform.inverse(),
-									new Rectangle(
-											width,
-											height),
-									pixelSize);
-					bldr = bldr
-							.addHint(
-									DataStoreUtils.MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION,
-									spans);
-					return components
-							.getDataStore()
-							.query(
-									bldr.build());
+					final double[] spans = Decimator.computeGeneralizationDistances(
+							fullTransform.inverse(),
+							new Rectangle(
+									width,
+									height),
+							pixelSize);
+					bldr = bldr.addHint(
+							DataStoreUtils.MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION,
+							spans);
+					return components.getDataStore().query(
+							bldr.build());
 				}
 				catch (final TransformException e) {
 					throw new IllegalArgumentException(
@@ -566,33 +513,25 @@ public class GeoWaveFeatureReader implements
 							index.getName())
 					.setAuthorizations(
 							transaction.composeAuthorizations());
-			bldr
-					.aggregate(
-							components.getAdapter().getTypeName(),
-							new DistributedRenderAggregation(
-									renderOptions))
-					.constraints(
-							OptimalCQLQuery
-									.createOptimalQuery(
-											filter,
-											components.getAdapter(),
-											index,
-											query));
-			final DistributedRenderResult result = components
-					.getDataStore()
-					.aggregate(
-							bldr.build());
+			bldr.aggregate(
+					components.getAdapter().getTypeName(),
+					new DistributedRenderAggregation(
+							renderOptions)).constraints(
+					OptimalCQLQuery.createOptimalQuery(
+							filter,
+							components.getAdapter(),
+							index,
+							query));
+			final DistributedRenderResult result = components.getDataStore().aggregate(
+					bldr.build());
 			return new CloseableIterator.Wrapper(
-					Iterators
-							.singletonIterator(
-									SimpleFeatureBuilder
-											.build(
-													GeoWaveFeatureCollection.getDistributedRenderFeatureType(),
-													new Object[] {
-														result,
-														renderOptions
-													},
-													"render")));
+					Iterators.singletonIterator(SimpleFeatureBuilder.build(
+							GeoWaveFeatureCollection.getDistributedRenderFeatureType(),
+							new Object[] {
+								result,
+								renderOptions
+							},
+							"render")));
 		}
 	}
 
@@ -661,36 +600,23 @@ public class GeoWaveFeatureReader implements
 
 			final Index[] writeIndices = components.getAdapterIndices();
 			final Index queryIndex = ((writeIndices != null) && (writeIndices.length > 0)) ? writeIndices[0] : null;
-			VectorQueryBuilder bldr = VectorQueryBuilder
-					.newBuilder()
-					.addTypeName(
-							components.getAdapter().getTypeName())
-					.indexName(
-							queryIndex.getName())
-					.setAuthorizations(
-							transaction.composeAuthorizations());
+			VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder().addTypeName(
+					components.getAdapter().getTypeName()).indexName(
+					queryIndex.getName()).setAuthorizations(
+					transaction.composeAuthorizations());
 			if (limit != null) {
-				bldr = bldr
-						.limit(
-								limit);
+				bldr = bldr.limit(limit);
 			}
 			if (subsetRequested()) {
-				bldr = bldr
-						.subsetFields(
-								components.getAdapter().getTypeName(),
-								getSubset());
+				bldr = bldr.subsetFields(
+						components.getAdapter().getTypeName(),
+						getSubset());
 			}
 
-			return components
-					.getDataStore()
-					.query(
-							bldr
-									.constraints(
-											bldr
-													.constraintsFactory()
-													.dataIds(
-															ids))
-									.build());
+			return components.getDataStore().query(
+					bldr.constraints(
+							bldr.constraintsFactory().dataIds(
+									ids)).build());
 		}
 		return issueQuery(
 				jtsBounds,
@@ -708,11 +634,10 @@ public class GeoWaveFeatureReader implements
 			final Integer limit,
 			final Filter filter,
 			final CloseableIterator<SimpleFeature> it ) {
-		return transaction
-				.interweaveTransaction(
-						limit,
-						filter,
-						it);
+		return transaction.interweaveTransaction(
+				limit,
+				filter,
+				it);
 
 	}
 
@@ -721,13 +646,10 @@ public class GeoWaveFeatureReader implements
 		final List<InternalDataStatistics<SimpleFeature, ?, ?>> stats = new LinkedList<>();
 		final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = transaction.getDataStatistics();
 		for (final Map.Entry<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stat : statsMap.entrySet()) {
-			if ((stat.getValue() instanceof FieldNameStatistic) && ((FieldNameStatistic) stat.getValue())
-					.getFieldName()
-					.endsWith(
+			if ((stat.getValue() instanceof FieldNameStatistic)
+					&& ((FieldNameStatistic) stat.getValue()).getFieldName().endsWith(
 							name)) {
-				stats
-						.add(
-								stat.getValue());
+				stats.add(stat.getValue());
 			}
 		}
 		return stats;
@@ -735,20 +657,18 @@ public class GeoWaveFeatureReader implements
 
 	protected TemporalConstraintsSet clipIndexedTemporalConstraints(
 			final TemporalConstraintsSet constraintsSet ) {
-		return QueryIndexHelper
-				.clipIndexedTemporalConstraints(
-						transaction.getDataStatistics(),
-						components.getAdapter().getTimeDescriptors(),
-						constraintsSet);
+		return QueryIndexHelper.clipIndexedTemporalConstraints(
+				transaction.getDataStatistics(),
+				components.getAdapter().getTimeDescriptors(),
+				constraintsSet);
 	}
 
 	protected Geometry clipIndexedBBOXConstraints(
 			final Geometry bbox ) {
-		return QueryIndexHelper
-				.clipIndexedBBOXConstraints(
-						getFeatureType(),
-						bbox,
-						transaction.getDataStatistics());
+		return QueryIndexHelper.clipIndexedBBOXConstraints(
+				getFeatureType(),
+				bbox,
+				transaction.getDataStatistics());
 	}
 
 	private BasicQuery composeQuery(
@@ -770,10 +690,8 @@ public class GeoWaveFeatureReader implements
 		// }
 		// else {
 		return new SpatialQuery(
-				geoConstraints
-						.getConstraints()
-						.merge(
-								temporalConstraints),
+				geoConstraints.getConstraints().merge(
+						temporalConstraints),
 				geoConstraints.getGeometry());
 		// }
 	}
@@ -782,92 +700,49 @@ public class GeoWaveFeatureReader implements
 			final String attrName,
 			final Object value ) {
 		final SimpleFeatureType featureType = components.getAdapter().getFeatureType();
-		final AttributeDescriptor descriptor = featureType
-				.getDescriptor(
-						attrName);
+		final AttributeDescriptor descriptor = featureType.getDescriptor(attrName);
 		if (descriptor == null) {
 			return value;
 		}
 		final Class<?> attrClass = descriptor.getType().getBinding();
-		if (attrClass
-				.isInstance(
-						value)) {
+		if (attrClass.isInstance(value)) {
 			return value;
 		}
-		if (Number.class
-				.isAssignableFrom(
-						attrClass)
-				&& Number.class
-						.isInstance(
-								value)) {
-			if (Double.class
-					.isAssignableFrom(
-							attrClass)) {
+		if (Number.class.isAssignableFrom(attrClass) && Number.class.isInstance(value)) {
+			if (Double.class.isAssignableFrom(attrClass)) {
 				return ((Number) value).doubleValue();
 			}
-			if (Float.class
-					.isAssignableFrom(
-							attrClass)) {
+			if (Float.class.isAssignableFrom(attrClass)) {
 				return ((Number) value).floatValue();
 			}
-			if (Long.class
-					.isAssignableFrom(
-							attrClass)) {
+			if (Long.class.isAssignableFrom(attrClass)) {
 				return ((Number) value).longValue();
 			}
-			if (Integer.class
-					.isAssignableFrom(
-							attrClass)) {
+			if (Integer.class.isAssignableFrom(attrClass)) {
 				return ((Number) value).intValue();
 			}
-			if (Short.class
-					.isAssignableFrom(
-							attrClass)) {
+			if (Short.class.isAssignableFrom(attrClass)) {
 				return ((Number) value).shortValue();
 			}
-			if (Byte.class
-					.isAssignableFrom(
-							attrClass)) {
+			if (Byte.class.isAssignableFrom(attrClass)) {
 				return ((Number) value).byteValue();
 			}
-			if (BigInteger.class
-					.isAssignableFrom(
-							attrClass)) {
-				return BigInteger
-						.valueOf(
-								((Number) value).longValue());
+			if (BigInteger.class.isAssignableFrom(attrClass)) {
+				return BigInteger.valueOf(((Number) value).longValue());
 			}
-			if (BigDecimal.class
-					.isAssignableFrom(
-							attrClass)) {
-				return BigDecimal
-						.valueOf(
-								((Number) value).doubleValue());
+			if (BigDecimal.class.isAssignableFrom(attrClass)) {
+				return BigDecimal.valueOf(((Number) value).doubleValue());
 			}
 		}
-		if (Calendar.class
-				.isAssignableFrom(
-						attrClass)) {
-			if (Date.class
-					.isInstance(
-							value)) {
-				final Calendar c = Calendar
-						.getInstance(
-								TimeZone
-										.getTimeZone(
-												"UTC"));
-				c
-						.setTime(
-								(Date) value);
+		if (Calendar.class.isAssignableFrom(attrClass)) {
+			if (Date.class.isInstance(value)) {
+				final Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+				c.setTime((Date) value);
 				return c;
 			}
 		}
-		if (Timestamp.class
-				.isAssignableFrom(
-						attrClass)) {
-			if (Date.class
-					.isInstance(
-							value)) {
+		if (Timestamp.class.isAssignableFrom(attrClass)) {
+			if (Date.class.isInstance(value)) {
 				final Timestamp ts = new Timestamp(
 						((Date) value).getTime());
 				return ts;
@@ -888,27 +763,18 @@ public class GeoWaveFeatureReader implements
 			return new String[0];
 		}
 
-		if ((query.getFilter() != null)
-				&& !components.getGTstore().getDataStoreOptions().isServerSideLibraryEnabled()) {
+		if ((query.getFilter() != null) && !components.getGTstore().getDataStoreOptions().isServerSideLibraryEnabled()) {
 			final ExtractAttributesFilter attributesVisitor = new ExtractAttributesFilter();
-			final Object obj = query
-					.getFilter()
-					.accept(
-							attributesVisitor,
-							null);
+			final Object obj = query.getFilter().accept(
+					attributesVisitor,
+					null);
 
 			if ((obj != null) && (obj instanceof Collection)) {
-				final Set<String> properties = Sets
-						.newHashSet(
-								query.getPropertyNames());
+				final Set<String> properties = Sets.newHashSet(query.getPropertyNames());
 				for (final String prop : (Collection<String>) obj) {
-					properties
-							.add(
-									prop);
+					properties.add(prop);
 				}
-				return properties
-						.toArray(
-								new String[0]);
+				return properties.toArray(new String[0]);
 			}
 		}
 		return query.getPropertyNames();

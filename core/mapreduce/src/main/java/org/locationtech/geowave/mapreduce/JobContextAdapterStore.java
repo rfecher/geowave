@@ -190,7 +190,7 @@ public class JobContextAdapterStore implements
 
 	public static void removeAdapter(
 			final Configuration configuration,
-			final String typeName  ) {
+			final String typeName ) {
 		GeoWaveConfiguratorBase.removeDataAdapter(
 				CLASS,
 				configuration,

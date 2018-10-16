@@ -1,6 +1,7 @@
 package org.locationtech.geowave.core.store.adapter.statistics;
 
-public class FieldStatisticsQueryBuilder<R> extends StatisticsQueryBuilderImpl<R, FieldStatisticsQueryBuilder<R>>
+public class FieldStatisticsQueryBuilder<R> extends
+		StatisticsQueryBuilderImpl<R, FieldStatisticsQueryBuilder<R>>
 {
 	private String fieldName;
 

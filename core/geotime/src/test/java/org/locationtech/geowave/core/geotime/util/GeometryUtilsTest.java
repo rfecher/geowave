@@ -192,7 +192,9 @@ public class GeometryUtilsTest
 				results.get(
 						1).getMaxValuesPerDimension()));
 
-	}	GeometryFactory factory = new GeometryFactory();
+	}
+
+	GeometryFactory factory = new GeometryFactory();
 
 	@Test
 	public void testSplit() {

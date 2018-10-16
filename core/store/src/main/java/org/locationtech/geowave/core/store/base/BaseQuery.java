@@ -36,7 +36,7 @@ import org.locationtech.geowave.core.store.operations.DataStoreOperations;
 import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 /**
@@ -46,9 +46,7 @@ import org.locationtech.geowave.core.store.query.filter.QueryFilter;
  */
 abstract class BaseQuery
 {
-	private final static Logger LOGGER = Logger
-			.getLogger(
-					BaseQuery.class);
+	private final static Logger LOGGER = Logger.getLogger(BaseQuery.class);
 
 	protected short[] adapterIds;
 	protected final Index index;
@@ -91,9 +89,7 @@ abstract class BaseQuery
 
 		final List<ScanCallback<?, ?>> callbacks = new ArrayList<>();
 		if (scanCallback != null) {
-			callbacks
-					.add(
-							scanCallback);
+			callbacks.add(scanCallback);
 		}
 		this.scanCallback = new ScanCallbackList(
 				callbacks);
@@ -115,8 +111,8 @@ abstract class BaseQuery
 			maxRangeDecomposition = queryMaxRangeDecomposition;
 		}
 		else {
-			maxRangeDecomposition = isAggregation() ? options.getAggregationMaxRangeDecomposition()
-					: options.getMaxRangeDecomposition();
+			maxRangeDecomposition = isAggregation() ? options.getAggregationMaxRangeDecomposition() : options
+					.getMaxRangeDecomposition();
 		}
 		final ReaderParams<C> readerParams = new ReaderParams<>(
 				index,
@@ -128,15 +124,12 @@ abstract class BaseQuery
 				getFieldSubsets(),
 				isMixedVisibilityRows(),
 				isAuthorizationsLimiting(),
-				isServerSideAggregation(
-						options),
-				isRowMerging(
-						adapterStore),
+				isServerSideAggregation(options),
+				isRowMerging(adapterStore),
 				getRanges(
 						maxRangeDecomposition,
 						targetResolutionPerDimensionForHierarchicalIndex),
-				getServerFilter(
-						options),
+				getServerFilter(options),
 				limit,
 				maxRangeDecomposition,
 				getCoordinateRanges(),
@@ -145,27 +138,19 @@ abstract class BaseQuery
 				getAdditionalAuthorizations());
 		if (delete) {
 			scanCallback.waitUntilCallbackAdded();
-			final Deleter<C> deleter = operations
-					.createDeleter(
-							readerParams);
-			scanCallback
-					.addScanCallback(
-							(ScanCallback) deleter);
+			final Deleter<C> deleter = operations.createDeleter(readerParams);
+			scanCallback.addScanCallback((ScanCallback) deleter);
 			return deleter;
 		}
-		return operations
-				.createReader(
-						readerParams);
+		return operations.createReader(readerParams);
 	}
 
 	public boolean isRowMerging(
 			final PersistentAdapterStore adapterStore ) {
 		if (adapterIds != null) {
 			for (final short adapterId : adapterIds) {
-				if (adapterStore
-						.getAdapter(
-								adapterId)
-						.getAdapter() instanceof RowMergingDataAdapter) {
+				if (adapterStore.getAdapter(
+						adapterId).getAdapter() instanceof RowMergingDataAdapter) {
 					return true;
 				}
 			}
@@ -214,20 +199,17 @@ abstract class BaseQuery
 
 	protected byte[] getFieldBitmask() {
 		if ((fieldIdsAdapterPair != null) && (fieldIdsAdapterPair.getLeft() != null)) {
-			return BitmaskUtils
-					.generateFieldSubsetBitmask(
-							index.getIndexModel(),
-							fieldIdsAdapterPair.getLeft(),
-							fieldIdsAdapterPair.getRight());
+			return BitmaskUtils.generateFieldSubsetBitmask(
+					index.getIndexModel(),
+					fieldIdsAdapterPair.getLeft(),
+					fieldIdsAdapterPair.getRight());
 		}
 
 		return null;
 	}
 
 	protected boolean isAuthorizationsLimiting() {
-		return (visibilityCounts == null) || visibilityCounts
-				.isAuthorizationsLimiting(
-						authorizations);
+		return (visibilityCounts == null) || visibilityCounts.isAuthorizationsLimiting(authorizations);
 	}
 
 	protected boolean isMixedVisibilityRows() {
@@ -238,7 +220,7 @@ abstract class BaseQuery
 		return authorizations;
 	}
 
-	public DistributableQueryFilter getServerFilter(
+	public QueryFilter getServerFilter(
 			final DataStoreOptions options ) {
 		return null;
 	}

@@ -25,7 +25,7 @@ import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
 import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
 import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
@@ -40,7 +40,7 @@ public interface MapReduceDataStore extends
 			CommonQueryOptions commonOptions,
 			DataTypeQueryOptions<?> typeOptions,
 			IndexQueryOptions indexOptions,
-			DistributableQueryConstraints constraints,
+			QueryConstraints constraints,
 			TransientAdapterStore adapterStore,
 			InternalAdapterStore internalAdapterStore,
 			AdapterIndexMappingStore aimStore,
@@ -55,7 +55,7 @@ public interface MapReduceDataStore extends
 			CommonQueryOptions commonOptions,
 			DataTypeQueryOptions<?> typeOptions,
 			IndexQueryOptions indexOptions,
-			DistributableQueryConstraints constraints,
+			QueryConstraints constraints,
 			TransientAdapterStore adapterStore,
 			AdapterIndexMappingStore aimStore,
 			DataStatisticsStore statsStore,

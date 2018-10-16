@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.query.constraints;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,9 +24,11 @@ import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 public class InsertionIdQuery implements
 		QueryConstraints
 {
-	private final ByteArrayId partitionKey;
-	private final ByteArrayId sortKey;
-	private final ByteArrayId dataId;
+	private ByteArrayId partitionKey;
+	private ByteArrayId sortKey;
+	private ByteArrayId dataId;
+
+	public InsertionIdQuery() {}
 
 	public InsertionIdQuery(
 			final ByteArrayId partitionKey,
@@ -63,6 +66,69 @@ public class InsertionIdQuery implements
 	public List<MultiDimensionalNumericData> getIndexConstraints(
 			final Index index ) {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public byte[] toBinary() {
+		byte[] sortKeyBinary, partitionKeyBinary, dataIdBinary;
+		if (partitionKey != null) {
+			partitionKeyBinary = partitionKey.getBytes();
+		}
+		else {
+			partitionKeyBinary = new byte[0];
+		}
+		if (sortKey != null) {
+			sortKeyBinary = sortKey.getBytes();
+		}
+		else {
+			sortKeyBinary = new byte[0];
+		}
+		if (dataId != null) {
+			dataIdBinary = dataId.getBytes();
+		}
+		else {
+			dataIdBinary = new byte[0];
+		}
+		final ByteBuffer buf = ByteBuffer.allocate(8 + sortKeyBinary.length + partitionKeyBinary.length);
+		buf.putInt(partitionKeyBinary.length);
+		buf.put(partitionKeyBinary);
+		buf.putInt(sortKeyBinary.length);
+		buf.put(sortKeyBinary);
+		buf.put(dataIdBinary);
+		return buf.array();
+	}
+
+	@Override
+	public void fromBinary(
+			final byte[] bytes ) {
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
+		final byte[] partitionKeyBinary = new byte[buf.getInt()];
+		if (partitionKeyBinary.length == 0) {
+			partitionKey = null;
+		}
+		else {
+			buf.get(partitionKeyBinary);
+			partitionKey = new ByteArrayId(
+					partitionKeyBinary);
+		}
+		final byte[] sortKeyBinary = new byte[buf.getInt()];
+		if (sortKeyBinary.length == 0) {
+			sortKey = null;
+		}
+		else {
+			buf.get(sortKeyBinary);
+			sortKey = new ByteArrayId(
+					sortKeyBinary);
+		}
+		final byte[] dataIdBinary = new byte[bytes.length - 8 - sortKeyBinary.length - partitionKeyBinary.length];
+		if (dataIdBinary.length == 0) {
+			dataId = null;
+		}
+		else {
+			buf.get(dataIdBinary);
+			dataId = new ByteArrayId(
+					dataIdBinary);
+		}
 	}
 
 }

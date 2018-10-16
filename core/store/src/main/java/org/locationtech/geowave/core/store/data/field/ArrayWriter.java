@@ -61,21 +61,12 @@ abstract public class ArrayWriter<RowType, FieldType> implements
 			return new byte[] {};
 		}
 
-		final byte[][] byteData = getBytes(
-				fieldValue);
+		final byte[][] byteData = getBytes(fieldValue);
 
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						5 + (int) Math
-								.ceil(
-										fieldValue.length / 8.0)
-								+ getLength(
-										byteData));
+		final ByteBuffer buf = ByteBuffer.allocate(5 + (int) Math.ceil(fieldValue.length / 8.0) + getLength(byteData));
 
 		// this is a header value to indicate how data should be read/written
-		buf
-				.put(
-						Encoding.FIXED_SIZE_ENCODING.getByteEncoding());
+		buf.put(Encoding.FIXED_SIZE_ENCODING.getByteEncoding());
 
 		int bytesPerEntry = 0;
 		for (final byte[] bytes : byteData) {
@@ -85,38 +76,30 @@ abstract public class ArrayWriter<RowType, FieldType> implements
 		}
 
 		// this is a header value to indicate the size of each entry
-		buf
-				.putInt(
-						bytesPerEntry);
+		buf.putInt(bytesPerEntry);
 
 		for (int i = 0; i < fieldValue.length; i += 8) {
 
 			int header = 255;
 
 			final int headerIdx = buf.position();
-			buf
-					.position(
-							headerIdx + 1);
+			buf.position(headerIdx + 1);
 
 			for (int j = 0; ((i + j) < fieldValue.length) && (j < 8); j++) {
-				final int mask = ~((int) Math
-						.pow(
-								2.0,
-								j));
+				final int mask = ~((int) Math.pow(
+						2.0,
+						j));
 				if (fieldValue[i + j] == null) {
 					header = header & mask;
 				}
 				else {
-					buf
-							.put(
-									byteData[i + j]);
+					buf.put(byteData[i + j]);
 				}
 			}
 
-			buf
-					.put(
-							headerIdx,
-							(byte) header);
+			buf.put(
+					headerIdx,
+					(byte) header);
 		}
 
 		return buf.array();
@@ -128,26 +111,16 @@ abstract public class ArrayWriter<RowType, FieldType> implements
 			return new byte[] {};
 		}
 
-		final byte[][] bytes = getBytes(
-				fieldValue);
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						1 + (4 * fieldValue.length) + getLength(
-								bytes));
+		final byte[][] bytes = getBytes(fieldValue);
+		final ByteBuffer buf = ByteBuffer.allocate(1 + (4 * fieldValue.length) + getLength(bytes));
 
 		// this is a header value to indicate how data should be read/written
-		buf
-				.put(
-						Encoding.VARIABLE_SIZE_ENCODING.getByteEncoding());
+		buf.put(Encoding.VARIABLE_SIZE_ENCODING.getByteEncoding());
 
 		for (final byte[] entry : bytes) {
-			buf
-					.putInt(
-							entry.length);
+			buf.putInt(entry.length);
 			if (entry.length > 0) {
-				buf
-						.put(
-								entry);
+				buf.put(entry);
 			}
 		}
 
@@ -160,11 +133,10 @@ abstract public class ArrayWriter<RowType, FieldType> implements
 			final String fieldName,
 			final FieldType[] fieldValue ) {
 		if (visibilityHandler != null) {
-			return visibilityHandler
-					.getVisibility(
-							rowValue,
-							fieldName,
-							fieldValue);
+			return visibilityHandler.getVisibility(
+					rowValue,
+					fieldName,
+					fieldValue);
 		}
 		return new byte[] {};
 	}
@@ -178,9 +150,7 @@ abstract public class ArrayWriter<RowType, FieldType> implements
 				bytes[i] = new byte[] {};
 			}
 			else {
-				bytes[i] = writer
-						.writeField(
-								fieldData[i]);
+				bytes[i] = writer.writeField(fieldData[i]);
 			}
 		}
 		return bytes;
@@ -215,8 +185,7 @@ abstract public class ArrayWriter<RowType, FieldType> implements
 		@Override
 		public byte[] writeField(
 				final FieldType[] fieldValue ) {
-			return super.writeFixedSizeField(
-					fieldValue);
+			return super.writeFixedSizeField(fieldValue);
 		}
 	}
 
@@ -240,8 +209,7 @@ abstract public class ArrayWriter<RowType, FieldType> implements
 		@Override
 		public byte[] writeField(
 				final FieldType[] fieldValue ) {
-			return super.writeVariableSizeField(
-					fieldValue);
+			return super.writeVariableSizeField(fieldValue);
 		}
 	}
 }

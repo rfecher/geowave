@@ -25,7 +25,7 @@ import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToA
  */
 public interface DataStore
 {
-	 <T> void ingest(
+	<T> void ingest(
 			URL url,
 			Index... index )
 			throws MismatchedIndexToAdapterMapping;
@@ -133,7 +133,9 @@ public interface DataStore
 	/**
 	 * remove statistics, across types
 	 * 
-	 * if this is the last index for a type need to remove type first or throw exception
+	 * if this is the last index for a type need to remove type first or throw
+	 * exception
+	 * 
 	 * @param indexName
 	 */
 	void removeIndex(
@@ -145,11 +147,13 @@ public interface DataStore
 
 	/**
 	 * remove statistics for type
+	 * 
 	 * @param typeName
 	 */
 	void removeType(
 			String typeName );
-	/**
+
+/**
 	 * Delete all data in this data store that matches the query parameter
 	 * within the index described by the index passed in and matches the adapter
 	 * (the same adapter ID as the ID ingested). All data that matches the
@@ -170,7 +174,7 @@ public interface DataStore
 	 */
 	<T> boolean delete(
 			final Query<T> query );
-	
+
 	void deleteAll();
 
 	<T> void addType(

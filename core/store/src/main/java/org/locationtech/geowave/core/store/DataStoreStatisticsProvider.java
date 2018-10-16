@@ -57,46 +57,21 @@ public class DataStoreStatisticsProvider<T> implements
 			idsFromAdapter = new StatisticsId[0];
 		}
 
-		final StatisticsId[] newSet = Arrays
-				.copyOf(
-						idsFromAdapter,
-						idsFromAdapter.length + 6);
-		newSet[idsFromAdapter.length] = RowRangeHistogramStatistics.STATS_TYPE
-				.newBuilder()
-				.indexName(
-						index.getName())
-				.build()
-				.getId();
-		newSet[idsFromAdapter.length + 1] = IndexMetaDataSet.STATS_TYPE
-				.newBuilder()
-				.indexName(
-						index.getName())
-				.build()
-				.getId();
-		newSet[idsFromAdapter.length + 2] = DifferingFieldVisibilityEntryCount.STATS_TYPE
-				.newBuilder()
-				.indexName(
-						index.getName())
-				.build()
-				.getId();
-		newSet[idsFromAdapter.length + 3] = FieldVisibilityCount.STATS_TYPE
-				.newBuilder()
-				.indexName(
-						index.getName())
-				.build()
-				.getId();
-		newSet[idsFromAdapter.length + 4] = DuplicateEntryCount.STATS_TYPE
-				.newBuilder()
-				.indexName(
-						index.getName())
-				.build()
-				.getId();
-		newSet[idsFromAdapter.length + 5] = PartitionStatistics.STATS_TYPE
-				.newBuilder()
-				.indexName(
-						index.getName())
-				.build()
-				.getId();
+		final StatisticsId[] newSet = Arrays.copyOf(
+				idsFromAdapter,
+				idsFromAdapter.length + 6);
+		newSet[idsFromAdapter.length] = RowRangeHistogramStatistics.STATS_TYPE.newBuilder().indexName(
+				index.getName()).build().getId();
+		newSet[idsFromAdapter.length + 1] = IndexMetaDataSet.STATS_TYPE.newBuilder().indexName(
+				index.getName()).build().getId();
+		newSet[idsFromAdapter.length + 2] = DifferingFieldVisibilityEntryCount.STATS_TYPE.newBuilder().indexName(
+				index.getName()).build().getId();
+		newSet[idsFromAdapter.length + 3] = FieldVisibilityCount.STATS_TYPE.newBuilder().indexName(
+				index.getName()).build().getId();
+		newSet[idsFromAdapter.length + 4] = DuplicateEntryCount.STATS_TYPE.newBuilder().indexName(
+				index.getName()).build().getId();
+		newSet[idsFromAdapter.length + 5] = PartitionStatistics.STATS_TYPE.newBuilder().indexName(
+				index.getName()).build().getId();
 		return newSet;
 	}
 
@@ -104,57 +79,42 @@ public class DataStoreStatisticsProvider<T> implements
 	public <R, B extends StatisticsQueryBuilder<R, B>> InternalDataStatistics<T, R, B> createDataStatistics(
 			final StatisticsId statisticsId ) {
 		final StatisticsType<?, ?> statisticsType = statisticsId.getType();
-		if (statisticsType
-				.equals(
-						RowRangeHistogramStatistics.STATS_TYPE)) {
+		if (statisticsType.equals(RowRangeHistogramStatistics.STATS_TYPE)) {
 			return new RowRangeHistogramStatisticsSet(
 					adapter.getAdapterId(),
 					index.getName());
 		}
-		if (statisticsType
-				.equals(
-						PartitionStatistics.STATS_TYPE)) {
+		if (statisticsType.equals(PartitionStatistics.STATS_TYPE)) {
 			return new PartitionStatistics(
 					adapter.getAdapterId(),
 					index.getName());
 		}
-		if (statisticsType
-				.equals(
-						IndexMetaDataSet.STATS_TYPE)) {
+		if (statisticsType.equals(IndexMetaDataSet.STATS_TYPE)) {
 			return new IndexMetaDataSet(
 					adapter.getAdapterId(),
 					index.getName(),
 					index.getIndexStrategy());
 		}
-		if (statisticsType
-				.equals(
-						DifferingFieldVisibilityEntryCount.STATS_TYPE)) {
+		if (statisticsType.equals(DifferingFieldVisibilityEntryCount.STATS_TYPE)) {
 			return new DifferingFieldVisibilityEntryCount(
 					adapter.getAdapterId(),
 					index.getName());
 		}
-		if (statisticsType
-				.equals(
-						FieldVisibilityCount.STATS_TYPE)) {
+		if (statisticsType.equals(FieldVisibilityCount.STATS_TYPE)) {
 			return new FieldVisibilityCount(
 					adapter.getAdapterId(),
 					index.getName());
 		}
-		if (statisticsType
-				.equals(
-						DuplicateEntryCount.STATS_TYPE)) {
+		if (statisticsType.equals(DuplicateEntryCount.STATS_TYPE)) {
 			return new DuplicateEntryCount(
 					adapter.getAdapterId(),
 					index.getName());
 		}
 		if (adapter.getAdapter() instanceof StatisticsProvider) {
 			final InternalDataStatistics<T, R, B> stats = ((StatisticsProvider) adapter.getAdapter())
-					.createDataStatistics(
-							statisticsId);
+					.createDataStatistics(statisticsId);
 			if (stats != null) {
-				stats
-						.setAdapterId(
-								adapter.getAdapterId());
+				stats.setAdapterId(adapter.getAdapterId());
 				return stats;
 			}
 		}
@@ -167,11 +127,9 @@ public class DataStoreStatisticsProvider<T> implements
 			final CommonIndexModel indexModel,
 			final DataTypeAdapter<T> adapter,
 			final StatisticsId statisticsId ) {
-		return (adapter instanceof StatisticsProvider) ? ((StatisticsProvider) adapter)
-				.getVisibilityHandler(
-						index.getIndexModel(),
-						adapter,
-						statisticsId)
-				: new EmptyStatisticVisibility<>();
+		return (adapter instanceof StatisticsProvider) ? ((StatisticsProvider) adapter).getVisibilityHandler(
+				index.getIndexModel(),
+				adapter,
+				statisticsId) : new EmptyStatisticVisibility<>();
 	}
 }

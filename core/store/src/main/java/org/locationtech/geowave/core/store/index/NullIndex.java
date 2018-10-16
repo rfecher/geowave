@@ -47,9 +47,7 @@ public class NullIndex extends
 
 	@Override
 	public byte[] toBinary() {
-		return StringUtils
-				.stringToBinary(
-						indexStrategy.getId());
+		return StringUtils.stringToBinary(indexStrategy.getId());
 	}
 
 	@Override
@@ -58,8 +56,6 @@ public class NullIndex extends
 		indexModel = new BasicIndexModel(
 				new NumericDimensionField[] {});
 		indexStrategy = new NullNumericIndexStrategy(
-				StringUtils
-						.stringFromBinary(
-								bytes));
+				StringUtils.stringFromBinary(bytes));
 	}
 }

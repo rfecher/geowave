@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.sfc.data.BasicNumericDataset;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.index.sfc.data.NumericData;
@@ -63,17 +62,11 @@ public class MemoryDataStoreTest
 		final String namespace = "test_" + getClass().getName();
 		final StoreFactoryFamilySpi storeFamily = new MemoryStoreFactoryFamily();
 		final MemoryRequiredOptions reqOptions = new MemoryRequiredOptions();
-		reqOptions
-				.setGeowaveNamespace(
-						namespace);
-		final DataStore dataStore = storeFamily
-				.getDataStoreFactory()
-				.createStore(
-						reqOptions);
-		final DataStatisticsStore statsStore = storeFamily
-				.getDataStatisticsStoreFactory()
-				.createStore(
-						reqOptions);
+		reqOptions.setGeowaveNamespace(namespace);
+		final DataStore dataStore = storeFamily.getDataStoreFactory().createStore(
+				reqOptions);
+		final DataStatisticsStore statsStore = storeFamily.getDataStatisticsStoreFactory().createStore(
+				reqOptions);
 		final DataTypeAdapter<Integer> adapter = new MockComponents.MockAbstractDataAdapter();
 
 		final VisibilityWriter<Integer> visWriter = new VisibilityWriter<Integer>() {
@@ -84,204 +77,122 @@ public class MemoryDataStoreTest
 						"aaa&bbb");
 			}
 		};
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						index);
-		try (final Writer indexWriter = dataStore
-				.createWriter(
-						adapter.getTypeName())) {
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (final Writer indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 
-			indexWriter
-					.write(
-							new Integer(
-									25),
-							visWriter);
+			indexWriter.write(
+					new Integer(
+							25),
+					visWriter);
 			indexWriter.flush();
 
-			indexWriter
-					.write(
-							new Integer(
-									35),
-							visWriter);
+			indexWriter.write(
+					new Integer(
+							35),
+					visWriter);
 			indexWriter.flush();
 		}
 
 		// authorization check
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.addAuthorization(
-										"aaa")
-								.constraints(
-										new TestQuery(
-												23,
-												26))
-								.build())) {
-			assertFalse(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).addAuthorization(
+				"aaa").constraints(
+				new TestQuery(
+						23,
+						26)).build())) {
+			assertFalse(itemIt.hasNext());
 		}
 
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.addAuthorization(
-										"aaa")
-								.addAuthorization(
-										"bbb")
-								.constraints(
-										new TestQuery(
-												23,
-												26))
-								.build())) {
-			assertTrue(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						26)).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							25),
 					itemIt.next());
-			assertFalse(
-					itemIt.hasNext());
+			assertFalse(itemIt.hasNext());
 		}
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.addAuthorization(
-										"aaa")
-								.addAuthorization(
-										"bbb")
-								.constraints(
-										new TestQuery(
-												23,
-												36))
-								.build())) {
-			assertTrue(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						36)).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							25),
 					itemIt.next());
-			assertTrue(
-					itemIt.hasNext());
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							35),
 					itemIt.next());
-			assertFalse(
-					itemIt.hasNext());
+			assertFalse(itemIt.hasNext());
 		}
 
 		final Iterator<InternalDataStatistics<?, ?, ?>> statsIt = statsStore.getAllDataStatistics();
-		assertTrue(
-				checkStats(
-						statsIt,
-						2,
-						new NumericRange(
-								25,
-								35)));
+		assertTrue(checkStats(
+				statsIt,
+				2,
+				new NumericRange(
+						25,
+						35)));
 
-		dataStore
-				.delete(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.addAuthorization(
-										"aaa")
-								.addAuthorization(
-										"bbb")
-								.constraints(
-										new TestQuery(
-												23,
-												26))
-								.build());
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.addAuthorization(
-										"aaa")
-								.addAuthorization(
-										"bbb")
-								.constraints(
-										new TestQuery(
-												23,
-												36))
-								.build())) {
-			assertTrue(
-					itemIt.hasNext());
+		dataStore.delete(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						26)).build());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						36)).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							35),
 					itemIt.next());
-			assertFalse(
-					itemIt.hasNext());
+			assertFalse(itemIt.hasNext());
 		}
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.addAuthorization(
-										"aaa")
-								.addAuthorization(
-										"bbb")
-								.constraints(
-										new TestQuery(
-												23,
-												26))
-								.build())) {
-			assertFalse(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						26)).build())) {
+			assertFalse(itemIt.hasNext());
 		}
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.addAuthorization(
-										"aaa")
-								.addAuthorization(
-										"bbb")
-								.constraints(
-										new DataIdQuery(
-												adapter
-														.getDataId(
-																new Integer(
-																		35))))
-								.build())) {
-			assertTrue(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new DataIdQuery(
+						adapter.getDataId(new Integer(
+								35)))).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							35),
@@ -305,17 +216,11 @@ public class MemoryDataStoreTest
 		final String namespace = "test2_" + getClass().getName();
 		final StoreFactoryFamilySpi storeFamily = new MemoryStoreFactoryFamily();
 		final MemoryRequiredOptions opts = new MemoryRequiredOptions();
-		opts
-				.setGeowaveNamespace(
-						namespace);
-		final DataStore dataStore = storeFamily
-				.getDataStoreFactory()
-				.createStore(
-						opts);
-		final DataStatisticsStore statsStore = storeFamily
-				.getDataStatisticsStoreFactory()
-				.createStore(
-						opts);
+		opts.setGeowaveNamespace(namespace);
+		final DataStore dataStore = storeFamily.getDataStoreFactory().createStore(
+				opts);
+		final DataStatisticsStore statsStore = storeFamily.getDataStatisticsStoreFactory().createStore(
+				opts);
 		final DataTypeAdapter<Integer> adapter = new MockComponents.MockAbstractDataAdapter();
 
 		final VisibilityWriter<Integer> visWriter = new VisibilityWriter<Integer>() {
@@ -327,241 +232,161 @@ public class MemoryDataStoreTest
 			}
 		};
 
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						index1,index2);
-		try (final Writer indexWriter = dataStore
-				.createWriter(
-						adapter.getTypeName())) {
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				index1,
+				index2);
+		try (final Writer indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 
-			indexWriter
-					.write(
-							new Integer(
-									25),
-							visWriter);
+			indexWriter.write(
+					new Integer(
+							25),
+					visWriter);
 			indexWriter.flush();
 
-			indexWriter
-					.write(
-							new Integer(
-									35),
-							visWriter);
+			indexWriter.write(
+					new Integer(
+							35),
+					visWriter);
 			indexWriter.flush();
 		}
 
 		// authorization check
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index2.getName())
-								.addAuthorization(
-										"aaa")
-								.constraints(
-										new TestQuery(
-												23,
-												26))
-								.build())) {
-			assertFalse(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index2.getName()).addAuthorization(
+				"aaa").constraints(
+				new TestQuery(
+						23,
+						26)).build())) {
+			assertFalse(itemIt.hasNext());
 		}
 
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index1.getName())
-								.addAuthorization(
-										"aaa").addAuthorization("bbb")
-								.constraints(
-										new TestQuery(
-												23,
-												26))
-								.build())) {
-			assertTrue(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index1.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						26)).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							25),
 					itemIt.next());
-			assertFalse(
-					itemIt.hasNext());
+			assertFalse(itemIt.hasNext());
 		}
 		// pick an index
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.addAuthorization(
-										"aaa").addAuthorization("bbb")
-								.constraints(
-										new TestQuery(
-												23,
-												36))
-								.build())) {
-			assertTrue(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						36)).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							25),
 					itemIt.next());
-			assertTrue(
-					itemIt.hasNext());
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							35),
 					itemIt.next());
-			assertFalse(
-					itemIt.hasNext());
+			assertFalse(itemIt.hasNext());
 		}
 
-		final Iterator<InternalDataStatistics<?,?,?>> statsIt = statsStore.getAllDataStatistics();
-		assertTrue(
-				checkStats(
-						statsIt,
-						2,
-						new NumericRange(
-								25,
-								35)));
+		final Iterator<InternalDataStatistics<?, ?, ?>> statsIt = statsStore.getAllDataStatistics();
+		assertTrue(checkStats(
+				statsIt,
+				2,
+				new NumericRange(
+						25,
+						35)));
 
-		dataStore
-				.delete(
-						QueryBuilder
-						.newBuilder()
-						.addTypeName(
-								adapter.getTypeName())
-						.addAuthorization(
-								"aaa").addAuthorization("bbb")
-						.constraints(
-								new TestQuery(
-										23,
-										26))
-						.build());
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-						.newBuilder()
-						.addTypeName(
-								adapter.getTypeName()).indexName(index1.getName())
-						.addAuthorization(
-								"aaa").addAuthorization("bbb")
-						.constraints(
-								new TestQuery(
-										23,
-										36))
-						.build())) {
-			assertTrue(
-					itemIt.hasNext());
+		dataStore.delete(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						26)).build());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index1.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						36)).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							35),
 					itemIt.next());
-			assertFalse(
-					itemIt.hasNext());
+			assertFalse(itemIt.hasNext());
 		}
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-						.newBuilder()
-						.addTypeName(
-								adapter.getTypeName()).indexName(index2.getName())
-						.addAuthorization(
-								"aaa").addAuthorization("bbb")
-						.constraints(
-								new TestQuery(
-										23,
-										36))
-						.build())) {
-			assertTrue(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index2.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						36)).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							35),
 					itemIt.next());
-			assertFalse(
-					itemIt.hasNext());
+			assertFalse(itemIt.hasNext());
 		}
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-						.newBuilder()
-						.addTypeName(
-								adapter.getTypeName()).indexName(index1.getName())
-						.addAuthorization(
-								"aaa").addAuthorization("bbb")
-						.constraints(
-								new TestQuery(
-										23,
-										26))
-						.build())) {
-			assertFalse(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index1.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						26)).build())) {
+			assertFalse(itemIt.hasNext());
 		}
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-						.newBuilder()
-						.addTypeName(
-								adapter.getTypeName()).indexName(index2.getName())
-						.addAuthorization(
-								"aaa").addAuthorization("bbb")
-						.constraints(
-								new TestQuery(
-										23,
-										26))
-						.build())) {
-			assertFalse(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index2.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new TestQuery(
+						23,
+						26)).build())) {
+			assertFalse(itemIt.hasNext());
 		}
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-						.newBuilder()
-						.addTypeName(
-								adapter.getTypeName()).indexName(index1.getName())
-						.addAuthorization(
-								"aaa").addAuthorization("bbb")
-						.constraints(
-						new DataIdQuery(
-								adapter
-										.getDataId(
-												new Integer(
-														35)))).build())) {
-			assertTrue(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index1.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new DataIdQuery(
+						adapter.getDataId(new Integer(
+								35)))).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							35),
 					itemIt.next());
 		}
-		try (CloseableIterator<?> itemIt = dataStore
-				.query(
-						QueryBuilder
-						.newBuilder()
-						.addTypeName(
-								adapter.getTypeName()).indexName(index2.getName())
-						.addAuthorization(
-								"aaa").addAuthorization("bbb")
-						.constraints(
-						new DataIdQuery(
-								adapter
-										.getDataId(
-												new Integer(
-														35)))).build())) {
-			assertTrue(
-					itemIt.hasNext());
+		try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index2.getName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").constraints(
+				new DataIdQuery(
+						adapter.getDataId(new Integer(
+								35)))).build())) {
+			assertTrue(itemIt.hasNext());
 			assertEquals(
 					new Integer(
 							35),
@@ -571,17 +396,17 @@ public class MemoryDataStoreTest
 	}
 
 	private boolean checkStats(
-			final Iterator<InternalDataStatistics<?,?,?>> statIt,
+			final Iterator<InternalDataStatistics<?, ?, ?>> statIt,
 			final int count,
 			final NumericRange range ) {
 		while (statIt.hasNext()) {
-			final InternalDataStatistics<Integer,?,?> stat = (InternalDataStatistics<Integer,?,?>) statIt.next();
+			final InternalDataStatistics<Integer, ?, ?> stat = (InternalDataStatistics<Integer, ?, ?>) statIt.next();
 			if ((stat instanceof CountDataStatistics) && (((CountDataStatistics) stat).getCount() != count)) {
 				return false;
 			}
 			else if ((stat instanceof IntegerRangeDataStatistics)
-					&& ((((IntegerRangeDataStatistics) stat).getMin() != range.getMin())
-							|| (((IntegerRangeDataStatistics) stat).getMax() != range.getMax()))) {
+					&& ((((IntegerRangeDataStatistics) stat).getMin() != range.getMin()) || (((IntegerRangeDataStatistics) stat)
+							.getMax() != range.getMax()))) {
 				return false;
 			}
 		}
@@ -608,16 +433,21 @@ public class MemoryDataStoreTest
 		public boolean accept(
 				final CommonIndexModel indexModel,
 				final IndexedPersistenceEncoding<?> persistenceEncoding ) {
-			final double min = ((CommonIndexedPersistenceEncoding) persistenceEncoding)
-					.getNumericData(
-							indexModel.getDimensions())
-					.getDataPerDimension()[0].getMin();
-			final double max = ((CommonIndexedPersistenceEncoding) persistenceEncoding)
-					.getNumericData(
-							indexModel.getDimensions())
-					.getDataPerDimension()[0].getMax();
+			final double min = ((CommonIndexedPersistenceEncoding) persistenceEncoding).getNumericData(
+					indexModel.getDimensions()).getDataPerDimension()[0].getMin();
+			final double max = ((CommonIndexedPersistenceEncoding) persistenceEncoding).getNumericData(
+					indexModel.getDimensions()).getDataPerDimension()[0].getMax();
 			return !((this.max <= min) || (this.min > max));
 		}
+
+		@Override
+		public byte[] toBinary() {
+			return new byte[0];
+		}
+
+		@Override
+		public void fromBinary(
+				final byte[] bytes ) {}
 
 	}
 
@@ -638,25 +468,32 @@ public class MemoryDataStoreTest
 		@Override
 		public List<QueryFilter> createFilters(
 				final Index index ) {
-			return Arrays
-					.asList(
-							(QueryFilter) new TestQueryFilter(
-									index.getIndexModel(),
-									min,
-									max));
+			return Arrays.asList((QueryFilter) new TestQueryFilter(
+					index.getIndexModel(),
+					min,
+					max));
 		}
 
 		@Override
 		public List<MultiDimensionalNumericData> getIndexConstraints(
 				final Index index ) {
-			return Collections
-					.<MultiDimensionalNumericData> singletonList(
-							new BasicNumericDataset(
-									new NumericData[] {
-										new NumericRange(
-												min,
-												max)
-									}));
+			return Collections.<MultiDimensionalNumericData> singletonList(new BasicNumericDataset(
+					new NumericData[] {
+						new NumericRange(
+								min,
+								max)
+					}));
+		}
+
+		@Override
+		public byte[] toBinary() {
+			return new byte[0];
+		}
+
+		@Override
+		public void fromBinary(
+				byte[] bytes ) {
+
 		}
 
 	}

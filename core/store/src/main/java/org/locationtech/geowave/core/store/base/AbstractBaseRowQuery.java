@@ -33,9 +33,7 @@ import org.locationtech.geowave.core.store.util.NativeEntryTransformer;
 abstract class AbstractBaseRowQuery<T> extends
 		BaseQuery
 {
-	private static final Logger LOGGER = Logger
-			.getLogger(
-					AbstractBaseRowQuery.class);
+	private static final Logger LOGGER = Logger.getLogger(AbstractBaseRowQuery.class);
 
 	public AbstractBaseRowQuery(
 			final Index index,
@@ -73,8 +71,7 @@ abstract class AbstractBaseRowQuery<T> extends
 				new NativeEntryTransformer<>(
 						adapterStore,
 						index,
-						getClientFilter(
-								options),
+						getClientFilter(options),
 						(ScanCallback<T, ?>) scanCallback,
 						getFieldBitmask(),
 						maxResolutionSubsamplingPerDimension,

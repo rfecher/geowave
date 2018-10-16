@@ -37,7 +37,7 @@ import org.locationtech.geowave.core.store.adapter.statistics.PartitionStatistic
 import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramStatistics;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.hbase.operations.HBaseOperations;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
@@ -63,7 +63,7 @@ public class HBaseSplitsProvider extends
 			final TransientAdapterStore adapterStore,
 			final DataStatisticsStore statsStore,
 			final Integer maxSplits,
-			final DistributableQueryConstraints query,
+			final QueryConstraints query,
 			final double[] targetResolutionPerDimensionForHierarchicalIndex,
 			final String[] authorizations )
 			throws IOException {

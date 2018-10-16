@@ -53,14 +53,10 @@ class BaseRowPrefixQuery<T> extends
 				sortKeyPrefix,
 				false);
 		final List<SinglePartitionQueryRanges> ranges = new ArrayList<>();
-		final Collection<ByteArrayRange> sortKeys = Collections
-				.singleton(
-						sortKeyPrefixRange);
-		ranges
-				.add(
-						new SinglePartitionQueryRanges(
-								partitionKey,
-								sortKeys));
+		final Collection<ByteArrayRange> sortKeys = Collections.singleton(sortKeyPrefixRange);
+		ranges.add(new SinglePartitionQueryRanges(
+				partitionKey,
+				sortKeys));
 		queryRanges = new QueryRanges(
 				ranges);
 	}

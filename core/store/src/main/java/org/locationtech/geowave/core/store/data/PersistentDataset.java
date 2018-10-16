@@ -53,10 +53,9 @@ public class PersistentDataset<T>
 	public void addValue(
 			final String fieldName,
 			final T value ) {
-		fieldNameToValueMap
-				.put(
-						fieldName,
-						value);
+		fieldNameToValueMap.put(
+				fieldName,
+				value);
 	}
 
 	/**
@@ -64,9 +63,7 @@ public class PersistentDataset<T>
 	 */
 	public void addValues(
 			final Map<String, T> values ) {
-		fieldNameToValueMap
-				.putAll(
-						values);
+		fieldNameToValueMap.putAll(values);
 	}
 
 	/**
@@ -79,9 +76,7 @@ public class PersistentDataset<T>
 	 */
 	public T getValue(
 			final String fieldName ) {
-		return fieldNameToValueMap
-				.get(
-						fieldName);
+		return fieldNameToValueMap.get(fieldName);
 	}
 
 	/**

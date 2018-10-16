@@ -40,8 +40,7 @@ public class RemoveStatCommand extends
 	@Override
 	public void execute(
 			final OperationParams params ) {
-		computeResults(
-				params);
+		computeResults(params);
 	}
 
 	@Override
@@ -53,15 +52,13 @@ public class RemoveStatCommand extends
 
 		// Remove the stat
 		final DataStatisticsStore statStore = storeOptions.createDataStatisticsStore();
-		final String[] authorizations = getAuthorizations(
-				statsOptions.getAuthorizations());
+		final String[] authorizations = getAuthorizations(statsOptions.getAuthorizations());
 
-		if (!statStore
-				.removeStatistics(
-						adapter.getAdapterId(),
-						new BaseStatisticsType<>(
-								statType),
-						authorizations)) {
+		if (!statStore.removeStatistics(
+				adapter.getAdapterId(),
+				new BaseStatisticsType<>(
+						statType),
+				authorizations)) {
 			throw new RuntimeException(
 					"Unable to remove statistic: " + statType);
 		}
@@ -78,9 +75,7 @@ public class RemoveStatCommand extends
 					"Requires arguments: <store name> <datatype name> <stat type>");
 		}
 
-		statType = parameters
-				.get(
-						2);
+		statType = parameters.get(2);
 
 		super.run(
 				params,

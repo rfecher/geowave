@@ -46,8 +46,6 @@ public class LongitudeField extends
 	@Override
 	public NumericData getNumericData(
 			final GeometryWrapper geometry ) {
-		return GeometryUtils
-				.xRangeFromGeometry(
-						geometry.getGeometry());
+		return GeometryUtils.xRangeFromGeometry(geometry.getGeometry());
 	}
 }

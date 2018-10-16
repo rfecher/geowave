@@ -28,7 +28,7 @@ import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStor
 import org.locationtech.geowave.core.store.base.BaseDataStore;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
 import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
 import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
@@ -89,7 +89,7 @@ public class BaseMapReduceDataStore extends
 			final CommonQueryOptions commonOptions,
 			final DataTypeQueryOptions<?> typeOptions,
 			final IndexQueryOptions indexOptions,
-			final DistributableQueryConstraints constraints,
+			final QueryConstraints constraints,
 			final TransientAdapterStore adapterStore,
 			final InternalAdapterStore internalAdapterStore,
 			final AdapterIndexMappingStore aimStore,
@@ -121,7 +121,7 @@ public class BaseMapReduceDataStore extends
 			final CommonQueryOptions commonOptions,
 			final DataTypeQueryOptions<?> typeOptions,
 			final IndexQueryOptions indexOptions,
-			final DistributableQueryConstraints constraints,
+			final QueryConstraints constraints,
 			final TransientAdapterStore adapterStore,
 			final AdapterIndexMappingStore aimStore,
 			final DataStatisticsStore statsStore,
@@ -132,19 +132,18 @@ public class BaseMapReduceDataStore extends
 			final Integer maxSplits )
 			throws IOException,
 			InterruptedException {
-		return splitsProvider
-				.getSplits(
-						baseOperations,
-						commonOptions,
-						typeOptions,
-						indexOptions,
-						constraints,
-						adapterStore,
-						statsStore,
-						internalAdapterStore,
-						indexStore,
-						indexMappingStore,
-						minSplits,
-						maxSplits);
+		return splitsProvider.getSplits(
+				baseOperations,
+				commonOptions,
+				typeOptions,
+				indexOptions,
+				constraints,
+				adapterStore,
+				statsStore,
+				internalAdapterStore,
+				indexStore,
+				indexMappingStore,
+				minSplits,
+				maxSplits);
 	}
 }

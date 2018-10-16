@@ -42,9 +42,7 @@ public class RecalculateStatsCommand extends
 		AbstractStatsCommand<Void>
 {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					RecalculateStatsCommand.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RecalculateStatsCommand.class);
 	@Parameter(names = {
 		"--typeName"
 	}, description = "Optionally recalculate a single datatype's stats")
@@ -56,8 +54,7 @@ public class RecalculateStatsCommand extends
 	@Override
 	public void execute(
 			final OperationParams params ) {
-		computeResults(
-				params);
+		computeResults(params);
 	}
 
 	@Override
@@ -70,10 +67,8 @@ public class RecalculateStatsCommand extends
 		try {
 			final DataStore dataStore = storeOptions.createDataStore();
 			if (!(dataStore instanceof BaseDataStore)) {
-				LOGGER
-						.warn(
-								"Datastore type '" + dataStore.getClass().getName()
-										+ "' must be instance of BaseDataStore to recalculate stats");
+				LOGGER.warn("Datastore type '" + dataStore.getClass().getName()
+						+ "' must be instance of BaseDataStore to recalculate stats");
 				return false;
 			}
 
@@ -81,11 +76,9 @@ public class RecalculateStatsCommand extends
 			final IndexStore indexStore = storeOptions.createIndexStore();
 
 			boolean isFirstTime = true;
-			for (final Index index : mappingStore
-					.getIndicesForAdapter(
-							adapter.getAdapterId())
-					.getIndices(
-							indexStore)) {
+			for (final Index index : mappingStore.getIndicesForAdapter(
+					adapter.getAdapterId()).getIndices(
+					indexStore)) {
 
 				@SuppressWarnings({
 					"rawtypes",
@@ -95,26 +88,19 @@ public class RecalculateStatsCommand extends
 						adapter,
 						index,
 						isFirstTime);
-				final String[] authorizations = getAuthorizations(
-						statsOptions.getAuthorizations());
+				final String[] authorizations = getAuthorizations(statsOptions.getAuthorizations());
 
 				try (StatsCompositionTool<?> statsTool = new StatsCompositionTool(
 						provider,
 						storeOptions.createDataStatisticsStore(),
 						index,
 						adapter)) {
-					try (CloseableIterator<?> entryIt = ((BaseDataStore) dataStore)
-							.query(
-									QueryBuilder
-											.newBuilder()
-											.addTypeName(
-													adapter.getTypeName())
-											.indexName(
-													index.getName())
-											.setAuthorizations(
-													authorizations)
-											.build(),
-									(ScanCallback) statsTool)) {
+					try (CloseableIterator<?> entryIt = ((BaseDataStore) dataStore).query(
+							QueryBuilder.newBuilder().addTypeName(
+									adapter.getTypeName()).indexName(
+									index.getName()).setAuthorizations(
+									authorizations).build(),
+							(ScanCallback) statsTool)) {
 						while (entryIt.hasNext()) {
 							entryIt.next();
 						}
@@ -125,10 +111,9 @@ public class RecalculateStatsCommand extends
 
 		}
 		catch (final Exception ex) {
-			LOGGER
-					.error(
-							"Error while writing statistics.",
-							ex);
+			LOGGER.error(
+					"Error while writing statistics.",
+					ex);
 			return false;
 		}
 
@@ -143,13 +128,9 @@ public class RecalculateStatsCommand extends
 			final String storeName,
 			final String adapterName ) {
 		parameters = new ArrayList<>();
-		parameters
-				.add(
-						storeName);
+		parameters.add(storeName);
 		if (adapterName != null) {
-			parameters
-					.add(
-							adapterName);
+			parameters.add(adapterName);
 		}
 	}
 
@@ -162,9 +143,7 @@ public class RecalculateStatsCommand extends
 					"Requires arguments: <store name>");
 		}
 		if ((typeName != null) && !typeName.trim().isEmpty()) {
-			parameters
-					.add(
-							typeName);
+			parameters.add(typeName);
 		}
 		super.run(
 				params,

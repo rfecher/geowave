@@ -16,6 +16,7 @@ import java.util.HashSet;
 
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.Mergeable;
+import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.statistics.AbstractDataStatistics;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.adapter.statistics.IndexStatisticsQueryBuilder;
@@ -76,19 +77,15 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 
 	@Override
 	public byte[] toBinary() {
-		final ByteBuffer buf = super.binaryBuffer(
-				8);
-		buf
-				.putLong(
-						entriesWithDifferingFieldVisibilities);
+		final ByteBuffer buf = super.binaryBuffer(8);
+		buf.putLong(entriesWithDifferingFieldVisibilities);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buf = super.binaryBuffer(bytes);
 		entriesWithDifferingFieldVisibilities = buf.getLong();
 	}
 
@@ -97,12 +94,9 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		for (final GeoWaveRow kv : kvs) {
-			if (entryHasDifferentVisibilities(
-					kv)) {
-				if (ids
-						.add(
-								new ByteArrayId(
-										kvs[0].getDataId()))) {
+			if (entryHasDifferentVisibilities(kv)) {
+				if (ids.add(new ByteArrayId(
+						kvs[0].getDataId()))) {
 					entriesWithDifferingFieldVisibilities++;
 				}
 			}
@@ -120,8 +114,7 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 			final T entry,
 			final GeoWaveRow... kvs ) {
 		for (final GeoWaveRow kv : kvs) {
-			if (entryHasDifferentVisibilities(
-					kv)) {
+			if (entryHasDifferentVisibilities(kv)) {
 				entriesWithDifferingFieldVisibilities--;
 			}
 		}
@@ -152,19 +145,22 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 			final String... authorizations ) {
 		DifferingFieldVisibilityEntryCount combinedVisibilityCount = null;
 		for (final short adapterId : adapterIdsToQuery) {
-			final DifferingFieldVisibilityEntryCount adapterVisibilityCount = (DifferingFieldVisibilityEntryCount) statisticsStore
+			try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> adapterVisibilityCountIt = statisticsStore
 					.getDataStatistics(
 							adapterId,
 							index.getName(),
 							STATS_TYPE,
-							authorizations);
-			if (combinedVisibilityCount == null) {
-				combinedVisibilityCount = adapterVisibilityCount;
-			}
-			else {
-				combinedVisibilityCount
-						.merge(
-								adapterVisibilityCount);
+							authorizations)) {
+				if (adapterVisibilityCountIt.hasNext()) {
+					final DifferingFieldVisibilityEntryCount adapterVisibilityCount = (DifferingFieldVisibilityEntryCount) adapterVisibilityCountIt
+							.next();
+					if (combinedVisibilityCount == null) {
+						combinedVisibilityCount = adapterVisibilityCount;
+					}
+					else {
+						combinedVisibilityCount.merge(adapterVisibilityCount);
+					}
+				}
 			}
 		}
 		return combinedVisibilityCount;
@@ -177,9 +173,7 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 
 	@Override
 	protected Object resultsValue() {
-		return Long
-				.toString(
-						entriesWithDifferingFieldVisibilities);
+		return Long.toString(entriesWithDifferingFieldVisibilities);
 	}
 
 	@Override

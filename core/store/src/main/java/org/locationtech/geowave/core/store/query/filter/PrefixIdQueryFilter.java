@@ -18,7 +18,7 @@ import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 
 public class PrefixIdQueryFilter implements
-		DistributableQueryFilter
+		QueryFilter
 {
 	private byte[] partitionKey;
 	private byte[] sortKeyPrefix;

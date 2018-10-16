@@ -35,7 +35,8 @@ public class DateRangeFilterTest
 	public void testSerialization() {
 		final Date start = new Date();
 		final Date end = new Date();
-		final DateRangeFilter filter = new DateRangeFilter("myAttribute",
+		final DateRangeFilter filter = new DateRangeFilter(
+				"myAttribute",
 				start,
 				end,
 				false,
@@ -52,7 +53,8 @@ public class DateRangeFilterTest
 	@Test
 	public void testAccept()
 			throws ParseException {
-		final DateRangeFilter filter = new DateRangeFilter("myAttribute",
+		final DateRangeFilter filter = new DateRangeFilter(
+				"myAttribute",
 				format.parse("01-01-2014 11:01:01"),
 				format.parse("12-31-2014 11:01:01"),
 				true,
@@ -66,7 +68,7 @@ public class DateRangeFilterTest
 				null,
 				0,
 				new PersistentDataset<ByteArrayId>(
-								"myAttribute",
+						"myAttribute",
 						new ByteArrayId(
 								TemporalIndexStrategy.toIndexByte(format.parse("06-01-2014 11:01:01")))),
 				null);
@@ -83,7 +85,7 @@ public class DateRangeFilterTest
 				null,
 				0,
 				new PersistentDataset<ByteArrayId>(
-								"myAttribute",
+						"myAttribute",
 						new ByteArrayId(
 								Lexicoders.LONG.toByteArray(format.parse(
 										"01-01-2015 11:01:01").getTime()))),
@@ -101,7 +103,7 @@ public class DateRangeFilterTest
 				null,
 				0,
 				new PersistentDataset<ByteArrayId>(
-								"mismatch",
+						"mismatch",
 						new ByteArrayId(
 								Lexicoders.LONG.toByteArray(format.parse(
 										"06-01-2014 11:01:01").getTime()))),

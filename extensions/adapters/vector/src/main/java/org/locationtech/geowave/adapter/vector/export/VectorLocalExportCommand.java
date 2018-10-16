@@ -73,18 +73,13 @@ public class VectorLocalExportCommand extends
 					"Requires arguments: <store name>");
 		}
 
-		final String storeName = parameters
-				.get(
-						0);
+		final String storeName = parameters.get(0);
 
 		// Config file
-		final File configFile = getGeoWaveConfigFile(
-				params);
+		final File configFile = getGeoWaveConfigFile(params);
 		final StoreLoader inputStoreLoader = new StoreLoader(
 				storeName);
-		if (!inputStoreLoader
-				.loadFromConfig(
-						configFile)) {
+		if (!inputStoreLoader.loadFromConfig(configFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + inputStoreLoader.getStoreName());
 		}
@@ -98,41 +93,28 @@ public class VectorLocalExportCommand extends
 		try (final DataFileWriter<AvroSimpleFeatureCollection> dfw = new DataFileWriter<>(
 				new GenericDatumWriter<AvroSimpleFeatureCollection>(
 						AvroSimpleFeatureCollection.SCHEMA$))) {
-			dfw
-					.setCodec(
-							CodecFactory.snappyCodec());
-			dfw
-					.create(
-							AvroSimpleFeatureCollection.SCHEMA$,
-							options.getOutputFile());
+			dfw.setCodec(CodecFactory.snappyCodec());
+			dfw.create(
+					AvroSimpleFeatureCollection.SCHEMA$,
+					options.getOutputFile());
 			// get appropriate feature adapters
 			final List<GeotoolsFeatureDataAdapter> featureAdapters = new ArrayList<>();
 			if ((options.getTypeNames() != null) && options.getTypeNames().length > 0) {
 				for (final String typeName : options.getTypeNames()) {
-					final short adapterId = internalAdapterStore
-							.getAdapterId(
-									typeName);
-					final InternalDataAdapter<?> internalDataAdapter = adapterStore
-							.getAdapter(
-									adapterId);
+					final short adapterId = internalAdapterStore.getAdapterId(typeName);
+					final InternalDataAdapter<?> internalDataAdapter = adapterStore.getAdapter(adapterId);
 					if (internalDataAdapter == null) {
-						JCommander
-								.getConsole()
-								.println(
-										"Type '" + typeName + "' not found");
+						JCommander.getConsole().println(
+								"Type '" + typeName + "' not found");
 						continue;
 					}
 					else if (!(internalDataAdapter.getAdapter() instanceof GeotoolsFeatureDataAdapter)) {
-						JCommander
-								.getConsole()
-								.println(
-										"Type '" + typeName + "' does not support vector export. Instance of "
-												+ internalDataAdapter.getAdapter().getClass());
+						JCommander.getConsole().println(
+								"Type '" + typeName + "' does not support vector export. Instance of "
+										+ internalDataAdapter.getAdapter().getClass());
 						continue;
 					}
-					featureAdapters
-							.add(
-									(GeotoolsFeatureDataAdapter) internalDataAdapter.getAdapter());
+					featureAdapters.add((GeotoolsFeatureDataAdapter) internalDataAdapter.getAdapter());
 				}
 			}
 			else {
@@ -140,96 +122,70 @@ public class VectorLocalExportCommand extends
 				while (adapters.hasNext()) {
 					final InternalDataAdapter<?> adapter = adapters.next();
 					if (adapter.getAdapter() instanceof GeotoolsFeatureDataAdapter) {
-						featureAdapters
-								.add(
-										(GeotoolsFeatureDataAdapter) adapter.getAdapter());
+						featureAdapters.add((GeotoolsFeatureDataAdapter) adapter.getAdapter());
 					}
 				}
 				adapters.close();
 			}
 			if (featureAdapters.isEmpty()) {
-				JCommander
-						.getConsole()
-						.println(
-								"Unable to find any vector data types in store");
+				JCommander.getConsole().println(
+						"Unable to find any vector data types in store");
 			}
 			Index queryIndex = null;
 			if (options.getIndexName() != null) {
-				queryIndex = indexStore
-						.getIndex(
-								options.getIndexName());
+				queryIndex = indexStore.getIndex(options.getIndexName());
 				if (queryIndex == null) {
-					JCommander
-							.getConsole()
-							.println(
-									"Unable to find index '" + options.getIndexName() + "' in store");
+					JCommander.getConsole().println(
+							"Unable to find index '" + options.getIndexName() + "' in store");
 					return;
 				}
 			}
 			for (final GeotoolsFeatureDataAdapter adapter : featureAdapters) {
 				final SimpleFeatureType sft = adapter.getFeatureType();
-				JCommander
-						.getConsole()
-						.println(
-								"Exporting type '" + sft.getTypeName() + "'");
+				JCommander.getConsole().println(
+						"Exporting type '" + sft.getTypeName() + "'");
 				final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
 
 				if (options.getIndexName() != null) {
-					bldr
-							.indexName(
-									options.getIndexName());
+					bldr.indexName(options.getIndexName());
 				}
 				if (options.getCqlFilter() != null) {
-					bldr.constraints(bldr.constraintsFactory().cqlConstraints(options.getCqlFilter()));
+					bldr.constraints(bldr.constraintsFactory().cqlConstraints(
+							options.getCqlFilter()));
 				}
 				bldr.addTypeName(adapter.getTypeName());
 
-				final CloseableIterator<SimpleFeature> it = dataStore
-						.query(bldr.build());
+				final CloseableIterator<SimpleFeature> it = dataStore.query(bldr.build());
 				int iteration = 0;
 				while (it.hasNext()) {
 					final AvroSimpleFeatureCollection simpleFeatureCollection = new AvroSimpleFeatureCollection();
 
-					simpleFeatureCollection
-							.setFeatureType(
-									AvroFeatureUtils
-											.buildFeatureDefinition(
-													null,
-													sft,
-													null,
-													""));
+					simpleFeatureCollection.setFeatureType(AvroFeatureUtils.buildFeatureDefinition(
+							null,
+							sft,
+							null,
+							""));
 					final List<AttributeValues> avList = new ArrayList<>(
 							options.getBatchSize());
 					while (it.hasNext() && (avList.size() < options.getBatchSize())) {
 						final Object obj = it.next();
 						if (obj instanceof SimpleFeature) {
-							final AttributeValues av = AvroFeatureUtils
-									.buildAttributeValue(
-											(SimpleFeature) obj,
-											sft);
-							avList
-									.add(
-											av);
+							final AttributeValues av = AvroFeatureUtils.buildAttributeValue(
+									(SimpleFeature) obj,
+									sft);
+							avList.add(av);
 						}
 					}
-					JCommander
-							.getConsole()
-							.println(
-									"Exported " + (avList.size() + (iteration * options.getBatchSize()))
-											+ " features from '" + sft.getTypeName() + "'");
+					JCommander.getConsole().println(
+							"Exported " + (avList.size() + (iteration * options.getBatchSize())) + " features from '"
+									+ sft.getTypeName() + "'");
 					iteration++;
-					simpleFeatureCollection
-							.setSimpleFeatureCollection(
-									avList);
-					dfw
-							.append(
-									simpleFeatureCollection);
+					simpleFeatureCollection.setSimpleFeatureCollection(avList);
+					dfw.append(simpleFeatureCollection);
 					dfw.flush();
 				}
-				JCommander
-						.getConsole()
-						.println(
-								"Finished exporting '" + sft.getTypeName() + "'");
+				JCommander.getConsole().println(
+						"Finished exporting '" + sft.getTypeName() + "'");
 			}
 		}
 	}
@@ -241,9 +197,7 @@ public class VectorLocalExportCommand extends
 	public void setParameters(
 			final String storeName ) {
 		parameters = new ArrayList<>();
-		parameters
-				.add(
-						storeName);
+		parameters.add(storeName);
 	}
 
 	public DataStorePluginOptions getInputStoreOptions() {

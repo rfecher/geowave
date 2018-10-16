@@ -97,9 +97,7 @@ public class FeatureCountMinSketchStatistics extends
 
 	public long count(
 			final String item ) {
-		return sketch
-				.estimateCount(
-						item);
+		return sketch.estimateCount(item);
 	}
 
 	@Override
@@ -107,10 +105,9 @@ public class FeatureCountMinSketchStatistics extends
 			final Mergeable mergeable ) {
 		if (mergeable instanceof FeatureCountMinSketchStatistics) {
 			try {
-				sketch = CountMinSketch
-						.merge(
-								sketch,
-								((FeatureCountMinSketchStatistics) mergeable).sketch);
+				sketch = CountMinSketch.merge(
+						sketch,
+						((FeatureCountMinSketchStatistics) mergeable).sketch);
 			}
 			catch (final FrequencyMergeException e) {
 				throw new RuntimeException(
@@ -123,71 +120,48 @@ public class FeatureCountMinSketchStatistics extends
 
 	@Override
 	public byte[] toBinary() {
-		final byte[] data = CountMinSketch
-				.serialize(
-						sketch);
-		final ByteBuffer buffer = super.binaryBuffer(
-				4 + data.length);
-		buffer
-				.putInt(
-						data.length);
-		buffer
-				.put(
-						data);
+		final byte[] data = CountMinSketch.serialize(sketch);
+		final ByteBuffer buffer = super.binaryBuffer(4 + data.length);
+		buffer.putInt(data.length);
+		buffer.put(data);
 		return buffer.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buffer = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buffer = super.binaryBuffer(bytes);
 		final byte[] data = new byte[buffer.getInt()];
-		buffer
-				.get(
-						data);
-		sketch = CountMinSketch
-				.deserialize(
-						data);
+		buffer.get(data);
+		sketch = CountMinSketch.deserialize(data);
 	}
 
 	@Override
 	public void entryIngested(
 			final SimpleFeature entry,
 			final GeoWaveRow... rows ) {
-		final Object o = entry
-				.getAttribute(
-						getFieldName());
+		final Object o = entry.getAttribute(getFieldName());
 		if (o == null) {
 			return;
 		}
-		sketch
-				.add(
-						o.toString(),
-						1);
+		sketch.add(
+				o.toString(),
+				1);
 	}
 
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer
-				.append(
-						"sketch[adapterId=")
-				.append(
-						super.getAdapterId());
-		buffer
-				.append(
-						", field=")
-				.append(
-						getFieldName());
-		buffer
-				.append(
-						", size=")
-				.append(
-						sketch.size());
-		buffer
-				.append(
-						"]");
+		buffer.append(
+				"sketch[adapterId=").append(
+				super.getAdapterId());
+		buffer.append(
+				", field=").append(
+				getFieldName());
+		buffer.append(
+				", size=").append(
+				sketch.size());
+		buffer.append("]");
 		return buffer.toString();
 	}
 
@@ -259,24 +233,16 @@ public class FeatureCountMinSketchStatistics extends
 
 		@Override
 		public byte[] toBinary() {
-			final ByteBuffer buf = ByteBuffer
-					.allocate(
-							16);
-			buf
-					.putDouble(
-							errorFactor);
-			buf
-					.putDouble(
-							probabilityOfCorrectness);
+			final ByteBuffer buf = ByteBuffer.allocate(16);
+			buf.putDouble(errorFactor);
+			buf.putDouble(probabilityOfCorrectness);
 			return buf.array();
 		}
 
 		@Override
 		public void fromBinary(
 				final byte[] bytes ) {
-			final ByteBuffer buf = ByteBuffer
-					.wrap(
-							bytes);
+			final ByteBuffer buf = ByteBuffer.wrap(bytes);
 			errorFactor = buf.getDouble();
 			probabilityOfCorrectness = buf.getDouble();
 		}

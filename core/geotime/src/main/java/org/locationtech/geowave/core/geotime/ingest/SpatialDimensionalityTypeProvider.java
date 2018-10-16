@@ -46,9 +46,7 @@ import org.slf4j.LoggerFactory;
 public class SpatialDimensionalityTypeProvider implements
 		DimensionalityTypeProviderSpi<SpatialOptions>
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					SpatialDimensionalityTypeProvider.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(SpatialDimensionalityTypeProvider.class);
 	private static final String DEFAULT_SPATIAL_ID = "SPATIAL_IDX";
 	public static final int LONGITUDE_BITS = 31;
 	public static final int LATITUDE_BITS = 31;
@@ -59,15 +57,15 @@ public class SpatialDimensionalityTypeProvider implements
 		new LongitudeDefinition(),
 		new LatitudeDefinition(
 				true)
-		// just use the same range for latitude to make square sfc values in
-		// decimal degrees (EPSG:4326)
+	// just use the same range for latitude to make square sfc values in
+	// decimal degrees (EPSG:4326)
 	};
 	public static final NumericDimensionField[] SPATIAL_FIELDS = new NumericDimensionField[] {
 		new LongitudeField(),
 		new LatitudeField(
 				true)
-		// just use the same range for latitude to make square sfc values in
-		// decimal degrees (EPSG:4326)
+	// just use the same range for latitude to make square sfc values in
+	// decimal degrees (EPSG:4326)
 	};
 	public static final NumericDimensionField[] SPATIAL_TEMPORAL_FIELDS = new NumericDimensionField[] {
 		new LongitudeField(),
@@ -104,8 +102,7 @@ public class SpatialDimensionalityTypeProvider implements
 	@Override
 	public Index createIndex(
 			final SpatialOptions options ) {
-		return internalCreateIndex(
-				options);
+		return internalCreateIndex(options);
 	}
 
 	private static Index internalCreateIndex(
@@ -116,17 +113,15 @@ public class SpatialDimensionalityTypeProvider implements
 		NumericDimensionField<?>[] fields = null;
 		NumericDimensionField<?>[] fields_temporal = null;
 
-		if ((options.crs == null) || options.crs.isEmpty() || options.crs
-				.equalsIgnoreCase(
-						GeometryUtils.DEFAULT_CRS_STR)) {
+		if ((options.crs == null) || options.crs.isEmpty()
+				|| options.crs.equalsIgnoreCase(GeometryUtils.DEFAULT_CRS_STR)) {
 			dimensions = SPATIAL_DIMENSIONS;
 			fields = SPATIAL_FIELDS;
 			isDefaultCRS = true;
 			crsCode = "EPSG:4326";
 		}
 		else {
-			decodeCRS(
-					options.crs);
+			decodeCRS(options.crs);
 			final CoordinateSystem cs = decodeCRS(
 					options.crs).getCoordinateSystem();
 			isDefaultCRS = false;
@@ -135,11 +130,8 @@ public class SpatialDimensionalityTypeProvider implements
 			if (options.storeTime) {
 				fields_temporal = new NumericDimensionField[dimensions.length + 1];
 				for (int d = 0; d < dimensions.length; d++) {
-					final CoordinateSystemAxis csa = cs
-							.getAxis(
-									d);
-					if (!isUnbounded(
-							csa)) {
+					final CoordinateSystemAxis csa = cs.getAxis(d);
+					if (!isUnbounded(csa)) {
 						dimensions[d] = new CustomCRSBoundedSpatialDimension(
 								(byte) d,
 								csa.getMinimumValue(),
@@ -161,11 +153,8 @@ public class SpatialDimensionalityTypeProvider implements
 			else {
 				fields = new NumericDimensionField[dimensions.length];
 				for (int d = 0; d < dimensions.length; d++) {
-					final CoordinateSystemAxis csa = cs
-							.getAxis(
-									d);
-					if (!isUnbounded(
-							csa)) {
+					final CoordinateSystemAxis csa = cs.getAxis(d);
+					if (!isUnbounded(csa)) {
 						dimensions[d] = new CustomCRSBoundedSpatialDimension(
 								(byte) d,
 								csa.getMinimumValue(),
@@ -207,28 +196,22 @@ public class SpatialDimensionalityTypeProvider implements
 		}
 
 		return new CustomNameIndex(
-				XZHierarchicalIndexFactory
-						.createFullIncrementalTieredStrategy(
-								dimensions,
-								new int[] {
-									// TODO this is only valid for 2D coordinate
-									// systems, again consider the possibility
-									// of being
-									// flexible enough to handle n-dimensions
-									LONGITUDE_BITS,
-									LATITUDE_BITS
-								},
-								SFCType.HILBERT),
+				XZHierarchicalIndexFactory.createFullIncrementalTieredStrategy(
+						dimensions,
+						new int[] {
+							// TODO this is only valid for 2D coordinate
+							// systems, again consider the possibility
+							// of being
+							// flexible enough to handle n-dimensions
+							LONGITUDE_BITS,
+							LATITUDE_BITS
+						},
+						SFCType.HILBERT),
 				indexModel,
 				// TODO append CRS code to ID if its overridden
 				isDefaultCRS ? (options.storeTime ? DEFAULT_SPATIAL_ID + "_TIME" : DEFAULT_SPATIAL_ID)
 						: (options.storeTime ? DEFAULT_SPATIAL_ID + "_TIME" : DEFAULT_SPATIAL_ID) + "_"
-								+ crsCode
-										.substring(
-												crsCode
-														.indexOf(
-																":")
-														+ 1));
+								+ crsCode.substring(crsCode.indexOf(":") + 1));
 	}
 
 	private static boolean isUnbounded(
@@ -236,12 +219,7 @@ public class SpatialDimensionalityTypeProvider implements
 		final double min = csa.getMinimumValue();
 		final double max = csa.getMaximumValue();
 
-		if (!Double
-				.isFinite(
-						max)
-				|| !Double
-						.isFinite(
-								min)) {
+		if (!Double.isFinite(max) || !Double.isFinite(min)) {
 			return true;
 		}
 		return false;
@@ -252,16 +230,14 @@ public class SpatialDimensionalityTypeProvider implements
 
 		CoordinateReferenceSystem crs = null;
 		try {
-			crs = CRS
-					.decode(
-							crsCode,
-							true);
+			crs = CRS.decode(
+					crsCode,
+					true);
 		}
 		catch (final FactoryException e) {
-			LOGGER
-					.error(
-							"Unable to decode '" + crsCode + "' CRS",
-							e);
+			LOGGER.error(
+					"Unable to decode '" + crsCode + "' CRS",
+					e);
 			throw new RuntimeException(
 					"Unable to initialize '" + crsCode + "' object",
 					e);
@@ -302,9 +278,7 @@ public class SpatialDimensionalityTypeProvider implements
 
 		@Override
 		public Index createIndex() {
-			return createIndex(
-					internalCreateIndex(
-							options));
+			return createIndex(internalCreateIndex(options));
 		}
 	}
 
@@ -314,8 +288,7 @@ public class SpatialDimensionalityTypeProvider implements
 			return false;
 		}
 
-		return isSpatial(
-				index.getIndexStrategy());
+		return isSpatial(index.getIndexStrategy());
 	}
 
 	public static boolean isSpatial(
@@ -329,7 +302,8 @@ public class SpatialDimensionalityTypeProvider implements
 		}
 		boolean hasLat = false, hasLon = false;
 		for (final NumericDimensionDefinition definition : dimensions) {
-			if ((definition instanceof LatitudeDefinition) || (definition instanceof CustomCRSUnboundedSpatialDimensionY)) {
+			if ((definition instanceof LatitudeDefinition)
+					|| (definition instanceof CustomCRSUnboundedSpatialDimensionY)) {
 				hasLat = true;
 			}
 			else if ((definition instanceof LongitudeDefinition)

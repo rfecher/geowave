@@ -64,9 +64,7 @@ public class GeoWaveData<T>
 		if (adapter != null) {
 			return adapter;
 		}
-		return (DataTypeAdapter<T>) adapterCache
-				.getAdapter(
-						typeName);
+		return (DataTypeAdapter<T>) adapterCache.getAdapter(typeName);
 	}
 
 	public String getTypeName() {

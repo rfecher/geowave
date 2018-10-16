@@ -21,7 +21,7 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 abstract public class BaseReaderParams<T>
 {
@@ -129,7 +129,7 @@ abstract public class BaseReaderParams<T>
 		return null;
 	}
 
-	public DistributableQueryFilter getFilter() {
+	public QueryFilter getFilter() {
 		return null;
 	}
 

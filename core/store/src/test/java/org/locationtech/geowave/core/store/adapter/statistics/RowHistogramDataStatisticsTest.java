@@ -30,19 +30,14 @@ public class RowHistogramDataStatisticsTest
 	private GeoWaveKey genKey(
 			final long id ) {
 		final InsertionIds insertionIds = new InsertionIds(
-				Arrays
-						.asList(
-								new ByteArrayId(
-										String
-												.format(
-														"\12%5h",
-														base + id)
-												+ "20030f89")));
-		return GeoWaveKeyImpl
-				.createKeys(
-						insertionIds,
-						new byte[] {},
-						(short) 0)[0];
+				Arrays.asList(new ByteArrayId(
+						String.format(
+								"\12%5h",
+								base + id) + "20030f89")));
+		return GeoWaveKeyImpl.createKeys(
+				insertionIds,
+				new byte[] {},
+				(short) 0)[0];
 	}
 
 	@Test
@@ -54,41 +49,31 @@ public class RowHistogramDataStatisticsTest
 
 		for (long i = 0; i < 10000; i++) {
 			final GeoWaveRow row = new GeoWaveRowImpl(
-					genKey(
-							i),
+					genKey(i),
 					new GeoWaveValue[] {});
-			stats
-					.entryIngested(
-							1,
-							row);
+			stats.entryIngested(
+					1,
+					row);
 		}
 
-		System.out
-				.println(
-						stats.toString());
+		System.out.println(stats.toString());
 
 		assertEquals(
 				1.0,
-				stats
-						.cdf(
-								genKey(
-										10000).getSortKey()),
+				stats.cdf(genKey(
+						10000).getSortKey()),
 				0.00001);
 
 		assertEquals(
 				0.0,
-				stats
-						.cdf(
-								genKey(
-										0).getSortKey()),
+				stats.cdf(genKey(
+						0).getSortKey()),
 				0.00001);
 
 		assertEquals(
 				0.5,
-				stats
-						.cdf(
-								genKey(
-										5000).getSortKey()),
+				stats.cdf(genKey(
+						5000).getSortKey()),
 				0.04);
 
 		final RowRangeHistogramStatistics<Integer> stats2 = new RowRangeHistogramStatistics<>(
@@ -98,49 +83,35 @@ public class RowHistogramDataStatisticsTest
 		for (long j = 10000; j < 20000; j++) {
 
 			final GeoWaveRow row = new GeoWaveRowImpl(
-					genKey(
-							j),
+					genKey(j),
 					new GeoWaveValue[] {});
-			stats2
-					.entryIngested(
-							1,
-							row);
+			stats2.entryIngested(
+					1,
+					row);
 		}
 
 		assertEquals(
 				0.0,
-				stats2
-						.cdf(
-								genKey(
-										10000).getSortKey()),
+				stats2.cdf(genKey(
+						10000).getSortKey()),
 				0.00001);
 
-		stats
-				.merge(
-						stats2);
+		stats.merge(stats2);
 
 		assertEquals(
 				0.5,
-				stats
-						.cdf(
-								genKey(
-										10000).getSortKey()),
+				stats.cdf(genKey(
+						10000).getSortKey()),
 				0.15);
 
-		stats2
-				.fromBinary(
-						stats.toBinary());
+		stats2.fromBinary(stats.toBinary());
 
 		assertEquals(
 				0.5,
-				stats
-						.cdf(
-								genKey(
-										10000).getSortKey()),
+				stats.cdf(genKey(
+						10000).getSortKey()),
 				0.15);
 
-		System.out
-				.println(
-						stats.toString());
+		System.out.println(stats.toString());
 	}
 }

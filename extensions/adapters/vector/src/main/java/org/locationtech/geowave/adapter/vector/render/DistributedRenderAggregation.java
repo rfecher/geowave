@@ -35,9 +35,7 @@ import com.aol.cyclops.data.async.Queue;
 public class DistributedRenderAggregation implements
 		Aggregation<DistributedRenderOptions, DistributedRenderResult, SimpleFeature>
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					DistributedRenderAggregation.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(DistributedRenderAggregation.class);
 	private DistributedRenderMapOutputFormat currentRenderer;
 	private DistributedRenderResult currentResult;
 	// use a cyclops-react queue to feed simple features asynchronously while a
@@ -224,10 +222,9 @@ public class DistributedRenderAggregation implements
 			// sufficient
 			try {
 				if (options.getMaxRenderTime() > 0) {
-					result = asyncRenderer
-							.get(
-									options.getMaxRenderTime(),
-									TimeUnit.SECONDS);
+					result = asyncRenderer.get(
+							options.getMaxRenderTime(),
+							TimeUnit.SECONDS);
 
 				}
 				else {
@@ -235,10 +232,9 @@ public class DistributedRenderAggregation implements
 				}
 			}
 			catch (InterruptedException | ExecutionException | TimeoutException e) {
-				LOGGER
-						.warn(
-								"Unable to get distributed render result",
-								e);
+				LOGGER.warn(
+						"Unable to get distributed render result",
+						e);
 			}
 			currentResult = result;
 			clearRenderer();
@@ -258,9 +254,7 @@ public class DistributedRenderAggregation implements
 			currentRenderer.stopRendering();
 		}
 		if (asyncRenderer != null) {
-			asyncRenderer
-					.cancel(
-							true);
+			asyncRenderer.cancel(true);
 		}
 	}
 
@@ -273,19 +267,15 @@ public class DistributedRenderAggregation implements
 	private synchronized void ensureOpen(
 			final SimpleFeatureType type ) {
 		if (currentRenderer == null) {
-			initRenderer(
-					type);
+			initRenderer(type);
 		}
 	}
 
 	@Override
 	public void aggregate(
 			final SimpleFeature entry ) {
-		ensureOpen(
-				entry.getFeatureType());
-		queue
-				.add(
-						entry);
+		ensureOpen(entry.getFeatureType());
+		queue.add(entry);
 	}
 
 	@Override
@@ -315,9 +305,7 @@ public class DistributedRenderAggregation implements
 	public DistributedRenderResult resultFromBinary(
 			final byte[] binary ) {
 		final DistributedRenderResult result = new DistributedRenderResult();
-		result
-				.fromBinary(
-						binary);
+		result.fromBinary(binary);
 		return result;
 	}
 

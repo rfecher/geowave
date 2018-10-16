@@ -59,9 +59,7 @@ public class FeatureNumericRangeStatistics extends
 	protected NumericRange getRange(
 			final SimpleFeature entry ) {
 
-		final Object o = entry
-				.getAttribute(
-						getFieldName());
+		final Object o = entry.getAttribute(getFieldName());
 		if (o == null) {
 			return null;
 		}
@@ -81,36 +79,24 @@ public class FeatureNumericRangeStatistics extends
 	@Override
 	public String toString() {
 		final StringBuffer buffer = new StringBuffer();
-		buffer
-				.append(
-						"range[internalDataAdapterId=")
-				.append(
-						super.getAdapterId());
-		buffer
-				.append(
-						", field=")
-				.append(
-						getFieldName());
+		buffer.append(
+				"range[internalDataAdapterId=").append(
+				super.getAdapterId());
+		buffer.append(
+				", field=").append(
+				getFieldName());
 		if (isSet()) {
-			buffer
-					.append(
-							", min=")
-					.append(
-							getMin());
-			buffer
-					.append(
-							", max=")
-					.append(
-							getMax());
+			buffer.append(
+					", min=").append(
+					getMin());
+			buffer.append(
+					", max=").append(
+					getMax());
 		}
 		else {
-			buffer
-					.append(
-							", No Values");
+			buffer.append(", No Values");
 		}
-		buffer
-				.append(
-						"]");
+		buffer.append("]");
 		return buffer.toString();
 	}
 
@@ -127,14 +113,12 @@ public class FeatureNumericRangeStatistics extends
 		}
 		else {
 			final Map<String, Double> map = new HashMap<>();
-			map
-					.put(
-							"min",
-							getMin());
-			map
-					.put(
-							"max",
-							getMax());
+			map.put(
+					"min",
+					getMin());
+			map.put(
+					"max",
+					getMax());
 			return map;
 		}
 	}

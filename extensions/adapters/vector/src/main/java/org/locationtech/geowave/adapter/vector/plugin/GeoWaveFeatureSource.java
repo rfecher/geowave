@@ -69,22 +69,12 @@ public class GeoWaveFeatureSource extends
 		double minx = -90.0, maxx = 90.0, miny = -180.0, maxy = 180.0;
 
 		InternalDataStatistics<SimpleFeature, ?, ?> bboxStats = null;
-		if (query
-				.getFilter()
-				.equals(
-						Filter.INCLUDE)) {
+		if (query.getFilter().equals(
+				Filter.INCLUDE)) {
 			final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats = new GeoWaveEmptyTransaction(
 					components).getDataStatistics();
-			bboxStats = stats
-					.get(
-							VectorStatisticsQueryBuilder
-									.newBuilder()
-									.factory()
-									.bbox()
-									.fieldName(
-											getFeatureType().getGeometryDescriptor().getLocalName())
-									.build()
-									.getId());
+			bboxStats = stats.get(VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
+					getFeatureType().getGeometryDescriptor().getLocalName()).build().getId());
 		}
 		if (bboxStats != null) {
 			minx = ((BoundingBoxDataStatistics) bboxStats).getMinX();
@@ -106,22 +96,18 @@ public class GeoWaveFeatureSource extends
 				maxy = -180.0;
 				while (reader.hasNext()) {
 					final BoundingBox bbox = reader.next().getBounds();
-					minx = Math
-							.min(
-									bbox.getMinX(),
-									minx);
-					maxx = Math
-							.max(
-									bbox.getMaxX(),
-									maxx);
-					miny = Math
-							.min(
-									bbox.getMinY(),
-									miny);
-					maxy = Math
-							.max(
-									bbox.getMaxY(),
-									maxy);
+					minx = Math.min(
+							bbox.getMinX(),
+							minx);
+					maxx = Math.max(
+							bbox.getMaxX(),
+							maxx);
+					miny = Math.min(
+							bbox.getMinY(),
+							miny);
+					maxy = Math.max(
+							bbox.getMaxY(),
+							maxy);
 
 				}
 			}
@@ -142,13 +128,14 @@ public class GeoWaveFeatureSource extends
 			throws IOException {
 		final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats = new GeoWaveEmptyTransaction(
 				components).getDataStatistics();
-		final InternalDataStatistics<SimpleFeature, ?, ?> countStats = stats
-				.get(
-						VectorStatisticsQueryBuilder.newBuilder().factory().count().build().getId());
-		if ((countStats != null) && query
-				.getFilter()
-				.equals(
-						Filter.INCLUDE)) {
+		final InternalDataStatistics<SimpleFeature, ?, ?> countStats = stats.get(VectorStatisticsQueryBuilder
+				.newBuilder()
+				.factory()
+				.count()
+				.build()
+				.getId());
+		if ((countStats != null) && query.getFilter().equals(
+				Filter.INCLUDE)) {
 			return (int) ((CountDataStatistics) countStats).getCount();
 		}
 		else {
@@ -171,15 +158,12 @@ public class GeoWaveFeatureSource extends
 	protected FeatureReader<SimpleFeatureType, SimpleFeature> getReaderInternal(
 			final Query query )
 			throws IOException {
-		final GeoWaveTransactionState state = getDataStore()
-				.getMyTransactionState(
-						transaction,
-						this);
+		final GeoWaveTransactionState state = getDataStore().getMyTransactionState(
+				transaction,
+				this);
 		return new GeoWaveFeatureReader(
 				query,
-				state
-						.getGeoWaveTransaction(
-								query.getTypeName()),
+				state.getGeoWaveTransaction(query.getTypeName()),
 				components);
 	}
 
@@ -188,17 +172,13 @@ public class GeoWaveFeatureSource extends
 			final Query query,
 			final int flags )
 			throws IOException {
-		final GeoWaveTransactionState state = getDataStore()
-				.getMyTransactionState(
-						transaction,
-						this);
+		final GeoWaveTransactionState state = getDataStore().getMyTransactionState(
+				transaction,
+				this);
 		return new GeoWaveFeatureWriter(
 				components,
-				state
-						.getGeoWaveTransaction(
-								query.getTypeName()),
-				(GeoWaveFeatureReader) getReaderInternal(
-						query));
+				state.getGeoWaveTransaction(query.getTypeName()),
+				(GeoWaveFeatureReader) getReaderInternal(query));
 	}
 
 	@Override
@@ -236,13 +216,11 @@ public class GeoWaveFeatureSource extends
 			final String typeName,
 			final SimpleFeature feature )
 			throws IOException {
-		getDataStore()
-				.getLockingManager()
-				.lockFeatureID(
-						typeName,
-						feature.getID(),
-						transaction,
-						lock);
+		getDataStore().getLockingManager().lockFeatureID(
+				typeName,
+				feature.getID(),
+				transaction,
+				lock);
 	}
 
 	@Override
@@ -250,13 +228,11 @@ public class GeoWaveFeatureSource extends
 			final String typeName,
 			final SimpleFeature feature )
 			throws IOException {
-		getDataStore()
-				.getLockingManager()
-				.unLockFeatureID(
-						typeName,
-						feature.getID(),
-						transaction,
-						lock);
+		getDataStore().getLockingManager().unLockFeatureID(
+				typeName,
+				feature.getID(),
+				transaction,
+				lock);
 	}
 
 }

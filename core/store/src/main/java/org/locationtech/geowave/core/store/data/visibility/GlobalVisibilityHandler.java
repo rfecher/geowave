@@ -36,9 +36,7 @@ public class GlobalVisibilityHandler<RowType, FieldType> implements
 			final RowType rowValue,
 			final String fieldName,
 			final FieldType fieldValue ) {
-		return StringUtils
-				.stringToBinary(
-						globalVisibility);
+		return StringUtils.stringToBinary(globalVisibility);
 	}
 
 }

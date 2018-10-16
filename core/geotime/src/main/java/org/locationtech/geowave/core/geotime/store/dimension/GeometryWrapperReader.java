@@ -11,9 +11,7 @@ public class GeometryWrapperReader implements
 	public GeometryWrapper readField(
 			final byte[] fieldData ) {
 		return new GeometryWrapper(
-				GeometryUtils
-						.geometryFromBinary(
-								fieldData));
+				GeometryUtils.geometryFromBinary(fieldData));
 	}
 
 }

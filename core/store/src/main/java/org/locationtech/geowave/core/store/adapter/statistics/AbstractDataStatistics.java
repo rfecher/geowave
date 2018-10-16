@@ -101,57 +101,35 @@ abstract public class AbstractDataStatistics<T, R, B extends StatisticsQueryBuil
 
 	protected ByteBuffer binaryBuffer(
 			final int size ) {
-		final byte stypeBytes[] = statisticsType.getBytes();
-		final byte sidBytes[] = StringUtils
-				.stringToBinary(
-						extendedId);
-		final ByteBuffer buffer = ByteBuffer
-				.allocate(
-						size + 4 + stypeBytes.length + sidBytes.length);
-		buffer
-				.putShort(
-						adapterId);
-		buffer
-				.putShort(
-						(short) stypeBytes.length);
-		buffer
-				.put(
-						stypeBytes);
-		buffer
-				.put(
-						sidBytes);
-
+		final byte stypeBytes[] = PersistenceUtils.toBinary(statisticsType);
+		final byte sidBytes[] = StringUtils.stringToBinary(extendedId);
+		final ByteBuffer buffer = ByteBuffer.allocate(size + 6 + stypeBytes.length + sidBytes.length);
+		buffer.putShort(adapterId);
+		buffer.putShort((short) stypeBytes.length);
+		buffer.putShort((short) sidBytes.length);
+		buffer.put(stypeBytes);
+		buffer.put(sidBytes);
 		return buffer;
 	}
 
 	protected ByteBuffer binaryBuffer(
 			final byte[] bytes ) {
-
-		final ByteBuffer buffer = ByteBuffer
-				.wrap(
-						bytes);
+		final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 		adapterId = buffer.getShort();
-		final int slen = Short
-				.toUnsignedInt(
-						buffer.getShort());
-		final byte sidBytes[] = new byte[slen];
-		statisticsType = (StatisticsType) PersistenceUtils
-				.fromBinary(
-						sidBytes);
-		final byte[] statsId = new byte[bytes.length - slen - 4];
-		extendedId = StringUtils
-				.stringFromBinary(
-						statsId);
+		final int typeLength = Short.toUnsignedInt(buffer.getShort());
+		final int extenedIdLength = Short.toUnsignedInt(buffer.getShort());
+		final byte typeBytes[] = new byte[typeLength];
+		buffer.get(typeBytes);
+		statisticsType = (StatisticsType) PersistenceUtils.fromBinary(typeBytes);
+		final byte[] extendedIdBytes = new byte[extenedIdLength];
+		buffer.get(extendedIdBytes);
+		extendedId = StringUtils.stringFromBinary(extendedIdBytes);
 		return buffer;
 	}
 
 	@SuppressWarnings("unchecked")
 	public InternalDataStatistics<T, R, B> clone() {
-		return (InternalDataStatistics<T, R, B>) PersistenceUtils
-				.fromBinary(
-						PersistenceUtils
-								.toBinary(
-										this));
+		return (InternalDataStatistics<T, R, B>) PersistenceUtils.fromBinary(PersistenceUtils.toBinary(this));
 	}
 
 	@Override
@@ -159,26 +137,20 @@ abstract public class AbstractDataStatistics<T, R, B extends StatisticsQueryBuil
 			final InternalAdapterStore store )
 			throws JSONException {
 		final JSONObject jo = new JSONObject();
-		jo
-				.put(
-						"dataType",
-						store
-								.getTypeName(
-										adapterId));
-		jo
-				.put(
-						"statsType",
-						statisticsType.getString());
+		jo.put(
+				"dataType",
+				store.getTypeName(adapterId));
+		jo.put(
+				"statsType",
+				statisticsType.getString());
 		if ((extendedId != null) && !extendedId.isEmpty()) {
-			jo
-					.put(
-							"extendedId",
-							extendedId);
+			jo.put(
+					"extendedId",
+					extendedId);
 		}
-		jo
-				.put(
-						resultsName(),
-						resultsValue());
+		jo.put(
+				resultsName(),
+				resultsValue());
 		return jo;
 	}
 

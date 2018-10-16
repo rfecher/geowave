@@ -152,10 +152,11 @@ public class WFSTransactionTest extends
 		reader = ((GeoWaveFeatureSource) ((GeoWaveGTDataStore) dataStore).getFeatureSource(
 				"geostuff",
 				transaction3)).getReaderInternal(query);
-		Map<StatisticsId, InternalDataStatistics<SimpleFeature,?,?>> transStats = ((GeoWaveFeatureReader) reader)
+		Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> transStats = ((GeoWaveFeatureReader) reader)
 				.getTransaction()
 				.getDataStatistics();
-		assertNotNull(transStats.get(FeatureNumericRangeStatistics.STATS_TYPE.newBuilder().fieldName("pop").build().getId()));
+		assertNotNull(transStats.get(FeatureNumericRangeStatistics.STATS_TYPE.newBuilder().fieldName(
+				"pop").build().getId()));
 		transaction3.close();
 
 	}

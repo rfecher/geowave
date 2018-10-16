@@ -48,7 +48,6 @@ import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.index.NullIndex;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +100,7 @@ public class DistortionGroupManagement
 	}
 
 	public static class BatchIdFilter implements
-			DistributableQueryFilter
+			QueryFilter
 	{
 		String batchId;
 
@@ -170,6 +169,21 @@ public class DistortionGroupManagement
 			return Collections.emptyList();
 		}
 
+		@Override
+		public byte[] toBinary() {
+			return StringUtils
+					.stringToBinary(
+							batchId);
+		}
+
+		@Override
+		public void fromBinary(
+				final byte[] bytes ) {
+			batchId = StringUtils
+					.stringFromBinary(
+							bytes);
+		}
+
 	}
 
 	/**
@@ -193,7 +207,7 @@ public class DistortionGroupManagement
 
 			// row id is group id
 			// colQual is cluster count
-			try (CloseableIterator<DistortionEntry> it = (CloseableIterator)dataStore
+			try (CloseableIterator<DistortionEntry> it = (CloseableIterator) dataStore
 					.query(
 							QueryBuilder
 									.newBuilder()

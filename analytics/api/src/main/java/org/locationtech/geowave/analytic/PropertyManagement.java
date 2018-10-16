@@ -28,7 +28,7 @@ import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.index.sfc.data.NumericRange;
 import org.locationtech.geowave.core.store.api.Query;
 import org.locationtech.geowave.core.store.api.QueryBuilder;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * The class supports some basic conversions.
  *
  * Non-serializable objects: {@link Persistable} instances are converted to and
- * from byte formats. {@link DistributableQueryConstraints} is a special case,
+ * from byte formats. {@link QueryConstraints} is a special case,
  * supporting WKT String. {@link Path} are converted to a from string
  * representation of the their URI.
  *

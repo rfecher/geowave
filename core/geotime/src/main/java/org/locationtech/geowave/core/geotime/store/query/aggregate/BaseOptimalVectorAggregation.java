@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 abstract public class BaseOptimalVectorAggregation<P extends Persistable, R, T> implements
 		AdapterAndIndexBasedAggregation<P, R, T>
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					BaseOptimalVectorAggregation.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(BaseOptimalVectorAggregation.class);
 
 	protected FieldNameParam fieldNameParam;
 
@@ -52,10 +50,8 @@ abstract public class BaseOptimalVectorAggregation<P extends Persistable, R, T> 
 			gtAdapter = (GeotoolsFeatureDataAdapter) ((InternalDataAdapter) adapter).getAdapter();
 		}
 		else {
-			LOGGER
-					.error(
-							"Unable to perform aggregation on non-geotools feature adapter '" + adapter.getTypeName()
-									+ "'");
+			LOGGER.error("Unable to perform aggregation on non-geotools feature adapter '" + adapter.getTypeName()
+					+ "'");
 			return null;
 		}
 		if ((fieldNameParam == null) || isCommonIndex(

@@ -37,9 +37,7 @@ public class VectorBoundingBoxAggregation extends
 			final SimpleFeature entry ) {
 		Object o;
 		if ((fieldNameParam != null) && !fieldNameParam.isEmpty()) {
-			o = entry
-					.getAttribute(
-							fieldNameParam.getFieldName());
+			o = entry.getAttribute(fieldNameParam.getFieldName());
 		}
 		else {
 			o = entry.getDefaultGeometry();

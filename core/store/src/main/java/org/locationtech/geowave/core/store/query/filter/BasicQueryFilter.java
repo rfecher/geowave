@@ -36,7 +36,7 @@ import org.locationtech.geowave.core.store.index.CommonIndexModel;
  * 
  */
 public class BasicQueryFilter implements
-		DistributableQueryFilter
+		QueryFilter
 {
 
 	protected interface BasicQueryCompareOp

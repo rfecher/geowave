@@ -29,8 +29,6 @@ public class ArrayWrapperWriter<T> implements
 	@Override
 	public byte[] writeField(
 			final ArrayWrapper<T> fieldValue ) {
-		return writer
-				.writeField(
-						fieldValue.getArray());
+		return writer.writeField(fieldValue.getArray());
 	}
 }

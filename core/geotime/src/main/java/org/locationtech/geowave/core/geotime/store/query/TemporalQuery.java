@@ -36,8 +36,7 @@ public class TemporalQuery extends
 	public TemporalQuery(
 			final TemporalConstraints contraints ) {
 		super(
-				createTemporalConstraints(
-						contraints));
+				createTemporalConstraints(contraints));
 	}
 
 	public TemporalQuery() {
@@ -48,15 +47,13 @@ public class TemporalQuery extends
 			final TemporalConstraints temporalConstraints ) {
 		final List<ConstraintSet> constraints = new ArrayList<>();
 		for (final TemporalRange range : temporalConstraints.getRanges()) {
-			constraints
-					.add(
-							new ConstraintSet(
-									TimeDefinition.class,
-									new ConstraintData(
-											new NumericRange(
-													range.getStartTime().getTime(),
-													range.getEndTime().getTime()),
-											false)));
+			constraints.add(new ConstraintSet(
+					TimeDefinition.class,
+					new ConstraintData(
+							new NumericRange(
+									range.getStartTime().getTime(),
+									range.getEndTime().getTime()),
+							false)));
 		}
 		return new Constraints(
 				constraints);
@@ -66,15 +63,13 @@ public class TemporalQuery extends
 			final Interval[] intervals ) {
 		final List<ConstraintSet> constraints = new ArrayList<>();
 		for (final Interval range : intervals) {
-			constraints
-					.add(
-							new ConstraintSet(
-									TimeDefinition.class,
-									new ConstraintData(
-											new NumericRange(
-													range.getStart().toEpochMilli(),
-													range.getEnd().toEpochMilli()),
-											false)));
+			constraints.add(new ConstraintSet(
+					TimeDefinition.class,
+					new ConstraintData(
+							new NumericRange(
+									range.getStart().toEpochMilli(),
+									range.getEnd().toEpochMilli()),
+							false)));
 		}
 		return new Constraints(
 				constraints);

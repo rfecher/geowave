@@ -32,8 +32,7 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
  *            The type of the row to keep statistics on
  */
 public class RowRangeHistogramStatisticsSet<T> extends
-		AbstractDataStatistics<T, Map<ByteArrayId, RowRangeHistogramStatistics<T>>, BaseStatisticsQueryBuilder<Map<ByteArrayId, RowRangeHistogramStatistics<T>>>>
-		implements
+		AbstractDataStatistics<T, Map<ByteArrayId, RowRangeHistogramStatistics<T>>, BaseStatisticsQueryBuilder<Map<ByteArrayId, RowRangeHistogramStatistics<T>>>> implements
 		DataStatisticsSet<T, Map<ByteArrayId, RowRangeHistogramStatistics<T>>, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>, BaseStatisticsQueryBuilder<Map<ByteArrayId, RowRangeHistogramStatistics<T>>>>
 {
 	public static final BaseStatisticsType<Map<ByteArrayId, RowRangeHistogramStatistics<?>>> STATS_TYPE = new BaseStatisticsType<>(
@@ -55,18 +54,15 @@ public class RowRangeHistogramStatisticsSet<T> extends
 
 	private synchronized RowRangeHistogramStatistics<T> getPartitionStatistic(
 			final ByteArrayId partitionKey ) {
-		RowRangeHistogramStatistics<T> histogram = histogramPerPartition
-				.get(
-						partitionKey);
+		RowRangeHistogramStatistics<T> histogram = histogramPerPartition.get(partitionKey);
 		if (histogram == null) {
 			histogram = new RowRangeHistogramStatistics<>(
 					adapterId,
 					extendedId,
 					partitionKey);
-			histogramPerPartition
-					.put(
-							partitionKey,
-							histogram);
+			histogramPerPartition.put(
+					partitionKey,
+					histogram);
 		}
 		return histogram;
 	}
@@ -99,28 +95,23 @@ public class RowRangeHistogramStatisticsSet<T> extends
 			// call entry ingested once per row
 			for (final GeoWaveRow row : rows) {
 				getPartitionStatistic(
-						getPartitionKey(
-								row.getPartitionKey()))
-										.entryIngested(
-												entry,
-												row);
+						getPartitionKey(row.getPartitionKey())).entryIngested(
+						entry,
+						row);
 			}
 		}
 	}
 
 	@Override
 	public InternalDataStatistics<T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>>[] getStatisticsSet() {
-		return histogramPerPartition
-				.values()
-				.toArray(
-						new InternalDataStatistics[histogramPerPartition.size()]);
+		return histogramPerPartition.values().toArray(
+				new InternalDataStatistics[histogramPerPartition.size()]);
 	}
 
 	protected static ByteArrayId getPartitionKey(
 			final byte[] partitionBytes ) {
-		return ((partitionBytes == null) || (partitionBytes.length == 0)) ? null
-				: new ByteArrayId(
-						partitionBytes);
+		return ((partitionBytes == null) || (partitionBytes.length == 0)) ? null : new ByteArrayId(
+				partitionBytes);
 	}
 
 	@Override
@@ -137,9 +128,7 @@ public class RowRangeHistogramStatisticsSet<T> extends
 	protected Object resultsValue() {
 		final Collection<Object> values = new ArrayList<>();
 		for (final RowRangeHistogramStatistics<?> h : histogramPerPartition.values()) {
-			values
-					.add(
-							h.resultsValue());
+			values.add(h.resultsValue());
 		}
 		return values;
 	}

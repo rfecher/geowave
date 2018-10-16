@@ -74,20 +74,14 @@ public class GeoWaveDataStoreComponents
 		// indicies and writing it to the adapterStore, in cases where the
 		// featuredataadapter was created from geotools datastore's createSchema
 		if (adapter instanceof InitializeWithIndicesDataAdapter) {
-			((InitializeWithIndicesDataAdapter) adapter)
-					.init(
-							adapterIndices);
+			((InitializeWithIndicesDataAdapter) adapter).init(adapterIndices);
 		}
-		final short internalAdapterId = gtStore
-				.getInternalAdapterStore()
-				.getAdapterId(
-						adapter.getTypeName());
+		final short internalAdapterId = gtStore.getInternalAdapterStore().getAdapterId(
+				adapter.getTypeName());
 		final InternalDataAdapter<?> internalDataAdapter = new InternalDataAdapterWrapper(
 				adapter,
 				internalAdapterId);
-		gtStore.adapterStore
-				.addAdapter(
-						internalDataAdapter);
+		gtStore.adapterStore.addAdapter(internalDataAdapter);
 	}
 
 	public IndexStore getIndexStore() {
@@ -143,23 +137,13 @@ public class GeoWaveDataStoreComponents
 			throws IOException {
 		final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
 
-		dataStore
-				.delete(
-						bldr
-								.setAuthorizations(
-										transaction.composeAuthorizations())
-								.addTypeName(
-										adapter.getTypeName())
-								.constraints(
-										bldr
-												.constraintsFactory()
-												.dataIds(
-														new ByteArrayId[] {
-															adapter
-																	.getDataId(
-																			feature)
-														}))
-								.build());
+		dataStore.delete(bldr.setAuthorizations(
+				transaction.composeAuthorizations()).addTypeName(
+				adapter.getTypeName()).constraints(
+				bldr.constraintsFactory().dataIds(
+						new ByteArrayId[] {
+							adapter.getDataId(feature)
+						})).build());
 	}
 
 	public void remove(
@@ -169,24 +153,14 @@ public class GeoWaveDataStoreComponents
 
 		final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
 
-		dataStore
-				.delete(
-						bldr
-								.setAuthorizations(
-										transaction.composeAuthorizations())
-								.addTypeName(
-										adapter.getTypeName())
-								.constraints(
-										bldr
-												.constraintsFactory()
-												.dataIds(
-														new ByteArrayId[] {
-															new ByteArrayId(
-																	StringUtils
-																			.stringToBinary(
-																					fid))
-														}))
-								.build());
+		dataStore.delete(bldr.setAuthorizations(
+				transaction.composeAuthorizations()).addTypeName(
+				adapter.getTypeName()).constraints(
+				bldr.constraintsFactory().dataIds(
+						new ByteArrayId[] {
+							new ByteArrayId(
+									StringUtils.stringToBinary(fid))
+						})).build());
 
 	}
 
@@ -199,25 +173,17 @@ public class GeoWaveDataStoreComponents
 		final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<>(
 				new GlobalVisibilityHandler<>(
 						transaction.composeVisibility()));
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						adapterIndices);
-		try (Writer<SimpleFeature> indexWriter = dataStore
-				.createWriter(
-						adapter.getTypeName())) {
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				adapterIndices);
+		try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 			while (featureIt.hasNext()) {
 				final SimpleFeature feature = featureIt.next();
-				fidList
-						.add(
-								feature.getID());
-				indexWriter
-						.write(
-								feature,
-								visibilityWriter);
+				fidList.add(feature.getID());
+				indexWriter.write(
+						feature,
+						visibilityWriter);
 			}
 		}
 
@@ -231,20 +197,14 @@ public class GeoWaveDataStoreComponents
 		final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<>(
 				new GlobalVisibilityHandler<>(
 						transaction.composeVisibility()));
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						adapterIndices);
-		try (Writer<SimpleFeature> indexWriter = dataStore
-				.createWriter(
-						adapter.getTypeName())) {
-			indexWriter
-					.write(
-							feature,
-							visibilityWriter);
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				adapterIndices);
+		try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(adapter.getTypeName())) {
+			indexWriter.write(
+					feature,
+					visibilityWriter);
 		}
 
 	}
@@ -257,8 +217,6 @@ public class GeoWaveDataStoreComponents
 	public void releaseTransaction(
 			final String txID )
 			throws IOException {
-		transactionAllocator
-				.releaseTransaction(
-						txID);
+		transactionAllocator.releaseTransaction(txID);
 	}
 }

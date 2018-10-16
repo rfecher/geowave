@@ -87,9 +87,7 @@ public class FeatureBoundingBoxStatistics extends
 				getMinY(),
 				getMaxY());
 
-		return new GeometryFactory()
-				.toGeometry(
-						bounds);
+		return new GeometryFactory().toGeometry(bounds);
 	}
 
 	@Override
@@ -97,22 +95,16 @@ public class FeatureBoundingBoxStatistics extends
 			final SimpleFeature entry ) {
 		// incorporate the bounding box of the entry's envelope
 		final Object o;
-		if ((reprojectedType != null) && (transform != null) && !reprojectedType
-				.getCoordinateReferenceSystem()
-				.equals(
-						entry.getType().getCoordinateReferenceSystem())) {
-			o = GeometryUtils
-					.crsTransform(
-							entry,
-							reprojectedType,
-							transform)
-					.getAttribute(
-							getFieldName());
+		if ((reprojectedType != null) && (transform != null) && !reprojectedType.getCoordinateReferenceSystem().equals(
+				entry.getType().getCoordinateReferenceSystem())) {
+			o = GeometryUtils.crsTransform(
+					entry,
+					reprojectedType,
+					transform).getAttribute(
+					getFieldName());
 		}
 		else {
-			o = entry
-					.getAttribute(
-							getFieldName());
+			o = entry.getAttribute(getFieldName());
 		}
 		if ((o != null) && (o instanceof Geometry)) {
 			final Geometry geometry = (Geometry) o;

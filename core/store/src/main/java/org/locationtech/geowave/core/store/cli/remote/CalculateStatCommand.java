@@ -48,9 +48,7 @@ public class CalculateStatCommand extends
 		AbstractStatsCommand<Void>
 {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					CalculateStatCommand.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CalculateStatCommand.class);
 
 	@Parameter(description = "<store name> <datatype name> <stat type>")
 	private List<String> parameters = new ArrayList<>();
@@ -67,8 +65,7 @@ public class CalculateStatCommand extends
 	@Override
 	public void execute(
 			final OperationParams params ) {
-		computeResults(
-				params);
+		computeResults(params);
 	}
 
 	@Override
@@ -81,28 +78,23 @@ public class CalculateStatCommand extends
 		try {
 			final DataStore dataStore = storeOptions.createDataStore();
 			if (!(dataStore instanceof BaseDataStore)) {
-				LOGGER
-						.warn(
-								"Datastore type '" + dataStore.getClass().getName()
-										+ "' must be instance of BaseDataStore to recalculate stats");
+				LOGGER.warn("Datastore type '" + dataStore.getClass().getName()
+						+ "' must be instance of BaseDataStore to recalculate stats");
 				return false;
 			}
 			final AdapterIndexMappingStore mappingStore = storeOptions.createAdapterIndexMappingStore();
 			final IndexStore indexStore = storeOptions.createIndexStore();
 
 			boolean isFirstTime = true;
-			for (final Index index : mappingStore
-					.getIndicesForAdapter(
-							adapter.getAdapterId())
-					.getIndices(
-							indexStore)) {
+			for (final Index index : mappingStore.getIndicesForAdapter(
+					adapter.getAdapterId()).getIndices(
+					indexStore)) {
 
 				@SuppressWarnings({
 					"rawtypes",
 					"unchecked"
 				})
-				final String[] authorizations = getAuthorizations(
-						statsOptions.getAuthorizations());
+				final String[] authorizations = getAuthorizations(statsOptions.getAuthorizations());
 				final DataStoreStatisticsProvider provider = new DataStoreStatisticsProvider(
 						adapter,
 						index,
@@ -124,18 +116,12 @@ public class CalculateStatCommand extends
 						index,
 						adapter)) {
 
-					try (CloseableIterator<?> entryIt = ((BaseDataStore) dataStore)
-							.query(
-									QueryBuilder
-											.newBuilder()
-											.addTypeName(
-													adapter.getTypeName())
-											.indexName(
-													index.getName())
-											.setAuthorizations(
-													authorizations)
-											.build(),
-									(ScanCallback) statsTool)) {
+					try (CloseableIterator<?> entryIt = ((BaseDataStore) dataStore).query(
+							QueryBuilder.newBuilder().addTypeName(
+									adapter.getTypeName()).indexName(
+									index.getName()).setAuthorizations(
+									authorizations).build(),
+							(ScanCallback) statsTool)) {
 						while (entryIt.hasNext()) {
 							entryIt.next();
 						}
@@ -147,10 +133,9 @@ public class CalculateStatCommand extends
 
 		}
 		catch (final Exception ex) {
-			LOGGER
-					.error(
-							"Error while writing statistics.",
-							ex);
+			LOGGER.error(
+					"Error while writing statistics.",
+					ex);
 			return false;
 		}
 
@@ -166,15 +151,9 @@ public class CalculateStatCommand extends
 			final String dataTypeName,
 			final String statType ) {
 		parameters = new ArrayList<>();
-		parameters
-				.add(
-						storeName);
-		parameters
-				.add(
-						dataTypeName);
-		parameters
-				.add(
-						statType);
+		parameters.add(storeName);
+		parameters.add(dataTypeName);
+		parameters.add(statType);
 	}
 
 	@Override
@@ -186,9 +165,7 @@ public class CalculateStatCommand extends
 					"Requires arguments: <store name> <datatype name> <stat type>");
 		}
 
-		statType = parameters
-				.get(
-						2);
+		statType = parameters.get(2);
 
 		super.run(
 				params,

@@ -71,20 +71,17 @@ public class PersistenceEncodingTest
 				Unit.YEAR),
 	};
 
-	private static final CommonIndexModel model = new SpatialTemporalDimensionalityTypeProvider()
-			.createIndex(
-					new SpatialTemporalOptions())
-			.getIndexModel();
+	private static final CommonIndexModel model = new SpatialTemporalDimensionalityTypeProvider().createIndex(
+			new SpatialTemporalOptions()).getIndexModel();
 
-	private static final NumericIndexStrategy strategy = TieredSFCIndexFactory
-			.createSingleTierStrategy(
-					SPATIAL_TEMPORAL_DIMENSIONS,
-					new int[] {
-						16,
-						16,
-						16
-					},
-					SFCType.HILBERT);
+	private static final NumericIndexStrategy strategy = TieredSFCIndexFactory.createSingleTierStrategy(
+			SPATIAL_TEMPORAL_DIMENSIONS,
+			new int[] {
+				16,
+				16,
+				16
+			},
+			SFCType.HILBERT);
 
 	private static final Index index = new PrimaryIndex(
 			strategy,
@@ -95,19 +92,11 @@ public class PersistenceEncodingTest
 	@Before
 	public void setUp()
 			throws ParseException {
-		TimeZone
-				.setDefault(
-						TimeZone
-								.getTimeZone(
-										"GMT"));
+		TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 		final SimpleDateFormat dateFormat = new SimpleDateFormat(
 				"yyyy-MM-dd HH:mm:ss.S");
-		start = dateFormat
-				.parse(
-						"2012-04-03 13:30:23.304");
-		end = dateFormat
-				.parse(
-						"2012-04-03 14:30:23.304");
+		start = dateFormat.parse("2012-04-03 13:30:23.304");
+		end = dateFormat.parse("2012-04-03 14:30:23.304");
 	}
 
 	@Test
@@ -118,21 +107,16 @@ public class PersistenceEncodingTest
 				COMMON_FIELD_HANDLER_LIST);
 
 		final GeoObj entry = new GeoObj(
-				factory
-						.createPoint(
-								new Coordinate(
-										43.454,
-										28.232)),
+				factory.createPoint(new Coordinate(
+						43.454,
+						28.232)),
 				start,
 				end,
 				"g1");
-		final List<ByteArrayId> ids = adapter
-				.encode(
-						entry,
-						model)
-				.getInsertionIds(
-						index)
-				.getCompositeInsertionIds();
+		final List<ByteArrayId> ids = adapter.encode(
+				entry,
+				model).getInsertionIds(
+				index).getCompositeInsertionIds();
 
 		assertEquals(
 				1,
@@ -146,26 +130,21 @@ public class PersistenceEncodingTest
 				NATIVE_FIELD_HANDLER_LIST,
 				COMMON_FIELD_HANDLER_LIST);
 		final GeoObj entry = new GeoObj(
-				factory
-						.createLineString(
-								new Coordinate[] {
-									new Coordinate(
-											43.444,
-											28.232),
-									new Coordinate(
-											43.454,
-											28.242)
-								}),
+				factory.createLineString(new Coordinate[] {
+					new Coordinate(
+							43.444,
+							28.232),
+					new Coordinate(
+							43.454,
+							28.242)
+				}),
 				start,
 				end,
 				"g1");
-		final List<ByteArrayId> ids = adapter
-				.encode(
-						entry,
-						model)
-				.getInsertionIds(
-						index)
-				.getCompositeInsertionIds();
+		final List<ByteArrayId> ids = adapter.encode(
+				entry,
+				model).getInsertionIds(
+				index).getCompositeInsertionIds();
 		assertEquals(
 				7,
 				ids.size());
@@ -175,15 +154,14 @@ public class PersistenceEncodingTest
 	@Test
 	public void testLineWithPrecisionOnTheTileEdge() {
 
-		final NumericIndexStrategy strategy = TieredSFCIndexFactory
-				.createSingleTierStrategy(
-						SPATIAL_TEMPORAL_DIMENSIONS,
-						new int[] {
-							14,
-							14,
-							14
-						},
-						SFCType.HILBERT);
+		final NumericIndexStrategy strategy = TieredSFCIndexFactory.createSingleTierStrategy(
+				SPATIAL_TEMPORAL_DIMENSIONS,
+				new int[] {
+					14,
+					14,
+					14
+				},
+				SFCType.HILBERT);
 
 		final Index index = new PrimaryIndex(
 				strategy,
@@ -193,32 +171,27 @@ public class PersistenceEncodingTest
 				NATIVE_FIELD_HANDLER_LIST,
 				COMMON_FIELD_HANDLER_LIST);
 		final GeoObj entry = new GeoObj(
-				factory
-						.createLineString(
-								new Coordinate[] {
-									new Coordinate(
-											-99.22,
-											33.75000000000001), // notice that
-																// this gets
-																// tiled as
-																// 33.75
-									new Coordinate(
-											-99.15,
-											33.75000000000001)
-								// notice that this gets tiled as 33.75
-								}),
+				factory.createLineString(new Coordinate[] {
+					new Coordinate(
+							-99.22,
+							33.75000000000001), // notice that
+												// this gets
+												// tiled as
+												// 33.75
+					new Coordinate(
+							-99.15,
+							33.75000000000001)
+				// notice that this gets tiled as 33.75
+						}),
 				new Date(
 						352771200000l),
 				new Date(
 						352771200000l),
 				"g1");
-		final List<ByteArrayId> ids = adapter
-				.encode(
-						entry,
-						model)
-				.getInsertionIds(
-						index)
-				.getCompositeInsertionIds();
+		final List<ByteArrayId> ids = adapter.encode(
+				entry,
+				model).getInsertionIds(
+				index).getCompositeInsertionIds();
 		assertEquals(
 				4,
 				ids.size());
@@ -230,32 +203,27 @@ public class PersistenceEncodingTest
 				NATIVE_FIELD_HANDLER_LIST,
 				COMMON_FIELD_HANDLER_LIST);
 		final GeoObj entry = new GeoObj(
-				factory
-						.createLineString(
-								new Coordinate[] {
-									new Coordinate(
-											43.444,
-											28.232),
-									new Coordinate(
-											43.454,
-											28.242),
-									new Coordinate(
-											43.444,
-											28.252),
-									new Coordinate(
-											43.444,
-											28.232),
-								}),
+				factory.createLineString(new Coordinate[] {
+					new Coordinate(
+							43.444,
+							28.232),
+					new Coordinate(
+							43.454,
+							28.242),
+					new Coordinate(
+							43.444,
+							28.252),
+					new Coordinate(
+							43.444,
+							28.232),
+				}),
 				start,
 				end,
 				"g1");
-		final List<ByteArrayId> ids = adapter
-				.encode(
-						entry,
-						model)
-				.getInsertionIds(
-						index)
-				.getCompositeInsertionIds();
+		final List<ByteArrayId> ids = adapter.encode(
+				entry,
+				model).getInsertionIds(
+				index).getCompositeInsertionIds();
 		assertEquals(
 				18,
 				ids.size());
@@ -269,21 +237,16 @@ public class PersistenceEncodingTest
 				COMMON_FIELD_RANGE_HANDLER_LIST);
 
 		final GeoObj entry = new GeoObj(
-				factory
-						.createPoint(
-								new Coordinate(
-										43.454,
-										28.232)),
+				factory.createPoint(new Coordinate(
+						43.454,
+						28.232)),
 				start,
 				end,
 				"g1");
-		final List<ByteArrayId> ids = adapter
-				.encode(
-						entry,
-						model)
-				.getInsertionIds(
-						index)
-				.getCompositeInsertionIds();
+		final List<ByteArrayId> ids = adapter.encode(
+				entry,
+				model).getInsertionIds(
+				index).getCompositeInsertionIds();
 
 		assertEquals(
 				8,
@@ -297,28 +260,22 @@ public class PersistenceEncodingTest
 				NATIVE_FIELD_RANGE_HANDLER_LIST,
 				COMMON_FIELD_RANGE_HANDLER_LIST);
 		final GeoObj entry = new GeoObj(
-				factory
-						.createLineString(
-								new Coordinate[] {
-									new Coordinate(
-											43.444,
-											28.232),
-									new Coordinate(
-											43.454,
-											28.242)
-								}),
+				factory.createLineString(new Coordinate[] {
+					new Coordinate(
+							43.444,
+							28.232),
+					new Coordinate(
+							43.454,
+							28.242)
+				}),
 				start,
 				end,
 				"g1");
-		final List<ByteArrayId> ids = adapter
-				.encode(
-						entry,
-						model)
-				.getInsertionIds(
-						index)
-				.getCompositeInsertionIds();
-		assertTrue(
-				ids.size() < 100);
+		final List<ByteArrayId> ids = adapter.encode(
+				entry,
+				model).getInsertionIds(
+				index).getCompositeInsertionIds();
+		assertTrue(ids.size() < 100);
 	}
 
 	private static final String GEOM = "myGeo";
@@ -401,27 +358,13 @@ public class PersistenceEncodingTest
 	};
 
 	static {
-		COMMON_FIELD_HANDLER_LIST
-				.add(
-						GEOM_FIELD_HANDLER);
-		COMMON_FIELD_HANDLER_LIST
-				.add(
-						new TimeFieldHandler());
-		COMMON_FIELD_RANGE_HANDLER_LIST
-				.add(
-						GEOM_FIELD_HANDLER);
-		COMMON_FIELD_RANGE_HANDLER_LIST
-				.add(
-						new TimeRangeFieldHandler());
-		NATIVE_FIELD_HANDLER_LIST
-				.add(
-						ID_FIELD_HANDLER);
-		NATIVE_FIELD_HANDLER_LIST
-				.add(
-						END_TIME_FIELD_HANDLER);
-		NATIVE_FIELD_RANGE_HANDLER_LIST
-				.add(
-						ID_FIELD_HANDLER);
+		COMMON_FIELD_HANDLER_LIST.add(GEOM_FIELD_HANDLER);
+		COMMON_FIELD_HANDLER_LIST.add(new TimeFieldHandler());
+		COMMON_FIELD_RANGE_HANDLER_LIST.add(GEOM_FIELD_HANDLER);
+		COMMON_FIELD_RANGE_HANDLER_LIST.add(new TimeRangeFieldHandler());
+		NATIVE_FIELD_HANDLER_LIST.add(ID_FIELD_HANDLER);
+		NATIVE_FIELD_HANDLER_LIST.add(END_TIME_FIELD_HANDLER);
+		NATIVE_FIELD_RANGE_HANDLER_LIST.add(ID_FIELD_HANDLER);
 	}
 
 	public static class GeoObjDataAdapter extends
@@ -454,33 +397,17 @@ public class PersistenceEncodingTest
 		@Override
 		public FieldReader getReader(
 				final String fieldId ) {
-			if (fieldId
-					.equals(
-							GEOM)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								Geometry.class);
+			if (fieldId.equals(GEOM)) {
+				return FieldUtils.getDefaultReaderForClass(Geometry.class);
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								String.class);
+			else if (fieldId.equals(ID)) {
+				return FieldUtils.getDefaultReaderForClass(String.class);
 			}
-			else if (fieldId
-					.equals(
-							START_TIME)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								Date.class);
+			else if (fieldId.equals(START_TIME)) {
+				return FieldUtils.getDefaultReaderForClass(Date.class);
 			}
-			else if (fieldId
-					.equals(
-							END_TIME)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								Date.class);
+			else if (fieldId.equals(END_TIME)) {
+				return FieldUtils.getDefaultReaderForClass(Date.class);
 			}
 			return null;
 		}
@@ -488,33 +415,17 @@ public class PersistenceEncodingTest
 		@Override
 		public FieldWriter getWriter(
 				final String fieldId ) {
-			if (fieldId
-					.equals(
-							GEOM)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								Geometry.class);
+			if (fieldId.equals(GEOM)) {
+				return FieldUtils.getDefaultWriterForClass(Geometry.class);
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								String.class);
+			else if (fieldId.equals(ID)) {
+				return FieldUtils.getDefaultWriterForClass(String.class);
 			}
-			else if (fieldId
-					.equals(
-							START_TIME)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								Date.class);
+			else if (fieldId.equals(START_TIME)) {
+				return FieldUtils.getDefaultWriterForClass(Date.class);
 			}
-			else if (fieldId
-					.equals(
-							END_TIME)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								Date.class);
+			else if (fieldId.equals(END_TIME)) {
+				return FieldUtils.getDefaultWriterForClass(Date.class);
 			}
 			return null;
 		}
@@ -531,19 +442,13 @@ public class PersistenceEncodingTest
 				public void setField(
 						final String id,
 						final Object fieldValue ) {
-					if (id
-							.equals(
-									GEOM)) {
+					if (id.equals(GEOM)) {
 						geom = (Geometry) fieldValue;
 					}
-					else if (id
-							.equals(
-									ID)) {
+					else if (id.equals(ID)) {
 						this.id = (String) fieldValue;
 					}
-					else if (id
-							.equals(
-									START_TIME)) {
+					else if (id.equals(START_TIME)) {
 						stime = (Date) fieldValue;
 					}
 					else {
@@ -554,33 +459,17 @@ public class PersistenceEncodingTest
 				@Override
 				public void setFields(
 						final Map<String, Object> values ) {
-					if (values
-							.containsKey(
-									GEOM)) {
-						geom = (Geometry) values
-								.get(
-										GEOM);
+					if (values.containsKey(GEOM)) {
+						geom = (Geometry) values.get(GEOM);
 					}
-					if (values
-							.containsKey(
-									ID)) {
-						id = (String) values
-								.get(
-										ID);
+					if (values.containsKey(ID)) {
+						id = (String) values.get(ID);
 					}
-					if (values
-							.containsKey(
-									START_TIME)) {
-						stime = (Date) values
-								.get(
-										START_TIME);
+					if (values.containsKey(START_TIME)) {
+						stime = (Date) values.get(START_TIME);
 					}
-					if (values
-							.containsKey(
-									END_TIME)) {
-						etime = (Date) values
-								.get(
-										END_TIME);
+					if (values.containsKey(END_TIME)) {
+						etime = (Date) values.get(END_TIME);
 					}
 				}
 
@@ -602,31 +491,21 @@ public class PersistenceEncodingTest
 				final String fieldId ) {
 			int i = 0;
 			for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-				if (fieldId
-						.equals(
-								dimensionField.getFieldName())) {
+				if (fieldId.equals(dimensionField.getFieldName())) {
 					return i;
 				}
 				i++;
 			}
-			if (fieldId
-					.equals(
-							GEOM)) {
+			if (fieldId.equals(GEOM)) {
 				return i;
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
+			else if (fieldId.equals(ID)) {
 				return i + 1;
 			}
-			else if (fieldId
-					.equals(
-							START_TIME)) {
+			else if (fieldId.equals(START_TIME)) {
 				return i + 2;
 			}
-			else if (fieldId
-					.equals(
-							END_TIME)) {
+			else if (fieldId.equals(END_TIME)) {
 				return i + 3;
 			}
 			return -1;

@@ -1,9 +1,16 @@
 package org.locationtech.geowave.core.store.query.options;
 
+import org.locationtech.geowave.core.index.StringUtils;
+
 public class QuerySingleIndex implements
 		IndexQueryOptions
 {
-	private final String indexName;
+	private String indexName;
+
+	public QuerySingleIndex() {
+		this(
+				null);
+	}
 
 	public QuerySingleIndex(
 			final String indexName ) {
@@ -17,14 +24,21 @@ public class QuerySingleIndex implements
 
 	@Override
 	public byte[] toBinary() {
-		// TODO Auto-generated method stub
-		return null;
+		if ((indexName == null) || indexName.isEmpty()) {
+			return new byte[0];
+		}
+		return StringUtils.stringToBinary(indexName);
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		// TODO Auto-generated method stub
+		if (bytes.length == 0) {
+			indexName = null;
+		}
+		else {
+			indexName = StringUtils.stringFromBinary(bytes);
+		}
 
 	}
 

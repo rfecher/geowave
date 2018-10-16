@@ -40,11 +40,10 @@ public class BasicWriter<RowType, FieldType> implements
 			final String fieldName,
 			final FieldType fieldValue ) {
 		if (visibilityHandler != null) {
-			return visibilityHandler
-					.getVisibility(
-							rowValue,
-							fieldName,
-							fieldValue);
+			return visibilityHandler.getVisibility(
+					rowValue,
+					fieldName,
+					fieldValue);
 		}
 		return new byte[] {};
 	}
@@ -52,9 +51,7 @@ public class BasicWriter<RowType, FieldType> implements
 	@Override
 	public byte[] writeField(
 			final FieldType fieldValue ) {
-		return writer
-				.writeField(
-						fieldValue);
+		return writer.writeField(fieldValue);
 	}
 
 }

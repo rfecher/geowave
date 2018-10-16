@@ -130,94 +130,52 @@ public class SecondaryIndexImpl<T> implements
 			return false;
 		}
 		final SecondaryIndexImpl<?> other = (SecondaryIndexImpl<?>) obj;
-		return getName()
-				.equals(
-						other.getName());
+		return getName().equals(
+				other.getName());
 	}
 
 	@Override
 	public byte[] toBinary() {
-		final byte[] indexStrategyBinary = PersistenceUtils
-				.toBinary(
-						indexStrategy);
+		final byte[] indexStrategyBinary = PersistenceUtils.toBinary(indexStrategy);
 		final byte[] fieldIdBinary = fieldName.getBytes();
-		final byte[] secondaryIndexTypeBinary = StringUtils
-				.stringToBinary(
-						secondaryIndexType.getValue());
+		final byte[] secondaryIndexTypeBinary = StringUtils.stringToBinary(secondaryIndexType.getValue());
 		final List<Persistable> persistables = new ArrayList<>();
 		for (final InternalDataStatistics<T, ?, ?> dataStatistics : associatedStatistics) {
-			persistables
-					.add(
-							dataStatistics);
+			persistables.add(dataStatistics);
 		}
-		final byte[] persistablesBinary = PersistenceUtils
-				.toBinary(
-						persistables);
+		final byte[] persistablesBinary = PersistenceUtils.toBinary(persistables);
 		final boolean handlePartials = ((partialFieldNames != null) && !partialFieldNames.isEmpty());
 		int partialsLength = 0;
 		byte[] partialsBinary = null;
 		if (handlePartials) {
 			int totalLength = 0;
 			for (final String partialFieldName : partialFieldNames) {
-				totalLength += StringUtils
-						.stringToBinary(
-								partialFieldName).length;
+				totalLength += StringUtils.stringToBinary(partialFieldName).length;
 			}
-			final ByteBuffer allPartials = ByteBuffer
-					.allocate(
-							totalLength + (partialFieldNames.size() * 4));
+			final ByteBuffer allPartials = ByteBuffer.allocate(totalLength + (partialFieldNames.size() * 4));
 			for (final String partialFieldName : partialFieldNames) {
-				final byte[] partialFieldBytes = StringUtils
-						.stringToBinary(
-								partialFieldName);
-				allPartials
-						.putInt(
-								partialFieldBytes.length);
-				allPartials
-						.put(
-								partialFieldBytes);
+				final byte[] partialFieldBytes = StringUtils.stringToBinary(partialFieldName);
+				allPartials.putInt(partialFieldBytes.length);
+				allPartials.put(partialFieldBytes);
 			}
 			partialsLength = allPartials.array().length;
 			partialsBinary = allPartials.array();
 		}
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						indexStrategyBinary.length + fieldIdBinary.length + secondaryIndexTypeBinary.length + 20
-								+ persistablesBinary.length + partialsLength + (partialsLength > 0 ? 4 : 0));
-		buf
-				.putInt(
-						indexStrategyBinary.length);
-		buf
-				.putInt(
-						fieldIdBinary.length);
-		buf
-				.putInt(
-						secondaryIndexTypeBinary.length);
-		buf
-				.putInt(
-						persistablesBinary.length);
-		buf
-				.putInt(
-						handlePartials ? partialFieldNames.size() : 0);
-		buf
-				.put(
-						indexStrategyBinary);
-		buf
-				.put(
-						fieldIdBinary);
-		buf
-				.put(
-						secondaryIndexTypeBinary);
-		buf
-				.put(
-						persistablesBinary);
+		final ByteBuffer buf = ByteBuffer.allocate(indexStrategyBinary.length + fieldIdBinary.length
+				+ secondaryIndexTypeBinary.length + 20 + persistablesBinary.length + partialsLength
+				+ (partialsLength > 0 ? 4 : 0));
+		buf.putInt(indexStrategyBinary.length);
+		buf.putInt(fieldIdBinary.length);
+		buf.putInt(secondaryIndexTypeBinary.length);
+		buf.putInt(persistablesBinary.length);
+		buf.putInt(handlePartials ? partialFieldNames.size() : 0);
+		buf.put(indexStrategyBinary);
+		buf.put(fieldIdBinary);
+		buf.put(secondaryIndexTypeBinary);
+		buf.put(persistablesBinary);
 		if (handlePartials) {
-			buf
-					.putInt(
-							partialsLength);
-			buf
-					.put(
-							partialsBinary);
+			buf.putInt(partialsLength);
+			buf.put(partialsBinary);
 		}
 		return buf.array();
 	}
@@ -226,9 +184,7 @@ public class SecondaryIndexImpl<T> implements
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer
-				.wrap(
-						bytes);
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
 		final int indexStrategyLength = buf.getInt();
 		final int fieldNameLength = buf.getInt();
 		final int secondaryIndexTypeLength = buf.getInt();
@@ -237,41 +193,21 @@ public class SecondaryIndexImpl<T> implements
 		final byte[] indexStrategyBinary = new byte[indexStrategyLength];
 		final byte[] fieldNameBinary = new byte[fieldNameLength];
 		final byte[] secondaryIndexTypeBinary = new byte[secondaryIndexTypeLength];
-		buf
-				.get(
-						indexStrategyBinary);
-		buf
-				.get(
-						fieldNameBinary);
-		buf
-				.get(
-						secondaryIndexTypeBinary);
+		buf.get(indexStrategyBinary);
+		buf.get(fieldNameBinary);
+		buf.get(secondaryIndexTypeBinary);
 
-		indexStrategy = (FieldIndexStrategy<?, ?>) PersistenceUtils
-				.fromBinary(
-						indexStrategyBinary);
+		indexStrategy = (FieldIndexStrategy<?, ?>) PersistenceUtils.fromBinary(indexStrategyBinary);
 
-		fieldName = StringUtils
-				.stringFromBinary(
-						fieldNameBinary);
+		fieldName = StringUtils.stringFromBinary(fieldNameBinary);
 
-		secondaryIndexType = SecondaryIndexType
-				.valueOf(
-						StringUtils
-								.stringFromBinary(
-										secondaryIndexTypeBinary));
+		secondaryIndexType = SecondaryIndexType.valueOf(StringUtils.stringFromBinary(secondaryIndexTypeBinary));
 
 		final byte[] persistablesBinary = new byte[persistablesBinaryLength];
-		buf
-				.get(
-						persistablesBinary);
-		final List<Persistable> persistables = PersistenceUtils
-				.fromBinaryAsList(
-						persistablesBinary);
+		buf.get(persistablesBinary);
+		final List<Persistable> persistables = PersistenceUtils.fromBinaryAsList(persistablesBinary);
 		for (final Persistable persistable : persistables) {
-			associatedStatistics
-					.add(
-							(InternalDataStatistics<T, ?, ?>) persistable);
+			associatedStatistics.add((InternalDataStatistics<T, ?, ?>) persistable);
 		}
 		secondaryIndexName = indexStrategy.getId() + "_" + secondaryIndexType.getValue();
 
@@ -279,17 +215,11 @@ public class SecondaryIndexImpl<T> implements
 			partialFieldNames = new ArrayList<>();
 			final int partialsLength = buf.getInt();
 			final byte[] partialsBinary = new byte[partialsLength];
-			final ByteBuffer partialsBB = ByteBuffer
-					.wrap(
-							partialsBinary);
+			final ByteBuffer partialsBB = ByteBuffer.wrap(partialsBinary);
 			for (int i = 0; i < numPartials; i++) {
 				final int currPartialLength = partialsBB.getInt();
 				final byte[] currPartialBinary = new byte[currPartialLength];
-				partialFieldNames
-						.add(
-								StringUtils
-										.stringFromBinary(
-												currPartialBinary));
+				partialFieldNames.add(StringUtils.stringFromBinary(currPartialBinary));
 			}
 		}
 	}

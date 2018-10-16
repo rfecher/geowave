@@ -26,7 +26,7 @@ import org.locationtech.geowave.core.store.index.CommonIndexModel;
  * 
  */
 public class DedupeFilter implements
-		DistributableQueryFilter
+		QueryFilter
 {
 	private final Map<Short, Set<ByteArrayId>> adapterIdToVisitedDataIdMap;
 

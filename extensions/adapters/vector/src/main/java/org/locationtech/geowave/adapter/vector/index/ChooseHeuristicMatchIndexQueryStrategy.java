@@ -63,18 +63,11 @@ public class ChooseHeuristicMatchIndexQueryStrategy implements
 					if (nextIdx.getIndexStrategy().getOrderedDimensionDefinitions().length == 0) {
 						continue;
 					}
-					final List<MultiDimensionalNumericData> queryRanges = query
-							.getIndexConstraints(
-									nextIdx);
-					final int currentDimensionCount = nextIdx
-							.getIndexStrategy()
-							.getOrderedDimensionDefinitions().length;
-					if (IndexUtils
-							.isFullTableScan(
-									queryRanges)
-							|| !queryRangeDimensionsMatch(
-									currentDimensionCount,
-									queryRanges)) {
+					final List<MultiDimensionalNumericData> queryRanges = query.getIndexConstraints(nextIdx);
+					final int currentDimensionCount = nextIdx.getIndexStrategy().getOrderedDimensionDefinitions().length;
+					if (IndexUtils.isFullTableScan(queryRanges) || !queryRangeDimensionsMatch(
+							currentDimensionCount,
+							queryRanges)) {
 						// keep this is as a default in case all indices
 						// result in a full table scan
 						if (bestIdx == null) {
@@ -91,10 +84,9 @@ public class ChooseHeuristicMatchIndexQueryStrategy implements
 									dataRangePerDimension[d] = qr.getMaxValuesPerDimension()[d]
 											- qr.getMinValuesPerDimension()[d];
 								}
-								currentBitsUsed += IndexUtils
-										.getDimensionalBitsUsed(
-												nextIdx.getIndexStrategy(),
-												dataRangePerDimension);
+								currentBitsUsed += IndexUtils.getDimensionalBitsUsed(
+										nextIdx.getIndexStrategy(),
+										dataRangePerDimension);
 							}
 
 							if ((currentDimensionCount > bestIndexDimensionCount)

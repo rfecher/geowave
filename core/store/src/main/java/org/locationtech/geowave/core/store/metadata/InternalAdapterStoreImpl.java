@@ -48,9 +48,7 @@ import com.google.common.collect.Iterators;
 public class InternalAdapterStoreImpl implements
 		InternalAdapterStore
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					InternalAdapterStoreImpl.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(InternalAdapterStoreImpl.class);
 	private static final Object MUTEX = new Object();
 	protected final BiMap<String, Short> cache = HashBiMap.create();
 	private static final byte[] INTERNAL_TO_EXTERNAL_ID = new byte[] {
@@ -74,24 +72,19 @@ public class InternalAdapterStoreImpl implements
 	private MetadataReader getReader(
 			final boolean warnIfNotExists ) {
 		try {
-			if (!operations
-					.metadataExists(
-							MetadataType.INTERNAL_ADAPTER)) {
+			if (!operations.metadataExists(MetadataType.INTERNAL_ADAPTER)) {
 				return null;
 			}
 		}
 		catch (final IOException e1) {
 			if (warnIfNotExists) {
-				LOGGER
-						.error(
-								"Unable to check for existence of metadata to get object",
-								e1);
+				LOGGER.error(
+						"Unable to check for existence of metadata to get object",
+						e1);
 			}
 			return null;
 		}
-		return operations
-				.createMetadataReader(
-						MetadataType.INTERNAL_ADAPTER);
+		return operations.createMetadataReader(MetadataType.INTERNAL_ADAPTER);
 	}
 
 	@Override
@@ -105,46 +98,32 @@ public class InternalAdapterStoreImpl implements
 	private String internalGetTypeName(
 			final short adapterId,
 			final boolean warnIfNotExists ) {
-		String typeName = cache
-				.inverse()
-				.get(
-						adapterId);
+		String typeName = cache.inverse().get(
+				adapterId);
 		if (typeName != null) {
 			return typeName;
 		}
-		final MetadataReader reader = getReader(
-				true);
+		final MetadataReader reader = getReader(true);
 		if (reader == null) {
 			if (warnIfNotExists) {
-				LOGGER
-						.warn(
-								"Adapter ID '" + adapterId + "' not found. '"
-										+ AbstractGeoWavePersistence.METADATA_TABLE + "' table does not exist");
+				LOGGER.warn("Adapter ID '" + adapterId + "' not found. '" + AbstractGeoWavePersistence.METADATA_TABLE
+						+ "' table does not exist");
 			}
 			return null;
 		}
-		try (CloseableIterator<GeoWaveMetadata> it = reader
-				.query(
-						new MetadataQuery(
-								ByteArrayUtils
-										.shortToByteArray(
-												adapterId),
-								INTERNAL_TO_EXTERNAL_ID))) {
+		try (CloseableIterator<GeoWaveMetadata> it = reader.query(new MetadataQuery(
+				ByteArrayUtils.shortToByteArray(adapterId),
+				INTERNAL_TO_EXTERNAL_ID))) {
 			if (!it.hasNext()) {
 				if (warnIfNotExists) {
-					LOGGER
-							.warn(
-									"Internal Adapter ID '" + adapterId + "' not found");
+					LOGGER.warn("Internal Adapter ID '" + adapterId + "' not found");
 				}
 				return null;
 			}
-			typeName = StringUtils
-					.stringFromBinary(
-							it.next().getValue());
-			cache
-					.put(
-							typeName,
-							adapterId);
+			typeName = StringUtils.stringFromBinary(it.next().getValue());
+			cache.put(
+					typeName,
+					adapterId);
 			return typeName;
 		}
 	}
@@ -160,49 +139,34 @@ public class InternalAdapterStoreImpl implements
 	public Short internalGetAdapterId(
 			final String typeName,
 			final boolean warnIfNotExist ) {
-		final Short id = cache
-				.get(
-						typeName);
+		final Short id = cache.get(typeName);
 		if (id != null) {
 			return id;
 		}
 
-		final MetadataReader reader = getReader(
-				warnIfNotExist);
+		final MetadataReader reader = getReader(warnIfNotExist);
 		if (reader == null) {
 			if (warnIfNotExist) {
-				LOGGER
-						.warn(
-								"Adapter '" + typeName + "' not found. '" + AbstractGeoWavePersistence.METADATA_TABLE
-										+ "' table does not exist");
-				getReader(
-						warnIfNotExist);
+				LOGGER.warn("Adapter '" + typeName + "' not found. '" + AbstractGeoWavePersistence.METADATA_TABLE
+						+ "' table does not exist");
+				getReader(warnIfNotExist);
 
 			}
 			return null;
 		}
-		try (CloseableIterator<GeoWaveMetadata> it = reader
-				.query(
-						new MetadataQuery(
-								StringUtils
-										.stringToBinary(
-												typeName),
-								EXTERNAL_TO_INTERNAL_ID))) {
+		try (CloseableIterator<GeoWaveMetadata> it = reader.query(new MetadataQuery(
+				StringUtils.stringToBinary(typeName),
+				EXTERNAL_TO_INTERNAL_ID))) {
 			if (!it.hasNext()) {
 				if (warnIfNotExist) {
-					LOGGER
-							.warn(
-									"Adapter '" + typeName + "' not found");
+					LOGGER.warn("Adapter '" + typeName + "' not found");
 				}
 				return null;
 			}
-			final short adapterId = ByteArrayUtils
-					.byteArrayToShort(
-							it.next().getValue());
-			cache
-					.put(
-							typeName,
-							adapterId);
+			final short adapterId = ByteArrayUtils.byteArrayToShort(it.next().getValue());
+			cache.put(
+					typeName,
+					adapterId);
 			return adapterId;
 		}
 	}
@@ -210,10 +174,7 @@ public class InternalAdapterStoreImpl implements
 	public static short getInitialAdapterId(
 			final String typeName ) {
 		final int shortRange = Short.MAX_VALUE - Short.MIN_VALUE;
-		final short adapterId = (short) (Math
-				.abs(
-						(typeName.hashCode() % shortRange))
-				- Short.MIN_VALUE);
+		final short adapterId = (short) (Math.abs((typeName.hashCode() % shortRange)) - Short.MIN_VALUE);
 		return adapterId;
 	}
 
@@ -239,42 +200,29 @@ public class InternalAdapterStoreImpl implements
 			if (adapterId != null) {
 				return adapterId;
 			}
-			adapterId = getInitialAdapterId(
-					typeName);
-			while (internalAdapterIdExists(
-					adapterId)) {
+			adapterId = getInitialAdapterId(typeName);
+			while (internalAdapterIdExists(adapterId)) {
 				adapterId++;
 			}
-			try (final MetadataWriter writer = operations
-					.createMetadataWriter(
-							MetadataType.INTERNAL_ADAPTER)) {
+			try (final MetadataWriter writer = operations.createMetadataWriter(MetadataType.INTERNAL_ADAPTER)) {
 				if (writer != null) {
-					final byte[] adapterIdBytes = ByteArrayUtils
-							.shortToByteArray(
-									adapterId);
-					writer
-							.write(
-									new GeoWaveMetadata(
-											StringUtils
-													.stringToBinary(
-															typeName),
-											EXTERNAL_TO_INTERNAL_ID,
-											null,
-											adapterIdBytes));
-					writer
-							.write(
-									new GeoWaveMetadata(
-											adapterIdBytes,
-											INTERNAL_TO_EXTERNAL_ID,
-											null,
-											typeName.getBytes()));
+					final byte[] adapterIdBytes = ByteArrayUtils.shortToByteArray(adapterId);
+					writer.write(new GeoWaveMetadata(
+							StringUtils.stringToBinary(typeName),
+							EXTERNAL_TO_INTERNAL_ID,
+							null,
+							adapterIdBytes));
+					writer.write(new GeoWaveMetadata(
+							adapterIdBytes,
+							INTERNAL_TO_EXTERNAL_ID,
+							null,
+							typeName.getBytes()));
 				}
 			}
 			catch (final Exception e) {
-				LOGGER
-						.warn(
-								"Unable to close metadata writer",
-								e);
+				LOGGER.warn(
+						"Unable to close metadata writer",
+						e);
 			}
 			return adapterId;
 		}
@@ -283,8 +231,7 @@ public class InternalAdapterStoreImpl implements
 	@Override
 	public boolean remove(
 			final String typeName ) {
-		final Short internalAdapterId = getAdapterId(
-				typeName);
+		final Short internalAdapterId = getAdapterId(typeName);
 		return delete(
 				typeName,
 				internalAdapterId);
@@ -295,51 +242,43 @@ public class InternalAdapterStoreImpl implements
 			final Short internalAdapterId ) {
 		boolean externalDeleted = false;
 		if (typeName != null) {
-			externalDeleted = AbstractGeoWavePersistence
-					.deleteObjects(
-							new ByteArrayId(
-									typeName),
-							EXTERNAL_TO_INTERNAL_BYTEARRAYID,
-							operations,
-							MetadataType.INTERNAL_ADAPTER,
-							null);
-			cache
-					.remove(
-							typeName);
+			externalDeleted = AbstractGeoWavePersistence.deleteObjects(
+					new ByteArrayId(
+							typeName),
+					EXTERNAL_TO_INTERNAL_BYTEARRAYID,
+					operations,
+					MetadataType.INTERNAL_ADAPTER,
+					null);
+			cache.remove(typeName);
 		}
 		boolean internalDeleted = false;
 		if (internalAdapterId != null) {
-			internalDeleted = AbstractGeoWavePersistence
-					.deleteObjects(
-							new ByteArrayId(
-									ByteArrayUtils
-											.shortToByteArray(
-													internalAdapterId)),
-							INTERNAL_TO_EXTERNAL_BYTEARRAYID,
-							operations,
-							MetadataType.INTERNAL_ADAPTER,
-							null);
+			internalDeleted = AbstractGeoWavePersistence.deleteObjects(
+					new ByteArrayId(
+							ByteArrayUtils.shortToByteArray(internalAdapterId)),
+					INTERNAL_TO_EXTERNAL_BYTEARRAYID,
+					operations,
+					MetadataType.INTERNAL_ADAPTER,
+					null);
 		}
 		return internalDeleted && externalDeleted;
 	}
 
 	@Override
 	public void removeAll() {
-		AbstractGeoWavePersistence
-				.deleteObjects(
-						null,
-						null,
-						operations,
-						MetadataType.INTERNAL_ADAPTER,
-						null);
+		AbstractGeoWavePersistence.deleteObjects(
+				null,
+				null,
+				operations,
+				MetadataType.INTERNAL_ADAPTER,
+				null);
 		cache.clear();
 	}
 
 	@Override
 	public boolean remove(
 			final short adapterId ) {
-		final String typeName = getTypeName(
-				adapterId);
+		final String typeName = getTypeName(adapterId);
 		return delete(
 				typeName,
 				adapterId);

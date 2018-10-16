@@ -30,22 +30,14 @@ public class FeatureGeometryUtils
 			final String geomField ) {
 		final DataStatisticsStore statisticsStore = dataStorePlugin.createDataStatisticsStore();
 		final InternalAdapterStore internalAdapterStore = dataStorePlugin.createInternalAdapterStore();
-		final short adapterId = internalAdapterStore
-				.getAdapterId(
-						typeName);
-		final StatisticsQuery<Envelope> query = VectorStatisticsQueryBuilder
-				.newBuilder()
-				.factory()
-				.bbox()
-				.fieldName(
-						geomField)
-				.build();
-		try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> geoStatIt = statisticsStore
-				.getDataStatistics(
-						adapterId,
-						query.getExtendedId(),
-						query.getStatsType(),
-						query.getAuthorizations())) {
+		final short adapterId = internalAdapterStore.getAdapterId(typeName);
+		final StatisticsQuery<Envelope> query = VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
+				geomField).build();
+		try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> geoStatIt = statisticsStore.getDataStatistics(
+				adapterId,
+				query.getExtendedId(),
+				query.getStatsType(),
+				query.getAuthorizations())) {
 			if (geoStatIt.hasNext()) {
 				final InternalDataStatistics<?, ?, ?> geoStat = geoStatIt.next();
 				if (geoStat != null) {

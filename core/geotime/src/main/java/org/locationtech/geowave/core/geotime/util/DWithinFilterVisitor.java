@@ -26,9 +26,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class DWithinFilterVisitor extends
 		DuplicatingFilterVisitor
 {
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					DWithinFilterVisitor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DWithinFilterVisitor.class);
 
 	/**
 	 * DWithin spatial operator will find out if a feature in a datalayer is
@@ -43,16 +41,13 @@ public class DWithinFilterVisitor extends
 			if ((filter.getExpression1() instanceof PropertyName) && (filter.getExpression2() instanceof Literal)) {
 				Pair<Geometry, Double> geometryAndDegrees;
 
-				geometryAndDegrees = GeometryUtils
-						.buffer(
-								GeometryUtils.getDefaultCRS(),
-								filter
-										.getExpression2()
-										.evaluate(
-												extraData,
-												Geometry.class),
-								filter.getDistanceUnits(),
-								filter.getDistance());
+				geometryAndDegrees = GeometryUtils.buffer(
+						GeometryUtils.getDefaultCRS(),
+						filter.getExpression2().evaluate(
+								extraData,
+								Geometry.class),
+						filter.getDistanceUnits(),
+						filter.getDistance());
 
 				newWithImpl = new IntersectsImpl(
 						filter.getExpression1(),
@@ -60,18 +55,14 @@ public class DWithinFilterVisitor extends
 								geometryAndDegrees.getLeft()));
 
 			}
-			else if ((filter.getExpression2() instanceof PropertyName)
-					&& (filter.getExpression1() instanceof Literal)) {
-				final Pair<Geometry, Double> geometryAndDegrees = GeometryUtils
-						.buffer(
-								GeometryUtils.getDefaultCRS(),
-								filter
-										.getExpression1()
-										.evaluate(
-												extraData,
-												Geometry.class),
-								filter.getDistanceUnits(),
-								filter.getDistance());
+			else if ((filter.getExpression2() instanceof PropertyName) && (filter.getExpression1() instanceof Literal)) {
+				final Pair<Geometry, Double> geometryAndDegrees = GeometryUtils.buffer(
+						GeometryUtils.getDefaultCRS(),
+						filter.getExpression1().evaluate(
+								extraData,
+								Geometry.class),
+						filter.getDistanceUnits(),
+						filter.getDistance());
 				newWithImpl = new IntersectsImpl(
 						new LiteralExpressionImpl(
 								geometryAndDegrees.getLeft()),
@@ -79,10 +70,9 @@ public class DWithinFilterVisitor extends
 			}
 		}
 		catch (final TransformException e) {
-			LOGGER
-					.error(
-							"Cannot transform geoemetry to support provide distance",
-							e);
+			LOGGER.error(
+					"Cannot transform geoemetry to support provide distance",
+					e);
 			return super.visit(
 					filter,
 					extraData);

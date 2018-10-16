@@ -24,22 +24,20 @@ import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.TypeConstraintQuery;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ExplicitCQLQuery implements
-		DistributableQueryConstraints,
+		QueryConstraints,
 		TypeConstraintQuery
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					ExplicitCQLQuery.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitCQLQuery.class);
 	private QueryConstraints baseQuery;
 	private CQLQueryFilter filter;
 	private Filter cqlFilter;
@@ -71,9 +69,7 @@ public class ExplicitCQLQuery implements
 		if (filter != null) {
 			queryFilters = new ArrayList<>(
 					queryFilters);
-			queryFilters
-					.add(
-							filter);
+			queryFilters.add(filter);
 		}
 		return queryFilters;
 	}
@@ -82,9 +78,7 @@ public class ExplicitCQLQuery implements
 	public List<MultiDimensionalNumericData> getIndexConstraints(
 			final Index index ) {
 		if (baseQuery != null) {
-			return baseQuery
-					.getIndexConstraints(
-							index);
+			return baseQuery.getIndexConstraints(index);
 		}
 		return Collections.emptyList();
 	}
@@ -93,14 +87,12 @@ public class ExplicitCQLQuery implements
 	public byte[] toBinary() {
 		byte[] baseQueryBytes;
 		if (baseQuery != null) {
-			if (!(baseQuery instanceof DistributableQueryConstraints)) {
+			if (!(baseQuery instanceof QueryConstraints)) {
 				throw new IllegalArgumentException(
 						"Cannot distribute CQL query with base query of type '" + baseQuery.getClass() + "'");
 			}
 			else {
-				baseQueryBytes = PersistenceUtils
-						.toBinary(
-								(DistributableQueryConstraints) baseQuery);
+				baseQueryBytes = PersistenceUtils.toBinary((QueryConstraints) baseQuery);
 			}
 		}
 		else {
@@ -112,56 +104,38 @@ public class ExplicitCQLQuery implements
 			filterBytes = filter.toBinary();
 		}
 		else {
-			LOGGER
-					.warn(
-							"Filter is null");
+			LOGGER.warn("Filter is null");
 			filterBytes = new byte[] {};
 		}
 
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						filterBytes.length + baseQueryBytes.length + 4);
-		buf
-				.putInt(
-						filterBytes.length);
-		buf
-				.put(
-						filterBytes);
-		buf
-				.put(
-						baseQueryBytes);
+		final ByteBuffer buf = ByteBuffer.allocate(filterBytes.length + baseQueryBytes.length + 4);
+		buf.putInt(filterBytes.length);
+		buf.put(filterBytes);
+		buf.put(baseQueryBytes);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer
-				.wrap(
-						bytes);
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
 		final int filterBytesLength = buf.getInt();
 		final int baseQueryBytesLength = bytes.length - filterBytesLength - 4;
 		if (filterBytesLength > 0) {
 			final byte[] filterBytes = new byte[filterBytesLength];
 
 			filter = new CQLQueryFilter();
-			filter
-					.fromBinary(
-							filterBytes);
+			filter.fromBinary(filterBytes);
 		}
 		else {
-			LOGGER
-					.warn(
-							"CQL filter is empty bytes");
+			LOGGER.warn("CQL filter is empty bytes");
 			filter = null;
 		}
 		if (baseQueryBytesLength > 0) {
 			final byte[] baseQueryBytes = new byte[baseQueryBytesLength];
 
 			try {
-				baseQuery = (QueryConstraints) PersistenceUtils
-						.fromBinary(
-								baseQueryBytes);
+				baseQuery = (QueryConstraints) PersistenceUtils.fromBinary(baseQueryBytes);
 			}
 			catch (final Exception e) {
 				throw new IllegalArgumentException(
@@ -174,30 +148,22 @@ public class ExplicitCQLQuery implements
 		}
 	}
 
-	@Override
 	public List<ByteArrayRange> getSecondaryIndexConstraints(
 			final SecondaryIndexImpl<?> index ) {
 		final PropertyFilterVisitor visitor = new PropertyFilterVisitor();
-		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter
-				.accept(
-						visitor,
-						null);
-		return constraints
-				.getRangesFor(
-						index);
+		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter.accept(
+				visitor,
+				null);
+		return constraints.getRangesFor(index);
 	}
 
-	@Override
-	public List<DistributableQueryFilter> getSecondaryQueryFilter(
+	public List<QueryFilter> getSecondaryQueryFilter(
 			final SecondaryIndexImpl<?> index ) {
 		final PropertyFilterVisitor visitor = new PropertyFilterVisitor();
-		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter
-				.accept(
-						visitor,
-						null);
-		return constraints
-				.getFiltersFor(
-						index);
+		final PropertyConstraintSet constraints = (PropertyConstraintSet) cqlFilter.accept(
+				visitor,
+				null);
+		return constraints.getFiltersFor(index);
 	}
 
 	@Override

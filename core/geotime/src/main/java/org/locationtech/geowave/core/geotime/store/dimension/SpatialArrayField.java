@@ -54,8 +54,7 @@ public class SpatialArrayField extends
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		super.fromBinary(
-				bytes);
+		super.fromBinary(bytes);
 		reader = new ArrayWrapperReader<GeometryWrapper>(
 				new VariableSizeObjectArrayReader(
 						elementField.getReader()));

@@ -48,16 +48,13 @@ public class JobContextAdapterIndexMappingStore implements
 				internalAdapterId);
 		if (adapter == null) {
 			// then try to get it from the persistent store
-			adapter = persistentAdapterIndexMappingStore
-					.getIndicesForAdapter(
-							internalAdapterId);
+			adapter = persistentAdapterIndexMappingStore.getIndicesForAdapter(internalAdapterId);
 		}
 
 		if (adapter != null) {
-			adapterCache
-					.put(
-							internalAdapterId,
-							adapter);
+			adapterCache.put(
+					internalAdapterId,
+					adapter);
 		}
 		return adapter;
 	}
@@ -70,32 +67,27 @@ public class JobContextAdapterIndexMappingStore implements
 	protected static AdapterToIndexMapping getAdapterToIndexMapping(
 			final JobContext context,
 			final short internalAdapterId ) {
-		return GeoWaveConfiguratorBase
-				.getAdapterToIndexMapping(
-						CLASS,
-						context,
-						internalAdapterId);
+		return GeoWaveConfiguratorBase.getAdapterToIndexMapping(
+				CLASS,
+				context,
+				internalAdapterId);
 	}
 
 	public static void addAdapterToIndexMapping(
 			final Configuration configuration,
 			final AdapterToIndexMapping adapter ) {
-		GeoWaveConfiguratorBase
-				.addAdapterToIndexMapping(
-						CLASS,
-						configuration,
-						adapter);
+		GeoWaveConfiguratorBase.addAdapterToIndexMapping(
+				CLASS,
+				configuration,
+				adapter);
 	}
 
 	@Override
 	public AdapterToIndexMapping getIndicesForAdapter(
 			final short adapterId ) {
-		AdapterToIndexMapping adapter = adapterCache
-				.get(
-						adapterId);
+		AdapterToIndexMapping adapter = adapterCache.get(adapterId);
 		if (adapter == null) {
-			adapter = getIndicesForAdapterInternal(
-					adapterId);
+			adapter = getIndicesForAdapterInternal(adapterId);
 		}
 		return adapter;
 	}
@@ -103,18 +95,15 @@ public class JobContextAdapterIndexMappingStore implements
 	@Override
 	public void addAdapterIndexMapping(
 			final AdapterToIndexMapping mapping ) {
-		adapterCache
-				.put(
-						mapping.getAdapterId(),
-						mapping);
+		adapterCache.put(
+				mapping.getAdapterId(),
+				mapping);
 	}
 
 	@Override
 	public void remove(
 			final short internalAdapterId ) {
-		adapterCache
-				.remove(
-						internalAdapterId);
+		adapterCache.remove(internalAdapterId);
 	}
 
 }

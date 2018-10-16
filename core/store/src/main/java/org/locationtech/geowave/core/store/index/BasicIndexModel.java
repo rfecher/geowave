@@ -44,8 +44,7 @@ public class BasicIndexModel implements
 
 	public BasicIndexModel(
 			final NumericDimensionField<?>[] dimensions ) {
-		init(
-				dimensions);
+		init(dimensions);
 	}
 
 	public void init(
@@ -53,13 +52,10 @@ public class BasicIndexModel implements
 		this.dimensions = dimensions;
 		fieldIdToPeristenceMap = new HashMap<>();
 		for (final NumericDimensionField<?> d : dimensions) {
-			if (!fieldIdToPeristenceMap
-					.containsKey(
-							d.getFieldName())) {
-				fieldIdToPeristenceMap
-						.put(
-								d.getFieldName(),
-								d);
+			if (!fieldIdToPeristenceMap.containsKey(d.getFieldName())) {
+				fieldIdToPeristenceMap.put(
+						d.getFieldName(),
+						d);
 			}
 		}
 	}
@@ -68,9 +64,7 @@ public class BasicIndexModel implements
 	@Override
 	public FieldWriter<Object, CommonIndexValue> getWriter(
 			final String fieldName ) {
-		final NumericDimensionField<?> dimension = fieldIdToPeristenceMap
-				.get(
-						fieldName);
+		final NumericDimensionField<?> dimension = fieldIdToPeristenceMap.get(fieldName);
 		if (dimension != null) {
 			return (FieldWriter<Object, CommonIndexValue>) dimension.getWriter();
 		}
@@ -81,9 +75,7 @@ public class BasicIndexModel implements
 	@Override
 	public FieldReader<CommonIndexValue> getReader(
 			final String fieldName ) {
-		final NumericDimensionField<?> dimension = fieldIdToPeristenceMap
-				.get(
-						fieldName);
+		final NumericDimensionField<?> dimension = fieldIdToPeristenceMap.get(fieldName);
 		if (dimension != null) {
 			return (FieldReader<CommonIndexValue>) dimension.getReader();
 		}
@@ -101,9 +93,7 @@ public class BasicIndexModel implements
 		int result = 1;
 		final String className = getClass().getName();
 		result = (prime * result) + ((className == null) ? 0 : className.hashCode());
-		result = (prime * result) + Arrays
-				.hashCode(
-						dimensions);
+		result = (prime * result) + Arrays.hashCode(dimensions);
 		return result;
 	}
 
@@ -120,10 +110,9 @@ public class BasicIndexModel implements
 			return false;
 		}
 		final BasicIndexModel other = (BasicIndexModel) obj;
-		return Arrays
-				.equals(
-						dimensions,
-						other.dimensions);
+		return Arrays.equals(
+				dimensions,
+				other.dimensions);
 	}
 
 	@Override
@@ -132,27 +121,15 @@ public class BasicIndexModel implements
 		final List<byte[]> dimensionBinaries = new ArrayList<>(
 				dimensions.length);
 		for (final NumericDimensionField<?> dimension : dimensions) {
-			final byte[] dimensionBinary = PersistenceUtils
-					.toBinary(
-							dimension);
+			final byte[] dimensionBinary = PersistenceUtils.toBinary(dimension);
 			byteBufferLength += (4 + dimensionBinary.length);
-			dimensionBinaries
-					.add(
-							dimensionBinary);
+			dimensionBinaries.add(dimensionBinary);
 		}
-		final ByteBuffer buf = ByteBuffer
-				.allocate(
-						byteBufferLength);
-		buf
-				.putInt(
-						dimensions.length);
+		final ByteBuffer buf = ByteBuffer.allocate(byteBufferLength);
+		buf.putInt(dimensions.length);
 		for (final byte[] dimensionBinary : dimensionBinaries) {
-			buf
-					.putInt(
-							dimensionBinary.length);
-			buf
-					.put(
-							dimensionBinary);
+			buf.putInt(dimensionBinary.length);
+			buf.put(dimensionBinary);
 		}
 		return buf.array();
 	}
@@ -160,30 +137,21 @@ public class BasicIndexModel implements
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = ByteBuffer
-				.wrap(
-						bytes);
+		final ByteBuffer buf = ByteBuffer.wrap(bytes);
 		final int numDimensions = buf.getInt();
 		dimensions = new NumericDimensionField[numDimensions];
 		for (int i = 0; i < numDimensions; i++) {
 			final byte[] dim = new byte[buf.getInt()];
-			buf
-					.get(
-							dim);
-			dimensions[i] = (NumericDimensionField<?>) PersistenceUtils
-					.fromBinary(
-							dim);
+			buf.get(dim);
+			dimensions[i] = (NumericDimensionField<?>) PersistenceUtils.fromBinary(dim);
 		}
-		init(
-				dimensions);
+		init(dimensions);
 	}
 
 	@Override
 	public String getId() {
 		if (id == null) {
-			id = StringUtils
-					.intToString(
-							hashCode());
+			id = StringUtils.intToString(hashCode());
 		}
 		return id;
 	}

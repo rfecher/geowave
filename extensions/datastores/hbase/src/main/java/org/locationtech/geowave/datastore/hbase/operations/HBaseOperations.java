@@ -94,7 +94,7 @@ import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregation;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.server.BasicOptionProvider;
 import org.locationtech.geowave.core.store.server.RowMergingAdapterOptionProvider;
 import org.locationtech.geowave.core.store.server.ServerOpHelper;
@@ -1157,7 +1157,7 @@ public class HBaseOperations implements
 					.newBuilder();
 			requestBuilder.setAggregation(aggregationBuilder.build());
 			if (readerParams.getFilter() != null) {
-				final List<DistributableQueryFilter> distFilters = new ArrayList();
+				final List<QueryFilter> distFilters = new ArrayList();
 				distFilters.add(readerParams.getFilter());
 
 				final byte[] filterBytes = URLClassloaderUtils.toBinary(distFilters);
@@ -1339,7 +1339,7 @@ public class HBaseOperations implements
 			requestBuilder.setRowBatchSize(DELETE_BATCH_SIZE);
 
 			if (readerParams.getFilter() != null) {
-				final List<DistributableQueryFilter> distFilters = new ArrayList();
+				final List<QueryFilter> distFilters = new ArrayList();
 				distFilters.add(readerParams.getFilter());
 
 				final byte[] filterBytes = PersistenceUtils.toBinary(distFilters);

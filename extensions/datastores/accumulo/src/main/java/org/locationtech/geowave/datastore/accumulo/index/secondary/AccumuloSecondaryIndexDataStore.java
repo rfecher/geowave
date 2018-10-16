@@ -10,42 +10,30 @@
  ******************************************************************************/
 package org.locationtech.geowave.datastore.accumulo.index.secondary;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Range;
-import org.apache.accumulo.core.iterators.user.WholeRowIterator;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.io.Text;
-import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.index.BaseSecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
-import org.locationtech.geowave.core.store.index.SecondaryIndexType;
-import org.locationtech.geowave.core.store.index.SecondaryIndexUtils;
 import org.locationtech.geowave.core.store.operations.RowWriter;
-import org.locationtech.geowave.core.store.query.constraints.DistributableQueryConstraints;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.datastore.accumulo.cli.config.AccumuloOptions;
 import org.locationtech.geowave.datastore.accumulo.operations.AccumuloOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Iterators;
 
 public class AccumuloSecondaryIndexDataStore extends
 		BaseSecondaryIndexDataStore
@@ -185,94 +173,96 @@ public class AccumuloSecondaryIndexDataStore extends
 			final String indexedAttributeFieldName,
 			final InternalDataAdapter<T> adapter,
 			final Index primaryIndex,
-			final DistributableQueryConstraints query,
+			final QueryConstraints query,
 			final String... authorizations ) {
-		final Scanner scanner = getScanner(
-				secondaryIndex.getName(),
-				authorizations);
-
-		if (scanner != null) {
-			scanner
-					.fetchColumnFamily(
-							new Text(
-									SecondaryIndexUtils
-											.constructColumnFamily(
-													adapter.getTypeName(),
-													indexedAttributeFieldName)));
-			final Collection<Range> ranges = getScanRanges(
-					query
-							.getSecondaryIndexConstraints(
-									secondaryIndex));
-			for (final Range range : ranges) {
-				scanner
-						.setRange(
-								range);
-			}
-
-			if (!secondaryIndex
-					.getSecondaryIndexType()
-					.equals(
-							SecondaryIndexType.JOIN)) {
-				final IteratorSetting iteratorSettings = new IteratorSetting(
-						10,
-						"GEOWAVE_WHOLE_ROW_ITERATOR",
-						WholeRowIterator.class);
-				scanner
-						.addScanIterator(
-								iteratorSettings);
-				return new AccumuloSecondaryIndexEntryIteratorWrapper<>(
-						scanner,
-						adapter,
-						primaryIndex);
-			}
-			else {
-				final List<CloseableIterator<Object>> allResults = new ArrayList<>();
-				try (final CloseableIterator<Pair<String, ByteArrayId>> joinEntryIterator = new AccumuloSecondaryIndexJoinEntryIteratorWrapper<>(
-						scanner,
-						adapter)) {
-					while (joinEntryIterator.hasNext()) {
-						final Pair<String, ByteArrayId> entry = joinEntryIterator.next();
-						final String primaryIndexName = entry.getLeft();
-						final ByteArrayId primaryIndexRowId = entry.getRight();
-						final QueryBuilder<Object, ?> bldr = QueryBuilder.newBuilder();
-						// TODO GEOWAVE-1018: need partition key with join
-						// entry, also why is the a prefix query and not an
-						// insertion ID query, sortKeyPrefix))
-						final CloseableIterator<Object> intermediateResults = dataStore
-								.query(
-										bldr
-												.addTypeName(
-
-														adapter.getTypeName())
-												.indexName(
-														primaryIndexName)
-												.constraints(
-														bldr
-																.constraintsFactory()
-																.prefix(
-																		null,
-																		primaryIndexRowId))
-												.build());
-						allResults
-								.add(
-										intermediateResults);
-						return new CloseableIteratorWrapper<>(
-								new Closeable() {
-									@Override
-									public void close()
-											throws IOException {
-										for (final CloseableIterator<Object> resultIter : allResults) {
-											resultIter.close();
-										}
-									}
-								},
-								(Iterator<T>) Iterators
-										.concat(
-												allResults.iterator()));
-					}
-				}
-			}
-		}
+		// final Scanner scanner = getScanner(
+		// secondaryIndex.getName(),
+		// authorizations);
+		//
+		// if (scanner != null) {
+		// scanner
+		// .fetchColumnFamily(
+		// new Text(
+		// SecondaryIndexUtils
+		// .constructColumnFamily(
+		// adapter.getTypeName(),
+		// indexedAttributeFieldName)));
+		// final Collection<Range> ranges = getScanRanges(
+		// query
+		// .getSecondaryIndexConstraints(
+		// secondaryIndex));
+		// for (final Range range : ranges) {
+		// scanner
+		// .setRange(
+		// range);
+		// }
+		//
+		// if (!secondaryIndex
+		// .getSecondaryIndexType()
+		// .equals(
+		// SecondaryIndexType.JOIN)) {
+		// final IteratorSetting iteratorSettings = new IteratorSetting(
+		// 10,
+		// "GEOWAVE_WHOLE_ROW_ITERATOR",
+		// WholeRowIterator.class);
+		// scanner
+		// .addScanIterator(
+		// iteratorSettings);
+		// return new AccumuloSecondaryIndexEntryIteratorWrapper<>(
+		// scanner,
+		// adapter,
+		// primaryIndex);
+		// }
+		// else {
+		// final List<CloseableIterator<Object>> allResults = new ArrayList<>();
+		// try (final CloseableIterator<Pair<String, ByteArrayId>>
+		// joinEntryIterator = new
+		// AccumuloSecondaryIndexJoinEntryIteratorWrapper<>(
+		// scanner,
+		// adapter)) {
+		// while (joinEntryIterator.hasNext()) {
+		// final Pair<String, ByteArrayId> entry = joinEntryIterator.next();
+		// final String primaryIndexName = entry.getLeft();
+		// final ByteArrayId primaryIndexRowId = entry.getRight();
+		// final QueryBuilder<Object, ?> bldr = QueryBuilder.newBuilder();
+		// // TODO GEOWAVE-1018: need partition key with join
+		// // entry, also why is the a prefix query and not an
+		// // insertion ID query, sortKeyPrefix))
+		// final CloseableIterator<Object> intermediateResults = dataStore
+		// .query(
+		// bldr
+		// .addTypeName(
+		//
+		// adapter.getTypeName())
+		// .indexName(
+		// primaryIndexName)
+		// .constraints(
+		// bldr
+		// .constraintsFactory()
+		// .prefix(
+		// null,
+		// primaryIndexRowId))
+		// .build());
+		// allResults
+		// .add(
+		// intermediateResults);
+		// return new CloseableIteratorWrapper<>(
+		// new Closeable() {
+		// @Override
+		// public void close()
+		// throws IOException {
+		// for (final CloseableIterator<Object> resultIter : allResults) {
+		// resultIter.close();
+		// }
+		// }
+		// },
+		// (Iterator<T>) Iterators
+		// .concat(
+		// allResults.iterator()));
+		// }
+		// }
+		// }
+		// }
 
 		return new CloseableIterator.Empty<>();
 	}

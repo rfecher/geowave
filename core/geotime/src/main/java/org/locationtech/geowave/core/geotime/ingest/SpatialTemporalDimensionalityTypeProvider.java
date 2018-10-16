@@ -51,9 +51,7 @@ import com.beust.jcommander.ParameterException;
 public class SpatialTemporalDimensionalityTypeProvider implements
 		DimensionalityTypeProviderSpi<SpatialTemporalOptions>
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					SpatialTemporalDimensionalityTypeProvider.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(SpatialTemporalDimensionalityTypeProvider.class);
 	private static final String DEFAULT_SPATIAL_TEMPORAL_ID_STR = "ST_IDX";
 
 	// TODO should we use different default IDs for all the different
@@ -100,8 +98,7 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 	@Override
 	public Index createIndex(
 			final SpatialTemporalOptions options ) {
-		return internalCreateIndex(
-				options);
+		return internalCreateIndex(options);
 	}
 
 	private static Index internalCreateIndex(
@@ -113,17 +110,15 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 		boolean isDefaultCRS;
 		String crsCode = null;
 
-		if ((options.crs == null) || options.crs.isEmpty() || options.crs
-				.equalsIgnoreCase(
-						GeometryUtils.DEFAULT_CRS_STR)) {
+		if ((options.crs == null) || options.crs.isEmpty()
+				|| options.crs.equalsIgnoreCase(GeometryUtils.DEFAULT_CRS_STR)) {
 			dimensions = SPATIAL_TEMPORAL_DIMENSIONS;
 			fields = SPATIAL_TEMPORAL_FIELDS;
 			isDefaultCRS = true;
 			crsCode = "EPSG:4326";
 		}
 		else {
-			crs = decodeCRS(
-					options.crs);
+			crs = decodeCRS(options.crs);
 			final CoordinateSystem cs = crs.getCoordinateSystem();
 			isDefaultCRS = false;
 			crsCode = options.crs;
@@ -131,9 +126,7 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 			fields = new NumericDimensionField[dimensions.length];
 
 			for (int d = 0; d < (dimensions.length - 1); d++) {
-				final CoordinateSystemAxis csa = cs
-						.getAxis(
-								d);
+				final CoordinateSystemAxis csa = cs.getAxis(d);
 				dimensions[d] = new CustomCRSBoundedSpatialDimension(
 						(byte) d,
 						csa.getMinimumValue(),
@@ -164,27 +157,21 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 			combinedArrayID = DEFAULT_SPATIAL_TEMPORAL_ID_STR + "_" + options.bias + "_" + options.periodicity;
 		}
 		else {
-			combinedArrayID = DEFAULT_SPATIAL_TEMPORAL_ID_STR + "_" + (crsCode
-					.substring(
-							crsCode
-									.indexOf(
-											":")
-									+ 1))
+			combinedArrayID = DEFAULT_SPATIAL_TEMPORAL_ID_STR + "_" + (crsCode.substring(crsCode.indexOf(":") + 1))
 					+ "_" + options.bias + "_" + options.periodicity;
 		}
 		final String combinedId = combinedArrayID;
 
 		return new CustomNameIndex(
-				XZHierarchicalIndexFactory
-						.createFullIncrementalTieredStrategy(
-								dimensions,
-								new int[] {
-									options.bias.getSpatialPrecision(),
-									options.bias.getSpatialPrecision(),
-									options.bias.getTemporalPrecision()
-								},
-								SFCType.HILBERT,
-								options.maxDuplicates),
+				XZHierarchicalIndexFactory.createFullIncrementalTieredStrategy(
+						dimensions,
+						new int[] {
+							options.bias.getSpatialPrecision(),
+							options.bias.getSpatialPrecision(),
+							options.bias.getTemporalPrecision()
+						},
+						SFCType.HILBERT,
+						options.maxDuplicates),
 				indexModel,
 				combinedId);
 	}
@@ -194,16 +181,14 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 
 		CoordinateReferenceSystem crs = null;
 		try {
-			crs = CRS
-					.decode(
-							crsCode,
-							true);
+			crs = CRS.decode(
+					crsCode,
+					true);
 		}
 		catch (final FactoryException e) {
-			LOGGER
-					.error(
-							"Unable to decode '" + crsCode + "' CRS",
-							e);
+			LOGGER.error(
+					"Unable to decode '" + crsCode + "' CRS",
+					e);
 			throw new RuntimeException(
 					"Unable to decode '" + crsCode + "' CRS",
 					e);
@@ -230,10 +215,8 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 				final String code ) {
 
 			for (final Bias output : Bias.values()) {
-				if (output
-						.toString()
-						.equalsIgnoreCase(
-								code)) {
+				if (output.toString().equalsIgnoreCase(
+						code)) {
 					return output;
 				}
 			}
@@ -272,19 +255,15 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 		@Override
 		public Bias convert(
 				final String value ) {
-			final Bias convertedValue = Bias
-					.fromString(
-							value);
+			final Bias convertedValue = Bias.fromString(value);
 
 			if (convertedValue == null) {
 				throw new ParameterException(
 						"Value " + value + "can not be converted to an index bias. " + "Available values are: "
-								+ StringUtils
-										.join(
-												Bias.values(),
-												", ")
-										.toLowerCase(
-												Locale.ENGLISH));
+								+ StringUtils.join(
+										Bias.values(),
+										", ").toLowerCase(
+										Locale.ENGLISH));
 			}
 			return convertedValue;
 		}
@@ -298,19 +277,15 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 		@Override
 		public Unit convert(
 				final String value ) {
-			final Unit convertedValue = Unit
-					.fromString(
-							value);
+			final Unit convertedValue = Unit.fromString(value);
 
 			if (convertedValue == null) {
 				throw new ParameterException(
 						"Value " + value + "can not be converted to Unit. " + "Available values are: "
-								+ StringUtils
-										.join(
-												Unit.values(),
-												", ")
-										.toLowerCase(
-												Locale.ENGLISH));
+								+ StringUtils.join(
+										Unit.values(),
+										", ").toLowerCase(
+										Locale.ENGLISH));
 			}
 			return convertedValue;
 		}
@@ -351,9 +326,7 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 
 		@Override
 		public Index createIndex() {
-			return createIndex(
-					internalCreateIndex(
-							options));
+			return createIndex(internalCreateIndex(options));
 		}
 	}
 
@@ -363,8 +336,7 @@ public class SpatialTemporalDimensionalityTypeProvider implements
 			return false;
 		}
 
-		return isSpatialTemporal(
-				index.getIndexStrategy());
+		return isSpatialTemporal(index.getIndexStrategy());
 	}
 
 	public static boolean isSpatialTemporal(

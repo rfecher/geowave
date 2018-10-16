@@ -38,7 +38,7 @@ import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.locationtech.geowave.core.store.operations.BaseReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
-import org.locationtech.geowave.core.store.query.filter.DistributableQueryFilter;
+import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.datastore.hbase.HBaseRow;
 import org.locationtech.geowave.datastore.hbase.filters.FixedCardinalitySkippingFilter;
 import org.locationtech.geowave.datastore.hbase.filters.HBaseDistributableFilter;
@@ -384,7 +384,7 @@ public class HBaseReader<T> implements
 
 		hbdFilter.setPartitionKeyLength(partitionKeyLength);
 
-		final List<DistributableQueryFilter> distFilters = Lists.newArrayList();
+		final List<QueryFilter> distFilters = Lists.newArrayList();
 		distFilters.add(params.getFilter());
 		hbdFilter.init(
 				distFilters,
