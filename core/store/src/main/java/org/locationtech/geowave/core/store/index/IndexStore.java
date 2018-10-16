@@ -26,5 +26,7 @@ public interface IndexStore
 
 	public CloseableIterator<Index> getIndices();
 
+	public void remove(String indexName);
+	
 	public void removeAll();
 }

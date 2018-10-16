@@ -33,13 +33,24 @@ public interface AdapterIndexMappingStore
 			AdapterToIndexMapping mapping );
 
 	/**
-	 * Adapter to index mappings are maintain without regard to visibility
+	 * Adapter to index mappings are maintained without regard to visibility
 	 * constraints.
 	 *
 	 * @param adapterId
 	 */
 	public void remove(
 			short adapterId );
+	
+	/**
+	 * Remove an index for the specified adapter mapping.
+	 * The method should return false if the adapter, or index for the 
+	 * adapter does not exist.
+	 *
+	 * @param adapterId
+	 * @param indexName
+	 */
+	public boolean remove(
+			short adapterId, String indexName );
 
 	public void removeAll();
 }

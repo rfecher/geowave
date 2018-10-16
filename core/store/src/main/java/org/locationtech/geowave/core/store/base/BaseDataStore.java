@@ -36,6 +36,7 @@ import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
+import org.locationtech.geowave.core.store.adapter.exceptions.AdapterException;
 import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DuplicateEntryCount;
@@ -502,7 +503,14 @@ public class BaseDataStore implements
 					|| (query.getDataTypeQueryOptions().getTypeNames().length == 0) || isAllAdapters(
 							query.getDataTypeQueryOptions().getTypeNames())) {
 				// TODO what about authorizations here?
-				return deleteEverything();
+				// for now just delete all of the data itself and leave stats, indices, adapters, etc. alone
+				try {
+					// delete the data and the stats for all adapter index/pairs
+					final Query q = QueryBuilder.newBuilder().build();
+					internalQuery(q, true);
+				} catch (Exception e) {
+					LOGGER.error("Unable to delete the requested data", e);
+				}
 			}
 			else {
 				try {
@@ -591,6 +599,8 @@ public class BaseDataStore implements
 			final Index index,
 			final String... additionalAuthorizations )
 			throws IOException {
+		
+		//we don't want to delete the stats for the adapter do we?
 		statisticsStore
 				.removeAllStatistics(
 						adapter.getAdapterId(),
@@ -1260,29 +1270,98 @@ public class BaseDataStore implements
 
 	@Override
 	public void removeIndex(
-			final String indexName ) {
-		// TODO Auto-generated method stub
-
+			String indexName ) throws AdapterException {
+		// remove the given index for all types
+		CloseableIterator<InternalDataAdapter<? >> it = adapterStore.getAdapters();
+		
+		// this is a little convoluted and requires iterating over all the adapters,
+		// getting each adapter's index map, checking if the index is there, and then mark it for removal
+		// from both the map and from the index store. If this index is the only index remaining
+		// for a given type, then we need to throw an exception
+		final ArrayList<Short> markedAdapters = new ArrayList<Short>();
+		while(it.hasNext()) {
+			
+			final InternalDataAdapter<? > dataAdapter = it.next();
+			final AdapterToIndexMapping adapterIndexMap = indexMappingStore.getIndicesForAdapter(dataAdapter.getAdapterId());
+			final String[] indexNames = adapterIndexMap.getIndexNames();
+			for(int i = 0; i < indexNames.length; i++) {
+				if(indexNames[i].equals(indexName)) {
+					//check if it is the only index for the current adapter
+					if(indexNames.length == 1) {
+						throw new AdapterException("Index removal failed. Adapters require at least one index.");
+					} else {
+						//mark the index for removal
+						markedAdapters.add(dataAdapter.getAdapterId());
+					}
+				}
+			}
+		}
+		it.close();
+		
+		// take out the index from the mapping, statistics, and data
+		for(int i = 0; i < markedAdapters.size(); i++) {
+			short adapterId = markedAdapters.get(i);
+			
+			// delete the data and the stats for this adapter/index combination
+			final Query q = QueryBuilder.newBuilder().addTypeName(internalAdapterStore.getTypeName(adapterId)).indexName(indexName).build();
+			internalQuery(q, true);
+			indexMappingStore.remove(adapterId, indexName);
+		}
+		//remove the actual index
+		indexStore.remove(indexName);	
 	}
 
 	@Override
 	public void removeIndex(
-			final String typeName,
-			final String indexName ) {
-		// TODO Auto-generated method stub
-
+			String typeName,
+			String indexName ) throws AdapterException {		
+		short adapterId = internalAdapterStore.getAdapterId(typeName);
+		
+		final AdapterToIndexMapping adapterIndexMap = indexMappingStore.getIndicesForAdapter(adapterId);
+		final String[] indexNames = adapterIndexMap.getIndexNames();
+		if(indexNames.length == 1) {
+			throw new AdapterException("Index removal failed. Adapters require at least one index.");
+		} else {
+			// delete the data and the stats for this adapter/index combination
+			final Query q = QueryBuilder.newBuilder().addTypeName(typeName).indexName(indexName).build();
+			internalQuery(q, true);
+			
+			//clean up the index/adapter mapping
+			indexMappingStore.remove(adapterId, indexName);	
+		}
 	}
 
 	@Override
 	public void removeType(
-			final String typeName ) {
-		// TODO Auto-generated method stub
-
+			String typeName ) {
+		// Removing a type requires removing the data associated with the type, the index mapping
+		// for the type, we also need to remove stats for the type.
+		final Short adapterId = internalAdapterStore.getAdapterId(typeName);
+		
+		if(adapterId != -1) {
+			final AdapterToIndexMapping mapping = indexMappingStore.getIndicesForAdapter(adapterId);
+			final String[] indexNames = mapping.getIndexNames();
+			
+			//remove all the data for each index paired to this adapter
+			for(int i = 0; i < indexNames.length; i++) {
+				baseOperations.deleteAll(indexNames[i], adapterId);
+			}
+			
+			statisticsStore.removeAllStatistics(adapterId);
+			indexMappingStore.remove(adapterId);
+			internalAdapterStore.remove(adapterId);
+			adapterStore.removeAdapter(adapterId);
+		}		
 	}
 
 	@Override
 	public void deleteAll() {
-		// TODO Auto-generated method stub
-
+		//delete all the data for every adapter and every index
+		try {
+			//passing null deletes everything!
+			delete(null);
+		} catch (Exception e) {
+			LOGGER.error("Unable to delete the requested data", e);
+		}
 	}
 }

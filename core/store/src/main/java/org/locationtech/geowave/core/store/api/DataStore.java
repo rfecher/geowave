@@ -15,6 +15,7 @@ import java.net.URL;
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.adapter.exceptions.AdapterException;
 import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
 
 /**
@@ -133,15 +134,15 @@ public interface DataStore
 	/**
 	 * remove statistics, across types
 	 * 
-	 * if this is the last index for a type need to remove type first or throw exception
+	 * if this is the last index for a type we need to throw an exception
 	 * @param indexName
 	 */
 	void removeIndex(
-			String indexName );
+			String indexName ) throws AdapterException;
 
 	void removeIndex(
 			String typeName,
-			String indexName );
+			String indexName ) throws AdapterException;
 
 	/**
 	 * remove statistics for type
