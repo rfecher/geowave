@@ -153,7 +153,7 @@ public interface DataStore
 	 * @param typeName
 	 * @param indexName
 	 */
-	void removeIndexMapping(
+	void removeIndex(
 			String typeName,
 			String indexName )
 			throws AdapterException, IllegalArgumentException;

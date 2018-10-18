@@ -447,9 +447,12 @@ public class BaseDataStore implements
 				try {
 					// delete the data and the stats for all adapter index/pairs
 					final Query q = QueryBuilder.newBuilder().build();
-					internalQuery(
+					CloseableIterator<?> dataIt = internalQuery(
 							q,
 							true);
+					while (dataIt.hasNext()) {
+						dataIt.next();
+					}
 				}
 				catch (Exception e) {
 					LOGGER.error(
@@ -519,12 +522,11 @@ public class BaseDataStore implements
 		try {
 			indexStore.removeAll();
 			adapterStore.removeAll();
-			statisticsStore.removeAll();
 			internalAdapterStore.removeAll();
 			secondaryIndexDataStore.removeAll();
 			indexMappingStore.removeAll();
-
-			baseOperations.deleteAll();
+			//last but not least remove the data and stats
+			deleteAll();
 			return true;
 		}
 		catch (final Exception e) {
@@ -542,7 +544,6 @@ public class BaseDataStore implements
 			final String... additionalAuthorizations )
 			throws IOException {
 
-		// we don't want to delete the stats for the adapter do we?
 		statisticsStore.removeAllStatistics(
 				adapter.getAdapterId(),
 				additionalAuthorizations);
@@ -1169,15 +1170,14 @@ public class BaseDataStore implements
 			throws AdapterException {
 		// remove the given index for all types
 		CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters();
-
+	 
 		// this is a little convoluted and requires iterating over all the
-		// adapters,
-		// getting each adapter's index map, checking if the index is there, and
-		// then mark it for removal
-		// from both the map and from the index store. If this index is the only
-		// index remaining
-		// for a given type, then we need to throw an exception
-		final ArrayList<Short> markedAdapters = new ArrayList<Short>();
+		// adapters, getting each adapter's index map, checking if the index is there, and
+		// then mark it for removal from both the map and from the index store. 
+		// If this index is the only index remaining for a given type, then we need 
+		// to throw an exception first (no deletion will occur).
+	
+		final ArrayList<AdapterToIndexMapping> markedAdapters = new ArrayList<AdapterToIndexMapping>();
 		while (it.hasNext()) {
 
 			final InternalDataAdapter<?> dataAdapter = it.next();
@@ -1193,7 +1193,7 @@ public class BaseDataStore implements
 					}
 					else {
 						// mark the index for removal
-						markedAdapters.add(dataAdapter.getAdapterId());
+						markedAdapters.add(adapterIndexMap);
 					}
 				}
 			}
@@ -1202,28 +1202,38 @@ public class BaseDataStore implements
 
 		// take out the index from the mapping, statistics, and data
 		for (int i = 0; i < markedAdapters.size(); i++) {
-			short adapterId = markedAdapters.get(i);
+			final AdapterToIndexMapping adapterMap = markedAdapters.get(i);
+			final short adapterId = adapterMap.getAdapterId();
 
-			// delete the data and the stats for this adapter/index combination
-			final Query q = QueryBuilder.newBuilder().addTypeName(
-					internalAdapterStore.getTypeName(adapterId)).indexName(
-					indexName).build();
-			internalQuery(
-					q,
-					true);
+			// maintain consistency and remove the adapter data from all the indices
+			// (equivalent to deleting all the data for the adapter)
+			for (String mappedIndexName : adapterMap.getIndexNames()) {
+				baseOperations.deleteAll(mappedIndexName, adapterId);
+			}
+			
+			// remove all stats for the adapter
+			this.statisticsStore.removeAllStatistics(adapterId);
+						
 			indexMappingStore.remove(
 					adapterId,
 					indexName);
 		}
 		// remove the actual index
-		indexStore.remove(indexName);
+		indexStore.removeIndex(indexName);
 	}
 
 	@Override
-	public void removeIndexMapping(
+	public void removeIndex(
 			String typeName,
 			String indexName )
 			throws AdapterException, IllegalArgumentException {
+		
+		// gather all the indices that belong to the adapter
+		// remove the adapter data for each index
+		// remove the mapping for the adapter and the passed in index
+		// finally remove the index iff this is the last index mapped with the 
+		// passed in adapter, otherwise throw an exception first since every adaptor
+		// must have at least one index		
 		short adapterId = internalAdapterStore.getAdapterId(typeName);
 
 		final AdapterToIndexMapping adapterIndexMap = indexMappingStore.getIndicesForAdapter(adapterId);
@@ -1234,21 +1244,25 @@ public class BaseDataStore implements
 		final String[] indexNames = adapterIndexMap.getIndexNames();
 		if (indexNames.length == 1) {
 			throw new AdapterException(
-					"Index mapping removal failed. Adapters require at least one index.");
+					"Index removal failed. Adapters require at least one index.");
 		}
 		else {
-			// delete the data and the stats for this adapter/index combination
-			final Query q = QueryBuilder.newBuilder().addTypeName(
-					typeName).indexName(
-					indexName).build();
-			internalQuery(
-					q,
-					true);
+			// maintain consistency and remove the adapter data from all the indices
+			// (equivalent to deleting all the data for the adapter)
+			for(int i = 0; i < indexNames.length; i++ ) {
+				baseOperations.deleteAll(indexNames[i], adapterId);
+			}
+			
+			// remove all stats for the adapter
+			this.statisticsStore.removeAllStatistics(adapterId);
 
 			// clean up the index/adapter mapping
 			indexMappingStore.remove(
 					adapterId,
 					indexName);
+			
+			// clean up the actual index from the store
+			indexStore.removeIndex(indexName);
 		}
 	}
 
@@ -1256,8 +1270,7 @@ public class BaseDataStore implements
 	public void removeType(
 			String typeName ) {
 		// Removing a type requires removing the data associated with the type,
-		// the index mapping
-		// for the type, we also need to remove stats for the type.
+		// the index mapping for the type, and we also need to remove stats for the type.
 		final Short adapterId = internalAdapterStore.getAdapterId(typeName);
 
 		if (adapterId != -1) {
@@ -1280,15 +1293,15 @@ public class BaseDataStore implements
 
 	@Override
 	public void deleteAll() {
-		// delete all the data for every adapter and every index
+		// delete all the data and stats for every adapter and every index
 		try {
-			// passing null deletes everything!
-			delete(null);
+			baseOperations.deleteAll();
 		}
 		catch (Exception e) {
 			LOGGER.error(
 					"Unable to delete the requested data",
 					e);
 		}
+		statisticsStore.removeAll();
 	}
 }

@@ -97,15 +97,6 @@ public abstract class AbstractGeoWavePersistence<T extends Persistable>
 		cache.invalidateAll();
 	}
 
-	public void remove(
-			String indexName ) {
-		// TODO check on this logic
-		//deleteObject(
-		//		new ByteArrayId(indexName),
-		//		null);
-		cache.invalidateAll();
-	}
-
 	protected ByteArrayId getCombinedId(
 			final ByteArrayId primaryId,
 			final ByteArrayId secondaryId ) {
