@@ -25,9 +25,7 @@ import com.beust.jcommander.Parameters;
 public class FullTableScan extends
 		AbstractGeoWaveQuery
 {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					FullTableScan.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(FullTableScan.class);
 
 	@Override
 	protected long runQuery(
@@ -37,20 +35,12 @@ public class FullTableScan extends
 			final DataStore dataStore,
 			final boolean debug ) {
 		long count = 0;
-		try (final CloseableIterator<Object> it = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										typeName)
-								.indexName(
-										indexName)
-								.build())) {
+		try (final CloseableIterator<Object> it = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				typeName).indexName(
+				indexName).build())) {
 			while (it.hasNext()) {
 				if (debug) {
-					System.out
-							.println(
-									it.next());
+					System.out.println(it.next());
 				}
 				else {
 					it.next();

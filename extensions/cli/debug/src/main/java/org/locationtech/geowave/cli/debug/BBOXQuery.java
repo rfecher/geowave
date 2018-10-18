@@ -33,9 +33,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 public class BBOXQuery extends
 		AbstractGeoWaveQuery
 {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					BBOXQuery.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(BBOXQuery.class);
 
 	@Parameter(names = {
 		"-e",
@@ -70,13 +68,11 @@ public class BBOXQuery extends
 	private Geometry geom;
 
 	private void getBoxGeom() {
-		geom = new GeometryFactory()
-				.toGeometry(
-						new Envelope(
-								west,
-								east,
-								south,
-								north));
+		geom = new GeometryFactory().toGeometry(new Envelope(
+				west,
+				east,
+				south,
+				north));
 	}
 
 	@Override
@@ -99,17 +95,9 @@ public class BBOXQuery extends
 							typeName)
 					.indexName(
 							indexName);
-			final Long countResult = dataStore
-					.aggregate(
-							bldr
-									.constraints(
-											bldr
-													.constraintsFactory()
-													.spatialTemporalConstraints()
-													.spatialConstraints(
-															geom)
-													.build())
-									.build());
+			final Long countResult = dataStore.aggregate(bldr.constraints(
+					bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(
+							geom).build()).build());
 
 			if (countResult != null) {
 				count += countResult;
@@ -117,39 +105,24 @@ public class BBOXQuery extends
 
 		}
 		else {
-			final VectorQueryBuilder bldr = VectorQueryBuilder
-					.newBuilder()
-					.addTypeName(
-							typeName)
-					.indexName(
-							indexName);
+			final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder().addTypeName(
+					typeName).indexName(
+					indexName);
 			stopWatch.start();
 
-			try (final CloseableIterator<SimpleFeature> it = dataStore
-					.query(
-							bldr
-									.constraints(
-											bldr
-													.constraintsFactory()
-													.spatialTemporalConstraints()
-													.spatialConstraints(
-															geom)
-													.build())
-									.build())) {
+			try (final CloseableIterator<SimpleFeature> it = dataStore.query(bldr.constraints(
+					bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(
+							geom).build()).build())) {
 
 				stopWatch.stop();
-				System.out
-						.println(
-								"Ran BBOX query in " + stopWatch.toString());
+				System.out.println("Ran BBOX query in " + stopWatch.toString());
 
 				stopWatch.reset();
 				stopWatch.start();
 
 				while (it.hasNext()) {
 					if (debug) {
-						System.out
-								.println(
-										it.next());
+						System.out.println(it.next());
 					}
 					else {
 						it.next();
@@ -158,9 +131,7 @@ public class BBOXQuery extends
 				}
 
 				stopWatch.stop();
-				System.out
-						.println(
-								"BBOX query results iteration took " + stopWatch.toString());
+				System.out.println("BBOX query results iteration took " + stopWatch.toString());
 			}
 		}
 		return count;

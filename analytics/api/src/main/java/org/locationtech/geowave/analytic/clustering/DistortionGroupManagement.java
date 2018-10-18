@@ -68,9 +68,7 @@ import org.slf4j.LoggerFactory;
 public class DistortionGroupManagement
 {
 
-	final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					DistortionGroupManagement.class);
+	final static Logger LOGGER = LoggerFactory.getLogger(DistortionGroupManagement.class);
 	public final static Index DISTORTIONS_INDEX = new NullIndex(
 			"DISTORTIONS");
 	public final static String[] DISTORTIONS_INDEX_ARRAY = new String[] {
@@ -90,13 +88,10 @@ public class DistortionGroupManagement
 		internalAdapterStore = dataStoreOptions.createInternalAdapterStore();
 
 		final DistortionDataAdapter adapter = new DistortionDataAdapter();
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						DISTORTIONS_INDEX);
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				DISTORTIONS_INDEX);
 	}
 
 	public static class BatchIdFilter implements
@@ -120,24 +115,18 @@ public class DistortionGroupManagement
 				final IndexedPersistenceEncoding<?> persistenceEncoding ) {
 			return new DistortionEntry(
 					persistenceEncoding.getDataId(),
-					0.0).batchId
-							.equals(
-									batchId);
+					0.0).batchId.equals(batchId);
 		}
 
 		@Override
 		public byte[] toBinary() {
-			return StringUtils
-					.stringToBinary(
-							batchId);
+			return StringUtils.stringToBinary(batchId);
 		}
 
 		@Override
 		public void fromBinary(
 				final byte[] bytes ) {
-			batchId = StringUtils
-					.stringFromBinary(
-							bytes);
+			batchId = StringUtils.stringFromBinary(bytes);
 		}
 	}
 
@@ -157,10 +146,8 @@ public class DistortionGroupManagement
 		@Override
 		public List<QueryFilter> createFilters(
 				final Index index ) {
-			return Collections
-					.<QueryFilter> singletonList(
-							new BatchIdFilter(
-									batchId));
+			return Collections.<QueryFilter> singletonList(new BatchIdFilter(
+					batchId));
 		}
 
 		@Override
@@ -171,17 +158,13 @@ public class DistortionGroupManagement
 
 		@Override
 		public byte[] toBinary() {
-			return StringUtils
-					.stringToBinary(
-							batchId);
+			return StringUtils.stringToBinary(batchId);
 		}
 
 		@Override
 		public void fromBinary(
 				final byte[] bytes ) {
-			batchId = StringUtils
-					.stringFromBinary(
-							bytes);
+			batchId = StringUtils.stringFromBinary(bytes);
 		}
 
 	}
@@ -207,39 +190,33 @@ public class DistortionGroupManagement
 
 			// row id is group id
 			// colQual is cluster count
-			try (CloseableIterator<DistortionEntry> it = (CloseableIterator) dataStore
-					.query(
-							QueryBuilder
-									.newBuilder()
-									.addTypeName(
-											DistortionDataAdapter.ADAPTER_TYPE_NAME)
-									.indexName(
-											DISTORTIONS_INDEX.getName())
-									.constraints(
-											new BatchIdQuery(
-													batchId))
-									.build())) {
+			try (CloseableIterator<DistortionEntry> it = (CloseableIterator) dataStore.query(QueryBuilder
+					.newBuilder()
+					.addTypeName(
+							DistortionDataAdapter.ADAPTER_TYPE_NAME)
+					.indexName(
+							DISTORTIONS_INDEX.getName())
+					.constraints(
+							new BatchIdQuery(
+									batchId))
+					.build())) {
 				while (it.hasNext()) {
 					final DistortionEntry entry = it.next();
 					final String groupID = entry.getGroupId();
 					final Integer clusterCount = entry.getClusterCount();
 					final Double distortion = entry.getDistortionValue();
 
-					DistortionGroup grp = groupDistortions
-							.get(
-									groupID);
+					DistortionGroup grp = groupDistortions.get(groupID);
 					if (grp == null) {
 						grp = new DistortionGroup(
 								groupID);
-						groupDistortions
-								.put(
-										groupID,
-										grp);
+						groupDistortions.put(
+								groupID,
+								grp);
 					}
-					grp
-							.addPair(
-									clusterCount,
-									distortion);
+					grp.addPair(
+							clusterCount,
+							distortion);
 				}
 			}
 
@@ -249,9 +226,7 @@ public class DistortionGroupManagement
 					adapterStore,
 					itemWrapperFactory,
 					dataTypeId,
-					internalAdapterStore
-							.getAdapterId(
-									dataTypeId),
+					internalAdapterStore.getAdapterId(dataTypeId),
 					indexId,
 					batchId,
 					level);
@@ -259,20 +234,18 @@ public class DistortionGroupManagement
 			for (final DistortionGroup grp : groupDistortions.values()) {
 				final int optimalK = grp.bestCount();
 				final String kbatchId = batchId + "_" + optimalK;
-				centroidManager
-						.transferBatch(
-								kbatchId,
-								grp.getGroupID());
+				centroidManager.transferBatch(
+						kbatchId,
+						grp.getGroupID());
 			}
 		}
 		catch (final RuntimeException ex) {
 			throw ex;
 		}
 		catch (final Exception ex) {
-			LOGGER
-					.error(
-							"Cannot determine groups for batch",
-							ex);
+			LOGGER.error(
+					"Cannot determine groups for batch",
+					ex);
 			return 1;
 		}
 		return 0;
@@ -302,17 +275,11 @@ public class DistortionGroupManagement
 		private DistortionEntry(
 				final ByteArrayId dataId,
 				final Double distortionValue ) {
-			final String dataIdStr = StringUtils
-					.stringFromBinary(
-							dataId.getBytes());
-			final String[] split = dataIdStr
-					.split(
-							"/");
+			final String dataIdStr = StringUtils.stringFromBinary(dataId.getBytes());
+			final String[] split = dataIdStr.split("/");
 			batchId = split[0];
 			groupId = split[1];
-			clusterCount = Integer
-					.parseInt(
-							split[2]);
+			clusterCount = Integer.parseInt(split[2]);
 			this.distortionValue = distortionValue;
 		}
 
@@ -337,18 +304,10 @@ public class DistortionGroupManagement
 		public void write(
 				final DataOutput out )
 				throws IOException {
-			out
-					.writeUTF(
-							groupId);
-			out
-					.writeUTF(
-							batchId);
-			out
-					.writeInt(
-							clusterCount);
-			out
-					.writeDouble(
-							distortionValue);
+			out.writeUTF(groupId);
+			out.writeUTF(batchId);
+			out.writeInt(clusterCount);
+			out.writeDouble(distortionValue);
 		}
 
 		@Override
@@ -375,12 +334,9 @@ public class DistortionGroupManagement
 		public void addPair(
 				final Integer count,
 				final Double distortion ) {
-			clusterCountToDistortion
-					.add(
-							Pair
-									.of(
-											count,
-											distortion));
+			clusterCountToDistortion.add(Pair.of(
+					count,
+					distortion));
 		}
 
 		public String getGroupID() {
@@ -388,21 +344,18 @@ public class DistortionGroupManagement
 		}
 
 		public int bestCount() {
-			Collections
-					.sort(
-							clusterCountToDistortion,
-							new Comparator<Pair<Integer, Double>>() {
+			Collections.sort(
+					clusterCountToDistortion,
+					new Comparator<Pair<Integer, Double>>() {
 
-								@Override
-								public int compare(
-										final Pair<Integer, Double> arg0,
-										final Pair<Integer, Double> arg1 ) {
-									return arg0
-											.getKey()
-											.compareTo(
-													arg1.getKey());
-								}
-							});
+						@Override
+						public int compare(
+								final Pair<Integer, Double> arg0,
+								final Pair<Integer, Double> arg1 ) {
+							return arg0.getKey().compareTo(
+									arg1.getKey());
+						}
+					});
 			double maxJump = -1.0;
 			Integer jumpIdx = -1;
 			Double oldD = 0.0; // base case !?
@@ -452,10 +405,8 @@ public class DistortionGroupManagement
 				final Index index ) {
 			return new DistortionEntry(
 					data.getDataId(),
-					(Double) data
-							.getAdapterExtendedData()
-							.getValue(
-									DISTORTION_FIELD_NAME));
+					(Double) data.getAdapterExtendedData().getValue(
+							DISTORTION_FIELD_NAME));
 		}
 
 		@Override
@@ -463,10 +414,9 @@ public class DistortionGroupManagement
 				final DistortionEntry entry,
 				final CommonIndexModel indexModel ) {
 			final Map<String, Object> fieldNameToValueMap = new HashMap<>();
-			fieldNameToValueMap
-					.put(
-							DISTORTION_FIELD_NAME,
-							entry.getDistortionValue());
+			fieldNameToValueMap.put(
+					DISTORTION_FIELD_NAME,
+					entry.getDistortionValue());
 			return new AdapterPersistenceEncoding(
 					entry.getDataId(),
 					new PersistentDataset<CommonIndexValue>(),
@@ -477,12 +427,8 @@ public class DistortionGroupManagement
 		@Override
 		public FieldReader<Object> getReader(
 				final String fieldId ) {
-			if (DISTORTION_FIELD_NAME
-					.equals(
-							fieldId)) {
-				return (FieldReader) FieldUtils
-						.getDefaultReaderForClass(
-								Double.class);
+			if (DISTORTION_FIELD_NAME.equals(fieldId)) {
+				return (FieldReader) FieldUtils.getDefaultReaderForClass(Double.class);
 			}
 			return null;
 		}
@@ -499,19 +445,14 @@ public class DistortionGroupManagement
 		@Override
 		public FieldWriter<DistortionEntry, Object> getWriter(
 				final String fieldId ) {
-			if (DISTORTION_FIELD_NAME
-					.equals(
-							fieldId)) {
+			if (DISTORTION_FIELD_NAME.equals(fieldId)) {
 				if (distortionVisibilityHandler != null) {
-					return (FieldWriter) FieldUtils
-							.getDefaultWriterForClass(
-									Double.class,
-									distortionVisibilityHandler);
+					return (FieldWriter) FieldUtils.getDefaultWriterForClass(
+							Double.class,
+							distortionVisibilityHandler);
 				}
 				else {
-					return (FieldWriter) FieldUtils
-							.getDefaultWriterForClass(
-									Double.class);
+					return (FieldWriter) FieldUtils.getDefaultWriterForClass(Double.class);
 				}
 			}
 			return null;
@@ -523,16 +464,12 @@ public class DistortionGroupManagement
 				final String fieldName ) {
 			int i = 0;
 			for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-				if (fieldName
-						.equals(
-								dimensionField.getFieldName())) {
+				if (fieldName.equals(dimensionField.getFieldName())) {
 					return i;
 				}
 				i++;
 			}
-			if (fieldName
-					.equals(
-							DISTORTION_FIELD_NAME)) {
+			if (fieldName.equals(DISTORTION_FIELD_NAME)) {
 				return i;
 			}
 			return -1;

@@ -160,8 +160,7 @@ public class AggregationIterator extends
 				startRowOfAggregation = currentRow;
 			}
 		}
-		else if (((Short) (persistenceEncoding.getInternalAdapterId()))
-				.equals((Short) (adapter.getAdapterId()))) {
+		else if (((Short) (persistenceEncoding.getInternalAdapterId())).equals((Short) (adapter.getAdapterId()))) {
 			final PersistentDataset<Object> adapterExtendedValues = new PersistentDataset<Object>();
 			if (persistenceEncoding instanceof AbstractAdapterPersistenceEncoding) {
 				((AbstractAdapterPersistenceEncoding) persistenceEncoding).convertUnknownValues(
@@ -314,7 +313,8 @@ public class AggregationIterator extends
 			if (result == null) {
 				return null;
 			}
-			return new Value(aggregationFunction.resultToBinary(result));
+			return new Value(
+					aggregationFunction.resultToBinary(result));
 		}
 		return null;
 	}

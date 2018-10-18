@@ -49,9 +49,7 @@ public class DistortionGroupManagementTest
 	public TestName name = new TestName();
 	final GeometryFactory factory = new GeometryFactory();
 	final SimpleFeatureType ftype;
-	final Index index = new SpatialDimensionalityTypeProvider()
-			.createIndex(
-					new SpatialOptions());
+	final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 
 	final FeatureDataAdapter adapter;
 	final DataStorePluginOptions storePluginOptions;
@@ -61,49 +59,36 @@ public class DistortionGroupManagementTest
 			final Index index,
 			final T entry )
 			throws IOException {
-		try (Writer writer = storePluginOptions
-				.createDataStore()
-				.createWriter(
-						adapter.getTypeName())) {
-			writer
-					.write(
-							entry);
+		try (Writer writer = storePluginOptions.createDataStore().createWriter(
+				adapter.getTypeName())) {
+			writer.write(entry);
 		}
 	}
 
 	public DistortionGroupManagementTest()
 			throws MismatchedIndexToAdapterMapping,
 			IOException {
-		ftype = AnalyticFeature
-				.createGeometryFeatureAdapter(
-						"centroid",
-						new String[] {
-							"extra1"
-						},
-						BasicFeatureTypes.DEFAULT_NAMESPACE,
-						ClusteringUtils.CLUSTERING_CRS)
-				.getFeatureType();
+		ftype = AnalyticFeature.createGeometryFeatureAdapter(
+				"centroid",
+				new String[] {
+					"extra1"
+				},
+				BasicFeatureTypes.DEFAULT_NAMESPACE,
+				ClusteringUtils.CLUSTERING_CRS).getFeatureType();
 		adapter = new FeatureDataAdapter(
 				ftype);
-		adapter
-				.init(
-						index);
+		adapter.init(index);
 		final String namespace = "test_" + getClass().getName() + "_" + name.getMethodName();
 
 		final StoreFactoryOptions opts = new MemoryStoreFactoryFamily().getDataStoreFactory().createOptionsInstance();
-		opts
-				.setGeowaveNamespace(
-						namespace);
+		opts.setGeowaveNamespace(namespace);
 		storePluginOptions = new DataStorePluginOptions(
 				opts);
 		final DataStore store = storePluginOptions.createDataStore();
-		store
-				.addType(
-						adapter);
-		store
-				.addIndex(
-						adapter.getTypeName(),
-						index);
+		store.addType(adapter);
+		store.addIndex(
+				adapter.getTypeName(),
+				index);
 	}
 
 	private void addDistortion(
@@ -173,314 +158,278 @@ public class DistortionGroupManagementTest
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_1",
-								"123",
-								"fred",
-								"grp1",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_1",
+						"123",
+						"fred",
+						"grp1",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_1",
-								"124",
-								"barney",
-								"grp1",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_1",
+						"124",
+						"barney",
+						"grp1",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_1",
-								"125",
-								"wilma",
-								"grp2",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_1",
+						"125",
+						"wilma",
+						"grp2",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_1",
-								"126",
-								"betty",
-								"grp2",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_1",
+						"126",
+						"betty",
+						"grp2",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_2",
-								"130",
-								"dusty",
-								"grp1",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_2",
+						"130",
+						"dusty",
+						"grp1",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_2",
-								"131",
-								"dino",
-								"grp1",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_2",
+						"131",
+						"dino",
+						"grp1",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_2",
-								"127",
-								"bamm-bamm",
-								"grp2",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_2",
+						"127",
+						"bamm-bamm",
+						"grp2",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_2",
-								"128",
-								"chip",
-								"grp2",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_2",
+						"128",
+						"chip",
+						"grp2",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_3",
-								"140",
-								"pearl",
-								"grp1",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_3",
+						"140",
+						"pearl",
+						"grp1",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_3",
-								"141",
-								"roxy",
-								"grp1",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_3",
+						"141",
+						"roxy",
+						"grp1",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_3",
-								"142",
-								"giggles",
-								"grp2",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_3",
+						"142",
+						"giggles",
+						"grp2",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 		ingest(
 				adapter,
 				index,
-				AnalyticFeature
-						.createGeometryFeature(
-								ftype,
-								"b1_3",
-								"143",
-								"gazoo",
-								"grp2",
-								20.30203,
-								factory
-										.createPoint(
-												new Coordinate(
-														02.33,
-														0.23)),
-								new String[] {
-									"extra1"
-								},
-								new double[] {
-									0.022
-								},
-								1,
-								1,
-								0));
+				AnalyticFeature.createGeometryFeature(
+						ftype,
+						"b1_3",
+						"143",
+						"gazoo",
+						"grp2",
+						20.30203,
+						factory.createPoint(new Coordinate(
+								02.33,
+								0.23)),
+						new String[] {
+							"extra1"
+						},
+						new double[] {
+							0.022
+						},
+						1,
+						1,
+						0));
 
 	}
 
@@ -489,23 +438,20 @@ public class DistortionGroupManagementTest
 			throws IOException {
 		final DistortionGroupManagement distortionGroupManagement = new DistortionGroupManagement(
 				storePluginOptions);
-		distortionGroupManagement
-				.retainBestGroups(
-						new SimpleFeatureItemWrapperFactory(),
-						adapter.getTypeName(),
-						index.getName(),
-						"b1",
-						1);
+		distortionGroupManagement.retainBestGroups(
+				new SimpleFeatureItemWrapperFactory(),
+				adapter.getTypeName(),
+				index.getName(),
+				"b1",
+				1);
 		final CentroidManagerGeoWave<SimpleFeature> centroidManager = new CentroidManagerGeoWave<>(
 				storePluginOptions.createDataStore(),
 				storePluginOptions.createIndexStore(),
 				storePluginOptions.createAdapterStore(),
 				new SimpleFeatureItemWrapperFactory(),
 				adapter.getTypeName(),
-				storePluginOptions
-						.createInternalAdapterStore()
-						.getAdapterId(
-								adapter.getTypeName()),
+				storePluginOptions.createInternalAdapterStore().getAdapterId(
+						adapter.getTypeName()),
 				index.getName(),
 				"b1",
 				1);
@@ -515,47 +461,21 @@ public class DistortionGroupManagementTest
 				groups.size());
 		final boolean groupFound[] = new boolean[2];
 		for (final String grpId : groups) {
-			final List<AnalyticItemWrapper<SimpleFeature>> items = centroidManager
-					.getCentroidsForGroup(
-							grpId);
+			final List<AnalyticItemWrapper<SimpleFeature>> items = centroidManager.getCentroidsForGroup(grpId);
 			assertEquals(
 					2,
 					items.size());
-			if ("grp1"
-					.equals(
-							grpId)) {
+			if ("grp1".equals(grpId)) {
 				groupFound[0] = true;
-				assertTrue(
-						"pearl"
-								.equals(
-										items
-												.get(
-														0)
-												.getName())
-								|| "roxy"
-										.equals(
-												items
-														.get(
-																0)
-														.getName()));
+				assertTrue("pearl".equals(items.get(
+						0).getName()) || "roxy".equals(items.get(
+						0).getName()));
 			}
-			else if ("grp2"
-					.equals(
-							grpId)) {
+			else if ("grp2".equals(grpId)) {
 				groupFound[1] = true;
-				assertTrue(
-						"chip"
-								.equals(
-										items
-												.get(
-														0)
-												.getName())
-								|| "bamm-bamm"
-										.equals(
-												items
-														.get(
-																0)
-														.getName()));
+				assertTrue("chip".equals(items.get(
+						0).getName()) || "bamm-bamm".equals(items.get(
+						0).getName()));
 			}
 		}
 		// each unique group is found?

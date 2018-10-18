@@ -71,9 +71,7 @@ public class AdapterBasedPartitioner extends
 		Serializable
 {
 
-	final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					AdapterBasedPartitioner.class);
+	final static Logger LOGGER = LoggerFactory.getLogger(AdapterBasedPartitioner.class);
 
 	private static final long serialVersionUID = 5951564193108204266L;
 
@@ -117,24 +115,20 @@ public class AdapterBasedPartitioner extends
 		final NumericDataHolder numericDataHolder = new NumericDataHolder();
 
 		@SuppressWarnings("unchecked")
-		final DataTypeAdapter<Object> adapter = (DataTypeAdapter<Object>) adapterStore
-				.getAdapter(
-						entry.adapterId);
+		final DataTypeAdapter<Object> adapter = (DataTypeAdapter<Object>) adapterStore.getAdapter(entry.adapterId);
 		if (adapter == null) {
-			LOGGER
-					.error(
-							"Unable to find an adapter for id {}",
-							entry.adapterId.toString());
+			LOGGER.error(
+					"Unable to find an adapter for id {}",
+					entry.adapterId.toString());
 			return null;
 		}
-		final AdapterPersistenceEncoding encoding = adapter
-				.encode(
-						entry.data,
-						getIndex().getIndexModel());
+		final AdapterPersistenceEncoding encoding = adapter.encode(
+				entry.data,
+				getIndex().getIndexModel());
 		final double[] thetas = getDistancePerDimension();
-		final MultiDimensionalNumericData primaryData = encoding
-				.getNumericData(
-						getIndex().getIndexModel().getDimensions());
+		final MultiDimensionalNumericData primaryData = encoding.getNumericData(getIndex()
+				.getIndexModel()
+				.getDimensions());
 		numericDataHolder.primary = primaryData;
 		numericDataHolder.expansion = querySet(
 				primaryData,
@@ -148,8 +142,7 @@ public class AdapterBasedPartitioner extends
 		wrapsAroundBoundary = new boolean[definitions.length];
 		for (int i = 0; i < definitions.length; i++) {
 			fullRangesPerDimension[i] = definitions[i].getFullRange();
-			wrapsAroundBoundary[i] = getIndex().getIndexModel().getDimensions()[i]
-					.getBaseDefinition() instanceof LongitudeDefinition;
+			wrapsAroundBoundary[i] = getIndex().getIndexModel().getDimensions()[i].getBaseDefinition() instanceof LongitudeDefinition;
 		}
 
 	}
@@ -164,12 +157,10 @@ public class AdapterBasedPartitioner extends
 				scope);
 		adapterStore = new SerializableAdapterStore(
 				new PersistentAdapterStoreAsTransient(
-						((PersistableStore) StoreParameters.StoreParam.INPUT_STORE
-								.getHelper()
-								.getValue(
-										context,
-										scope,
-										null)).getDataStoreOptions()));
+						((PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(
+								context,
+								scope,
+								null)).getDataStoreOptions()));
 
 		init();
 	}
@@ -186,11 +177,10 @@ public class AdapterBasedPartitioner extends
 		final ParameterEnum[] params = new ParameterEnum[] {
 			StoreParameters.StoreParam.INPUT_STORE
 		};
-		runTimeProperties
-				.setConfig(
-						params,
-						configuration,
-						scope);
+		runTimeProperties.setConfig(
+				params,
+				configuration,
+				scope);
 	}
 
 	protected MultiDimensionalNumericData[] querySet(
@@ -221,12 +211,9 @@ public class AdapterBasedPartitioner extends
 			final MultiDimensionalNumericData dimensionsData,
 			final int d ) {
 		if (d == currentData.length) {
-			resultList
-					.add(
-							Arrays
-									.copyOf(
-											currentData,
-											currentData.length));
+			resultList.add(Arrays.copyOf(
+					currentData,
+					currentData.length));
 			return;
 		}
 
@@ -313,33 +300,21 @@ public class AdapterBasedPartitioner extends
 		@Override
 		public void addAdapter(
 				final DataTypeAdapter<?> adapter ) {
-			adapterStore
-					.addAdapter(
-							new InternalDataAdapterWrapper(
-									adapter,
-									internalAdapterStore
-											.addTypeName(
-													adapter.getTypeName())));
+			adapterStore.addAdapter(new InternalDataAdapterWrapper(
+					adapter,
+					internalAdapterStore.addTypeName(adapter.getTypeName())));
 		}
 
 		@Override
 		public DataTypeAdapter<?> getAdapter(
 				final String typeName ) {
-			return adapterStore
-					.getAdapter(
-							internalAdapterStore
-									.getAdapterId(
-											typeName));
+			return adapterStore.getAdapter(internalAdapterStore.getAdapterId(typeName));
 		}
 
 		@Override
 		public boolean adapterExists(
 				final String typeName ) {
-			return adapterStore
-					.adapterExists(
-							internalAdapterStore
-									.getAdapterId(
-											typeName));
+			return adapterStore.adapterExists(internalAdapterStore.getAdapterId(typeName));
 		}
 
 		@Override
@@ -347,17 +322,16 @@ public class AdapterBasedPartitioner extends
 			final CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters();
 			return new CloseableIteratorWrapper<>(
 					it,
-					Iterators
-							.transform(
-									it,
-									new Function<InternalDataAdapter<?>, DataTypeAdapter<?>>() {
+					Iterators.transform(
+							it,
+							new Function<InternalDataAdapter<?>, DataTypeAdapter<?>>() {
 
-										@Override
-										public DataTypeAdapter<?> apply(
-												final InternalDataAdapter<?> input ) {
-											return input.getAdapter();
-										}
-									}));
+								@Override
+								public DataTypeAdapter<?> apply(
+										final InternalDataAdapter<?> input ) {
+									return input.getAdapter();
+								}
+							}));
 		}
 
 		@Override
@@ -369,14 +343,8 @@ public class AdapterBasedPartitioner extends
 		@Override
 		public void removeAdapter(
 				final String typeName ) {
-			adapterStore
-					.removeAdapter(
-							internalAdapterStore
-									.getAdapterId(
-											typeName));
-			internalAdapterStore
-					.remove(
-							typeName);
+			adapterStore.removeAdapter(internalAdapterStore.getAdapterId(typeName));
+			internalAdapterStore.remove(typeName);
 		}
 	}
 }

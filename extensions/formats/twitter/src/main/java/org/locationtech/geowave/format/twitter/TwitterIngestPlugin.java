@@ -142,7 +142,8 @@ public class TwitterIngestPlugin extends
 		"REC_CATCH_EXCEPTION"
 	}, justification = "Intentionally catching any possible exception as there may be unknown format issues in a file and we don't want to error partially through parsing")
 	protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-			final WholeFile hfile,String[] indexNames,
+			final WholeFile hfile,
+			String[] indexNames,
 			final String globalVisibility ) {
 
 		final List<GeoWaveData<SimpleFeature>> featureData = new ArrayList<GeoWaveData<SimpleFeature>>();

@@ -20,8 +20,7 @@ import net.sf.json.JSONObject;
 
 public interface InternalDataStatistics<T, R, B extends StatisticsQueryBuilder<R, B>> extends
 		Mergeable,
-		IngestCallback<T>,
-		Cloneable
+		IngestCallback<T>
 {
 	Short getAdapterId();
 
@@ -49,12 +48,12 @@ public interface InternalDataStatistics<T, R, B extends StatisticsQueryBuilder<R
 			InternalAdapterStore adapterStore )
 			throws JSONException;
 
-	InternalDataStatistics<T, R, B> clone();
+	InternalDataStatistics<T, R, B> duplicate();
 
 	static < R> InternalDataStatistics<?, R, ?> reduce(
 			final InternalDataStatistics<?, R, ?> a,
 			final InternalDataStatistics<?, R, ?> b ) {
-		final InternalDataStatistics<?, R, ?> c = a.clone();
+		final InternalDataStatistics<?, R, ?> c = a.duplicate();
 		c
 				.merge(
 						b);

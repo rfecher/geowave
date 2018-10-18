@@ -73,13 +73,10 @@ public class SimpleFeatureToAccumuloKeyValueMapper extends
 			InterruptedException {
 
 		simpleFeature = parseGeonamesValue(value);
-		if (adapter instanceof InitializeWithIndicesDataAdapter) {
 		((InitializeWithIndicesDataAdapter) adapter).init(index);
-		}
 
 		// build Geowave-formatted Accumulo [Key,Value] pairs
-		keyValuePairs = generator.constructKeyValuePairs(
-				simpleFeature);
+		keyValuePairs = generator.constructKeyValuePairs(simpleFeature);
 
 		// output each [Key,Value] pair to shuffle-and-sort phase where we rely
 		// on MapReduce to sort by Key

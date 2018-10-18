@@ -36,16 +36,12 @@ public class ColumnQualifier
 	public static String getRelationMember(
 			final String prefix,
 			final int i ) {
-		return (prefix + REFERENCE_SEPARATOR + String
-				.valueOf(
-						i));
+		return (prefix + REFERENCE_SEPARATOR + String.valueOf(i));
 	}
 
 	public static String TAG_QUALIFIER(
 			final String tag ) {
-		Preconditions
-				.checkNotNull(
-						tag);
+		Preconditions.checkNotNull(tag);
 		return tag;
 	}
 }

@@ -40,19 +40,13 @@ public class VectorIngestRunnerTest
 	@BeforeClass
 	public static void setup()
 			throws IOException {
-		GeoWaveStoreFinder
-				.getRegisteredStoreFactoryFamilies()
-				.put(
-						"memory",
-						new MemoryStoreFactoryFamily());
+		GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put(
+				"memory",
+				new MemoryStoreFactoryFamily());
 
-		InstallGdal
-				.main(
-						new String[] {
-							System
-									.getenv(
-											"GDAL_DIR")
-						});
+		InstallGdal.main(new String[] {
+			System.getenv("GDAL_DIR")
+		});
 	}
 
 	@Test
@@ -61,58 +55,33 @@ public class VectorIngestRunnerTest
 		JAIExt.initJAIEXT();
 
 		final Landsat8BasicCommandLineOptions analyzeOptions = new Landsat8BasicCommandLineOptions();
-		analyzeOptions
-				.setNBestScenes(
-						1);
-		analyzeOptions
-				.setCqlFilter(
-						"BBOX(shape,-76.6,42.34,-76.4,42.54) and band='BQA' and sizeMB < 1");
-		analyzeOptions
-				.setUseCachedScenes(
-						true);
-		analyzeOptions
-				.setWorkspaceDir(
-						Tests.WORKSPACE_DIR);
+		analyzeOptions.setNBestScenes(1);
+		analyzeOptions.setCqlFilter("BBOX(shape,-76.6,42.34,-76.4,42.54) and band='BQA' and sizeMB < 1");
+		analyzeOptions.setUseCachedScenes(true);
+		analyzeOptions.setWorkspaceDir(Tests.WORKSPACE_DIR);
 
 		final Landsat8DownloadCommandLineOptions downloadOptions = new Landsat8DownloadCommandLineOptions();
-		downloadOptions
-				.setOverwriteIfExists(
-						false);
+		downloadOptions.setOverwriteIfExists(false);
 
 		final Landsat8RasterIngestCommandLineOptions ingestOptions = new Landsat8RasterIngestCommandLineOptions();
-		ingestOptions
-				.setRetainImages(
-						true);
-		ingestOptions
-				.setCreatePyramid(
-						true);
-		ingestOptions
-				.setCreateHistogram(
-						true);
+		ingestOptions.setRetainImages(true);
+		ingestOptions.setCreatePyramid(true);
+		ingestOptions.setCreateHistogram(true);
 		final VectorIngestRunner runner = new VectorIngestRunner(
 				analyzeOptions,
-				Arrays
-						.asList(
-								"memorystore",
-								"spatialindex"));
+				Arrays.asList(
+						"memorystore",
+						"spatialindex"));
 		final ManualOperationParams params = new ManualOperationParams();
-		params
-				.getContext()
-				.put(
-						ConfigOptions.PROPERTIES_FILE_CONTEXT,
-						new File(
-								VectorIngestRunnerTest.class
-										.getClassLoader()
-										.getResource(
-												"geowave-config.properties")
-										.toURI()));
-		runner
-				.runInternal(
-						params);
+		params.getContext().put(
+				ConfigOptions.PROPERTIES_FILE_CONTEXT,
+				new File(
+						VectorIngestRunnerTest.class.getClassLoader().getResource(
+								"geowave-config.properties").toURI()));
+		runner.runInternal(params);
 		try (CloseableIterator<Object> results = getStore(
-				params)
-						.query(
-								QueryBuilder.newBuilder().build())) {
+				params).query(
+				QueryBuilder.newBuilder().build())) {
 			assertTrue(
 					"Store is not empty",
 					results.hasNext());
@@ -123,16 +92,12 @@ public class VectorIngestRunnerTest
 
 	private DataStore getStore(
 			final OperationParams params ) {
-		final File configFile = (File) params
-				.getContext()
-				.get(
-						ConfigOptions.PROPERTIES_FILE_CONTEXT);
+		final File configFile = (File) params.getContext().get(
+				ConfigOptions.PROPERTIES_FILE_CONTEXT);
 
 		final StoreLoader inputStoreLoader = new StoreLoader(
 				"memorystore");
-		if (!inputStoreLoader
-				.loadFromConfig(
-						configFile)) {
+		if (!inputStoreLoader.loadFromConfig(configFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + inputStoreLoader.getStoreName());
 		}
@@ -146,7 +111,7 @@ public class VectorIngestRunnerTest
 	 * IndexLoader("spatialindex"); if (!indexLoader.loadFromConfig(configFile))
 	 * { throw new ParameterException( "Cannot find index(s) by name: " +
 	 * indexLoader.getIndexName()); }
-	 *
+	 * 
 	 * IndexPluginOptions indexOptions =
 	 * Iterables.getOnlyElement(indexLoader.getLoadedIndexes()); return
 	 * indexOptions.createPrimaryIndex(); }

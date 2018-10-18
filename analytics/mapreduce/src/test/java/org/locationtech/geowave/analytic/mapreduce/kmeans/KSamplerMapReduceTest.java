@@ -80,9 +80,7 @@ public class KSamplerMapReduceTest
 		public double rank(
 				final int sampleSize,
 				final Object value ) {
-			capturedObjects
-					.add(
-							value);
+			capturedObjects.add(value);
 			return 0.5;
 		}
 
@@ -108,9 +106,7 @@ public class KSamplerMapReduceTest
 		public double rank(
 				final int sampleSize,
 				final Object value ) {
-			capturedObjects
-					.add(
-							value);
+			capturedObjects.add(value);
 			return 0.0;
 		}
 	}
@@ -120,228 +116,163 @@ public class KSamplerMapReduceTest
 			throws IOException {
 		final KSamplerMapReduce.SampleMap<TestObject> mapper = new KSamplerMapReduce.SampleMap<>();
 		final KSamplerMapReduce.SampleReducer<TestObject> reducer = new KSamplerMapReduce.SampleReducer<>();
-		mapDriver = MapDriver
-				.newMapDriver(
-						mapper);
-		reduceDriver = ReduceDriver
-				.newReduceDriver(
-						reducer);
-		final DataTypeAdapter<?> adapter = AnalyticFeature
-				.createGeometryFeatureAdapter(
-						"altoids",
-						new String[] {},
-						"http://geowave.test.net",
-						ClusteringUtils.CLUSTERING_CRS);
+		mapDriver = MapDriver.newMapDriver(mapper);
+		reduceDriver = ReduceDriver.newReduceDriver(reducer);
+		final DataTypeAdapter<?> adapter = AnalyticFeature.createGeometryFeatureAdapter(
+				"altoids",
+				new String[] {},
+				"http://geowave.test.net",
+				ClusteringUtils.CLUSTERING_CRS);
 
 		final PropertyManagement propManagement = new PropertyManagement();
 
 		final DataStorePluginOptions pluginOptions = new DataStorePluginOptions();
-		GeoWaveStoreFinder
-				.getRegisteredStoreFactoryFamilies()
-				.put(
-						"memory",
-						new MemoryStoreFactoryFamily());
-		pluginOptions
-				.selectPlugin(
-						"memory");
+		GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put(
+				"memory",
+				new MemoryStoreFactoryFamily());
+		pluginOptions.selectPlugin("memory");
 		final MemoryRequiredOptions opts = (MemoryRequiredOptions) pluginOptions.getFactoryOptions();
 		final String namespace = "test_" + getClass().getName() + "_" + name.getMethodName();
-		opts
-				.setGeowaveNamespace(
-						namespace);
+		opts.setGeowaveNamespace(namespace);
 		final PersistableStore store = new PersistableStore(
 				pluginOptions);
 
-		propManagement
-				.store(
-						StoreParam.INPUT_STORE,
-						store);
+		propManagement.store(
+				StoreParam.INPUT_STORE,
+				store);
 
-		propManagement
-				.store(
-						CentroidParameters.Centroid.INDEX_NAME,
-						new SpatialDimensionalityTypeProvider()
-								.createIndex(
-										new SpatialOptions())
-								.getName());
-		propManagement
-				.store(
-						CentroidParameters.Centroid.DATA_TYPE_ID,
-						"altoids");
-		propManagement
-				.store(
-						CentroidParameters.Centroid.DATA_NAMESPACE_URI,
-						"http://geowave.test.net");
-		propManagement
-				.store(
-						GlobalParameters.Global.BATCH_ID,
-						"b1");
-		propManagement
-				.store(
-						CentroidParameters.Centroid.EXTRACTOR_CLASS,
-						TestObjectExtractor.class);
-		propManagement
-				.store(
-						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-						TestObjectItemWrapperFactory.class);
+		propManagement.store(
+				CentroidParameters.Centroid.INDEX_NAME,
+				new SpatialDimensionalityTypeProvider().createIndex(
+						new SpatialOptions()).getName());
+		propManagement.store(
+				CentroidParameters.Centroid.DATA_TYPE_ID,
+				"altoids");
+		propManagement.store(
+				CentroidParameters.Centroid.DATA_NAMESPACE_URI,
+				"http://geowave.test.net");
+		propManagement.store(
+				GlobalParameters.Global.BATCH_ID,
+				"b1");
+		propManagement.store(
+				CentroidParameters.Centroid.EXTRACTOR_CLASS,
+				TestObjectExtractor.class);
+		propManagement.store(
+				CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+				TestObjectItemWrapperFactory.class);
 
-		CentroidManagerGeoWave
-				.setParameters(
-						reduceDriver.getConfiguration(),
-						KSamplerMapReduce.class,
-						propManagement);
-		CentroidManagerGeoWave
-				.setParameters(
-						mapDriver.getConfiguration(),
-						KSamplerMapReduce.class,
-						propManagement);
+		CentroidManagerGeoWave.setParameters(
+				reduceDriver.getConfiguration(),
+				KSamplerMapReduce.class,
+				propManagement);
+		CentroidManagerGeoWave.setParameters(
+				mapDriver.getConfiguration(),
+				KSamplerMapReduce.class,
+				propManagement);
 		// TODO it seems the centroid adapter is required to have been written,
 		// should this initialization be handled by the runner class rather than
 		// externally such as in the test?
 		final DataStore dataStore = store.getDataStoreOptions().createDataStore();
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						new SpatialDimensionalityTypeProvider()
-								.createIndex(
-										new SpatialOptions()));
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()));
 
-		mapDriver
-				.getConfiguration()
-				.setClass(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										KSamplerMapReduce.class,
-										SampleParameters.Sample.SAMPLE_RANK_FUNCTION),
-						TestSamplingMidRankFunction.class,
-						SamplingRankFunction.class);
-		internalAdapterId = InternalAdapterStoreImpl
-				.getInitialAdapterId(
-						testObjectAdapter.getTypeName());
-		other = InternalAdapterStoreImpl
-				.getInitialAdapterId(
-						adapter.getTypeName());
-		JobContextAdapterStore
-				.addDataAdapter(
-						mapDriver.getConfiguration(),
-						testObjectAdapter);
-		JobContextAdapterStore
-				.addDataAdapter(
-						mapDriver.getConfiguration(),
-						adapter);
-		JobContextInternalAdapterStore
-				.addTypeName(
-						mapDriver.getConfiguration(),
-						testObjectAdapter.getTypeName(),
-						internalAdapterId);
-		JobContextInternalAdapterStore
-				.addTypeName(
-						mapDriver.getConfiguration(),
-						adapter.getTypeName(),
-						other);
+		mapDriver.getConfiguration().setClass(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						KSamplerMapReduce.class,
+						SampleParameters.Sample.SAMPLE_RANK_FUNCTION),
+				TestSamplingMidRankFunction.class,
+				SamplingRankFunction.class);
+		internalAdapterId = InternalAdapterStoreImpl.getInitialAdapterId(testObjectAdapter.getTypeName());
+		other = InternalAdapterStoreImpl.getInitialAdapterId(adapter.getTypeName());
+		JobContextAdapterStore.addDataAdapter(
+				mapDriver.getConfiguration(),
+				testObjectAdapter);
+		JobContextAdapterStore.addDataAdapter(
+				mapDriver.getConfiguration(),
+				adapter);
+		JobContextInternalAdapterStore.addTypeName(
+				mapDriver.getConfiguration(),
+				testObjectAdapter.getTypeName(),
+				internalAdapterId);
+		JobContextInternalAdapterStore.addTypeName(
+				mapDriver.getConfiguration(),
+				adapter.getTypeName(),
+				other);
 
-		mapDriver
-				.getConfiguration()
-				.setInt(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										KSamplerMapReduce.class,
-										SampleParameters.Sample.SAMPLE_SIZE),
-						2);
+		mapDriver.getConfiguration().setInt(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						KSamplerMapReduce.class,
+						SampleParameters.Sample.SAMPLE_SIZE),
+				2);
 
-		reduceDriver
-				.getConfiguration()
-				.setInt(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										KSamplerMapReduce.class,
-										SampleParameters.Sample.SAMPLE_SIZE),
-						2);
+		reduceDriver.getConfiguration().setInt(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						KSamplerMapReduce.class,
+						SampleParameters.Sample.SAMPLE_SIZE),
+				2);
 
-		JobContextAdapterStore
-				.addDataAdapter(
-						reduceDriver.getConfiguration(),
-						adapter);
-		JobContextAdapterStore
-				.addDataAdapter(
-						reduceDriver.getConfiguration(),
-						testObjectAdapter);
-		JobContextInternalAdapterStore
-				.addTypeName(
-						reduceDriver.getConfiguration(),
-						adapter.getTypeName(),
-						other);
-		JobContextInternalAdapterStore
-				.addTypeName(
-						reduceDriver.getConfiguration(),
-						testObjectAdapter.getTypeName(),
-						internalAdapterId);
+		JobContextAdapterStore.addDataAdapter(
+				reduceDriver.getConfiguration(),
+				adapter);
+		JobContextAdapterStore.addDataAdapter(
+				reduceDriver.getConfiguration(),
+				testObjectAdapter);
+		JobContextInternalAdapterStore.addTypeName(
+				reduceDriver.getConfiguration(),
+				adapter.getTypeName(),
+				other);
+		JobContextInternalAdapterStore.addTypeName(
+				reduceDriver.getConfiguration(),
+				testObjectAdapter.getTypeName(),
+				internalAdapterId);
 
-		reduceDriver
-				.getConfiguration()
-				.set(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										KSamplerMapReduce.class,
-										SampleParameters.Sample.DATA_TYPE_NAME),
-						"altoids");
+		reduceDriver.getConfiguration().set(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						KSamplerMapReduce.class,
+						SampleParameters.Sample.DATA_TYPE_NAME),
+				"altoids");
 
-		reduceDriver
-				.getConfiguration()
-				.setClass(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										KSamplerMapReduce.class,
-										CentroidParameters.Centroid.EXTRACTOR_CLASS),
-						TestObjectExtractor.class,
-						CentroidExtractor.class);
+		reduceDriver.getConfiguration().setClass(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						KSamplerMapReduce.class,
+						CentroidParameters.Centroid.EXTRACTOR_CLASS),
+				TestObjectExtractor.class,
+				CentroidExtractor.class);
 
-		mapDriver
-				.getConfiguration()
-				.setClass(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										KSamplerMapReduce.class,
-										CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS),
-						TestObjectItemWrapperFactory.class,
-						AnalyticItemWrapperFactory.class);
+		mapDriver.getConfiguration().setClass(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						KSamplerMapReduce.class,
+						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS),
+				TestObjectItemWrapperFactory.class,
+				AnalyticItemWrapperFactory.class);
 
-		reduceDriver
-				.getConfiguration()
-				.setClass(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										KSamplerMapReduce.class,
-										CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS),
-						TestObjectItemWrapperFactory.class,
-						AnalyticItemWrapperFactory.class);
+		reduceDriver.getConfiguration().setClass(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						KSamplerMapReduce.class,
+						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS),
+				TestObjectItemWrapperFactory.class,
+				AnalyticItemWrapperFactory.class);
 
 		serializations();
 	}
 
 	private void serializations() {
-		final String[] strings = reduceDriver
-				.getConfiguration()
-				.getStrings(
-						"io.serializations");
+		final String[] strings = reduceDriver.getConfiguration().getStrings(
+				"io.serializations");
 		final String[] newStrings = new String[strings.length + 2];
-		System
-				.arraycopy(
-						strings,
-						0,
-						newStrings,
-						0,
-						strings.length);
+		System.arraycopy(
+				strings,
+				0,
+				newStrings,
+				0,
+				strings.length);
 		newStrings[newStrings.length - 1] = SimpleFeatureImplSerialization.class.getName();
 		newStrings[newStrings.length - 2] = TestObjectSerialization.class.getName();
-		reduceDriver
-				.getConfiguration()
-				.setStrings(
-						"io.serializations",
-						newStrings);
+		reduceDriver.getConfiguration().setStrings(
+				"io.serializations",
+				newStrings);
 	}
 
 	@Test
@@ -349,83 +280,52 @@ public class KSamplerMapReduceTest
 			throws IOException {
 
 		capturedObjects.clear();
-		mapDriver
-				.getConfiguration()
-				.setClass(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										KSamplerMapReduce.class,
-										SampleParameters.Sample.SAMPLE_RANK_FUNCTION),
-						TestSamplingMidRankFunction.class,
-						SamplingRankFunction.class);
+		mapDriver.getConfiguration().setClass(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						KSamplerMapReduce.class,
+						SampleParameters.Sample.SAMPLE_RANK_FUNCTION),
+				TestSamplingMidRankFunction.class,
+				SamplingRankFunction.class);
 
 		final GeoWaveInputKey inputKey = new GeoWaveInputKey();
-		inputKey
-				.setInternalAdapterId(
-						internalAdapterId);
-		inputKey
-				.setDataId(
-						new ByteArrayId(
-								"abc".getBytes()));
+		inputKey.setInternalAdapterId(internalAdapterId);
+		inputKey.setDataId(new ByteArrayId(
+				"abc".getBytes()));
 
 		final ObjectWritable ow = new ObjectWritable();
-		ow
-				.set(
-						new TestObjectWritable(
-								new TestObject(
-										new Coordinate(
-												25.4,
-												25.6),
-										"abc")));
+		ow.set(new TestObjectWritable(
+				new TestObject(
+						new Coordinate(
+								25.4,
+								25.6),
+						"abc")));
 
 		final GeoWaveInputKey outputKey = new GeoWaveInputKey();
-		outputKey
-				.setInternalAdapterId(
-						internalAdapterId);
+		outputKey.setInternalAdapterId(internalAdapterId);
 
-		final ByteBuffer keyBuf = ByteBuffer
-				.allocate(
-						64);
-		keyBuf
-				.putDouble(
-						0.5);
-		keyBuf
-				.putInt(
-						1);
-		keyBuf
-				.put(
-						"1".getBytes());
-		keyBuf
-				.putInt(
-						3);
-		keyBuf
-				.put(
-						inputKey.getDataId().getBytes());
-		outputKey
-				.setDataId(
-						new ByteArrayId(
-								keyBuf.array()));
+		final ByteBuffer keyBuf = ByteBuffer.allocate(64);
+		keyBuf.putDouble(0.5);
+		keyBuf.putInt(1);
+		keyBuf.put("1".getBytes());
+		keyBuf.putInt(3);
+		keyBuf.put(inputKey.getDataId().getBytes());
+		outputKey.setDataId(new ByteArrayId(
+				keyBuf.array()));
 
-		mapDriver
-				.withInput(
-						inputKey,
-						ow);
+		mapDriver.withInput(
+				inputKey,
+				ow);
 
 		final List<Pair<GeoWaveInputKey, ObjectWritable>> results = mapDriver.run();
 		// output key has the dataID adjusted to contain the rank
 		assertEquals(
-				results
-						.get(
-								0)
-						.getFirst(),
+				results.get(
+						0).getFirst(),
 				outputKey);
 		// output value is the same as input value
 		assertEquals(
-				results
-						.get(
-								0)
-						.getSecond()
-						.get(),
+				results.get(
+						0).getSecond().get(),
 				ow.get());
 
 		// results from sample rank function to make sure it was provided the
@@ -435,70 +335,46 @@ public class KSamplerMapReduceTest
 				capturedObjects.size());
 		assertEquals(
 				"abc",
-				((TestObject) capturedObjects
-						.get(
-								0)).id);
+				((TestObject) capturedObjects.get(0)).id);
 	}
 
 	@Test
 	public void testMapperWithZeroRank()
 			throws IOException {
 		capturedObjects.clear();
-		mapDriver
-				.getConfiguration()
-				.setClass(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										KSamplerMapReduce.class,
-										SampleParameters.Sample.SAMPLE_RANK_FUNCTION),
-						TestSamplingNoRankFunction.class,
-						SamplingRankFunction.class);
+		mapDriver.getConfiguration().setClass(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						KSamplerMapReduce.class,
+						SampleParameters.Sample.SAMPLE_RANK_FUNCTION),
+				TestSamplingNoRankFunction.class,
+				SamplingRankFunction.class);
 
 		final GeoWaveInputKey inputKey = new GeoWaveInputKey();
-		inputKey
-				.setInternalAdapterId(
-						internalAdapterId);
-		inputKey
-				.setDataId(
-						new ByteArrayId(
-								"abc".getBytes()));
+		inputKey.setInternalAdapterId(internalAdapterId);
+		inputKey.setDataId(new ByteArrayId(
+				"abc".getBytes()));
 
 		final ObjectWritable ow = new ObjectWritable();
-		ow
-				.set(
-						new TestObjectWritable(
-								new TestObject(
-										new Coordinate(
-												25.4,
-												25.6),
-										"abc")));
+		ow.set(new TestObjectWritable(
+				new TestObject(
+						new Coordinate(
+								25.4,
+								25.6),
+						"abc")));
 
 		final GeoWaveInputKey outputKey = new GeoWaveInputKey();
-		outputKey
-				.setInternalAdapterId(
-						internalAdapterId);
+		outputKey.setInternalAdapterId(internalAdapterId);
 
-		final ByteBuffer keyBuf = ByteBuffer
-				.allocate(
-						64);
-		keyBuf
-				.putDouble(
-						0.0);
-		keyBuf
-				.putInt(
-						3);
-		keyBuf
-				.put(
-						inputKey.getDataId().getBytes());
-		outputKey
-				.setDataId(
-						new ByteArrayId(
-								keyBuf.array()));
+		final ByteBuffer keyBuf = ByteBuffer.allocate(64);
+		keyBuf.putDouble(0.0);
+		keyBuf.putInt(3);
+		keyBuf.put(inputKey.getDataId().getBytes());
+		outputKey.setDataId(new ByteArrayId(
+				keyBuf.array()));
 
-		mapDriver
-				.withInput(
-						inputKey,
-						ow);
+		mapDriver.withInput(
+				inputKey,
+				ow);
 
 		final List<Pair<GeoWaveInputKey, ObjectWritable>> results = mapDriver.run();
 
@@ -513,9 +389,7 @@ public class KSamplerMapReduceTest
 				capturedObjects.size());
 		assertEquals(
 				"abc",
-				((TestObject) capturedObjects
-						.get(
-								0)).id);
+				((TestObject) capturedObjects.get(0)).id);
 	}
 
 	@Test
@@ -523,152 +397,89 @@ public class KSamplerMapReduceTest
 			throws IOException {
 
 		final ObjectWritable ow1 = new ObjectWritable();
-		ow1
-				.set(
-						new TestObjectWritable(
-								new TestObject(
-										new Coordinate(
-												25.4,
-												25.6),
-										"abc")));
+		ow1.set(new TestObjectWritable(
+				new TestObject(
+						new Coordinate(
+								25.4,
+								25.6),
+						"abc")));
 
 		final ObjectWritable ow2 = new ObjectWritable();
-		ow2
-				.set(
-						new TestObjectWritable(
-								new TestObject(
-										new Coordinate(
-												25.4,
-												25.6),
-										"def")));
+		ow2.set(new TestObjectWritable(
+				new TestObject(
+						new Coordinate(
+								25.4,
+								25.6),
+						"def")));
 
 		final ObjectWritable ow3 = new ObjectWritable();
-		ow3
-				.set(
-						new TestObjectWritable(
-								new TestObject(
-										new Coordinate(
-												25.4,
-												25.6),
-										"ghi")));
+		ow3.set(new TestObjectWritable(
+				new TestObject(
+						new Coordinate(
+								25.4,
+								25.6),
+						"ghi")));
 
 		final GeoWaveInputKey inputKey1 = new GeoWaveInputKey();
-		inputKey1
-				.setInternalAdapterId(
-						internalAdapterId);
+		inputKey1.setInternalAdapterId(internalAdapterId);
 
-		ByteBuffer keyBuf = ByteBuffer
-				.allocate(
-						64);
-		keyBuf
-				.putDouble(
-						0.5);
-		keyBuf
-				.putInt(
-						3);
-		keyBuf
-				.put(
-						"111".getBytes());
-		inputKey1
-				.setDataId(
-						new ByteArrayId(
-								keyBuf.array()));
+		ByteBuffer keyBuf = ByteBuffer.allocate(64);
+		keyBuf.putDouble(0.5);
+		keyBuf.putInt(3);
+		keyBuf.put("111".getBytes());
+		inputKey1.setDataId(new ByteArrayId(
+				keyBuf.array()));
 
-		keyBuf = ByteBuffer
-				.allocate(
-						64);
+		keyBuf = ByteBuffer.allocate(64);
 		final GeoWaveInputKey inputKey2 = new GeoWaveInputKey();
-		inputKey2
-				.setInternalAdapterId(
-						internalAdapterId);
-		keyBuf
-				.putDouble(
-						0.6);
-		keyBuf
-				.putInt(
-						3);
-		keyBuf
-				.put(
-						"111".getBytes());
-		inputKey2
-				.setDataId(
-						new ByteArrayId(
-								keyBuf.array()));
+		inputKey2.setInternalAdapterId(internalAdapterId);
+		keyBuf.putDouble(0.6);
+		keyBuf.putInt(3);
+		keyBuf.put("111".getBytes());
+		inputKey2.setDataId(new ByteArrayId(
+				keyBuf.array()));
 
-		keyBuf = ByteBuffer
-				.allocate(
-						64);
+		keyBuf = ByteBuffer.allocate(64);
 		final GeoWaveInputKey inputKey3 = new GeoWaveInputKey();
-		inputKey3
-				.setInternalAdapterId(
-						internalAdapterId);
-		keyBuf
-				.putDouble(
-						0.7);
-		keyBuf
-				.putInt(
-						3);
-		keyBuf
-				.put(
-						"111".getBytes());
-		inputKey3
-				.setDataId(
-						new ByteArrayId(
-								keyBuf.array()));
+		inputKey3.setInternalAdapterId(internalAdapterId);
+		keyBuf.putDouble(0.7);
+		keyBuf.putInt(3);
+		keyBuf.put("111".getBytes());
+		inputKey3.setDataId(new ByteArrayId(
+				keyBuf.array()));
 
-		reduceDriver
-				.addInput(
-						inputKey1,
-						Arrays
-								.asList(
-										ow1));
+		reduceDriver.addInput(
+				inputKey1,
+				Arrays.asList(ow1));
 
-		reduceDriver
-				.addInput(
-						inputKey2,
-						Arrays
-								.asList(
-										ow2));
+		reduceDriver.addInput(
+				inputKey2,
+				Arrays.asList(ow2));
 
-		reduceDriver
-				.addInput(
-						inputKey3,
-						Arrays
-								.asList(
-										ow3));
+		reduceDriver.addInput(
+				inputKey3,
+				Arrays.asList(ow3));
 
 		final List<Pair<GeoWaveOutputKey, TestObject>> results = reduceDriver.run();
 		assertEquals(
 				2,
 				results.size());
 		assertEquals(
-				results
-						.get(
-								0)
-						.getFirst()
-						.getTypeName(),
+				results.get(
+						0).getFirst().getTypeName(),
 				"altoids");
 		assertEquals(
-				results
-						.get(
-								1)
-						.getFirst()
-						.getTypeName(),
+				results.get(
+						1).getFirst().getTypeName(),
 				"altoids");
 		assertEquals(
 				"abc",
-				results
-						.get(
-								0)
-						.getSecond()
-						.getName());
+				results.get(
+						0).getSecond().getName());
 		assertEquals(
 				"def",
-				results
-						.get(
-								1)
-						.getSecond()
-						.getName());
+				results.get(
+						1).getSecond().getName());
 
 	}
 }

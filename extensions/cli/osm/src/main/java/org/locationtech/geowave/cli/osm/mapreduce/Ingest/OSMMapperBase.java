@@ -33,42 +33,24 @@ public class OSMMapperBase<T> extends
 		Mapper<AvroKey<T>, NullWritable, Text, Mutation>
 {
 
-	private static final Logger log = LoggerFactory
-			.getLogger(
-					OSMMapperBase.class);
+	private static final Logger log = LoggerFactory.getLogger(OSMMapperBase.class);
 
-	protected final FieldWriter<?, Long> longWriter = FieldUtils
-			.getDefaultWriterForClass(
-					Long.class);
-	protected final FieldWriter<?, Integer> intWriter = FieldUtils
-			.getDefaultWriterForClass(
-					Integer.class);
-	protected final FieldWriter<?, String> stringWriter = FieldUtils
-			.getDefaultWriterForClass(
-					String.class);
-	protected final FieldWriter<?, Double> doubleWriter = FieldUtils
-			.getDefaultWriterForClass(
-					Double.class);
-	protected final FieldWriter<?, Boolean> booleanWriter = FieldUtils
-			.getDefaultWriterForClass(
-					Boolean.class);
-	protected final FieldWriter<?, Calendar> calendarWriter = FieldUtils
-			.getDefaultWriterForClass(
-					Calendar.class);
+	protected final FieldWriter<?, Long> longWriter = FieldUtils.getDefaultWriterForClass(Long.class);
+	protected final FieldWriter<?, Integer> intWriter = FieldUtils.getDefaultWriterForClass(Integer.class);
+	protected final FieldWriter<?, String> stringWriter = FieldUtils.getDefaultWriterForClass(String.class);
+	protected final FieldWriter<?, Double> doubleWriter = FieldUtils.getDefaultWriterForClass(Double.class);
+	protected final FieldWriter<?, Boolean> booleanWriter = FieldUtils.getDefaultWriterForClass(Boolean.class);
+	protected final FieldWriter<?, Calendar> calendarWriter = FieldUtils.getDefaultWriterForClass(Calendar.class);
 
 	protected ColumnVisibility _visibility = new ColumnVisibility(
-			"public"
-					.getBytes(
-							Constants.CHARSET));
+			"public".getBytes(Constants.CHARSET));
 
 	protected Text _tableName = new Text(
 			"OSM");
 
 	protected byte[] getIdHash(
 			final long id ) {
-		return Schema
-				.getIdHash(
-						id);
+		return Schema.getIdHash(id);
 	}
 
 	protected void put(
@@ -77,18 +59,11 @@ public class OSMMapperBase<T> extends
 			final String cq,
 			final Long val ) {
 		if (val != null) {
-			m
-					.put(
-							StringUtils
-									.stringToBinary(
-											cf),
-							StringUtils
-									.stringToBinary(
-											cq),
-							_visibility,
-							longWriter
-									.writeField(
-											val));
+			m.put(
+					StringUtils.stringToBinary(cf),
+					StringUtils.stringToBinary(cq),
+					_visibility,
+					longWriter.writeField(val));
 		}
 	}
 
@@ -98,18 +73,11 @@ public class OSMMapperBase<T> extends
 			final String cq,
 			final Integer val ) {
 		if (val != null) {
-			m
-					.put(
-							StringUtils
-									.stringToBinary(
-											cf),
-							StringUtils
-									.stringToBinary(
-											cq),
-							_visibility,
-							intWriter
-									.writeField(
-											val));
+			m.put(
+					StringUtils.stringToBinary(cf),
+					StringUtils.stringToBinary(cq),
+					_visibility,
+					intWriter.writeField(val));
 		}
 	}
 
@@ -119,18 +87,11 @@ public class OSMMapperBase<T> extends
 			final String cq,
 			final Double val ) {
 		if (val != null) {
-			m
-					.put(
-							StringUtils
-									.stringToBinary(
-											cf),
-							StringUtils
-									.stringToBinary(
-											cq),
-							_visibility,
-							doubleWriter
-									.writeField(
-											val));
+			m.put(
+					StringUtils.stringToBinary(cf),
+					StringUtils.stringToBinary(cq),
+					_visibility,
+					doubleWriter.writeField(val));
 		}
 	}
 
@@ -140,18 +101,11 @@ public class OSMMapperBase<T> extends
 			final String cq,
 			final String val ) {
 		if (val != null) {
-			m
-					.put(
-							StringUtils
-									.stringToBinary(
-											cf),
-							StringUtils
-									.stringToBinary(
-											cq),
-							_visibility,
-							stringWriter
-									.writeField(
-											val));
+			m.put(
+					StringUtils.stringToBinary(cf),
+					StringUtils.stringToBinary(cq),
+					_visibility,
+					stringWriter.writeField(val));
 		}
 	}
 
@@ -161,18 +115,11 @@ public class OSMMapperBase<T> extends
 			final String cq,
 			final CharSequence val ) {
 		if (val != null) {
-			m
-					.put(
-							StringUtils
-									.stringToBinary(
-											cf),
-							StringUtils
-									.stringToBinary(
-											cq),
-							_visibility,
-							stringWriter
-									.writeField(
-											val.toString()));
+			m.put(
+					StringUtils.stringToBinary(cf),
+					StringUtils.stringToBinary(cq),
+					_visibility,
+					stringWriter.writeField(val.toString()));
 		}
 	}
 
@@ -182,18 +129,11 @@ public class OSMMapperBase<T> extends
 			final String cq,
 			final Boolean val ) {
 		if (val != null) {
-			m
-					.put(
-							StringUtils
-									.stringToBinary(
-											cf),
-							StringUtils
-									.stringToBinary(
-											cq),
-							_visibility,
-							booleanWriter
-									.writeField(
-											val));
+			m.put(
+					StringUtils.stringToBinary(cf),
+					StringUtils.stringToBinary(cq),
+					_visibility,
+					booleanWriter.writeField(val));
 		}
 	}
 
@@ -203,18 +143,11 @@ public class OSMMapperBase<T> extends
 			final String cq,
 			final Calendar val ) {
 		if (val != null) {
-			m
-					.put(
-							StringUtils
-									.stringToBinary(
-											cf),
-							StringUtils
-									.stringToBinary(
-											cq),
-							_visibility,
-							calendarWriter
-									.writeField(
-											val));
+			m.put(
+					StringUtils.stringToBinary(cf),
+					StringUtils.stringToBinary(cq),
+					_visibility,
+					calendarWriter.writeField(val));
 		}
 	}
 
@@ -225,24 +158,16 @@ public class OSMMapperBase<T> extends
 			final LongArray val ) {
 		if (val != null) {
 			try {
-				m
-						.put(
-								StringUtils
-										.stringToBinary(
-												cf),
-								StringUtils
-										.stringToBinary(
-												cq),
-								_visibility,
-								TypeUtils
-										.serializeLongArray(
-												val));
+				m.put(
+						StringUtils.stringToBinary(cf),
+						StringUtils.stringToBinary(cq),
+						_visibility,
+						TypeUtils.serializeLongArray(val));
 			}
 			catch (final IOException e) {
-				log
-						.error(
-								"Unable to serialize LongArray instance",
-								e);
+				log.error(
+						"Unable to serialize LongArray instance",
+						e);
 			}
 		}
 	}
@@ -252,27 +177,19 @@ public class OSMMapperBase<T> extends
 			final Context context )
 			throws IOException,
 			InterruptedException {
-		final String tn = context
-				.getConfiguration()
-				.get(
-						"tableName");
+		final String tn = context.getConfiguration().get(
+				"tableName");
 		if ((tn != null) && !tn.isEmpty()) {
-			_tableName
-					.set(
-							tn);
+			_tableName.set(tn);
 		}
-		String visibility = context
-				.getConfiguration()
-				.get(
-						"osmVisibility");
+		String visibility = context.getConfiguration().get(
+				"osmVisibility");
 		if (visibility == null) {
 			visibility = "";
 		}
 
 		_visibility = new ColumnVisibility(
-				visibility
-						.getBytes(
-								Constants.CHARSET));
+				visibility.getBytes(Constants.CHARSET));
 	}
 
 }

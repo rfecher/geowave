@@ -32,9 +32,7 @@ import com.vividsolutions.jts.geom.Point;
 
 public class SimpleIngestTest
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					SimpleIngestTest.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(SimpleIngestTest.class);
 
 	final GeometryFactory factory = new GeometryFactory();
 	IndexStore indexStore;
@@ -45,14 +43,10 @@ public class SimpleIngestTest
 		final Set<Point> calcPoints = new TreeSet<>();
 		for (int longitude = -180; longitude <= 180; longitude += 5) {
 			for (int latitude = -90; latitude <= 90; latitude += 5) {
-				final Point p = GeometryUtils.GEOMETRY_FACTORY
-						.createPoint(
-								new Coordinate(
-										longitude,
-										latitude));
-				calcPoints
-						.add(
-								p);
+				final Point p = GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
+						longitude,
+						latitude));
+				calcPoints.add(p);
 			}
 		}
 		return calcPoints;
@@ -60,23 +54,16 @@ public class SimpleIngestTest
 
 	protected static Set<Point> getStoredPointSet(
 			final DataStore ds ) {
-		final CloseableIterator itr = ds
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.constraints(
-										new BasicQuery(
-												new BasicQuery.Constraints()))
-								.build());
+		final CloseableIterator itr = ds.query(QueryBuilder.newBuilder().constraints(
+				new BasicQuery(
+						new BasicQuery.Constraints())).build());
 		final Set<Point> readPoints = new TreeSet<>();
 		while (itr.hasNext()) {
 			final Object n = itr.next();
 			if (n instanceof SimpleFeature) {
 				final SimpleFeature gridCell = (SimpleFeature) n;
 				final Point p = (Point) gridCell.getDefaultGeometry();
-				readPoints
-						.add(
-								p);
+				readPoints.add(p);
 			}
 		}
 		return readPoints;
@@ -84,15 +71,10 @@ public class SimpleIngestTest
 
 	protected static void validate(
 			final DataStore ds ) {
-		final Set<Point> readPoints = getStoredPointSet(
-				ds);
+		final Set<Point> readPoints = getStoredPointSet(ds);
 		final Set<Point> calcPoints = getCalcedPointSet();
 
-		Assert
-				.assertTrue(
-						readPoints
-								.equals(
-										calcPoints));
+		Assert.assertTrue(readPoints.equals(calcPoints));
 	}
 
 }

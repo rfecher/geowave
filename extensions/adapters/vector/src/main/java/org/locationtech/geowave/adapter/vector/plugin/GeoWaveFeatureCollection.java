@@ -89,8 +89,9 @@ public class GeoWaveFeatureCollection extends
 			final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = reader
 					.getTransaction()
 					.getDataStatistics();
-			if (statsMap.containsKey(CountDataStatistics.STATS_TYPE)) {
-				final CountDataStatistics stats = (CountDataStatistics) statsMap.get(CountDataStatistics.STATS_TYPE);
+			StatisticsId id = CountDataStatistics.STATS_TYPE.newBuilder().build().getId();
+			if (statsMap.containsKey(id)) {
+				final CountDataStatistics stats = (CountDataStatistics) statsMap.get(id);
 				if ((stats != null) && stats.isSet()) {
 					return (int) stats.getCount();
 				}

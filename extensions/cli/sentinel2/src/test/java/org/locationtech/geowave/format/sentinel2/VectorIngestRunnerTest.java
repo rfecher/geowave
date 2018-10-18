@@ -39,19 +39,16 @@ public class VectorIngestRunnerTest
 	@BeforeClass
 	public static void setup()
 			throws IOException {
-		GeoWaveStoreFinder
-				.getRegisteredStoreFactoryFamilies()
-				.put(
-						"memory",
-						new MemoryStoreFactoryFamily());
+		GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put(
+				"memory",
+				new MemoryStoreFactoryFamily());
 	}
 
 	@Test
 	public void testIngestProviders()
 			throws Exception {
 		for (final Sentinel2ImageryProvider provider : Sentinel2ImageryProvider.getProviders()) {
-			testIngest(
-					provider.providerName());
+			testIngest(provider.providerName());
 		}
 	}
 
@@ -60,70 +57,43 @@ public class VectorIngestRunnerTest
 			throws Exception {
 		JAIExt.initJAIEXT();
 
-		final Sentinel2ImageryProvider provider = Sentinel2ImageryProvider
-				.getProvider(
-						providerName);
+		final Sentinel2ImageryProvider provider = Sentinel2ImageryProvider.getProvider(providerName);
 		if (provider == null) {
 			throw new RuntimeException(
 					"Unable to find '" + providerName + "' Sentinel2 provider");
 		}
 
-		final Date[] timePeriodSettings = Tests
-				.timePeriodSettings(
-						providerName);
+		final Date[] timePeriodSettings = Tests.timePeriodSettings(providerName);
 		final Date startDate = timePeriodSettings[0];
 		final Date endDate = timePeriodSettings[1];
 
 		final Sentinel2BasicCommandLineOptions analyzeOptions = new Sentinel2BasicCommandLineOptions();
-		analyzeOptions
-				.setWorkspaceDir(
-						Tests.WORKSPACE_DIR);
-		analyzeOptions
-				.setProviderName(
-						providerName);
-		analyzeOptions
-				.setCollection(
-						provider.collections()[0]);
-		analyzeOptions
-				.setLocation(
-						"T30TXN");
-		analyzeOptions
-				.setStartDate(
-						startDate);
-		analyzeOptions
-				.setEndDate(
-						endDate);
-		analyzeOptions
-				.setCqlFilter(
-						"BBOX(shape,-1.8274,42.3253,-1.6256,42.4735) AND (band='B4' OR band='B8')");
+		analyzeOptions.setWorkspaceDir(Tests.WORKSPACE_DIR);
+		analyzeOptions.setProviderName(providerName);
+		analyzeOptions.setCollection(provider.collections()[0]);
+		analyzeOptions.setLocation("T30TXN");
+		analyzeOptions.setStartDate(startDate);
+		analyzeOptions.setEndDate(endDate);
+		analyzeOptions.setCqlFilter("BBOX(shape,-1.8274,42.3253,-1.6256,42.4735) AND (band='B4' OR band='B8')");
 
 		final VectorIngestRunner runner = new VectorIngestRunner(
 				analyzeOptions,
-				Arrays
-						.asList(
-								"memorystore",
-								"spatialindex,spatempindex"));
+				Arrays.asList(
+						"memorystore",
+						"spatialindex,spatempindex"));
 
 		final ManualOperationParams params = new ManualOperationParams();
-		params
-				.getContext()
-				.put(
-						ConfigOptions.PROPERTIES_FILE_CONTEXT,
-						new File(
-								VectorIngestRunnerTest.class
-										.getClassLoader()
-										.getResource(
-												"geowave-config.properties")
-										.toURI()));
+		params.getContext().put(
+				ConfigOptions.PROPERTIES_FILE_CONTEXT,
+				new File(
+						VectorIngestRunnerTest.class.getClassLoader().getResource(
+								"geowave-config.properties").toURI()));
 
-		runner
-				.runInternal(
-						params);
+		runner.runInternal(params);
 
 		try (CloseableIterator<Object> results = getStore(
-				params)
-						.query(
-								QueryBuilder.newBuilder().build())) {
+				params).query(
+				QueryBuilder.newBuilder().build())) {
 			assertTrue(
 					"Store is empty when it should have at least one result",
 					results.hasNext());
@@ -134,16 +104,12 @@ public class VectorIngestRunnerTest
 
 	private DataStore getStore(
 			final OperationParams params ) {
-		final File configFile = (File) params
-				.getContext()
-				.get(
-						ConfigOptions.PROPERTIES_FILE_CONTEXT);
+		final File configFile = (File) params.getContext().get(
+				ConfigOptions.PROPERTIES_FILE_CONTEXT);
 
 		final StoreLoader inputStoreLoader = new StoreLoader(
 				"memorystore");
-		if (!inputStoreLoader
-				.loadFromConfig(
-						configFile)) {
+		if (!inputStoreLoader.loadFromConfig(configFile)) {
 			throw new ParameterException(
 					"Cannot find store name: " + inputStoreLoader.getStoreName());
 		}

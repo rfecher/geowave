@@ -55,89 +55,65 @@ public class NestedGroupCentroidAssignmentTest
 			final Index index,
 			final T entry )
 			throws IOException {
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						index);
-		try (Writer writer = dataStore
-				.createWriter(
-						adapter.getTypeName())) {
-			writer
-					.write(
-							entry);
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer writer = dataStore.createWriter(adapter.getTypeName())) {
+			writer.write(entry);
 		}
 	}
 
 	@Test
 	public void test()
 			throws IOException {
-		final SimpleFeatureType ftype = AnalyticFeature
-				.createGeometryFeatureAdapter(
-						"centroid",
-						new String[] {
-							"extra1"
-						},
-						BasicFeatureTypes.DEFAULT_NAMESPACE,
-						ClusteringUtils.CLUSTERING_CRS)
-				.getFeatureType();
+		final SimpleFeatureType ftype = AnalyticFeature.createGeometryFeatureAdapter(
+				"centroid",
+				new String[] {
+					"extra1"
+				},
+				BasicFeatureTypes.DEFAULT_NAMESPACE,
+				ClusteringUtils.CLUSTERING_CRS).getFeatureType();
 		final GeometryFactory factory = new GeometryFactory();
 		final String grp1 = "g1";
 		final String grp2 = "g2";
 
-		final SimpleFeature level1b1G1Feature = AnalyticFeature
-				.createGeometryFeature(
-						ftype,
-						"b1",
-						"level1b1G1Feature",
-						"fred",
-						grp1,
-						20.30203,
-						factory
-								.createPoint(
-										new Coordinate(
-												02.5,
-												0.25)),
-						new String[] {
-							"extra1"
-						},
-						new double[] {
-							0.022
-						},
-						1,
-						1,
-						0);
+		final SimpleFeature level1b1G1Feature = AnalyticFeature.createGeometryFeature(
+				ftype,
+				"b1",
+				"level1b1G1Feature",
+				"fred",
+				grp1,
+				20.30203,
+				factory.createPoint(new Coordinate(
+						02.5,
+						0.25)),
+				new String[] {
+					"extra1"
+				},
+				new double[] {
+					0.022
+				},
+				1,
+				1,
+				0);
 
-		final Index index = new SpatialDimensionalityTypeProvider()
-				.createIndex(
-						new SpatialOptions());
+		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 		final FeatureDataAdapter adapter = new FeatureDataAdapter(
 				ftype);
-		adapter
-				.init(
-						index);
+		adapter.init(index);
 		final String namespace = "test_" + getClass().getName() + "_" + name.getMethodName();
 		final StoreFactoryFamilySpi storeFamily = new MemoryStoreFactoryFamily();
 		final StoreFactoryOptions opts = storeFamily.getDataStoreFactory().createOptionsInstance();
-		opts
-				.setGeowaveNamespace(
-						namespace);
+		opts.setGeowaveNamespace(namespace);
 		final DataStorePluginOptions storePluginOptions = new DataStorePluginOptions(
 				opts);
-		final DataStore dataStore = storeFamily
-				.getDataStoreFactory()
-				.createStore(
-						opts);
-		final IndexStore indexStore = storeFamily
-				.getIndexStoreFactory()
-				.createStore(
-						opts);
-		final PersistentAdapterStore adapterStore = storeFamily
-				.getAdapterStoreFactory()
-				.createStore(
-						opts);
+		final DataStore dataStore = storeFamily.getDataStoreFactory().createStore(
+				opts);
+		final IndexStore indexStore = storeFamily.getIndexStoreFactory().createStore(
+				opts);
+		final PersistentAdapterStore adapterStore = storeFamily.getAdapterStoreFactory().createStore(
+				opts);
 
 		ingest(
 				dataStore,
@@ -145,84 +121,75 @@ public class NestedGroupCentroidAssignmentTest
 				index,
 				level1b1G1Feature);
 
-		final SimpleFeature level1b1G2Feature = AnalyticFeature
-				.createGeometryFeature(
-						ftype,
-						"b1",
-						"level1b1G2Feature",
-						"flood",
-						grp2,
-						20.30203,
-						factory
-								.createPoint(
-										new Coordinate(
-												02.03,
-												0.2)),
-						new String[] {
-							"extra1"
-						},
-						new double[] {
-							0.022
-						},
-						1,
-						1,
-						0);
+		final SimpleFeature level1b1G2Feature = AnalyticFeature.createGeometryFeature(
+				ftype,
+				"b1",
+				"level1b1G2Feature",
+				"flood",
+				grp2,
+				20.30203,
+				factory.createPoint(new Coordinate(
+						02.03,
+						0.2)),
+				new String[] {
+					"extra1"
+				},
+				new double[] {
+					0.022
+				},
+				1,
+				1,
+				0);
 		ingest(
 				dataStore,
 				adapter,
 				index,
 				level1b1G2Feature);
 
-		final SimpleFeature level2b1G1Feature = AnalyticFeature
-				.createGeometryFeature(
-						ftype,
-						"b1",
-						"level2b1G1Feature",
-						"flou",
-						level1b1G1Feature.getID(),
-						20.30203,
-						factory
-								.createPoint(
-										new Coordinate(
-												02.5,
-												0.25)),
-						new String[] {
-							"extra1"
-						},
-						new double[] {
-							0.022
-						},
-						2,
-						1,
-						0);
+		final SimpleFeature level2b1G1Feature = AnalyticFeature.createGeometryFeature(
+				ftype,
+				"b1",
+				"level2b1G1Feature",
+				"flou",
+				level1b1G1Feature.getID(),
+				20.30203,
+				factory.createPoint(new Coordinate(
+						02.5,
+						0.25)),
+				new String[] {
+					"extra1"
+				},
+				new double[] {
+					0.022
+				},
+				2,
+				1,
+				0);
 		ingest(
 				dataStore,
 				adapter,
 				index,
 				level2b1G1Feature);
 
-		final SimpleFeature level2b1G2Feature = AnalyticFeature
-				.createGeometryFeature(
-						ftype,
-						"b1",
-						"level2b1G2Feature",
-						"flapper",
-						level1b1G2Feature.getID(),
-						20.30203,
-						factory
-								.createPoint(
-										new Coordinate(
-												02.03,
-												0.2)),
-						new String[] {
-							"extra1"
-						},
-						new double[] {
-							0.022
-						},
-						2,
-						1,
-						0);
+		final SimpleFeature level2b1G2Feature = AnalyticFeature.createGeometryFeature(
+				ftype,
+				"b1",
+				"level2b1G2Feature",
+				"flapper",
+				level1b1G2Feature.getID(),
+				20.30203,
+				factory.createPoint(new Coordinate(
+						02.03,
+						0.2)),
+				new String[] {
+					"extra1"
+				},
+				new double[] {
+					0.022
+				},
+				2,
+				1,
+				0);
 		ingest(
 				dataStore,
 				adapter,
@@ -230,28 +197,25 @@ public class NestedGroupCentroidAssignmentTest
 				level2b1G2Feature);
 
 		// different batch
-		final SimpleFeature level2B2G1Feature = AnalyticFeature
-				.createGeometryFeature(
-						ftype,
-						"b2",
-						"level2B2G1Feature",
-						"flapper",
-						level1b1G1Feature.getID(),
-						20.30203,
-						factory
-								.createPoint(
-										new Coordinate(
-												02.63,
-												0.25)),
-						new String[] {
-							"extra1"
-						},
-						new double[] {
-							0.022
-						},
-						2,
-						1,
-						0);
+		final SimpleFeature level2B2G1Feature = AnalyticFeature.createGeometryFeature(
+				ftype,
+				"b2",
+				"level2B2G1Feature",
+				"flapper",
+				level1b1G1Feature.getID(),
+				20.30203,
+				factory.createPoint(new Coordinate(
+						02.63,
+						0.25)),
+				new String[] {
+					"extra1"
+				},
+				new double[] {
+					0.022
+				},
+				2,
+				1,
+				0);
 		ingest(
 				dataStore,
 				adapter,
@@ -265,10 +229,8 @@ public class NestedGroupCentroidAssignmentTest
 				adapterStore,
 				new SimpleFeatureItemWrapperFactory(),
 				adapter.getTypeName(),
-				storePluginOptions
-						.createInternalAdapterStore()
-						.getAdapterId(
-								adapter.getTypeName()),
+				storePluginOptions.createInternalAdapterStore().getAdapterId(
+						adapter.getTypeName()),
 				index.getName(),
 				"b1",
 				1);
@@ -278,9 +240,7 @@ public class NestedGroupCentroidAssignmentTest
 			@Override
 			public void notify(
 					final CentroidPairing<SimpleFeature> pairing ) {
-				capturedPairing
-						.add(
-								pairing);
+				capturedPairing.add(pairing);
 			}
 		};
 
@@ -290,22 +250,16 @@ public class NestedGroupCentroidAssignmentTest
 				1,
 				"b1",
 				distanceFn);
-		assigmentB1
-				.findCentroidForLevel(
-						wrapperFactory
-								.create(
-										level1b1G1Feature),
-						assoc);
+		assigmentB1.findCentroidForLevel(
+				wrapperFactory.create(level1b1G1Feature),
+				assoc);
 		assertEquals(
 				1,
 				capturedPairing.size());
 		assertEquals(
 				level1b1G1Feature.getID(),
-				capturedPairing
-						.get(
-								0)
-						.getCentroid()
-						.getID());
+				capturedPairing.get(
+						0).getCentroid().getID());
 		capturedPairing.clear();
 
 		final NestedGroupCentroidAssignment<SimpleFeature> assigmentB1L2G1 = new NestedGroupCentroidAssignment<>(
@@ -313,22 +267,16 @@ public class NestedGroupCentroidAssignmentTest
 				2,
 				"b1",
 				distanceFn);
-		assigmentB1L2G1
-				.findCentroidForLevel(
-						wrapperFactory
-								.create(
-										level1b1G1Feature),
-						assoc);
+		assigmentB1L2G1.findCentroidForLevel(
+				wrapperFactory.create(level1b1G1Feature),
+				assoc);
 		assertEquals(
 				1,
 				capturedPairing.size());
 		assertEquals(
 				level2b1G1Feature.getID(),
-				capturedPairing
-						.get(
-								0)
-						.getCentroid()
-						.getID());
+				capturedPairing.get(
+						0).getCentroid().getID());
 		capturedPairing.clear();
 
 		// level 2 and different parent grouping
@@ -337,22 +285,16 @@ public class NestedGroupCentroidAssignmentTest
 				2,
 				"b1",
 				distanceFn);
-		assigmentB1L2G2
-				.findCentroidForLevel(
-						wrapperFactory
-								.create(
-										level1b1G2Feature),
-						assoc);
+		assigmentB1L2G2.findCentroidForLevel(
+				wrapperFactory.create(level1b1G2Feature),
+				assoc);
 		assertEquals(
 				1,
 				capturedPairing.size());
 		assertEquals(
 				level2b1G2Feature.getID(),
-				capturedPairing
-						.get(
-								0)
-						.getCentroid()
-						.getID());
+				capturedPairing.get(
+						0).getCentroid().getID());
 		capturedPairing.clear();
 
 		// level two with different batch than parent
@@ -363,10 +305,8 @@ public class NestedGroupCentroidAssignmentTest
 				adapterStore,
 				new SimpleFeatureItemWrapperFactory(),
 				adapter.getTypeName(),
-				storePluginOptions
-						.createInternalAdapterStore()
-						.getAdapterId(
-								adapter.getTypeName()),
+				storePluginOptions.createInternalAdapterStore().getAdapterId(
+						adapter.getTypeName()),
 
 				index.getName(),
 				"b2",
@@ -377,22 +317,16 @@ public class NestedGroupCentroidAssignmentTest
 				"b1",
 				distanceFn);
 
-		assigmentB2L2
-				.findCentroidForLevel(
-						wrapperFactory
-								.create(
-										level1b1G1Feature),
-						assoc);
+		assigmentB2L2.findCentroidForLevel(
+				wrapperFactory.create(level1b1G1Feature),
+				assoc);
 		assertEquals(
 				1,
 				capturedPairing.size());
 		assertEquals(
 				level2B2G1Feature.getID(),
-				capturedPairing
-						.get(
-								0)
-						.getCentroid()
-						.getID());
+				capturedPairing.get(
+						0).getCentroid().getID());
 		capturedPairing.clear();
 
 	}

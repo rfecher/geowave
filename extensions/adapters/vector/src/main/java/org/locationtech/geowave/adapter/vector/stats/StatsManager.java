@@ -220,7 +220,7 @@ public class StatsManager
 				// that pass along a lot of references - this seems
 				// counter-intuitive to the spirit of a "create" method, but it
 				// seems to work right now?
-				return ((AbstractDataStatistics<SimpleFeature, ?, ?>) statObj).clone();
+				return ((AbstractDataStatistics<SimpleFeature, ?, ?>) statObj).duplicate();
 			}
 		}
 

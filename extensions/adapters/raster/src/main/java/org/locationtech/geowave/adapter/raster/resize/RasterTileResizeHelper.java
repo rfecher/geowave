@@ -39,34 +39,22 @@ public class RasterTileResizeHelper
 
 	public RasterTileResizeHelper(
 			final JobContext context ) {
-		index = JobContextIndexStore
-				.getIndices(
-						context)[0];
+		index = JobContextIndexStore.getIndices(context)[0];
 		indexNames = new String[] {
 			index.getName()
 		};
-		final DataTypeAdapter[] adapters = JobContextAdapterStore
-				.getDataAdapters(
-						context);
+		final DataTypeAdapter[] adapters = JobContextAdapterStore.getDataAdapters(context);
 		final Configuration conf = context.getConfiguration();
-		final String newTypeName = conf
-				.get(
-						RasterTileResizeJobRunner.NEW_TYPE_NAME_KEY);
-		oldAdapterId = (short) conf
-				.getInt(
-						RasterTileResizeJobRunner.OLD_ADAPTER_ID_KEY,
-						-1);
-		newAdapterId = (short) conf
-				.getInt(
-						RasterTileResizeJobRunner.NEW_ADAPTER_ID_KEY,
-						InternalAdapterStoreImpl
-								.getInitialAdapterId(
-										newTypeName));
+		final String newTypeName = conf.get(RasterTileResizeJobRunner.NEW_TYPE_NAME_KEY);
+		oldAdapterId = (short) conf.getInt(
+				RasterTileResizeJobRunner.OLD_ADAPTER_ID_KEY,
+				-1);
+		newAdapterId = (short) conf.getInt(
+				RasterTileResizeJobRunner.NEW_ADAPTER_ID_KEY,
+				InternalAdapterStoreImpl.getInitialAdapterId(newTypeName));
 		for (final DataTypeAdapter adapter : adapters) {
-			if (adapter
-					.getTypeName()
-					.equals(
-							newTypeName)) {
+			if (adapter.getTypeName().equals(
+					newTypeName)) {
 				if (((RasterDataAdapter) adapter).getTransform() == null) {
 					// the new adapter doesn't have a merge strategy - resizing
 					// will require merging, so default to NoDataMergeStrategy
@@ -90,10 +78,9 @@ public class RasterTileResizeHelper
 
 	public Iterator<GridCoverage> getCoveragesForIndex(
 			final GridCoverage existingCoverage ) {
-		return newAdapter
-				.convertToIndex(
-						index,
-						existingCoverage);
+		return newAdapter.convertToIndex(
+				index,
+				existingCoverage);
 	}
 
 	protected GridCoverage getMergedCoverage(
@@ -113,36 +100,26 @@ public class RasterTileResizeHelper
 				}
 				else {
 					if (!needsMerge) {
-						mergedTile = newAdapter
-								.getRasterTileFromCoverage(
-										mergedCoverage);
+						mergedTile = newAdapter.getRasterTileFromCoverage(mergedCoverage);
 						needsMerge = true;
 					}
 					final ClientMergeableRasterTile thisTile = newAdapter
-							.getRasterTileFromCoverage(
-									(GridCoverage) value);
+							.getRasterTileFromCoverage((GridCoverage) value);
 					if (mergedTile != null) {
-						mergedTile
-								.merge(
-										thisTile);
+						mergedTile.merge(thisTile);
 					}
 				}
 			}
 		}
 		if (needsMerge) {
-			final Pair<byte[], byte[]> pair = key
-					.getPartitionAndSortKey(
-							index);
-			mergedCoverage = newAdapter
-					.getCoverageFromRasterTile(
-							mergedTile,
-							pair == null ? null
-									: new ByteArrayId(
-											pair.getLeft()),
-							pair == null ? null
-									: new ByteArrayId(
-											pair.getRight()),
-							index);
+			final Pair<byte[], byte[]> pair = key.getPartitionAndSortKey(index);
+			mergedCoverage = newAdapter.getCoverageFromRasterTile(
+					mergedTile,
+					pair == null ? null : new ByteArrayId(
+							pair.getLeft()),
+					pair == null ? null : new ByteArrayId(
+							pair.getRight()),
+					index);
 		}
 		return mergedCoverage;
 	}
@@ -153,9 +130,7 @@ public class RasterTileResizeHelper
 
 	public ByteArrayId getNewDataId(
 			final GridCoverage coverage ) {
-		return newAdapter
-				.getDataId(
-						coverage);
+		return newAdapter.getDataId(coverage);
 	}
 
 	public String getIndexName() {

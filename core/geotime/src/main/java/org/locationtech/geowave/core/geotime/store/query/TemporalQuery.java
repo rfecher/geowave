@@ -30,7 +30,8 @@ public class TemporalQuery extends
 {
 	public TemporalQuery(
 			final Interval[] intervals ) {
-
+		super(
+				createTemporalConstraints(intervals));
 	}
 
 	public TemporalQuery(

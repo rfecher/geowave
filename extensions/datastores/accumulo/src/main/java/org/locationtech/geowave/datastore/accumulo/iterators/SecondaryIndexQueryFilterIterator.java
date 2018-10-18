@@ -46,28 +46,16 @@ public class SecondaryIndexQueryFilterIterator extends
 				source,
 				options,
 				env);
-		if ((options == null) || (!options
-				.containsKey(
-						PRIMARY_INDEX_ID))) {
+		if ((options == null) || (!options.containsKey(PRIMARY_INDEX_ID))) {
 			throw new IllegalArgumentException(
 					"Arguments must be set for " + SecondaryIndexQueryFilterIterator.class.getName());
 		}
-		if (options
-				.containsKey(
-						FILTERS)) {
-			final String filterStr = options
-					.get(
-							FILTERS);
-			final byte[] filterBytes = ByteArrayUtils
-					.byteArrayFromString(
-							filterStr);
-			filter = (QueryFilter) URLClassloaderUtils
-					.fromBinary(
-							filterBytes);
+		if (options.containsKey(FILTERS)) {
+			final String filterStr = options.get(FILTERS);
+			final byte[] filterBytes = ByteArrayUtils.byteArrayFromString(filterStr);
+			filter = (QueryFilter) URLClassloaderUtils.fromBinary(filterBytes);
 		}
-		primaryIndexId = options
-				.get(
-						PRIMARY_INDEX_ID);
+		primaryIndexId = options.get(PRIMARY_INDEX_ID);
 	}
 
 	@Override
@@ -78,12 +66,8 @@ public class SecondaryIndexQueryFilterIterator extends
 			while (rowIterator.hasTop()) {
 				final Key key = rowIterator.getTopKey();
 				final Value value = rowIterator.getTopValue();
-				final String cq = StringUtils
-						.stringFromBinary(
-								key.getColumnQualifierData().getBackingArray());
-				if (!cq
-						.equals(
-								primaryIndexId)) {
+				final String cq = StringUtils.stringFromBinary(key.getColumnQualifierData().getBackingArray());
+				if (!cq.equals(primaryIndexId)) {
 					final IndexedPersistenceEncoding<ByteArrayId> persistenceEncoding = new IndexedPersistenceEncoding<ByteArrayId>(
 							null, // not needed
 							null, // not needed
@@ -91,16 +75,13 @@ public class SecondaryIndexQueryFilterIterator extends
 							null, // not needed
 							0, // not needed
 							new PersistentDataset<ByteArrayId>(
-									StringUtils
-											.stringFromBinary(
-													key.getColumnQualifierData().getBackingArray()),
+									StringUtils.stringFromBinary(key.getColumnQualifierData().getBackingArray()),
 									new ByteArrayId(
 											value.get())),
 							null);
-					if (filter
-							.accept(
-									null,
-									persistenceEncoding)) {
+					if (filter.accept(
+							null,
+							persistenceEncoding)) {
 						return true;
 					}
 				}

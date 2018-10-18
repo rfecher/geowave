@@ -101,7 +101,8 @@ public class AccumuloMetadataReader implements
 				while (it.hasNext()) {
 					final Entry<Key, Value> row = it.next();
 
-					final InternalDataStatistics<?, ?, ?> stats = (InternalDataStatistics<?, ?, ?>) PersistenceUtils.fromBinary(row.getValue().get());
+					final InternalDataStatistics<?, ?, ?> stats = (InternalDataStatistics<?, ?, ?>) PersistenceUtils
+							.fromBinary(row.getValue().get());
 
 					if (keyMap.containsKey(row.getKey().getRow())) {
 						final InternalDataStatistics<?, ?, ?> mergedStats = mergedDataMap.get(row.getKey().getRow());

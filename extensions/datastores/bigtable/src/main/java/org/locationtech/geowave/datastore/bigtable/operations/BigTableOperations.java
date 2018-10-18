@@ -36,11 +36,9 @@ public class BigTableOperations extends
 			final BigTableOptions options )
 			throws IOException {
 		super(
-				BigTableConnectionPool
-						.getInstance()
-						.getConnection(
-								options.getProjectId(),
-								options.getInstanceId()),
+				BigTableConnectionPool.getInstance().getConnection(
+						options.getProjectId(),
+						options.getInstanceId()),
 				options.getGeowaveNamespace(),
 				options.getHBaseOptions());
 	}
@@ -49,16 +47,14 @@ public class BigTableOperations extends
 	public RegionLocator getRegionLocator(
 			final String tableName )
 			throws IOException {
-		final BigtableRegionLocator regionLocator = (BigtableRegionLocator) super.getRegionLocator(
-				tableName);
+		final BigtableRegionLocator regionLocator = (BigtableRegionLocator) super.getRegionLocator(tableName);
 
 		if (regionLocator != null) {
 			// Force region update
 			if (regionLocator.getAllRegionLocations().size() <= 1) {
-				regionLocator
-						.getRegionLocation(
-								HConstants.EMPTY_BYTE_ARRAY,
-								true);
+				regionLocator.getRegionLocation(
+						HConstants.EMPTY_BYTE_ARRAY,
+						true);
 			}
 		}
 
@@ -90,19 +86,14 @@ public class BigTableOperations extends
 			throws IOException {
 
 		// Check the local cache
-		boolean tableAvailable = tableCache
-				.contains(
-						tableName);
+		boolean tableAvailable = tableCache.contains(tableName);
 
 		// No local cache. Check the server and update cache
 		if (!tableAvailable) {
-			if (indexExists(
-					tableName)) {
+			if (indexExists(tableName)) {
 				tableAvailable = true;
 
-				tableCache
-						.add(
-								tableName);
+				tableCache.add(tableName);
 			}
 		}
 

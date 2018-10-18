@@ -83,9 +83,7 @@ public class KDEJobRunner extends
 		Configured implements
 		Tool
 {
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					KDEJobRunner.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(KDEJobRunner.class);
 	public static final String GEOWAVE_CLASSPATH_JARS = "geowave.classpath.jars";
 	private static final String TMP_COVERAGE_SUFFIX = "_tMp_CoVeRaGe";
 	protected static int TILE_SIZE = 1;
@@ -126,8 +124,7 @@ public class KDEJobRunner extends
 		Configuration conf = super.getConf();
 		if (conf == null) {
 			conf = new Configuration();
-			setConf(
-					conf);
+			setConf(conf);
 		}
 
 		Index inputPrimaryIndex = null;
@@ -140,45 +137,29 @@ public class KDEJobRunner extends
 			}
 		}
 
-		final CoordinateReferenceSystem inputIndexCrs = GeometryUtils
-				.getIndexCrs(
-						inputPrimaryIndex);
-		final String inputCrsCode = GeometryUtils
-				.getCrsCode(
-						inputIndexCrs);
+		final CoordinateReferenceSystem inputIndexCrs = GeometryUtils.getIndexCrs(inputPrimaryIndex);
+		final String inputCrsCode = GeometryUtils.getCrsCode(inputIndexCrs);
 
 		Index outputPrimaryIndex = outputIndex;
 		CoordinateReferenceSystem outputIndexCrs = null;
 		String outputCrsCode = null;
 
 		if (outputPrimaryIndex != null) {
-			outputIndexCrs = GeometryUtils
-					.getIndexCrs(
-							outputPrimaryIndex);
-			outputCrsCode = GeometryUtils
-					.getCrsCode(
-							outputIndexCrs);
+			outputIndexCrs = GeometryUtils.getIndexCrs(outputPrimaryIndex);
+			outputCrsCode = GeometryUtils.getCrsCode(outputIndexCrs);
 		}
 		else {
 			final SpatialDimensionalityTypeProvider sdp = new SpatialDimensionalityTypeProvider();
 			final SpatialOptions so = sdp.createOptions();
-			so
-					.setCrs(
-							inputCrsCode);
-			outputPrimaryIndex = sdp
-					.createIndex(
-							so);
+			so.setCrs(inputCrsCode);
+			outputPrimaryIndex = sdp.createIndex(so);
 			outputIndexCrs = inputIndexCrs;
 			outputCrsCode = inputCrsCode;
 		}
 
 		final CoordinateSystem cs = outputIndexCrs.getCoordinateSystem();
-		final CoordinateSystemAxis csx = cs
-				.getAxis(
-						0);
-		final CoordinateSystemAxis csy = cs
-				.getAxis(
-						1);
+		final CoordinateSystemAxis csx = cs.getAxis(0);
+		final CoordinateSystemAxis csy = cs.getAxis(1);
 		final double xMax = csx.getMaximumValue();
 		final double xMin = csx.getMinimumValue();
 		final double yMax = csy.getMaximumValue();
@@ -187,8 +168,7 @@ public class KDEJobRunner extends
 		if ((xMax == Double.POSITIVE_INFINITY) || (xMin == Double.NEGATIVE_INFINITY)
 				|| (yMax == Double.POSITIVE_INFINITY) || (yMin == Double.NEGATIVE_INFINITY)) {
 			LOGGER
-					.error(
-							"Raster KDE resize with raster primary index CRS dimensions min/max equal to positive infinity or negative infinity is not supported");
+					.error("Raster KDE resize with raster primary index CRS dimensions min/max equal to positive infinity or negative infinity is not supported");
 			throw new RuntimeException(
 					"Raster KDE resize with raster primary index CRS dimensions min/max equal to positive infinity or negative infinity is not supported");
 		}
@@ -206,13 +186,10 @@ public class KDEJobRunner extends
 			// first clone the outputDataStoreOptions, then set it to a tmp
 			// namespace
 			final Map<String, String> configOptions = outputDataStoreOptions.getOptionsAsMap();
-			final StoreFactoryOptions options = ConfigUtils
-					.populateOptionsFromList(
-							outputDataStoreOptions.getFactoryFamily().getDataStoreFactory().createOptionsInstance(),
-							configOptions);
-			options
-					.setGeowaveNamespace(
-							outputDataStoreOptions.getGeowaveNamespace() + "_tmp");
+			final StoreFactoryOptions options = ConfigUtils.populateOptionsFromList(
+					outputDataStoreOptions.getFactoryFamily().getDataStoreFactory().createOptionsInstance(),
+					configOptions);
+			options.setGeowaveNamespace(outputDataStoreOptions.getGeowaveNamespace() + "_tmp");
 			outputDataStoreOptions = new DataStorePluginOptions(
 					options);
 			kdeCoverageName = kdeCommandLineOptions.getCoverageName() + TMP_COVERAGE_SUFFIX;
@@ -223,151 +200,97 @@ public class KDEJobRunner extends
 		}
 
 		if (kdeCommandLineOptions.getHdfsHostPort() == null) {
-			final Properties configProperties = ConfigOptions
-					.loadProperties(
-							configFile);
-			final String hdfsFSUrl = ConfigHDFSCommand
-					.getHdfsUrl(
-							configProperties);
-			kdeCommandLineOptions
-					.setHdfsHostPort(
-							hdfsFSUrl);
+			final Properties configProperties = ConfigOptions.loadProperties(configFile);
+			final String hdfsFSUrl = ConfigHDFSCommand.getHdfsUrl(configProperties);
+			kdeCommandLineOptions.setHdfsHostPort(hdfsFSUrl);
 		}
 
-		GeoWaveConfiguratorBase
-				.setRemoteInvocationParams(
-						kdeCommandLineOptions.getHdfsHostPort(),
-						kdeCommandLineOptions.getJobTrackerOrResourceManHostPort(),
-						conf);
-
-		conf
-				.setInt(
-						MAX_LEVEL_KEY,
-						kdeCommandLineOptions.getMaxLevel());
-		conf
-				.setInt(
-						MIN_LEVEL_KEY,
-						kdeCommandLineOptions.getMinLevel());
-		conf
-				.set(
-						COVERAGE_NAME_KEY,
-						kdeCoverageName);
-		if (kdeCommandLineOptions.getCqlFilter() != null) {
-			conf
-					.set(
-							GaussianCellMapper.CQL_FILTER_KEY,
-							kdeCommandLineOptions.getCqlFilter());
-		}
-		conf
-				.setDouble(
-						X_MIN_KEY,
-						xMin);
-		conf
-				.setDouble(
-						X_MAX_KEY,
-						xMax);
-		conf
-				.setDouble(
-						Y_MIN_KEY,
-						yMin);
-		conf
-				.setDouble(
-						Y_MAX_KEY,
-						yMax);
-		conf
-				.set(
-						INPUT_CRSCODE_KEY,
-						inputCrsCode);
-		conf
-				.set(
-						OUTPUT_CRSCODE_KEY,
-						outputCrsCode);
-
-		preJob1Setup(
+		GeoWaveConfiguratorBase.setRemoteInvocationParams(
+				kdeCommandLineOptions.getHdfsHostPort(),
+				kdeCommandLineOptions.getJobTrackerOrResourceManHostPort(),
 				conf);
+
+		conf.setInt(
+				MAX_LEVEL_KEY,
+				kdeCommandLineOptions.getMaxLevel());
+		conf.setInt(
+				MIN_LEVEL_KEY,
+				kdeCommandLineOptions.getMinLevel());
+		conf.set(
+				COVERAGE_NAME_KEY,
+				kdeCoverageName);
+		if (kdeCommandLineOptions.getCqlFilter() != null) {
+			conf.set(
+					GaussianCellMapper.CQL_FILTER_KEY,
+					kdeCommandLineOptions.getCqlFilter());
+		}
+		conf.setDouble(
+				X_MIN_KEY,
+				xMin);
+		conf.setDouble(
+				X_MAX_KEY,
+				xMax);
+		conf.setDouble(
+				Y_MIN_KEY,
+				yMin);
+		conf.setDouble(
+				Y_MAX_KEY,
+				yMax);
+		conf.set(
+				INPUT_CRSCODE_KEY,
+				inputCrsCode);
+		conf.set(
+				OUTPUT_CRSCODE_KEY,
+				outputCrsCode);
+
+		preJob1Setup(conf);
 		final Job job = new Job(
 				conf);
 
-		job
-				.setJarByClass(
-						this.getClass());
+		job.setJarByClass(this.getClass());
 		addJobClasspathDependencies(
 				job,
 				conf);
 
-		job
-				.setJobName(
-						getJob1Name());
+		job.setJobName(getJob1Name());
 
-		job
-				.setMapperClass(
-						getJob1Mapper());
-		job
-				.setCombinerClass(
-						CellSummationCombiner.class);
-		job
-				.setReducerClass(
-						getJob1Reducer());
-		job
-				.setMapOutputKeyClass(
-						LongWritable.class);
-		job
-				.setMapOutputValueClass(
-						DoubleWritable.class);
-		job
-				.setOutputKeyClass(
-						DoubleWritable.class);
-		job
-				.setOutputValueClass(
-						LongWritable.class);
+		job.setMapperClass(getJob1Mapper());
+		job.setCombinerClass(CellSummationCombiner.class);
+		job.setReducerClass(getJob1Reducer());
+		job.setMapOutputKeyClass(LongWritable.class);
+		job.setMapOutputValueClass(DoubleWritable.class);
+		job.setOutputKeyClass(DoubleWritable.class);
+		job.setOutputValueClass(LongWritable.class);
 
-		job
-				.setInputFormatClass(
-						GeoWaveInputFormat.class);
-		job
-				.setOutputFormatClass(
-						SequenceFileOutputFormat.class);
-		job
-				.setNumReduceTasks(
-						8);
-		job
-				.setSpeculativeExecution(
-						false);
+		job.setInputFormatClass(GeoWaveInputFormat.class);
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+		job.setNumReduceTasks(8);
+		job.setSpeculativeExecution(false);
 		final PersistentAdapterStore adapterStore = inputDataStoreOptions.createAdapterStore();
 		final IndexStore indexStore = inputDataStoreOptions.createIndexStore();
 		final InternalAdapterStore internalAdapterStore = inputDataStoreOptions.createInternalAdapterStore();
-		final short internalAdapterId = internalAdapterStore
-				.getAdapterId(
+		final short internalAdapterId = internalAdapterStore.getAdapterId(
 
-						kdeCommandLineOptions.getFeatureType());
-		final DataTypeAdapter<?> adapter = adapterStore
-				.getAdapter(
-						internalAdapterId)
-				.getAdapter();
+		kdeCommandLineOptions.getFeatureType());
+		final DataTypeAdapter<?> adapter = adapterStore.getAdapter(
+				internalAdapterId).getAdapter();
 
-		VectorQueryBuilder bldr = VectorQueryBuilder
-				.newBuilder()
-				.addTypeName(
-						adapter.getTypeName());
+		VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName());
 		if (kdeCommandLineOptions.getIndexName() != null) {
-			bldr = bldr
-					.indexName(
-							kdeCommandLineOptions.getIndexName());
+			bldr = bldr.indexName(kdeCommandLineOptions.getIndexName());
 		}
 
-		GeoWaveInputFormat
-				.setMinimumSplitCount(
-						job.getConfiguration(),
-						kdeCommandLineOptions.getMinSplits());
-		GeoWaveInputFormat
-				.setMaximumSplitCount(
-						job.getConfiguration(),
-						kdeCommandLineOptions.getMaxSplits());
+		GeoWaveInputFormat.setMinimumSplitCount(
+				job.getConfiguration(),
+				kdeCommandLineOptions.getMinSplits());
+		GeoWaveInputFormat.setMaximumSplitCount(
+				job.getConfiguration(),
+				kdeCommandLineOptions.getMaxSplits());
 
-		GeoWaveInputFormat
-				.setStoreOptions(
-						job.getConfiguration(),
-						inputDataStoreOptions);
+		GeoWaveInputFormat.setStoreOptions(
+				job.getConfiguration(),
+				inputDataStoreOptions);
 
 		if (kdeCommandLineOptions.getCqlFilter() != null) {
 			Geometry bbox = null;
@@ -376,9 +299,7 @@ public class KDEJobRunner extends
 						.getFeatureType()
 						.getGeometryDescriptor()
 						.getLocalName();
-				final Filter filter = ECQL
-						.toFilter(
-								kdeCommandLineOptions.getCqlFilter());
+				final Filter filter = ECQL.toFilter(kdeCommandLineOptions.getCqlFilter());
 				final ExtractGeometryFilterVisitorResult geoAndCompareOpData = (ExtractGeometryFilterVisitorResult) filter
 						.accept(
 								new ExtractGeometryFilterVisitor(
@@ -388,51 +309,34 @@ public class KDEJobRunner extends
 				bbox = geoAndCompareOpData.getGeometry();
 			}
 
-			if ((bbox != null) && !bbox
-					.equals(
-							GeometryUtils.infinity())) {
-				bldr = bldr
-						.constraints(
-								bldr
-										.constraintsFactory()
-										.spatialTemporalConstraints()
-										.spatialConstraints(
-												bbox)
-										.build());
+			if ((bbox != null) && !bbox.equals(GeometryUtils.infinity())) {
+				bldr = bldr.constraints(bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(
+						bbox).build());
 			}
 		}
-		GeoWaveInputFormat
-				.setQuery(
-						conf,
-						bldr.build(),
-						adapterStore,
-						internalAdapterStore,
-						indexStore);
+		GeoWaveInputFormat.setQuery(
+				conf,
+				bldr.build(),
+				adapterStore,
+				internalAdapterStore,
+				indexStore);
 		FileSystem fs = null;
 		try {
-			fs = FileSystem
-					.get(
-							conf);
-			fs
-					.delete(
-							new Path(
-									"/tmp/" + inputDataStoreOptions.getGeowaveNamespace() + "_stats_"
-											+ kdeCommandLineOptions.getMinLevel() + "_"
-											+ kdeCommandLineOptions.getMaxLevel() + "_"
-											+ kdeCommandLineOptions.getCoverageName()),
-							true);
-			FileOutputFormat
-					.setOutputPath(
-							job,
-							new Path(
-									"/tmp/" + inputDataStoreOptions.getGeowaveNamespace() + "_stats_"
-											+ kdeCommandLineOptions.getMinLevel() + "_"
-											+ kdeCommandLineOptions.getMaxLevel() + "_"
-											+ kdeCommandLineOptions.getCoverageName() + "/basic"));
+			fs = FileSystem.get(conf);
+			fs.delete(
+					new Path(
+							"/tmp/" + inputDataStoreOptions.getGeowaveNamespace() + "_stats_"
+									+ kdeCommandLineOptions.getMinLevel() + "_" + kdeCommandLineOptions.getMaxLevel()
+									+ "_" + kdeCommandLineOptions.getCoverageName()),
+					true);
+			FileOutputFormat.setOutputPath(
+					job,
+					new Path(
+							"/tmp/" + inputDataStoreOptions.getGeowaveNamespace() + "_stats_"
+									+ kdeCommandLineOptions.getMinLevel() + "_" + kdeCommandLineOptions.getMaxLevel()
+									+ "_" + kdeCommandLineOptions.getCoverageName() + "/basic"));
 
-			final boolean job1Success = job
-					.waitForCompletion(
-							true);
+			final boolean job1Success = job.waitForCompletion(true);
 			boolean job2Success = false;
 			boolean postJob2Success = false;
 
@@ -444,65 +348,38 @@ public class KDEJobRunner extends
 				// Stats Reducer Job configuration parameters
 				final Job statsReducer = new Job(
 						conf);
-				statsReducer
-						.setJarByClass(
-								this.getClass());
+				statsReducer.setJarByClass(this.getClass());
 				addJobClasspathDependencies(
 						statsReducer,
 						conf);
 
+				statsReducer.setJobName(getJob2Name());
+				statsReducer.setMapperClass(IdentityMapper.class);
+				statsReducer.setPartitionerClass(getJob2Partitioner());
+				statsReducer.setReducerClass(getJob2Reducer());
 				statsReducer
-						.setJobName(
-								getJob2Name());
-				statsReducer
-						.setMapperClass(
-								IdentityMapper.class);
-				statsReducer
-						.setPartitionerClass(
-								getJob2Partitioner());
-				statsReducer
-						.setReducerClass(
-								getJob2Reducer());
-				statsReducer
-						.setNumReduceTasks(
-								getJob2NumReducers(
-										(kdeCommandLineOptions.getMaxLevel() - kdeCommandLineOptions.getMinLevel())
-												+ 1));
-				statsReducer
-						.setMapOutputKeyClass(
-								DoubleWritable.class);
-				statsReducer
-						.setMapOutputValueClass(
-								LongWritable.class);
-				statsReducer
-						.setOutputKeyClass(
-								getJob2OutputKeyClass());
-				statsReducer
-						.setOutputValueClass(
-								getJob2OutputValueClass());
-				statsReducer
-						.setInputFormatClass(
-								SequenceFileInputFormat.class);
-				statsReducer
-						.setOutputFormatClass(
-								getJob2OutputFormatClass());
-				FileInputFormat
-						.setInputPaths(
-								statsReducer,
-								new Path(
-										"/tmp/" + inputDataStoreOptions.getGeowaveNamespace() + "_stats_"
-												+ kdeCommandLineOptions.getMinLevel() + "_"
-												+ kdeCommandLineOptions.getMaxLevel() + "_"
-												+ kdeCommandLineOptions.getCoverageName() + "/basic"));
+						.setNumReduceTasks(getJob2NumReducers((kdeCommandLineOptions.getMaxLevel() - kdeCommandLineOptions
+								.getMinLevel()) + 1));
+				statsReducer.setMapOutputKeyClass(DoubleWritable.class);
+				statsReducer.setMapOutputValueClass(LongWritable.class);
+				statsReducer.setOutputKeyClass(getJob2OutputKeyClass());
+				statsReducer.setOutputValueClass(getJob2OutputValueClass());
+				statsReducer.setInputFormatClass(SequenceFileInputFormat.class);
+				statsReducer.setOutputFormatClass(getJob2OutputFormatClass());
+				FileInputFormat.setInputPaths(
+						statsReducer,
+						new Path(
+								"/tmp/" + inputDataStoreOptions.getGeowaveNamespace() + "_stats_"
+										+ kdeCommandLineOptions.getMinLevel() + "_"
+										+ kdeCommandLineOptions.getMaxLevel() + "_"
+										+ kdeCommandLineOptions.getCoverageName() + "/basic"));
 				setupJob2Output(
 						conf,
 						statsReducer,
 						outputDataStoreOptions.getGeowaveNamespace(),
 						kdeCoverageName,
 						outputPrimaryIndex);
-				job2Success = statsReducer
-						.waitForCompletion(
-								true);
+				job2Success = statsReducer.waitForCompletion(true);
 				if (job2Success) {
 					postJob2Success = postJob2Actions(
 							conf,
@@ -514,16 +391,10 @@ public class KDEJobRunner extends
 				job2Success = false;
 			}
 
-			final CloseableIterator<Object> obj = outputDataStoreOptions
-					.createDataStore()
-					.query(
-							QueryBuilder
-									.newBuilder()
-									.addTypeName(
-											kdeCoverageName)
-									.indexName(
-											outputPrimaryIndex.getName())
-									.build());
+			final CloseableIterator<Object> obj = outputDataStoreOptions.createDataStore().query(
+					QueryBuilder.newBuilder().addTypeName(
+							kdeCoverageName).indexName(
+							outputPrimaryIndex.getName()).build());
 			while (obj.hasNext()) {
 				obj.next();
 			}
@@ -533,105 +404,64 @@ public class KDEJobRunner extends
 				// requested tile size
 
 				final ResizeCommand resizeCommand = new ResizeCommand();
-				final File configFile = File
-						.createTempFile(
-								"temp-config",
-								null);
+				final File configFile = File.createTempFile(
+						"temp-config",
+						null);
 				final ManualOperationParams params = new ManualOperationParams();
 
-				params
-						.getContext()
-						.put(
-								ConfigOptions.PROPERTIES_FILE_CONTEXT,
-								configFile);
+				params.getContext().put(
+						ConfigOptions.PROPERTIES_FILE_CONTEXT,
+						configFile);
 				final AddStoreCommand addStore = new AddStoreCommand();
-				addStore
-						.setParameters(
-								"temp-out");
-				addStore
-						.setPluginOptions(
-								outputDataStoreOptions);
-				addStore
-						.execute(
-								params);
-				addStore
-						.setParameters(
-								"temp-raster-out");
-				addStore
-						.setPluginOptions(
-								rasterResizeOutputDataStoreOptions);
-				addStore
-						.execute(
-								params);
+				addStore.setParameters("temp-out");
+				addStore.setPluginOptions(outputDataStoreOptions);
+				addStore.execute(params);
+				addStore.setParameters("temp-raster-out");
+				addStore.setPluginOptions(rasterResizeOutputDataStoreOptions);
+				addStore.execute(params);
 				// We're going to override these anyway.
-				resizeCommand
-						.setParameters(
-								"temp-out",
-								"temp-raster-out");
+				resizeCommand.setParameters(
+						"temp-out",
+						"temp-raster-out");
 
-				resizeCommand
-						.getOptions()
-						.setInputCoverageName(
-								kdeCoverageName);
-				resizeCommand
-						.getOptions()
-						.setMinSplits(
-								kdeCommandLineOptions.getMinSplits());
-				resizeCommand
-						.getOptions()
-						.setMaxSplits(
-								kdeCommandLineOptions.getMaxSplits());
-				resizeCommand
-						.getOptions()
-						.setHdfsHostPort(
-								kdeCommandLineOptions.getHdfsHostPort());
-				resizeCommand
-						.getOptions()
-						.setJobTrackerOrResourceManHostPort(
-								kdeCommandLineOptions.getJobTrackerOrResourceManHostPort());
-				resizeCommand
-						.getOptions()
-						.setOutputCoverageName(
-								kdeCommandLineOptions.getCoverageName());
+				resizeCommand.getOptions().setInputCoverageName(
+						kdeCoverageName);
+				resizeCommand.getOptions().setMinSplits(
+						kdeCommandLineOptions.getMinSplits());
+				resizeCommand.getOptions().setMaxSplits(
+						kdeCommandLineOptions.getMaxSplits());
+				resizeCommand.getOptions().setHdfsHostPort(
+						kdeCommandLineOptions.getHdfsHostPort());
+				resizeCommand.getOptions().setJobTrackerOrResourceManHostPort(
+						kdeCommandLineOptions.getJobTrackerOrResourceManHostPort());
+				resizeCommand.getOptions().setOutputCoverageName(
+						kdeCommandLineOptions.getCoverageName());
 
-				resizeCommand
-						.getOptions()
-						.setOutputTileSize(
-								kdeCommandLineOptions.getTileSize());
+				resizeCommand.getOptions().setOutputTileSize(
+						kdeCommandLineOptions.getTileSize());
 
-				final int resizeStatus = ToolRunner
-						.run(
-								resizeCommand
-										.createRunner(
-												params),
-								new String[] {});
+				final int resizeStatus = ToolRunner.run(
+						resizeCommand.createRunner(params),
+						new String[] {});
 				if (resizeStatus == 0) {
 					// delegate to clear command to clean up with tmp namespace
 					// after successful resize
 					final ClearCommand clearCommand = new ClearCommand();
-					clearCommand
-							.setParameters(
-									"temp-out");
-					clearCommand
-							.execute(
-									params);
+					clearCommand.setParameters("temp-out");
+					clearCommand.execute(params);
 				}
 				else {
-					LOGGER
-							.warn(
-									"Resize command error code '" + resizeStatus + "'.  Retaining temporary namespace '"
-											+ outputDataStoreOptions.getGeowaveNamespace() + "' with tile size of 1.");
+					LOGGER.warn("Resize command error code '" + resizeStatus + "'.  Retaining temporary namespace '"
+							+ outputDataStoreOptions.getGeowaveNamespace() + "' with tile size of 1.");
 				}
 			}
 
-			fs
-					.delete(
-							new Path(
-									"/tmp/" + inputDataStoreOptions.getGeowaveNamespace() + "_stats_"
-											+ kdeCommandLineOptions.getMinLevel() + "_"
-											+ kdeCommandLineOptions.getMaxLevel() + "_"
-											+ kdeCommandLineOptions.getCoverageName()),
-							true);
+			fs.delete(
+					new Path(
+							"/tmp/" + inputDataStoreOptions.getGeowaveNamespace() + "_stats_"
+									+ kdeCommandLineOptions.getMinLevel() + "_" + kdeCommandLineOptions.getMaxLevel()
+									+ "_" + kdeCommandLineOptions.getCoverageName()),
+					true);
 			return (job1Success && job2Success && postJob2Success) ? 0 : 1;
 		}
 		finally {
@@ -640,9 +470,7 @@ public class KDEJobRunner extends
 					fs.close();
 				}
 				catch (final IOException e) {
-					LOGGER
-							.info(
-									e.getMessage());
+					LOGGER.info(e.getMessage());
 					// Attempt to close, but don't throw an error if it is
 					// already closed.
 					// Log message, so find bugs does not complain.
@@ -656,18 +484,11 @@ public class KDEJobRunner extends
 			final Configuration conf )
 			throws IOException {
 		for (int l = kdeCommandLineOptions.getMinLevel(); l <= kdeCommandLineOptions.getMaxLevel(); l++) {
-			conf
-					.setLong(
-							"Entries per level.level" + l,
-							job1
-									.getCounters()
-									.getGroup(
-											"Entries per level")
-									.findCounter(
-											"level " + Long
-													.valueOf(
-															l))
-									.getValue());
+			conf.setLong(
+					"Entries per level.level" + l,
+					job1.getCounters().getGroup(
+							"Entries per level").findCounter(
+							"level " + Long.valueOf(l)).getValue());
 		}
 	}
 
@@ -736,15 +557,14 @@ public class KDEJobRunner extends
 			final String coverageName,
 			final Index index )
 			throws Exception {
-		final DataTypeAdapter<?> adapter = RasterUtils
-				.createDataAdapterTypeDouble(
-						coverageName,
-						KDEReducer.NUM_BANDS,
-						TILE_SIZE,
-						KDEReducer.MINS_PER_BAND,
-						KDEReducer.MAXES_PER_BAND,
-						KDEReducer.NAME_PER_BAND,
-						null);
+		final DataTypeAdapter<?> adapter = RasterUtils.createDataAdapterTypeDouble(
+				coverageName,
+				KDEReducer.NUM_BANDS,
+				TILE_SIZE,
+				KDEReducer.MINS_PER_BAND,
+				KDEReducer.MAXES_PER_BAND,
+				KDEReducer.NAME_PER_BAND,
+				null);
 		setup(
 				statsReducer,
 				statsNamespace,
@@ -759,30 +579,22 @@ public class KDEJobRunner extends
 			final Index index )
 			throws IOException,
 			MismatchedIndexToAdapterMapping {
-		GeoWaveOutputFormat
-				.setStoreOptions(
-						job.getConfiguration(),
-						outputDataStoreOptions);
+		GeoWaveOutputFormat.setStoreOptions(
+				job.getConfiguration(),
+				outputDataStoreOptions);
 
-		GeoWaveOutputFormat
-				.addDataAdapter(
-						job.getConfiguration(),
-						adapter);
-		GeoWaveOutputFormat
-				.addIndex(
-						job.getConfiguration(),
-						index);
+		GeoWaveOutputFormat.addDataAdapter(
+				job.getConfiguration(),
+				adapter);
+		GeoWaveOutputFormat.addIndex(
+				job.getConfiguration(),
+				index);
 		final DataStore dataStore = outputDataStoreOptions.createDataStore();
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						index);
-		final Writer writer = dataStore
-				.createWriter(
-						adapter.getTypeName());
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		final Writer writer = dataStore.createWriter(adapter.getTypeName());
 		writer.close();
 	}
 
@@ -791,27 +603,17 @@ public class KDEJobRunner extends
 			throws Exception {
 		final ConfigOptions opts = new ConfigOptions();
 		final OperationParser parser = new OperationParser();
-		parser
-				.addAdditionalObject(
-						opts);
+		parser.addAdditionalObject(opts);
 		final KdeCommand command = new KdeCommand();
-		final CommandLineOperationParams params = parser
-				.parse(
-						command,
-						args);
-		opts
-				.prepare(
-						params);
-		final int res = ToolRunner
-				.run(
-						new Configuration(),
-						command
-								.createRunner(
-										params),
-						args);
-		System
-				.exit(
-						res);
+		final CommandLineOperationParams params = parser.parse(
+				command,
+				args);
+		opts.prepare(params);
+		final int res = ToolRunner.run(
+				new Configuration(),
+				command.createRunner(params),
+				args);
+		System.exit(res);
 	}
 
 	@Override
@@ -826,17 +628,13 @@ public class KDEJobRunner extends
 			final Configuration conf )
 			throws IOException,
 			URISyntaxException {
-		final String[] jars = conf
-				.getTrimmedStrings(
-						GEOWAVE_CLASSPATH_JARS);
+		final String[] jars = conf.getTrimmedStrings(GEOWAVE_CLASSPATH_JARS);
 
 		if (jars != null) {
 			for (final String jarPath : jars) {
-				job
-						.addArchiveToClassPath(
-								new Path(
-										new URI(
-												jarPath)));
+				job.addArchiveToClassPath(new Path(
+						new URI(
+								jarPath)));
 			}
 		}
 	}

@@ -49,7 +49,7 @@ public class CQLDelete extends
 	private static Logger LOGGER = LoggerFactory.getLogger(CQLDelete.class);
 
 	@Parameter(description = "<storename>")
-	private final List<String> parameters = new ArrayList<>();
+	private List<String> parameters = new ArrayList<>();
 
 	@Parameter(names = "--cql", required = true, description = "CQL Filter for delete")
 	private String cqlStr;
@@ -61,7 +61,7 @@ public class CQLDelete extends
 	private String typeName;
 
 	@Parameter(names = "--debug", required = false, description = "Print out additional info for debug purposes")
-	private final boolean debug = false;
+	private boolean debug = false;
 
 	@Override
 	public void execute(

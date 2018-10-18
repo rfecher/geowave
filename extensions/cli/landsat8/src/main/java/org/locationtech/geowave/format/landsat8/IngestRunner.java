@@ -34,9 +34,7 @@ import com.beust.jcommander.ParameterException;
 public class IngestRunner extends
 		RasterIngestRunner
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					IngestRunner.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(IngestRunner.class);
 	private Writer<SimpleFeature> bandWriter;
 	private Writer<SimpleFeature> sceneWriter;
 	private final VectorOverrideCommandLineOptions vectorOverrideOptions;
@@ -62,25 +60,20 @@ public class IngestRunner extends
 			final OperationParams params )
 			throws Exception { // Ensure we have all the required
 								// arguments
-		super.processParameters(
-				params);
+		super.processParameters(params);
 
 		final DataStore vectorStore;
 		final Index[] vectorIndices;
 		// Config file
-		final File configFile = (File) params
-				.getContext()
-				.get(
-						ConfigOptions.PROPERTIES_FILE_CONTEXT);
+		final File configFile = (File) params.getContext().get(
+				ConfigOptions.PROPERTIES_FILE_CONTEXT);
 
 		if ((vectorOverrideOptions.getVectorStore() != null)
 				&& !vectorOverrideOptions.getVectorStore().trim().isEmpty()) {
 			final String vectorStoreName = vectorOverrideOptions.getVectorStore();
 			final StoreLoader vectorStoreLoader = new StoreLoader(
 					vectorStoreName);
-			if (!vectorStoreLoader
-					.loadFromConfig(
-							configFile)) {
+			if (!vectorStoreLoader.loadFromConfig(configFile)) {
 				throw new ParameterException(
 						"Cannot find vector store name: " + vectorStoreLoader.getStoreName());
 			}
@@ -97,9 +90,7 @@ public class IngestRunner extends
 			// Load the Indices
 			final IndexLoader indexLoader = new IndexLoader(
 					vectorIndexList);
-			if (!indexLoader
-					.loadFromConfig(
-							configFile)) {
+			if (!indexLoader.loadFromConfig(configFile)) {
 				throw new ParameterException(
 						"Cannot find index(s) by name: " + vectorIndexList);
 			}
@@ -110,9 +101,7 @@ public class IngestRunner extends
 			for (final IndexPluginOptions dimensionType : indexOptions) {
 				final Index primaryIndex = dimensionType.createIndex();
 				if (primaryIndex == null) {
-					LOGGER
-							.error(
-									"Could not get index instance, getIndex() returned null;");
+					LOGGER.error("Could not get index instance, getIndex() returned null;");
 					throw new IOException(
 							"Could not get index instance, getIndex() returned null");
 				}
@@ -125,41 +114,27 @@ public class IngestRunner extends
 		sceneType = SceneFeatureIterator.createFeatureType();
 		final FeatureDataAdapter sceneAdapter = new FeatureDataAdapter(
 				sceneType);
-		vectorStore
-				.addType(
-						sceneAdapter);
-		vectorStore
-				.addIndex(
-						sceneAdapter.getTypeName(),
-						vectorIndices);
-		sceneWriter = vectorStore
-				.createWriter(
-						sceneAdapter.getTypeName());
-		final SimpleFeatureType bandType = BandFeatureIterator
-				.createFeatureType(
-						sceneType);
+		vectorStore.addType(sceneAdapter);
+		vectorStore.addIndex(
+				sceneAdapter.getTypeName(),
+				vectorIndices);
+		sceneWriter = vectorStore.createWriter(sceneAdapter.getTypeName());
+		final SimpleFeatureType bandType = BandFeatureIterator.createFeatureType(sceneType);
 		final FeatureDataAdapter bandAdapter = new FeatureDataAdapter(
 				bandType);
 
-		vectorStore
-				.addType(
-						bandAdapter);
-		vectorStore
-				.addIndex(
-						bandAdapter.getTypeName(),
-						vectorIndices);
-		bandWriter = vectorStore
-				.createWriter(
-						bandAdapter.getTypeName());
+		vectorStore.addType(bandAdapter);
+		vectorStore.addIndex(
+				bandAdapter.getTypeName(),
+				vectorIndices);
+		bandWriter = vectorStore.createWriter(bandAdapter.getTypeName());
 	}
 
 	@Override
 	protected void nextBand(
 			final SimpleFeature band,
 			final AnalysisInfo analysisInfo ) {
-		bandWriter
-				.write(
-						band);
+		bandWriter.write(band);
 		super.nextBand(
 				band,
 				analysisInfo);
@@ -169,11 +144,10 @@ public class IngestRunner extends
 	protected void nextScene(
 			final SimpleFeature firstBandOfScene,
 			final AnalysisInfo analysisInfo ) {
-		VectorIngestRunner
-				.writeScene(
-						sceneType,
-						firstBandOfScene,
-						sceneWriter);
+		VectorIngestRunner.writeScene(
+				sceneType,
+				firstBandOfScene,
+				sceneWriter);
 		super.nextScene(
 				firstBandOfScene,
 				analysisInfo);
@@ -184,8 +158,7 @@ public class IngestRunner extends
 			final OperationParams params )
 			throws Exception {
 		try {
-			super.runInternal(
-					params);
+			super.runInternal(params);
 		}
 		finally {
 			if (sceneWriter != null) {

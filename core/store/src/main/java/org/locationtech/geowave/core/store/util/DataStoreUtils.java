@@ -166,7 +166,7 @@ public class DataStoreUtils
 			final RowRangeHistogramStatistics rangeStats = (RowRangeHistogramStatistics) stats
 					.get(StatisticsQueryBuilder.newBuilder().factory().rowHistogram().indexName(
 							index.getName()).partition(
-							partitionRange.getPartitionKey()).build().getExtendedId());
+							partitionRange.getPartitionKey()).build().getId());
 			if (rangeStats == null) {
 				return Long.MAX_VALUE - 1;
 			}

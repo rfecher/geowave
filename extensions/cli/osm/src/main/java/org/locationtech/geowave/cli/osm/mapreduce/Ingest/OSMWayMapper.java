@@ -41,8 +41,7 @@ public class OSMWayMapper extends
 		final Primitive p = way.getCommon();
 
 		final Mutation m = new Mutation(
-				getIdHash(
-						p.getId()));
+				getIdHash(p.getId()));
 		// Mutation m = new Mutation(_longWriter.writeField(p.getId()));
 		// Mutation m = new Mutation(p.getId().toString());
 
@@ -53,9 +52,7 @@ public class OSMWayMapper extends
 				p.getId());
 
 		final LongArray lr = new LongArray();
-		lr
-				.setIds(
-						way.getNodes());
+		lr.setIds(way.getNodes());
 
 		put(
 				m,
@@ -63,11 +60,9 @@ public class OSMWayMapper extends
 				ColumnQualifier.REFERENCES,
 				lr);
 
-		if (!Long
-				.valueOf(
-						0)
-				.equals(
-						p.getVersion())) {
+		if (!Long.valueOf(
+				0).equals(
+				p.getVersion())) {
 			put(
 					m,
 					ColumnFamily.WAY,
@@ -75,11 +70,9 @@ public class OSMWayMapper extends
 					p.getVersion());
 		}
 
-		if (!Long
-				.valueOf(
-						0)
-				.equals(
-						p.getTimestamp())) {
+		if (!Long.valueOf(
+				0).equals(
+				p.getTimestamp())) {
 			put(
 					m,
 					ColumnFamily.WAY,
@@ -87,11 +80,9 @@ public class OSMWayMapper extends
 					p.getTimestamp());
 		}
 
-		if (!Long
-				.valueOf(
-						0)
-				.equals(
-						p.getChangesetId())) {
+		if (!Long.valueOf(
+				0).equals(
+				p.getChangesetId())) {
 			put(
 					m,
 					ColumnFamily.WAY,
@@ -99,11 +90,9 @@ public class OSMWayMapper extends
 					p.getChangesetId());
 		}
 
-		if (!Long
-				.valueOf(
-						0)
-				.equals(
-						p.getUserId())) {
+		if (!Long.valueOf(
+				0).equals(
+				p.getUserId())) {
 			put(
 					m,
 					ColumnFamily.WAY,
@@ -130,10 +119,9 @@ public class OSMWayMapper extends
 					kvp.getValue());
 		}
 
-		context
-				.write(
-						_tableName,
-						m);
+		context.write(
+				_tableName,
+				m);
 
 	}
 }

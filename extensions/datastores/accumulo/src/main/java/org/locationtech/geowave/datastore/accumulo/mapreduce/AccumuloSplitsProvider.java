@@ -108,13 +108,15 @@ public class AccumuloSplitsProvider extends
 			if ((maxSplits != null) && (maxSplits > 0)) {
 				ranges = AccumuloUtils.byteArrayRangesToAccumuloRanges(DataStoreUtils.constraintsToQueryRanges(
 						indexConstraints,
-						indexStrategy,targetResolutionPerDimensionForHierarchicalIndex,
+						indexStrategy,
+						targetResolutionPerDimensionForHierarchicalIndex,
 						maxSplits).getCompositeQueryRanges());
 			}
 			else {
 				ranges = AccumuloUtils.byteArrayRangesToAccumuloRanges(DataStoreUtils.constraintsToQueryRanges(
 						indexConstraints,
-						indexStrategy,targetResolutionPerDimensionForHierarchicalIndex,
+						indexStrategy,
+						targetResolutionPerDimensionForHierarchicalIndex,
 						-1).getCompositeQueryRanges());
 			}
 			if (ranges.size() == 1) {

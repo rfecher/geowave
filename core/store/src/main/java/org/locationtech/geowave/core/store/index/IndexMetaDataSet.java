@@ -63,7 +63,7 @@ public class IndexMetaDataSet<T> extends
 	}
 
 	@Override
-	public InternalDataStatistics<T, List<IndexMetaData>, IndexStatisticsQueryBuilder<List<IndexMetaData>>> clone() {
+	public InternalDataStatistics<T, List<IndexMetaData>, IndexStatisticsQueryBuilder<List<IndexMetaData>>> duplicate() {
 		return new IndexMetaDataSet<>(
 				adapterId,
 				extendedId,

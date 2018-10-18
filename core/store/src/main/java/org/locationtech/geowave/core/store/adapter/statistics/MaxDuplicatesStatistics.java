@@ -51,7 +51,7 @@ public class MaxDuplicatesStatistics<T> extends
 	}
 
 	@Override
-	public InternalDataStatistics<T, Integer, IndexStatisticsQueryBuilder<Integer>> clone() {
+	public InternalDataStatistics<T, Integer, IndexStatisticsQueryBuilder<Integer>> duplicate() {
 		return (InternalDataStatistics) new MaxDuplicatesStatistics<>(
 				adapterId,
 				extendedId,

@@ -48,9 +48,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class KMeansRunner
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					KMeansRunner.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(KMeansRunner.class);
 
 	private String appName = "KMeansRunner";
 	private String master = "yarn";
@@ -90,22 +88,18 @@ public class KMeansRunner
 				jar = KMeansRunner.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 			}
 			catch (final URISyntaxException e) {
-				LOGGER
-						.error(
-								"Unable to set jar location in spark configuration",
-								e);
+				LOGGER.error(
+						"Unable to set jar location in spark configuration",
+						e);
 			}
 
-			session = GeoWaveSparkConf
-					.createSessionFromParams(
-							appName,
-							master,
-							host,
-							jar);
+			session = GeoWaveSparkConf.createSessionFromParams(
+					appName,
+					master,
+					host,
+					jar);
 
-			jsc = JavaSparkContext
-					.fromSparkContext(
-							session.sparkContext());
+			jsc = JavaSparkContext.fromSparkContext(session.sparkContext());
 		}
 	}
 
@@ -127,25 +121,20 @@ public class KMeansRunner
 
 		// Validate inputs
 		if (inputDataStore == null) {
-			LOGGER
-					.error(
-							"You must supply an input datastore!");
+			LOGGER.error("You must supply an input datastore!");
 			throw new IOException(
 					"You must supply an input datastore!");
 		}
 
 		if (isUseTime()) {
 
-			scaledRange = KMeansUtils
-					.setRunnerTimeParams(
-							this,
-							inputDataStore,
-							typeName);
+			scaledRange = KMeansUtils.setRunnerTimeParams(
+					this,
+					inputDataStore,
+					typeName);
 
 			if (scaledRange == null) {
-				LOGGER
-						.error(
-								"Failed to set time params for kmeans. Please specify a valid feature type.");
+				LOGGER.error("Failed to set time params for kmeans. Please specify a valid feature type.");
 				throw new ParameterException(
 						"--useTime option: Failed to set time params");
 			}
@@ -158,20 +147,12 @@ public class KMeansRunner
 		// If provided, just use the one
 		if (typeName != null) {
 			featureTypeNames = new ArrayList<>();
-			featureTypeNames
-					.add(
-							typeName);
+			featureTypeNames.add(typeName);
 		}
 		else { // otherwise, grab all the feature adapters
-			featureTypeNames = FeatureDataUtils
-					.getFeatureTypeNames(
-							inputDataStore);
+			featureTypeNames = FeatureDataUtils.getFeatureTypeNames(inputDataStore);
 		}
-		bldr
-				.setTypeNames(
-						featureTypeNames
-								.toArray(
-										new String[0]));
+		bldr.setTypeNames(featureTypeNames.toArray(new String[0]));
 
 		// This is required due to some funkiness in GeoWaveInputFormat
 		final PersistentAdapterStore adapterStore = inputDataStore.createAdapterStore();
@@ -187,22 +168,16 @@ public class KMeansRunner
 				Geometry bbox = null;
 				String cqlTypeName;
 				if (typeName == null) {
-					cqlTypeName = featureTypeNames
-							.get(
-									0);
+					cqlTypeName = featureTypeNames.get(0);
 				}
 				else {
 					cqlTypeName = typeName;
 				}
 
-				final short adapterId = internalAdapterStore
-						.getAdapterId(
-								cqlTypeName);
+				final short adapterId = internalAdapterStore.getAdapterId(cqlTypeName);
 
-				final DataTypeAdapter<?> adapter = adapterStore
-						.getAdapter(
-								adapterId)
-						.getAdapter();
+				final DataTypeAdapter<?> adapter = adapterStore.getAdapter(
+						adapterId).getAdapter();
 
 				if (adapter instanceof FeatureDataAdapter) {
 					final String geometryAttribute = ((FeatureDataAdapter) adapter)
@@ -210,9 +185,7 @@ public class KMeansRunner
 							.getGeometryDescriptor()
 							.getLocalName();
 					Filter filter;
-					filter = ECQL
-							.toFilter(
-									cqlFilter);
+					filter = ECQL.toFilter(cqlFilter);
 
 					final ExtractGeometryFilterVisitorResult geoAndCompareOpData = (ExtractGeometryFilterVisitorResult) filter
 							.accept(
@@ -223,73 +196,45 @@ public class KMeansRunner
 					bbox = geoAndCompareOpData.getGeometry();
 				}
 
-				if ((bbox != null) && !bbox
-						.equals(
-								GeometryUtils.infinity())) {
-					bldr
-							.constraints(
-									bldr
-											.constraintsFactory()
-											.spatialTemporalConstraints()
-											.spatialConstraints(
-													bbox)
-											.build());
+				if ((bbox != null) && !bbox.equals(GeometryUtils.infinity())) {
+					bldr.constraints(bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(
+							bbox).build());
 				}
 			}
 		}
 		catch (final CQLException e) {
-			LOGGER
-					.error(
-							"Unable to parse CQL: " + cqlFilter);
+			LOGGER.error("Unable to parse CQL: " + cqlFilter);
 		}
 
 		// Load RDD from datastore
 		final RDDOptions kmeansOpts = new RDDOptions();
-		kmeansOpts
-				.setMinSplits(
-						minSplits);
-		kmeansOpts
-				.setMaxSplits(
-						maxSplits);
-		kmeansOpts
-				.setQuery(
-						bldr.build());
-		final GeoWaveRDD kmeansRDD = GeoWaveRDDLoader
-				.loadRDD(
-						jsc.sc(),
-						inputDataStore,
-						kmeansOpts);
+		kmeansOpts.setMinSplits(minSplits);
+		kmeansOpts.setMaxSplits(maxSplits);
+		kmeansOpts.setQuery(bldr.build());
+		final GeoWaveRDD kmeansRDD = GeoWaveRDDLoader.loadRDD(
+				jsc.sc(),
+				inputDataStore,
+				kmeansOpts);
 
 		// Retrieve the input centroids
-		centroidVectors = RDDUtils
-				.rddFeatureVectors(
-						kmeansRDD,
-						timeField,
-						scaledTimeRange);
+		centroidVectors = RDDUtils.rddFeatureVectors(
+				kmeansRDD,
+				timeField,
+				scaledTimeRange);
 		centroidVectors.cache();
 
 		// Init the algorithm
 		final KMeans kmeans = new KMeans();
-		kmeans
-				.setInitializationMode(
-						"kmeans||");
-		kmeans
-				.setK(
-						numClusters);
-		kmeans
-				.setMaxIterations(
-						numIterations);
+		kmeans.setInitializationMode("kmeans||");
+		kmeans.setK(numClusters);
+		kmeans.setMaxIterations(numIterations);
 
 		if (epsilon > -1.0) {
-			kmeans
-					.setEpsilon(
-							epsilon);
+			kmeans.setEpsilon(epsilon);
 		}
 
 		// Run KMeans
-		outputModel = kmeans
-				.run(
-						centroidVectors.rdd());
+		outputModel = kmeans.run(centroidVectors.rdd());
 
 		writeToOutputStore();
 	}
@@ -297,21 +242,19 @@ public class KMeansRunner
 	public void writeToOutputStore() {
 		if (outputDataStore != null) {
 			// output cluster centroids (and hulls) to output datastore
-			KMeansUtils
-					.writeClusterCentroids(
-							outputModel,
-							outputDataStore,
-							centroidTypeName,
-							scaledRange);
+			KMeansUtils.writeClusterCentroids(
+					outputModel,
+					outputDataStore,
+					centroidTypeName,
+					scaledRange);
 
 			if (isGenerateHulls()) {
-				KMeansUtils
-						.writeClusterHulls(
-								centroidVectors,
-								outputModel,
-								outputDataStore,
-								hullTypeName,
-								isComputeHullData());
+				KMeansUtils.writeClusterHulls(
+						centroidVectors,
+						outputModel,
+						outputDataStore,
+						hullTypeName,
+						isComputeHullData());
 			}
 		}
 	}

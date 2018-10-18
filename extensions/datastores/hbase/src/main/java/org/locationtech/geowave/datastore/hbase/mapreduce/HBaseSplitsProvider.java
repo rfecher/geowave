@@ -89,13 +89,15 @@ public class HBaseSplitsProvider extends
 			if ((maxSplits != null) && (maxSplits > 0)) {
 				ranges = DataStoreUtils.constraintsToQueryRanges(
 						indexConstraints,
-						indexStrategy,targetResolutionPerDimensionForHierarchicalIndex,
+						indexStrategy,
+						targetResolutionPerDimensionForHierarchicalIndex,
 						maxSplits).getCompositeQueryRanges();
 			}
 			else {
 				ranges = DataStoreUtils.constraintsToQueryRanges(
 						indexConstraints,
-						indexStrategy,targetResolutionPerDimensionForHierarchicalIndex,
+						indexStrategy,
+						targetResolutionPerDimensionForHierarchicalIndex,
 						-1).getCompositeQueryRanges();
 			}
 		}

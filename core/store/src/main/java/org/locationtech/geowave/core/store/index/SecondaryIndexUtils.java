@@ -37,8 +37,8 @@ public class SecondaryIndexUtils
 				indexedAttributeFieldName,
 				"indexedAttributeFieldId cannot be null");
 		return constructColumnFamily(
-				typeName,
-				indexedAttributeFieldName);
+				StringUtils.stringToBinary(typeName),
+				StringUtils.stringToBinary(indexedAttributeFieldName));
 	}
 
 	/**

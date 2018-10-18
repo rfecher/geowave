@@ -540,8 +540,7 @@ public class CassandraOperations implements
 			// this checks for existence prior to create
 			synchronized (CREATE_TABLE_MUTEX) {
 				try {
-					if (!indexExists(
-							tableName)) {
+					if (!indexExists(tableName)) {
 						// create table
 						final Create create = getCreateTable(tableName);
 						create.addPartitionKey(
@@ -636,8 +635,7 @@ public class CassandraOperations implements
 	public boolean metadataExists(
 			final MetadataType metadataType )
 			throws IOException {
-		return indexExists(
-				getMetadataTableName(metadataType));
+		return indexExists(getMetadataTableName(metadataType));
 	}
 
 	public String getMetadataTableName(

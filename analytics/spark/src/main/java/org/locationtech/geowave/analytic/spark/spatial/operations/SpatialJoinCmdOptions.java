@@ -173,7 +173,7 @@ public class SpatialJoinCmdOptions
 	}
 
 	public void setOutputRightAdapterTypeName(
-			String outRightAdapterTypeName) {
+			String outRightAdapterTypeName ) {
 		this.outRightAdapterTypeName = outRightAdapterTypeName;
 	}
 }

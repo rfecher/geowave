@@ -59,10 +59,9 @@ public class AdapterBasedPartitionerTest
 	public static CoordinateReferenceSystem DEFAULT_CRS;
 	static {
 		try {
-			DEFAULT_CRS = CRS
-					.decode(
-							"EPSG:4326",
-							true);
+			DEFAULT_CRS = CRS.decode(
+					"EPSG:4326",
+					true);
 		}
 		catch (final FactoryException e) {
 			e.printStackTrace();
@@ -74,71 +73,57 @@ public class AdapterBasedPartitionerTest
 			throws IOException,
 			ParseException {
 
-		final SimpleFeatureType ftype = AnalyticFeature
-				.createGeometryFeatureAdapter(
-						"centroid",
-						new String[] {
-							"extra1"
-						},
-						BasicFeatureTypes.DEFAULT_NAMESPACE,
-						ClusteringUtils.CLUSTERING_CRS)
-				.getFeatureType();
+		final SimpleFeatureType ftype = AnalyticFeature.createGeometryFeatureAdapter(
+				"centroid",
+				new String[] {
+					"extra1"
+				},
+				BasicFeatureTypes.DEFAULT_NAMESPACE,
+				ClusteringUtils.CLUSTERING_CRS).getFeatureType();
 		final GeometryFactory factory = new GeometryFactory();
-		SimpleFeature feature = AnalyticFeature
-				.createGeometryFeature(
-						ftype,
-						"b1",
-						"123",
-						"fred",
-						"NA",
-						20.30203,
-						factory
-								.createPoint(
-										new Coordinate(
-												0,
-												0)),
-						new String[] {
-							"extra1"
-						},
-						new double[] {
-							0.022
-						},
-						1,
-						1,
-						0);
+		SimpleFeature feature = AnalyticFeature.createGeometryFeature(
+				ftype,
+				"b1",
+				"123",
+				"fred",
+				"NA",
+				20.30203,
+				factory.createPoint(new Coordinate(
+						0,
+						0)),
+				new String[] {
+					"extra1"
+				},
+				new double[] {
+					0.022
+				},
+				1,
+				1,
+				0);
 
 		final PropertyManagement propertyManagement = new PropertyManagement();
 		final AdapterBasedPartitioner partitioner = new AdapterBasedPartitioner();
 
-		propertyManagement
-				.store(
-						PartitionParameters.Partition.DISTANCE_THRESHOLDS,
-						"1.00001,1.00001");
-		propertyManagement
-				.store(
-						CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
-						SpatialIndexModelBuilder.class);
+		propertyManagement.store(
+				PartitionParameters.Partition.DISTANCE_THRESHOLDS,
+				"1.00001,1.00001");
+		propertyManagement.store(
+				CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
+				SpatialIndexModelBuilder.class);
 		final Configuration configuration = new Configuration();
 		final Class<?> scope = OrthodromicDistancePartitionerTest.class;
-		propertyManagement
-				.setJobConfiguration(
-						configuration,
-						scope);
+		propertyManagement.setJobConfiguration(
+				configuration,
+				scope);
 
 		final DataStorePluginOptions pluginOptions = new DataStorePluginOptions();
-		GeoWaveStoreFinder
-				.getRegisteredStoreFactoryFamilies()
-				.put(
-						"memory",
-						new MemoryStoreFactoryFamily());
-		pluginOptions
-				.selectPlugin(
-						"memory");
+		GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put(
+				"memory",
+				new MemoryStoreFactoryFamily());
+		pluginOptions.selectPlugin("memory");
 		final String namespace = "test_" + getClass().getName() + "_" + name.getMethodName();
 		final MemoryRequiredOptions opts = (MemoryRequiredOptions) pluginOptions.getFactoryOptions();
-		opts
-				.setGeowaveNamespace(
-						namespace);
+		opts.setGeowaveNamespace(namespace);
 		final PersistableStore store = new PersistableStore(
 				pluginOptions);
 		final FeatureDataAdapter dataAdapter = new FeatureDataAdapter(
@@ -147,192 +132,141 @@ public class AdapterBasedPartitionerTest
 		final InternalAdapterStore internalDataStore = pluginOptions.createInternalAdapterStore();
 		final InternalDataAdapter<?> internalDataAdapter = new InternalDataAdapterWrapper(
 				dataAdapter,
-				internalDataStore
-						.addTypeName(
-								dataAdapter.getTypeName()));
-		store
-				.getDataStoreOptions()
-				.createAdapterStore()
-				.addAdapter(
-						internalDataAdapter);
-		((ParameterEnum<PersistableStore>) StoreParam.INPUT_STORE)
-				.getHelper()
-				.setValue(
-						configuration,
-						scope,
-						store);
-		partitioner
-				.initialize(
-						Job
-								.getInstance(
-										configuration),
-						scope);
+				internalDataStore.addTypeName(dataAdapter.getTypeName()));
+		store.getDataStoreOptions().createAdapterStore().addAdapter(
+				internalDataAdapter);
+		((ParameterEnum<PersistableStore>) StoreParam.INPUT_STORE).getHelper().setValue(
+				configuration,
+				scope,
+				store);
+		partitioner.initialize(
+				Job.getInstance(configuration),
+				scope);
 
-		List<PartitionData> partitions = partitioner
-				.getCubeIdentifiers(
-						new AdapterDataEntry(
-								ftype.getName().getLocalPart(),
-								feature));
+		List<PartitionData> partitions = partitioner.getCubeIdentifiers(new AdapterDataEntry(
+				ftype.getName().getLocalPart(),
+				feature));
 		assertEquals(
 				4,
 				partitions.size());
-		assertTrue(
-				hasOnePrimary(
-						partitions));
+		assertTrue(hasOnePrimary(partitions));
 
 		for (final PartitionData partition : partitions) {
-			final MultiDimensionalNumericData ranges = partitioner
-					.getRangesForPartition(
-							partition);
-			assertTrue(
-					ranges.getDataPerDimension()[0].getMin() < 0.0000000001);
-			assertTrue(
-					ranges.getDataPerDimension()[0].getMax() > -0.0000000001);
-			assertTrue(
-					ranges.getDataPerDimension()[1].getMin() < 0.00000000001);
-			assertTrue(
-					ranges.getDataPerDimension()[1].getMax() > -0.0000000001);
+			final MultiDimensionalNumericData ranges = partitioner.getRangesForPartition(partition);
+			assertTrue(ranges.getDataPerDimension()[0].getMin() < 0.0000000001);
+			assertTrue(ranges.getDataPerDimension()[0].getMax() > -0.0000000001);
+			assertTrue(ranges.getDataPerDimension()[1].getMin() < 0.00000000001);
+			assertTrue(ranges.getDataPerDimension()[1].getMax() > -0.0000000001);
 		}
 
-		feature = AnalyticFeature
-				.createGeometryFeature(
-						ftype,
-						"b1",
-						"123",
-						"fred",
-						"NA",
-						20.30203,
-						factory
-								.createPoint(
-										new Coordinate(
-												-179.99999996,
-												0)),
-						new String[] {
-							"extra1"
-						},
-						new double[] {
-							0.022
-						},
-						1,
-						1,
-						0);
+		feature = AnalyticFeature.createGeometryFeature(
+				ftype,
+				"b1",
+				"123",
+				"fred",
+				"NA",
+				20.30203,
+				factory.createPoint(new Coordinate(
+						-179.99999996,
+						0)),
+				new String[] {
+					"extra1"
+				},
+				new double[] {
+					0.022
+				},
+				1,
+				1,
+				0);
 
-		partitions = partitioner
-				.getCubeIdentifiers(
-						new AdapterDataEntry(
-								ftype.getName().getLocalPart(),
-								feature));
+		partitions = partitioner.getCubeIdentifiers(new AdapterDataEntry(
+				ftype.getName().getLocalPart(),
+				feature));
 		assertEquals(
 				4,
 				partitions.size());
-		assertTrue(
-				hasOnePrimary(
-						partitions));
+		assertTrue(hasOnePrimary(partitions));
 
-		feature = AnalyticFeature
-				.createGeometryFeature(
-						ftype,
-						"b1",
-						"123",
-						"fred",
-						"NA",
-						20.30203,
-						factory
-								.createPoint(
-										new Coordinate(
-												179.99999996,
-												91)),
-						new String[] {
-							"extra1"
-						},
-						new double[] {
-							0.022
-						},
-						1,
-						1,
-						0);
+		feature = AnalyticFeature.createGeometryFeature(
+				ftype,
+				"b1",
+				"123",
+				"fred",
+				"NA",
+				20.30203,
+				factory.createPoint(new Coordinate(
+						179.99999996,
+						91)),
+				new String[] {
+					"extra1"
+				},
+				new double[] {
+					0.022
+				},
+				1,
+				1,
+				0);
 
-		partitions = partitioner
-				.getCubeIdentifiers(
-						new AdapterDataEntry(
-								ftype.getName().getLocalPart(),
-								feature));
+		partitions = partitioner.getCubeIdentifiers(new AdapterDataEntry(
+				ftype.getName().getLocalPart(),
+				feature));
 		assertEquals(
 				2,
 				partitions.size());
-		assertTrue(
-				hasOnePrimary(
-						partitions));
+		assertTrue(hasOnePrimary(partitions));
 
-		feature = AnalyticFeature
-				.createGeometryFeature(
-						ftype,
-						"b1",
-						"123",
-						"fred",
-						"NA",
-						20.30203,
-						factory
-								.createPoint(
-										new Coordinate(
-												88,
-												0)),
-						new String[] {
-							"extra1"
-						},
-						new double[] {
-							0.022
-						},
-						1,
-						1,
-						0);
+		feature = AnalyticFeature.createGeometryFeature(
+				ftype,
+				"b1",
+				"123",
+				"fred",
+				"NA",
+				20.30203,
+				factory.createPoint(new Coordinate(
+						88,
+						0)),
+				new String[] {
+					"extra1"
+				},
+				new double[] {
+					0.022
+				},
+				1,
+				1,
+				0);
 
-		partitions = partitioner
-				.getCubeIdentifiers(
-						new AdapterDataEntry(
-								ftype.getName().getLocalPart(),
-								feature));
+		partitions = partitioner.getCubeIdentifiers(new AdapterDataEntry(
+				ftype.getName().getLocalPart(),
+				feature));
 		assertEquals(
 				4,
 				partitions.size());
-		assertTrue(
-				hasOnePrimary(
-						partitions));
+		assertTrue(hasOnePrimary(partitions));
 		double maxX = 0;
 		double minX = 0;
 		double maxY = 0;
 		double minY = 0;
 		for (final PartitionData partition : partitions) {
-			final MultiDimensionalNumericData ranges = partitioner
-					.getRangesForPartition(
-							partition);
+			final MultiDimensionalNumericData ranges = partitioner.getRangesForPartition(partition);
 			// System.out.println(ranges.getDataPerDimension()[0] + "; "
 			// +ranges.getDataPerDimension()[1] + " = " + partition.isPrimary);
-			maxX = Math
-					.max(
-							maxX,
-							ranges.getMaxValuesPerDimension()[1]);
-			maxY = Math
-					.max(
-							maxY,
-							ranges.getMaxValuesPerDimension()[0]);
-			minX = Math
-					.min(
-							minX,
-							ranges.getMinValuesPerDimension()[1]);
-			minY = Math
-					.min(
-							minY,
-							ranges.getMinValuesPerDimension()[0]);
+			maxX = Math.max(
+					maxX,
+					ranges.getMaxValuesPerDimension()[1]);
+			maxY = Math.max(
+					maxY,
+					ranges.getMaxValuesPerDimension()[0]);
+			minX = Math.min(
+					minX,
+					ranges.getMinValuesPerDimension()[1]);
+			minY = Math.min(
+					minY,
+					ranges.getMinValuesPerDimension()[0]);
 		}
-		assertTrue(
-				maxY > 88.0);
-		assertTrue(
-				minY < 88.0);
-		assertTrue(
-				maxX > 0);
-		assertTrue(
-				minX < 0);
+		assertTrue(maxY > 88.0);
+		assertTrue(minY < 88.0);
+		assertTrue(maxX > 0);
+		assertTrue(minX < 0);
 
 	}
 

@@ -82,7 +82,7 @@ public class FeatureNumericHistogramStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature, Pair<DoubleHistogram, DoubleHistogram>, FieldStatisticsQueryBuilder<Pair<DoubleHistogram, DoubleHistogram>>> clone() {
+	public InternalDataStatistics<SimpleFeature, Pair<DoubleHistogram, DoubleHistogram>, FieldStatisticsQueryBuilder<Pair<DoubleHistogram, DoubleHistogram>>> duplicate() {
 		return new FeatureNumericHistogramStatistics(
 				adapterId,
 				getFieldName());

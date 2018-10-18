@@ -26,9 +26,7 @@ import org.slf4j.LoggerFactory;
 
 abstract public class AbstractAccumuloSplitsOperation
 {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					AbstractAccumuloSplitsOperation.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(AbstractAccumuloSplitsOperation.class);
 
 	private final DataStorePluginOptions storeOptions;
 	private final SplitCommandLineOptions splitOptions;
@@ -47,9 +45,7 @@ abstract public class AbstractAccumuloSplitsOperation
 			final IndexStore indexStore = storeOptions.createIndexStore();
 
 			final AccumuloRequiredOptions options = (AccumuloRequiredOptions) storeOptions.getFactoryOptions();
-			final AccumuloOperations operations = AccumuloOperations
-					.createOperations(
-							options);
+			final AccumuloOperations operations = AccumuloOperations.createOperations(options);
 
 			final Connector connector = operations.getConnector();
 			final String namespace = options.getGeowaveNamespace();
@@ -72,9 +68,7 @@ abstract public class AbstractAccumuloSplitsOperation
 					}
 				}
 				if (!retVal) {
-					LOGGER
-							.error(
-									"no indices were successfully split, try providing an indexId");
+					LOGGER.error("no indices were successfully split, try providing an indexId");
 				}
 				return retVal;
 			}
@@ -87,14 +81,9 @@ abstract public class AbstractAccumuloSplitsOperation
 						number);
 			}
 			else {
-				final Index index = indexStore
-						.getIndex(
-								splitOptions.getIndexName());
+				final Index index = indexStore.getIndex(splitOptions.getIndexName());
 				if (index == null) {
-					LOGGER
-							.error(
-									"index '" + splitOptions.getIndexName()
-											+ "' does not exist; unable to create splits");
+					LOGGER.error("index '" + splitOptions.getIndexName() + "' does not exist; unable to create splits");
 				}
 				return setSplits(
 						connector,
@@ -104,10 +93,9 @@ abstract public class AbstractAccumuloSplitsOperation
 			}
 		}
 		catch (final AccumuloSecurityException | AccumuloException e) {
-			LOGGER
-					.error(
-							"unable to create index store",
-							e);
+			LOGGER.error(
+					"unable to create index store",
+					e);
 			return false;
 		}
 		return true;

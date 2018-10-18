@@ -74,63 +74,52 @@ public class ComparisonAccumuloStatsReducer extends
 		// calculate weights for this key
 		for (final LongWritable v : values) {
 			final long cellIndex = v.get() / numLevels;
-			final Point2d[] bbox = fromIndexToLL_UR(
-					cellIndex);
-			final WritableRaster raster = RasterUtils
-					.createRasterTypeDouble(
-							NUM_BANDS,
-							TILE_SIZE);
-			raster
-					.setSample(
-							0,
-							0,
-							0,
-							key.getSummerPercentile());
-			raster
-					.setSample(
-							0,
-							0,
-							1,
-							key.getWinterPercentile());
-			raster
-					.setSample(
-							0,
-							0,
-							2,
-							key.getCombinedPercentile());
-			raster
-					.setSample(
-							0,
-							0,
-							3,
-							percentile);
+			final Point2d[] bbox = fromIndexToLL_UR(cellIndex);
+			final WritableRaster raster = RasterUtils.createRasterTypeDouble(
+					NUM_BANDS,
+					TILE_SIZE);
+			raster.setSample(
+					0,
+					0,
+					0,
+					key.getSummerPercentile());
+			raster.setSample(
+					0,
+					0,
+					1,
+					key.getWinterPercentile());
+			raster.setSample(
+					0,
+					0,
+					2,
+					key.getCombinedPercentile());
+			raster.setSample(
+					0,
+					0,
+					3,
+					percentile);
 
-			context
-					.write(
-							new GeoWaveOutputKey(
-									coverageName,
-									indexNames),
-							RasterUtils
-									.createCoverageTypeDouble(
-											coverageName,
-											bbox[0].x,
-											bbox[1].x,
-											bbox[0].y,
-											bbox[1].y,
-											MINS_PER_BAND,
-											MAXES_PER_BAND,
-											NAME_PER_BAND,
-											raster));
+			context.write(
+					new GeoWaveOutputKey(
+							coverageName,
+							indexNames),
+					RasterUtils.createCoverageTypeDouble(
+							coverageName,
+							bbox[0].x,
+							bbox[1].x,
+							bbox[0].y,
+							bbox[1].y,
+							MINS_PER_BAND,
+							MAXES_PER_BAND,
+							NAME_PER_BAND,
+							raster));
 			currentKey++;
 		}
 	}
 
 	private Point2d[] fromIndexToLL_UR(
 			final long index ) {
-		final double llLon = ((Math
-				.floor(
-						index / (double) numYPosts)
-				* 360.0) / numXPosts) - 180.0;
+		final double llLon = ((Math.floor(index / (double) numYPosts) * 360.0) / numXPosts) - 180.0;
 		final double llLat = (((index % numYPosts) * 180.0) / numYPosts) - 90.0;
 		final double urLon = llLon + (360.0 / numXPosts);
 		final double urLat = llLat + (180.0 / numYPosts);

@@ -42,22 +42,19 @@ public class OSMConversionMapper extends
 			final Context context )
 			throws IOException,
 			InterruptedException {
-		final List<SimpleFeature> sf = sfg
-				.mapOSMtoSimpleFeature(
-						WholeRowIterator
-								.decodeRow(
-										key,
-										value),
-						osmProvider);
+		final List<SimpleFeature> sf = sfg.mapOSMtoSimpleFeature(
+				WholeRowIterator.decodeRow(
+						key,
+						value),
+				osmProvider);
 		if ((sf != null) && (sf.size() > 0)) {
 			for (final SimpleFeature feat : sf) {
 				final String name = feat.getType().getTypeName();
-				context
-						.write(
-								new GeoWaveOutputKey(
-										name,
-										indexName),
-								feat);
+				context.write(
+						new GeoWaveOutputKey(
+								name,
+								indexName),
+						feat);
 			}
 		}
 	}
@@ -69,8 +66,7 @@ public class OSMConversionMapper extends
 			InterruptedException {
 		osmProvider.close();
 
-		super.cleanup(
-				context);
+		super.cleanup(context);
 	}
 
 	@Override
@@ -78,31 +74,20 @@ public class OSMConversionMapper extends
 			final Context context )
 			throws IOException,
 			InterruptedException {
-		super.setup(
-				context);
+		super.setup(context);
 		try {
-			globalVisibility = context
-					.getConfiguration()
-					.get(
-							AbstractMapReduceIngest.GLOBAL_VISIBILITY_KEY);
-			final String primaryIndexIdStr = context
-					.getConfiguration()
-					.get(
-							AbstractMapReduceIngest.INDEX_NAMES_KEY);
+			globalVisibility = context.getConfiguration().get(
+					AbstractMapReduceIngest.GLOBAL_VISIBILITY_KEY);
+			final String primaryIndexIdStr = context.getConfiguration().get(
+					AbstractMapReduceIngest.INDEX_NAMES_KEY);
 			if (primaryIndexIdStr != null) {
 				indexName = primaryIndexIdStr;
 			}
 			final OSMIngestCommandArgs args = new OSMIngestCommandArgs();
-			args
-					.deserializeFromString(
-							context
-									.getConfiguration()
-									.get(
-											"arguments"));
+			args.deserializeFromString(context.getConfiguration().get(
+					"arguments"));
 
-			final DataStorePluginOptions storeOptions = GeoWaveOutputFormat
-					.getStoreOptions(
-							context);
+			final DataStorePluginOptions storeOptions = GeoWaveOutputFormat.getStoreOptions(context);
 
 			osmProvider = new OsmProvider(
 					args,

@@ -35,14 +35,10 @@ public class AVROIngestTest
 	@Before
 	public void setup() {
 		optionsProvider = new DataSchemaOptionProvider();
-		optionsProvider
-				.setSupplementalFields(
-						true);
+		optionsProvider.setSupplementalFields(true);
 
 		ingester = new AvroIngestPlugin();
-		ingester
-				.init(
-						null);
+		ingester.init(null);
 
 		filePath = "tornado_tracksbasicIT-export.avro";
 		expectedCount = 474;
@@ -53,32 +49,24 @@ public class AVROIngestTest
 	public void testIngest()
 			throws IOException {
 
-		final URL toIngest = this
-				.getClass()
-				.getClassLoader()
-				.getResource(
-						filePath);
+		final URL toIngest = this.getClass().getClassLoader().getResource(
+				filePath);
 
-		assertTrue(
-				validate(
-						toIngest));
-		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester
-				.toGeoWaveData(
-						toIngest,
-						new String[] {
-							"123"
-						},
-						"");
+		assertTrue(validate(toIngest));
+		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester.toGeoWaveData(
+				toIngest,
+				new String[] {
+					"123"
+				},
+				"");
 
-		assertTrue(
-				(features != null) && features.hasNext());
+		assertTrue((features != null) && features.hasNext());
 
 		int featureCount = 0;
 		while (features.hasNext()) {
 			final GeoWaveData<SimpleFeature> feature = features.next();
 
-			if (isValidAVROFeature(
-					feature)) {
+			if (isValidAVROFeature(feature)) {
 				featureCount++;
 			}
 		}
@@ -86,45 +74,22 @@ public class AVROIngestTest
 
 		final boolean readExpectedCount = (featureCount == expectedCount);
 		if (!readExpectedCount) {
-			System.out
-					.println(
-							"Expected " + expectedCount + " features, ingested " + featureCount);
+			System.out.println("Expected " + expectedCount + " features, ingested " + featureCount);
 		}
 
-		assertTrue(
-				readExpectedCount);
+		assertTrue(readExpectedCount);
 	}
 
 	private boolean isValidAVROFeature(
 			final GeoWaveData<SimpleFeature> feature ) {
-		if ((feature
-				.getValue()
-				.getAttribute(
-						"the_geom") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"DATE") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"OM") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"ELAT") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"ELON") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"SLAT") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"SLON") == null)) {
+		if ((feature.getValue().getAttribute(
+				"the_geom") == null) || (feature.getValue().getAttribute(
+				"DATE") == null) || (feature.getValue().getAttribute(
+				"OM") == null) || (feature.getValue().getAttribute(
+				"ELAT") == null) || (feature.getValue().getAttribute(
+				"ELON") == null) || (feature.getValue().getAttribute(
+				"SLAT") == null) || (feature.getValue().getAttribute(
+				"SLON") == null)) {
 			return false;
 		}
 		return true;

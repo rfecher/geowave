@@ -40,7 +40,7 @@ public class QueryOptionsCommand
 	}
 
 	public void setTypeNames(
-			final String[] typeNames) {
+			final String[] typeNames ) {
 		this.typeNames = typeNames;
 	}
 

@@ -36,9 +36,7 @@ abstract public class AbstractGeoWaveQuery extends
 		DefaultOperation implements
 		Command
 {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					AbstractGeoWaveQuery.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(AbstractGeoWaveQuery.class);
 
 	@Parameter(description = "<storename>")
 	private final List<String> parameters = new ArrayList<>();
@@ -64,17 +62,12 @@ abstract public class AbstractGeoWaveQuery extends
 					"Requires arguments: <storename>");
 		}
 
-		final String storeName = parameters
-				.get(
-						0);
+		final String storeName = parameters.get(0);
 
 		// Attempt to load store.
 		final StoreLoader storeOptions = new StoreLoader(
 				storeName);
-		if (!storeOptions
-				.loadFromConfig(
-						getGeoWaveConfigFile(
-								params))) {
+		if (!storeOptions.loadFromConfig(getGeoWaveConfigFile(params))) {
 			throw new ParameterException(
 					"Cannot find store name: " + storeOptions.getStoreName());
 		}
@@ -86,13 +79,9 @@ abstract public class AbstractGeoWaveQuery extends
 
 		final GeotoolsFeatureDataAdapter adapter;
 		if (typeName != null) {
-			adapter = (GeotoolsFeatureDataAdapter) adapterStore
-					.getAdapter(
-							storeOptions
-									.createInternalAdapterStore()
-									.getAdapterId(
-											typeName))
-					.getAdapter();
+			adapter = (GeotoolsFeatureDataAdapter) adapterStore.getAdapter(
+					storeOptions.createInternalAdapterStore().getAdapterId(
+							typeName)).getAdapter();
 		}
 		else {
 			final CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters();
@@ -100,9 +89,7 @@ abstract public class AbstractGeoWaveQuery extends
 			it.close();
 		}
 		if (debug && (adapter != null)) {
-			System.out
-					.println(
-							adapter);
+			System.out.println(adapter);
 		}
 		stopWatch.start();
 		final long results = runQuery(
@@ -112,9 +99,7 @@ abstract public class AbstractGeoWaveQuery extends
 				dataStore,
 				debug);
 		stopWatch.stop();
-		System.out
-				.println(
-						"Got " + results + " results in " + stopWatch.toString());
+		System.out.println("Got " + results + " results in " + stopWatch.toString());
 	}
 
 	abstract protected long runQuery(

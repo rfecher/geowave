@@ -216,7 +216,7 @@ public class InternalAdapterStoreImpl implements
 							adapterIdBytes,
 							INTERNAL_TO_EXTERNAL_ID,
 							null,
-							typeName.getBytes()));
+							StringUtils.stringToBinary(typeName)));
 				}
 			}
 			catch (final Exception e) {

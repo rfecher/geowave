@@ -38,9 +38,7 @@ import org.slf4j.LoggerFactory;
 public class AccumuloSecondaryIndexDataStore extends
 		BaseSecondaryIndexDataStore
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					AccumuloSecondaryIndexDataStore.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(AccumuloSecondaryIndexDataStore.class);
 	private final AccumuloOperations accumuloOperations;
 	private final AccumuloOptions accumuloOptions;
 	private DataStore dataStore = null;
@@ -272,16 +270,14 @@ public class AccumuloSecondaryIndexDataStore extends
 			final String... visibility ) {
 		Scanner scanner = null;
 		try {
-			scanner = accumuloOperations
-					.createScanner(
-							secondaryIndexId,
-							visibility);
+			scanner = accumuloOperations.createScanner(
+					secondaryIndexId,
+					visibility);
 		}
 		catch (final TableNotFoundException e) {
-			LOGGER
-					.error(
-							"Could not obtain batch scanner",
-							e);
+			LOGGER.error(
+					"Could not obtain batch scanner",
+					e);
 		}
 		return scanner;
 	}
@@ -289,19 +285,15 @@ public class AccumuloSecondaryIndexDataStore extends
 	private Collection<Range> getScanRanges(
 			final List<ByteArrayRange> ranges ) {
 		if ((ranges == null) || ranges.isEmpty()) {
-			return Collections
-					.singleton(
-							new Range());
+			return Collections.singleton(new Range());
 		}
 		final Collection<Range> scanRanges = new ArrayList<>();
 		for (final ByteArrayRange range : ranges) {
-			scanRanges
-					.add(
-							new Range(
-									new Text(
-											range.getStart().getBytes()),
-									new Text(
-											range.getEnd().getBytes())));
+			scanRanges.add(new Range(
+					new Text(
+							range.getStart().getBytes()),
+					new Text(
+							range.getEnd().getBytes())));
 		}
 		return scanRanges;
 	}

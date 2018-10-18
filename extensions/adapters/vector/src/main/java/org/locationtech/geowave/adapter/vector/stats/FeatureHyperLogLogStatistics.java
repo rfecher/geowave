@@ -86,7 +86,7 @@ public class FeatureHyperLogLogStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>> clone() {
+	public InternalDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>> duplicate() {
 		return new FeatureHyperLogLogStatistics(
 				adapterId,
 				getFieldName(),

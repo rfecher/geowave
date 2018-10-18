@@ -38,9 +38,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class SqlResultsWriter
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					SqlResultsWriter.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(SqlResultsWriter.class);
 
 	private static final String DEFAULT_TYPE_NAME = "sqlresults";
 
@@ -55,25 +53,20 @@ public class SqlResultsWriter
 		this.outputDataStore = outputDataStore;
 
 		nf = NumberFormat.getIntegerInstance();
-		nf
-				.setMinimumIntegerDigits(
-						6);
+		nf.setMinimumIntegerDigits(6);
 	}
 
 	public void writeResults(
 			String typeName ) {
 		if (typeName == null) {
 			typeName = DEFAULT_TYPE_NAME;
-			LOGGER
-					.warn(
-							"Using default type name (adapter id): '" + DEFAULT_TYPE_NAME + "' for SQL output");
+			LOGGER.warn("Using default type name (adapter id): '" + DEFAULT_TYPE_NAME + "' for SQL output");
 		}
 
 		final StructType schema = results.schema();
-		final SimpleFeatureType featureType = SchemaConverter
-				.schemaToFeatureType(
-						schema,
-						typeName);
+		final SimpleFeatureType featureType = SchemaConverter.schemaToFeatureType(
+				schema,
+				typeName);
 
 		final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(
 				featureType);
@@ -82,74 +75,50 @@ public class SqlResultsWriter
 				featureType);
 
 		final DataStore featureStore = outputDataStore.createDataStore();
-		final Index featureIndex = new SpatialDimensionalityTypeProvider()
-				.createIndex(
-						new SpatialOptions());
-		featureStore
-				.addType(
-						featureAdapter);
-		featureStore
-				.addIndex(
-						featureAdapter.getTypeName(),
-						featureIndex);
-		try (Writer writer = featureStore
-				.createWriter(
-						featureAdapter.getTypeName())) {
+		final Index featureIndex = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		featureStore.addType(featureAdapter);
+		featureStore.addIndex(
+				featureAdapter.getTypeName(),
+				featureIndex);
+		try (Writer writer = featureStore.createWriter(featureAdapter.getTypeName())) {
 
 			final List<Row> rows = results.collectAsList();
 
 			for (int r = 0; r < rows.size(); r++) {
-				final Row row = rows
-						.get(
-								r);
+				final Row row = rows.get(r);
 
 				for (int i = 0; i < schema.fields().length; i++) {
-					final StructField field = schema
-							.apply(
-									i);
-					final Object rowObj = row
-							.apply(
-									i);
+					final StructField field = schema.apply(i);
+					final Object rowObj = row.apply(i);
 					if (rowObj != null) {
-						if (field
-								.name()
-								.equals(
-										"geom")) {
+						if (field.name().equals(
+								"geom")) {
 							final Geometry geom = (Geometry) rowObj;
 
-							sfBuilder
-									.set(
-											"geom",
-											geom);
+							sfBuilder.set(
+									"geom",
+									geom);
 						}
 						else if (field.dataType() == DataTypes.TimestampType) {
 							final long millis = ((Timestamp) rowObj).getTime();
 							final Date date = new Date(
 									millis);
 
-							sfBuilder
-									.set(
-											field.name(),
-											date);
+							sfBuilder.set(
+									field.name(),
+									date);
 						}
 						else {
-							sfBuilder
-									.set(
-											field.name(),
-											rowObj);
+							sfBuilder.set(
+									field.name(),
+									rowObj);
 						}
 					}
 				}
 
-				final SimpleFeature sf = sfBuilder
-						.buildFeature(
-								"result-" + nf
-										.format(
-												r));
+				final SimpleFeature sf = sfBuilder.buildFeature("result-" + nf.format(r));
 
-				writer
-						.write(
-								sf);
+				writer.write(sf);
 			}
 		}
 	}

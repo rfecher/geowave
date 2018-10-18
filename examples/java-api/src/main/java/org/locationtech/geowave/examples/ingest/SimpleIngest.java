@@ -39,23 +39,15 @@ import com.vividsolutions.jts.geom.Geometry;
 public class SimpleIngest
 {
 	public static final String FEATURE_NAME = "GridPoint";
-	private static Logger log = LoggerFactory
-			.getLogger(
-					SimpleIngest.class);
+	private static Logger log = LoggerFactory.getLogger(SimpleIngest.class);
 
 	public static void main(
 			final String[] args ) {
 		final SimpleIngest si = new SimpleIngest();
-		final DataStore geowaveDataStore = DataStoreFactory
-				.createDataStore(
-						new MemoryRequiredOptions());
+		final DataStore geowaveDataStore = DataStoreFactory.createDataStore(new MemoryRequiredOptions());
 
-		si
-				.writeExampleData(
-						geowaveDataStore);
-		System.out
-				.println(
-						"Finished ingesting data");
+		si.writeExampleData(geowaveDataStore);
+		System.out.println("Finished ingesting data");
 	}
 
 	/***
@@ -75,32 +67,24 @@ public class SimpleIngest
 
 		// This is an adapter, that is needed to describe how to persist the
 		// data type passed
-		final GeotoolsFeatureDataAdapter dataTypeAdapter = createDataAdapter(
-				point);
+		final GeotoolsFeatureDataAdapter dataTypeAdapter = createDataAdapter(point);
 
 		// This describes how to index the data
 		final Index index = createSpatialIndex();
-		geowaveDataStore
-				.addType(
-						dataTypeAdapter);
-		geowaveDataStore
-				.addIndex(
-						dataTypeAdapter.getTypeName(),
-						index);
+		geowaveDataStore.addType(dataTypeAdapter);
+		geowaveDataStore.addIndex(
+				dataTypeAdapter.getTypeName(),
+				index);
 		// make sure to close the index writer (a try-with-resources block such
 		// as this automatically closes the resource when exiting the block)
-		try (Writer<SimpleFeature> indexWriter = geowaveDataStore
-				.createWriter(
-						dataTypeAdapter.getTypeName())) {
+		try (Writer<SimpleFeature> indexWriter = geowaveDataStore.createWriter(dataTypeAdapter.getTypeName())) {
 			// build a grid of points across the globe at each whole
 			// lattitude/longitude intersection
 
 			for (final SimpleFeature sft : getGriddedFeatures(
 					pointBuilder,
 					1000)) {
-				indexWriter
-						.write(
-								sft);
+				indexWriter.write(sft);
 			}
 		}
 	}
@@ -118,37 +102,25 @@ public class SimpleIngest
 		final List<SimpleFeature> feats = new ArrayList<>();
 		for (int longitude = -180; longitude <= 180; longitude += 5) {
 			for (int latitude = -90; latitude <= 90; latitude += 5) {
-				pointBuilder
-						.set(
-								"geometry",
-								GeometryUtils.GEOMETRY_FACTORY
-										.createPoint(
-												new Coordinate(
-														longitude,
-														latitude)));
-				pointBuilder
-						.set(
-								"TimeStamp",
-								new Date());
-				pointBuilder
-						.set(
-								"Latitude",
-								latitude);
-				pointBuilder
-						.set(
-								"Longitude",
-								longitude);
+				pointBuilder.set(
+						"geometry",
+						GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
+								longitude,
+								latitude)));
+				pointBuilder.set(
+						"TimeStamp",
+						new Date());
+				pointBuilder.set(
+						"Latitude",
+						latitude);
+				pointBuilder.set(
+						"Longitude",
+						longitude);
 				// Note since trajectoryID and comment are marked as nillable we
 				// don't need to set them (they default ot null).
 
-				final SimpleFeature sft = pointBuilder
-						.buildFeature(
-								String
-										.valueOf(
-												featureId));
-				feats
-						.add(
-								sft);
+				final SimpleFeature sft = pointBuilder.buildFeature(String.valueOf(featureId));
+				feats.add(sft);
 				featureId++;
 			}
 		}
@@ -161,62 +133,47 @@ public class SimpleIngest
 
 		int featureId = firstFeatureId;
 		final Calendar cal = Calendar.getInstance();
-		cal
-				.set(
-						1996,
-						Calendar.JUNE,
-						15);
+		cal.set(
+				1996,
+				Calendar.JUNE,
+				15);
 		final Date[] dates = new Date[3];
 		dates[0] = cal.getTime();
-		cal
-				.set(
-						1997,
-						Calendar.JUNE,
-						15);
+		cal.set(
+				1997,
+				Calendar.JUNE,
+				15);
 		dates[1] = cal.getTime();
-		cal
-				.set(
-						1998,
-						Calendar.JUNE,
-						15);
+		cal.set(
+				1998,
+				Calendar.JUNE,
+				15);
 		dates[2] = cal.getTime();
 		// put 3 points on each grid location with different temporal attributes
 		final List<SimpleFeature> feats = new ArrayList<>();
 		for (int longitude = -180; longitude <= 180; longitude += 5) {
 			for (int latitude = -90; latitude <= 90; latitude += 5) {
 				for (int date = 0; date < dates.length; date++) {
-					pointBuilder
-							.set(
-									"geometry",
-									GeometryUtils.GEOMETRY_FACTORY
-											.createPoint(
-													new Coordinate(
-															longitude,
-															latitude)));
-					pointBuilder
-							.set(
-									"TimeStamp",
-									dates[date]);
-					pointBuilder
-							.set(
-									"Latitude",
-									latitude);
-					pointBuilder
-							.set(
-									"Longitude",
-									longitude);
+					pointBuilder.set(
+							"geometry",
+							GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
+									longitude,
+									latitude)));
+					pointBuilder.set(
+							"TimeStamp",
+							dates[date]);
+					pointBuilder.set(
+							"Latitude",
+							latitude);
+					pointBuilder.set(
+							"Longitude",
+							longitude);
 					// Note since trajectoryID and comment are marked as
 					// nillable we
 					// don't need to set them (they default ot null).
 
-					final SimpleFeature sft = pointBuilder
-							.buildFeature(
-									String
-											.valueOf(
-													featureId));
-					feats
-							.add(
-									sft);
+					final SimpleFeature sft = pointBuilder.buildFeature(String.valueOf(featureId));
+					feats.add(sft);
 					featureId++;
 				}
 			}
@@ -292,9 +249,7 @@ public class SimpleIngest
 		// The value you set here will also persist through discovery - so when
 		// people are looking at a dataset they will see the
 		// type names associated with the data.
-		builder
-				.setName(
-						FEATURE_NAME);
+		builder.setName(FEATURE_NAME);
 
 		// The data is persisted in a sparse format, so if data is nullable it
 		// will not take up any space if no values are persisted.
@@ -304,60 +259,30 @@ public class SimpleIngest
 		// as the geometry contains that information. But it's
 		// convienent in many use cases to get a text representation without
 		// having to handle geometries.
-		builder
-				.add(
-						ab
-								.binding(
-										Geometry.class)
-								.nillable(
-										false)
-								.buildDescriptor(
-										"geometry"));
-		builder
-				.add(
-						ab
-								.binding(
-										Date.class)
-								.nillable(
-										true)
-								.buildDescriptor(
-										"TimeStamp"));
-		builder
-				.add(
-						ab
-								.binding(
-										Double.class)
-								.nillable(
-										false)
-								.buildDescriptor(
-										"Latitude"));
-		builder
-				.add(
-						ab
-								.binding(
-										Double.class)
-								.nillable(
-										false)
-								.buildDescriptor(
-										"Longitude"));
-		builder
-				.add(
-						ab
-								.binding(
-										String.class)
-								.nillable(
-										true)
-								.buildDescriptor(
-										"TrajectoryID"));
-		builder
-				.add(
-						ab
-								.binding(
-										String.class)
-								.nillable(
-										true)
-								.buildDescriptor(
-										"Comment"));
+		builder.add(ab.binding(
+				Geometry.class).nillable(
+				false).buildDescriptor(
+				"geometry"));
+		builder.add(ab.binding(
+				Date.class).nillable(
+				true).buildDescriptor(
+				"TimeStamp"));
+		builder.add(ab.binding(
+				Double.class).nillable(
+				false).buildDescriptor(
+				"Latitude"));
+		builder.add(ab.binding(
+				Double.class).nillable(
+				false).buildDescriptor(
+				"Longitude"));
+		builder.add(ab.binding(
+				String.class).nillable(
+				true).buildDescriptor(
+				"TrajectoryID"));
+		builder.add(ab.binding(
+				String.class).nillable(
+				true).buildDescriptor(
+				"Comment"));
 
 		return builder.buildFeatureType();
 	}

@@ -72,8 +72,6 @@ public class DynamoDBDataStore extends
 				options,
 				internalAdapterStore);
 
-		secondaryIndexDataStore
-				.setDataStore(
-						this);
+		secondaryIndexDataStore.setDataStore(this);
 	}
 }

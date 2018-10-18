@@ -165,14 +165,9 @@ public class GeoWaveInputFormat<T> extends
 				config,
 				query.getIndexQueryOptions(),
 				indexStore);
-		if (query.getQueryConstraints() instanceof QueryConstraints) {
-			setQueryConstraints(
-					config,
-					(QueryConstraints) query.getQueryConstraints());
-		}
-		else if ((query.getQueryConstraints() != null) && !(query.getQueryConstraints() instanceof EverythingQuery)) {
-			LOGGER.warn("Query constraints must be distributable to use within hadoop input format");
-		}
+		setQueryConstraints(
+				config,
+				(QueryConstraints) query.getQueryConstraints());
 	}
 
 	public static void setQueryConstraints(

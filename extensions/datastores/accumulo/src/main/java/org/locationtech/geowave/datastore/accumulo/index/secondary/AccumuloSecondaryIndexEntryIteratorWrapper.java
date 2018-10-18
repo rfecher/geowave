@@ -30,9 +30,7 @@ public class AccumuloSecondaryIndexEntryIteratorWrapper<T> extends
 		SecondaryIndexEntryIteratorWrapper<T, T>
 {
 
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					AccumuloSecondaryIndexEntryIteratorWrapper.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(AccumuloSecondaryIndexEntryIteratorWrapper.class);
 	private final Scanner scanner;
 	private final Index index;
 
@@ -56,17 +54,14 @@ public class AccumuloSecondaryIndexEntryIteratorWrapper<T> extends
 			entry = (Entry<Key, Value>) row;
 		}
 		catch (final ClassCastException e) {
-			LOGGER
-					.error(
-							"Row is not an accumulo row entry.");
+			LOGGER.error("Row is not an accumulo row entry.");
 			return null;
 		}
-		return AccumuloSecondaryIndexUtils
-				.decodeRow(
-						entry.getKey(),
-						entry.getValue(),
-						adapter,
-						index);
+		return AccumuloSecondaryIndexUtils.decodeRow(
+				entry.getKey(),
+				entry.getValue(),
+				adapter,
+				index);
 	}
 
 	@Override

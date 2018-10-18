@@ -137,7 +137,7 @@ public class SecondaryIndexImpl<T> implements
 	@Override
 	public byte[] toBinary() {
 		final byte[] indexStrategyBinary = PersistenceUtils.toBinary(indexStrategy);
-		final byte[] fieldIdBinary = fieldName.getBytes();
+		final byte[] fieldIdBinary = StringUtils.stringToBinary(fieldName);
 		final byte[] secondaryIndexTypeBinary = StringUtils.stringToBinary(secondaryIndexType.getValue());
 		final List<Persistable> persistables = new ArrayList<>();
 		for (final InternalDataStatistics<T, ?, ?> dataStatistics : associatedStatistics) {

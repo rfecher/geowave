@@ -85,7 +85,7 @@ public class FeatureCountMinSketchStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature, CountMinSketch, FieldStatisticsQueryBuilder<CountMinSketch>> clone() {
+	public InternalDataStatistics<SimpleFeature, CountMinSketch, FieldStatisticsQueryBuilder<CountMinSketch>> duplicate() {
 		return new FeatureCountMinSketchStatistics(
 				adapterId,
 				getFieldName());
