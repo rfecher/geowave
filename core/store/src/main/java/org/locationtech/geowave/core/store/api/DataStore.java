@@ -132,9 +132,11 @@ public interface DataStore
 			Index... indices );
 
 	/**
-	 * remove statistics, across types
-	 * 
-	 * if this is the last index for a type we need to throw an exception
+	 * This method removes an index from the index store. It is also
+	 * responsible for removing the index's mapping, data, and stats 
+	 * for each adapter/type that was associated with the index. If this
+	 * is the last index associated with any of the existing adapters,
+	 * the method will throw an exception.
 	 * 
 	 * @param indexName
 	 */
@@ -142,13 +144,23 @@ public interface DataStore
 			String indexName )
 			throws AdapterException;
 
+	/**
+	 * This method removes an index mapping with a given adapter/type. It is 
+	 * also data, and stats for the adapter that was associated with the index.
+	 * If this is the last index associated with type the method will throw 
+	 * an exception.
+	 * 
+	 * @param typeName
+	 * @param indexName
+	 */
 	void removeIndexMapping(
 			String typeName,
 			String indexName )
 			throws AdapterException, IllegalArgumentException;
 
 	/**
-	 * remove statistics for type
+	 * Removes the adapter/type, all of the data and stats, and any 
+	 * associated index mappings.
 	 * 
 	 * @param typeName
 	 */

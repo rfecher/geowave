@@ -97,6 +97,15 @@ public abstract class AbstractGeoWavePersistence<T extends Persistable>
 		cache.invalidateAll();
 	}
 
+	public void remove(
+			String indexName ) {
+		// TODO check on this logic
+		//deleteObject(
+		//		new ByteArrayId(indexName),
+		//		null);
+		cache.invalidateAll();
+	}
+
 	protected ByteArrayId getCombinedId(
 			final ByteArrayId primaryId,
 			final ByteArrayId secondaryId ) {
@@ -399,7 +408,8 @@ public abstract class AbstractGeoWavePersistence<T extends Persistable>
 		}
 		try (final MetadataDeleter deleter = operations.createMetadataDeleter(type)) {
 			if (primaryId != null) {
-				//TODO look at issue #1443, this should delete multiple - also in general does this delete from the cache???
+				// TODO look at issue #1443, this should delete multiple - also
+				// in general does this delete from the cache???
 				return deleter.delete(new MetadataQuery(
 						primaryId.getBytes(),
 						secondaryId != null ? secondaryId.getBytes() : null,
