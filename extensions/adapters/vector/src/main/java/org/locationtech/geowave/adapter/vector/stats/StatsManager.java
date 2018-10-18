@@ -43,7 +43,9 @@ import com.vividsolutions.jts.geom.Geometry;
 public class StatsManager
 {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(StatsManager.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					StatsManager.class);
 
 	/**
 	 * Visibility that can be used within GeoWave as a CommonIndexValue
@@ -121,7 +123,9 @@ public class StatsManager
 			// For temporal and geometry because there is a dependency on these
 			// stats for optimizations within the GeoServer adapter.
 
-			if (TimeUtils.isTemporal(descriptor.getType().getBinding())) {
+			if (TimeUtils
+					.isTemporal(
+							descriptor.getType().getBinding())) {
 
 				addStats(
 						new FeatureTimeRangeStatistics(
@@ -129,7 +133,9 @@ public class StatsManager
 						descriptor.getLocalName());
 			}
 
-			else if (Geometry.class.isAssignableFrom(descriptor.getType().getBinding())) {
+			else if (Geometry.class
+					.isAssignableFrom(
+							descriptor.getType().getBinding())) {
 				addStats(
 						new FeatureBoundingBoxStatistics(
 								descriptor.getLocalName(),
@@ -143,8 +149,10 @@ public class StatsManager
 			// StatsConfigurationCollection and the stats objects for the
 			// feature need to be extracted and added as stats for this adapter
 
-			if (descriptor.getUserData().containsKey(
-					"stats")) {
+			if (descriptor
+					.getUserData()
+					.containsKey(
+							"stats")) {
 				final StatsConfigurationCollection statsConfigurations = (StatsConfigurationCollection) descriptor
 						.getUserData()
 						.get(
@@ -155,9 +163,10 @@ public class StatsManager
 
 				for (final StatsConfig<SimpleFeature> statConfig : featureConfigs) {
 					addStats(
-							statConfig.create(
-									null,
-									descriptor.getLocalName()),
+							statConfig
+									.create(
+											null,
+											descriptor.getLocalName()),
 							descriptor.getLocalName());
 				}
 
@@ -166,7 +175,9 @@ public class StatsManager
 			// ---------------------------------------------------------------------
 			// If this numeric, then add two stats objects that relate
 
-			else if (Number.class.isAssignableFrom(descriptor.getType().getBinding())) {
+			else if (Number.class
+					.isAssignableFrom(
+							descriptor.getType().getBinding())) {
 				addStats(
 						new FeatureNumericRangeStatistics(
 								descriptor.getLocalName()),
@@ -197,8 +208,14 @@ public class StatsManager
 	public InternalDataStatistics<SimpleFeature, ?, ?> createDataStatistics(
 			final StatisticsId statisticsId ) {
 		for (final InternalDataStatistics<SimpleFeature, ?, ?> statObj : statsObjList) {
-			if (statObj.getType().equals(
-					statisticsId)) {
+			if (statObj
+					.getType()
+					.equals(
+							statisticsId.getType())
+					&& statObj
+							.getExtendedId()
+							.equals(
+									statisticsId.getExtendedId())) {
 				// TODO most of the data statistics seem to do shallow clones
 				// that pass along a lot of references - this seems
 				// counter-intuitive to the spirit of a "create" method, but it
@@ -207,8 +224,10 @@ public class StatsManager
 			}
 		}
 
-		if (statisticsId.getType().equals(
-				CountDataStatistics.STATS_TYPE.getString())) {
+		if (statisticsId
+				.getType()
+				.equals(
+						CountDataStatistics.STATS_TYPE.getString())) {
 			return new CountDataStatistics<>();
 		}
 
@@ -216,8 +235,10 @@ public class StatsManager
 		// What Fortify considers "user input" comes only
 		// from users with OS-level access anyway
 
-		LOGGER.warn("Unrecognized statistics ID of type '" + statisticsId.getType().getString() + "' with field name '"
-				+ statisticsId.getExtendedId() + "', using count statistic.");
+		LOGGER
+				.warn(
+						"Unrecognized statistics ID of type '" + statisticsId.getType().getString()
+								+ "' with field name '" + statisticsId.getExtendedId() + "', using count statistic.");
 		return new CountDataStatistics<>();
 	}
 
@@ -237,12 +258,19 @@ public class StatsManager
 			final StatisticsId statisticsId ) {
 		// If the statistics object is of type CountDataStats or there is no
 		// visibility handler, then return the default visibility handler
-		if (statisticsId.getType().equals(
-				CountDataStatistics.STATS_TYPE) || (!statisticsIdToFieldNameMap.containsKey(statisticsId))) {
+		if (statisticsId
+				.getType()
+				.equals(
+						CountDataStatistics.STATS_TYPE)
+				|| (!statisticsIdToFieldNameMap
+						.containsKey(
+								statisticsId))) {
 			return DEFAULT_VISIBILITY_HANDLER;
 		}
 
-		final String fieldName = statisticsIdToFieldNameMap.get(statisticsId);
+		final String fieldName = statisticsIdToFieldNameMap
+				.get(
+						statisticsId);
 		return new FieldNameStatisticVisibility<>(
 				fieldName,
 				indexModel,
@@ -270,22 +298,33 @@ public class StatsManager
 
 		// Go through stats list managed by this manager and look for a match
 		for (final InternalDataStatistics<SimpleFeature, ?, ?> currentStat : statsObjList) {
-			if (currentStat.getType().equals(
-					statsObj.getType())) {
+			if (currentStat
+					.getType()
+					.equals(
+							statsObj.getType())
+					&& currentStat
+							.getExtendedId()
+							.equals(
+									statsObj.getExtendedId())) {
 				// If a match was found for an existing stat object in list,
 				// remove it now and replace it later.
-				statsObjList.remove(replaceStat);
+				statsObjList
+						.remove(
+								replaceStat);
 				break;
 			}
 			replaceStat++; // Not found, check next stat object
 		}
 
-		statsObjList.add(statsObj);
-		statisticsIdToFieldNameMap.put(
-				new StatisticsId(
-						statsObj.getType(),
-						statsObj.getExtendedId()),
-				fieldName);
+		statsObjList
+				.add(
+						statsObj);
+		statisticsIdToFieldNameMap
+				.put(
+						new StatisticsId(
+								statsObj.getType(),
+								statsObj.getExtendedId()),
+						fieldName);
 	}
 
 	// -----------------------------------------------------------------------------------
