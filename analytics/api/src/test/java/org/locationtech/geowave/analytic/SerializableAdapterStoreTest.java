@@ -35,24 +35,18 @@ public class SerializableAdapterStoreTest
 	public void testSerialization()
 			throws ClassNotFoundException,
 			IOException {
-		final SimpleFeatureType ftype = AnalyticFeature
-				.createGeometryFeatureAdapter(
-						"centroid",
-						new String[] {
-							"extra1"
-						},
-						BasicFeatureTypes.DEFAULT_NAMESPACE,
-						ClusteringUtils.CLUSTERING_CRS)
-				.getFeatureType();
+		final SimpleFeatureType ftype = AnalyticFeature.createGeometryFeatureAdapter(
+				"centroid",
+				new String[] {
+					"extra1"
+				},
+				BasicFeatureTypes.DEFAULT_NAMESPACE,
+				ClusteringUtils.CLUSTERING_CRS).getFeatureType();
 
-		final Index index = new SpatialDimensionalityTypeProvider()
-				.createIndex(
-						new SpatialOptions());
+		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 		final FeatureDataAdapter adapter = new FeatureDataAdapter(
 				ftype);
-		adapter
-				.init(
-						index);
+		adapter.init(index);
 		final SerializableAdapterStore store = new SerializableAdapterStore(
 				new MemoryAdapterStore(
 						new DataTypeAdapter<?>[] {
@@ -60,11 +54,9 @@ public class SerializableAdapterStoreTest
 						}));
 
 		final String id = "centroid";
-		assertNotNull(
-				checkSerialization(
-						store)
-								.getAdapter(
-										id));
+		assertNotNull(checkSerialization(
+				store).getAdapter(
+				id));
 	}
 
 	private SerializableAdapterStore checkSerialization(
@@ -74,9 +66,7 @@ public class SerializableAdapterStoreTest
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		try (ObjectOutputStream os = new ObjectOutputStream(
 				bos)) {
-			os
-					.writeObject(
-							store);
+			os.writeObject(store);
 			os.flush();
 		}
 		final ByteArrayInputStream bis = new ByteArrayInputStream(

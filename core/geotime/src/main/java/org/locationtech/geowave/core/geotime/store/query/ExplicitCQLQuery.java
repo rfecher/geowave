@@ -25,9 +25,7 @@ import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
-import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.TypeConstraintQuery;
-import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -87,13 +85,7 @@ public class ExplicitCQLQuery implements
 	public byte[] toBinary() {
 		byte[] baseQueryBytes;
 		if (baseQuery != null) {
-			if (!(baseQuery instanceof QueryConstraints)) {
-				throw new IllegalArgumentException(
-						"Cannot distribute CQL query with base query of type '" + baseQuery.getClass() + "'");
-			}
-			else {
-				baseQueryBytes = PersistenceUtils.toBinary((QueryConstraints) baseQuery);
-			}
+			baseQueryBytes = PersistenceUtils.toBinary(baseQuery);
 		}
 		else {
 			// base query can be null, no reason to log a warning

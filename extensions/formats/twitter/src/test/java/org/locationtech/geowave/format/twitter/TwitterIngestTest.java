@@ -30,9 +30,7 @@ public class TwitterIngestTest
 	@Before
 	public void setup() {
 		ingester = new TwitterIngestPlugin();
-		ingester
-				.init(
-						null);
+		ingester.init(null);
 
 		filePath = "01234567-010101.txt.gz";
 		expectedCount = 24;
@@ -42,33 +40,24 @@ public class TwitterIngestTest
 	public void testIngest()
 			throws IOException {
 
-		final URL toIngest = this
-				.getClass()
-				.getClassLoader()
-				.getResource(
-						filePath);
+		final URL toIngest = this.getClass().getClassLoader().getResource(
+				filePath);
 
-		assertTrue(
-				TwitterUtils
-						.validate(
-								toIngest));
-		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester
-				.toGeoWaveData(
-						toIngest,
-						new String[] {
-							"123"
-						},
-						"");
+		assertTrue(TwitterUtils.validate(toIngest));
+		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester.toGeoWaveData(
+				toIngest,
+				new String[] {
+					"123"
+				},
+				"");
 
-		assertTrue(
-				(features != null) && features.hasNext());
+		assertTrue((features != null) && features.hasNext());
 
 		int featureCount = 0;
 		while (features.hasNext()) {
 			final GeoWaveData<SimpleFeature> feature = features.next();
 
-			if (isValidTwitterFeature(
-					feature)) {
+			if (isValidTwitterFeature(feature)) {
 				featureCount++;
 			}
 		}
@@ -76,28 +65,17 @@ public class TwitterIngestTest
 
 		final boolean readExpectedCount = (featureCount == expectedCount);
 		if (!readExpectedCount) {
-			System.out
-					.println(
-							"Expected " + expectedCount + " features, ingested " + featureCount);
+			System.out.println("Expected " + expectedCount + " features, ingested " + featureCount);
 		}
-		assertTrue(
-				readExpectedCount);
+		assertTrue(readExpectedCount);
 	}
 
 	private boolean isValidTwitterFeature(
 			final GeoWaveData<SimpleFeature> feature ) {
-		if ((feature
-				.getValue()
-				.getAttribute(
-						TwitterUtils.TWITTER_TEXT_ATTRIBUTE) == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								TwitterUtils.TWITTER_GEOMETRY_ATTRIBUTE) == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								TwitterUtils.TWITTER_DTG_ATTRIBUTE) == null)) {
+		if ((feature.getValue().getAttribute(
+				TwitterUtils.TWITTER_TEXT_ATTRIBUTE) == null) || (feature.getValue().getAttribute(
+				TwitterUtils.TWITTER_GEOMETRY_ATTRIBUTE) == null) || (feature.getValue().getAttribute(
+				TwitterUtils.TWITTER_DTG_ATTRIBUTE) == null)) {
 			return false;
 		}
 		return true;

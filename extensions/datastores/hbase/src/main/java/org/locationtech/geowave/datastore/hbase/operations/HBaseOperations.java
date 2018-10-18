@@ -925,7 +925,7 @@ public class HBaseOperations implements
 		}
 		catch (final IOException e) {
 			LOGGER.error(
-					"Error creating table: " +indexName,
+					"Error creating table: " + indexName,
 					e);
 		}
 	}
@@ -1773,8 +1773,7 @@ public class HBaseOperations implements
 			// doesn't matter anyways)
 			MetadataType type = MetadataType.INDEX;
 			String tableName = getMetadataTableName(type);
-			if (!indexExists(
-					tableName)) {
+			if (!indexExists(tableName)) {
 				createTable(
 						Collections.EMPTY_SET,
 						HBaseOperations.METADATA_CFS_VERSIONING,

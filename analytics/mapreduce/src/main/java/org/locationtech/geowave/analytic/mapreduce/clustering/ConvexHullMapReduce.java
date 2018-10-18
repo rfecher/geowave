@@ -76,9 +76,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */
 public class ConvexHullMapReduce
 {
-	protected static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					ConvexHullMapReduce.class);
+	protected static final Logger LOGGER = LoggerFactory.getLogger(ConvexHullMapReduce.class);
 
 	public static class ConvexHullMap<T> extends
 			GeoWaveWritableInputMapper<GeoWaveInputKey, ObjectWritable>
@@ -118,27 +116,14 @@ public class ConvexHullMapReduce
 				InterruptedException {
 
 			@SuppressWarnings("unchecked")
-			final AnalyticItemWrapper<T> wrapper = itemWrapperFactory
-					.create(
-							(T) value);
-			outputKey
-					.setInternalAdapterId(
-							key.getInternalAdapterId());
-			outputKey
-					.setDataId(
-							new ByteArrayId(
-									StringUtils
-											.stringToBinary(
-													nestedGroupCentroidAssigner
-															.getGroupForLevel(
-																	wrapper))));
-			outputKey
-					.setGeoWaveKey(
-							key.getGeoWaveKey());
-			context
-					.write(
-							outputKey,
-							currentValue);
+			final AnalyticItemWrapper<T> wrapper = itemWrapperFactory.create((T) value);
+			outputKey.setInternalAdapterId(key.getInternalAdapterId());
+			outputKey.setDataId(new ByteArrayId(
+					StringUtils.stringToBinary(nestedGroupCentroidAssigner.getGroupForLevel(wrapper))));
+			outputKey.setGeoWaveKey(key.getGeoWaveKey());
+			context.write(
+					outputKey,
+					currentValue);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -147,25 +132,22 @@ public class ConvexHullMapReduce
 				final Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context )
 				throws IOException,
 				InterruptedException {
-			super.setup(
-					context);
+			super.setup(context);
 
 			final ScopedJobConfiguration config = new ScopedJobConfiguration(
 					context.getConfiguration(),
 					ConvexHullMapReduce.class,
 					ConvexHullMapReduce.LOGGER);
 			try {
-				itemWrapperFactory = config
-						.getInstance(
-								HullParameters.Hull.WRAPPER_FACTORY_CLASS,
-								AnalyticItemWrapperFactory.class,
-								SimpleFeatureItemWrapperFactory.class);
+				itemWrapperFactory = config.getInstance(
+						HullParameters.Hull.WRAPPER_FACTORY_CLASS,
+						AnalyticItemWrapperFactory.class,
+						SimpleFeatureItemWrapperFactory.class);
 
-				itemWrapperFactory
-						.initialize(
-								context,
-								ConvexHullMapReduce.class,
-								ConvexHullMapReduce.LOGGER);
+				itemWrapperFactory.initialize(
+						context,
+						ConvexHullMapReduce.class,
+						ConvexHullMapReduce.LOGGER);
 			}
 			catch (final Exception e1) {
 
@@ -217,26 +199,18 @@ public class ConvexHullMapReduce
 
 			Geometry currentHull = null;
 
-			final String groupID = StringUtils
-					.stringFromBinary(
-							key.getDataId().getBytes());
-			final AnalyticItemWrapper<T> centroid = centroidManager
-					.getCentroid(
-							groupID);
+			final String groupID = StringUtils.stringFromBinary(key.getDataId().getBytes());
+			final AnalyticItemWrapper<T> centroid = centroidManager.getCentroid(groupID);
 			for (final Object value : values) {
 				currentHull = null;
 				@SuppressWarnings("unchecked")
-				final Geometry geo = projectionFunction
-						.getProjection(
-								(T) value);
+				final Geometry geo = projectionFunction.getProjection((T) value);
 				final Coordinate[] coords = geo.getCoordinates();
 				if ((coords.length + batchCoords.size()) > pointCloudThreshold) {
 					break;
 				}
 				for (final Coordinate coordinate : coords) {
-					batchCoords
-							.add(
-									coordinate);
+					batchCoords.add(coordinate);
 				}
 				if (coords.length > batchThreshold) {
 					batchThreshold = coords.length;
@@ -252,40 +226,34 @@ public class ConvexHullMapReduce
 					batchCoords) : currentHull;
 
 			if (ConvexHullMapReduce.LOGGER.isTraceEnabled()) {
-				ConvexHullMapReduce.LOGGER
-						.trace(
-								centroid.getGroupID() + " contains " + groupID);
+				ConvexHullMapReduce.LOGGER.trace(centroid.getGroupID() + " contains " + groupID);
 			}
 
-			final SimpleFeature newPolygonFeature = AnalyticFeature
-					.createGeometryFeature(
-							outputAdapter.getFeatureType(),
-							centroid.getBatchID(),
-							UUID.randomUUID().toString(),
-							centroid.getName(),
-							centroid.getGroupID(),
-							centroid.getCost(),
-							currentHull,
-							new String[0],
-							new double[0],
-							centroid.getZoomLevel(),
-							centroid.getIterationID(),
-							centroid.getAssociationCount());
+			final SimpleFeature newPolygonFeature = AnalyticFeature.createGeometryFeature(
+					outputAdapter.getFeatureType(),
+					centroid.getBatchID(),
+					UUID.randomUUID().toString(),
+					centroid.getName(),
+					centroid.getGroupID(),
+					centroid.getCost(),
+					currentHull,
+					new String[0],
+					new double[0],
+					centroid.getZoomLevel(),
+					centroid.getIterationID(),
+					centroid.getAssociationCount());
 			// new center
-			context
-					.write(
-							new GeoWaveOutputKey(
-									outputAdapter.getTypeName(),
-									indexNames),
-							newPolygonFeature);
+			context.write(
+					new GeoWaveOutputKey(
+							outputAdapter.getTypeName(),
+							indexNames),
+					newPolygonFeature);
 		}
 
 		private static <T> Geometry compress(
 				final GeoWaveInputKey key,
 				final List<Coordinate> batchCoords ) {
-			final Coordinate[] actualCoords = batchCoords
-					.toArray(
-							new Coordinate[batchCoords.size()]);
+			final Coordinate[] actualCoords = batchCoords.toArray(new Coordinate[batchCoords.size()]);
 
 			// generate convex hull for current batch of points
 			final ConvexHull convexHull = new ConvexHull(
@@ -296,9 +264,7 @@ public class ConvexHullMapReduce
 			final Coordinate[] hullCoords = hullGeometry.getCoordinates();
 			batchCoords.clear();
 			for (final Coordinate hullCoord : hullCoords) {
-				batchCoords
-						.add(
-								hullCoord);
+				batchCoords.add(hullCoord);
 			}
 
 			return hullGeometry;
@@ -315,8 +281,7 @@ public class ConvexHullMapReduce
 					context.getConfiguration(),
 					ConvexHullMapReduce.class,
 					ConvexHullMapReduce.LOGGER);
-			super.setup(
-					context);
+			super.setup(context);
 			try {
 				centroidManager = new CentroidManagerGeoWave<T>(
 						context,
@@ -324,51 +289,44 @@ public class ConvexHullMapReduce
 						ConvexHullMapReduce.LOGGER);
 			}
 			catch (final Exception e) {
-				ConvexHullMapReduce.LOGGER
-						.warn(
-								"Unable to initialize centroid manager",
-								e);
+				ConvexHullMapReduce.LOGGER.warn(
+						"Unable to initialize centroid manager",
+						e);
 				throw new IOException(
 						"Unable to initialize centroid manager");
 			}
 
 			try {
-				projectionFunction = config
-						.getInstance(
-								HullParameters.Hull.PROJECTION_CLASS,
-								Projection.class,
-								SimpleFeatureProjection.class);
+				projectionFunction = config.getInstance(
+						HullParameters.Hull.PROJECTION_CLASS,
+						Projection.class,
+						SimpleFeatureProjection.class);
 
-				projectionFunction
-						.initialize(
-								context,
-								ConvexHullMapReduce.class);
+				projectionFunction.initialize(
+						context,
+						ConvexHullMapReduce.class);
 			}
 			catch (final Exception e1) {
 				throw new IOException(
 						e1);
 			}
 
-			final String polygonDataTypeId = config
-					.getString(
-							HullParameters.Hull.DATA_TYPE_ID,
-							"convex_hull");
+			final String polygonDataTypeId = config.getString(
+					HullParameters.Hull.DATA_TYPE_ID,
+					"convex_hull");
 
-			outputAdapter = AnalyticFeature
-					.createGeometryFeatureAdapter(
-							polygonDataTypeId,
-							new String[0],
-							config
-									.getString(
-											HullParameters.Hull.DATA_NAMESPACE_URI,
-											BasicFeatureTypes.DEFAULT_NAMESPACE),
-							ClusteringUtils.CLUSTERING_CRS);
+			outputAdapter = AnalyticFeature.createGeometryFeatureAdapter(
+					polygonDataTypeId,
+					new String[0],
+					config.getString(
+							HullParameters.Hull.DATA_NAMESPACE_URI,
+							BasicFeatureTypes.DEFAULT_NAMESPACE),
+					ClusteringUtils.CLUSTERING_CRS);
 
 			indexNames = new String[] {
-				config
-						.getString(
-								HullParameters.Hull.INDEX_NAME,
-								new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName())
+				config.getString(
+						HullParameters.Hull.INDEX_NAME,
+						new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName())
 			};
 
 		}

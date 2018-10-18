@@ -70,7 +70,7 @@ public class FeatureNumericRangeStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature, Range<Double>, FieldStatisticsQueryBuilder<Range<Double>>> clone() {
+	public InternalDataStatistics<SimpleFeature, Range<Double>, FieldStatisticsQueryBuilder<Range<Double>>> duplicate() {
 		return new FeatureNumericRangeStatistics(
 				adapterId,
 				getFieldName());

@@ -98,9 +98,7 @@ public class GeoWaveRasterReader extends
 		AbstractGridCoverage2DReader implements
 		GridCoverage2DReader
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					GeoWaveRasterReader.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveRasterReader.class);
 
 	private GeoWaveRasterConfig config;
 
@@ -130,32 +128,16 @@ public class GeoWaveRasterReader extends
 	// class initializer
 	static {
 		LEFTDirections = new HashSet<>();
-		LEFTDirections
-				.add(
-						AxisDirection.DISPLAY_LEFT);
-		LEFTDirections
-				.add(
-						AxisDirection.EAST);
-		LEFTDirections
-				.add(
-						AxisDirection.GEOCENTRIC_X);
-		LEFTDirections
-				.add(
-						AxisDirection.COLUMN_POSITIVE);
+		LEFTDirections.add(AxisDirection.DISPLAY_LEFT);
+		LEFTDirections.add(AxisDirection.EAST);
+		LEFTDirections.add(AxisDirection.GEOCENTRIC_X);
+		LEFTDirections.add(AxisDirection.COLUMN_POSITIVE);
 
 		UPDirections = new HashSet<>();
-		UPDirections
-				.add(
-						AxisDirection.DISPLAY_UP);
-		UPDirections
-				.add(
-						AxisDirection.NORTH);
-		UPDirections
-				.add(
-						AxisDirection.GEOCENTRIC_Y);
-		UPDirections
-				.add(
-						AxisDirection.ROW_POSITIVE);
+		UPDirections.add(AxisDirection.DISPLAY_UP);
+		UPDirections.add(AxisDirection.NORTH);
+		UPDirections.add(AxisDirection.GEOCENTRIC_Y);
+		UPDirections.add(AxisDirection.ROW_POSITIVE);
 
 	}
 
@@ -176,13 +158,9 @@ public class GeoWaveRasterReader extends
 				source,
 				uHints);
 		this.source = source;
-		if (GeoWaveGTRasterFormat
-				.isParamList(
-						source)) {
+		if (GeoWaveGTRasterFormat.isParamList(source)) {
 			try {
-				config = GeoWaveRasterConfig
-						.readFromConfigParams(
-								source.toString());
+				config = GeoWaveRasterConfig.readFromConfigParams(source.toString());
 			}
 			catch (final Exception e) {
 				throw new MalformedURLException(
@@ -190,9 +168,7 @@ public class GeoWaveRasterReader extends
 			}
 		}
 		else {
-			final URL url = GeoWaveGTRasterFormat
-					.getURLFromSource(
-							source);
+			final URL url = GeoWaveGTRasterFormat.getURLFromSource(source);
 
 			if (url == null) {
 				throw new MalformedURLException(
@@ -200,21 +176,17 @@ public class GeoWaveRasterReader extends
 			}
 
 			try {
-				config = GeoWaveRasterConfig
-						.readFromURL(
-								url);
+				config = GeoWaveRasterConfig.readFromURL(url);
 			}
 			catch (final Exception e) {
-				LOGGER
-						.error(
-								"Cannot read config",
-								e);
+				LOGGER.error(
+						"Cannot read config",
+						e);
 				throw new IOException(
 						e);
 			}
 		}
-		init(
-				config);
+		init(config);
 	}
 
 	public GeoWaveRasterReader(
@@ -224,8 +196,7 @@ public class GeoWaveRasterReader extends
 				new Object(),
 				new Hints());
 		this.config = config;
-		init(
-				config);
+		init(config);
 	}
 
 	private void init(
@@ -237,10 +208,8 @@ public class GeoWaveRasterReader extends
 		geowaveIndexStore = config.getIndexStore();
 		geowaveAdapterIndexMappingStore = config.getAdapterIndexMappingStore();
 		geowaveInternalAdapterStore = config.getInternalAdapterStore();
-		authorizationSPI = config
-				.getAuthorizationFactory()
-				.create(
-						config.getAuthorizationURL());
+		authorizationSPI = config.getAuthorizationFactory().create(
+				config.getAuthorizationURL());
 
 	}
 
@@ -273,8 +242,7 @@ public class GeoWaveRasterReader extends
 		else {
 			final String[] coverageNames = getGridCoverageNames();
 			for (final String coverageName : coverageNames) {
-				final CoordinateReferenceSystem crs = getCrsForCoverage(
-						coverageName);
+				final CoordinateReferenceSystem crs = getCrsForCoverage(coverageName);
 				if (crs != null) {
 					defaultCrs = crs;
 					break;
@@ -291,29 +259,20 @@ public class GeoWaveRasterReader extends
 
 	protected CoordinateReferenceSystem getCrsForCoverage(
 			final String coverageName ) {
-		CoordinateReferenceSystem crs = crsCache
-				.get(
-						coverageName);
+		CoordinateReferenceSystem crs = crsCache.get(coverageName);
 		if (crs != null) {
 			return crs;
 		}
 
 		final AdapterToIndexMapping adapterMapping = geowaveAdapterIndexMappingStore
-				.getIndicesForAdapter(
-						getAdapterId(
-								coverageName));
-		final Index[] indices = adapterMapping
-				.getIndices(
-						geowaveIndexStore);
+				.getIndicesForAdapter(getAdapterId(coverageName));
+		final Index[] indices = adapterMapping.getIndices(geowaveIndexStore);
 
 		if ((indices != null) && (indices.length > 0)) {
-			crs = GeometryUtils
-					.getIndexCrs(
-							indices[0]);
-			crsCache
-					.put(
-							coverageName,
-							crs);
+			crs = GeometryUtils.getIndexCrs(indices[0]);
+			crsCache.put(
+					coverageName,
+					crs);
 		}
 		return crs;
 	}
@@ -330,14 +289,10 @@ public class GeoWaveRasterReader extends
 			while (it.hasNext()) {
 				final DataTypeAdapter<?> adapter = it.next().getAdapter();
 				if (adapter instanceof RasterDataAdapter) {
-					coverageNames
-							.add(
-									((RasterDataAdapter) adapter).getCoverageName());
+					coverageNames.add(((RasterDataAdapter) adapter).getCoverageName());
 				}
 			}
-			return coverageNames
-					.toArray(
-							new String[coverageNames.size()]);
+			return coverageNames.toArray(new String[coverageNames.size()]);
 		}
 	}
 
@@ -364,23 +319,15 @@ public class GeoWaveRasterReader extends
 	@Override
 	public String[] getMetadataNames(
 			final String coverageName ) {
-		if (!checkName(
-				coverageName)) {
-			LOGGER
-					.warn(
-							"Unable to find data adapter for '" + coverageName + "'");
+		if (!checkName(coverageName)) {
+			LOGGER.warn("Unable to find data adapter for '" + coverageName + "'");
 			return null;
 		}
 
-		final DataTypeAdapter<?> adapter = geowaveAdapterStore
-				.getAdapter(
-						getAdapterId(
-								coverageName))
-				.getAdapter();
+		final DataTypeAdapter<?> adapter = geowaveAdapterStore.getAdapter(
+				getAdapterId(coverageName)).getAdapter();
 		final Set<String> var = ((RasterDataAdapter) adapter).getMetadata().keySet();
-		return var
-				.toArray(
-						new String[var.size()]);
+		return var.toArray(new String[var.size()]);
 	}
 
 	@Override
@@ -394,39 +341,27 @@ public class GeoWaveRasterReader extends
 	public String getMetadataValue(
 			final String coverageName,
 			final String name ) {
-		if (!checkName(
-				coverageName)) {
-			LOGGER
-					.warn(
-							"Unable to find data adapter for '" + coverageName + "'");
+		if (!checkName(coverageName)) {
+			LOGGER.warn("Unable to find data adapter for '" + coverageName + "'");
 			return null;
 		}
 
-		final DataTypeAdapter<?> adapter = geowaveAdapterStore
-				.getAdapter(
-						getAdapterId(
-								coverageName))
-				.getAdapter();
+		final DataTypeAdapter<?> adapter = geowaveAdapterStore.getAdapter(
+				getAdapterId(coverageName)).getAdapter();
 
-		return ((RasterDataAdapter) adapter)
-				.getMetadata()
-				.get(
-						name);
+		return ((RasterDataAdapter) adapter).getMetadata().get(
+				name);
 	}
 
 	@Override
 	protected boolean checkName(
 			final String coverageName ) {
-		Utilities
-				.ensureNonNull(
-						"coverageName",
-						coverageName);
+		Utilities.ensureNonNull(
+				"coverageName",
+				coverageName);
 
-		final DataTypeAdapter<?> adapter = geowaveAdapterStore
-				.getAdapter(
-						getAdapterId(
-								coverageName))
-				.getAdapter();
+		final DataTypeAdapter<?> adapter = geowaveAdapterStore.getAdapter(
+				getAdapterId(coverageName)).getAdapter();
 		return (adapter != null) && (adapter instanceof RasterDataAdapter);
 	}
 
@@ -439,15 +374,13 @@ public class GeoWaveRasterReader extends
 	@Override
 	public GeneralEnvelope getOriginalEnvelope(
 			final String coverageName ) {
-		final Envelope envelope = geowaveDataStore
-				.aggregateStatistics(
-						BoundingBoxDataStatistics.STATS_TYPE
-								.newBuilder()
-								.setAuthorizations(
-										authorizationSPI.getAuthorizations())
-								.dataType(
-										coverageName)
-								.build());
+		final Envelope envelope = geowaveDataStore.aggregateStatistics(BoundingBoxDataStatistics.STATS_TYPE
+				.newBuilder()
+				.setAuthorizations(
+						authorizationSPI.getAuthorizations())
+				.dataType(
+						coverageName)
+				.build());
 
 		// try to use both the bounding box and the overview statistics to
 		// determine the width and height at the highest resolution
@@ -457,10 +390,7 @@ public class GeoWaveRasterReader extends
 						envelope.getMinY(),
 						envelope.getWidth(),
 						envelope.getHeight()));
-		env
-				.setCoordinateReferenceSystem(
-						getCoordinateReferenceSystem(
-								coverageName));
+		env.setCoordinateReferenceSystem(getCoordinateReferenceSystem(coverageName));
 		return env;
 	}
 
@@ -472,8 +402,7 @@ public class GeoWaveRasterReader extends
 	@Override
 	public CoordinateReferenceSystem getCoordinateReferenceSystem(
 			final String coverageName ) {
-		return getCrsForCoverage(
-				coverageName);
+		return getCrsForCoverage(coverageName);
 	}
 
 	@Override
@@ -487,8 +416,7 @@ public class GeoWaveRasterReader extends
 			final String coverageName ) {
 		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> statisticsIt = geowaveStatisticsStore
 				.getDataStatistics(
-						getAdapterId(
-								coverageName),
+						getAdapterId(coverageName),
 						BoundingBoxDataStatistics.STATS_TYPE,
 						authorizationSPI.getAuthorizations())) {
 
@@ -504,8 +432,7 @@ public class GeoWaveRasterReader extends
 				final BoundingBoxDataStatistics<?> bboxStats = (BoundingBoxDataStatistics<?>) statistics;
 				try (CloseableIterator<InternalDataStatistics<?, ?, ?>> overviewStatisticsIt = geowaveStatisticsStore
 						.getDataStatistics(
-								getAdapterId(
-										coverageName),
+								getAdapterId(coverageName),
 								OverviewStatistics.STATS_TYPE,
 								authorizationSPI.getAuthorizations())) {
 					statistics = null;
@@ -514,16 +441,10 @@ public class GeoWaveRasterReader extends
 					}
 					if ((statistics != null) && (statistics instanceof OverviewStatistics)) {
 						final OverviewStatistics overviewStats = (OverviewStatistics) statistics;
-						width = (int) Math
-								.ceil(
-										((bboxStats.getMaxX() - bboxStats.getMinX()) / overviewStats.getResolutions()[0]
-												.getResolution(
-														0)));
-						height = (int) Math
-								.ceil(
-										((bboxStats.getMaxY() - bboxStats.getMinY()) / overviewStats.getResolutions()[0]
-												.getResolution(
-														1)));
+						width = (int) Math.ceil(((bboxStats.getMaxX() - bboxStats.getMinX()) / overviewStats
+								.getResolutions()[0].getResolution(0)));
+						height = (int) Math.ceil(((bboxStats.getMaxY() - bboxStats.getMinY()) / overviewStats
+								.getResolutions()[0].getResolution(1)));
 					}
 				}
 			}
@@ -568,7 +489,7 @@ public class GeoWaveRasterReader extends
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter
 	 * .GeneralParameterValue [])
@@ -578,11 +499,8 @@ public class GeoWaveRasterReader extends
 			final String coverageName,
 			final GeneralParameterValue[] params )
 			throws IOException {
-		if (!checkName(
-				coverageName)) {
-			LOGGER
-					.warn(
-							"Unable to find data adapter for '" + coverageName + "'");
+		if (!checkName(coverageName)) {
+			LOGGER.warn("Unable to find data adapter for '" + coverageName + "'");
 			return null;
 		}
 		final Date start = new Date();
@@ -605,38 +523,22 @@ public class GeoWaveRasterReader extends
 			for (final GeneralParameterValue generalParameterValue : params) {
 				final Parameter<Object> param = (Parameter<Object>) generalParameterValue;
 
-				if (param
-						.getDescriptor()
-						.getName()
-						.getCode()
-						.equals(
-								AbstractGridFormat.READ_GRIDGEOMETRY2D.getName().toString())) {
+				if (param.getDescriptor().getName().getCode().equals(
+						AbstractGridFormat.READ_GRIDGEOMETRY2D.getName().toString())) {
 					final GridGeometry2D gg = (GridGeometry2D) param.getValue();
 					requestedEnvelope = (GeneralEnvelope) gg.getEnvelope();
 					dim = gg.getGridRange2D().getBounds();
 				}
-				else if (param
-						.getDescriptor()
-						.getName()
-						.getCode()
-						.equals(
-								GeoWaveGTRasterFormat.OUTPUT_TRANSPARENT_COLOR.getName().toString())) {
+				else if (param.getDescriptor().getName().getCode().equals(
+						GeoWaveGTRasterFormat.OUTPUT_TRANSPARENT_COLOR.getName().toString())) {
 					outputTransparentColor = (Color) param.getValue();
 				}
-				else if (param
-						.getDescriptor()
-						.getName()
-						.getCode()
-						.equals(
-								AbstractGridFormat.BACKGROUND_COLOR.getName().toString())) {
+				else if (param.getDescriptor().getName().getCode().equals(
+						AbstractGridFormat.BACKGROUND_COLOR.getName().toString())) {
 					backgroundColor = (Color) param.getValue();
 				}
-				else if (param
-						.getDescriptor()
-						.getName()
-						.getCode()
-						.equals(
-								AbstractGridFormat.INTERPOLATION.getName().toString())) {
+				else if (param.getDescriptor().getName().getCode().equals(
+						AbstractGridFormat.INTERPOLATION.getName().toString())) {
 					interpolation = (Interpolation) param.getValue();
 				}
 			}
@@ -649,9 +551,7 @@ public class GeoWaveRasterReader extends
 				backgroundColor,
 				outputTransparentColor,
 				interpolation);
-		LOGGER
-				.info(
-						"GeoWave Raster Reader needs : " + ((new Date()).getTime() - start.getTime()) + " millisecs");
+		LOGGER.info("GeoWave Raster Reader needs : " + ((new Date()).getTime() - start.getTime()) + " millisecs");
 		return coverage;
 	}
 
@@ -672,9 +572,7 @@ public class GeoWaveRasterReader extends
 
 		final GeoWaveRasterReaderState state = new GeoWaveRasterReaderState(
 				coverageName);
-		state
-				.setRequestedEnvelope(
-						generalEnvelope);
+		state.setRequestedEnvelope(generalEnvelope);
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Loading tiles trying to optimize as much as possible
@@ -687,10 +585,8 @@ public class GeoWaveRasterReader extends
 				interpolation,
 				dim,
 				state,
-				getCoordinateReferenceSystem(
-						coverageName),
-				getOriginalEnvelope(
-						coverageName));
+				getCoordinateReferenceSystem(coverageName),
+				getOriginalEnvelope(coverageName));
 
 		return coverage;
 	}
@@ -724,20 +620,12 @@ public class GeoWaveRasterReader extends
 		// envelope with the bounds of the data set. If not, give warning
 		//
 		// /////////////////////////////////////////////////////////////////////
-		if (!state
-				.getRequestEnvelopeXformed()
-				.intersects(
-						originalEnvelope,
-						true)) {
-			LOGGER
-					.warn(
-							"The requested envelope does not intersect the envelope of this mosaic");
-			LOGGER
-					.warn(
-							state.getRequestEnvelopeXformed().toString());
-			LOGGER
-					.warn(
-							originalEnvelope.toString());
+		if (!state.getRequestEnvelopeXformed().intersects(
+				originalEnvelope,
+				true)) {
+			LOGGER.warn("The requested envelope does not intersect the envelope of this mosaic");
+			LOGGER.warn(state.getRequestEnvelopeXformed().toString());
+			LOGGER.warn(originalEnvelope.toString());
 
 			return null;
 		}
@@ -745,30 +633,22 @@ public class GeoWaveRasterReader extends
 		final ImageReadParam readP = new ImageReadParam();
 		final Integer imageChoice;
 
-		final RasterDataAdapter adapter = (RasterDataAdapter) geowaveAdapterStore
-				.getAdapter(
-						getAdapterId(
-								coverageName))
-				.getAdapter();
+		final RasterDataAdapter adapter = (RasterDataAdapter) geowaveAdapterStore.getAdapter(
+				getAdapterId(coverageName)).getAdapter();
 		if (pixelDimension != null) {
 			try {
 				synchronized (this) {
-					if (!setupResolutions(
-							coverageName)) {
-						LOGGER
-								.warn(
-										"Cannot find the overview statistics for the requested coverage name");
-						return coverageFactory
-								.create(
-										coverageName,
-										RasterUtils
-												.getEmptyImage(
-														(int) pixelDimension.getWidth(),
-														(int) pixelDimension.getHeight(),
-														backgroundColor,
-														outputTransparentColor,
-														adapter.getColorModel()),
-										state.getRequestedEnvelope());
+					if (!setupResolutions(coverageName)) {
+						LOGGER.warn("Cannot find the overview statistics for the requested coverage name");
+						return coverageFactory.create(
+								coverageName,
+								RasterUtils.getEmptyImage(
+										(int) pixelDimension.getWidth(),
+										(int) pixelDimension.getHeight(),
+										backgroundColor,
+										outputTransparentColor,
+										adapter.getColorModel()),
+								state.getRequestedEnvelope());
 					}
 					imageChoice = setReadParams(
 							state.getCoverageName(),
@@ -778,40 +658,33 @@ public class GeoWaveRasterReader extends
 							pixelDimension);
 
 				}
-				readP
-						.setSourceSubsampling(
-								1,
-								1,
-								0,
-								0);
+				readP.setSourceSubsampling(
+						1,
+						1,
+						0,
+						0);
 			}
 			catch (final TransformException e) {
-				LOGGER
-						.error(
-								e.getLocalizedMessage(),
-								e);
+				LOGGER.error(
+						e.getLocalizedMessage(),
+						e);
 
-				return coverageFactory
-						.create(
-								coverageName,
-								RasterUtils
-										.getEmptyImage(
-												(int) pixelDimension.getWidth(),
-												(int) pixelDimension.getHeight(),
-												backgroundColor,
-												outputTransparentColor,
-												adapter.getColorModel()),
-								state.getRequestedEnvelope());
+				return coverageFactory.create(
+						coverageName,
+						RasterUtils.getEmptyImage(
+								(int) pixelDimension.getWidth(),
+								(int) pixelDimension.getHeight(),
+								backgroundColor,
+								outputTransparentColor,
+								adapter.getColorModel()),
+						state.getRequestedEnvelope());
 			}
 		}
 		else {
-			imageChoice = Integer
-					.valueOf(
-							0);
+			imageChoice = Integer.valueOf(0);
 		}
 
-		final double[][] resolutionLevels = getResolutionLevels(
-				coverageName);
+		final double[][] resolutionLevels = getResolutionLevels(coverageName);
 		final Histogram histogram;
 
 		boolean equalizeHistogram;
@@ -852,24 +725,23 @@ public class GeoWaveRasterReader extends
 			else if (interpolation == null) {
 				interpolation = adapter.getInterpolation();
 			}
-			final GridCoverage2D result = RasterUtils
-					.mosaicGridCoverages(
-							gridCoverageIt,
-							backgroundColor,
-							outputTransparentColor,
-							pixelDimension,
-							state.getRequestEnvelopeXformed(),
-							resolutionLevels[imageChoice.intValue()][0],
-							resolutionLevels[imageChoice.intValue()][1],
-							adapter.getNoDataValuesPerBand(),
-							state.isAxisSwapped(),
-							coverageFactory,
-							state.getCoverageName(),
-							interpolation,
-							histogram,
-							scaleTo8BitSet,
-							scaleTo8Bit,
-							adapter.getColorModel());
+			final GridCoverage2D result = RasterUtils.mosaicGridCoverages(
+					gridCoverageIt,
+					backgroundColor,
+					outputTransparentColor,
+					pixelDimension,
+					state.getRequestEnvelopeXformed(),
+					resolutionLevels[imageChoice.intValue()][0],
+					resolutionLevels[imageChoice.intValue()][1],
+					adapter.getNoDataValuesPerBand(),
+					state.isAxisSwapped(),
+					coverageFactory,
+					state.getCoverageName(),
+					interpolation,
+					histogram,
+					scaleTo8BitSet,
+					scaleTo8Bit,
+					adapter.getColorModel());
 
 			return transformResult(
 					result,
@@ -885,8 +757,7 @@ public class GeoWaveRasterReader extends
 		// this is a bit of a hack to avoid copy and pasting large
 		// portions of the inherited class, which does not handle
 		// multiple coverage names
-		final double[][] resLevels = getResolutionLevels(
-				coverageName);
+		final double[][] resLevels = getResolutionLevels(coverageName);
 		if (resLevels.length == 0) {
 			return false;
 		}
@@ -895,13 +766,12 @@ public class GeoWaveRasterReader extends
 		if (numOverviews > 0) {
 			overViewResolutions = new double[numOverviews][];
 
-			System
-					.arraycopy(
-							resLevels,
-							1,
-							overViewResolutions,
-							0,
-							numOverviews);
+			System.arraycopy(
+					resLevels,
+					1,
+					overViewResolutions,
+					0,
+					numOverviews);
 		}
 		else {
 			overViewResolutions = new double[][] {};
@@ -920,42 +790,20 @@ public class GeoWaveRasterReader extends
 		final QueryConstraints query;
 		if (requestEnvelope.getCoordinateReferenceSystem() != null) {
 			query = new IndexOnlySpatialQuery(
-					new GeometryFactory()
-							.toGeometry(
-									new Envelope(
-											requestEnvelope
-													.getMinimum(
-															0),
-											requestEnvelope
-													.getMaximum(
-															0),
-											requestEnvelope
-													.getMinimum(
-															1),
-											requestEnvelope
-													.getMaximum(
-															1))),
-					GeometryUtils
-							.getCrsCode(
-									requestEnvelope.getCoordinateReferenceSystem()));
+					new GeometryFactory().toGeometry(new Envelope(
+							requestEnvelope.getMinimum(0),
+							requestEnvelope.getMaximum(0),
+							requestEnvelope.getMinimum(1),
+							requestEnvelope.getMaximum(1))),
+					GeometryUtils.getCrsCode(requestEnvelope.getCoordinateReferenceSystem()));
 		}
 		else {
 			query = new IndexOnlySpatialQuery(
-					new GeometryFactory()
-							.toGeometry(
-									new Envelope(
-											requestEnvelope
-													.getMinimum(
-															0),
-											requestEnvelope
-													.getMaximum(
-															0),
-											requestEnvelope
-													.getMinimum(
-															1),
-											requestEnvelope
-													.getMaximum(
-															1))));
+					new GeometryFactory().toGeometry(new Envelope(
+							requestEnvelope.getMinimum(0),
+							requestEnvelope.getMaximum(0),
+							requestEnvelope.getMinimum(1),
+							requestEnvelope.getMaximum(1))));
 		}
 		return queryForTiles(
 				adapter,
@@ -971,33 +819,19 @@ public class GeoWaveRasterReader extends
 			final QueryConstraints query,
 			final double[] targetResolutionPerDimension ) {
 		final AdapterToIndexMapping adapterIndexMapping = geowaveAdapterIndexMappingStore
-				.getIndicesForAdapter(
-						getAdapterId(
-								adapter.getTypeName()));
-		final Index[] indices = adapterIndexMapping
-				.getIndices(
-						geowaveIndexStore);
+				.getIndicesForAdapter(getAdapterId(adapter.getTypeName()));
+		final Index[] indices = adapterIndexMapping.getIndices(geowaveIndexStore);
 		// just work on the first spatial only index that contains this adapter
 		// ID
 		// TODO consider the best strategy for handling temporal queries here
 		for (final Index rasterIndex : indices) {
-			if (SpatialDimensionalityTypeProvider
-					.isSpatial(
-							rasterIndex)) {
-				return (CloseableIterator) geowaveDataStore
-						.query(
-								QueryBuilder
-										.newBuilder()
-										.setAuthorizations(
-												authorizationSPI.getAuthorizations())
-										.addTypeName(
-												adapter.getTypeName())
-										.constraints(
-												query)
-										.addHint(
-												DataStoreUtils.TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX,
-												targetResolutionPerDimension)
-										.build());
+			if (SpatialDimensionalityTypeProvider.isSpatial(rasterIndex)) {
+				return (CloseableIterator) geowaveDataStore.query(QueryBuilder.newBuilder().setAuthorizations(
+						authorizationSPI.getAuthorizations()).addTypeName(
+						adapter.getTypeName()).constraints(
+						query).addHint(
+						DataStoreUtils.TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX,
+						targetResolutionPerDimension).build());
 			}
 		}
 		return new Wrapper(
@@ -1013,20 +847,15 @@ public class GeoWaveRasterReader extends
 		}
 
 		GridCoverage2D result = null;
-		LOGGER
-				.info(
-						"Image reprojection necessary");
-		result = (GridCoverage2D) RasterUtils
-				.getCoverageOperations()
-				.resample(
-						coverage,
-						state.getRequestedEnvelope().getCoordinateReferenceSystem());
+		LOGGER.info("Image reprojection necessary");
+		result = (GridCoverage2D) RasterUtils.getCoverageOperations().resample(
+				coverage,
+				state.getRequestedEnvelope().getCoordinateReferenceSystem());
 
-		return coverageFactory
-				.create(
-						result.getName(),
-						result.getRenderedImage(),
-						result.getEnvelope());
+		return coverageFactory.create(
+				result.getName(),
+				result.getRenderedImage(),
+				result.getEnvelope());
 
 	}
 
@@ -1041,13 +870,10 @@ public class GeoWaveRasterReader extends
 			final CoordinateReferenceSystem crs )
 			throws DataSourceException {
 
-		if (CRS
-				.equalsIgnoreMetadata(
-						state.getRequestedEnvelope().getCoordinateReferenceSystem(),
-						crs)) {
-			state
-					.setRequestEnvelopeXformed(
-							state.getRequestedEnvelope());
+		if (CRS.equalsIgnoreMetadata(
+				state.getRequestedEnvelope().getCoordinateReferenceSystem(),
+				crs)) {
+			state.setRequestEnvelopeXformed(state.getRequestedEnvelope());
 
 			return; // and finish
 		}
@@ -1056,72 +882,45 @@ public class GeoWaveRasterReader extends
 			/** Buffered factory for coordinate operations. */
 
 			// transforming the envelope back to the dataset crs in
-			final MathTransform transform = OPERATION_FACTORY
-					.createOperation(
-							state.getRequestedEnvelope().getCoordinateReferenceSystem(),
-							crs)
-					.getMathTransform();
+			final MathTransform transform = OPERATION_FACTORY.createOperation(
+					state.getRequestedEnvelope().getCoordinateReferenceSystem(),
+					crs).getMathTransform();
 
 			if (transform.isIdentity()) { // Identity Transform ?
-				state
-						.setRequestEnvelopeXformed(
-								state.getRequestedEnvelope());
+				state.setRequestEnvelopeXformed(state.getRequestedEnvelope());
 				return; // and finish
 			}
 
-			state
-					.setRequestEnvelopeXformed(
-							CRS
-									.transform(
-											transform,
-											state.getRequestedEnvelope()));
-			state
-					.getRequestEnvelopeXformed()
-					.setCoordinateReferenceSystem(
-							crs);
+			state.setRequestEnvelopeXformed(CRS.transform(
+					transform,
+					state.getRequestedEnvelope()));
+			state.getRequestEnvelopeXformed().setCoordinateReferenceSystem(
+					crs);
 
 			// if (config.getIgnoreAxisOrder() == false) { // check for axis
 			// order
 			// required
-			final int indexX = indexOfX(
-					crs);
-			final int indexY = indexOfY(
-					crs);
-			final int indexRequestedX = indexOfX(
-					state.getRequestedEnvelope().getCoordinateReferenceSystem());
-			final int indexRequestedY = indexOfY(
-					state.getRequestedEnvelope().getCoordinateReferenceSystem());
+			final int indexX = indexOfX(crs);
+			final int indexY = indexOfY(crs);
+			final int indexRequestedX = indexOfX(state.getRequestedEnvelope().getCoordinateReferenceSystem());
+			final int indexRequestedY = indexOfY(state.getRequestedEnvelope().getCoordinateReferenceSystem());
 
 			// x Axis problem ???
 			if ((indexX == indexRequestedY) && (indexY == indexRequestedX)) {
-				state
-						.setAxisSwap(
-								true);
+				state.setAxisSwap(true);
 				final Rectangle2D tmp = new Rectangle2D.Double(
-						state
-								.getRequestEnvelopeXformed()
-								.getMinimum(
-										1),
-						state
-								.getRequestEnvelopeXformed()
-								.getMinimum(
-										0),
-						state
-								.getRequestEnvelopeXformed()
-								.getSpan(
-										1),
-						state
-								.getRequestEnvelopeXformed()
-								.getSpan(
-										0));
-				state
-						.setRequestEnvelopeXformed(
-								new GeneralEnvelope(
-										tmp));
-				state
-						.getRequestEnvelopeXformed()
-						.setCoordinateReferenceSystem(
-								crs);
+						state.getRequestEnvelopeXformed().getMinimum(
+								1),
+						state.getRequestEnvelopeXformed().getMinimum(
+								0),
+						state.getRequestEnvelopeXformed().getSpan(
+								1),
+						state.getRequestEnvelopeXformed().getSpan(
+								0));
+				state.setRequestEnvelopeXformed(new GeneralEnvelope(
+						tmp));
+				state.getRequestEnvelopeXformed().setCoordinateReferenceSystem(
+						crs);
 			}
 			else if ((indexX == indexRequestedX) && (indexY == indexRequestedY)) {
 				// everything is fine
@@ -1169,11 +968,8 @@ public class GeoWaveRasterReader extends
 			final double[] requestedResolution )
 			throws IOException {
 		synchronized (this) {
-			if (!setupResolutions(
-					coverageName)) {
-				LOGGER
-						.warn(
-								"Cannot find the overview statistics for the requested coverage name");
+			if (!setupResolutions(coverageName)) {
+				LOGGER.warn("Cannot find the overview statistics for the requested coverage name");
 				return null;
 			}
 			return super.getReadingResolutions(
@@ -1193,18 +989,15 @@ public class GeoWaveRasterReader extends
 	public int getNumOverviews(
 			final String coverageName ) {
 		try {
-			final double[][] resolutionLevels = getResolutionLevels(
-					coverageName);
-			return Math
-					.max(
-							0,
-							resolutionLevels.length - 1);
+			final double[][] resolutionLevels = getResolutionLevels(coverageName);
+			return Math.max(
+					0,
+					resolutionLevels.length - 1);
 		}
 		catch (final IOException e) {
-			LOGGER
-					.warn(
-							"Unable to read resolution levels",
-							e);
+			LOGGER.warn(
+					"Unable to read resolution levels",
+					e);
 		}
 		return 0;
 	}
@@ -1220,44 +1013,23 @@ public class GeoWaveRasterReader extends
 	public ImageLayout getImageLayout(
 			final String coverageName )
 			throws IOException {
-		if (!checkName(
-				coverageName)) {
-			LOGGER
-					.warn(
-							"Unable to find data adapter for '" + coverageName + "'");
+		if (!checkName(coverageName)) {
+			LOGGER.warn("Unable to find data adapter for '" + coverageName + "'");
 			return null;
 		}
 
 		final RasterDataAdapter adapter = (RasterDataAdapter) geowaveAdapterStore
-				.getAdapter(
-						getAdapterId(
-								coverageName));
+				.getAdapter(getAdapterId(coverageName));
 		final GridEnvelope gridEnvelope = getOriginalGridRange();
-		return new ImageLayout()
-				.setMinX(
-						gridEnvelope
-								.getLow(
-										0))
-				.setMinY(
-						gridEnvelope
-								.getLow(
-										1))
-				.setTileWidth(
-						adapter.getTileSize())
-				.setTileHeight(
-						adapter.getTileSize())
-				.setSampleModel(
-						adapter.getSampleModel())
-				.setColorModel(
-						adapter.getColorModel())
-				.setWidth(
-						gridEnvelope
-								.getHigh(
-										0))
-				.setHeight(
-						gridEnvelope
-								.getHigh(
-										1));
+		return new ImageLayout().setMinX(
+				gridEnvelope.getLow(0)).setMinY(
+				gridEnvelope.getLow(1)).setTileWidth(
+				adapter.getTileSize()).setTileHeight(
+				adapter.getTileSize()).setSampleModel(
+				adapter.getSampleModel()).setColorModel(
+				adapter.getColorModel()).setWidth(
+				gridEnvelope.getHigh(0)).setHeight(
+				gridEnvelope.getHigh(1));
 	}
 
 	@Override
@@ -1271,19 +1043,15 @@ public class GeoWaveRasterReader extends
 	public double[][] getResolutionLevels(
 			final String coverageName )
 			throws IOException {
-		final Resolution[] resolutions = geowaveDataStore
-				.aggregateStatistics(
-						OverviewStatistics.STATS_TYPE
-								.newBuilder()
-								.setAuthorizations(
-										authorizationSPI.getAuthorizations())
-								.dataType(
-										coverageName)
-								.build());
+		final Resolution[] resolutions = geowaveDataStore.aggregateStatistics(OverviewStatistics.STATS_TYPE
+				.newBuilder()
+				.setAuthorizations(
+						authorizationSPI.getAuthorizations())
+				.dataType(
+						coverageName)
+				.build());
 		if (resolutions == null) {
-			LOGGER
-					.warn(
-							"Cannot find resolutions for coverage '" + coverageName + "'");
+			LOGGER.warn("Cannot find resolutions for coverage '" + coverageName + "'");
 			return null;
 		}
 		final double[][] retVal = new double[resolutions.length][];
@@ -1301,27 +1069,18 @@ public class GeoWaveRasterReader extends
 			final double resY )
 			throws IOException {
 		final Map<Resolution, Histogram> histograms = geowaveDataStore
-				.aggregateStatistics(
-						HistogramStatistics.STATS_TYPE
-								.newBuilder()
-								.setAuthorizations(
-										authorizationSPI.getAuthorizations())
-								.dataType(
-										coverageName)
-								.build());
+				.aggregateStatistics(HistogramStatistics.STATS_TYPE.newBuilder().setAuthorizations(
+						authorizationSPI.getAuthorizations()).dataType(
+						coverageName).build());
 		if (histograms != null) {
-			return histograms
-					.get(
-							new Resolution(
-									new double[] {
-										resX,
-										resY
-									}));
+			return histograms.get(new Resolution(
+					new double[] {
+						resX,
+						resY
+					}));
 		}
 		else {
-			LOGGER
-					.warn(
-							"Cannot find histogram for coverage '" + coverageName + "'");
+			LOGGER.warn("Cannot find histogram for coverage '" + coverageName + "'");
 		}
 		return null;
 	}
@@ -1355,12 +1114,8 @@ public class GeoWaveRasterReader extends
 			final Set<AxisDirection> direction ) {
 		final CoordinateSystem cs = crs.getCoordinateSystem();
 		for (int index = 0; index < cs.getDimension(); index++) {
-			final CoordinateSystemAxis axis = cs
-					.getAxis(
-							index);
-			if (direction
-					.contains(
-							axis.getDirection())) {
+			final CoordinateSystemAxis axis = cs.getAxis(index);
+			if (direction.contains(axis.getDirection())) {
 				return index;
 			}
 		}
@@ -1370,9 +1125,7 @@ public class GeoWaveRasterReader extends
 	private short getAdapterId(
 			final String coverageName ) {
 
-		return geowaveInternalAdapterStore
-				.getAdapterId(
-						coverageName);
+		return geowaveInternalAdapterStore.getAdapterId(coverageName);
 
 	}
 

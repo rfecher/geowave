@@ -128,7 +128,7 @@ abstract public class AbstractDataStatistics<T, R, B extends StatisticsQueryBuil
 	}
 
 	@SuppressWarnings("unchecked")
-	public InternalDataStatistics<T, R, B> clone() {
+	public InternalDataStatistics<T, R, B> duplicate() {
 		return (InternalDataStatistics<T, R, B>) PersistenceUtils.fromBinary(PersistenceUtils.toBinary(this));
 	}
 

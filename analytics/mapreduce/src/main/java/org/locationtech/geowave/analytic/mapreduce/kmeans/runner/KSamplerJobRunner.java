@@ -97,10 +97,9 @@ public class KSamplerJobRunner extends
 		final PersistentAdapterStore adapterStore = super.getAdapterStore(runTimeProperties);
 
 		final InternalAdapterStore internalAdapterStore = getInternalAdapterStore(runTimeProperties);
-		Short sampleInternalAdapterId = internalAdapterStore.getAdapterId(
-				runTimeProperties.getPropertyAsString(
-						SampleParameters.Sample.DATA_TYPE_NAME,
-						"sample"));
+		Short sampleInternalAdapterId = internalAdapterStore.getAdapterId(runTimeProperties.getPropertyAsString(
+				SampleParameters.Sample.DATA_TYPE_NAME,
+				"sample"));
 		if (sampleInternalAdapterId == null) {
 			return null;
 		}
@@ -112,10 +111,9 @@ public class KSamplerJobRunner extends
 			throws Exception {
 		final IndexStore indexStore = super.getIndexStore(runTimeProperties);
 
-		return (Index) indexStore.getIndex(
-				runTimeProperties.getPropertyAsString(
-						SampleParameters.Sample.INDEX_NAME,
-						"index"));
+		return (Index) indexStore.getIndex(runTimeProperties.getPropertyAsString(
+				SampleParameters.Sample.INDEX_NAME,
+				"index"));
 	}
 
 	@Override

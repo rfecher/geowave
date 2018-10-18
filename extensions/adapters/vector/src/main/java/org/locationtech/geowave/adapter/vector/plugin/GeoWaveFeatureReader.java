@@ -599,10 +599,11 @@ public class GeoWaveFeatureReader implements
 			}
 
 			final Index[] writeIndices = components.getAdapterIndices();
-			final Index queryIndex = ((writeIndices != null) && (writeIndices.length > 0)) ? writeIndices[0] : null;
+			final String queryIndexName = ((writeIndices != null) && (writeIndices.length > 0)) ? writeIndices[0]
+					.getName() : null;
 			VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder().addTypeName(
 					components.getAdapter().getTypeName()).indexName(
-					queryIndex.getName()).setAuthorizations(
+					queryIndexName).setAuthorizations(
 					transaction.composeAuthorizations());
 			if (limit != null) {
 				bldr = bldr.limit(limit);

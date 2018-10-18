@@ -77,9 +77,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class AccumuloOptionsTest
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					AccumuloOptionsTest.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(AccumuloOptionsTest.class);
 
 	final AccumuloOptions accumuloOptions = new AccumuloOptions();
 
@@ -103,17 +101,15 @@ public class AccumuloOptionsTest
 		final MockInstance mockInstance = new MockInstance();
 		Connector mockConnector = null;
 		try {
-			mockConnector = mockInstance
-					.getConnector(
-							"root",
-							new PasswordToken(
-									new byte[0]));
+			mockConnector = mockInstance.getConnector(
+					"root",
+					new PasswordToken(
+							new byte[0]));
 		}
 		catch (AccumuloException | AccumuloSecurityException e) {
-			LOGGER
-					.error(
-							"Failed to create mock accumulo connection",
-							e);
+			LOGGER.error(
+					"Failed to create mock accumulo connection",
+					e);
 		}
 		final AccumuloOptions options = new AccumuloOptions();
 		accumuloOperations = new AccumuloOperations(
@@ -162,9 +158,10 @@ public class AccumuloOptionsTest
 		accumuloOptions.setCreateTable(false);
 		accumuloOptions.setPersistIndex(false);
 		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(adapter.getTypeName(), index);		
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final List<ByteArrayId> rowIds = indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -188,9 +185,10 @@ public class AccumuloOptionsTest
 		accumuloOptions.setCreateTable(true);
 
 		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(adapter.getTypeName(), index);	
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId1 = indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -199,12 +197,13 @@ public class AccumuloOptionsTest
 							"test_pt_1")).getFirstPartitionAndSortKeyPair();
 
 			assertFalse(mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).constraints(
-					new InsertionIdQuery(
-							rowId1.getLeft(),
-							rowId1.getRight(),
-							new ByteArrayId(
-									"test_pt_1"))).build()).hasNext());
+					QueryBuilder.newBuilder().addTypeName(
+							adapter.getTypeName()).constraints(
+							new InsertionIdQuery(
+									rowId1.getLeft(),
+									rowId1.getRight(),
+									new ByteArrayId(
+											"test_pt_1"))).build()).hasNext());
 
 			// as we have chosen not to persist the index, we will not see an
 			// index
@@ -215,12 +214,14 @@ public class AccumuloOptionsTest
 
 			/** Still can query providing the index */
 			final TestGeometry geom1 = (TestGeometry) mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName()).constraints(
-					new InsertionIdQuery(
-							rowId1.getLeft(),
-							rowId1.getRight(),
-							new ByteArrayId(
-									"test_pt_1"))).build()).next();
+					QueryBuilder.newBuilder().addTypeName(
+							adapter.getTypeName()).indexName(
+							index.getName()).constraints(
+							new InsertionIdQuery(
+									rowId1.getLeft(),
+									rowId1.getRight(),
+									new ByteArrayId(
+											"test_pt_1"))).build()).next();
 
 			// even though we didn't persist the index, the test point was still
 			// stored
@@ -233,9 +234,10 @@ public class AccumuloOptionsTest
 		accumuloOptions.setPersistIndex(true);
 
 		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(adapter.getTypeName(), index);	
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId2 = indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -244,12 +246,14 @@ public class AccumuloOptionsTest
 							"test_pt_2")).getFirstPartitionAndSortKeyPair();
 
 			final TestGeometry geom2 = (TestGeometry) mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName()).constraints(
-					new InsertionIdQuery(
-							rowId2.getLeft(),
-							rowId2.getRight(),
-							new ByteArrayId(
-									"test_pt_2"))).build()).next();
+					QueryBuilder.newBuilder().addTypeName(
+							adapter.getTypeName()).indexName(
+							index.getName()).constraints(
+							new InsertionIdQuery(
+									rowId2.getLeft(),
+									rowId2.getRight(),
+									new ByteArrayId(
+											"test_pt_2"))).build()).next();
 
 			// as we have chosen to persist the index, we will see the index
 			// entry
@@ -278,9 +282,10 @@ public class AccumuloOptionsTest
 
 		accumuloOptions.setUseLocalityGroups(false);
 		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(adapter.getTypeName(), index);		
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId1 = indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -304,12 +309,14 @@ public class AccumuloOptionsTest
 			}
 
 			final TestGeometry geom1 = (TestGeometry) mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName()).constraints(
-					new InsertionIdQuery(
-							rowId1.getLeft(),
-							rowId1.getRight(),
-							new ByteArrayId(
-									"test_pt_1"))).build()).next();
+					QueryBuilder.newBuilder().addTypeName(
+							adapter.getTypeName()).indexName(
+							index.getName()).constraints(
+							new InsertionIdQuery(
+									rowId1.getLeft(),
+									rowId1.getRight(),
+									new ByteArrayId(
+											"test_pt_1"))).build()).next();
 
 			// of course, the point is actually stored in this case
 			assertEquals(
@@ -321,9 +328,10 @@ public class AccumuloOptionsTest
 		accumuloOptions.setUseLocalityGroups(true);
 
 		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(adapter.getTypeName(), index);	
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId2 = indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -347,12 +355,14 @@ public class AccumuloOptionsTest
 						e);
 			}
 			final TestGeometry geom2 = (TestGeometry) mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName()).constraints(
-					new InsertionIdQuery(
-							rowId2.getLeft(),
-							rowId2.getRight(),
-							new ByteArrayId(
-									"test_pt_2"))).build()).next();
+					QueryBuilder.newBuilder().addTypeName(
+							adapter.getTypeName()).indexName(
+							index.getName()).constraints(
+							new InsertionIdQuery(
+									rowId2.getLeft(),
+									rowId2.getRight(),
+									new ByteArrayId(
+											"test_pt_2"))).build()).next();
 
 			// of course, the point is actually stored in this case
 			assertEquals(
@@ -372,9 +382,10 @@ public class AccumuloOptionsTest
 		accumuloOptions.setPersistAdapter(false);
 
 		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(adapter.getTypeName(), index);
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId1 = indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -383,19 +394,22 @@ public class AccumuloOptionsTest
 							"test_pt_1")).getFirstPartitionAndSortKeyPair();
 
 			assertFalse(mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName()).constraints(
-					new InsertionIdQuery(
-							rowId1.getLeft(),
-							rowId1.getRight(),
-							new ByteArrayId(
-									"test_pt_1"))).build()).hasNext());
+					QueryBuilder.newBuilder().addTypeName(
+							adapter.getTypeName()).indexName(
+							index.getName()).constraints(
+							new InsertionIdQuery(
+									rowId1.getLeft(),
+									rowId1.getRight(),
+									new ByteArrayId(
+											"test_pt_1"))).build()).hasNext());
 
 		}
 
 		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(adapter.getTypeName(), index);	
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId1 = indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -404,16 +418,24 @@ public class AccumuloOptionsTest
 							"test_pt_1")).getFirstPartitionAndSortKeyPair();
 
 			assertFalse(mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName()).constraints(
-					new InsertionIdQuery(
-							rowId1.getLeft(),
-							rowId1.getRight(),
-							new ByteArrayId(
-									"test_pt_1"))).build()).hasNext());
+					QueryBuilder.newBuilder().addTypeName(
+							adapter.getTypeName()).indexName(
+							index.getName()).constraints(
+							new InsertionIdQuery(
+									rowId1.getLeft(),
+									rowId1.getRight(),
+									new ByteArrayId(
+											"test_pt_1"))).build()).hasNext());
 
-			try (final CloseableIterator<TestGeometry> geomItr = (CloseableIterator)mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName()).constraints(
-					new EverythingQuery()).build())) {
+			try (final CloseableIterator<TestGeometry> geomItr = (CloseableIterator) mockDataStore.query(QueryBuilder
+					.newBuilder()
+					.addTypeName(
+							adapter.getTypeName())
+					.indexName(
+							index.getName())
+					.constraints(
+							new EverythingQuery())
+					.build())) {
 
 				final TestGeometry geom1 = geomItr.next();
 
@@ -435,9 +457,10 @@ public class AccumuloOptionsTest
 		accumuloOptions.setPersistAdapter(true);
 
 		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(adapter.getTypeName(), index);	
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId2 = indexWriter.write(
 
 					new TestGeometry(
@@ -446,8 +469,9 @@ public class AccumuloOptionsTest
 									32)),
 							"test_pt_2")).getFirstPartitionAndSortKeyPair();
 
-			try (final CloseableIterator<?> geomItr = mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName()).constraints(
+			try (final CloseableIterator<?> geomItr = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
+					adapter.getTypeName()).indexName(
+					index.getName()).constraints(
 					new InsertionIdQuery(
 							rowId2.getLeft(),
 							rowId2.getRight(),
@@ -462,8 +486,13 @@ public class AccumuloOptionsTest
 						geom2.id);
 			}
 
-			try (final CloseableIterator<TestGeometry> geomItr = (CloseableIterator)mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName()).build())) {
+			try (final CloseableIterator<TestGeometry> geomItr = (CloseableIterator) mockDataStore.query(QueryBuilder
+					.newBuilder()
+					.addTypeName(
+							adapter.getTypeName())
+					.indexName(
+							index.getName())
+					.build())) {
 
 				while (geomItr.hasNext()) {
 					final TestGeometry geom2 = geomItr.next();
@@ -500,9 +529,10 @@ public class AccumuloOptionsTest
 		final DataTypeAdapter<TestGeometry> adapter1 = new AnotherAdapter();
 
 		mockDataStore.addType(adapter0);
-		mockDataStore.addIndex(adapter0.getTypeName(), index);	
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter0.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter0.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter0.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId0 = indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -512,9 +542,10 @@ public class AccumuloOptionsTest
 		}
 
 		mockDataStore.addType(adapter1);
-		mockDataStore.addIndex(adapter1.getTypeName(), index);	
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter1.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter1.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter1.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId0 = indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -530,8 +561,9 @@ public class AccumuloOptionsTest
 							"test_pt_1")).getFirstPartitionAndSortKeyPair();
 		}
 
-		CloseableIterator it = mockDataStore.query(
-				QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName()).indexName(index.getName()).constraints(
+		CloseableIterator it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter1.getTypeName()).indexName(
+				index.getName()).constraints(
 				new EverythingQuery()).build());
 		int count = 0;
 		while (it.hasNext()) {
@@ -542,8 +574,9 @@ public class AccumuloOptionsTest
 				1,
 				count);
 
-		it = mockDataStore.query(
-				QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName()).indexName(index.getName()).constraints(
+		it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter1.getTypeName()).indexName(
+				index.getName()).constraints(
 				new EverythingQuery()).build());
 		count = 0;
 		while (it.hasNext()) {
@@ -554,8 +587,8 @@ public class AccumuloOptionsTest
 				2,
 				count);
 
-		it = mockDataStore.query(
-				QueryBuilder.newBuilder().indexName(index.getName()).constraints(
+		it = mockDataStore.query(QueryBuilder.newBuilder().indexName(
+				index.getName()).constraints(
 				new EverythingQuery()).build());
 		count = 0;
 		while (it.hasNext()) {
@@ -568,12 +601,13 @@ public class AccumuloOptionsTest
 
 		// delete entry by data id & adapter id
 
-		assertTrue(mockDataStore.delete(
-				QueryBuilder.newBuilder().addTypeName(adapter0.getTypeName()).indexName(index.getName()).constraints(
+		assertTrue(mockDataStore.delete(QueryBuilder.newBuilder().addTypeName(
+				adapter0.getTypeName()).indexName(
+				index.getName()).constraints(
 				new EverythingQuery()).build()));
 
-		it = mockDataStore.query(
-				QueryBuilder.newBuilder().indexName(index.getName()).constraints(
+		it = mockDataStore.query(QueryBuilder.newBuilder().indexName(
+				index.getName()).constraints(
 				new EverythingQuery()).build());
 		count = 0;
 		while (it.hasNext()) {
@@ -584,8 +618,9 @@ public class AccumuloOptionsTest
 				2,
 				count);
 
-		it = mockDataStore.query(
-				QueryBuilder.newBuilder().addTypeName(adapter0.getTypeName()).indexName(index.getName()).constraints(
+		it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter0.getTypeName()).indexName(
+				index.getName()).constraints(
 				new EverythingQuery()).build());
 		count = 0;
 		while (it.hasNext()) {
@@ -596,11 +631,11 @@ public class AccumuloOptionsTest
 				0,
 				count);
 
-
 		mockDataStore.addType(adapter0);
-		mockDataStore.addIndex(adapter0.getTypeName(), index);	
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(
-				adapter0.getTypeName())) {
+		mockDataStore.addIndex(
+				adapter0.getTypeName(),
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter0.getTypeName())) {
 			indexWriter.write(
 					new TestGeometry(
 							factory.createPoint(new Coordinate(
@@ -619,14 +654,16 @@ public class AccumuloOptionsTest
 				3,
 				count);
 
-		assertTrue(mockDataStore.delete(
-				QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName()).indexName(index.getName()).constraints(
+		assertTrue(mockDataStore.delete(QueryBuilder.newBuilder().addTypeName(
+				adapter1.getTypeName()).indexName(
+				index.getName()).constraints(
 				new DataIdQuery(
 						new ByteArrayId(
 								"test_pt_1"))).build()));
 
-		it = mockDataStore.query(
-				QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName()).indexName(index.getName()).constraints(
+		it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter1.getTypeName()).indexName(
+				index.getName()).constraints(
 				new EverythingQuery()).build());
 		count = 0;
 		while (it.hasNext()) {
@@ -647,12 +684,12 @@ public class AccumuloOptionsTest
 				2,
 				count);
 
-		assertTrue(mockDataStore.delete(
-				QueryBuilder.newBuilder().indexName(index.getName()).constraints(
+		assertTrue(mockDataStore.delete(QueryBuilder.newBuilder().indexName(
+				index.getName()).constraints(
 				new EverythingQuery()).build()));
 
-		it = mockDataStore.query(
-				QueryBuilder.newBuilder().indexName(index.getName()).constraints(
+		it = mockDataStore.query(QueryBuilder.newBuilder().indexName(
+				index.getName()).constraints(
 				new EverythingQuery()).build());
 		count = 0;
 		while (it.hasNext()) {
@@ -740,12 +777,8 @@ public class AccumuloOptionsTest
 		private static final List<PersistentIndexFieldHandler<TestGeometry, ? extends CommonIndexValue, Object>> COMMON_FIELD_HANDLER_LIST = new ArrayList<>();
 
 		static {
-			COMMON_FIELD_HANDLER_LIST
-					.add(
-							GEOM_FIELD_HANDLER);
-			NATIVE_FIELD_HANDLER_LIST
-					.add(
-							ID_FIELD_HANDLER);
+			COMMON_FIELD_HANDLER_LIST.add(GEOM_FIELD_HANDLER);
+			NATIVE_FIELD_HANDLER_LIST.add(ID_FIELD_HANDLER);
 		}
 
 		public TestGeometryAdapter() {
@@ -769,19 +802,11 @@ public class AccumuloOptionsTest
 		@Override
 		public FieldReader getReader(
 				final String fieldId ) {
-			if (fieldId
-					.equals(
-							GEOM)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								Geometry.class);
+			if (fieldId.equals(GEOM)) {
+				return FieldUtils.getDefaultReaderForClass(Geometry.class);
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								String.class);
+			else if (fieldId.equals(ID)) {
+				return FieldUtils.getDefaultReaderForClass(String.class);
 			}
 			return null;
 		}
@@ -789,19 +814,11 @@ public class AccumuloOptionsTest
 		@Override
 		public FieldWriter getWriter(
 				final String fieldId ) {
-			if (fieldId
-					.equals(
-							GEOM)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								Geometry.class);
+			if (fieldId.equals(GEOM)) {
+				return FieldUtils.getDefaultWriterForClass(Geometry.class);
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								String.class);
+			else if (fieldId.equals(ID)) {
+				return FieldUtils.getDefaultWriterForClass(String.class);
 			}
 			return null;
 		}
@@ -816,14 +833,10 @@ public class AccumuloOptionsTest
 				public void setField(
 						final String id,
 						final Object fieldValue ) {
-					if (id
-							.equals(
-									GEOM)) {
+					if (id.equals(GEOM)) {
 						geom = (Geometry) fieldValue;
 					}
-					else if (id
-							.equals(
-									ID)) {
+					else if (id.equals(ID)) {
 						this.id = (String) fieldValue;
 					}
 				}
@@ -831,19 +844,11 @@ public class AccumuloOptionsTest
 				@Override
 				public void setFields(
 						final Map<String, Object> values ) {
-					if (values
-							.containsKey(
-									GEOM)) {
-						geom = (Geometry) values
-								.get(
-										GEOM);
+					if (values.containsKey(GEOM)) {
+						geom = (Geometry) values.get(GEOM);
 					}
-					if (values
-							.containsKey(
-									ID)) {
-						id = (String) values
-								.get(
-										ID);
+					if (values.containsKey(ID)) {
+						id = (String) values.get(ID);
 					}
 				}
 
@@ -863,21 +868,15 @@ public class AccumuloOptionsTest
 				final String fieldId ) {
 			int i = 0;
 			for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-				if (fieldId
-						.equals(
-								dimensionField.getFieldName())) {
+				if (fieldId.equals(dimensionField.getFieldName())) {
 					return i;
 				}
 				i++;
 			}
-			if (fieldId
-					.equals(
-							GEOM)) {
+			if (fieldId.equals(GEOM)) {
 				return i;
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
+			else if (fieldId.equals(ID)) {
 				return i + 1;
 			}
 			return -1;

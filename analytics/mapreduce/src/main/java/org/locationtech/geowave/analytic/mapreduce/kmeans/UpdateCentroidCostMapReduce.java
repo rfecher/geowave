@@ -61,9 +61,7 @@ import org.slf4j.LoggerFactory;
 public class UpdateCentroidCostMapReduce
 {
 
-	protected static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					UpdateCentroidCostMapReduce.class);
+	protected static final Logger LOGGER = LoggerFactory.getLogger(UpdateCentroidCostMapReduce.class);
 
 	public static class UpdateCentroidCostMap extends
 			GeoWaveWritableInputMapper<GroupIDText, CountofDoubleWritable>
@@ -77,10 +75,9 @@ public class UpdateCentroidCostMapReduce
 			@Override
 			public void notify(
 					final CentroidPairing<Object> pairing ) {
-				outputWritable
-						.set(
-								pairing.getCentroid().getGroupID(),
-								pairing.getCentroid().getID());
+				outputWritable.set(
+						pairing.getCentroid().getGroupID(),
+						pairing.getCentroid().getID());
 			}
 		};
 
@@ -91,21 +88,16 @@ public class UpdateCentroidCostMapReduce
 				final Mapper<GeoWaveInputKey, ObjectWritable, GroupIDText, CountofDoubleWritable>.Context context )
 				throws IOException,
 				InterruptedException {
-			final AnalyticItemWrapper<Object> wrappedItem = itemWrapperFactory
-					.create(
-							value);
-			dw
-					.set(
-							nestedGroupCentroidAssigner
-									.findCentroidForLevel(
-											wrappedItem,
-											centroidAssociationFn),
-							1.0);
+			final AnalyticItemWrapper<Object> wrappedItem = itemWrapperFactory.create(value);
+			dw.set(
+					nestedGroupCentroidAssigner.findCentroidForLevel(
+							wrappedItem,
+							centroidAssociationFn),
+					1.0);
 
-			context
-					.write(
-							outputWritable,
-							dw);
+			context.write(
+					outputWritable,
+					dw);
 		}
 
 		@Override
@@ -113,8 +105,7 @@ public class UpdateCentroidCostMapReduce
 				final Mapper<GeoWaveInputKey, ObjectWritable, GroupIDText, CountofDoubleWritable>.Context context )
 				throws IOException,
 				InterruptedException {
-			super.setup(
-					context);
+			super.setup(context);
 
 			final ScopedJobConfiguration config = new ScopedJobConfiguration(
 					context.getConfiguration(),
@@ -134,17 +125,15 @@ public class UpdateCentroidCostMapReduce
 			}
 
 			try {
-				itemWrapperFactory = config
-						.getInstance(
-								CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-								AnalyticItemWrapperFactory.class,
-								SimpleFeatureItemWrapperFactory.class);
+				itemWrapperFactory = config.getInstance(
+						CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+						AnalyticItemWrapperFactory.class,
+						SimpleFeatureItemWrapperFactory.class);
 
-				itemWrapperFactory
-						.initialize(
-								context,
-								UpdateCentroidCostMapReduce.class,
-								UpdateCentroidCostMapReduce.LOGGER);
+				itemWrapperFactory.initialize(
+						context,
+						UpdateCentroidCostMapReduce.class,
+						UpdateCentroidCostMapReduce.LOGGER);
 			}
 			catch (final Exception e1) {
 				throw new IOException(
@@ -172,14 +161,12 @@ public class UpdateCentroidCostMapReduce
 				expectation += value.getValue();
 				ptCount += value.getCount();
 			}
-			outputValue
-					.set(
-							expectation,
-							ptCount);
-			context
-					.write(
-							key,
-							outputValue);
+			outputValue.set(
+					expectation,
+					ptCount);
+			context.write(
+					key,
+					outputValue);
 		}
 	}
 
@@ -215,30 +202,22 @@ public class UpdateCentroidCostMapReduce
 						groupID);
 			}
 			catch (final MatchingCentroidNotFoundException e) {
-				LOGGER
-						.error(
-								"Unable to get centroid " + id + " for group " + groupID,
-								e);
+				LOGGER.error(
+						"Unable to get centroid " + id + " for group " + groupID,
+						e);
 				return;
 			}
 
-			centroid
-					.setCost(
-							sum);
+			centroid.setCost(sum);
 			centroid.resetAssociatonCount();
-			centroid
-					.incrementAssociationCount(
-							(long) count);
+			centroid.incrementAssociationCount((long) count);
 
-			UpdateCentroidCostMapReduce.LOGGER
-					.info(
-							"Update centroid " + centroid.toString());
-			context
-					.write(
-							new GeoWaveOutputKey(
-									centroidManager.getDataTypeName(),
-									indexNames),
-							centroid.getWrappedItem());
+			UpdateCentroidCostMapReduce.LOGGER.info("Update centroid " + centroid.toString());
+			context.write(
+					new GeoWaveOutputKey(
+							centroidManager.getDataTypeName(),
+							indexNames),
+					centroid.getWrappedItem());
 		}
 
 		private AnalyticItemWrapper<Object> getFeatureForCentroid(
@@ -246,10 +225,9 @@ public class UpdateCentroidCostMapReduce
 				final String groupID )
 				throws IOException,
 				MatchingCentroidNotFoundException {
-			return centroidManager
-					.getCentroidById(
-							id,
-							groupID);
+			return centroidManager.getCentroidById(
+					id,
+					groupID);
 		}
 
 		@Override
@@ -257,8 +235,7 @@ public class UpdateCentroidCostMapReduce
 				final Reducer<GroupIDText, CountofDoubleWritable, GeoWaveOutputKey, Object>.Context context )
 				throws IOException,
 				InterruptedException {
-			super.setup(
-					context);
+			super.setup(context);
 
 			try {
 				centroidManager = new CentroidManagerGeoWave<>(
@@ -271,10 +248,9 @@ public class UpdateCentroidCostMapReduce
 				};
 			}
 			catch (final Exception e) {
-				UpdateCentroidCostMapReduce.LOGGER
-						.warn(
-								"Unable to initialize centroid manager",
-								e);
+				UpdateCentroidCostMapReduce.LOGGER.warn(
+						"Unable to initialize centroid manager",
+						e);
 				throw new IOException(
 						"Unable to initialize centroid manager");
 			}

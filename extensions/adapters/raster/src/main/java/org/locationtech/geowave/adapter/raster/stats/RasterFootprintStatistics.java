@@ -32,9 +32,7 @@ import com.vividsolutions.jts.io.WKTWriter;
 public class RasterFootprintStatistics extends
 		AbstractDataStatistics<GridCoverage, Geometry, BaseStatisticsQueryBuilder<Geometry>>
 {
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					RasterFootprintStatistics.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RasterFootprintStatistics.class);
 	public static final BaseStatisticsType<Geometry> STATS_TYPE = new BaseStatisticsType<>(
 			"FOOTPRINT");
 	private Geometry footprint;
@@ -58,35 +56,26 @@ public class RasterFootprintStatistics extends
 			bytes = new byte[] {};
 		}
 		else {
-			bytes = new WKBWriter()
-					.write(
-							footprint);
+			bytes = new WKBWriter().write(footprint);
 		}
-		final ByteBuffer buf = super.binaryBuffer(
-				bytes.length);
-		buf
-				.put(
-						bytes);
+		final ByteBuffer buf = super.binaryBuffer(bytes.length);
+		buf.put(bytes);
 		return buf.array();
 	}
 
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {
-		final ByteBuffer buf = super.binaryBuffer(
-				bytes);
+		final ByteBuffer buf = super.binaryBuffer(bytes);
 		final byte[] payload = buf.array();
 		if (payload.length > 0) {
 			try {
-				footprint = new WKBReader()
-						.read(
-								payload);
+				footprint = new WKBReader().read(payload);
 			}
 			catch (final ParseException e) {
-				LOGGER
-						.warn(
-								"Unable to parse WKB",
-								e);
+				LOGGER.warn(
+						"Unable to parse WKB",
+						e);
 			}
 		}
 		else {
@@ -99,10 +88,9 @@ public class RasterFootprintStatistics extends
 			final GridCoverage entry,
 			final GeoWaveRow... geoWaveRows ) {
 		if (entry instanceof FitToIndexGridCoverage) {
-			footprint = RasterUtils
-					.combineIntoOneGeometry(
-							footprint,
-							((FitToIndexGridCoverage) entry).getFootprintWorldGeometry());
+			footprint = RasterUtils.combineIntoOneGeometry(
+					footprint,
+					((FitToIndexGridCoverage) entry).getFootprintWorldGeometry());
 		}
 	}
 
@@ -110,10 +98,9 @@ public class RasterFootprintStatistics extends
 	public void merge(
 			final Mergeable statistics ) {
 		if (statistics instanceof RasterFootprintStatistics) {
-			footprint = RasterUtils
-					.combineIntoOneGeometry(
-							footprint,
-							((RasterFootprintStatistics) statistics).footprint);
+			footprint = RasterUtils.combineIntoOneGeometry(
+					footprint,
+					((RasterFootprintStatistics) statistics).footprint);
 		}
 	}
 
@@ -129,8 +116,6 @@ public class RasterFootprintStatistics extends
 
 	@Override
 	protected Object resultsValue() {
-		return new WKTWriter()
-				.write(
-						footprint);
+		return new WKTWriter().write(footprint);
 	}
 }

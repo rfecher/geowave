@@ -116,7 +116,7 @@ public class FeatureBoundingBoxStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature, Envelope, FieldStatisticsQueryBuilder<Envelope>> clone() {
+	public InternalDataStatistics<SimpleFeature, Envelope, FieldStatisticsQueryBuilder<Envelope>> duplicate() {
 		return new FeatureBoundingBoxStatistics(
 				adapterId,
 				getFieldName(),

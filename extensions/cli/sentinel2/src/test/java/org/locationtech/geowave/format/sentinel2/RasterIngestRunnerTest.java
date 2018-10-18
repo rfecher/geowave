@@ -137,7 +137,8 @@ public class RasterIngestRunnerTest
 		runner.runInternal(params);
 
 		try (CloseableIterator<Object> results = getStore(
-				params).query(QueryBuilder.newBuilder().build())) {
+				params).query(
+				QueryBuilder.newBuilder().build())) {
 			assertTrue(
 					"Store is not empty",
 					results.hasNext());

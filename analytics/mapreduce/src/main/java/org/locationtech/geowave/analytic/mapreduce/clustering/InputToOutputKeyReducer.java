@@ -32,9 +32,7 @@ import org.slf4j.LoggerFactory;
 public class InputToOutputKeyReducer extends
 		GeoWaveWritableInputReducer<GeoWaveOutputKey, Object>
 {
-	protected static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					InputToOutputKeyReducer.class);
+	protected static final Logger LOGGER = LoggerFactory.getLogger(InputToOutputKeyReducer.class);
 
 	private GeoWaveOutputKey outputKey;
 	private InternalAdapterStore internalAdapterStore;
@@ -46,16 +44,11 @@ public class InputToOutputKeyReducer extends
 			final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveOutputKey, Object>.Context context )
 			throws IOException,
 			InterruptedException {
-		outputKey
-				.setTypeName(
-						internalAdapterStore
-								.getTypeName(
-										key.getInternalAdapterId()));
+		outputKey.setTypeName(internalAdapterStore.getTypeName(key.getInternalAdapterId()));
 		for (final Object value : values) {
-			context
-					.write(
-							outputKey,
-							value);
+			context.write(
+					outputKey,
+					value);
 		}
 	}
 
@@ -64,11 +57,8 @@ public class InputToOutputKeyReducer extends
 			final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveOutputKey, Object>.Context context )
 			throws IOException,
 			InterruptedException {
-		super.setup(
-				context);
-		internalAdapterStore = GeoWaveOutputFormat
-				.getJobContextInternalAdapterStore(
-						context);
+		super.setup(context);
+		internalAdapterStore = GeoWaveOutputFormat.getJobContextInternalAdapterStore(context);
 		final ScopedJobConfiguration config = new ScopedJobConfiguration(
 				context.getConfiguration(),
 				InputToOutputKeyReducer.class,
@@ -76,10 +66,9 @@ public class InputToOutputKeyReducer extends
 		outputKey = new GeoWaveOutputKey(
 				"na",
 				new String[] {
-					config
-							.getString(
-									OutputParameters.Output.INDEX_ID,
-									"na")
+					config.getString(
+							OutputParameters.Output.INDEX_ID,
+							"na")
 				});
 	}
 }

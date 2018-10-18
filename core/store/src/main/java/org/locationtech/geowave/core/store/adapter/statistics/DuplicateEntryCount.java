@@ -62,7 +62,7 @@ public class DuplicateEntryCount<T> extends
 	}
 
 	@Override
-	public InternalDataStatistics<T, Long, IndexStatisticsQueryBuilder<Long>> clone() {
+	public InternalDataStatistics<T, Long, IndexStatisticsQueryBuilder<Long>> duplicate() {
 		return new DuplicateEntryCount<>(
 				adapterId,
 				extendedId,

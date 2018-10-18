@@ -68,7 +68,7 @@ public class DifferingFieldVisibilityEntryCount<T> extends
 	}
 
 	@Override
-	public InternalDataStatistics<T, Long, IndexStatisticsQueryBuilder<Long>> clone() {
+	public InternalDataStatistics<T, Long, IndexStatisticsQueryBuilder<Long>> duplicate() {
 		return new DifferingFieldVisibilityEntryCount<>(
 				adapterId,
 				extendedId,

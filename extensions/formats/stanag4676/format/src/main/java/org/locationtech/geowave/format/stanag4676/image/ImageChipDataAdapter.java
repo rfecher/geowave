@@ -59,13 +59,10 @@ public class ImageChipDataAdapter implements
 	public ImageChip decode(
 			final IndexedAdapterPersistenceEncoding data,
 			final Index index ) {
-		return ImageChipUtils
-				.fromDataIdAndValue(
-						data.getDataId(),
-						(byte[]) data
-								.getAdapterExtendedData()
-								.getValue(
-										IMAGE_FIELD_NAME));
+		return ImageChipUtils.fromDataIdAndValue(
+				data.getDataId(),
+				(byte[]) data.getAdapterExtendedData().getValue(
+						IMAGE_FIELD_NAME));
 	}
 
 	@Override
@@ -73,10 +70,9 @@ public class ImageChipDataAdapter implements
 			final ImageChip entry,
 			final CommonIndexModel indexModel ) {
 		final Map<String, Object> fieldIdToValueMap = new HashMap<>();
-		fieldIdToValueMap
-				.put(
-						IMAGE_FIELD_NAME,
-						entry.getImageBinary());
+		fieldIdToValueMap.put(
+				IMAGE_FIELD_NAME,
+				entry.getImageBinary());
 		return new AdapterPersistenceEncoding(
 				entry.getDataId(),
 				new PersistentDataset<CommonIndexValue>(),
@@ -87,12 +83,8 @@ public class ImageChipDataAdapter implements
 	@Override
 	public FieldReader<Object> getReader(
 			final String fieldId ) {
-		if (IMAGE_FIELD_NAME
-				.equals(
-						fieldId)) {
-			return (FieldReader) FieldUtils
-					.getDefaultReaderForClass(
-							byte[].class);
+		if (IMAGE_FIELD_NAME.equals(fieldId)) {
+			return (FieldReader) FieldUtils.getDefaultReaderForClass(byte[].class);
 		}
 		return null;
 	}
@@ -109,19 +101,14 @@ public class ImageChipDataAdapter implements
 	@Override
 	public FieldWriter<ImageChip, Object> getWriter(
 			final String fieldId ) {
-		if (IMAGE_FIELD_NAME
-				.equals(
-						fieldId)) {
+		if (IMAGE_FIELD_NAME.equals(fieldId)) {
 			if (imageChipVisibilityHandler != null) {
-				return (FieldWriter) FieldUtils
-						.getDefaultWriterForClass(
-								byte[].class,
-								imageChipVisibilityHandler);
+				return (FieldWriter) FieldUtils.getDefaultWriterForClass(
+						byte[].class,
+						imageChipVisibilityHandler);
 			}
 			else {
-				return (FieldWriter) FieldUtils
-						.getDefaultWriterForClass(
-								byte[].class);
+				return (FieldWriter) FieldUtils.getDefaultWriterForClass(byte[].class);
 			}
 		}
 		return null;
@@ -133,16 +120,12 @@ public class ImageChipDataAdapter implements
 			final String fieldId ) {
 		int i = 0;
 		for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-			if (fieldId
-					.equals(
-							dimensionField.getFieldName())) {
+			if (fieldId.equals(dimensionField.getFieldName())) {
 				return i;
 			}
 			i++;
 		}
-		if (fieldId
-				.equals(
-						IMAGE_FIELD_NAME)) {
+		if (fieldId.equals(IMAGE_FIELD_NAME)) {
 			return i;
 		}
 		return -1;

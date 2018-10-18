@@ -100,7 +100,7 @@ public class FeatureFixedBinNumericStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature, FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> clone() {
+	public InternalDataStatistics<SimpleFeature, FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> duplicate() {
 		return new FeatureFixedBinNumericStatistics(
 				adapterId,
 				getFieldName());

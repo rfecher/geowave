@@ -50,14 +50,10 @@ public class WebMercatorRasterTest
 			NoSuchAuthorityCodeException,
 			FactoryException {
 
-		GeoWaveStoreFinder
-				.getRegisteredStoreFactoryFamilies()
-				.put(
-						"memory",
-						new MemoryStoreFactoryFamily());
-		final DataStore dataStore = GeoWaveStoreFinder
-				.createDataStore(
-						Collections.EMPTY_MAP);
+		GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put(
+				"memory",
+				new MemoryStoreFactoryFamily());
+		final DataStore dataStore = GeoWaveStoreFinder.createDataStore(Collections.EMPTY_MAP);
 		final int xTiles = 8;
 		final int yTiles = 8;
 		final double[] minsPerBand = new double[] {
@@ -75,85 +71,66 @@ public class WebMercatorRasterTest
 			"b2",
 			"b3"
 		};
-		final RasterDataAdapter adapter = RasterUtils
-				.createDataAdapterTypeDouble(
-						"test",
-						3,
-						64,
-						minsPerBand,
-						maxesPerBand,
-						namesPerBand,
-						new NoDataMergeStrategy());
-		final Index index = new SpatialIndexBuilder()
-				.setCrs(
-						CRS_STR) // 3857
+		final RasterDataAdapter adapter = RasterUtils.createDataAdapterTypeDouble(
+				"test",
+				3,
+				64,
+				minsPerBand,
+				maxesPerBand,
+				namesPerBand,
+				new NoDataMergeStrategy());
+		final Index index = new SpatialIndexBuilder().setCrs(
+				CRS_STR) // 3857
 				.createIndex();
-		double bounds = CRS
-				.decode(
-						CRS_STR)
-				.getCoordinateSystem()
-				.getAxis(
-						0)
-				.getMaximumValue();
-		if (!Double
-				.isFinite(
-						bounds)) {
+		double bounds = CRS.decode(
+				CRS_STR).getCoordinateSystem().getAxis(
+				0).getMaximumValue();
+		if (!Double.isFinite(bounds)) {
 			bounds = SpatialDimensionalityTypeProvider.DEFAULT_UNBOUNDED_CRS_INTERVAL;
 		}
 		bounds /= 32.0;
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						index);
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				index);
 		for (double xTile = 0; xTile < xTiles; xTile++) {
 			for (double yTile = 0; yTile < yTiles; yTile++) {
-				try (Writer<GridCoverage> writer = dataStore
-						.createWriter(
-								adapter.getTypeName())) {
-					final WritableRaster raster = RasterUtils
-							.createRasterTypeDouble(
-									3,
-									64);
-					RasterUtils
-							.fillWithNoDataValues(
-									raster,
-									new double[][] {
-										{
-											(xTile * 3) + (yTile * 24)
-										},
-										{
-											(xTile * 3) + (yTile * 24) + 1
-										},
-										{
-											(xTile * 3) + (yTile * 24) + 2
-										}
-									});
-					writer
-							.write(
-									RasterUtils
-											.createCoverageTypeDouble(
-													"test",
-													xTile * bounds,
-													(xTile + 1) * bounds,
-													yTile * bounds,
-													(yTile + 1) * bounds,
-													minsPerBand,
-													maxesPerBand,
-													namesPerBand,
-													raster,
-													CRS_STR));
+				try (Writer<GridCoverage> writer = dataStore.createWriter(adapter.getTypeName())) {
+					final WritableRaster raster = RasterUtils.createRasterTypeDouble(
+							3,
+							64);
+					RasterUtils.fillWithNoDataValues(
+							raster,
+							new double[][] {
+								{
+									(xTile * 3) + (yTile * 24)
+								},
+								{
+									(xTile * 3) + (yTile * 24) + 1
+								},
+								{
+									(xTile * 3) + (yTile * 24) + 2
+								}
+							});
+					writer.write(RasterUtils.createCoverageTypeDouble(
+							"test",
+							xTile * bounds,
+							(xTile + 1) * bounds,
+							yTile * bounds,
+							(yTile + 1) * bounds,
+							minsPerBand,
+							maxesPerBand,
+							namesPerBand,
+							raster,
+							CRS_STR));
 				}
 			}
 		}
 		final int grid[][] = new int[8][8];
 		final GeoWaveRasterReader reader = new GeoWaveRasterReader(
-				GeoWaveRasterConfig
-						.createConfig(
-								Collections.EMPTY_MAP,
-								""));
+				GeoWaveRasterConfig.createConfig(
+						Collections.EMPTY_MAP,
+						""));
 		for (int xTile = 1; xTile < xTiles; xTile++) {
 			for (int yTile = 1; yTile < yTiles; yTile++) {
 				final GeneralEnvelope queryEnvelope = new GeneralEnvelope(
@@ -172,43 +149,34 @@ public class WebMercatorRasterTest
 							(xTile + (15 / 64.0)) * bounds,
 							(yTile + (15 / 64.0)) * bounds
 						});
-				queryEnvelope
-						.setCoordinateReferenceSystem(
-								CRS
-										.decode(
-												CRS_STR));
-				final GridCoverage gridCoverage = reader
-						.renderGridCoverage(
-								"test",
-								new Rectangle(
-										32,
-										32),
-								queryEnvelope,
-								null,
-								null,
-								null);
+				queryEnvelope.setCoordinateReferenceSystem(CRS.decode(CRS_STR));
+				final GridCoverage gridCoverage = reader.renderGridCoverage(
+						"test",
+						new Rectangle(
+								32,
+								32),
+						queryEnvelope,
+						null,
+						null,
+						null);
 				final Raster img = gridCoverage.getRenderedImage().getData();
 
-				grid[xTile - 1][yTile - 1] = img
-						.getSample(
-								0,
-								16,
-								0);
-				grid[xTile - 1][yTile] = img
-						.getSample(
-								0,
-								0,
-								0);
-				grid[xTile][yTile - 1] = img
-						.getSample(
-								16,
-								16,
-								0);
-				grid[xTile][yTile] = img
-						.getSample(
-								16,
-								0,
-								0);
+				grid[xTile - 1][yTile - 1] = img.getSample(
+						0,
+						16,
+						0);
+				grid[xTile - 1][yTile] = img.getSample(
+						0,
+						0,
+						0);
+				grid[xTile][yTile - 1] = img.getSample(
+						16,
+						16,
+						0);
+				grid[xTile][yTile] = img.getSample(
+						16,
+						0,
+						0);
 
 				final double expectedMinXMinYValue = ((xTile - 1) * 3) + ((yTile - 1) * 24);
 				final double expectedMinXMaxYValue = ((xTile - 1) * 3) + (yTile * 24);
@@ -235,21 +203,18 @@ public class WebMercatorRasterTest
 							}
 							expectedValue += b;
 
-							Assert
-									.assertEquals(
-											String
-													.format(
-															"Value didn't match expected at x=%d;y=%d;b=%d",
-															x,
-															y,
-															b),
-											expectedValue,
-											img
-													.getSample(
-															x,
-															y,
-															b),
-											FloatCompareUtils.COMP_EPSILON);
+							Assert.assertEquals(
+									String.format(
+											"Value didn't match expected at x=%d;y=%d;b=%d",
+											x,
+											y,
+											b),
+									expectedValue,
+									img.getSample(
+											x,
+											y,
+											b),
+									FloatCompareUtils.COMP_EPSILON);
 						}
 					}
 				}

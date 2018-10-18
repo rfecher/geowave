@@ -41,8 +41,7 @@ public class OSMRelationMapper extends
 		final Primitive p = relation.getCommon();
 
 		final Mutation m = new Mutation(
-				getIdHash(
-						p.getId()));
+				getIdHash(p.getId()));
 		// Mutation m = new Mutation(_longWriter.writeField(p.getId()));
 		// Mutation m = new Mutation(p.getId().toString());
 
@@ -57,35 +56,30 @@ public class OSMRelationMapper extends
 			put(
 					m,
 					ColumnFamily.RELATION,
-					ColumnQualifier
-							.getRelationMember(
-									ColumnQualifier.REFERENCE_ROLEID_PREFIX,
-									i),
+					ColumnQualifier.getRelationMember(
+							ColumnQualifier.REFERENCE_ROLEID_PREFIX,
+							i),
 					rm.getRole());
 			put(
 					m,
 					ColumnFamily.RELATION,
-					ColumnQualifier
-							.getRelationMember(
-									ColumnQualifier.REFERENCE_MEMID_PREFIX,
-									i),
+					ColumnQualifier.getRelationMember(
+							ColumnQualifier.REFERENCE_MEMID_PREFIX,
+							i),
 					rm.getMember());
 			put(
 					m,
 					ColumnFamily.RELATION,
-					ColumnQualifier
-							.getRelationMember(
-									ColumnQualifier.REFERENCE_TYPE_PREFIX,
-									i),
+					ColumnQualifier.getRelationMember(
+							ColumnQualifier.REFERENCE_TYPE_PREFIX,
+							i),
 					rm.getMemberType().toString());
 			i++;
 		}
 
-		if (!Long
-				.valueOf(
-						0)
-				.equals(
-						p.getVersion())) {
+		if (!Long.valueOf(
+				0).equals(
+				p.getVersion())) {
 			put(
 					m,
 					ColumnFamily.RELATION,
@@ -93,11 +87,9 @@ public class OSMRelationMapper extends
 					p.getVersion());
 		}
 
-		if (!Long
-				.valueOf(
-						0)
-				.equals(
-						p.getTimestamp())) {
+		if (!Long.valueOf(
+				0).equals(
+				p.getTimestamp())) {
 			put(
 					m,
 					ColumnFamily.RELATION,
@@ -105,11 +97,9 @@ public class OSMRelationMapper extends
 					p.getTimestamp());
 		}
 
-		if (!Long
-				.valueOf(
-						0)
-				.equals(
-						p.getChangesetId())) {
+		if (!Long.valueOf(
+				0).equals(
+				p.getChangesetId())) {
 			put(
 					m,
 					ColumnFamily.RELATION,
@@ -117,11 +107,9 @@ public class OSMRelationMapper extends
 					p.getChangesetId());
 		}
 
-		if (!Long
-				.valueOf(
-						0)
-				.equals(
-						p.getUserId())) {
+		if (!Long.valueOf(
+				0).equals(
+				p.getUserId())) {
 			put(
 					m,
 					ColumnFamily.RELATION,
@@ -148,10 +136,9 @@ public class OSMRelationMapper extends
 					kvp.getValue().toString());
 		}
 
-		context
-				.write(
-						_tableName,
-						m);
+		context.write(
+				_tableName,
+				m);
 
 	}
 }

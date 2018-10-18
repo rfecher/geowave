@@ -39,8 +39,7 @@ public class TestObjectDataAdapter extends
 {
 	private static final String GEOM = "myGeo";
 	private static final String ID = "myId";
-	private static final String GROUP_ID =
-			"myGroupId";
+	private static final String GROUP_ID = "myGroupId";
 
 	private static final PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object> GEOM_FIELD_HANDLER = new PersistentIndexFieldHandler<TestObject, CommonIndexValue, Object>() {
 
@@ -112,15 +111,9 @@ public class TestObjectDataAdapter extends
 	private static final List<NativeFieldHandler<TestObject, Object>> NATIVE_FIELD_HANDLER_LIST = new ArrayList<>();
 	private static final List<PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object>> COMMON_FIELD_HANDLER_LIST = new ArrayList<>();
 	static {
-		COMMON_FIELD_HANDLER_LIST
-				.add(
-						GEOM_FIELD_HANDLER);
-		NATIVE_FIELD_HANDLER_LIST
-				.add(
-						ID_FIELD_HANDLER);
-		NATIVE_FIELD_HANDLER_LIST
-				.add(
-						GROUP_ID_FIELD_HANDLER);
+		COMMON_FIELD_HANDLER_LIST.add(GEOM_FIELD_HANDLER);
+		NATIVE_FIELD_HANDLER_LIST.add(ID_FIELD_HANDLER);
+		NATIVE_FIELD_HANDLER_LIST.add(GROUP_ID_FIELD_HANDLER);
 	}
 
 	public TestObjectDataAdapter() {
@@ -144,26 +137,14 @@ public class TestObjectDataAdapter extends
 	@Override
 	public FieldReader getReader(
 			final String fieldId ) {
-		if (fieldId
-				.equals(
-						GEOM)) {
-			return FieldUtils
-					.getDefaultReaderForClass(
-							Geometry.class);
+		if (fieldId.equals(GEOM)) {
+			return FieldUtils.getDefaultReaderForClass(Geometry.class);
 		}
-		else if (fieldId
-				.equals(
-						ID)) {
-			return FieldUtils
-					.getDefaultReaderForClass(
-							String.class);
+		else if (fieldId.equals(ID)) {
+			return FieldUtils.getDefaultReaderForClass(String.class);
 		}
-		else if (fieldId
-				.equals(
-						GROUP_ID)) {
-			return FieldUtils
-					.getDefaultReaderForClass(
-							String.class);
+		else if (fieldId.equals(GROUP_ID)) {
+			return FieldUtils.getDefaultReaderForClass(String.class);
 		}
 		return null;
 	}
@@ -171,26 +152,14 @@ public class TestObjectDataAdapter extends
 	@Override
 	public FieldWriter getWriter(
 			final String fieldId ) {
-		if (fieldId
-				.equals(
-						GEOM)) {
-			return FieldUtils
-					.getDefaultWriterForClass(
-							Geometry.class);
+		if (fieldId.equals(GEOM)) {
+			return FieldUtils.getDefaultWriterForClass(Geometry.class);
 		}
-		else if (fieldId
-				.equals(
-						ID)) {
-			return FieldUtils
-					.getDefaultWriterForClass(
-							String.class);
+		else if (fieldId.equals(ID)) {
+			return FieldUtils.getDefaultWriterForClass(String.class);
 		}
-		else if (fieldId
-				.equals(
-						GROUP_ID)) {
-			return FieldUtils
-					.getDefaultWriterForClass(
-							String.class);
+		else if (fieldId.equals(GROUP_ID)) {
+			return FieldUtils.getDefaultWriterForClass(String.class);
 		}
 		return null;
 	}
@@ -206,19 +175,13 @@ public class TestObjectDataAdapter extends
 			public void setField(
 					final String id,
 					final Object fieldValue ) {
-				if (id
-						.equals(
-								GEOM)) {
+				if (id.equals(GEOM)) {
 					geom = (Geometry) fieldValue;
 				}
-				else if (id
-						.equals(
-								ID)) {
+				else if (id.equals(ID)) {
 					this.id = (String) fieldValue;
 				}
-				else if (id
-						.equals(
-								GROUP_ID)) {
+				else if (id.equals(GROUP_ID)) {
 					groupID = (String) fieldValue;
 				}
 			}
@@ -226,26 +189,14 @@ public class TestObjectDataAdapter extends
 			@Override
 			public void setFields(
 					final Map<String, Object> values ) {
-				if (values
-						.containsKey(
-								GEOM)) {
-					geom = (Geometry) values
-							.get(
-									GEOM);
+				if (values.containsKey(GEOM)) {
+					geom = (Geometry) values.get(GEOM);
 				}
-				if (values
-						.containsKey(
-								ID)) {
-					id = (String) values
-							.get(
-									ID);
+				if (values.containsKey(ID)) {
+					id = (String) values.get(ID);
 				}
-				if (values
-						.containsKey(
-								GROUP_ID)) {
-					groupID = (String) values
-							.get(
-									GROUP_ID);
+				if (values.containsKey(GROUP_ID)) {
+					groupID = (String) values.get(GROUP_ID);
 				}
 			}
 
@@ -290,26 +241,18 @@ public class TestObjectDataAdapter extends
 			final String fieldId ) {
 		int i = 0;
 		for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-			if (fieldId
-					.equals(
-							dimensionField.getFieldName())) {
+			if (fieldId.equals(dimensionField.getFieldName())) {
 				return i;
 			}
 			i++;
 		}
-		if (fieldId
-				.equals(
-						GEOM)) {
+		if (fieldId.equals(GEOM)) {
 			return i;
 		}
-		else if (fieldId
-				.equals(
-						ID)) {
+		else if (fieldId.equals(ID)) {
 			return i + 1;
 		}
-		else if (fieldId
-				.equals(
-						GROUP_ID)) {
+		else if (fieldId.equals(GROUP_ID)) {
 			return i + 2;
 		}
 		return -1;

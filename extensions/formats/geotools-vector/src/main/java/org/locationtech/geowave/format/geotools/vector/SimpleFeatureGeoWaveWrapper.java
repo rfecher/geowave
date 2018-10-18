@@ -38,9 +38,7 @@ import org.slf4j.LoggerFactory;
 public class SimpleFeatureGeoWaveWrapper implements
 		CloseableIterator<GeoWaveData<SimpleFeature>>
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					SimpleFeatureGeoWaveWrapper.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(SimpleFeatureGeoWaveWrapper.class);
 
 	private class InternalIterator implements
 			CloseableIterator<GeoWaveData<SimpleFeature>>
@@ -59,13 +57,9 @@ public class SimpleFeatureGeoWaveWrapper implements
 			this.filter = filter;
 			featureIterator = featureCollection.features();
 			final SimpleFeatureType originalSchema = featureCollection.getSchema();
-			SimpleFeatureType retypedSchema = SimpleFeatureUserDataConfigurationSet
-					.configureType(
-							originalSchema);
+			SimpleFeatureType retypedSchema = SimpleFeatureUserDataConfigurationSet.configureType(originalSchema);
 			if (retypingPlugin != null) {
-				source = retypingPlugin
-						.getRetypingSource(
-								originalSchema);
+				source = retypingPlugin.getRetypingSource(originalSchema);
 				if (source != null) {
 					retypedSchema = source.getRetypedSimpleFeatureType();
 					builder = new SimpleFeatureBuilder(
@@ -114,15 +108,12 @@ public class SimpleFeatureGeoWaveWrapper implements
 				}
 				nextAcceptedFeature = featureIterator.next();
 				if (builder != null) {
-					nextAcceptedFeature = source
-							.getRetypedSimpleFeature(
-									builder,
-									nextAcceptedFeature);
+					nextAcceptedFeature = source.getRetypedSimpleFeature(
+							builder,
+							nextAcceptedFeature);
 				}
 			}
-			while (!filter
-					.evaluate(
-							nextAcceptedFeature));
+			while (!filter.evaluate(nextAcceptedFeature));
 			currentData = new GeoWaveData<>(
 					dataAdapter,
 					indexNames,

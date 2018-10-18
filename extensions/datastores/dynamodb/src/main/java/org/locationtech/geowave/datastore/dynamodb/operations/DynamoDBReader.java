@@ -100,9 +100,7 @@ public class DynamoDBReader<T> implements
 			final String[] authorizations,
 			final BaseReaderParams<T> params ) {
 		visibilityFilter = new ClientVisibilityFilter(
-				Sets
-						.newHashSet(
-								authorizations));
+				Sets.newHashSet(authorizations));
 	}
 
 	protected void initScanner() {
@@ -148,16 +146,12 @@ public class DynamoDBReader<T> implements
 	}
 
 	protected void initRecordScanner() {
-		final String tableName = operations
-				.getQualifiedTableName(
-						recordReaderParams.getIndex().getName());
+		final String tableName = operations.getQualifiedTableName(recordReaderParams.getIndex().getName());
 
 		final ArrayList<Short> adapterIds = Lists.newArrayList();
 		if ((recordReaderParams.getAdapterIds() != null) && (recordReaderParams.getAdapterIds().length > 0)) {
 			for (final Short adapterId : recordReaderParams.getAdapterIds()) {
-				adapterIds
-						.add(
-								adapterId);
+				adapterIds.add(adapterId);
 			}
 		}
 
@@ -165,21 +159,17 @@ public class DynamoDBReader<T> implements
 
 		final GeoWaveRowRange range = recordReaderParams.getRowRange();
 		for (final Short adapterId : adapterIds) {
-			final ByteArrayId startKey = range.isInfiniteStartSortKey() ? null
-					: new ByteArrayId(
-							range.getStartSortKey());
-			final ByteArrayId stopKey = range.isInfiniteStopSortKey() ? null
-					: new ByteArrayId(
-							range.getEndSortKey());
-			requests
-					.add(
-							getQuery(
-									tableName,
-									range.getPartitionKey(),
-									new ByteArrayRange(
-											startKey,
-											stopKey),
-									adapterId));
+			final ByteArrayId startKey = range.isInfiniteStartSortKey() ? null : new ByteArrayId(
+					range.getStartSortKey());
+			final ByteArrayId stopKey = range.isInfiniteStopSortKey() ? null : new ByteArrayId(
+					range.getEndSortKey());
+			requests.add(getQuery(
+					tableName,
+					range.getPartitionKey(),
+					new ByteArrayRange(
+							startKey,
+							stopKey),
+					adapterId));
 		}
 		startRead(
 				requests,
@@ -338,32 +328,17 @@ public class DynamoDBReader<T> implements
 			final QueryRequest singleAdapterQuery = new QueryRequest(
 					tableName);
 
-			final byte[] start = ByteArrayUtils
-					.shortToByteArray(
-							internalAdapterId);
+			final byte[] start = ByteArrayUtils.shortToByteArray(internalAdapterId);
 			final byte[] end = new ByteArrayId(
 					start).getNextPrefix();
-			singleAdapterQuery
-					.addKeyConditionsEntry(
-							DynamoDBRow.GW_RANGE_KEY,
-							new Condition()
-									.withComparisonOperator(
-											ComparisonOperator.BETWEEN)
-									.withAttributeValueList(
-											new AttributeValue()
-													.withB(
-															ByteBuffer
-																	.wrap(
-																			start)),
-											new AttributeValue()
-													.withB(
-															ByteBuffer
-																	.wrap(
-																			end))));
+			singleAdapterQuery.addKeyConditionsEntry(
+					DynamoDBRow.GW_RANGE_KEY,
+					new Condition().withComparisonOperator(
+							ComparisonOperator.BETWEEN).withAttributeValueList(
+							new AttributeValue().withB(ByteBuffer.wrap(start)),
+							new AttributeValue().withB(ByteBuffer.wrap(end))));
 
-			allQueries
-					.add(
-							singleAdapterQuery);
+			allQueries.add(singleAdapterQuery);
 		}
 
 		return allQueries;
@@ -377,93 +352,49 @@ public class DynamoDBReader<T> implements
 		final byte[] start;
 		final byte[] end;
 		final QueryRequest query = new QueryRequest(
-				tableName)
-						.addKeyConditionsEntry(
-								DynamoDBRow.GW_PARTITION_ID_KEY,
-								new Condition()
-										.withComparisonOperator(
-												ComparisonOperator.EQ)
-										.withAttributeValueList(
-												new AttributeValue()
-														.withB(
-																ByteBuffer
-																		.wrap(
-																				partitionId))));
+				tableName).addKeyConditionsEntry(
+				DynamoDBRow.GW_PARTITION_ID_KEY,
+				new Condition().withComparisonOperator(
+						ComparisonOperator.EQ).withAttributeValueList(
+						new AttributeValue().withB(ByteBuffer.wrap(partitionId))));
 		if (sortRange == null) {
-			start = ByteArrayUtils
-					.shortToByteArray(
-							internalAdapterId);
+			start = ByteArrayUtils.shortToByteArray(internalAdapterId);
 			end = new ByteArrayId(
 					start).getNextPrefix();
 		}
 		else if (sortRange.isSingleValue()) {
-			start = ByteArrayUtils
-					.combineArrays(
-							ByteArrayUtils
-									.shortToByteArray(
-											internalAdapterId),
-							DynamoDBUtils
-									.encodeSortableBase64(
-											sortRange.getStart().getBytes()));
-			end = ByteArrayUtils
-					.combineArrays(
-							ByteArrayUtils
-									.shortToByteArray(
-											internalAdapterId),
-							DynamoDBUtils
-									.encodeSortableBase64(
-											sortRange.getStart().getNextPrefix()));
+			start = ByteArrayUtils.combineArrays(
+					ByteArrayUtils.shortToByteArray(internalAdapterId),
+					DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getBytes()));
+			end = ByteArrayUtils.combineArrays(
+					ByteArrayUtils.shortToByteArray(internalAdapterId),
+					DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getNextPrefix()));
 		}
 		else {
 			if (sortRange.getStart() == null) {
-				start = ByteArrayUtils
-						.shortToByteArray(
-								internalAdapterId);
+				start = ByteArrayUtils.shortToByteArray(internalAdapterId);
 			}
 			else {
-				start = ByteArrayUtils
-						.combineArrays(
-								ByteArrayUtils
-										.shortToByteArray(
-												internalAdapterId),
-								DynamoDBUtils
-										.encodeSortableBase64(
-												sortRange.getStart().getBytes()));
+				start = ByteArrayUtils.combineArrays(
+						ByteArrayUtils.shortToByteArray(internalAdapterId),
+						DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getBytes()));
 			}
 			if (sortRange.getEnd() == null) {
 				end = new ByteArrayId(
-						ByteArrayUtils
-								.shortToByteArray(
-										internalAdapterId)).getNextPrefix();
+						ByteArrayUtils.shortToByteArray(internalAdapterId)).getNextPrefix();
 			}
 			else {
-				end = ByteArrayUtils
-						.combineArrays(
-								ByteArrayUtils
-										.shortToByteArray(
-												internalAdapterId),
-								DynamoDBUtils
-										.encodeSortableBase64(
-												sortRange.getEndAsNextPrefix().getBytes()));
+				end = ByteArrayUtils.combineArrays(
+						ByteArrayUtils.shortToByteArray(internalAdapterId),
+						DynamoDBUtils.encodeSortableBase64(sortRange.getEndAsNextPrefix().getBytes()));
 			}
 		}
-		query
-				.addKeyConditionsEntry(
-						DynamoDBRow.GW_RANGE_KEY,
-						new Condition()
-								.withComparisonOperator(
-										ComparisonOperator.BETWEEN)
-								.withAttributeValueList(
-										new AttributeValue()
-												.withB(
-														ByteBuffer
-																.wrap(
-																		start)),
-										new AttributeValue()
-												.withB(
-														ByteBuffer
-																.wrap(
-																		end))));
+		query.addKeyConditionsEntry(
+				DynamoDBRow.GW_RANGE_KEY,
+				new Condition().withComparisonOperator(
+						ComparisonOperator.BETWEEN).withAttributeValueList(
+						new AttributeValue().withB(ByteBuffer.wrap(start)),
+						new AttributeValue().withB(ByteBuffer.wrap(end))));
 		return query;
 	}
 
@@ -509,10 +440,8 @@ public class DynamoDBReader<T> implements
 
 	private Iterator<Map<String, AttributeValue>> executeQueryRequest(
 			final QueryRequest queryRequest ) {
-		final QueryResult result = operations
-				.getClient()
-				.query(
-						queryRequest);
+		final QueryResult result = operations.getClient().query(
+				queryRequest);
 		return new LazyPaginatedQuery(
 				result,
 				queryRequest,

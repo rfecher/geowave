@@ -32,14 +32,10 @@ public class TDRIVEIngestTest
 	@Before
 	public void setup() {
 		optionsProvider = new DataSchemaOptionProvider();
-		optionsProvider
-				.setSupplementalFields(
-						true);
+		optionsProvider.setSupplementalFields(true);
 
 		ingester = new TdriveIngestPlugin();
-		ingester
-				.init(
-						null);
+		ingester.init(null);
 
 		filePath = "9879.txt";
 		expectedCount = 232;
@@ -49,33 +45,24 @@ public class TDRIVEIngestTest
 	public void testIngest()
 			throws IOException {
 
-		final URL toIngest = this
-				.getClass()
-				.getClassLoader()
-				.getResource(
-						filePath);
+		final URL toIngest = this.getClass().getClassLoader().getResource(
+				filePath);
 
-		assertTrue(
-				TdriveUtils
-						.validate(
-								toIngest));
-		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester
-				.toGeoWaveData(
-						toIngest,
-						new String[] {
-							"123"
-						},
-						"");
+		assertTrue(TdriveUtils.validate(toIngest));
+		final CloseableIterator<GeoWaveData<SimpleFeature>> features = ingester.toGeoWaveData(
+				toIngest,
+				new String[] {
+					"123"
+				},
+				"");
 
-		assertTrue(
-				(features != null) && features.hasNext());
+		assertTrue((features != null) && features.hasNext());
 
 		int featureCount = 0;
 		while (features.hasNext()) {
 			final GeoWaveData<SimpleFeature> feature = features.next();
 
-			if (isValidTDRIVEFeature(
-					feature)) {
+			if (isValidTDRIVEFeature(feature)) {
 				featureCount++;
 			}
 		}
@@ -83,41 +70,21 @@ public class TDRIVEIngestTest
 
 		final boolean readExpectedCount = (featureCount == expectedCount);
 		if (!readExpectedCount) {
-			System.out
-					.println(
-							"Expected " + expectedCount + " features, ingested " + featureCount);
+			System.out.println("Expected " + expectedCount + " features, ingested " + featureCount);
 		}
 
-		assertTrue(
-				readExpectedCount);
+		assertTrue(readExpectedCount);
 	}
 
 	private boolean isValidTDRIVEFeature(
 			final GeoWaveData<SimpleFeature> feature ) {
-		if ((feature
-				.getValue()
-				.getAttribute(
-						"geometry") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"taxiid") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"pointinstance") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"Timestamp") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"Latitude") == null)
-				|| (feature
-						.getValue()
-						.getAttribute(
-								"Longitude") == null)) {
+		if ((feature.getValue().getAttribute(
+				"geometry") == null) || (feature.getValue().getAttribute(
+				"taxiid") == null) || (feature.getValue().getAttribute(
+				"pointinstance") == null) || (feature.getValue().getAttribute(
+				"Timestamp") == null) || (feature.getValue().getAttribute(
+				"Latitude") == null) || (feature.getValue().getAttribute(
+				"Longitude") == null)) {
 			return false;
 		}
 		return true;

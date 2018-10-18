@@ -83,9 +83,7 @@ public class CassandraDataStore extends
 				options,
 				internalAdapterStore);
 
-		secondaryIndexDataStore
-				.setDataStore(
-						this);
+		secondaryIndexDataStore.setDataStore(this);
 	}
 
 	@Override
@@ -94,10 +92,9 @@ public class CassandraDataStore extends
 		// because datastax cassandra driver requires guava 19.0, this user
 		// classpath must override the default hadoop classpath which has an old
 		// version of guava or there will be incompatibility issues
-		conf
-				.setBoolean(
-						MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,
-						true);
+		conf.setBoolean(
+				MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,
+				true);
 	}
 
 	@Override
@@ -116,11 +113,9 @@ public class CassandraDataStore extends
 			final Integer maxSplits )
 			throws IOException,
 			InterruptedException {
-		context
-				.getConfiguration()
-				.setBoolean(
-						MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,
-						true);
+		context.getConfiguration().setBoolean(
+				MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,
+				true);
 		return super.getSplits(
 				commonOptions,
 				typeOptions,

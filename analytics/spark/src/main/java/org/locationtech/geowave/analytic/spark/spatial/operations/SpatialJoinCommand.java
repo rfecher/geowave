@@ -131,25 +131,21 @@ public class SpatialJoinCommand extends
 		// set DataStore options for runner
 		runner.setLeftStore(leftDataStore);
 		if (spatialJoinOptions.getLeftAdapterTypeName() != null) {
-			runner.setLeftAdapterTypeName(
-					spatialJoinOptions.getLeftAdapterTypeName());
+			runner.setLeftAdapterTypeName(spatialJoinOptions.getLeftAdapterTypeName());
 		}
 
 		runner.setRightStore(rightDataStore);
 		if (spatialJoinOptions.getRightAdapterTypeName() != null) {
-			runner.setRightAdapterTypeName(
-					spatialJoinOptions.getRightAdapterTypeName());
+			runner.setRightAdapterTypeName(spatialJoinOptions.getRightAdapterTypeName());
 		}
 
 		runner.setOutputStore(outputDataStore);
 		if (spatialJoinOptions.getOutputLeftAdapterTypeName() != null) {
-			runner.setOutputLeftAdapterTypeName(
-					spatialJoinOptions.getOutputLeftAdapterTypeName());
+			runner.setOutputLeftAdapterTypeName(spatialJoinOptions.getOutputLeftAdapterTypeName());
 		}
 
 		if (spatialJoinOptions.getOutputRightAdapterTypeName() != null) {
-			runner.setOutputRightAdapterTypeName(
-					spatialJoinOptions.getOutputRightAdapterTypeName());
+			runner.setOutputRightAdapterTypeName(spatialJoinOptions.getOutputRightAdapterTypeName());
 		}
 
 		// Finally call run to execute the join

@@ -29,9 +29,7 @@ import com.beust.jcommander.Parameters;
 public class CQLQuery extends
 		AbstractGeoWaveQuery
 {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					CQLQuery.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(CQLQuery.class);
 
 	@Parameter(names = "--cql", required = true, description = "CQL Filter executed client side")
 	private String cqlStr;
@@ -57,42 +55,25 @@ public class CQLQuery extends
 							typeName)
 					.indexName(
 							indexName);
-			final Long countResult = dataStore
-					.aggregate(
-							bldr
-									.constraints(
-											bldr
-													.constraintsFactory()
-													.cqlConstraints(
-															cqlStr))
-									.build());
+			final Long countResult = dataStore.aggregate(bldr.constraints(
+					bldr.constraintsFactory().cqlConstraints(
+							cqlStr)).build());
 			if (countResult != null) {
 				count += countResult;
 			}
 			return count;
 		}
 		else {
-			final VectorQueryBuilder bldr = VectorQueryBuilder
-					.newBuilder()
-					.addTypeName(
-							typeName)
-					.indexName(
-							indexName);
+			final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder().addTypeName(
+					typeName).indexName(
+					indexName);
 
-			try (final CloseableIterator<SimpleFeature> it = dataStore
-					.query(
-							bldr
-									.constraints(
-											bldr
-													.constraintsFactory()
-													.cqlConstraints(
-															cqlStr))
-									.build())) {
+			try (final CloseableIterator<SimpleFeature> it = dataStore.query(bldr.constraints(
+					bldr.constraintsFactory().cqlConstraints(
+							cqlStr)).build())) {
 				while (it.hasNext()) {
 					if (debug) {
-						System.out
-								.println(
-										it.next());
+						System.out.println(it.next());
 					}
 					else {
 						it.next();

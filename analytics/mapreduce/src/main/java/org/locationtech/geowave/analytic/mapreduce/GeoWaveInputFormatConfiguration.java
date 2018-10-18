@@ -46,90 +46,72 @@ public class GeoWaveInputFormatConfiguration implements
 			final Configuration configuration )
 			throws Exception {
 		final DataStorePluginOptions dataStoreOptions = ((PersistableStore) runTimeProperties
-				.getProperty(
-						StoreParam.INPUT_STORE)).getDataStoreOptions();
-		GeoWaveInputFormat
-				.setStoreOptions(
-						configuration,
-						dataStoreOptions);
+				.getProperty(StoreParam.INPUT_STORE)).getDataStoreOptions();
+		GeoWaveInputFormat.setStoreOptions(
+				configuration,
+				dataStoreOptions);
 
-		final Query<?> query = runTimeProperties
-				.getPropertyAsQuery(
-						ExtractParameters.Extract.QUERY);
+		final Query<?> query = runTimeProperties.getPropertyAsQuery(ExtractParameters.Extract.QUERY);
 
 		if (query != null) {
-			if ((query.getQueryConstraints() != null)
-					&& (query.getQueryConstraints() instanceof QueryConstraints)) {
-				GeoWaveInputFormat
-						.setQueryConstraints(
-								configuration,
-								(QueryConstraints) query.getQueryConstraints());
+			if (query.getQueryConstraints() != null) {
+				GeoWaveInputFormat.setQueryConstraints(
+						configuration,
+						(QueryConstraints) query.getQueryConstraints());
 			}
 
 			if (query.getCommonQueryOptions() != null) {
-				GeoWaveInputFormat
-						.setCommonQueryOptions(
-								configuration,
-								query.getCommonQueryOptions());
+				GeoWaveInputFormat.setCommonQueryOptions(
+						configuration,
+						query.getCommonQueryOptions());
 			}
 
 			if (query.getDataTypeQueryOptions() != null) {
-				GeoWaveInputFormat
-						.setDataTypeQueryOptions(
-								configuration,
-								query.getDataTypeQueryOptions(),
-								dataStoreOptions.createAdapterStore(),
-								dataStoreOptions.createInternalAdapterStore());
+				GeoWaveInputFormat.setDataTypeQueryOptions(
+						configuration,
+						query.getDataTypeQueryOptions(),
+						dataStoreOptions.createAdapterStore(),
+						dataStoreOptions.createInternalAdapterStore());
 			}
 
 			if (query.getIndexQueryOptions() != null) {
-				GeoWaveInputFormat
-						.setIndexQueryOptions(
-								configuration,
-								query.getIndexQueryOptions(),
-								dataStoreOptions.createIndexStore());
+				GeoWaveInputFormat.setIndexQueryOptions(
+						configuration,
+						query.getIndexQueryOptions(),
+						dataStoreOptions.createIndexStore());
 			}
 		}
 
-		final int minInputSplits = runTimeProperties
-				.getPropertyAsInt(
-						ExtractParameters.Extract.MIN_INPUT_SPLIT,
-						-1);
+		final int minInputSplits = runTimeProperties.getPropertyAsInt(
+				ExtractParameters.Extract.MIN_INPUT_SPLIT,
+				-1);
 		if (minInputSplits > 0) {
-			GeoWaveInputFormat
-					.setMinimumSplitCount(
-							configuration,
-							minInputSplits);
+			GeoWaveInputFormat.setMinimumSplitCount(
+					configuration,
+					minInputSplits);
 		}
-		final int maxInputSplits = runTimeProperties
-				.getPropertyAsInt(
-						ExtractParameters.Extract.MAX_INPUT_SPLIT,
-						-1);
+		final int maxInputSplits = runTimeProperties.getPropertyAsInt(
+				ExtractParameters.Extract.MAX_INPUT_SPLIT,
+				-1);
 		if (maxInputSplits > 0) {
-			GeoWaveInputFormat
-					.setMaximumSplitCount(
-							configuration,
-							maxInputSplits);
+			GeoWaveInputFormat.setMaximumSplitCount(
+					configuration,
+					maxInputSplits);
 		}
 
-		GeoWaveInputFormat
-				.setIsOutputWritable(
-						configuration,
-						isDataWritable);
+		GeoWaveInputFormat.setIsOutputWritable(
+				configuration,
+				isDataWritable);
 	}
 
 	public void addDataAdapter(
 			final DataTypeAdapter<?> adapter ) {
-		adapters
-				.add(
-						adapter);
+		adapters.add(adapter);
 	}
 
 	public void addIndex(
 			final Index index ) {
-		indices
-				.add(
-						index);
+		indices.add(index);
 	}
 
 	@Override
@@ -151,13 +133,11 @@ public class GeoWaveInputFormatConfiguration implements
 
 	@Override
 	public List<ParameterEnum<?>> getParameters() {
-		return Arrays
-				.asList(
-						new ParameterEnum<?>[] {
-							ExtractParameters.Extract.QUERY,
-							ExtractParameters.Extract.MAX_INPUT_SPLIT,
-							ExtractParameters.Extract.MIN_INPUT_SPLIT,
-							StoreParam.INPUT_STORE
-						});
+		return Arrays.asList(new ParameterEnum<?>[] {
+			ExtractParameters.Extract.QUERY,
+			ExtractParameters.Extract.MAX_INPUT_SPLIT,
+			ExtractParameters.Extract.MIN_INPUT_SPLIT,
+			StoreParam.INPUT_STORE
+		});
 	}
 }

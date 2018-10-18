@@ -13,6 +13,7 @@ package org.locationtech.geowave.mapreduce.output;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.hadoop.io.WritableComparable;
 import org.locationtech.geowave.core.index.StringUtils;
@@ -94,6 +95,32 @@ public class GeoWaveOutputKey<T> implements
 			return adapter;
 		}
 		return (DataTypeAdapter<T>) adapterCache.getAdapter(typeName);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(indexNames);
+		result = prime * result + ((typeName == null) ? 0 : typeName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(
+			Object obj ) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		GeoWaveOutputKey other = (GeoWaveOutputKey) obj;
+		if (!Arrays.equals(
+				indexNames,
+				other.indexNames)) return false;
+		if (typeName == null) {
+			if (other.typeName != null) return false;
+		}
+		else if (!typeName.equals(other.typeName)) return false;
+		return true;
 	}
 
 	@Override

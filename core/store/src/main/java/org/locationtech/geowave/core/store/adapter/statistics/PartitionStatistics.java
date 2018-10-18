@@ -50,7 +50,7 @@ public class PartitionStatistics<T> extends
 	}
 
 	@Override
-	public InternalDataStatistics<T, Set<ByteArrayId>, IndexStatisticsQueryBuilder<Set<ByteArrayId>>> clone() {
+	public InternalDataStatistics<T, Set<ByteArrayId>, IndexStatisticsQueryBuilder<Set<ByteArrayId>>> duplicate() {
 		return new PartitionStatistics<>(
 				adapterId,
 				extendedId); // indexId

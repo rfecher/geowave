@@ -93,7 +93,7 @@ public class FieldVisibilityCount<T> extends
 	}
 
 	@Override
-	public InternalDataStatistics<T, Map<ByteArrayId, Long>, IndexStatisticsQueryBuilder<Map<ByteArrayId, Long>>> clone() {
+	public InternalDataStatistics<T, Map<ByteArrayId, Long>, IndexStatisticsQueryBuilder<Map<ByteArrayId, Long>>> duplicate() {
 		return new FieldVisibilityCount<>(
 				adapterId,
 				extendedId,

@@ -30,9 +30,7 @@ import com.beust.jcommander.Parameters;
 public class ClientSideCQLQuery extends
 		AbstractGeoWaveQuery
 {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					ClientSideCQLQuery.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(ClientSideCQLQuery.class);
 
 	@Parameter(names = "--cql", required = true, description = "CQL Filter executed client side")
 	private String cql;
@@ -41,15 +39,12 @@ public class ClientSideCQLQuery extends
 
 	private void getFilter() {
 		try {
-			filter = ECQL
-					.toFilter(
-							cql);
+			filter = ECQL.toFilter(cql);
 		}
 		catch (final CQLException e) {
-			LOGGER
-					.warn(
-							"Unable to retrive filter",
-							e);
+			LOGGER.warn(
+					"Unable to retrive filter",
+					e);
 		}
 	}
 
@@ -63,25 +58,15 @@ public class ClientSideCQLQuery extends
 		getFilter();
 
 		long count = 0;
-		try (final CloseableIterator<Object> it = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										typeName)
-								.indexName(
-										indexName)
-								.build())) {
+		try (final CloseableIterator<Object> it = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				typeName).indexName(
+				indexName).build())) {
 			while (it.hasNext()) {
 				final Object o = it.next();
 				if (o instanceof SimpleFeature) {
-					if (filter
-							.evaluate(
-									o)) {
+					if (filter.evaluate(o)) {
 						if (debug) {
-							System.out
-									.println(
-											o);
+							System.out.println(o);
 						}
 						count++;
 					}

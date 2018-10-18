@@ -64,228 +64,174 @@ public class ConvexHullJobRunnerTest
 
 	@Before
 	public void init() {
-		final SimpleFeatureType ftype = AnalyticFeature
-				.createGeometryFeatureAdapter(
-						"centroidtest",
-						new String[] {
-							"extra1"
-						},
-						BasicFeatureTypes.DEFAULT_NAMESPACE,
-						ClusteringUtils.CLUSTERING_CRS)
-				.getFeatureType();
+		final SimpleFeatureType ftype = AnalyticFeature.createGeometryFeatureAdapter(
+				"centroidtest",
+				new String[] {
+					"extra1"
+				},
+				BasicFeatureTypes.DEFAULT_NAMESPACE,
+				ClusteringUtils.CLUSTERING_CRS).getFeatureType();
 
-		hullRunner
-				.setMapReduceIntegrater(
-						new MapReduceIntegration() {
-							@Override
-							public int submit(
-									final Configuration configuration,
-									final PropertyManagement runTimeProperties,
-									final GeoWaveAnalyticJobRunner tool )
-									throws Exception {
-								tool
-										.setConf(
-												configuration);
-								((ParameterHelper<Object>) StoreParam.INPUT_STORE.getHelper())
-										.setValue(
-												configuration,
-												ConvexHullMapReduce.class,
-												StoreParam.INPUT_STORE
-														.getHelper()
-														.getValue(
-																runTimeProperties));
-								return tool
-										.run(
-												new String[] {});
-							}
+		hullRunner.setMapReduceIntegrater(new MapReduceIntegration() {
+			@Override
+			public int submit(
+					final Configuration configuration,
+					final PropertyManagement runTimeProperties,
+					final GeoWaveAnalyticJobRunner tool )
+					throws Exception {
+				tool.setConf(configuration);
+				((ParameterHelper<Object>) StoreParam.INPUT_STORE.getHelper()).setValue(
+						configuration,
+						ConvexHullMapReduce.class,
+						StoreParam.INPUT_STORE.getHelper().getValue(
+								runTimeProperties));
+				return tool.run(new String[] {});
+			}
 
-							@Override
-							public Counters waitForCompletion(
-									final Job job )
-									throws ClassNotFoundException,
-									IOException,
-									InterruptedException {
+			@Override
+			public Counters waitForCompletion(
+					final Job job )
+					throws ClassNotFoundException,
+					IOException,
+					InterruptedException {
 
-								Assert
-										.assertEquals(
-												SequenceFileInputFormat.class,
-												job.getInputFormatClass());
-								Assert
-										.assertEquals(
-												10,
-												job.getNumReduceTasks());
-								final ScopedJobConfiguration configWrapper = new ScopedJobConfiguration(
-										job.getConfiguration(),
-										ConvexHullMapReduce.class);
-								Assert
-										.assertEquals(
-												"file://foo/bin",
-												job
-														.getConfiguration()
-														.get(
-																"mapred.input.dir"));
-								final PersistableStore persistableStore = (PersistableStore) StoreParam.INPUT_STORE
-										.getHelper()
-										.getValue(
-												job,
-												ConvexHullMapReduce.class,
-												null);
-								final IndexStore indexStore = persistableStore.getDataStoreOptions().createIndexStore();
-								try {
-									Assert
-											.assertTrue(
-													indexStore
-															.indexExists(
-																	"spatial"));
+				Assert.assertEquals(
+						SequenceFileInputFormat.class,
+						job.getInputFormatClass());
+				Assert.assertEquals(
+						10,
+						job.getNumReduceTasks());
+				final ScopedJobConfiguration configWrapper = new ScopedJobConfiguration(
+						job.getConfiguration(),
+						ConvexHullMapReduce.class);
+				Assert.assertEquals(
+						"file://foo/bin",
+						job.getConfiguration().get(
+								"mapred.input.dir"));
+				final PersistableStore persistableStore = (PersistableStore) StoreParam.INPUT_STORE
+						.getHelper()
+						.getValue(
+								job,
+								ConvexHullMapReduce.class,
+								null);
+				final IndexStore indexStore = persistableStore.getDataStoreOptions().createIndexStore();
+				try {
+					Assert.assertTrue(indexStore.indexExists("spatial"));
 
-									final PersistableStore persistableAdapterStore = (PersistableStore) StoreParam.INPUT_STORE
-											.getHelper()
-											.getValue(
-													job,
-													ConvexHullMapReduce.class,
-													null);
-									final PersistentAdapterStore adapterStore = persistableAdapterStore
-											.getDataStoreOptions()
-											.createAdapterStore();
+					final PersistableStore persistableAdapterStore = (PersistableStore) StoreParam.INPUT_STORE
+							.getHelper()
+							.getValue(
+									job,
+									ConvexHullMapReduce.class,
+									null);
+					final PersistentAdapterStore adapterStore = persistableAdapterStore
+							.getDataStoreOptions()
+							.createAdapterStore();
 
-									Assert
-											.assertTrue(
-													adapterStore
-															.adapterExists(
-																	persistableAdapterStore
-																			.getDataStoreOptions()
-																			.createInternalAdapterStore()
-																			.getAdapterId(
-																					"centroidtest")));
+					Assert.assertTrue(adapterStore.adapterExists(persistableAdapterStore
+							.getDataStoreOptions()
+							.createInternalAdapterStore()
+							.getAdapterId(
+									"centroidtest")));
 
-									final Projection<?> projection = configWrapper
-											.getInstance(
-													HullParameters.Hull.PROJECTION_CLASS,
-													Projection.class,
-													SimpleFeatureProjection.class);
+					final Projection<?> projection = configWrapper.getInstance(
+							HullParameters.Hull.PROJECTION_CLASS,
+							Projection.class,
+							SimpleFeatureProjection.class);
 
-									Assert
-											.assertEquals(
-													SimpleFeatureProjection.class,
-													projection.getClass());
+					Assert.assertEquals(
+							SimpleFeatureProjection.class,
+							projection.getClass());
 
-								}
-								catch (final InstantiationException e) {
-									throw new IOException(
-											"Unable to configure system",
-											e);
-								}
-								catch (final IllegalAccessException e) {
-									throw new IOException(
-											"Unable to configure system",
-											e);
-								}
+				}
+				catch (final InstantiationException e) {
+					throw new IOException(
+							"Unable to configure system",
+							e);
+				}
+				catch (final IllegalAccessException e) {
+					throw new IOException(
+							"Unable to configure system",
+							e);
+				}
 
-								Assert
-										.assertEquals(
-												10,
-												job.getNumReduceTasks());
-								Assert
-										.assertEquals(
-												2,
-												configWrapper
-														.getInt(
-																CentroidParameters.Centroid.ZOOM_LEVEL,
-																-1));
-								return new Counters();
-							}
+				Assert.assertEquals(
+						10,
+						job.getNumReduceTasks());
+				Assert.assertEquals(
+						2,
+						configWrapper.getInt(
+								CentroidParameters.Centroid.ZOOM_LEVEL,
+								-1));
+				return new Counters();
+			}
 
-							@Override
-							public Job getJob(
-									final Tool tool )
-									throws IOException {
-								return new Job(
-										tool.getConf());
-							}
+			@Override
+			public Job getJob(
+					final Tool tool )
+					throws IOException {
+				return new Job(
+						tool.getConf());
+			}
 
-							@Override
-							public Configuration getConfiguration(
-									final PropertyManagement runTimeProperties )
-									throws IOException {
-								return new Configuration();
-							}
-						});
-		hullRunner
-				.setInputFormatConfiguration(
-						new SequenceFileInputFormatConfiguration());
+			@Override
+			public Configuration getConfiguration(
+					final PropertyManagement runTimeProperties )
+					throws IOException {
+				return new Configuration();
+			}
+		});
+		hullRunner.setInputFormatConfiguration(new SequenceFileInputFormatConfiguration());
 
-		runTimeProperties
-				.store(
-						MRConfig.HDFS_BASE_DIR,
-						"/");
-		runTimeProperties
-				.store(
-						InputParameters.Input.HDFS_INPUT_PATH,
-						new Path(
-								"file://foo/bin"));
-		runTimeProperties
-				.store(
-						GlobalParameters.Global.BATCH_ID,
-						"b1234");
-		runTimeProperties
-				.store(
-						HullParameters.Hull.DATA_TYPE_ID,
-						"hullType");
-		runTimeProperties
-				.store(
-						HullParameters.Hull.REDUCER_COUNT,
-						10);
-		runTimeProperties
-				.store(
-						HullParameters.Hull.INDEX_NAME,
-						"spatial");
+		runTimeProperties.store(
+				MRConfig.HDFS_BASE_DIR,
+				"/");
+		runTimeProperties.store(
+				InputParameters.Input.HDFS_INPUT_PATH,
+				new Path(
+						"file://foo/bin"));
+		runTimeProperties.store(
+				GlobalParameters.Global.BATCH_ID,
+				"b1234");
+		runTimeProperties.store(
+				HullParameters.Hull.DATA_TYPE_ID,
+				"hullType");
+		runTimeProperties.store(
+				HullParameters.Hull.REDUCER_COUNT,
+				10);
+		runTimeProperties.store(
+				HullParameters.Hull.INDEX_NAME,
+				"spatial");
 
 		final DataStorePluginOptions pluginOptions = new DataStorePluginOptions();
-		GeoWaveStoreFinder
-				.getRegisteredStoreFactoryFamilies()
-				.put(
-						"memory",
-						new MemoryStoreFactoryFamily());
-		pluginOptions
-				.selectPlugin(
-						"memory");
+		GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put(
+				"memory",
+				new MemoryStoreFactoryFamily());
+		pluginOptions.selectPlugin("memory");
 		final MemoryRequiredOptions opts = (MemoryRequiredOptions) pluginOptions.getFactoryOptions();
 		final String namespace = "test_" + getClass().getName() + "_" + name.getMethodName();
-		opts
-				.setGeowaveNamespace(
-						namespace);
+		opts.setGeowaveNamespace(namespace);
 		final PersistableStore store = new PersistableStore(
 				pluginOptions);
 
-		runTimeProperties
-				.store(
-						StoreParam.INPUT_STORE,
-						store);
+		runTimeProperties.store(
+				StoreParam.INPUT_STORE,
+				store);
 		final FeatureDataAdapter adapter = new FeatureDataAdapter(
 				ftype);
-		final Index index = new SpatialDimensionalityTypeProvider()
-				.createIndex(
-						new SpatialOptions());
-		adapter
-				.init(
-						index);
-		pluginOptions
-				.createAdapterStore()
-				.addAdapter(
-						new InternalDataAdapterWrapper<>(
-								adapter,
-								pluginOptions
-										.createInternalAdapterStore()
-										.addTypeName(
-												adapter.getTypeName())));
+		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		adapter.init(index);
+		pluginOptions.createAdapterStore().addAdapter(
+				new InternalDataAdapterWrapper<>(
+						adapter,
+						pluginOptions.createInternalAdapterStore().addTypeName(
+								adapter.getTypeName())));
 	}
 
 	@Test
 	public void test()
 			throws Exception {
 
-		hullRunner
-				.run(
-						runTimeProperties);
+		hullRunner.run(runTimeProperties);
 	}
 }

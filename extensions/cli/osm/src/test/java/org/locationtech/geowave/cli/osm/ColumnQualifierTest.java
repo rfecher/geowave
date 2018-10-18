@@ -20,13 +20,9 @@ public class ColumnQualifierTest
 	@Test(expected = NullPointerException.class)
 	public void TAG_QUALIFIER_NULL()
 			throws Exception {
-		final String cqStr = ColumnQualifier
-				.TAG_QUALIFIER(
-						null);
+		final String cqStr = ColumnQualifier.TAG_QUALIFIER(null);
 		if (cqStr != null) {
-			Assert
-					.fail(
-							"returned non null value back; execution path should never be seen");
+			Assert.fail("returned non null value back; execution path should never be seen");
 		}
 	}
 

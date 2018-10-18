@@ -65,7 +65,7 @@ public class RowRangeHistogramStatistics<T> extends
 	}
 
 	@Override
-	public InternalDataStatistics<T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>> clone() {
+	public InternalDataStatistics<T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>> duplicate() {
 		final Pair<String, ByteArrayId> pair = PartitionStatisticsQueryBuilder
 				.decomposeIndexAndPartitionFromId(extendedId);
 		return new RowRangeHistogramStatistics<>(
@@ -238,6 +238,6 @@ public class RowRangeHistogramStatistics<T> extends
 					"histogram",
 					"empty");
 		}
-		return null;
+		return retVal;
 	}
 }

@@ -162,8 +162,8 @@ public class BaseQueryOptions
 			// for now let's just assume a single type name and get the adapter,
 			// rather than just type name (which type name would be sufficient
 			// for commonindexaggregation)
-			if (((FilterByTypeQueryOptions) typeOptions).getTypeNames().length > 0) {
-				final String typeName = ((FilterByTypeQueryOptions) typeOptions).getTypeNames()[0];
+			if (((AggregateTypeQueryOptions) typeOptions).getTypeNames().length > 0) {
+				final String typeName = ((AggregateTypeQueryOptions) typeOptions).getTypeNames()[0];
 				final Short adapterId = internalAdapterStore.getAdapterId(typeName);
 				if (adapterId != null) {
 					final DataTypeAdapter<?> adapter = adapterStore.getAdapter(adapterId);
@@ -187,7 +187,7 @@ public class BaseQueryOptions
 			// filter by type for field subsetting only allows a single type
 			// name
 			final String typeName = ((FilterByTypeQueryOptions) typeOptions).getTypeNames()[0];
-			if (typeName == null) {
+			if (typeName != null) {
 				final Short adapterId = internalAdapterStore.getAdapterId(typeName);
 				if (adapterId != null) {
 					final DataTypeAdapter<?> adapter = adapterStore.getAdapter(adapterId);
@@ -201,6 +201,10 @@ public class BaseQueryOptions
 					throw new IllegalArgumentException(
 							"Type name " + typeName + " does not exist");
 				}
+			}
+			else {
+				throw new IllegalArgumentException(
+						"Type name cannot be null for field subsetting");
 			}
 		}
 

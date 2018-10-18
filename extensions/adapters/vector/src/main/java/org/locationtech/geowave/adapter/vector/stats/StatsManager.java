@@ -198,17 +198,18 @@ public class StatsManager
 			final StatisticsId statisticsId ) {
 		for (final InternalDataStatistics<SimpleFeature, ?, ?> statObj : statsObjList) {
 			if (statObj.getType().equals(
-					statisticsId)) {
+					statisticsId.getType()) && statObj.getExtendedId().equals(
+					statisticsId.getExtendedId())) {
 				// TODO most of the data statistics seem to do shallow clones
 				// that pass along a lot of references - this seems
 				// counter-intuitive to the spirit of a "create" method, but it
 				// seems to work right now?
-				return ((AbstractDataStatistics<SimpleFeature, ?, ?>) statObj).clone();
+				return ((AbstractDataStatistics<SimpleFeature, ?, ?>) statObj).duplicate();
 			}
 		}
 
 		if (statisticsId.getType().equals(
-				CountDataStatistics.STATS_TYPE.getString())) {
+				CountDataStatistics.STATS_TYPE)) {
 			return new CountDataStatistics<>();
 		}
 
@@ -271,7 +272,8 @@ public class StatsManager
 		// Go through stats list managed by this manager and look for a match
 		for (final InternalDataStatistics<SimpleFeature, ?, ?> currentStat : statsObjList) {
 			if (currentStat.getType().equals(
-					statsObj.getType())) {
+					statsObj.getType()) && currentStat.getExtendedId().equals(
+					statsObj.getExtendedId())) {
 				// If a match was found for an existing stat object in list,
 				// remove it now and replace it later.
 				statsObjList.remove(replaceStat);

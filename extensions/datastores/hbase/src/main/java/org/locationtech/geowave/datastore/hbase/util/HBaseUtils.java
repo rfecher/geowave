@@ -149,7 +149,8 @@ public class HBaseUtils
 		InternalDataStatistics<?, ?, ?> mergedStats = null;
 		for (final Cell cell : rowCells) {
 			final byte[] byteValue = CellUtil.cloneValue(cell);
-			final InternalDataStatistics<?, ?, ?> stats = (InternalDataStatistics) URLClassloaderUtils.fromBinary(byteValue);
+			final InternalDataStatistics<?, ?, ?> stats = (InternalDataStatistics) URLClassloaderUtils
+					.fromBinary(byteValue);
 
 			if (mergedStats != null) {
 				mergedStats.merge(stats);

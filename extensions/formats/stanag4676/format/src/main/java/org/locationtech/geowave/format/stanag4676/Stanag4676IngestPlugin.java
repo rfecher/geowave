@@ -69,9 +69,7 @@ public class Stanag4676IngestPlugin extends
 		IngestFromHdfsPlugin<WholeFile, Object>,
 		LocalFileIngestPlugin<Object>
 {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(
-					Stanag4676IngestPlugin.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(Stanag4676IngestPlugin.class);
 	public final static Index IMAGE_CHIP_INDEX = new NullIndex(
 			"IMAGERY_CHIPS");
 
@@ -103,10 +101,9 @@ public class Stanag4676IngestPlugin extends
 			return file.openConnection().getContentLength() > 0;
 		}
 		catch (final IOException e) {
-			LOGGER
-					.info(
-							"Unable to read URL for '" + file.getPath() + "'",
-							e);
+			LOGGER.info(
+					"Unable to read URL for '" + file.getPath() + "'",
+					e);
 		}
 		return false;
 	}
@@ -131,20 +128,17 @@ public class Stanag4676IngestPlugin extends
 			final URL file,
 			final String[] indexNames,
 			final String globalVisibility ) {
-		return ingestWithMapper()
-				.toGeoWaveData(
-						toAvroObjects(
-								file).next(),
-						indexNames,
-						globalVisibility);
+		return ingestWithMapper().toGeoWaveData(
+				toAvroObjects(
+						file).next(),
+				indexNames,
+				globalVisibility);
 	}
 
 	@Override
 	public DataTypeAdapter<Object>[] getDataAdapters(
 			final String globalVisibility ) {
-		return new IngestWithReducerImpl()
-				.getDataAdapters(
-						globalVisibility);
+		return new IngestWithReducerImpl().getDataAdapters(globalVisibility);
 	}
 
 	public static class IngestWithReducerImpl implements
@@ -209,9 +203,9 @@ public class Stanag4676IngestPlugin extends
 		@Override
 		public DataTypeAdapter<Object>[] getDataAdapters(
 				final String globalVisibility ) {
-			final FieldVisibilityHandler fieldVisiblityHandler = ((globalVisibility != null)
-					&& !globalVisibility.isEmpty()) ? new GlobalVisibilityHandler(
-							globalVisibility) : null;
+			final FieldVisibilityHandler fieldVisiblityHandler = ((globalVisibility != null) && !globalVisibility
+					.isEmpty()) ? new GlobalVisibilityHandler(
+					globalVisibility) : null;
 
 			return new DataTypeAdapter[] {
 				new FeatureDataAdapter(
@@ -247,20 +241,12 @@ public class Stanag4676IngestPlugin extends
 		public CloseableIterator<KeyValueData<Text, Stanag4676EventWritable>> toIntermediateMapReduceData(
 				final WholeFile input ) {
 			final TrackFileReader fileReader = new TrackFileReader();
-			fileReader
-					.setDecoder(
-							new NATO4676Decoder());
-			fileReader
-					.setStreaming(
-							true);
+			fileReader.setDecoder(new NATO4676Decoder());
+			fileReader.setStreaming(true);
 			final IngestMessageHandler handler = new IngestMessageHandler();
-			fileReader
-					.setHandler(
-							handler);
-			fileReader
-					.read(
-							new ByteBufferBackedInputStream(
-									input.getOriginalFile()));
+			fileReader.setHandler(handler);
+			fileReader.read(new ByteBufferBackedInputStream(
+					input.getOriginalFile()));
 			return new CloseableIterator.Wrapper<>(
 					handler.getIntermediateData().iterator());
 		}
@@ -276,17 +262,12 @@ public class Stanag4676IngestPlugin extends
 			final List<Stanag4676EventWritable> sortedEvents = new ArrayList<>();
 
 			for (final Stanag4676EventWritable event : values) {
-				sortedEvents
-						.add(
-								Stanag4676EventWritable
-										.clone(
-												event));
+				sortedEvents.add(Stanag4676EventWritable.clone(event));
 			}
 
-			Collections
-					.sort(
-							sortedEvents,
-							new ComparatorStanag4676EventWritable());
+			Collections.sort(
+					sortedEvents,
+					new ComparatorStanag4676EventWritable());
 
 			// define event values
 			String trackUuid = "";
@@ -339,195 +320,105 @@ public class Stanag4676IngestPlugin extends
 					lastEvent = event;
 
 					final EarthVector currentEv = new EarthVector(
-							EarthVector
-									.degToRad(
-											event.Latitude.get()),
-							EarthVector
-									.degToRad(
-											event.Longitude.get()),
-							Length
-									.fromM(
-											event.Elevation.get())
-									.getKM());
+							EarthVector.degToRad(event.Latitude.get()),
+							EarthVector.degToRad(event.Longitude.get()),
+							Length.fromM(
+									event.Elevation.get()).getKM());
 
 					if (prevEv != null) {
-						distanceKm += prevEv
-								.getDistance(
-										currentEv);
+						distanceKm += prevEv.getDistance(currentEv);
 					}
 
 					// populate coordinate sequence
-					coord_sequence
-							.add(
-									event.Longitude.get());
-					coord_sequence
-							.add(
-									event.Latitude.get());
+					coord_sequence.add(event.Longitude.get());
+					coord_sequence.add(event.Latitude.get());
 
 					prevEv = currentEv;
 
-					final Geometry geometry = GeometryUtils.GEOMETRY_FACTORY
-							.createPoint(
-									new Coordinate(
-											event.Longitude.get(),
-											event.Latitude.get()));
+					final Geometry geometry = GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
+							event.Longitude.get(),
+							event.Latitude.get()));
 
-					ptBuilder
-							.add(
-									geometry);
+					ptBuilder.add(geometry);
 
-					if (!FloatCompareUtils
-							.checkDoublesEqual(
-									event.DetailLatitude.get(),
-									Stanag4676EventWritable.NO_DETAIL)
-							&& !FloatCompareUtils
-									.checkDoublesEqual(
-											event.DetailLongitude.get(),
-											Stanag4676EventWritable.NO_DETAIL)) {
-						detail_coord_sequence
-								.add(
-										event.DetailLongitude.get());
-						detail_coord_sequence
-								.add(
-										event.DetailLatitude.get());
+					if (!FloatCompareUtils.checkDoublesEqual(
+							event.DetailLatitude.get(),
+							Stanag4676EventWritable.NO_DETAIL) && !FloatCompareUtils.checkDoublesEqual(
+							event.DetailLongitude.get(),
+							Stanag4676EventWritable.NO_DETAIL)) {
+						detail_coord_sequence.add(event.DetailLongitude.get());
+						detail_coord_sequence.add(event.DetailLatitude.get());
 					}
 
 					Double detailLatitude = null;
 					Double detailLongitude = null;
 					Double detailElevation = null;
 					Geometry detailGeometry = null;
-					if (!FloatCompareUtils
-							.checkDoublesEqual(
-									event.DetailLatitude.get(),
-									Stanag4676EventWritable.NO_DETAIL)
-							&& !FloatCompareUtils
-									.checkDoublesEqual(
-											event.DetailLongitude.get(),
-											Stanag4676EventWritable.NO_DETAIL)) {
+					if (!FloatCompareUtils.checkDoublesEqual(
+							event.DetailLatitude.get(),
+							Stanag4676EventWritable.NO_DETAIL) && !FloatCompareUtils.checkDoublesEqual(
+							event.DetailLongitude.get(),
+							Stanag4676EventWritable.NO_DETAIL)) {
 						detailLatitude = event.DetailLatitude.get();
 						detailLongitude = event.DetailLongitude.get();
 						detailElevation = event.DetailElevation.get();
-						detailGeometry = GeometryUtils.GEOMETRY_FACTORY
-								.createPoint(
-										new Coordinate(
-												detailLongitude,
-												detailLatitude));
+						detailGeometry = GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
+								detailLongitude,
+								detailLatitude));
 					}
-					ptBuilder
-							.add(
-									detailGeometry);
-					ptBuilder
-							.add(
-									mission);
-					ptBuilder
-							.add(
-									trackNumber);
-					ptBuilder
-							.add(
-									trackUuid);
-					ptBuilder
-							.add(
-									event.TrackItemUUID.toString());
-					ptBuilder
-							.add(
-									event.TrackPointSource.toString());
-					ptBuilder
-							.add(
-									new Date(
-											event.TimeStamp.get()));
+					ptBuilder.add(detailGeometry);
+					ptBuilder.add(mission);
+					ptBuilder.add(trackNumber);
+					ptBuilder.add(trackUuid);
+					ptBuilder.add(event.TrackItemUUID.toString());
+					ptBuilder.add(event.TrackPointSource.toString());
+					ptBuilder.add(new Date(
+							event.TimeStamp.get()));
 					if (event.Speed.get() > maxSpeed) {
 						maxSpeed = event.Speed.get();
 					}
 					if (event.Speed.get() < minSpeed) {
 						minSpeed = event.Speed.get();
 					}
-					ptBuilder
-							.add(
-									new Double(
-											event.Speed.get()));
-					ptBuilder
-							.add(
-									new Double(
-											event.Course.get()));
+					ptBuilder.add(new Double(
+							event.Speed.get()));
+					ptBuilder.add(new Double(
+							event.Course.get()));
 					// TODO consider more sophisticated tie between track item
 					// classification and accumulo visibility
-					ptBuilder
-							.add(
-									event.TrackItemClassification.toString());
-					ptBuilder
-							.add(
-									new Double(
-											event.Latitude.get()));
-					ptBuilder
-							.add(
-									new Double(
-											event.Longitude.get()));
-					ptBuilder
-							.add(
-									new Double(
-											event.Elevation.get()));
-					ptBuilder
-							.add(
-									detailLatitude);
-					ptBuilder
-							.add(
-									detailLongitude);
-					ptBuilder
-							.add(
-									detailElevation);
-					ptBuilder
-							.add(
-									Integer
-											.valueOf(
-													event.FrameNumber.get()));
-					ptBuilder
-							.add(
-									Integer
-											.valueOf(
-													event.PixelRow.get()));
-					ptBuilder
-							.add(
-									Integer
-											.valueOf(
-													event.PixelColumn.get()));
+					ptBuilder.add(event.TrackItemClassification.toString());
+					ptBuilder.add(new Double(
+							event.Latitude.get()));
+					ptBuilder.add(new Double(
+							event.Longitude.get()));
+					ptBuilder.add(new Double(
+							event.Elevation.get()));
+					ptBuilder.add(detailLatitude);
+					ptBuilder.add(detailLongitude);
+					ptBuilder.add(detailElevation);
+					ptBuilder.add(Integer.valueOf(event.FrameNumber.get()));
+					ptBuilder.add(Integer.valueOf(event.PixelRow.get()));
+					ptBuilder.add(Integer.valueOf(event.PixelColumn.get()));
 
-					geowaveData
-							.add(
-									new GeoWaveData<Object>(
-											Stanag4676Utils.TRACK_POINT,
-											indexNames,
-											ptBuilder
-													.buildFeature(
-															event.TrackItemUUID.toString())));
+					geowaveData.add(new GeoWaveData<Object>(
+							Stanag4676Utils.TRACK_POINT,
+							indexNames,
+							ptBuilder.buildFeature(event.TrackItemUUID.toString())));
 				}
 				// build collection of motion events
 				else if (event.EventType.get() == 1) {
 					// count number of motion points
 					numMotionPoints++;
 
-					motionBuilder
-							.add(
-									GeometryUtils.GEOMETRY_FACTORY
-											.createPoint(
-													new Coordinate(
-															event.Longitude.get(),
-															event.Latitude.get())));
+					motionBuilder.add(GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(
+							event.Longitude.get(),
+							event.Latitude.get())));
 
-					motionBuilder
-							.add(
-									mission);
-					motionBuilder
-							.add(
-									trackNumber);
-					motionBuilder
-							.add(
-									trackUuid);
-					motionBuilder
-							.add(
-									event.TrackItemUUID.toString());
-					motionBuilder
-							.add(
-									event.MotionEvent.toString());
+					motionBuilder.add(mission);
+					motionBuilder.add(trackNumber);
+					motionBuilder.add(trackUuid);
+					motionBuilder.add(event.TrackItemUUID.toString());
+					motionBuilder.add(event.MotionEvent.toString());
 					switch (event.MotionEvent.toString()) {
 						case "STOP":
 							stopCount++;
@@ -550,69 +441,35 @@ public class Stanag4676IngestPlugin extends
 							break;
 						default:
 					}
-					motionBuilder
-							.add(
-									new Date(
-											event.TimeStamp.get()));
-					motionBuilder
-							.add(
-									new Date(
-											event.EndTimeStamp.get()));
+					motionBuilder.add(new Date(
+							event.TimeStamp.get()));
+					motionBuilder.add(new Date(
+							event.EndTimeStamp.get()));
 					// TODO consider more sophisticated tie between track item
 					// classification and accumulo visibility
-					motionBuilder
-							.add(
-									event.TrackItemClassification.toString());
-					motionBuilder
-							.add(
-									new Double(
-											event.Latitude.get()));
-					motionBuilder
-							.add(
-									new Double(
-											event.Longitude.get()));
-					motionBuilder
-							.add(
-									new Double(
-											event.Elevation.get()));
-					motionBuilder
-							.add(
-									Integer
-											.valueOf(
-													event.FrameNumber.get()));
-					motionBuilder
-							.add(
-									Integer
-											.valueOf(
-													event.PixelRow.get()));
-					motionBuilder
-							.add(
-									Integer
-											.valueOf(
-													event.PixelColumn.get()));
+					motionBuilder.add(event.TrackItemClassification.toString());
+					motionBuilder.add(new Double(
+							event.Latitude.get()));
+					motionBuilder.add(new Double(
+							event.Longitude.get()));
+					motionBuilder.add(new Double(
+							event.Elevation.get()));
+					motionBuilder.add(Integer.valueOf(event.FrameNumber.get()));
+					motionBuilder.add(Integer.valueOf(event.PixelRow.get()));
+					motionBuilder.add(Integer.valueOf(event.PixelColumn.get()));
 
-					geowaveData
-							.add(
-									new GeoWaveData<Object>(
-											Stanag4676Utils.MOTION_POINT,
-											indexNames,
-											motionBuilder
-													.buildFeature(
-															event.TrackItemUUID.toString())));
+					geowaveData.add(new GeoWaveData<Object>(
+							Stanag4676Utils.MOTION_POINT,
+							indexNames,
+							motionBuilder.buildFeature(event.TrackItemUUID.toString())));
 				}
 				else if (event.EventType.get() == 2) {
 					final Date date = new Date(
 							event.TimeStamp.get());
 					final DateFormat format = new SimpleDateFormat(
 							"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-					format
-							.setTimeZone(
-									TimeZone
-											.getTimeZone(
-													"UTC"));
-					final String dateStr = format
-							.format(
-									date);
+					format.setTimeZone(TimeZone.getTimeZone("UTC"));
+					final String dateStr = format.format(date);
 
 					if (objectClass.length() != 0) {
 						objectClass += ",";
@@ -633,267 +490,138 @@ public class Stanag4676IngestPlugin extends
 					objectClassTimes += dateStr;
 				}
 				else if (event.EventType.get() == 3) {
-					missionFrameBuilder
-							.add(
-									GeometryUtils
-											.geometryFromBinary(
-													event.Geometry.getBytes()));
-					missionFrameBuilder
-							.add(
-									event.MissionUUID.toString());
-					missionFrameBuilder
-							.add(
-									new Date(
-											event.TimeStamp.get()));
-					missionFrameBuilder
-							.add(
-									event.FrameNumber.get());
+					missionFrameBuilder.add(GeometryUtils.geometryFromBinary(event.Geometry.getBytes()));
+					missionFrameBuilder.add(event.MissionUUID.toString());
+					missionFrameBuilder.add(new Date(
+							event.TimeStamp.get()));
+					missionFrameBuilder.add(event.FrameNumber.get());
 
-					geowaveData
-							.add(
-									new GeoWaveData<Object>(
-											Stanag4676Utils.MISSION_FRAME,
-											indexNames,
-											missionFrameBuilder
-													.buildFeature(
-															UUID.randomUUID().toString())));
+					geowaveData.add(new GeoWaveData<Object>(
+							Stanag4676Utils.MISSION_FRAME,
+							indexNames,
+							missionFrameBuilder.buildFeature(UUID.randomUUID().toString())));
 				}
 				else if (event.EventType.get() == 4) {
 
-					missionSummaryBuilder
-							.add(
-									GeometryUtils
-											.geometryFromBinary(
-													event.Geometry.getBytes()));
-					missionSummaryBuilder
-							.add(
-									event.MissionUUID.toString());
-					missionSummaryBuilder
-							.add(
-									new Date(
-											event.TimeStamp.get()));
-					missionSummaryBuilder
-							.add(
-									new Date(
-											event.EndTimeStamp.get()));
-					missionSummaryBuilder
-							.add(
-									event.MissionNumFrames.get());
-					missionSummaryBuilder
-							.add(
-									event.MissionName.toString());
-					missionSummaryBuilder
-							.add(
-									event.TrackClassification.toString());
-					missionSummaryBuilder
-							.add(
-									event.ObjectClass.toString());
+					missionSummaryBuilder.add(GeometryUtils.geometryFromBinary(event.Geometry.getBytes()));
+					missionSummaryBuilder.add(event.MissionUUID.toString());
+					missionSummaryBuilder.add(new Date(
+							event.TimeStamp.get()));
+					missionSummaryBuilder.add(new Date(
+							event.EndTimeStamp.get()));
+					missionSummaryBuilder.add(event.MissionNumFrames.get());
+					missionSummaryBuilder.add(event.MissionName.toString());
+					missionSummaryBuilder.add(event.TrackClassification.toString());
+					missionSummaryBuilder.add(event.ObjectClass.toString());
 
-					geowaveData
-							.add(
-									new GeoWaveData<Object>(
-											Stanag4676Utils.MISSION_SUMMARY,
-											indexNames,
-											missionSummaryBuilder
-													.buildFeature(
-															UUID.randomUUID().toString())));
+					geowaveData.add(new GeoWaveData<Object>(
+							Stanag4676Utils.MISSION_SUMMARY,
+							indexNames,
+							missionSummaryBuilder.buildFeature(UUID.randomUUID().toString())));
 				}
 				if (event.Image != null) {
 					final byte[] imageBytes = event.Image.getBytes();
 					if ((imageBytes != null) && (imageBytes.length > 0)) {
-						geowaveData
-								.add(
-										new GeoWaveData(
-												ImageChipDataAdapter.ADAPTER_TYPE_NAME,
-												IMAGE_CHIP_AS_ARRAY,
-												new ImageChip(
-														mission,
-														trackUuid,
-														event.TimeStamp.get(),
-														imageBytes)));
+						geowaveData.add(new GeoWaveData(
+								ImageChipDataAdapter.ADAPTER_TYPE_NAME,
+								IMAGE_CHIP_AS_ARRAY,
+								new ImageChip(
+										mission,
+										trackUuid,
+										event.TimeStamp.get(),
+										imageBytes)));
 					}
 				}
 			}
 
 			// create line coordinate sequence
-			final Double[] xy = coord_sequence
-					.toArray(
-							new Double[] {});
+			final Double[] xy = coord_sequence.toArray(new Double[] {});
 			if ((firstEvent != null) && (lastEvent != null) && (xy.length >= 4)) {
 				final CoordinateSequence2D coordinateSequence = new CoordinateSequence2D(
-						ArrayUtils
-								.toPrimitive(
-										xy));
-				final LineString lineString = GeometryUtils.GEOMETRY_FACTORY
-						.createLineString(
-								coordinateSequence);
+						ArrayUtils.toPrimitive(xy));
+				final LineString lineString = GeometryUtils.GEOMETRY_FACTORY.createLineString(coordinateSequence);
 
-				final Double[] dxy = detail_coord_sequence
-						.toArray(
-								new Double[] {});
+				final Double[] dxy = detail_coord_sequence.toArray(new Double[] {});
 				final CoordinateSequence2D detailCoordinateSequence = new CoordinateSequence2D(
-						ArrayUtils
-								.toPrimitive(
-										dxy));
+						ArrayUtils.toPrimitive(dxy));
 				LineString detailLineString = null;
 				if (detailCoordinateSequence.size() > 0) {
-					detailLineString = GeometryUtils.GEOMETRY_FACTORY
-							.createLineString(
-									detailCoordinateSequence);
+					detailLineString = GeometryUtils.GEOMETRY_FACTORY.createLineString(detailCoordinateSequence);
 				}
-				trackBuilder
-						.add(
-								lineString);
-				trackBuilder
-						.add(
-								detailLineString);
-				trackBuilder
-						.add(
-								mission);
-				trackBuilder
-						.add(
-								trackNumber);
-				trackBuilder
-						.add(
-								trackUuid);
-				trackBuilder
-						.add(
-								new Date(
-										firstEvent.TimeStamp.get()));
-				trackBuilder
-						.add(
-								new Date(
-										lastEvent.TimeStamp.get()));
+				trackBuilder.add(lineString);
+				trackBuilder.add(detailLineString);
+				trackBuilder.add(mission);
+				trackBuilder.add(trackNumber);
+				trackBuilder.add(trackUuid);
+				trackBuilder.add(new Date(
+						firstEvent.TimeStamp.get()));
+				trackBuilder.add(new Date(
+						lastEvent.TimeStamp.get()));
 				final double durationSeconds = (lastEvent.TimeStamp.get() - firstEvent.TimeStamp.get()) / 1000.0;
-				trackBuilder
-						.add(
-								durationSeconds);
-				trackBuilder
-						.add(
-								minSpeed);
-				trackBuilder
-						.add(
-								maxSpeed);
-				final double distanceM = Length
-						.fromKM(
-								distanceKm)
-						.getM();
+				trackBuilder.add(durationSeconds);
+				trackBuilder.add(minSpeed);
+				trackBuilder.add(maxSpeed);
+				final double distanceM = Length.fromKM(
+						distanceKm).getM();
 				final double avgSpeed = durationSeconds > 0 ? distanceM / durationSeconds : 0;
-				trackBuilder
-						.add(
-								avgSpeed);
-				trackBuilder
-						.add(
-								distanceKm);
-				trackBuilder
-						.add(
-								new Double(
-										firstEvent.Latitude.get()));
-				trackBuilder
-						.add(
-								new Double(
-										firstEvent.Longitude.get()));
-				trackBuilder
-						.add(
-								new Double(
-										lastEvent.Latitude.get()));
-				trackBuilder
-						.add(
-								new Double(
-										lastEvent.Longitude.get()));
+				trackBuilder.add(avgSpeed);
+				trackBuilder.add(distanceKm);
+				trackBuilder.add(new Double(
+						firstEvent.Latitude.get()));
+				trackBuilder.add(new Double(
+						firstEvent.Longitude.get()));
+				trackBuilder.add(new Double(
+						lastEvent.Latitude.get()));
+				trackBuilder.add(new Double(
+						lastEvent.Longitude.get()));
 
 				Double firstEventDetailLatitude = null;
 				Double firstEventDetailLongitude = null;
 				Double lastEventDetailLatitude = null;
 				Double lastEventDetailLongitude = null;
 
-				if (!FloatCompareUtils
-						.checkDoublesEqual(
-								firstEvent.DetailLatitude.get(),
-								Stanag4676EventWritable.NO_DETAIL)
-						&& !FloatCompareUtils
-								.checkDoublesEqual(
-										firstEvent.DetailLongitude.get(),
-										Stanag4676EventWritable.NO_DETAIL)
-						&& !FloatCompareUtils
-								.checkDoublesEqual(
-										lastEvent.DetailLatitude.get(),
-										Stanag4676EventWritable.NO_DETAIL)
-						&& !FloatCompareUtils
-								.checkDoublesEqual(
-										lastEvent.DetailLongitude.get(),
-										Stanag4676EventWritable.NO_DETAIL)) {
+				if (!FloatCompareUtils.checkDoublesEqual(
+						firstEvent.DetailLatitude.get(),
+						Stanag4676EventWritable.NO_DETAIL) && !FloatCompareUtils.checkDoublesEqual(
+						firstEvent.DetailLongitude.get(),
+						Stanag4676EventWritable.NO_DETAIL) && !FloatCompareUtils.checkDoublesEqual(
+						lastEvent.DetailLatitude.get(),
+						Stanag4676EventWritable.NO_DETAIL) && !FloatCompareUtils.checkDoublesEqual(
+						lastEvent.DetailLongitude.get(),
+						Stanag4676EventWritable.NO_DETAIL)) {
 					firstEventDetailLatitude = firstEvent.DetailLatitude.get();
 					firstEventDetailLongitude = firstEvent.DetailLongitude.get();
 					lastEventDetailLatitude = lastEvent.DetailLatitude.get();
 					lastEventDetailLongitude = lastEvent.DetailLongitude.get();
 				}
 
-				trackBuilder
-						.add(
-								firstEventDetailLatitude);
-				trackBuilder
-						.add(
-								firstEventDetailLongitude);
-				trackBuilder
-						.add(
-								lastEventDetailLatitude);
-				trackBuilder
-						.add(
-								lastEventDetailLongitude);
+				trackBuilder.add(firstEventDetailLatitude);
+				trackBuilder.add(firstEventDetailLongitude);
+				trackBuilder.add(lastEventDetailLatitude);
+				trackBuilder.add(lastEventDetailLongitude);
 
-				trackBuilder
-						.add(
-								numTrackPoints);
-				trackBuilder
-						.add(
-								numMotionPoints);
-				trackBuilder
-						.add(
-								trackStatus);
-				trackBuilder
-						.add(
-								turnCount);
-				trackBuilder
-						.add(
-								uturnCount);
-				trackBuilder
-						.add(
-								stopCount);
+				trackBuilder.add(numTrackPoints);
+				trackBuilder.add(numMotionPoints);
+				trackBuilder.add(trackStatus);
+				trackBuilder.add(turnCount);
+				trackBuilder.add(uturnCount);
+				trackBuilder.add(stopCount);
 				final double stopDurationSeconds = stopDuration / 1000.0;
-				trackBuilder
-						.add(
-								stopDurationSeconds);
-				trackBuilder
-						.add(
-								stopDurationContibCount > 0 ? stopDurationSeconds / stopDurationContibCount : 0.0);
+				trackBuilder.add(stopDurationSeconds);
+				trackBuilder.add(stopDurationContibCount > 0 ? stopDurationSeconds / stopDurationContibCount : 0.0);
 				// TODO consider more sophisticated tie between track
 				// classification and accumulo visibility
-				trackBuilder
-						.add(
-								trackClassification);
+				trackBuilder.add(trackClassification);
 
-				trackBuilder
-						.add(
-								objectClass);
-				trackBuilder
-						.add(
-								objectClassConf);
-				trackBuilder
-						.add(
-								objectClassRel);
-				trackBuilder
-						.add(
-								objectClassTimes);
+				trackBuilder.add(objectClass);
+				trackBuilder.add(objectClassConf);
+				trackBuilder.add(objectClassRel);
+				trackBuilder.add(objectClassTimes);
 
-				geowaveData
-						.add(
-								new GeoWaveData<Object>(
-										Stanag4676Utils.TRACK,
-										indexNames,
-										trackBuilder
-												.buildFeature(
-														trackUuid)));
+				geowaveData.add(new GeoWaveData<Object>(
+						Stanag4676Utils.TRACK,
+						indexNames,
+						trackBuilder.buildFeature(trackUuid)));
 			}
 			return new CloseableIterator.Wrapper<>(
 					geowaveData.iterator());
@@ -904,41 +632,31 @@ public class Stanag4676IngestPlugin extends
 				final WholeFile input,
 				final String[] indexNames,
 				final String globalVisibility ) {
-			try (CloseableIterator<KeyValueData<Text, Stanag4676EventWritable>> intermediateData = toIntermediateMapReduceData(
-					input)) {
+			try (CloseableIterator<KeyValueData<Text, Stanag4676EventWritable>> intermediateData = toIntermediateMapReduceData(input)) {
 				// this is much better done in the reducer of a map reduce job,
 				// this aggregation by track UUID is not memory efficient
 				final Map<Text, List<Stanag4676EventWritable>> trackUuidMap = new HashMap<>();
 				while (intermediateData.hasNext()) {
 					final KeyValueData<Text, Stanag4676EventWritable> next = intermediateData.next();
-					List<Stanag4676EventWritable> trackEvents = trackUuidMap
-							.get(
-									next.getKey());
+					List<Stanag4676EventWritable> trackEvents = trackUuidMap.get(next.getKey());
 					if (trackEvents == null) {
 						trackEvents = new ArrayList<>();
-						trackUuidMap
-								.put(
-										next.getKey(),
-										trackEvents);
+						trackUuidMap.put(
+								next.getKey(),
+								trackEvents);
 					}
-					trackEvents
-							.add(
-									next.getValue());
+					trackEvents.add(next.getValue());
 				}
 				final List<CloseableIterator<GeoWaveData<Object>>> iterators = new ArrayList<>();
 				for (final Entry<Text, List<Stanag4676EventWritable>> entry : trackUuidMap.entrySet()) {
-					iterators
-							.add(
-									toGeoWaveData(
-											entry.getKey(),
-											indexNames,
-											globalVisibility,
-											entry.getValue()));
+					iterators.add(toGeoWaveData(
+							entry.getKey(),
+							indexNames,
+							globalVisibility,
+							entry.getValue()));
 				}
 				return new CloseableIterator.Wrapper<>(
-						Iterators
-								.concat(
-										iterators.iterator()));
+						Iterators.concat(iterators.iterator()));
 			}
 		}
 	}

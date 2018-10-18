@@ -213,19 +213,13 @@ public class CommonOptions
 	public Query<?> buildQuery() {
 		final QueryBuilder<?, ?> bldr = QueryBuilder.newBuilder();
 		if ((queryOptions.getTypeNames() != null) && (queryOptions.getTypeNames().length > 0)) {
-			bldr
-					.setTypeNames(
-							queryOptions.getTypeNames());
+			bldr.setTypeNames(queryOptions.getTypeNames());
 		}
 		if (queryOptions.getAuthorizations() != null) {
-			bldr
-					.setAuthorizations(
-							queryOptions.getAuthorizations());
+			bldr.setAuthorizations(queryOptions.getAuthorizations());
 		}
 		if (queryOptions.getIndexName() != null) {
-			bldr
-					.indexName(
-							queryOptions.getIndexName());
+			bldr.indexName(queryOptions.getIndexName());
 		}
 		return bldr.build();
 	}

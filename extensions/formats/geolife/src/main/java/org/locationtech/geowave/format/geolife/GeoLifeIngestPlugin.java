@@ -59,9 +59,7 @@ public class GeoLifeIngestPlugin extends
 		AbstractSimpleFeatureIngestPlugin<WholeFile>
 {
 
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					GeoLifeIngestPlugin.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeoLifeIngestPlugin.class);
 
 	private final SimpleFeatureBuilder geolifePointBuilder;
 	private final SimpleFeatureType geolifePointType;
@@ -85,27 +83,20 @@ public class GeoLifeIngestPlugin extends
 		geolifeTrackBuilder = new SimpleFeatureBuilder(
 				geolifeTrackType);
 		try {
-			crs = CRS
-					.decode(
-							"EPSG:4326");
+			crs = CRS.decode("EPSG:4326");
 		}
 		catch (final FactoryException e) {
-			LOGGER
-					.error(
-							"Unable to decode Coordinate Reference System authority code!",
-							e);
+			LOGGER.error(
+					"Unable to decode Coordinate Reference System authority code!",
+					e);
 		}
 	}
 
 	@Override
 	protected SimpleFeatureType[] getTypes() {
 		return new SimpleFeatureType[] {
-			SimpleFeatureUserDataConfigurationSet
-					.configureType(
-							geolifePointType),
-			SimpleFeatureUserDataConfigurationSet
-					.configureType(
-							geolifeTrackType)
+			SimpleFeatureUserDataConfigurationSet.configureType(geolifePointType),
+			SimpleFeatureUserDataConfigurationSet.configureType(geolifeTrackType)
 		};
 	}
 
@@ -125,9 +116,7 @@ public class GeoLifeIngestPlugin extends
 	@Override
 	public boolean supportsFile(
 			final URL file ) {
-		return GeoLifeUtils
-				.validate(
-						file);
+		return GeoLifeUtils.validate(file);
 	}
 
 	@Override
@@ -139,30 +128,19 @@ public class GeoLifeIngestPlugin extends
 	public CloseableIterator<WholeFile> toAvroObjects(
 			final URL input ) {
 		final WholeFile avroFile = new WholeFile();
-		avroFile
-				.setOriginalFilePath(
-						input.getPath());
+		avroFile.setOriginalFilePath(input.getPath());
 		try {
-			avroFile
-					.setOriginalFile(
-							ByteBuffer
-									.wrap(
-											IOUtils
-													.toByteArray(
-															input)));
+			avroFile.setOriginalFile(ByteBuffer.wrap(IOUtils.toByteArray(input)));
 		}
 		catch (final IOException e) {
-			LOGGER
-					.warn(
-							"Unable to read GeoLife file: " + input.getPath(),
-							e);
+			LOGGER.warn(
+					"Unable to read GeoLife file: " + input.getPath(),
+					e);
 			return new CloseableIterator.Empty<>();
 		}
 
 		return new CloseableIterator.Wrapper<>(
-				Iterators
-						.singletonIterator(
-								avroFile));
+				Iterators.singletonIterator(avroFile));
 	}
 
 	@Override
@@ -200,9 +178,7 @@ public class GeoLifeIngestPlugin extends
 				isr);
 		int pointInstance = 0;
 		final List<Coordinate> pts = new ArrayList<>();
-		final String trackId = FilenameUtils
-				.getName(
-						hfile.getOriginalFilePath().toString());
+		final String trackId = FilenameUtils.getName(hfile.getOriginalFilePath().toString());
 		String line;
 		Date startTimeStamp = null;
 		Date endTimeStamp = null;
@@ -213,154 +189,105 @@ public class GeoLifeIngestPlugin extends
 		try {
 			while ((line = br.readLine()) != null) {
 
-				final String[] vals = line
-						.split(
-								",");
+				final String[] vals = line.split(",");
 				if (vals.length != 7) {
 					continue;
 				}
 
-				currLat = GeometryUtils
-						.adjustCoordinateDimensionToRange(
-								Double
-										.parseDouble(
-												vals[0]),
-								crs,
-								1);
-				currLng = GeometryUtils
-						.adjustCoordinateDimensionToRange(
-								Double
-										.parseDouble(
-												vals[1]),
-								crs,
-								0);
+				currLat = GeometryUtils.adjustCoordinateDimensionToRange(
+						Double.parseDouble(vals[0]),
+						crs,
+						1);
+				currLng = GeometryUtils.adjustCoordinateDimensionToRange(
+						Double.parseDouble(vals[1]),
+						crs,
+						0);
 				final Coordinate cord = new Coordinate(
 						currLng,
 						currLat);
-				pts
-						.add(
-								cord);
-				geolifePointBuilder
-						.set(
-								"geometry",
-								geometryFactory
-										.createPoint(
-												cord));
-				geolifePointBuilder
-						.set(
-								"trackid",
-								trackId);
-				geolifePointBuilder
-						.set(
-								"pointinstance",
-								pointInstance);
+				pts.add(cord);
+				geolifePointBuilder.set(
+						"geometry",
+						geometryFactory.createPoint(cord));
+				geolifePointBuilder.set(
+						"trackid",
+						trackId);
+				geolifePointBuilder.set(
+						"pointinstance",
+						pointInstance);
 				pointInstance++;
 
 				timestring = vals[5] + " " + vals[6];
-				final Date ts = GeoLifeUtils
-						.parseDate(
-								timestring);
-				geolifePointBuilder
-						.set(
-								"Timestamp",
-								ts);
+				final Date ts = GeoLifeUtils.parseDate(timestring);
+				geolifePointBuilder.set(
+						"Timestamp",
+						ts);
 				if (startTimeStamp == null) {
 					startTimeStamp = ts;
 				}
 				endTimeStamp = ts;
 
-				geolifePointBuilder
-						.set(
-								"Latitude",
-								currLat);
-				geolifePointBuilder
-						.set(
-								"Longitude",
-								currLng);
+				geolifePointBuilder.set(
+						"Latitude",
+						currLat);
+				geolifePointBuilder.set(
+						"Longitude",
+						currLng);
 
-				Double elevation = Double
-						.parseDouble(
-								vals[3]);
+				Double elevation = Double.parseDouble(vals[3]);
 				if (elevation == -777) {
 					elevation = null;
 				}
-				geolifePointBuilder
-						.set(
-								"Elevation",
-								elevation);
-				featureData
-						.add(
-								new GeoWaveData<>(
-										pointKey,
-										indexNames,
-										geolifePointBuilder
-												.buildFeature(
-														trackId + "_" + pointInstance)));
+				geolifePointBuilder.set(
+						"Elevation",
+						elevation);
+				featureData.add(new GeoWaveData<>(
+						pointKey,
+						indexNames,
+						geolifePointBuilder.buildFeature(trackId + "_" + pointInstance)));
 			}
 
-			geolifeTrackBuilder
-					.set(
-							"geometry",
-							geometryFactory
-									.createLineString(
-											pts
-													.toArray(
-															new Coordinate[pts.size()])));
+			geolifeTrackBuilder.set(
+					"geometry",
+					geometryFactory.createLineString(pts.toArray(new Coordinate[pts.size()])));
 
-			geolifeTrackBuilder
-					.set(
-							"StartTimeStamp",
-							startTimeStamp);
-			geolifeTrackBuilder
-					.set(
-							"EndTimeStamp",
-							endTimeStamp);
+			geolifeTrackBuilder.set(
+					"StartTimeStamp",
+					startTimeStamp);
+			geolifeTrackBuilder.set(
+					"EndTimeStamp",
+					endTimeStamp);
 			if ((endTimeStamp != null) && (startTimeStamp != null)) {
-				geolifeTrackBuilder
-						.set(
-								"Duration",
-								endTimeStamp.getTime() - startTimeStamp.getTime());
+				geolifeTrackBuilder.set(
+						"Duration",
+						endTimeStamp.getTime() - startTimeStamp.getTime());
 			}
-			geolifeTrackBuilder
-					.set(
-							"NumberPoints",
-							pointInstance);
-			geolifeTrackBuilder
-					.set(
-							"TrackId",
-							trackId);
-			featureData
-					.add(
-							new GeoWaveData<>(
-									trackKey,
-									indexNames,
-									geolifeTrackBuilder
-											.buildFeature(
-													trackId)));
+			geolifeTrackBuilder.set(
+					"NumberPoints",
+					pointInstance);
+			geolifeTrackBuilder.set(
+					"TrackId",
+					trackId);
+			featureData.add(new GeoWaveData<>(
+					trackKey,
+					indexNames,
+					geolifeTrackBuilder.buildFeature(trackId)));
 
 		}
 		catch (final IOException e) {
-			LOGGER
-					.warn(
-							"Error reading line from file: " + hfile.getOriginalFilePath(),
-							e);
+			LOGGER.warn(
+					"Error reading line from file: " + hfile.getOriginalFilePath(),
+					e);
 		}
 		catch (final ParseException e) {
-			LOGGER
-					.error(
-							"Error parsing time string: " + timestring,
-							e);
+			LOGGER.error(
+					"Error parsing time string: " + timestring,
+					e);
 		}
 		finally {
-			IOUtils
-					.closeQuietly(
-							br);
-			IOUtils
-					.closeQuietly(
-							isr);
-			IOUtils
-					.closeQuietly(
-							in);
+			IOUtils.closeQuietly(br);
+			IOUtils.closeQuietly(isr);
+			IOUtils.closeQuietly(in);
 		}
 
 		return new CloseableIterator.Wrapper<>(

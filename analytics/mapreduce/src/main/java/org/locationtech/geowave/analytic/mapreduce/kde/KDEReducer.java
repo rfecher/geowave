@@ -61,21 +61,13 @@ public class KDEReducer extends
 			final int prime = 31;
 			int result = 1;
 			long temp;
-			temp = Double
-					.doubleToLongBits(
-							tileEastLon);
+			temp = Double.doubleToLongBits(tileEastLon);
 			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double
-					.doubleToLongBits(
-							tileNorthLat);
+			temp = Double.doubleToLongBits(tileNorthLat);
 			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double
-					.doubleToLongBits(
-							tileSouthLat);
+			temp = Double.doubleToLongBits(tileSouthLat);
 			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double
-					.doubleToLongBits(
-							tileWestLon);
+			temp = Double.doubleToLongBits(tileWestLon);
 			result = (prime * result) + (int) (temp ^ (temp >>> 32));
 			return result;
 		}
@@ -93,32 +85,16 @@ public class KDEReducer extends
 				return false;
 			}
 			final TileInfo other = (TileInfo) obj;
-			if (Double
-					.doubleToLongBits(
-							tileEastLon) != Double
-									.doubleToLongBits(
-											other.tileEastLon)) {
+			if (Double.doubleToLongBits(tileEastLon) != Double.doubleToLongBits(other.tileEastLon)) {
 				return false;
 			}
-			if (Double
-					.doubleToLongBits(
-							tileNorthLat) != Double
-									.doubleToLongBits(
-											other.tileNorthLat)) {
+			if (Double.doubleToLongBits(tileNorthLat) != Double.doubleToLongBits(other.tileNorthLat)) {
 				return false;
 			}
-			if (Double
-					.doubleToLongBits(
-							tileSouthLat) != Double
-									.doubleToLongBits(
-											other.tileSouthLat)) {
+			if (Double.doubleToLongBits(tileSouthLat) != Double.doubleToLongBits(other.tileSouthLat)) {
 				return false;
 			}
-			if (Double
-					.doubleToLongBits(
-							tileWestLon) != Double
-									.doubleToLongBits(
-											other.tileWestLon)) {
+			if (Double.doubleToLongBits(tileWestLon) != Double.doubleToLongBits(other.tileWestLon)) {
 				return false;
 			}
 			return true;
@@ -186,11 +162,10 @@ public class KDEReducer extends
 			// doing a comparison with the previous value using an appropriate
 			// epsilon
 			final double percentile;
-			if (FloatCompareUtils
-					.checkDoublesEqual(
-							prevValue,
-							value,
-							WEIGHT_EPSILON)) {
+			if (FloatCompareUtils.checkDoublesEqual(
+					prevValue,
+					value,
+					WEIGHT_EPSILON)) {
 				percentile = prevPct;
 			}
 			else {
@@ -202,51 +177,42 @@ public class KDEReducer extends
 			// calculate weights for this key
 			for (final LongWritable v : values) {
 				final long cellIndex = v.get() / numLevels;
-				final TileInfo tileInfo = fromCellIndexToTileInfo(
-						cellIndex);
-				final WritableRaster raster = RasterUtils
-						.createRasterTypeDouble(
-								NUM_BANDS,
-								KDEJobRunner.TILE_SIZE);
+				final TileInfo tileInfo = fromCellIndexToTileInfo(cellIndex);
+				final WritableRaster raster = RasterUtils.createRasterTypeDouble(
+						NUM_BANDS,
+						KDEJobRunner.TILE_SIZE);
 
-				raster
-						.setSample(
-								tileInfo.x,
-								tileInfo.y,
-								0,
-								key.get());
-				raster
-						.setSample(
-								tileInfo.x,
-								tileInfo.y,
-								1,
-								normalizedValue);
+				raster.setSample(
+						tileInfo.x,
+						tileInfo.y,
+						0,
+						key.get());
+				raster.setSample(
+						tileInfo.x,
+						tileInfo.y,
+						1,
+						normalizedValue);
 
-				raster
-						.setSample(
-								tileInfo.x,
-								tileInfo.y,
-								2,
-								percentile);
-				context
-						.write(
-								new GeoWaveOutputKey(
-										coverageName,
-										indexList
-												.toArray(
-														new String[0])),
-								RasterUtils
-										.createCoverageTypeDouble(
-												coverageName,
-												tileInfo.tileWestLon,
-												tileInfo.tileEastLon,
-												tileInfo.tileSouthLat,
-												tileInfo.tileNorthLat,
-												MINS_PER_BAND,
-												MAXES_PER_BAND,
-												NAME_PER_BAND,
-												raster,
-												crsCode));
+				raster.setSample(
+						tileInfo.x,
+						tileInfo.y,
+						2,
+						percentile);
+				context.write(
+						new GeoWaveOutputKey(
+								coverageName,
+								indexList.toArray(new String[0])),
+						RasterUtils.createCoverageTypeDouble(
+								coverageName,
+								tileInfo.tileWestLon,
+								tileInfo.tileEastLon,
+								tileInfo.tileSouthLat,
+								tileInfo.tileNorthLat,
+								MINS_PER_BAND,
+								MAXES_PER_BAND,
+								NAME_PER_BAND,
+								raster,
+								crsCode));
 				currentKey++;
 			}
 		}
@@ -291,90 +257,60 @@ public class KDEReducer extends
 			final Context context )
 			throws IOException,
 			InterruptedException {
-		super.setup(
-				context);
-		minLevels = context
-				.getConfiguration()
-				.getInt(
-						KDEJobRunner.MIN_LEVEL_KEY,
-						1);
-		maxLevels = context
-				.getConfiguration()
-				.getInt(
-						KDEJobRunner.MAX_LEVEL_KEY,
-						25);
-		coverageName = context
-				.getConfiguration()
-				.get(
-						KDEJobRunner.COVERAGE_NAME_KEY,
-						"");
+		super.setup(context);
+		minLevels = context.getConfiguration().getInt(
+				KDEJobRunner.MIN_LEVEL_KEY,
+				1);
+		maxLevels = context.getConfiguration().getInt(
+				KDEJobRunner.MAX_LEVEL_KEY,
+				25);
+		coverageName = context.getConfiguration().get(
+				KDEJobRunner.COVERAGE_NAME_KEY,
+				"");
 		valueRangePerDimension = new ValueRange[] {
 			new ValueRange(
-					context
-							.getConfiguration()
-							.getDouble(
-									KDEJobRunner.X_MIN_KEY,
-									-180),
-					context
-							.getConfiguration()
-							.getDouble(
-									KDEJobRunner.X_MAX_KEY,
-									180)),
+					context.getConfiguration().getDouble(
+							KDEJobRunner.X_MIN_KEY,
+							-180),
+					context.getConfiguration().getDouble(
+							KDEJobRunner.X_MAX_KEY,
+							180)),
 			new ValueRange(
-					context
-							.getConfiguration()
-							.getDouble(
-									KDEJobRunner.Y_MIN_KEY,
-									-90),
-					context
-							.getConfiguration()
-							.getDouble(
-									KDEJobRunner.Y_MAX_KEY,
-									90))
+					context.getConfiguration().getDouble(
+							KDEJobRunner.Y_MIN_KEY,
+							-90),
+					context.getConfiguration().getDouble(
+							KDEJobRunner.Y_MAX_KEY,
+							90))
 		};
-		crsCode = context
-				.getConfiguration()
-				.get(
-						KDEJobRunner.OUTPUT_CRSCODE_KEY);
+		crsCode = context.getConfiguration().get(
+				KDEJobRunner.OUTPUT_CRSCODE_KEY);
 
 		numLevels = (maxLevels - minLevels) + 1;
-		level = context
-				.getConfiguration()
-				.getInt(
-						"mapred.task.partition",
-						0)
-				+ minLevels;
-		numXTiles = (int) Math
-				.pow(
-						2,
-						level + 1);
-		numYTiles = (int) Math
-				.pow(
-						2,
-						level);
+		level = context.getConfiguration().getInt(
+				"mapred.task.partition",
+				0) + minLevels;
+		numXTiles = (int) Math.pow(
+				2,
+				level + 1);
+		numYTiles = (int) Math.pow(
+				2,
+				level);
 		numYPosts = numYTiles * KDEJobRunner.TILE_SIZE;
 
-		totalKeys = context
-				.getConfiguration()
-				.getLong(
-						"Entries per level.level" + level,
-						10);
-		final Index[] indices = JobContextIndexStore
-				.getIndices(
-						context);
+		totalKeys = context.getConfiguration().getLong(
+				"Entries per level.level" + level,
+				10);
+		final Index[] indices = JobContextIndexStore.getIndices(context);
 		indexList = new ArrayList<>();
 		if ((indices != null) && (indices.length > 0)) {
 			for (final Index index : indices) {
-				indexList
-						.add(
-								index.getName());
+				indexList.add(index.getName());
 			}
 
 		}
 		else {
-			indexList
-					.add(
-							new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName());
+			indexList.add(new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName());
 		}
 	}
 }

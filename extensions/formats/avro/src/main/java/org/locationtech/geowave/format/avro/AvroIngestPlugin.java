@@ -188,7 +188,8 @@ public class AvroIngestPlugin extends
 							attributeTypes,
 							attributeValues);
 					retVal.add(new GeoWaveData<SimpleFeature>(
-							adapter,indexNames,
+							adapter,
+							indexNames,
 							simpleFeature));
 				}
 				catch (final Exception e) {

@@ -87,63 +87,43 @@ public class GeoWaveAnalyticExtractJobRunner extends
 				job.getConfiguration(),
 				SimpleFeatureOutputReducer.class);
 
-		reducerCount = Math
-				.max(
-						configWrapper
-								.getInt(
-										ExtractParameters.Extract.REDUCER_COUNT,
-										8),
-						1);
+		reducerCount = Math.max(
+				configWrapper.getInt(
+						ExtractParameters.Extract.REDUCER_COUNT,
+						8),
+				1);
 
-		outputBaseDir = configWrapper
-				.getString(
-						MapReduceParameters.MRConfig.HDFS_BASE_DIR,
-						"/tmp");
+		outputBaseDir = configWrapper.getString(
+				MapReduceParameters.MRConfig.HDFS_BASE_DIR,
+				"/tmp");
 
-		LOGGER
-				.info(
-						"Output base directory " + outputBaseDir);
+		LOGGER.info("Output base directory " + outputBaseDir);
 
-		super.configure(
-				job);
+		super.configure(job);
 
 		@SuppressWarnings("rawtypes")
-		final Class<? extends DimensionExtractor> dimensionExtractorClass = job
-				.getConfiguration()
-				.getClass(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
+		final Class<? extends DimensionExtractor> dimensionExtractorClass = job.getConfiguration().getClass(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						SimpleFeatureOutputReducer.class,
+						ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS),
+				SimpleFeatureGeometryExtractor.class,
+				DimensionExtractor.class);
+
+		GeoWaveOutputFormat.addDataAdapter(
+				job.getConfiguration(),
+				createAdapter(
+						job.getConfiguration().get(
+								GeoWaveConfiguratorBase.enumToConfKey(
 										SimpleFeatureOutputReducer.class,
-										ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS),
-						SimpleFeatureGeometryExtractor.class,
-						DimensionExtractor.class);
+										ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID)),
+						job.getConfiguration().get(
+								GeoWaveConfiguratorBase.enumToConfKey(
+										SimpleFeatureOutputReducer.class,
+										ExtractParameters.Extract.DATA_NAMESPACE_URI)),
+						dimensionExtractorClass));
 
-		GeoWaveOutputFormat
-				.addDataAdapter(
-						job.getConfiguration(),
-						createAdapter(
-								job
-										.getConfiguration()
-										.get(
-												GeoWaveConfiguratorBase
-														.enumToConfKey(
-																SimpleFeatureOutputReducer.class,
-																ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID)),
-								job
-										.getConfiguration()
-										.get(
-												GeoWaveConfiguratorBase
-														.enumToConfKey(
-																SimpleFeatureOutputReducer.class,
-																ExtractParameters.Extract.DATA_NAMESPACE_URI)),
-								dimensionExtractorClass));
-
-		job
-				.setJobName(
-						"GeoWave Extract (" + dataStoreOptions.getGeowaveNamespace() + ")");
-		job
-				.setReduceSpeculativeExecution(
-						false);
+		job.setJobName("GeoWave Extract (" + dataStoreOptions.getGeowaveNamespace() + ")");
+		job.setReduceSpeculativeExecution(false);
 
 	}
 
@@ -155,12 +135,11 @@ public class GeoWaveAnalyticExtractJobRunner extends
 			throws InstantiationException,
 			IllegalAccessException {
 		final DimensionExtractor<?> extractor = dimensionExtractorClass.newInstance();
-		return AnalyticFeature
-				.createGeometryFeatureAdapter(
-						outputDataTypeID,
-						extractor.getDimensionNames(),
-						namespaceURI,
-						ClusteringUtils.CLUSTERING_CRS);
+		return AnalyticFeature.createGeometryFeatureAdapter(
+				outputDataTypeID,
+				extractor.getDimensionNames(),
+				namespaceURI,
+				ClusteringUtils.CLUSTERING_CRS);
 	}
 
 	@Override
@@ -181,186 +160,141 @@ public class GeoWaveAnalyticExtractJobRunner extends
 			final PropertyManagement runTimeProperties )
 			throws Exception {
 
-		runTimeProperties
-				.storeIfEmpty(
-						ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID,
-						"centroid");
-		runTimeProperties
-				.setConfig(
-						new ParameterEnum[] {
-							MapReduceParameters.MRConfig.HDFS_BASE_DIR,
-							ExtractParameters.Extract.REDUCER_COUNT,
-							ExtractParameters.Extract.DATA_NAMESPACE_URI,
-							ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID
-						},
-						config,
-						SimpleFeatureOutputReducer.class);
+		runTimeProperties.storeIfEmpty(
+				ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID,
+				"centroid");
+		runTimeProperties.setConfig(
+				new ParameterEnum[] {
+					MapReduceParameters.MRConfig.HDFS_BASE_DIR,
+					ExtractParameters.Extract.REDUCER_COUNT,
+					ExtractParameters.Extract.DATA_NAMESPACE_URI,
+					ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID
+				},
+				config,
+				SimpleFeatureOutputReducer.class);
 
-		config
-				.set(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										SimpleFeatureOutputReducer.class,
-										ExtractParameters.Extract.GROUP_ID),
-						runTimeProperties
-								.getPropertyAsString(
-										ExtractParameters.Extract.GROUP_ID,
-										UUID.randomUUID().toString()));
+		config.set(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						SimpleFeatureOutputReducer.class,
+						ExtractParameters.Extract.GROUP_ID),
+				runTimeProperties.getPropertyAsString(
+						ExtractParameters.Extract.GROUP_ID,
+						UUID.randomUUID().toString()));
 
-		config
-				.set(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										SimpleFeatureOutputReducer.class,
-										GlobalParameters.Global.BATCH_ID),
-						runTimeProperties
-								.getPropertyAsString(
-										GlobalParameters.Global.BATCH_ID,
-										UUID.randomUUID().toString()));
+		config.set(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						SimpleFeatureOutputReducer.class,
+						GlobalParameters.Global.BATCH_ID),
+				runTimeProperties.getPropertyAsString(
+						GlobalParameters.Global.BATCH_ID,
+						UUID.randomUUID().toString()));
 
-		final Query query = runTimeProperties
-				.getPropertyAsQuery(
-						ExtractParameters.Extract.QUERY);
+		final Query query = runTimeProperties.getPropertyAsQuery(ExtractParameters.Extract.QUERY);
 
-		setMinInputSplits(
-				runTimeProperties
-						.getPropertyAsInt(
-								ExtractParameters.Extract.MIN_INPUT_SPLIT,
-								1));
-		setMaxInputSplits(
-				runTimeProperties
-						.getPropertyAsInt(
-								ExtractParameters.Extract.MAX_INPUT_SPLIT,
-								10000));
+		setMinInputSplits(runTimeProperties.getPropertyAsInt(
+				ExtractParameters.Extract.MIN_INPUT_SPLIT,
+				1));
+		setMaxInputSplits(runTimeProperties.getPropertyAsInt(
+				ExtractParameters.Extract.MAX_INPUT_SPLIT,
+				10000));
 		if (query != null) {
-			if ((query.getQueryConstraints() != null)
-					&& (query.getQueryConstraints() instanceof QueryConstraints)) {
-				GeoWaveInputFormat
-						.setQueryConstraints(
-								config,
-								(QueryConstraints) query.getQueryConstraints());
-				setQueryConstraints(
+			if (query.getQueryConstraints() != null) {
+				GeoWaveInputFormat.setQueryConstraints(
+						config,
 						(QueryConstraints) query.getQueryConstraints());
+				setQueryConstraints((QueryConstraints) query.getQueryConstraints());
 			}
 
 			if (query.getCommonQueryOptions() != null) {
-				GeoWaveInputFormat
-						.setCommonQueryOptions(
-								config,
-								query.getCommonQueryOptions());
-				setCommonQueryOptions(
+				GeoWaveInputFormat.setCommonQueryOptions(
+						config,
 						query.getCommonQueryOptions());
+				setCommonQueryOptions(query.getCommonQueryOptions());
 			}
 
 			if (query.getDataTypeQueryOptions() != null) {
-				GeoWaveInputFormat
-						.setDataTypeQueryOptions(
-								config,
-								query.getDataTypeQueryOptions(),
-								dataStoreOptions.createAdapterStore(),
-								dataStoreOptions.createInternalAdapterStore());
-				setDataTypeQueryOptions(
-						query.getDataTypeQueryOptions());
+				GeoWaveInputFormat.setDataTypeQueryOptions(
+						config,
+						query.getDataTypeQueryOptions(),
+						dataStoreOptions.createAdapterStore(),
+						dataStoreOptions.createInternalAdapterStore());
+				setDataTypeQueryOptions(query.getDataTypeQueryOptions());
 			}
 
 			if (query.getIndexQueryOptions() != null) {
-				GeoWaveInputFormat
-						.setIndexQueryOptions(
-								config,
-								query.getIndexQueryOptions(),
-								dataStoreOptions.createIndexStore());
-				setIndexQueryOptions(
-						query.getIndexQueryOptions());
+				GeoWaveInputFormat.setIndexQueryOptions(
+						config,
+						query.getIndexQueryOptions(),
+						dataStoreOptions.createIndexStore());
+				setIndexQueryOptions(query.getIndexQueryOptions());
 			}
 		}
 		if (minInputSplits != null) {
-			GeoWaveInputFormat
-					.setMinimumSplitCount(
-							config,
-							minInputSplits);
+			GeoWaveInputFormat.setMinimumSplitCount(
+					config,
+					minInputSplits);
 		}
 		if (maxInputSplits != null) {
-			GeoWaveInputFormat
-					.setMaximumSplitCount(
-							config,
-							maxInputSplits);
+			GeoWaveInputFormat.setMaximumSplitCount(
+					config,
+					maxInputSplits);
 		}
 
-		setConf(
-				config);
+		setConf(config);
 
-		config
-				.setClass(
-						GeoWaveConfiguratorBase
-								.enumToConfKey(
-										SimpleFeatureOutputReducer.class,
-										ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS),
-						runTimeProperties
-								.getPropertyAsClass(
-										ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-										DimensionExtractor.class,
-										SimpleFeatureGeometryExtractor.class),
-						DimensionExtractor.class);
+		config.setClass(
+				GeoWaveConfiguratorBase.enumToConfKey(
+						SimpleFeatureOutputReducer.class,
+						ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS),
+				runTimeProperties.getPropertyAsClass(
+						ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
+						DimensionExtractor.class,
+						SimpleFeatureGeometryExtractor.class),
+				DimensionExtractor.class);
 
-		final PersistableStore store = ((PersistableStore) runTimeProperties
-				.getProperty(
-						StoreParam.INPUT_STORE));
+		final PersistableStore store = ((PersistableStore) runTimeProperties.getProperty(StoreParam.INPUT_STORE));
 		dataStoreOptions = store.getDataStoreOptions();
 
-		GeoWaveInputFormat
-				.setStoreOptions(
-						config,
-						dataStoreOptions);
+		GeoWaveInputFormat.setStoreOptions(
+				config,
+				dataStoreOptions);
 
-		GeoWaveOutputFormat
-				.setStoreOptions(
-						config,
-						dataStoreOptions);
+		GeoWaveOutputFormat.setStoreOptions(
+				config,
+				dataStoreOptions);
 
-		try (final FileSystem fs = FileSystem
-				.get(
-						config)) {
-			if (fs
-					.exists(
-							getHdfsOutputPath())) {
-				fs
-						.delete(
-								// HPFortify "Path Manipulation"
-								// False positive - path is internally managed
-								getHdfsOutputPath(),
-								true);
+		try (final FileSystem fs = FileSystem.get(config)) {
+			if (fs.exists(getHdfsOutputPath())) {
+				fs.delete(
+						// HPFortify "Path Manipulation"
+						// False positive - path is internally managed
+						getHdfsOutputPath(),
+						true);
 			}
 
-			return ToolRunner
-					.run(
-							config,
-							this,
-							new String[] {});
+			return ToolRunner.run(
+					config,
+					this,
+					new String[] {});
 		}
 	}
 
 	@Override
 	public Collection<ParameterEnum<?>> getParameters() {
 		final Set<ParameterEnum<?>> params = new HashSet<>();
-		params
-				.addAll(
-						Arrays
-								.asList(
-										new ParameterEnum<?>[] {
-											ExtractParameters.Extract.REDUCER_COUNT,
-											ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID,
-											ExtractParameters.Extract.DATA_NAMESPACE_URI,
-											ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-											ExtractParameters.Extract.MIN_INPUT_SPLIT,
-											ExtractParameters.Extract.MAX_INPUT_SPLIT,
-											ExtractParameters.Extract.QUERY,
-											StoreParam.INPUT_STORE,
-											GlobalParameters.Global.BATCH_ID
-										}));
+		params.addAll(Arrays.asList(new ParameterEnum<?>[] {
+			ExtractParameters.Extract.REDUCER_COUNT,
+			ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID,
+			ExtractParameters.Extract.DATA_NAMESPACE_URI,
+			ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
+			ExtractParameters.Extract.MIN_INPUT_SPLIT,
+			ExtractParameters.Extract.MAX_INPUT_SPLIT,
+			ExtractParameters.Extract.QUERY,
+			StoreParam.INPUT_STORE,
+			GlobalParameters.Global.BATCH_ID
+		}));
 
-		params
-				.addAll(
-						MapReduceParameters.getParameters());
+		params.addAll(MapReduceParameters.getParameters());
 		return params;
 	}
 
@@ -368,12 +302,9 @@ public class GeoWaveAnalyticExtractJobRunner extends
 	public int run(
 			final PropertyManagement runTimeProperties )
 			throws Exception {
-		return this
-				.run(
-						MapReduceJobController
-								.getConfiguration(
-										runTimeProperties),
-						runTimeProperties);
+		return this.run(
+				MapReduceJobController.getConfiguration(runTimeProperties),
+				runTimeProperties);
 	}
 
 	@Override
@@ -384,20 +315,14 @@ public class GeoWaveAnalyticExtractJobRunner extends
 		try {
 			final Job job = new Job(
 					super.getConf());
-			job
-					.setJarByClass(
-							this.getClass());
-			configure(
-					job);
-			return job
-					.waitForCompletion(
-							true);
+			job.setJarByClass(this.getClass());
+			configure(job);
+			return job.waitForCompletion(true);
 		}
 		catch (final Exception e) {
-			LOGGER
-					.error(
-							"Unable to run job",
-							e);
+			LOGGER.error(
+					"Unable to run job",
+					e);
 			throw new ParseException(
 					e.getMessage());
 		}

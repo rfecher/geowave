@@ -70,7 +70,7 @@ public class FeatureTimeRangeStatistics extends
 	}
 
 	@Override
-	public InternalDataStatistics<SimpleFeature, Interval, FieldStatisticsQueryBuilder<Interval>> clone() {
+	public InternalDataStatistics<SimpleFeature, Interval, FieldStatisticsQueryBuilder<Interval>> duplicate() {
 		return new FeatureTimeRangeStatistics(
 				adapterId,
 				getFieldName());
