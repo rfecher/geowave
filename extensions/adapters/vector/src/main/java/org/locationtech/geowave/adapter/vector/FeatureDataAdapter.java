@@ -264,16 +264,7 @@ public class FeatureDataAdapter extends
 						featureType,
 						defaultVisibilityManagement));
 		setFeatureType(featureType);
-	}
-
-	// -----------------------------------------------------------------------------------
-	// -----------------------------------------------------------------------------------
-	// Simplify for call from pyspark/jupyter
-	public void init(
-			final Index index ) {
-		this.init(new Index[] {
-			index
-		});
+		init();
 	}
 
 	@Override

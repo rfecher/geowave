@@ -71,10 +71,11 @@ public class AdapterIndexMappingStoreImpl extends
 	public AdapterToIndexMapping getIndicesForAdapter(
 			final short adapterId ) {
 
-		final AdapterToIndexMapping mapping = super.getObject(
+		final AdapterToIndexMapping mapping = super.internalGetObject(
 				new ByteArrayId(
 						ByteArrayUtils.shortToByteArray(adapterId)),
 				null,
+				false,
 				null);
 		return (mapping != null) ? mapping : new AdapterToIndexMapping(
 				adapterId,

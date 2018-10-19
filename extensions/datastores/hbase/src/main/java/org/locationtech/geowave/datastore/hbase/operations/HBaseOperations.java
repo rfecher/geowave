@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,17 +55,11 @@ import org.apache.hadoop.hbase.client.coprocessor.Batch;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter.RowRange;
 import org.apache.hadoop.hbase.ipc.BlockingRpcCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import org.apache.hadoop.hbase.shaded.com.google.protobuf.ByteString;
 import org.locationtech.geowave.core.cli.VersionUtils;
 import org.locationtech.geowave.core.index.ByteArrayId;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
-import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.MultiDimensionalCoordinateRangesArray;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
@@ -78,11 +71,13 @@ import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStor
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowImpl;
+import org.locationtech.geowave.core.store.entities.GeoWaveValue;
+import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
-import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataQuery;
@@ -90,23 +85,23 @@ import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.MetadataWriter;
 import org.locationtech.geowave.core.store.operations.QueryAndDeleteByRow;
-import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
+import org.locationtech.geowave.core.store.operations.RowDeleter;
+import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregation;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.server.BasicOptionProvider;
 import org.locationtech.geowave.core.store.server.RowMergingAdapterOptionProvider;
+import org.locationtech.geowave.core.store.server.ServerOpConfig.ServerOpScope;
 import org.locationtech.geowave.core.store.server.ServerOpHelper;
 import org.locationtech.geowave.core.store.server.ServerSideOperations;
-import org.locationtech.geowave.core.store.server.ServerOpConfig.ServerOpScope;
 import org.locationtech.geowave.core.store.util.DataAdapterAndIndexCache;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.hbase.HBaseRow;
 import org.locationtech.geowave.datastore.hbase.HBaseStoreFactoryFamily;
 import org.locationtech.geowave.datastore.hbase.cli.config.HBaseOptions;
 import org.locationtech.geowave.datastore.hbase.cli.config.HBaseRequiredOptions;
-import org.locationtech.geowave.datastore.hbase.coprocessors.HBaseBulkDeleteEndpoint;
 import org.locationtech.geowave.datastore.hbase.coprocessors.protobuf.AggregationProtosClient;
 import org.locationtech.geowave.datastore.hbase.coprocessors.protobuf.HBaseBulkDeleteProtosClient;
 import org.locationtech.geowave.datastore.hbase.coprocessors.protobuf.HBaseBulkDeleteProtosClient.BulkDeleteResponse;
@@ -124,6 +119,12 @@ import org.locationtech.geowave.datastore.hbase.util.HBaseUtils;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 public class HBaseOperations implements
 		MapReduceDataStoreOperations,
@@ -256,9 +257,9 @@ public class HBaseOperations implements
 	}
 
 	protected void createTable(
-			Set<ByteArrayId> preSplits,
+			final Set<ByteArrayId> preSplits,
 			final Pair<GeoWaveColumnFamily, Boolean>[] columnFamiliesAndVersioningPairs,
-			GeoWaveColumnFamilyFactory columnFamilyFactory,
+			final GeoWaveColumnFamilyFactory columnFamilyFactory,
 			final TableName tableName )
 			throws IOException {
 		synchronized (ADMIN_MUTEX) {
@@ -322,7 +323,7 @@ public class HBaseOperations implements
 	}
 
 	protected void createTable(
-			Set<ByteArrayId> preSplits,
+			final Set<ByteArrayId> preSplits,
 			final GeoWaveColumnFamily[] columnFamilies,
 			final GeoWaveColumnFamilyFactory columnFamilyFactory,
 			final boolean enableVersioning,
@@ -461,7 +462,7 @@ public class HBaseOperations implements
 			try {
 				Thread.sleep(10);
 			}
-			catch (InterruptedException e) {
+			catch (final InterruptedException e) {
 				// Do nothing
 			}
 		}
@@ -476,7 +477,7 @@ public class HBaseOperations implements
 			try {
 				Thread.sleep(10);
 			}
-			catch (InterruptedException e) {
+			catch (final InterruptedException e) {
 				// Do nothing
 			}
 		}
@@ -615,7 +616,7 @@ public class HBaseOperations implements
 					e);
 		}
 		finally {
-			if (scanner != null && scanner instanceof ResultScanner) {
+			if ((scanner != null) && (scanner instanceof ResultScanner)) {
 				((ResultScanner) scanner).close();
 			}
 			if (deleter != null) {
@@ -660,7 +661,7 @@ public class HBaseOperations implements
 	}
 
 	public RegionLocator getRegionLocator(
-			TableName tableName )
+			final TableName tableName )
 			throws IOException {
 		return conn.getRegionLocator(tableName);
 	}
@@ -831,7 +832,7 @@ public class HBaseOperations implements
 			throws IOException {
 		synchronized (ADMIN_MUTEX) {
 			try (Admin admin = conn.getAdmin()) {
-				TableName tableName = getTableName(indexName);
+				final TableName tableName = getTableName(indexName);
 				return admin.tableExists(tableName);
 			}
 		}
@@ -870,8 +871,8 @@ public class HBaseOperations implements
 
 	@Override
 	public boolean mergeStats(
-			DataStatisticsStore store,
-			InternalAdapterStore internalAdapterStore ) {
+			final DataStatisticsStore store,
+			final InternalAdapterStore internalAdapterStore ) {
 		if (options.isServerSideLibraryEnabled()) {
 			try (Admin admin = conn.getAdmin()) {
 				admin.compact(getTableName(AbstractGeoWavePersistence.METADATA_TABLE));
@@ -906,7 +907,7 @@ public class HBaseOperations implements
 	}
 
 	public void createTable(
-			Set<ByteArrayId> preSplits,
+			final Set<ByteArrayId> preSplits,
 			final String indexName,
 			final boolean enableVersioning,
 			final short internalAdapterId ) {
@@ -931,13 +932,14 @@ public class HBaseOperations implements
 	}
 
 	protected String getMetadataTableName(
-			MetadataType type ) {
+			final MetadataType type ) {
 		return AbstractGeoWavePersistence.METADATA_TABLE;
 	}
 
 	@Override
 	public RowWriter createWriter(
 			final Index index,
+			final String typeName,
 			final short internalAdapterId ) {
 		final TableName tableName = getTableName(index.getName());
 		try {
@@ -945,14 +947,12 @@ public class HBaseOperations implements
 			columnFamilies[0] = new StringColumnFamily(
 					ByteArrayUtils.shortToString(internalAdapterId));
 
-			if (options.isCreateTable()) {
-				createTable(
-						index.getIndexStrategy().getPredefinedSplits(),
-						columnFamilies,
-						StringColumnFamilyFactory.getSingletonInstance(),
-						options.isServerSideLibraryEnabled(),
-						tableName);
-			}
+			createTable(
+					index.getIndexStrategy().getPredefinedSplits(),
+					columnFamilies,
+					StringColumnFamilyFactory.getSingletonInstance(),
+					options.isServerSideLibraryEnabled(),
+					tableName);
 
 			verifyColumnFamilies(
 					columnFamilies,
@@ -983,13 +983,11 @@ public class HBaseOperations implements
 			final MetadataType metadataType ) {
 		final TableName tableName = getTableName(getMetadataTableName(metadataType));
 		try {
-			if (options.isCreateTable()) {
-				createTable(
-						Collections.EMPTY_SET,
-						METADATA_CFS_VERSIONING,
-						StringColumnFamilyFactory.getSingletonInstance(),
-						tableName);
-			}
+			createTable(
+					Collections.EMPTY_SET,
+					METADATA_CFS_VERSIONING,
+					StringColumnFamilyFactory.getSingletonInstance(),
+					tableName);
 			if (MetadataType.STATS.equals(metadataType) && options.isServerSideLibraryEnabled()) {
 				synchronized (this) {
 					if (!iteratorsAttached) {
@@ -1042,7 +1040,7 @@ public class HBaseOperations implements
 	@Override
 	public <T> RowReader<T> createReader(
 			final ReaderParams<T> readerParams ) {
-		final HBaseReader<T> hbaseReader = new HBaseReader<T>(
+		final HBaseReader<T> hbaseReader = new HBaseReader<>(
 				readerParams,
 				this);
 
@@ -1052,7 +1050,7 @@ public class HBaseOperations implements
 	@Override
 	public <T> RowReader<T> createReader(
 			final RecordReaderParams<T> recordReaderParams ) {
-		return new HBaseReader<T>(
+		return new HBaseReader<>(
 				recordReaderParams,
 				this);
 	}
@@ -1065,7 +1063,7 @@ public class HBaseOperations implements
 			return new HBaseRowDeleter(
 					getBufferedMutator(tableName));
 		}
-		catch (IOException ioe) {
+		catch (final IOException ioe) {
 			LOGGER.error(
 					"Error creating deleter",
 					ioe);
@@ -1085,7 +1083,7 @@ public class HBaseOperations implements
 	public MultiRowRangeFilter getMultiRowRangeFilter(
 			final List<ByteArrayRange> ranges ) {
 		// create the multi-row filter
-		final List<RowRange> rowRanges = new ArrayList<RowRange>();
+		final List<RowRange> rowRanges = new ArrayList<>();
 		if ((ranges == null) || ranges.isEmpty()) {
 			rowRanges.add(new RowRange(
 					HConstants.EMPTY_BYTE_ARRAY,
@@ -1129,7 +1127,7 @@ public class HBaseOperations implements
 		return null;
 	}
 
-	public <T> Mergeable aggregateServerSide(
+	public <T> Iterator<GeoWaveRow> aggregateServerSide(
 			final ReaderParams<T> readerParams ) {
 		final String tableName = readerParams.getIndex().getName();
 
@@ -1146,76 +1144,139 @@ public class HBaseOperations implements
 
 			final AggregationProtosClient.AggregationType.Builder aggregationBuilder = AggregationProtosClient.AggregationType
 					.newBuilder();
-			aggregationBuilder.setClassId(ByteString.copyFrom(URLClassloaderUtils.toClassId(aggregation)));
+			aggregationBuilder
+					.setClassId(
+							ByteString
+									.copyFrom(
+											URLClassloaderUtils
+													.toClassId(
+															aggregation)));
 
 			if (aggregation.getParameters() != null) {
-				final byte[] paramBytes = URLClassloaderUtils.toBinary(aggregation.getParameters());
-				aggregationBuilder.setParams(ByteString.copyFrom(paramBytes));
+				final byte[] paramBytes = URLClassloaderUtils
+						.toBinary(
+								aggregation.getParameters());
+				aggregationBuilder
+						.setParams(
+								ByteString
+										.copyFrom(
+												paramBytes));
 			}
 
 			final AggregationProtosClient.AggregationRequest.Builder requestBuilder = AggregationProtosClient.AggregationRequest
 					.newBuilder();
-			requestBuilder.setAggregation(aggregationBuilder.build());
+			requestBuilder
+					.setAggregation(
+							aggregationBuilder.build());
 			if (readerParams.getFilter() != null) {
 				final List<QueryFilter> distFilters = new ArrayList();
-				distFilters.add(readerParams.getFilter());
+				distFilters
+						.add(
+								readerParams.getFilter());
 
-				final byte[] filterBytes = URLClassloaderUtils.toBinary(distFilters);
-				final ByteString filterByteString = ByteString.copyFrom(filterBytes);
-				requestBuilder.setFilter(filterByteString);
+				final byte[] filterBytes = URLClassloaderUtils
+						.toBinary(
+								distFilters);
+				final ByteString filterByteString = ByteString
+						.copyFrom(
+								filterBytes);
+				requestBuilder
+						.setFilter(
+								filterByteString);
 			}
 			else {
 				final List<MultiDimensionalCoordinateRangesArray> coords = readerParams.getCoordinateRanges();
 				if (!coords.isEmpty()) {
 					final byte[] filterBytes = new HBaseNumericIndexStrategyFilter(
 							readerParams.getIndex().getIndexStrategy(),
-							coords.toArray(new MultiDimensionalCoordinateRangesArray[] {})).toByteArray();
-					final ByteString filterByteString = ByteString.copyFrom(
-							new byte[] {
-								0
-							}).concat(
-							ByteString.copyFrom(filterBytes));
+							coords
+									.toArray(
+											new MultiDimensionalCoordinateRangesArray[] {})).toByteArray();
+					final ByteString filterByteString = ByteString
+							.copyFrom(
+									new byte[] {
+										0
+									})
+							.concat(
+									ByteString
+											.copyFrom(
+													filterBytes));
 
-					requestBuilder.setNumericIndexStrategyFilter(filterByteString);
+					requestBuilder
+							.setNumericIndexStrategyFilter(
+									filterByteString);
 				}
 			}
-			requestBuilder.setModel(ByteString.copyFrom(URLClassloaderUtils.toBinary(readerParams
-					.getIndex()
-					.getIndexModel())));
+			requestBuilder
+					.setModel(
+							ByteString
+									.copyFrom(
+											URLClassloaderUtils
+													.toBinary(
+															readerParams.getIndex().getIndexModel())));
 
-			int maxRangeDecomposition = readerParams.getMaxRangeDecomposition() == null ? options
-					.getAggregationMaxRangeDecomposition() : readerParams.getMaxRangeDecomposition();
-			final MultiRowRangeFilter multiFilter = getMultiRowRangeFilter(DataStoreUtils.constraintsToQueryRanges(
-					readerParams.getConstraints(),
-					readerParams.getIndex().getIndexStrategy(),
-					null,
-					maxRangeDecomposition).getCompositeQueryRanges());
+			final int maxRangeDecomposition = readerParams.getMaxRangeDecomposition() == null
+					? options.getAggregationMaxRangeDecomposition()
+					: readerParams.getMaxRangeDecomposition();
+			final MultiRowRangeFilter multiFilter = getMultiRowRangeFilter(
+					DataStoreUtils
+							.constraintsToQueryRanges(
+									readerParams.getConstraints(),
+									readerParams.getIndex().getIndexStrategy(),
+									null,
+									maxRangeDecomposition)
+							.getCompositeQueryRanges());
 			if (multiFilter != null) {
-				requestBuilder.setRangeFilter(ByteString.copyFrom(multiFilter.toByteArray()));
+				requestBuilder
+						.setRangeFilter(
+								ByteString
+										.copyFrom(
+												multiFilter.toByteArray()));
 			}
 			if (readerParams.getAggregation().getLeft() != null) {
 				if (readerParams.getAggregation().getRight() instanceof CommonIndexAggregation) {
-					requestBuilder.setInternalAdapterId(ByteString.copyFrom(ByteArrayUtils
-							.shortToByteArray(readerParams.getAggregation().getLeft().getAdapterId())));
+					requestBuilder
+							.setInternalAdapterId(
+									ByteString
+											.copyFrom(
+													ByteArrayUtils
+															.shortToByteArray(
+																	readerParams
+																			.getAggregation()
+																			.getLeft()
+																			.getAdapterId())));
 				}
 				else {
-					requestBuilder.setAdapter(ByteString.copyFrom(URLClassloaderUtils.toBinary(readerParams
-							.getAggregation()
-							.getLeft())));
+					requestBuilder
+							.setAdapter(
+									ByteString
+											.copyFrom(
+													URLClassloaderUtils
+															.toBinary(
+																	readerParams.getAggregation().getLeft())));
 				}
 			}
 
 			if ((readerParams.getAdditionalAuthorizations() != null)
 					&& (readerParams.getAdditionalAuthorizations().length > 0)) {
-				requestBuilder.setVisLabels(ByteString.copyFrom(StringUtils.stringsToBinary(readerParams
-						.getAdditionalAuthorizations())));
+				requestBuilder
+						.setVisLabels(
+								ByteString
+										.copyFrom(
+												StringUtils
+														.stringsToBinary(
+																readerParams.getAdditionalAuthorizations())));
 			}
 
 			if (readerParams.isMixedVisibility()) {
-				requestBuilder.setWholeRowFilter(true);
+				requestBuilder
+						.setWholeRowFilter(
+								true);
 			}
 
-			requestBuilder.setPartitionKeyLength(readerParams.getIndex().getIndexStrategy().getPartitionKeyLength());
+			requestBuilder
+					.setPartitionKeyLength(
+							readerParams.getIndex().getIndexStrategy().getPartitionKeyLength());
 
 			final AggregationProtosClient.AggregationRequest request = requestBuilder.build();
 
@@ -1224,7 +1285,8 @@ public class HBaseOperations implements
 
 			final List<ByteArrayRange> ranges = readerParams.getQueryRanges().getCompositeQueryRanges();
 			if ((ranges != null) && !ranges.isEmpty()) {
-				final ByteArrayRange aggRange = getSingleRange(ranges);
+				final ByteArrayRange aggRange = getSingleRange(
+						ranges);
 				startRow = aggRange.getStart().getBytes();
 				endRow = aggRange.getEnd().getBytes();
 			}
@@ -1235,36 +1297,42 @@ public class HBaseOperations implements
 			do {
 				shouldRetry = false;
 
-				try (final Table table = getTable(tableName)) {
-					results = table.coprocessorService(
-							AggregationProtosClient.AggregationService.class,
-							startRow,
-							endRow,
-							new Batch.Call<AggregationProtosClient.AggregationService, ByteString>() {
-								@Override
-								public ByteString call(
-										final AggregationProtosClient.AggregationService counter )
-										throws IOException {
-									final BlockingRpcCallback<AggregationProtosClient.AggregationResponse> rpcCallback = new BlockingRpcCallback<AggregationProtosClient.AggregationResponse>();
-									counter.aggregate(
-											null,
-											request,
-											rpcCallback);
-									AggregationProtosClient.AggregationResponse response = rpcCallback.get();
-									if (response == null) {
-										// Region returned no response
-										throw new RegionException();
-									}
-									return response.hasValue() ? response.getValue() : null;
-								}
-							});
+				try (final Table table = getTable(
+						tableName)) {
+					results = table
+							.coprocessorService(
+									AggregationProtosClient.AggregationService.class,
+									startRow,
+									endRow,
+									new Batch.Call<AggregationProtosClient.AggregationService, ByteString>() {
+										@Override
+										public ByteString call(
+												final AggregationProtosClient.AggregationService counter )
+												throws IOException {
+											final BlockingRpcCallback<AggregationProtosClient.AggregationResponse> rpcCallback = new BlockingRpcCallback<>();
+											counter
+													.aggregate(
+															null,
+															request,
+															rpcCallback);
+											final AggregationProtosClient.AggregationResponse response = rpcCallback
+													.get();
+											if (response == null) {
+												// Region returned no response
+												throw new RegionException();
+											}
+											return response.hasValue() ? response.getValue() : null;
+										}
+									});
 					break;
 				}
-				catch (RegionException e) {
+				catch (final RegionException e) {
 					retries++;
 					if (retries <= MAX_AGGREGATE_RETRIES) {
-						LOGGER.warn("Aggregate timed out due to unavailable region. Retrying (" + retries + " of "
-								+ MAX_AGGREGATE_RETRIES + ")");
+						LOGGER
+								.warn(
+										"Aggregate timed out due to unavailable region. Retrying (" + retries + " of "
+												+ MAX_AGGREGATE_RETRIES + ")");
 						shouldRetry = true;
 					}
 				}
@@ -1272,46 +1340,35 @@ public class HBaseOperations implements
 			while (shouldRetry);
 
 			if (results == null) {
-				LOGGER.error("Aggregate timed out and exceeded max retries.");
+				LOGGER
+						.error(
+								"Aggregate timed out and exceeded max retries.");
 				return null;
 			}
 
-			Mergeable total = null;
-
-			int regionCount = 0;
-			for (final Map.Entry<byte[], ByteString> entry : results.entrySet()) {
-				regionCount++;
-
-				final ByteString value = entry.getValue();
-				if ((value != null) && !value.isEmpty()) {
-					final byte[] bvalue = value.toByteArray();
-					final Mergeable mvalue = (Mergeable) URLClassloaderUtils.fromBinary(bvalue);
-
-					LOGGER.debug("Value from region " + regionCount + " is " + mvalue);
-
-					if (total == null) {
-						total = mvalue;
-					}
-					else {
-						total.merge(mvalue);
-					}
-				}
-				else {
-					LOGGER.debug("Empty response for region " + regionCount);
-				}
-			}
-
-			return total;
+			return Iterators
+					.transform(
+							results.values().iterator(),
+							b -> new GeoWaveRowImpl(
+									null,
+									new GeoWaveValue[] {
+										new GeoWaveValueImpl(
+												null,
+												null,
+												b.toByteArray())
+									}));
 		}
 		catch (final Exception e) {
-			LOGGER.error(
-					"Error during aggregation.",
-					e);
+			LOGGER
+					.error(
+							"Error during aggregation.",
+							e);
 		}
 		catch (final Throwable e) {
-			LOGGER.error(
-					"Error during aggregation.",
-					e);
+			LOGGER
+					.error(
+							"Error during aggregation.",
+							e);
 		}
 
 		return null;
@@ -1320,7 +1377,7 @@ public class HBaseOperations implements
 	public void bulkDelete(
 			final ReaderParams readerParams ) {
 		final String tableName = readerParams.getIndex().getName();
-		short[] adapterIds = readerParams.getAdapterIds();
+		final short[] adapterIds = readerParams.getAdapterIds();
 		Long total = 0L;
 
 		try {
@@ -1365,7 +1422,7 @@ public class HBaseOperations implements
 					.getIndex()
 					.getIndexModel())));
 
-			int maxRangeDecomposition = readerParams.getMaxRangeDecomposition() == null ? options
+			final int maxRangeDecomposition = readerParams.getMaxRangeDecomposition() == null ? options
 					.getAggregationMaxRangeDecomposition() : readerParams.getMaxRangeDecomposition();
 			final MultiRowRangeFilter multiFilter = getMultiRowRangeFilter(DataStoreUtils.constraintsToQueryRanges(
 					readerParams.getConstraints(),
@@ -1375,7 +1432,7 @@ public class HBaseOperations implements
 			if (multiFilter != null) {
 				requestBuilder.setRangeFilter(ByteString.copyFrom(multiFilter.toByteArray()));
 			}
-			if ((adapterIds != null) && adapterIds.length > 0) {
+			if ((adapterIds != null) && (adapterIds.length > 0)) {
 				final ByteBuffer buf = ByteBuffer.allocate(2 * adapterIds.length);
 				for (final Short a : adapterIds) {
 					buf.putShort(a);
@@ -1404,7 +1461,7 @@ public class HBaseOperations implements
 						public Long call(
 								final HBaseBulkDeleteProtosClient.BulkDeleteService counter )
 								throws IOException {
-							final BlockingRpcCallback<HBaseBulkDeleteProtosClient.BulkDeleteResponse> rpcCallback = new BlockingRpcCallback<HBaseBulkDeleteProtosClient.BulkDeleteResponse>();
+							final BlockingRpcCallback<HBaseBulkDeleteProtosClient.BulkDeleteResponse> rpcCallback = new BlockingRpcCallback<>();
 							counter.delete(
 									null,
 									request,
@@ -1771,8 +1828,8 @@ public class HBaseOperations implements
 		try {
 			// use Index as the type to check for version (for hbase type
 			// doesn't matter anyways)
-			MetadataType type = MetadataType.INDEX;
-			String tableName = getMetadataTableName(type);
+			final MetadataType type = MetadataType.INDEX;
+			final String tableName = getMetadataTableName(type);
 			if (!indexExists(tableName)) {
 				createTable(
 						Collections.EMPTY_SET,
@@ -1798,7 +1855,7 @@ public class HBaseOperations implements
 						public List<String> call(
 								final VersionProtosClient.VersionService versionService )
 								throws IOException {
-							final BlockingRpcCallback<VersionProtosClient.VersionResponse> rpcCallback = new BlockingRpcCallback<VersionProtosClient.VersionResponse>();
+							final BlockingRpcCallback<VersionProtosClient.VersionResponse> rpcCallback = new BlockingRpcCallback<>();
 							versionService.version(
 									null,
 									VersionRequest.getDefaultInstance(),
@@ -1839,7 +1896,7 @@ public class HBaseOperations implements
 
 	@Override
 	public boolean createIndex(
-			Index index )
+			final Index index )
 			throws IOException {
 		createTable(
 				index.getIndexStrategy().getPredefinedSplits(),
@@ -1852,7 +1909,7 @@ public class HBaseOperations implements
 
 	@Override
 	public <T> Deleter<T> createDeleter(
-			ReaderParams<T> readerParams ) {
+			final ReaderParams<T> readerParams ) {
 		if (isServerSideLibraryEnabled()) {
 			return new HBaseDeleter(
 					readerParams,

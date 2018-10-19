@@ -11,8 +11,7 @@ public class AggregationQueryBuilderImpl<P extends Persistable, R, T, A extends 
 		BaseQueryBuilderImpl<R, AggregationQuery<P, R, T>, A> implements
 		AggregationQueryBuilder<P, R, T, A>
 {
-	protected Aggregation<P, R, T> aggregation;
-	protected String[] typeNames;
+	protected AggregateTypeQueryOptions<P, R, T> options;
 
 	@Override
 	public AggregationQuery<P, R, T> build() {
@@ -26,8 +25,9 @@ public class AggregationQueryBuilderImpl<P extends Persistable, R, T, A extends 
 	@Override
 	public A count(
 			final String... typeNames ) {
-		aggregation = (Aggregation) new CountAggregation();
-		this.typeNames = typeNames;
+		this.options = new AggregateTypeQueryOptions<>(
+				(Aggregation) new CountAggregation(),
+				typeNames);
 		return (A) this;
 	}
 
@@ -35,17 +35,16 @@ public class AggregationQueryBuilderImpl<P extends Persistable, R, T, A extends 
 	public A aggregate(
 			final String typeName,
 			final Aggregation<P, R, T> aggregation ) {
-		this.aggregation = aggregation;
-		this.typeNames = new String[] {
-			typeName
-		};
+		this.options = new AggregateTypeQueryOptions<>(
+				aggregation,
+				new String[] {
+					typeName
+				});
 		return (A) this;
 	}
 
 	protected AggregateTypeQueryOptions<P, R, T> newAggregateTypeQueryOptions() {
-		return new AggregateTypeQueryOptions<>(
-				aggregation,
-				typeNames);
+		return options;
 	}
 
 }

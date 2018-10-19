@@ -155,84 +155,6 @@ public class AccumuloOptionsTest
 		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 		final DataTypeAdapter<TestGeometry> adapter = new TestGeometryAdapter();
 
-		accumuloOptions.setCreateTable(false);
-		accumuloOptions.setPersistIndex(false);
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
-				index);
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
-			final List<ByteArrayId> rowIds = indexWriter.write(
-					new TestGeometry(
-							factory.createPoint(new Coordinate(
-									25,
-									32)),
-							"test_pt")).getCompositeInsertionIds();
-
-			// as the table didn't already exist, the flag indicates not to
-			// create
-			// it, so no rows will be returned
-			assertEquals(
-					0,
-					rowIds.size());
-
-			assertEquals(
-					false,
-					indexStore.indexExists(index.getName()));
-
-		}
-
-		accumuloOptions.setCreateTable(true);
-
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
-				index);
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
-			final Pair<ByteArrayId, ByteArrayId> rowId1 = indexWriter.write(
-					new TestGeometry(
-							factory.createPoint(new Coordinate(
-									25,
-									32)),
-							"test_pt_1")).getFirstPartitionAndSortKeyPair();
-
-			assertFalse(mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(
-							adapter.getTypeName()).constraints(
-							new InsertionIdQuery(
-									rowId1.getLeft(),
-									rowId1.getRight(),
-									new ByteArrayId(
-											"test_pt_1"))).build()).hasNext());
-
-			// as we have chosen not to persist the index, we will not see an
-			// index
-			// entry in the index store
-			assertEquals(
-					false,
-					indexStore.indexExists(index.getName()));
-
-			/** Still can query providing the index */
-			final TestGeometry geom1 = (TestGeometry) mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(
-							adapter.getTypeName()).indexName(
-							index.getName()).constraints(
-							new InsertionIdQuery(
-									rowId1.getLeft(),
-									rowId1.getRight(),
-									new ByteArrayId(
-											"test_pt_1"))).build()).next();
-
-			// even though we didn't persist the index, the test point was still
-			// stored
-			assertEquals(
-					"test_pt_1",
-					geom1.id);
-
-		}
-
-		accumuloOptions.setPersistIndex(true);
-
 		mockDataStore.addType(adapter);
 		mockDataStore.addIndex(
 				adapter.getTypeName(),
@@ -326,7 +248,7 @@ public class AccumuloOptionsTest
 		}
 
 		accumuloOptions.setUseLocalityGroups(true);
-
+		mockDataStore.deleteAll();
 		mockDataStore.addType(adapter);
 		mockDataStore.addIndex(
 				adapter.getTypeName(),
@@ -379,82 +301,6 @@ public class AccumuloOptionsTest
 
 		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 		final DataTypeAdapter<TestGeometry> adapter = new TestGeometryAdapter();
-		accumuloOptions.setPersistAdapter(false);
-
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
-				index);
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
-			final Pair<ByteArrayId, ByteArrayId> rowId1 = indexWriter.write(
-					new TestGeometry(
-							factory.createPoint(new Coordinate(
-									25,
-									32)),
-							"test_pt_1")).getFirstPartitionAndSortKeyPair();
-
-			assertFalse(mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(
-							adapter.getTypeName()).indexName(
-							index.getName()).constraints(
-							new InsertionIdQuery(
-									rowId1.getLeft(),
-									rowId1.getRight(),
-									new ByteArrayId(
-											"test_pt_1"))).build()).hasNext());
-
-		}
-
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
-				index);
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
-			final Pair<ByteArrayId, ByteArrayId> rowId1 = indexWriter.write(
-					new TestGeometry(
-							factory.createPoint(new Coordinate(
-									25,
-									32)),
-							"test_pt_1")).getFirstPartitionAndSortKeyPair();
-
-			assertFalse(mockDataStore.query(
-					QueryBuilder.newBuilder().addTypeName(
-							adapter.getTypeName()).indexName(
-							index.getName()).constraints(
-							new InsertionIdQuery(
-									rowId1.getLeft(),
-									rowId1.getRight(),
-									new ByteArrayId(
-											"test_pt_1"))).build()).hasNext());
-
-			try (final CloseableIterator<TestGeometry> geomItr = (CloseableIterator) mockDataStore.query(QueryBuilder
-					.newBuilder()
-					.addTypeName(
-							adapter.getTypeName())
-					.indexName(
-							index.getName())
-					.constraints(
-							new EverythingQuery())
-					.build())) {
-
-				final TestGeometry geom1 = geomItr.next();
-
-				// specifying the adapter, this method returns the entry
-				assertEquals(
-						"test_pt_1",
-						geom1.id);
-
-			}
-
-			final short internalAdapterId = internalAdapterStore.getAdapterId(adapter.getTypeName());
-			// the adapter should not exist in the metadata table
-			assertEquals(
-					false,
-					adapterStore.adapterExists(internalAdapterId));
-
-		}
-
-		accumuloOptions.setPersistAdapter(true);
 
 		mockDataStore.addType(adapter);
 		mockDataStore.addIndex(
@@ -562,7 +408,7 @@ public class AccumuloOptionsTest
 		}
 
 		CloseableIterator it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
-				adapter1.getTypeName()).indexName(
+				adapter0.getTypeName()).indexName(
 				index.getName()).constraints(
 				new EverythingQuery()).build());
 		int count = 0;

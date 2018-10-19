@@ -82,9 +82,7 @@ public class DBScanIT extends
 	})
 	protected DataStorePluginOptions dataStorePluginOptions;
 
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					DBScanIT.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(DBScanIT.class);
 	private static long startMillis;
 
 	@Override
@@ -95,79 +93,48 @@ public class DBScanIT extends
 	@BeforeClass
 	public static void startTimer() {
 		startMillis = System.currentTimeMillis();
-		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"*         RUNNING DBScanIT              *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("*         RUNNING DBScanIT              *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@AfterClass
 	public static void reportTest() {
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("*      FINISHED DBScanIT                *");
 		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"*      FINISHED DBScanIT                *");
-		LOGGER
-				.warn(
-						"*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-								+ "s elapsed.                 *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	private SimpleFeatureBuilder getBuilder() {
 		final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-		typeBuilder
-				.setName(
-						"test");
-		typeBuilder
-				.setSRS(
-						ClusteringUtils.CLUSTERING_CRS);
+		typeBuilder.setName("test");
+		typeBuilder.setSRS(ClusteringUtils.CLUSTERING_CRS);
 		try {
-			typeBuilder
-					.setCRS(
-							CRS
-									.decode(
-											ClusteringUtils.CLUSTERING_CRS,
-											true));
+			typeBuilder.setCRS(CRS.decode(
+					ClusteringUtils.CLUSTERING_CRS,
+					true));
 		}
 		catch (final FactoryException e) {
 			e.printStackTrace();
 			return null;
 		}
 		// add attributes in order
-		typeBuilder
-				.add(
-						"geom",
-						Point.class);
-		typeBuilder
-				.add(
-						"name",
-						String.class);
-		typeBuilder
-				.add(
-						"count",
-						Long.class);
+		typeBuilder.add(
+				"geom",
+				Point.class);
+		typeBuilder.add(
+				"name",
+				String.class);
+		typeBuilder.add(
+				"count",
+				Long.class);
 
 		// build the type
 		return new SimpleFeatureBuilder(
@@ -180,41 +147,27 @@ public class DBScanIT extends
 
 	@Test
 	public void testDBScan() {
-		dataGenerator
-				.setIncludePolygons(
-						false);
+		dataGenerator.setIncludePolygons(false);
 		try {
-			ingest(
-					dataStorePluginOptions.createDataStore());
+			ingest(dataStorePluginOptions.createDataStore());
 		}
 		catch (final IOException e1) {
 			e1.printStackTrace();
-			TestUtils
-					.deleteAll(
-							dataStorePluginOptions);
-			Assert
-					.fail(
-							"Unable to ingest data in DBScanIT");
+			TestUtils.deleteAll(dataStorePluginOptions);
+			Assert.fail("Unable to ingest data in DBScanIT");
 		}
 
 		try {
-			runScan(
-					new SpatialQuery(
-							dataGenerator.getBoundingRegion()));
+			runScan(new SpatialQuery(
+					dataGenerator.getBoundingRegion()));
 		}
 		catch (final Exception e) {
 			e.printStackTrace();
-			TestUtils
-					.deleteAll(
-							dataStorePluginOptions);
-			Assert
-					.fail(
-							"Exception during scan of DBScanIT");
+			TestUtils.deleteAll(dataStorePluginOptions);
+			Assert.fail("Exception during scan of DBScanIT");
 		}
 
-		TestUtils
-				.deleteAll(
-						dataStorePluginOptions);
+		TestUtils.deleteAll(dataStorePluginOptions);
 	}
 
 	private void runScan(
@@ -223,59 +176,47 @@ public class DBScanIT extends
 
 		final DBScanIterationsJobRunner jobRunner = new DBScanIterationsJobRunner();
 		final Configuration conf = MapReduceTestUtils.getConfiguration();
-		final int res = jobRunner
-				.run(
-						conf,
-						new PropertyManagement(
-								new ParameterEnum[] {
-									ExtractParameters.Extract.QUERY,
-									ExtractParameters.Extract.MIN_INPUT_SPLIT,
-									ExtractParameters.Extract.MAX_INPUT_SPLIT,
-									PartitionParameters.Partition.MAX_DISTANCE,
-									PartitionParameters.Partition.PARTITIONER_CLASS,
-									ClusteringParameters.Clustering.MINIMUM_SIZE,
-									StoreParam.INPUT_STORE,
-									MapReduceParameters.MRConfig.HDFS_BASE_DIR,
-									OutputParameters.Output.REDUCER_COUNT,
-									InputParameters.Input.INPUT_FORMAT,
-									GlobalParameters.Global.BATCH_ID,
-									PartitionParameters.Partition.PARTITION_DECREASE_RATE,
-									PartitionParameters.Partition.PARTITION_PRECISION
-								},
-								new Object[] {
-									QueryBuilder
-											.newBuilder()
-											.constraints(
-													query)
-											.build(),
-									Integer
-											.toString(
-													MapReduceTestUtils.MIN_INPUT_SPLITS),
-									Integer
-											.toString(
-													MapReduceTestUtils.MAX_INPUT_SPLITS),
-									10000.0,
-									OrthodromicDistancePartitioner.class,
-									10,
-									new PersistableStore(
-											dataStorePluginOptions),
-									TestUtils.TEMP_DIR + File.separator + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
-											+ "/t1",
-									2,
-									GeoWaveInputFormatConfiguration.class,
-									"bx5",
-									0.15,
-									0.95
-								}));
+		final int res = jobRunner.run(
+				conf,
+				new PropertyManagement(
+						new ParameterEnum[] {
+							ExtractParameters.Extract.QUERY,
+							ExtractParameters.Extract.MIN_INPUT_SPLIT,
+							ExtractParameters.Extract.MAX_INPUT_SPLIT,
+							PartitionParameters.Partition.MAX_DISTANCE,
+							PartitionParameters.Partition.PARTITIONER_CLASS,
+							ClusteringParameters.Clustering.MINIMUM_SIZE,
+							StoreParam.INPUT_STORE,
+							MapReduceParameters.MRConfig.HDFS_BASE_DIR,
+							OutputParameters.Output.REDUCER_COUNT,
+							InputParameters.Input.INPUT_FORMAT,
+							GlobalParameters.Global.BATCH_ID,
+							PartitionParameters.Partition.PARTITION_DECREASE_RATE,
+							PartitionParameters.Partition.PARTITION_PRECISION
+						},
+						new Object[] {
+							QueryBuilder.newBuilder().constraints(
+									query).build(),
+							Integer.toString(MapReduceTestUtils.MIN_INPUT_SPLITS),
+							Integer.toString(MapReduceTestUtils.MAX_INPUT_SPLITS),
+							10000.0,
+							OrthodromicDistancePartitioner.class,
+							10,
+							new PersistableStore(
+									dataStorePluginOptions),
+							TestUtils.TEMP_DIR + File.separator + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY + "/t1",
+							2,
+							GeoWaveInputFormatConfiguration.class,
+							"bx5",
+							0.15,
+							0.95
+						}));
 
-		Assert
-				.assertEquals(
-						0,
-						res);
+		Assert.assertEquals(
+				0,
+				res);
 
-		Assert
-				.assertTrue(
-						readHulls() > 2);
+		Assert.assertTrue(readHulls() > 2);
 		// for travis-ci to run, we want to limit the memory consumption
 		System.gc();
 	}
@@ -288,30 +229,23 @@ public class DBScanIT extends
 				dataStorePluginOptions.createAdapterStore(),
 				new SimpleFeatureItemWrapperFactory(),
 				"concave_hull",
-				dataStorePluginOptions
-						.createInternalAdapterStore()
-						.addTypeName(
-								"concave_hull"),
-				new SpatialDimensionalityTypeProvider()
-						.createIndex(
-								new SpatialOptions())
-						.getName(),
+				dataStorePluginOptions.createInternalAdapterStore().addTypeName(
+						"concave_hull"),
+				new SpatialDimensionalityTypeProvider().createIndex(
+						new SpatialOptions()).getName(),
 				"bx5",
 				0);
 
 		int count = 0;
 		for (final String grp : centroidManager.getAllCentroidGroups()) {
-			for (final AnalyticItemWrapper<SimpleFeature> feature : centroidManager
-					.getCentroidsForGroup(
-							grp)) {
-				ShapefileTool
-						.writeShape(
-								feature.getName(),
-								new File(
-										"./target/test_final_" + feature.getName()),
-								new Geometry[] {
-									feature.getGeometry()
-								});
+			for (final AnalyticItemWrapper<SimpleFeature> feature : centroidManager.getCentroidsForGroup(grp)) {
+				ShapefileTool.writeShape(
+						feature.getName(),
+						new File(
+								"./target/test_final_" + feature.getName()),
+						new Geometry[] {
+							feature.getGeometry()
+						});
 				count++;
 
 			}
@@ -322,50 +256,42 @@ public class DBScanIT extends
 	private void ingest(
 			final DataStore dataStore )
 			throws IOException {
-		final List<SimpleFeature> features = dataGenerator
-				.generatePointSet(
-						0.05,
-						0.5,
-						4,
-						800,
-						new double[] {
-							-86,
-							-30
-						},
-						new double[] {
-							-90,
-							-34
-						});
+		final List<SimpleFeature> features = dataGenerator.generatePointSet(
+				0.05,
+				0.5,
+				4,
+				800,
+				new double[] {
+					-86,
+					-30
+				},
+				new double[] {
+					-90,
+					-34
+				});
 
-		features
-				.addAll(
-						dataGenerator
-								.generatePointSet(
-										dataGenerator
-												.getFactory()
-												.createLineString(
-														new Coordinate[] {
-															new Coordinate(
-																	-87,
-																	-32),
-															new Coordinate(
-																	-87.5,
-																	-32.3),
-															new Coordinate(
-																	-87.2,
-																	-32.7)
-														}),
-										0.2,
-										500));
+		features.addAll(dataGenerator.generatePointSet(
+				dataGenerator.getFactory().createLineString(
+						new Coordinate[] {
+							new Coordinate(
+									-87,
+									-32),
+							new Coordinate(
+									-87.5,
+									-32.3),
+							new Coordinate(
+									-87.2,
+									-32.7)
+						}),
+				0.2,
+				500));
 
-		ShapefileTool
-				.writeShape(
-						new File(
-								"./target/test_in"),
-						features);
-		dataGenerator
-				.writeToGeoWave(
-						dataStore,
-						features);
+		ShapefileTool.writeShape(
+				new File(
+						"./target/test_in"),
+				features);
+		dataGenerator.writeToGeoWave(
+				dataStore,
+				features);
 	}
 }

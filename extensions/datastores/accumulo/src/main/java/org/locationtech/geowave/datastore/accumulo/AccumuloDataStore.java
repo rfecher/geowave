@@ -128,7 +128,6 @@ public class AccumuloDataStore extends
 	protected void initOnIndexWriterCreate(
 			final InternalDataAdapter adapter,
 			final Index index ) {
-
 		final String indexName = index.getName();
 		final String typeName = adapter.getTypeName();
 		try {
@@ -136,17 +135,10 @@ public class AccumuloDataStore extends
 				if (!((AccumuloOperations) baseOperations).isRowMergingEnabled(
 						adapter.getAdapterId(),
 						indexName)) {
-					if (baseOptions.isCreateTable()) {
-						if (!((AccumuloOperations) baseOperations).createTable(
-								indexName,
-								false,
-								baseOptions.isEnableBlockCache())) {
-							((AccumuloOperations) baseOperations).enableVersioningIterator(
-									indexName,
-									false);
-						}
-					}
-					else {
+					if (!((AccumuloOperations) baseOperations).createTable(
+							indexName,
+							false,
+							baseOptions.isEnableBlockCache())) {
 						((AccumuloOperations) baseOperations).enableVersioningIterator(
 								indexName,
 								false);
@@ -165,10 +157,11 @@ public class AccumuloDataStore extends
 			if (((AccumuloOptions) baseOptions).isUseLocalityGroups()
 					&& !((AccumuloOperations) baseOperations).localityGroupExists(
 							indexName,
-							typeName)) {
+							adapter.getTypeName())) {
 				((AccumuloOperations) baseOperations).addLocalityGroup(
 						indexName,
-						typeName);
+						adapter.getTypeName(),
+						adapter.getAdapterId());
 			}
 		}
 		catch (AccumuloException | TableNotFoundException | AccumuloSecurityException e) {

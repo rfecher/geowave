@@ -126,39 +126,6 @@ public class BigTableOptions extends
 		}
 
 		@Override
-		public boolean isPersistAdapter() {
-			return additionalOptions.isPersistAdapter();
-		}
-
-		@Override
-		public void setPersistAdapter(
-				final boolean persistAdapter ) {
-			additionalOptions.setPersistAdapter(persistAdapter);
-		}
-
-		@Override
-		public boolean isPersistIndex() {
-			return additionalOptions.isPersistIndex();
-		}
-
-		@Override
-		public void setPersistIndex(
-				final boolean persistIndex ) {
-			additionalOptions.setPersistIndex(persistIndex);
-		}
-
-		@Override
-		public boolean isCreateTable() {
-			return additionalOptions.isCreateTable();
-		}
-
-		@Override
-		public void setCreateTable(
-				final boolean createTable ) {
-			additionalOptions.setCreateTable(createTable);
-		}
-
-		@Override
 		public boolean isEnableBlockCache() {
 			return additionalOptions.isEnableBlockCache();
 		}

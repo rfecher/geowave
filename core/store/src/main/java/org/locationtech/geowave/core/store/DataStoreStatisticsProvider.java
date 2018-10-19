@@ -60,7 +60,7 @@ public class DataStoreStatisticsProvider<T> implements
 		final StatisticsId[] newSet = Arrays.copyOf(
 				idsFromAdapter,
 				idsFromAdapter.length + 6);
-		newSet[idsFromAdapter.length] = RowRangeHistogramStatistics.STATS_TYPE.newBuilder().indexName(
+		newSet[idsFromAdapter.length] = RowRangeHistogramStatisticsSet.STATS_TYPE.newBuilder().indexName(
 				index.getName()).build().getId();
 		newSet[idsFromAdapter.length + 1] = IndexMetaDataSet.STATS_TYPE.newBuilder().indexName(
 				index.getName()).build().getId();

@@ -550,11 +550,11 @@ public class AccumuloOperations implements
 
 	public boolean localityGroupExists(
 			final String tableName,
-			final String localityGroup )
+			final String typeName )
 			throws AccumuloException,
 			TableNotFoundException {
 		final String qName = getQualifiedTableName(tableName);
-		final String localityGroupStr = qName + localityGroup;
+		final String localityGroupStr = qName + typeName;
 
 		// check the cache for our locality group
 		if (locGrpCache.containsKey(localityGroupStr)) {
@@ -570,7 +570,7 @@ public class AccumuloOperations implements
 		final boolean groupExists = connector.tableOperations().exists(
 				qName) && connector.tableOperations().getLocalityGroups(
 				qName).keySet().contains(
-				localityGroup);
+				typeName);
 
 		// update the cache
 		if (groupExists) {
@@ -584,12 +584,13 @@ public class AccumuloOperations implements
 
 	public void addLocalityGroup(
 			final String tableName,
-			final String localityGroup )
+			final String typeName,
+			final short adapterId )
 			throws AccumuloException,
 			TableNotFoundException,
 			AccumuloSecurityException {
 		final String qName = getQualifiedTableName(tableName);
-		final String localityGroupStr = qName + localityGroup;
+		final String localityGroupStr = qName + typeName;
 
 		// check the cache for our locality group
 		if (locGrpCache.containsKey(localityGroupStr)) {
@@ -610,10 +611,10 @@ public class AccumuloOperations implements
 			final Set<Text> groupSet = new HashSet<>();
 
 			groupSet.add(new Text(
-					localityGroup));
+					ByteArrayUtils.shortToString(adapterId)));
 
 			localityGroups.put(
-					localityGroup,
+					typeName,
 					groupSet);
 
 			connector.tableOperations().setLocalityGroups(
@@ -1359,13 +1360,28 @@ public class AccumuloOperations implements
 	@Override
 	public RowWriter createWriter(
 			final Index index,
+			final String typeName,
 			final short internalAdapterId ) {
 		final String tableName = index.getName();
-		if (options.isCreateTable()) {
-			createTable(
-					tableName,
-					options.isServerSideLibraryEnabled(),
-					options.isEnableBlockCache());
+		if (createTable(
+				tableName,
+				options.isServerSideLibraryEnabled(),
+				options.isEnableBlockCache())) {
+			try {
+				if (options.isUseLocalityGroups() && !localityGroupExists(
+						tableName,
+						typeName)) {
+					addLocalityGroup(
+							tableName,
+							typeName,
+							internalAdapterId);
+				}
+			}
+			catch (AccumuloException | TableNotFoundException | AccumuloSecurityException e) {
+				LOGGER.error(
+						"unexpected error while looking up locality group",
+						e);
+			}
 		}
 
 		try {
@@ -1403,13 +1419,11 @@ public class AccumuloOperations implements
 	@Override
 	public MetadataWriter createMetadataWriter(
 			final MetadataType metadataType ) {
-		if (options.isCreateTable()) {
-			// this checks for existence prior to create
-			createTable(
-					AbstractGeoWavePersistence.METADATA_TABLE,
-					false,
-					options.isEnableBlockCache());
-		}
+		// this checks for existence prior to create
+		createTable(
+				AbstractGeoWavePersistence.METADATA_TABLE,
+				false,
+				options.isEnableBlockCache());
 		if (MetadataType.STATS.equals(metadataType) && options.isServerSideLibraryEnabled()) {
 			synchronized (this) {
 				if (!iteratorsAttached) {

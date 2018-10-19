@@ -49,9 +49,7 @@ import com.vividsolutions.jts.util.Stopwatch;
 public class GeowaveBasicURLIngestIT extends
 		AbstractGeoWaveBasicVectorIT
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					GeowaveBasicURLIngestIT.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeowaveBasicURLIngestIT.class);
 
 	private final static String S3URL = "s3.amazonaws.com";
 	protected static final String GDELT_INPUT_FILE_URL = "s3://geowave-test/data/gdelt/20160202.export.CSV.zip";
@@ -69,58 +67,35 @@ public class GeowaveBasicURLIngestIT extends
 	public static void reportTestStart() {
 		stopwatch.reset();
 		stopwatch.start();
-		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"*  RUNNING GeowaveBasicURLIngestIT           *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("*  RUNNING GeowaveBasicURLIngestIT           *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@AfterClass
 	public static void reportTestFinish() {
 		stopwatch.stop();
-		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"* FINISHED GeowaveBasicURLIngestIT           *");
-		LOGGER
-				.warn(
-						"*         " + stopwatch.getTimeString() + " elapsed.             *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED GeowaveBasicURLIngestIT           *");
+		LOGGER.warn("*         " + stopwatch.getTimeString() + " elapsed.             *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@Test
 	public void testBasicURLIngest()
 			throws Exception {
 
-		TestUtils
-				.testS3LocalIngest(
-						dataStore,
-						DimensionalityType.SPATIAL,
-						S3URL,
-						GDELT_INPUT_FILE_URL,
-						"gdelt",
-						4);
+		TestUtils.testS3LocalIngest(
+				dataStore,
+				DimensionalityType.SPATIAL,
+				S3URL,
+				GDELT_INPUT_FILE_URL,
+				"gdelt",
+				4);
 
 		final DataStatisticsStore statsStore = dataStore.createDataStatisticsStore();
 		final PersistentAdapterStore adapterStore = dataStore.createAdapterStore();
@@ -131,14 +106,8 @@ public class GeowaveBasicURLIngestIT extends
 
 				// query by the full bounding box, make sure there is more than
 				// 0 count and make sure the count matches the number of results
-				final StatisticsId statsId = VectorStatisticsQueryBuilder
-						.newBuilder()
-						.factory()
-						.bbox()
-						.fieldName(
-								adapter.getFeatureType().getGeometryDescriptor().getLocalName())
-						.build()
-						.getId();
+				final StatisticsId statsId = VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
+						adapter.getFeatureType().getGeometryDescriptor().getLocalName()).build().getId();
 				try (final CloseableIterator<BoundingBoxDataStatistics<?>> bboxStatIt = (CloseableIterator) statsStore
 						.getDataStatistics(
 								internalDataAdapter.getAdapterId(),
@@ -157,9 +126,7 @@ public class GeowaveBasicURLIngestIT extends
 								bboxStat.getMaxX(),
 								bboxStat.getMinY(),
 								bboxStat.getMaxY());
-						final Geometry spatialFilter = factory
-								.toGeometry(
-										env);
+						final Geometry spatialFilter = factory.toGeometry(env);
 						final QueryConstraints query = new SpatialQuery(
 								spatialFilter);
 						final int resultCount = testQuery(
@@ -189,9 +156,7 @@ public class GeowaveBasicURLIngestIT extends
 		}
 
 		// Clean up
-		TestUtils
-				.deleteAll(
-						dataStore);
+		TestUtils.deleteAll(dataStore);
 
 	}
 
@@ -201,17 +166,10 @@ public class GeowaveBasicURLIngestIT extends
 			throws Exception {
 		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = dataStore.createDataStore();
 
-		final CloseableIterator<?> accumuloResults = geowaveStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										TestUtils.DEFAULT_SPATIAL_INDEX.getName())
-								.constraints(
-										query)
-								.build());
+		final CloseableIterator<?> accumuloResults = geowaveStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				TestUtils.DEFAULT_SPATIAL_INDEX.getName()).constraints(
+				query).build());
 
 		int resultCount = 0;
 		while (accumuloResults.hasNext()) {

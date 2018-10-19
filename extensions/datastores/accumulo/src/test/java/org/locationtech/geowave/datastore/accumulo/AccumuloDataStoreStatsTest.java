@@ -12,7 +12,6 @@ package org.locationtech.geowave.datastore.accumulo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -204,7 +203,6 @@ public class AccumuloDataStoreStatsTest
 	@Test
 	public void test()
 			throws IOException {
-		accumuloOptions.setCreateTable(true);
 		accumuloOptions.setPersistDataStatistics(true);
 		runtest();
 	}
@@ -292,36 +290,27 @@ public class AccumuloDataStoreStatsTest
 		}
 
 		final short internalAdapterId = internalAdapterStore.getAdapterId(adapter.getTypeName());
-		CountDataStatistics<?> countStats = (CountDataStatistics<?>) statsStore.getDataStatistics(
-				internalAdapterId,
-				CountDataStatistics.STATS_TYPE,
-				new String[] {
-					"aaa",
-					"bbb"
-				}).next();
+		Long count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").build());
 		assertEquals(
 				3,
-				countStats.getCount());
+				count.longValue());
 
-		countStats = (CountDataStatistics<?>) statsStore.getDataStatistics(
-				internalAdapterId,
-				CountDataStatistics.STATS_TYPE,
-				new String[] {
-					"aaa"
-				}).next();
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").build());
 		assertEquals(
 				2,
-				countStats.getCount());
+				count.longValue());
 
-		countStats = (CountDataStatistics<?>) statsStore.getDataStatistics(
-				internalAdapterId,
-				CountDataStatistics.STATS_TYPE,
-				new String[] {
-					"bbb"
-				}).next();
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"bbb").build());
 		assertEquals(
 				1,
-				countStats.getCount());
+				count.longValue());
 
 		BoundingBoxDataStatistics<?> bboxStats = (BoundingBoxDataStatistics<?>) statsStore.getDataStatistics(
 				internalAdapterId,
@@ -382,26 +371,22 @@ public class AccumuloDataStoreStatsTest
 					"bbb"
 				}).constraints(
 				query).build())) {
-			int count = 0;
+			int c = 0;
 			while (it1.hasNext()) {
 				it1.next();
-				count++;
+				c++;
 			}
 			assertEquals(
 					3,
-					count);
+					c);
 		}
-
-		countStats = (CountDataStatistics<?>) statsStore.getDataStatistics(
-				internalAdapterId,
-				CountDataStatistics.STATS_TYPE,
-				new String[] {
-					"aaa",
-					"bbb"
-				}).next();
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").build());
 		assertEquals(
 				3,
-				countStats.getCount());
+				count.longValue());
 		mockDataStore.delete(QueryBuilder.newBuilder().addTypeName(
 				adapter.getTypeName()).indexName(
 				index.getName()).setAuthorizations(
@@ -420,45 +405,37 @@ public class AccumuloDataStoreStatsTest
 					"bbb"
 				}).constraints(
 				query).build())) {
-			int count = 0;
+			int c = 0;
 			while (it1.hasNext()) {
 				it1.next();
-				count++;
+				c++;
 			}
 			assertEquals(
 					2,
-					count);
+					c);
 		}
 
-		countStats = (CountDataStatistics<?>) statsStore.getDataStatistics(
-				internalAdapterId,
-				CountDataStatistics.STATS_TYPE,
-				new String[] {
-					"aaa",
-					"bbb"
-				}).next();
-
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").build());
 		assertEquals(
 				2,
-				countStats.getCount());
-		countStats = (CountDataStatistics<?>) statsStore.getDataStatistics(
-				internalAdapterId,
-				CountDataStatistics.STATS_TYPE,
-				new String[] {
-					"aaa"
-				}).next();
+				count.longValue());
+
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").build());
 		assertEquals(
 				1,
-				countStats.getCount());
-		countStats = (CountDataStatistics<?>) statsStore.getDataStatistics(
-				internalAdapterId,
-				CountDataStatistics.STATS_TYPE,
-				new String[] {
-					"bbb"
-				}).next();
+				count.longValue());
+
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"bbb").build());
 		assertEquals(
 				1,
-				countStats.getCount());
+				count.longValue());
 
 		bboxStats = (BoundingBoxDataStatistics<?>) statsStore.getDataStatistics(
 				internalAdapterId,
@@ -530,14 +507,14 @@ public class AccumuloDataStoreStatsTest
 					"bbb"
 				}).constraints(
 				query).build())) {
-			int count = 0;
+			int c = 0;
 			while (it1.hasNext()) {
 				it1.next();
-				count++;
+				c++;
 			}
 			assertEquals(
 					0,
-					count);
+					c);
 		}
 
 		assertFalse(statsStore.getDataStatistics(
@@ -558,15 +535,12 @@ public class AccumuloDataStoreStatsTest
 							32)),
 					"test_pt_2"));
 		}
-
-		countStats = (CountDataStatistics<?>) statsStore.getDataStatistics(
-				internalAdapterId,
-				CountDataStatistics.STATS_TYPE,
-				new String[] {
-					"bbb"
-				}).next();
-		assertTrue(countStats != null);
-		assertTrue(countStats.getCount() == 1);
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"bbb").build());
+		assertEquals(
+				1,
+				count.longValue());
 
 		final StatisticsId id = StatisticsQueryBuilder.newBuilder().factory().rowHistogram().indexName(
 				index.getName()).partition(
@@ -579,6 +553,7 @@ public class AccumuloDataStoreStatsTest
 				new String[] {
 					"bbb"
 				})) {
+			assertTrue(it.hasNext());
 			histogramStats = (RowRangeHistogramStatistics<?>) it.next();
 			assertTrue(histogramStats != null);
 		}
@@ -734,10 +709,10 @@ public class AccumuloDataStoreStatsTest
 		@Override
 		public InternalDataStatistics<TestGeometry, ?, ?> createDataStatistics(
 				final StatisticsId statisticsId ) {
-			if (BoundingBoxDataStatistics.STATS_TYPE.equals(statisticsId)) {
+			if (BoundingBoxDataStatistics.STATS_TYPE.equals(statisticsId.getType())) {
 				return new GeoBoundingBoxStatistics();
 			}
-			else if (CountDataStatistics.STATS_TYPE.equals(statisticsId)) {
+			else if (CountDataStatistics.STATS_TYPE.equals(statisticsId.getType())) {
 				return new CountDataStatistics<>();
 			}
 			LOGGER.warn("Unrecognized statistics type " + statisticsId.getType().getString()

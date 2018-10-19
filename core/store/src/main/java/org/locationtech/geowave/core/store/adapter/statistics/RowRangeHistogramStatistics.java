@@ -56,7 +56,9 @@ public class RowRangeHistogramStatistics<T> extends
 		super(
 				internalDataAdapterId,
 				STATS_TYPE,
-				indexName);
+				PartitionStatisticsQueryBuilder.composeId(
+						indexName,
+						partitionKey));
 		histogram = createHistogram();
 	}
 

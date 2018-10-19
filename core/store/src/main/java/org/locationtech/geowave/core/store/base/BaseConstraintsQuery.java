@@ -16,11 +16,9 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.locationtech.geowave.core.index.IndexMetaData;
-import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.MultiDimensionalCoordinateRangesArray;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
 import org.locationtech.geowave.core.index.QueryRanges;
-import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.DataStoreOptions;
@@ -217,7 +215,8 @@ public class BaseConstraintsQuery extends
 						queryMaxRangeDecomposition,
 						GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER,
 						false)) {
-					Mergeable mergedAggregationResult = null;
+					Object mergedAggregationResult = null;
+					Aggregation<?, Object, Object> agg = (Aggregation<?, Object, Object>) aggregation.getValue();
 					if ((reader == null) || !reader.hasNext()) {
 						return new CloseableIterator.Empty();
 					}
@@ -227,12 +226,12 @@ public class BaseConstraintsQuery extends
 							for (final GeoWaveValue value : row.getFieldValues()) {
 								if ((value.getValue() != null) && (value.getValue().length > 0)) {
 									if (mergedAggregationResult == null) {
-										mergedAggregationResult = (Mergeable) PersistenceUtils.fromBinary(value
-												.getValue());
+										mergedAggregationResult = agg.resultFromBinary(value.getValue());
 									}
 									else {
-										mergedAggregationResult.merge((Mergeable) PersistenceUtils.fromBinary(value
-												.getValue()));
+										mergedAggregationResult = agg.merge(
+												mergedAggregationResult,
+												agg.resultFromBinary(value.getValue()));
 									}
 								}
 							}

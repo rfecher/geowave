@@ -128,6 +128,7 @@ public class MemoryDataStoreOperations implements
 	@Override
 	public RowWriter createWriter(
 			final Index index,
+			final String typeName,
 			final short adapterId ) {
 		return new MyIndexWriter<>(
 				index.getName());
@@ -521,7 +522,7 @@ public class MemoryDataStoreOperations implements
 	private class MyMetadataReader implements
 			MetadataReader
 	{
-		private final MetadataType type;
+		protected final MetadataType type;
 
 		public MyMetadataReader(
 				final MetadataType type ) {
@@ -767,11 +768,17 @@ public class MemoryDataStoreOperations implements
 		@Override
 		public boolean delete(
 				final MetadataQuery query ) {
+			final List<GeoWaveMetadata> toRemove = new ArrayList<>();
 			try (CloseableIterator<GeoWaveMetadata> it = query(query)) {
 				while (it.hasNext()) {
-					it.next();
-					it.remove();
+					toRemove.add(it.next());
 				}
+			}
+			for (final GeoWaveMetadata r : toRemove) {
+				metadataStore.get(
+						type).remove(
+						new MemoryMetadataEntry(
+								r));
 			}
 			return true;
 		}

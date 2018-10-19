@@ -60,9 +60,7 @@ import org.slf4j.LoggerFactory;
 public class GeoServerIngestIT
 {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					GeoServerIngestIT.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GeoServerIngestIT.class);
 	private static GeoServerServiceClient geoServerServiceClient;
 	private static ConfigServiceClient configServiceClient;
 	private static final String WORKSPACE = "testomatic";
@@ -91,20 +89,18 @@ public class GeoServerIngestIT
 		configServiceClient = new ConfigServiceClient(
 				ServicesTestEnvironment.GEOWAVE_BASE_URL);
 		startMillis = System.currentTimeMillis();
-		TestUtils
-				.printStartOfTest(
-						LOGGER,
-						testName);
+		TestUtils.printStartOfTest(
+				LOGGER,
+				testName);
 
 	}
 
 	@AfterClass
 	public static void reportTest() {
-		TestUtils
-				.printEndOfTest(
-						LOGGER,
-						testName,
-						startMillis);
+		TestUtils.printEndOfTest(
+				LOGGER,
+				testName,
+				startMillis);
 	}
 
 	@Test
@@ -115,134 +111,98 @@ public class GeoServerIngestIT
 		final SimpleFeatureType sft = SimpleIngest.createPointFeatureType();
 		final Index spatialIdx = SimpleIngest.createSpatialIndex();
 		final Index spatialTemporalIdx = SimpleIngest.createSpatialTemporalIndex();
-		final GeotoolsFeatureDataAdapter fda = SimpleIngest
-				.createDataAdapter(
-						sft);
-		final List<SimpleFeature> features = SimpleIngest
-				.getGriddedTemporalFeatures(
-						new SimpleFeatureBuilder(
-								sft),
-						8675309);
-		LOGGER
-				.info(
-						String
-								.format(
-										"Beginning to ingest a uniform grid of %d features",
-										features.size()));
+		final GeotoolsFeatureDataAdapter fda = SimpleIngest.createDataAdapter(sft);
+		final List<SimpleFeature> features = SimpleIngest.getGriddedTemporalFeatures(
+				new SimpleFeatureBuilder(
+						sft),
+				8675309);
+		LOGGER.info(String.format(
+				"Beginning to ingest a uniform grid of %d features",
+				features.size()));
 		int ingestedFeatures = 0;
 		final int featuresPer5Percent = features.size() / 20;
-		ds
-				.addType(
-						fda);
-		ds
-				.addIndex(
-						fda.getTypeName(),
-						spatialIdx,
-						spatialTemporalIdx);
-		try (Writer writer = ds
-				.createWriter(
-						fda.getTypeName())) {
+		ds.addType(fda);
+		ds.addIndex(
+				fda.getTypeName(),
+				spatialIdx,
+				spatialTemporalIdx);
+		try (Writer writer = ds.createWriter(fda.getTypeName())) {
 			for (final SimpleFeature feat : features) {
-				writer
-						.write(
-								feat);
+				writer.write(feat);
 				ingestedFeatures++;
 				if ((ingestedFeatures % featuresPer5Percent) == 0) {
-					LOGGER
-							.info(
-									String
-											.format(
-													"Ingested %d percent of features",
-													(ingestedFeatures / featuresPer5Percent) * 5));
+					LOGGER.info(String.format(
+							"Ingested %d percent of features",
+							(ingestedFeatures / featuresPer5Percent) * 5));
 				}
 			}
 		}
-		TestUtils
-				.assertStatusCode(
-						"Should Create 'testomatic' Workspace",
-						201,
-						geoServerServiceClient
-								.addWorkspace(
-										"testomatic"));
-		configServiceClient
-				.addStoreReRoute(
+		TestUtils.assertStatusCode(
+				"Should Create 'testomatic' Workspace",
+				201,
+				geoServerServiceClient.addWorkspace("testomatic"));
+		configServiceClient.addStoreReRoute(
+				TestUtils.TEST_NAMESPACE,
+				dataStorePluginOptions.getType(),
+				TestUtils.TEST_NAMESPACE,
+				dataStorePluginOptions.getOptionsAsMap());
+		TestUtils.assertStatusCode(
+				"Should Add " + TestUtils.TEST_NAMESPACE + " Datastore",
+				201,
+				geoServerServiceClient.addDataStore(
 						TestUtils.TEST_NAMESPACE,
-						dataStorePluginOptions.getType(),
+						"testomatic",
+						TestUtils.TEST_NAMESPACE));
+
+		TestUtils.assertStatusCode(
+				"Should Publish '" + ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE + "' Style",
+				201,
+				geoServerServiceClient.addStyle(
+						ServicesTestEnvironment.TEST_SLD_NO_DIFFERENCE_FILE,
+						ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE));
+		TestUtils.assertStatusCode(
+				"Should return 400, that layer was already added",
+				400,
+				geoServerServiceClient.addStyle(
+						ServicesTestEnvironment.TEST_SLD_NO_DIFFERENCE_FILE,
+						ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE));
+		TestUtils.assertStatusCode(
+				"Should Publish '" + ServicesTestEnvironment.TEST_STYLE_NAME_MINOR_SUBSAMPLE + "' Style",
+				201,
+				geoServerServiceClient.addStyle(
+						ServicesTestEnvironment.TEST_SLD_MINOR_SUBSAMPLE_FILE,
+						ServicesTestEnvironment.TEST_STYLE_NAME_MINOR_SUBSAMPLE));
+		TestUtils.assertStatusCode(
+				"Should Publish '" + ServicesTestEnvironment.TEST_STYLE_NAME_MAJOR_SUBSAMPLE + "' Style",
+				201,
+				geoServerServiceClient.addStyle(
+						ServicesTestEnvironment.TEST_SLD_MAJOR_SUBSAMPLE_FILE,
+						ServicesTestEnvironment.TEST_STYLE_NAME_MAJOR_SUBSAMPLE));
+		TestUtils.assertStatusCode(
+				"Should Publish '" + ServicesTestEnvironment.TEST_STYLE_NAME_DISTRIBUTED_RENDER + "' Style",
+				201,
+				geoServerServiceClient.addStyle(
+						ServicesTestEnvironment.TEST_SLD_DISTRIBUTED_RENDER_FILE,
+						ServicesTestEnvironment.TEST_STYLE_NAME_DISTRIBUTED_RENDER));
+
+		TestUtils.assertStatusCode(
+				"Should Publish '" + SimpleIngest.FEATURE_NAME + "' Layer",
+				201,
+				geoServerServiceClient.addLayer(
 						TestUtils.TEST_NAMESPACE,
-						dataStorePluginOptions.getOptionsAsMap());
-		TestUtils
-				.assertStatusCode(
-						"Should Add " + TestUtils.TEST_NAMESPACE + " Datastore",
-						201,
-						geoServerServiceClient
-								.addDataStore(
-										TestUtils.TEST_NAMESPACE,
-										"testomatic",
-										TestUtils.TEST_NAMESPACE));
-
-		TestUtils
-				.assertStatusCode(
-						"Should Publish '" + ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE + "' Style",
-						201,
-						geoServerServiceClient
-								.addStyle(
-										ServicesTestEnvironment.TEST_SLD_NO_DIFFERENCE_FILE,
-										ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE));
-		TestUtils
-				.assertStatusCode(
-						"Should return 400, that layer was already added",
-						400,
-						geoServerServiceClient
-								.addStyle(
-										ServicesTestEnvironment.TEST_SLD_NO_DIFFERENCE_FILE,
-										ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE));
-		TestUtils
-				.assertStatusCode(
-						"Should Publish '" + ServicesTestEnvironment.TEST_STYLE_NAME_MINOR_SUBSAMPLE + "' Style",
-						201,
-						geoServerServiceClient
-								.addStyle(
-										ServicesTestEnvironment.TEST_SLD_MINOR_SUBSAMPLE_FILE,
-										ServicesTestEnvironment.TEST_STYLE_NAME_MINOR_SUBSAMPLE));
-		TestUtils
-				.assertStatusCode(
-						"Should Publish '" + ServicesTestEnvironment.TEST_STYLE_NAME_MAJOR_SUBSAMPLE + "' Style",
-						201,
-						geoServerServiceClient
-								.addStyle(
-										ServicesTestEnvironment.TEST_SLD_MAJOR_SUBSAMPLE_FILE,
-										ServicesTestEnvironment.TEST_STYLE_NAME_MAJOR_SUBSAMPLE));
-		TestUtils
-				.assertStatusCode(
-						"Should Publish '" + ServicesTestEnvironment.TEST_STYLE_NAME_DISTRIBUTED_RENDER + "' Style",
-						201,
-						geoServerServiceClient
-								.addStyle(
-										ServicesTestEnvironment.TEST_SLD_DISTRIBUTED_RENDER_FILE,
-										ServicesTestEnvironment.TEST_STYLE_NAME_DISTRIBUTED_RENDER));
-
-		TestUtils
-				.assertStatusCode(
-						"Should Publish '" + SimpleIngest.FEATURE_NAME + "' Layer",
-						201,
-						geoServerServiceClient
-								.addLayer(
-										TestUtils.TEST_NAMESPACE,
-										WORKSPACE,
-										null,
-										null,
-										"point"));
-		TestUtils
-				.assertStatusCode(
-						"Should return 400, that layer was already added",
-						400,
-						geoServerServiceClient
-								.addLayer(
-										TestUtils.TEST_NAMESPACE,
-										WORKSPACE,
-										null,
-										null,
-										"point"));
+						WORKSPACE,
+						null,
+						null,
+						"point"));
+		TestUtils.assertStatusCode(
+				"Should return 400, that layer was already added",
+				400,
+				geoServerServiceClient.addLayer(
+						TestUtils.TEST_NAMESPACE,
+						WORKSPACE,
+						null,
+						null,
+						"point"));
 		final BufferedImage biDirectRender = getWMSSingleTile(
 				-180,
 				180,
@@ -256,44 +216,25 @@ public class GeoServerIngestIT
 
 		BufferedImage ref = null;
 
-		final String geoserverVersion = (System
-				.getProperty(
-						"geoserver.version") != null) ? System
-								.getProperty(
-										"geoserver.version")
-								: "";
+		final String geoserverVersion = (System.getProperty("geoserver.version") != null) ? System
+				.getProperty("geoserver.version") : "";
 
-		Assert
-				.assertNotNull(
-						geoserverVersion);
+		Assert.assertNotNull(geoserverVersion);
 
-		if (geoserverVersion
-				.startsWith(
-						"2.5")
-				|| geoserverVersion
-						.equals(
-								"2.6.0")
-				|| geoserverVersion
-						.equals(
-								"2.6.1")) {
-			ref = ImageIO
-					.read(
-							new File(
-									REFERENCE_25_WMS_IMAGE_PATH));
+		if (geoserverVersion.startsWith("2.5") || geoserverVersion.equals("2.6.0") || geoserverVersion.equals("2.6.1")) {
+			ref = ImageIO.read(new File(
+					REFERENCE_25_WMS_IMAGE_PATH));
 		}
 		else {
-			ref = ImageIO
-					.read(
-							new File(
-									REFERENCE_26_WMS_IMAGE_PATH));
+			ref = ImageIO.read(new File(
+					REFERENCE_26_WMS_IMAGE_PATH));
 		}
 		// being a little lenient because of differences in O/S rendering
-		TestUtils
-				.testTileAgainstReference(
-						biDirectRender,
-						ref,
-						0,
-						0.07);
+		TestUtils.testTileAgainstReference(
+				biDirectRender,
+				ref,
+				0,
+				0.07);
 
 		final BufferedImage biSubsamplingWithoutError = getWMSSingleTile(
 				-180,
@@ -305,17 +246,14 @@ public class GeoServerIngestIT
 				920,
 				360,
 				null);
-		Assert
-				.assertNotNull(
-						ref);
+		Assert.assertNotNull(ref);
 
 		// being a little lenient because of differences in O/S rendering
-		TestUtils
-				.testTileAgainstReference(
-						biSubsamplingWithoutError,
-						ref,
-						0,
-						0.07);
+		TestUtils.testTileAgainstReference(
+				biSubsamplingWithoutError,
+				ref,
+				0,
+				0.07);
 
 		final BufferedImage biSubsamplingWithExpectedError = getWMSSingleTile(
 				-180,
@@ -328,12 +266,11 @@ public class GeoServerIngestIT
 				360,
 				null);
 
-		TestUtils
-				.testTileAgainstReference(
-						biSubsamplingWithExpectedError,
-						ref,
-						0.05,
-						0.15);
+		TestUtils.testTileAgainstReference(
+				biSubsamplingWithExpectedError,
+				ref,
+				0.05,
+				0.15);
 
 		final BufferedImage biSubsamplingWithLotsOfError = getWMSSingleTile(
 				-180,
@@ -346,12 +283,11 @@ public class GeoServerIngestIT
 				360,
 				null);
 
-		TestUtils
-				.testTileAgainstReference(
-						biSubsamplingWithLotsOfError,
-						ref,
-						0.3,
-						0.35);
+		TestUtils.testTileAgainstReference(
+				biSubsamplingWithLotsOfError,
+				ref,
+				0.3,
+				0.35);
 		final BufferedImage biDistributedRendering = getWMSSingleTile(
 				-180,
 				180,
@@ -362,12 +298,11 @@ public class GeoServerIngestIT
 				920,
 				360,
 				null);
-		TestUtils
-				.testTileAgainstReference(
-						biDistributedRendering,
-						ref,
-						0,
-						0.07);
+		TestUtils.testTileAgainstReference(
+				biDistributedRendering,
+				ref,
+				0,
+				0.07);
 	}
 
 	private static BufferedImage getWMSSingleTile(
@@ -383,58 +318,38 @@ public class GeoServerIngestIT
 			throws IOException,
 			URISyntaxException {
 		final URIBuilder builder = new URIBuilder();
-		builder
-				.setScheme(
-						"http")
-				.setHost(
-						"localhost")
-				.setPort(
-						ServicesTestEnvironment.JETTY_PORT)
-				.setPath(
-						WMS_URL_PREFIX)
-				.setParameter(
-						"service",
-						"WMS")
-				.setParameter(
-						"version",
-						WMS_VERSION)
-				.setParameter(
-						"request",
-						"GetMap")
-				.setParameter(
-						"layers",
-						layer)
-				.setParameter(
-						"styles",
-						style == null ? "" : style)
-				.setParameter(
-						"crs",
-						"EPSG:4326")
-				.setParameter(
-						"bbox",
-						String
-								.format(
-										"%.2f, %.2f, %.2f, %.2f",
-										minlon,
-										minlat,
-										maxlon,
-										maxlat))
-				.setParameter(
-						"format",
-						outputFormat == null ? "image/gif" : outputFormat)
-				.setParameter(
-						"width",
-						String
-								.valueOf(
-										width))
-				.setParameter(
-						"height",
-						String
-								.valueOf(
-										height))
-				.setParameter(
-						"cql_filter",
-						"TimeStamp DURING 1997-01-01T00:00:00.000Z/1998-01-01T00:00:00.000Z");
+		builder.setScheme(
+				"http").setHost(
+				"localhost").setPort(
+				ServicesTestEnvironment.JETTY_PORT).setPath(
+				WMS_URL_PREFIX).setParameter(
+				"service",
+				"WMS").setParameter(
+				"version",
+				WMS_VERSION).setParameter(
+				"request",
+				"GetMap").setParameter(
+				"layers",
+				layer).setParameter(
+				"styles",
+				style == null ? "" : style).setParameter(
+				"crs",
+				"EPSG:4326").setParameter(
+				"bbox",
+				String.format(
+						"%.2f, %.2f, %.2f, %.2f",
+						minlon,
+						minlat,
+						maxlon,
+						maxlat)).setParameter(
+				"format",
+				outputFormat == null ? "image/gif" : outputFormat).setParameter(
+				"width",
+				String.valueOf(width)).setParameter(
+				"height",
+				String.valueOf(height)).setParameter(
+				"cql_filter",
+				"TimeStamp DURING 1997-01-01T00:00:00.000Z/1998-01-01T00:00:00.000Z");
 
 		final HttpGet command = new HttpGet(
 				builder.build());
@@ -443,25 +358,16 @@ public class GeoServerIngestIT
 		final CloseableHttpClient httpClient = clientAndContext.getLeft();
 		final HttpClientContext context = clientAndContext.getRight();
 		try {
-			final HttpResponse resp = httpClient
-					.execute(
-							command,
-							context);
+			final HttpResponse resp = httpClient.execute(
+					command,
+					context);
 			try (InputStream is = resp.getEntity().getContent()) {
 
-				final BufferedImage image = ImageIO
-						.read(
-								is);
+				final BufferedImage image = ImageIO.read(is);
 
-				Assert
-						.assertNotNull(
-								image);
-				Assert
-						.assertTrue(
-								image.getWidth() == width);
-				Assert
-						.assertTrue(
-								image.getHeight() == height);
+				Assert.assertNotNull(image);
+				Assert.assertTrue(image.getWidth() == width);
+				Assert.assertTrue(image.getHeight() == height);
 				return image;
 			}
 		}
@@ -472,73 +378,54 @@ public class GeoServerIngestIT
 
 	@Before
 	public void setUp() {
-		configServiceClient
-				.configGeoServer(
-						"localhost:9011");
+		configServiceClient.configGeoServer("localhost:9011");
 	}
 
 	@After
 	public void cleanup() {
 
-		final Response layer = geoServerServiceClient
-				.removeFeatureLayer(
-						SimpleIngest.FEATURE_NAME);
-		final Response datastore = geoServerServiceClient
-				.removeDataStore(
-						TestUtils.TEST_NAMESPACE,
-						WORKSPACE);
+		final Response layer = geoServerServiceClient.removeFeatureLayer(SimpleIngest.FEATURE_NAME);
+		final Response datastore = geoServerServiceClient.removeDataStore(
+				TestUtils.TEST_NAMESPACE,
+				WORKSPACE);
 		final Response styleNoDifference = geoServerServiceClient
-				.removeStyle(
-						ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE);
+				.removeStyle(ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE);
 		final Response styleMinor = geoServerServiceClient
-				.removeStyle(
-						ServicesTestEnvironment.TEST_STYLE_NAME_MINOR_SUBSAMPLE);
+				.removeStyle(ServicesTestEnvironment.TEST_STYLE_NAME_MINOR_SUBSAMPLE);
 		final Response styleMajor = geoServerServiceClient
-				.removeStyle(
-						ServicesTestEnvironment.TEST_STYLE_NAME_MAJOR_SUBSAMPLE);
-		final Response workspace = geoServerServiceClient
-				.removeWorkspace(
-						WORKSPACE);
+				.removeStyle(ServicesTestEnvironment.TEST_STYLE_NAME_MAJOR_SUBSAMPLE);
+		final Response workspace = geoServerServiceClient.removeWorkspace(WORKSPACE);
 
-		TestUtils
-				.assertStatusCode(
-						"Should Delete Layer '" + SimpleIngest.FEATURE_NAME + "'",
-						200,
-						layer);
-		TestUtils
-				.assertStatusCode(
-						"Should Delete Datastore '" + TestUtils.TEST_NAMESPACE + "'",
-						200,
-						datastore);
-		TestUtils
-				.assertStatusCode(
-						"Should Delete Style '" + ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE + "'",
-						200,
-						styleNoDifference);
+		TestUtils.assertStatusCode(
+				"Should Delete Layer '" + SimpleIngest.FEATURE_NAME + "'",
+				200,
+				layer);
+		TestUtils.assertStatusCode(
+				"Should Delete Datastore '" + TestUtils.TEST_NAMESPACE + "'",
+				200,
+				datastore);
+		TestUtils.assertStatusCode(
+				"Should Delete Style '" + ServicesTestEnvironment.TEST_STYLE_NAME_NO_DIFFERENCE + "'",
+				200,
+				styleNoDifference);
 
-		TestUtils
-				.assertStatusCode(
-						"Should Delete Style '" + ServicesTestEnvironment.TEST_STYLE_NAME_MINOR_SUBSAMPLE + "'",
-						200,
-						styleMinor);
-		TestUtils
-				.assertStatusCode(
-						"Should Delete Style '" + ServicesTestEnvironment.TEST_STYLE_NAME_MAJOR_SUBSAMPLE + "'",
-						200,
-						styleMajor);
-		TestUtils
-				.assertStatusCode(
-						"Should Delete Workspace '" + WORKSPACE + "'",
-						200,
-						workspace);
+		TestUtils.assertStatusCode(
+				"Should Delete Style '" + ServicesTestEnvironment.TEST_STYLE_NAME_MINOR_SUBSAMPLE + "'",
+				200,
+				styleMinor);
+		TestUtils.assertStatusCode(
+				"Should Delete Style '" + ServicesTestEnvironment.TEST_STYLE_NAME_MAJOR_SUBSAMPLE + "'",
+				200,
+				styleMajor);
+		TestUtils.assertStatusCode(
+				"Should Delete Workspace '" + WORKSPACE + "'",
+				200,
+				workspace);
 
-		TestUtils
-				.assertStatusCode(
-						"Should Delete Style '" + ServicesTestEnvironment.TEST_STYLE_NAME_DISTRIBUTED_RENDER + "'",
-						200,
-						geoServerServiceClient
-								.removeStyle(
-										ServicesTestEnvironment.TEST_STYLE_NAME_DISTRIBUTED_RENDER));
+		TestUtils.assertStatusCode(
+				"Should Delete Style '" + ServicesTestEnvironment.TEST_STYLE_NAME_DISTRIBUTED_RENDER + "'",
+				200,
+				geoServerServiceClient.removeStyle(ServicesTestEnvironment.TEST_STYLE_NAME_DISTRIBUTED_RENDER));
 	}
 
 }

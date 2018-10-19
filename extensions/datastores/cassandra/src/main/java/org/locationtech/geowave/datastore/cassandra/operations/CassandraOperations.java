@@ -498,6 +498,7 @@ public class CassandraOperations implements
 	@Override
 	public RowWriter createWriter(
 			final Index index,
+			final String typeName,
 			final short internalAdapterId ) {
 		createTable(index.getName());
 		return new CassandraWriter(
@@ -507,26 +508,24 @@ public class CassandraOperations implements
 
 	private boolean createTable(
 			final String indexName ) {
-		if (options.isCreateTable()) {
-			synchronized (CREATE_TABLE_MUTEX) {
-				try {
-					if (!indexExists(indexName)) {
-						final String tableName = getCassandraSafeName(indexName);
-						final Create create = getCreateTable(tableName);
-						for (final CassandraField f : CassandraField.values()) {
-							f.addColumn(create);
-						}
-						executeCreateTable(
-								create,
-								tableName);
-						return true;
+		synchronized (CREATE_TABLE_MUTEX) {
+			try {
+				if (!indexExists(indexName)) {
+					final String tableName = getCassandraSafeName(indexName);
+					final Create create = getCreateTable(tableName);
+					for (final CassandraField f : CassandraField.values()) {
+						f.addColumn(create);
 					}
+					executeCreateTable(
+							create,
+							tableName);
+					return true;
 				}
-				catch (final IOException e) {
-					LOGGER.error(
-							"Unable to create table '" + indexName + "'",
-							e);
-				}
+			}
+			catch (final IOException e) {
+				LOGGER.error(
+						"Unable to create table '" + indexName + "'",
+						e);
 			}
 		}
 		return false;
@@ -536,43 +535,40 @@ public class CassandraOperations implements
 	public MetadataWriter createMetadataWriter(
 			final MetadataType metadataType ) {
 		final String tableName = getMetadataTableName(metadataType);
-		if (options.isCreateTable()) {
-			// this checks for existence prior to create
-			synchronized (CREATE_TABLE_MUTEX) {
-				try {
-					if (!indexExists(tableName)) {
-						// create table
-						final Create create = getCreateTable(tableName);
-						create.addPartitionKey(
-								CassandraMetadataWriter.PRIMARY_ID_KEY,
+		// this checks for existence prior to create
+		synchronized (CREATE_TABLE_MUTEX) {
+			try {
+				if (!indexExists(tableName)) {
+					// create table
+					final Create create = getCreateTable(tableName);
+					create.addPartitionKey(
+							CassandraMetadataWriter.PRIMARY_ID_KEY,
+							DataType.blob());
+					if (MetadataType.STATS.equals(metadataType) || MetadataType.INTERNAL_ADAPTER.equals(metadataType)) {
+						create.addClusteringColumn(
+								CassandraMetadataWriter.SECONDARY_ID_KEY,
 								DataType.blob());
-						if (MetadataType.STATS.equals(metadataType)
-								|| MetadataType.INTERNAL_ADAPTER.equals(metadataType)) {
-							create.addClusteringColumn(
-									CassandraMetadataWriter.SECONDARY_ID_KEY,
+						create.addClusteringColumn(
+								CassandraMetadataWriter.TIMESTAMP_ID_KEY,
+								DataType.timeuuid());
+						if (MetadataType.STATS.equals(metadataType)) {
+							create.addColumn(
+									CassandraMetadataWriter.VISIBILITY_KEY,
 									DataType.blob());
-							create.addClusteringColumn(
-									CassandraMetadataWriter.TIMESTAMP_ID_KEY,
-									DataType.timeuuid());
-							if (MetadataType.STATS.equals(metadataType)) {
-								create.addColumn(
-										CassandraMetadataWriter.VISIBILITY_KEY,
-										DataType.blob());
-							}
 						}
-						create.addColumn(
-								CassandraMetadataWriter.VALUE_KEY,
-								DataType.blob());
-						executeCreateTable(
-								create,
-								tableName);
 					}
+					create.addColumn(
+							CassandraMetadataWriter.VALUE_KEY,
+							DataType.blob());
+					executeCreateTable(
+							create,
+							tableName);
 				}
-				catch (final IOException e) {
-					LOGGER.warn(
-							"Unable to check if table exists",
-							e);
-				}
+			}
+			catch (final IOException e) {
+				LOGGER.warn(
+						"Unable to check if table exists",
+						e);
 			}
 		}
 		return new CassandraMetadataWriter(

@@ -39,6 +39,7 @@ import org.locationtech.geowave.core.index.simple.RoundRobinKeyIndexStrategy;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.adapter.AdapterStore;
+import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.exceptions.AdapterException;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
@@ -488,7 +489,7 @@ public class AccumuloUtils
 			final Connector connector,
 			final String namespace,
 			final Index index,
-			final DataTypeAdapter<?> adapter )
+			final InternalDataAdapter<?> adapter )
 			throws AccumuloException,
 			AccumuloSecurityException,
 			IOException,
@@ -499,7 +500,8 @@ public class AccumuloUtils
 				new AccumuloOptions());
 		operations.addLocalityGroup(
 				index.getName(),
-				adapter.getTypeName());
+				adapter.getTypeName(),
+				adapter.getAdapterId());
 	}
 
 	/**

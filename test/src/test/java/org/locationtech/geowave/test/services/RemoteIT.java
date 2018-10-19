@@ -104,9 +104,10 @@ public class RemoteIT
 		int ingestedFeatures = 0;
 		final int featuresPer5Percent = features.size() / 20;
 		ds.addType(fda);
-		ds.addIndex(fda.getTypeName(), idx);
-		try (Writer writer = ds.createWriter(
-				fda.getTypeName())) {
+		ds.addIndex(
+				fda.getTypeName(),
+				idx);
+		try (Writer writer = ds.createWriter(fda.getTypeName())) {
 			for (final SimpleFeature feat : features) {
 				writer.write(feat);
 				ingestedFeatures++;

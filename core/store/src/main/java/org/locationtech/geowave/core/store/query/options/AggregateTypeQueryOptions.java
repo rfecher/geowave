@@ -1,6 +1,7 @@
 package org.locationtech.geowave.core.store.query.options;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.persist.Persistable;
@@ -73,5 +74,31 @@ public class AggregateTypeQueryOptions<P extends Persistable, R, T> implements
 			buf.get(aggregationBytes);
 			aggregation = (Aggregation<P, R, T>) PersistenceUtils.fromBinary(aggregationBytes);
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((aggregation == null) ? 0 : aggregation.hashCode());
+		result = prime * result + Arrays.hashCode(typeNames);
+		return result;
+	}
+
+	@Override
+	public boolean equals(
+			Object obj ) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		AggregateTypeQueryOptions other = (AggregateTypeQueryOptions) obj;
+		if (aggregation == null) {
+			if (other.aggregation != null) return false;
+		}
+		else if (!aggregation.equals(other.aggregation)) return false;
+		if (!Arrays.equals(
+				typeNames,
+				other.typeNames)) return false;
+		return true;
 	}
 }

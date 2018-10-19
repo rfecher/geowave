@@ -22,7 +22,7 @@ public class QueryBuilderImpl<T, R extends QueryBuilder<T, R>> extends
 	public R addTypeName(
 			final String typeName ) {
 		if ((fieldNames == null) || (fieldNames.length == 0)) {
-			ArrayUtils.add(
+			typeNames = (String[]) ArrayUtils.add(
 					typeNames,
 					typeName);
 		}

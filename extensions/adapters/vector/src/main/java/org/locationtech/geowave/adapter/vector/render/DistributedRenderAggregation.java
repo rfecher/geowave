@@ -288,14 +288,6 @@ public class DistributedRenderAggregation implements
 			final byte[] bytes ) {}
 
 	@Override
-	public DistributedRenderResult merge(
-			final DistributedRenderResult result1,
-			final DistributedRenderResult result2 ) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public byte[] resultToBinary(
 			final DistributedRenderResult result ) {
 		return result.toBinary();

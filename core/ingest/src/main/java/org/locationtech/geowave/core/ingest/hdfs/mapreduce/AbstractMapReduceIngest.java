@@ -179,20 +179,13 @@ abstract public class AbstractMapReduceIngest<T extends Persistable & DataAdapte
 			// if the adapter is unknown by the ingest format, at least add the
 			// indices from the client
 			for (final Index index : indices) {
-				if (dataStoreOptions.getFactoryOptions().getStoreOptions().isPersistIndex()) {
-					dataStoreOptions.createIndexStore().addIndex(
-							index);
-				}
+				dataStoreOptions.createIndexStore().addIndex(
+						index);
 			}
 			if (indices.length > 0) {
 				for (final MetadataType type : MetadataType.values()) {
 					// stats and index metadata writers are created elsewhere
-					if (!MetadataType.INDEX.equals(type)
-							&& !MetadataType.STATS.equals(type)
-							&& !(MetadataType.ADAPTER.equals(type) && !dataStoreOptions
-									.getFactoryOptions()
-									.getStoreOptions()
-									.isPersistAdapter())) {
+					if (!MetadataType.INDEX.equals(type) && !MetadataType.STATS.equals(type)) {
 						dataStoreOptions.createDataStoreOperations().createMetadataWriter(
 								type).close();
 					}

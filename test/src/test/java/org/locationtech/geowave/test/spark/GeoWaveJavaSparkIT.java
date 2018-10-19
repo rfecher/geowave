@@ -52,9 +52,7 @@ import com.vividsolutions.jts.util.Stopwatch;
 public class GeoWaveJavaSparkIT extends
 		AbstractGeoWaveBasicVectorIT
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					GeoWaveJavaSparkIT.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveJavaSparkIT.class);
 
 	private static final String TEST_BOX_FILTER_FILE = TEST_FILTER_PACKAGE + "Box-Filter.shp";
 	private static final String TEST_POLYGON_FILTER_FILE = TEST_FILTER_PACKAGE + "Polygon-Filter.shp";
@@ -79,44 +77,22 @@ public class GeoWaveJavaSparkIT extends
 	public static void reportTestStart() {
 		stopwatch.reset();
 		stopwatch.start();
-		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"*  RUNNING GeoWaveJavaSparkIT           *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("*  RUNNING GeoWaveJavaSparkIT           *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@AfterClass
 	public static void reportTestFinish() {
 		stopwatch.stop();
-		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"* FINISHED GeoWaveJavaSparkIT           *");
-		LOGGER
-				.warn(
-						"*         " + stopwatch.getTimeString() + " elapsed.             *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED GeoWaveJavaSparkIT           *");
+		LOGGER.warn("*         " + stopwatch.getTimeString() + " elapsed.             *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@Test
@@ -126,122 +102,86 @@ public class GeoWaveJavaSparkIT extends
 		final SparkContext context = SparkTestEnvironment.getInstance().getDefaultContext();
 
 		// ingest test points
-		TestUtils
-				.testLocalIngest(
-						dataStore,
-						DimensionalityType.SPATIAL,
-						HAIL_SHAPEFILE_FILE,
-						1);
+		TestUtils.testLocalIngest(
+				dataStore,
+				DimensionalityType.SPATIAL,
+				HAIL_SHAPEFILE_FILE,
+				1);
 
 		try {
 			// get expected results (box filter)
-			final ExpectedResults expectedResults = TestUtils
-					.getExpectedResults(
-							new URL[] {
-								new File(
-										HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE).toURI().toURL()
-							});
+			final ExpectedResults expectedResults = TestUtils.getExpectedResults(new URL[] {
+				new File(
+						HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE).toURI().toURL()
+			});
 
-			final QueryConstraints query = TestUtils
-					.resourceToQuery(
-							new File(
-									TEST_BOX_FILTER_FILE).toURI().toURL());
+			final QueryConstraints query = TestUtils.resourceToQuery(new File(
+					TEST_BOX_FILTER_FILE).toURI().toURL());
 
 			// Load RDD using spatial query (bbox)
 			final RDDOptions queryOpts = new RDDOptions();
-			queryOpts
-					.setQuery(
-							QueryBuilder
-									.newBuilder()
-									.constraints(
-											query)
-									.build());
-			final GeoWaveRDD newRDD = GeoWaveRDDLoader
-					.loadRDD(
-							context,
-							dataStore,
-							queryOpts);
+			queryOpts.setQuery(QueryBuilder.newBuilder().constraints(
+					query).build());
+			final GeoWaveRDD newRDD = GeoWaveRDDLoader.loadRDD(
+					context,
+					dataStore,
+					queryOpts);
 			final JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd = newRDD.getRawRDD();
 
 			final long count = javaRdd.count();
-			LOGGER
-					.warn(
-							"DataStore loaded into RDD with " + count + " features.");
+			LOGGER.warn("DataStore loaded into RDD with " + count + " features.");
 
 			// Verify RDD count matches expected count
-			Assert
-					.assertEquals(
-							expectedResults.count,
-							count);
+			Assert.assertEquals(
+					expectedResults.count,
+					count);
 		}
 		catch (final Exception e) {
 			e.printStackTrace();
-			TestUtils
-					.deleteAll(
-							dataStore);
-			Assert
-					.fail(
-							"Error occurred while testing a bounding box query of spatial index: '"
-									+ e.getLocalizedMessage() + "'");
+			TestUtils.deleteAll(dataStore);
+			Assert.fail("Error occurred while testing a bounding box query of spatial index: '"
+					+ e.getLocalizedMessage() + "'");
 		}
 		try {
 			// get expected results (polygon filter)
-			final ExpectedResults expectedResults = TestUtils
-					.getExpectedResults(
-							new URL[] {
-								new File(
-										HAIL_EXPECTED_POLYGON_FILTER_RESULTS_FILE).toURI().toURL()
-							});
+			final ExpectedResults expectedResults = TestUtils.getExpectedResults(new URL[] {
+				new File(
+						HAIL_EXPECTED_POLYGON_FILTER_RESULTS_FILE).toURI().toURL()
+			});
 
-			final QueryConstraints query = TestUtils
-					.resourceToQuery(
-							new File(
-									TEST_POLYGON_FILTER_FILE).toURI().toURL());
+			final QueryConstraints query = TestUtils.resourceToQuery(new File(
+					TEST_POLYGON_FILTER_FILE).toURI().toURL());
 
 			// Load RDD using spatial query (poly)
 			final RDDOptions queryOpts = new RDDOptions();
-			queryOpts
-					.setQuery(
-							QueryBuilder
-									.newBuilder()
-									.constraints(
-											query)
-									.build());
-			final GeoWaveRDD newRDD = GeoWaveRDDLoader
-					.loadRDD(
-							context,
-							dataStore,
-							queryOpts);
+			queryOpts.setQuery(QueryBuilder.newBuilder().constraints(
+					query).build());
+			final GeoWaveRDD newRDD = GeoWaveRDDLoader.loadRDD(
+					context,
+					dataStore,
+					queryOpts);
 			final JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd = newRDD.getRawRDD();
 
 			final long count = javaRdd.count();
-			LOGGER
-					.warn(
-							"DataStore loaded into RDD with " + count + " features.");
+			LOGGER.warn("DataStore loaded into RDD with " + count + " features.");
 
-			Assert
-					.assertEquals(
-							expectedResults.count,
-							count);
+			Assert.assertEquals(
+					expectedResults.count,
+					count);
 		}
 		catch (final Exception e) {
 			e.printStackTrace();
-			TestUtils
-					.deleteAll(
-							dataStore);
-			Assert
-					.fail(
-							"Error occurred while testing a polygon query of spatial index: '" + e.getLocalizedMessage()
-									+ "'");
+			TestUtils.deleteAll(dataStore);
+			Assert.fail("Error occurred while testing a polygon query of spatial index: '" + e.getLocalizedMessage()
+					+ "'");
 		}
 
 		// ingest test lines
-		TestUtils
-				.testLocalIngest(
-						dataStore,
-						DimensionalityType.SPATIAL,
-						TORNADO_TRACKS_SHAPEFILE_FILE,
-						1);
+		TestUtils.testLocalIngest(
+				dataStore,
+				DimensionalityType.SPATIAL,
+				TORNADO_TRACKS_SHAPEFILE_FILE,
+				1);
 
 		// Retrieve the adapters
 		final CloseableIterator<InternalDataAdapter<?>> adapterIt = dataStore.createAdapterStore().getAdapters();
@@ -252,102 +192,70 @@ public class GeoWaveJavaSparkIT extends
 			final DataTypeAdapter adapter = adapterIt.next().getAdapter();
 			final String adapterName = adapter.getTypeName();
 
-			if (adapterName
-					.equals(
-							"hail")) {
+			if (adapterName.equals("hail")) {
 				hailAdapter = adapter;
 			}
 			else {
 				tornadoAdapter = adapter;
 			}
 
-			LOGGER
-					.warn(
-							"DataStore has feature adapter: " + adapterName);
+			LOGGER.warn("DataStore has feature adapter: " + adapterName);
 		}
 
 		// Load RDD using hail adapter
 		try {
 
 			final RDDOptions queryOpts = new RDDOptions();
-			queryOpts
-					.setQuery(
-							QueryBuilder
-									.newBuilder()
-									.addTypeName(
-											hailAdapter.getTypeName())
-									.build());
-			final GeoWaveRDD newRDD = GeoWaveRDDLoader
-					.loadRDD(
-							context,
-							dataStore,
-							queryOpts);
+			queryOpts.setQuery(QueryBuilder.newBuilder().addTypeName(
+					hailAdapter.getTypeName()).build());
+			final GeoWaveRDD newRDD = GeoWaveRDDLoader.loadRDD(
+					context,
+					dataStore,
+					queryOpts);
 			final JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd = newRDD.getRawRDD();
 
 			final long count = javaRdd.count();
 
-			Assert
-					.assertEquals(
-							HAIL_COUNT,
-							count);
+			Assert.assertEquals(
+					HAIL_COUNT,
+					count);
 
-			LOGGER
-					.warn(
-							"DataStore loaded into RDD with " + count + " features for adapter "
-									+ hailAdapter.getTypeName());
+			LOGGER.warn("DataStore loaded into RDD with " + count + " features for adapter "
+					+ hailAdapter.getTypeName());
 		}
 		catch (final Exception e) {
 			e.printStackTrace();
-			TestUtils
-					.deleteAll(
-							dataStore);
-			Assert
-					.fail(
-							"Error occurred while loading RDD with adapter: '" + e.getLocalizedMessage() + "'");
+			TestUtils.deleteAll(dataStore);
+			Assert.fail("Error occurred while loading RDD with adapter: '" + e.getLocalizedMessage() + "'");
 		}
 
 		// Load RDD using tornado adapter
 		try {
 			final RDDOptions queryOpts = new RDDOptions();
-			queryOpts
-					.setQuery(
-							QueryBuilder
-									.newBuilder()
-									.addTypeName(
-											tornadoAdapter.getTypeName())
-									.build());
-			final GeoWaveRDD newRDD = GeoWaveRDDLoader
-					.loadRDD(
-							context,
-							dataStore,
-							queryOpts);
+			queryOpts.setQuery(QueryBuilder.newBuilder().addTypeName(
+					tornadoAdapter.getTypeName()).build());
+			final GeoWaveRDD newRDD = GeoWaveRDDLoader.loadRDD(
+					context,
+					dataStore,
+					queryOpts);
 			final JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd = newRDD.getRawRDD();
 
 			final long count = javaRdd.count();
-			LOGGER
-					.warn(
-							"DataStore loaded into RDD with " + count + " features for adapter "
-									+ tornadoAdapter.getTypeName());
+			LOGGER.warn("DataStore loaded into RDD with " + count + " features for adapter "
+					+ tornadoAdapter.getTypeName());
 
-			Assert
-					.assertEquals(
-							TORNADO_COUNT,
-							count);
+			Assert.assertEquals(
+					TORNADO_COUNT,
+					count);
 		}
 		catch (final Exception e) {
 			e.printStackTrace();
-			TestUtils
-					.deleteAll(
-							dataStore);
-			Assert
-					.fail(
-							"Error occurred while loading RDD with adapter: '" + e.getLocalizedMessage() + "'");
+			TestUtils.deleteAll(dataStore);
+			Assert.fail("Error occurred while loading RDD with adapter: '" + e.getLocalizedMessage() + "'");
 		}
 
 		// Clean up
-		TestUtils
-				.deleteAll(
-						dataStore);
+		TestUtils.deleteAll(dataStore);
 	}
 
 	@Override

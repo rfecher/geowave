@@ -20,7 +20,6 @@ import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 public class EverythingQuery implements
 		QueryConstraints
 {
-
 	public EverythingQuery() {}
 
 	@Override
@@ -43,5 +42,19 @@ public class EverythingQuery implements
 	@Override
 	public void fromBinary(
 			final byte[] bytes ) {}
+
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
+	}
+
+	@Override
+	public boolean equals(
+			final Object obj ) {
+		if (obj == null) {
+			return false;
+		}
+		return getClass() == obj.getClass();
+	}
 
 }

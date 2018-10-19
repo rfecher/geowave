@@ -191,7 +191,8 @@ public class TestUtils
 
 	public static void deleteAll(
 			final DataStorePluginOptions dataStore ) {
-		dataStore.createDataStore().delete(QueryBuilder.newBuilder().build());
+		dataStore.createDataStore().delete(
+				QueryBuilder.newBuilder().build());
 	}
 
 	public static void testLocalIngest(

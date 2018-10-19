@@ -1,6 +1,7 @@
 package org.locationtech.geowave.core.store.query.options;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -187,6 +188,37 @@ public class CommonQueryOptions implements
 					key.reader.apply(vBytes));
 		}
 		this.hints = hints;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(authorizations);
+		result = prime * result + ((hints == null) ? 0 : hints.hashCode());
+		result = prime * result + ((limit == null) ? 0 : limit.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(
+			Object obj ) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		CommonQueryOptions other = (CommonQueryOptions) obj;
+		if (!Arrays.equals(
+				authorizations,
+				other.authorizations)) return false;
+		if (hints == null) {
+			if (other.hints != null) return false;
+		}
+		else if (!hints.equals(other.hints)) return false;
+		if (limit == null) {
+			if (other.limit != null) return false;
+		}
+		else if (!limit.equals(other.limit)) return false;
+		return true;
 	}
 
 }

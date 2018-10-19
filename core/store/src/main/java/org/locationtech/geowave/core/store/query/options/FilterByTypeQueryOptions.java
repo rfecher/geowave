@@ -1,6 +1,7 @@
 package org.locationtech.geowave.core.store.query.options;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.locationtech.geowave.core.index.StringUtils;
 
@@ -24,7 +25,7 @@ public class FilterByTypeQueryOptions<T> implements
 		typeNames = new String[] {
 			typeName
 		};
-		this.fieldNames = fieldNames;
+		this.fieldNames = ((fieldNames != null) && (fieldNames.length == 0)) ? null : fieldNames;
 	}
 
 	@Override
@@ -72,12 +73,47 @@ public class FilterByTypeQueryOptions<T> implements
 		}
 		final byte[] fieldNamesBytes = new byte[bytes.length - 4 - typeNamesBytes.length];
 		if (fieldNamesBytes.length == 0) {
-			fieldNames = new String[0];
+			fieldNames = null;
 		}
 		else {
 			buf.get(fieldNamesBytes);
 			fieldNames = StringUtils.stringsFromBinary(fieldNamesBytes);
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + Arrays.hashCode(fieldNames);
+		result = (prime * result) + Arrays.hashCode(typeNames);
+		return result;
+	}
+
+	@Override
+	public boolean equals(
+			final Object obj ) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final FilterByTypeQueryOptions other = (FilterByTypeQueryOptions) obj;
+		if (!Arrays.equals(
+				fieldNames,
+				other.fieldNames)) {
+			return false;
+		}
+		if (!Arrays.equals(
+				typeNames,
+				other.typeNames)) {
+			return false;
+		}
+		return true;
 	}
 
 }

@@ -32,10 +32,10 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
  *            The type of the row to keep statistics on
  */
 public class RowRangeHistogramStatisticsSet<T> extends
-		AbstractDataStatistics<T, Map<ByteArrayId, RowRangeHistogramStatistics<T>>, BaseStatisticsQueryBuilder<Map<ByteArrayId, RowRangeHistogramStatistics<T>>>> implements
-		DataStatisticsSet<T, Map<ByteArrayId, RowRangeHistogramStatistics<T>>, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>, BaseStatisticsQueryBuilder<Map<ByteArrayId, RowRangeHistogramStatistics<T>>>>
+		AbstractDataStatistics<T, Map<ByteArrayId, RowRangeHistogramStatistics<T>>, IndexStatisticsQueryBuilder<Map<ByteArrayId, RowRangeHistogramStatistics<T>>>> implements
+		DataStatisticsSet<T, Map<ByteArrayId, RowRangeHistogramStatistics<T>>, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>, IndexStatisticsQueryBuilder<Map<ByteArrayId, RowRangeHistogramStatistics<T>>>>
 {
-	public static final BaseStatisticsType<Map<ByteArrayId, RowRangeHistogramStatistics<?>>> STATS_TYPE = new BaseStatisticsType<>(
+	public static final IndexStatisticsType<Map<ByteArrayId, RowRangeHistogramStatistics<?>>> STATS_TYPE = new IndexStatisticsType<>(
 			RowRangeHistogramStatistics.STATS_TYPE.getString());
 	private final Map<ByteArrayId, RowRangeHistogramStatistics<T>> histogramPerPartition = new HashMap<>();
 

@@ -123,4 +123,41 @@ public abstract class BaseQuery<T, O extends DataTypeQueryOptions<T>> implements
 			queryConstraints = (QueryConstraints) PersistenceUtils.fromBinary(queryConstraintsBinary);
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((commonQueryOptions == null) ? 0 : commonQueryOptions.hashCode());
+		result = prime * result + ((dataTypeQueryOptions == null) ? 0 : dataTypeQueryOptions.hashCode());
+		result = prime * result + ((indexQueryOptions == null) ? 0 : indexQueryOptions.hashCode());
+		result = prime * result + ((queryConstraints == null) ? 0 : queryConstraints.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(
+			Object obj ) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		BaseQuery other = (BaseQuery) obj;
+		if (commonQueryOptions == null) {
+			if (other.commonQueryOptions != null) return false;
+		}
+		else if (!commonQueryOptions.equals(other.commonQueryOptions)) return false;
+		if (dataTypeQueryOptions == null) {
+			if (other.dataTypeQueryOptions != null) return false;
+		}
+		else if (!dataTypeQueryOptions.equals(other.dataTypeQueryOptions)) return false;
+		if (indexQueryOptions == null) {
+			if (other.indexQueryOptions != null) return false;
+		}
+		else if (!indexQueryOptions.equals(other.indexQueryOptions)) return false;
+		if (queryConstraints == null) {
+			if (other.queryConstraints != null) return false;
+		}
+		else if (!queryConstraints.equals(other.queryConstraints)) return false;
+		return true;
+	}
 }

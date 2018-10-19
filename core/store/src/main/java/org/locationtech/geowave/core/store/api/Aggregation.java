@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.api;
 
+import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.persist.Persistable;
 
 public interface Aggregation<P extends Persistable, R, T> extends
@@ -43,9 +44,24 @@ public interface Aggregation<P extends Persistable, R, T> extends
 	 */
 	R getResult();
 
-	R merge(
-			R result1,
-			R result2 );
+	default R merge(
+			final R result1,
+			final R result2 ) {
+		if (result1 == null) {
+			return result2;
+		}
+		else if (result2 == null) {
+			return result1;
+		}
+		else if ((result1 instanceof Mergeable) && (result2 instanceof Mergeable)) {
+			((Mergeable) result1)
+					.merge(
+							(Mergeable) result2);
+			return result1;
+		}
+
+		return null;
+	}
 
 	byte[] resultToBinary(
 			R result );

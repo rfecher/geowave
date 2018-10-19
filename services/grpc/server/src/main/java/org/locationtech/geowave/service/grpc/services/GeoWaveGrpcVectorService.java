@@ -574,7 +574,7 @@ public class GeoWaveGrpcVectorService extends
 		}
 
 		final int constraintCount = request.getTemporalConstraintsCount();
-		final SpatialTemporalConstraintsBuilder stBldr = bldr.constraintsFactory().spatialTemporalConstraints();
+		SpatialTemporalConstraintsBuilder stBldr = bldr.constraintsFactory().spatialTemporalConstraints();
 		for (int i = 0; i < constraintCount; i++) {
 			final TemporalConstraints t = request.getTemporalConstraints(i);
 			stBldr.addTimeRange(Interval.of(
@@ -587,15 +587,15 @@ public class GeoWaveGrpcVectorService extends
 		try {
 			queryGeom = new WKBReader(
 					JTSFactoryFinder.getGeometryFactory()).read(request.getSpatialParams().getGeometry().toByteArray());
-			stBldr.spatialConstraints(queryGeom);
+			stBldr = stBldr.spatialConstraints(queryGeom);
+
+			stBldr = stBldr.spatialConstraintsCompareOperation(CompareOperation.valueOf(request.getCompareOperation()));
 		}
 		catch (final FactoryRegistryException | com.vividsolutions.jts.io.ParseException e) {
 			LOGGER.error(
 					"Exception encountered creating query geometry",
 					e);
 		}
-
-		final CompareOperation op = CompareOperation.valueOf(request.getCompareOperation());
 
 		try (final CloseableIterator<SimpleFeature> iterator = dataStore.query(bldr.constraints(
 				stBldr.build()).build())) {

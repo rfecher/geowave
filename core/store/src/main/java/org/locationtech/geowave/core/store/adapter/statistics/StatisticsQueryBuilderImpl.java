@@ -25,7 +25,7 @@ public class StatisticsQueryBuilderImpl<R, B extends StatisticsQueryBuilder<R, B
 	@Override
 	public B addAuthorization(
 			final String authorization ) {
-		ArrayUtils.add(
+		authorizations = (String[]) ArrayUtils.add(
 				authorizations,
 				authorization);
 		return (B) this;

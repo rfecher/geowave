@@ -101,7 +101,7 @@ abstract public class AbstractDataStatistics<T, R, B extends StatisticsQueryBuil
 
 	protected ByteBuffer binaryBuffer(
 			final int size ) {
-		final byte stypeBytes[] = PersistenceUtils.toBinary(statisticsType);
+		final byte stypeBytes[] = statisticsType.toBinary();
 		final byte sidBytes[] = StringUtils.stringToBinary(extendedId);
 		final ByteBuffer buffer = ByteBuffer.allocate(size + 6 + stypeBytes.length + sidBytes.length);
 		buffer.putShort(adapterId);
@@ -120,7 +120,8 @@ abstract public class AbstractDataStatistics<T, R, B extends StatisticsQueryBuil
 		final int extenedIdLength = Short.toUnsignedInt(buffer.getShort());
 		final byte typeBytes[] = new byte[typeLength];
 		buffer.get(typeBytes);
-		statisticsType = (StatisticsType) PersistenceUtils.fromBinary(typeBytes);
+		statisticsType = new BaseStatisticsType();
+		statisticsType.fromBinary(typeBytes);
 		final byte[] extendedIdBytes = new byte[extenedIdLength];
 		buffer.get(extendedIdBytes);
 		extendedId = StringUtils.stringFromBinary(extendedIdBytes);

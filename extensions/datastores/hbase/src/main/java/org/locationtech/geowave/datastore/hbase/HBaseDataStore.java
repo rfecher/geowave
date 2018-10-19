@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -94,13 +94,11 @@ public class HBaseDataStore extends
 			if (!((HBaseOperations) baseOperations).isRowMergingEnabled(
 					adapter.getAdapterId(),
 					indexName)) {
-				if (baseOptions.isCreateTable()) {
-					((HBaseOperations) baseOperations).createTable(
-							index.getIndexStrategy().getPredefinedSplits(),
-							index.getName(),
-							false,
-							adapter.getAdapterId());
-				}
+				((HBaseOperations) baseOperations).createTable(
+						index.getIndexStrategy().getPredefinedSplits(),
+						index.getName(),
+						false,
+						adapter.getAdapterId());
 				if (baseOptions.isServerSideLibraryEnabled()) {
 					((HBaseOperations) baseOperations).ensureServerSideOperationsObserverAttached(index.getName());
 					ServerOpHelper.addServerSideRowMerging(

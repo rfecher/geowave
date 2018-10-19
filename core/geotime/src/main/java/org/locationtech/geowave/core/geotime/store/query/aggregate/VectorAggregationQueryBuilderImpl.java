@@ -10,7 +10,6 @@ public class VectorAggregationQueryBuilderImpl<P extends Persistable, R> extends
 		AggregationQueryBuilderImpl<P, R, SimpleFeature, VectorAggregationQueryBuilder<P, R>> implements
 		VectorAggregationQueryBuilder<P, R>
 {
-	AggregateTypeQueryOptions<P, R, SimpleFeature> options;
 
 	@Override
 	public VectorAggregationQueryBuilder<P, R> bboxOfResults(
@@ -52,10 +51,5 @@ public class VectorAggregationQueryBuilderImpl<P extends Persistable, R> extends
 								timeFieldName)),
 				typeName);
 		return this;
-	}
-
-	@Override
-	protected AggregateTypeQueryOptions<P, R, SimpleFeature> newAggregateTypeQueryOptions() {
-		return options;
 	}
 }

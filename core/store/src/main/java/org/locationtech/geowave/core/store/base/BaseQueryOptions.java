@@ -162,7 +162,7 @@ public class BaseQueryOptions
 			// for now let's just assume a single type name and get the adapter,
 			// rather than just type name (which type name would be sufficient
 			// for commonindexaggregation)
-			if (((AggregateTypeQueryOptions) typeOptions).getTypeNames().length > 0) {
+			if (((AggregateTypeQueryOptions) typeOptions).getTypeNames().length == 1) {
 				final String typeName = ((AggregateTypeQueryOptions) typeOptions).getTypeNames()[0];
 				final Short adapterId = internalAdapterStore.getAdapterId(typeName);
 				if (adapterId != null) {
@@ -178,9 +178,14 @@ public class BaseQueryOptions
 							"Type name " + typeName + " does not exist");
 				}
 			}
+			else {
+				// TODO GEOWAVE issue #1439 should tackle this case
+				throw new IllegalArgumentException(
+						"Single type name supported currently");
+			}
 		}
 
-		if ((typeOptions instanceof FilterByTypeQueryOptions)
+		else if ((typeOptions instanceof FilterByTypeQueryOptions)
 				&& (((FilterByTypeQueryOptions) typeOptions).getFieldNames() != null)
 				&& (((FilterByTypeQueryOptions) typeOptions).getFieldNames().length > 0)
 				&& (((FilterByTypeQueryOptions) typeOptions).getTypeNames().length > 0)) {
@@ -208,7 +213,7 @@ public class BaseQueryOptions
 			}
 		}
 
-		if ((typeOptions.getTypeNames() != null) && (typeOptions.getTypeNames().length > 0)) {
+		if ((typeOptions != null) && (typeOptions.getTypeNames() != null) && (typeOptions.getTypeNames().length > 0)) {
 			adapterIds = ArrayUtils.toPrimitive(Collections2.filter(
 					Lists.transform(
 							Arrays.asList(typeOptions.getTypeNames()),

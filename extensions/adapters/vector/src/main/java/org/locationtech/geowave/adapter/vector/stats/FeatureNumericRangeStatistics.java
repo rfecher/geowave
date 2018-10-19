@@ -63,7 +63,7 @@ public class FeatureNumericRangeStatistics extends
 		if (o == null) {
 			return null;
 		}
-		final long num = ((Number) o).longValue();
+		final double num = ((Number) o).doubleValue();
 		return new NumericRange(
 				num,
 				num);

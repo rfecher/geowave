@@ -44,6 +44,8 @@ public abstract class FixedBinNumericStatistics<T> extends
 
 	protected FixedBinNumericStatistics() {
 		super();
+		histogram = new FixedBinNumericHistogram(
+				1024);
 	}
 
 	public FixedBinNumericStatistics(
@@ -134,13 +136,9 @@ public abstract class FixedBinNumericStatistics<T> extends
 
 	@Override
 	public byte[] toBinary() {
-
 		final ByteBuffer buffer = super.binaryBuffer(histogram.bufferSize());
 		histogram.toBinary(buffer);
-		final byte result[] = new byte[buffer.position()];
-		buffer.rewind();
-		buffer.get(result);
-		return result;
+		return buffer.array();
 	}
 
 	@Override

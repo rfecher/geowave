@@ -347,6 +347,7 @@ public class SpatialQueryFilter extends
 		final byte[] geometryFieldNamesBytes = new byte[buf.getInt()];
 		final byte[] theRest = new byte[bytes.length - geometryBinary.length - geometryFieldNamesBytes.length - 12];
 		buf.get(geometryBinary);
+		buf.get(geometryFieldNamesBytes);
 		geometryFieldNames = new HashSet<>(
 				Arrays.asList(StringUtils.stringsFromBinary(geometryFieldNamesBytes)));
 		buf.get(theRest);

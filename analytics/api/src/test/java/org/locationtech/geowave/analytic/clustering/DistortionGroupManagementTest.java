@@ -59,8 +59,12 @@ public class DistortionGroupManagementTest
 			final Index index,
 			final T entry )
 			throws IOException {
-		try (Writer writer = storePluginOptions.createDataStore().createWriter(
-				adapter.getTypeName())) {
+		final DataStore store = storePluginOptions.createDataStore();
+		store.addType(adapter);
+		store.addIndex(
+				adapter.getTypeName(),
+				index);
+		try (Writer writer = store.createWriter(adapter.getTypeName())) {
 			writer.write(entry);
 		}
 	}

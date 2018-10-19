@@ -274,8 +274,7 @@ public class BasicQueryFilter implements
 		final int dimensions = Math.min(
 				constraints.getDimensionCount(),
 				dimensionFields.length);
-		final List<byte[]> lengthDimensionAndQueryBinaries = new ArrayList<byte[]>(
-				dimensions);
+		final byte[][] lengthDimensionAndQueryBinaries = new byte[dimensions][];
 		final NumericData[] dataPerDimension = constraints.getDataPerDimension();
 		for (int d = 0; d < dimensions; d++) {
 			final NumericDimensionField<?> dimension = dimensionFields[d];
@@ -289,7 +288,7 @@ public class BasicQueryFilter implements
 			buf.putDouble(data.getMax());
 			buf.put(dimensionBinary);
 			byteBufferLength += currentDimensionByteBufferLength;
-			lengthDimensionAndQueryBinaries.add(buf.array());
+			lengthDimensionAndQueryBinaries[d] = buf.array();
 		}
 		final ByteBuffer buf = ByteBuffer.allocate(byteBufferLength);
 		buf.putInt(this.compareOp.ordinal());

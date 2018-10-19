@@ -427,10 +427,9 @@ public class BaseDataStoreUtils
 			}
 			final byte[] compositeBitmask = BitmaskUtils.generateCompositeBitmask(fieldPositions);
 			retVal.add(new GeoWaveValueImpl(
-
 					compositeBitmask,
-					allFields.array(),
-					entry.getKey().getBytes()));
+					entry.getKey().getBytes(),
+					allFields.array()));
 		}
 		return retVal.toArray(new GeoWaveValue[0]);
 	}

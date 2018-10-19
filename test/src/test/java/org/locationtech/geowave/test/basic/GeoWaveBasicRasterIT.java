@@ -60,9 +60,7 @@ public class GeoWaveBasicRasterIT extends
 	})
 	protected DataStorePluginOptions dataStoreOptions;
 
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					GeoWaveBasicRasterIT.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveBasicRasterIT.class);
 	private static final double DELTA = MathUtils.EPSILON;
 	private static long startMillis;
 
@@ -74,44 +72,23 @@ public class GeoWaveBasicRasterIT extends
 	@BeforeClass
 	public static void startTimer() {
 		startMillis = System.currentTimeMillis();
-		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"*    RUNNING GeoWaveBasicRasterIT       *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("*    RUNNING GeoWaveBasicRasterIT       *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@AfterClass
 	public static void reportTest() {
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("*      FINISHED GeoWaveBasicRasterIT         *");
 		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"*      FINISHED GeoWaveBasicRasterIT         *");
-		LOGGER
-				.warn(
-						"*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-								+ "s elapsed.                 *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@Test
@@ -132,9 +109,7 @@ public class GeoWaveBasicRasterIT extends
 				eastLon,
 				southLat,
 				northLat);
-		TestUtils
-				.deleteAll(
-						dataStoreOptions);
+		TestUtils.deleteAll(dataStoreOptions);
 	}
 
 	@Test
@@ -212,9 +187,7 @@ public class GeoWaveBasicRasterIT extends
 				sumAndAveragingNumRasters,
 				new SumAndAveragingExpectedValue());
 
-		TestUtils
-				.deleteAll(
-						dataStoreOptions);
+		TestUtils.deleteAll(dataStoreOptions);
 	}
 
 	private void ingestAndQueryNoDataMergeStrategy(
@@ -243,13 +216,8 @@ public class GeoWaveBasicRasterIT extends
 			throws IOException {
 		final DataStore dataStore = dataStoreOptions.createDataStore();
 
-		try (CloseableIterator<?> it = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										coverageName)
-								.build())) {
+		try (CloseableIterator<?> it = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				coverageName).build())) {
 
 			// the expected outcome is:
 			// band 1,2,3,4,5,6 has every value set correctly, band 0 has every
@@ -258,102 +226,85 @@ public class GeoWaveBasicRasterIT extends
 			final GridCoverage coverage = (GridCoverage) it.next();
 			final Raster raster = coverage.getRenderedImage().getData();
 
-			Assert
-					.assertEquals(
-							tileSize,
-							raster.getWidth(),
-							DELTA);
-			Assert
-					.assertEquals(
-							tileSize,
-							raster.getHeight(),
-							DELTA);
+			Assert.assertEquals(
+					tileSize,
+					raster.getWidth(),
+					DELTA);
+			Assert.assertEquals(
+					tileSize,
+					raster.getHeight(),
+					DELTA);
 			for (int x = 0; x < tileSize; x++) {
 				for (int y = 0; y < tileSize; y++) {
 
 					for (int b = 1; b < 7; b++) {
-						Assert
-								.assertEquals(
-										"x=" + x + ",y=" + y + ",b=" + b,
-										TestUtils
-												.getTileValue(
-														x,
-														y,
-														b,
-														tileSize),
-										raster
-												.getSampleDouble(
-														x,
-														y,
-														b),
-										DELTA);
+						Assert.assertEquals(
+								"x=" + x + ",y=" + y + ",b=" + b,
+								TestUtils.getTileValue(
+										x,
+										y,
+										b,
+										tileSize),
+								raster.getSampleDouble(
+										x,
+										y,
+										b),
+								DELTA);
 
 					}
 					if ((y % 2) == 0) {
-						Assert
-								.assertEquals(
-										"x=" + x + ",y=" + y + ",b=0",
-										TestUtils
-												.getTileValue(
-														x,
-														y,
-														0,
-														tileSize),
-										raster
-												.getSampleDouble(
-														x,
-														y,
-														0),
-										DELTA);
+						Assert.assertEquals(
+								"x=" + x + ",y=" + y + ",b=0",
+								TestUtils.getTileValue(
+										x,
+										y,
+										0,
+										tileSize),
+								raster.getSampleDouble(
+										x,
+										y,
+										0),
+								DELTA);
 					}
 					else {
-						Assert
-								.assertEquals(
-										"x=" + x + ",y=" + y + ",b=0",
-										Double.NaN,
-										raster
-												.getSampleDouble(
-														x,
-														y,
-														0),
-										DELTA);
+						Assert.assertEquals(
+								"x=" + x + ",y=" + y + ",b=0",
+								Double.NaN,
+								raster.getSampleDouble(
+										x,
+										y,
+										0),
+								DELTA);
 					}
 					if ((x > ((tileSize * 3) / 4)) && (y > ((tileSize * 3) / 4))) {
-						Assert
-								.assertEquals(
-										"x=" + x + ",y=" + y + ",b=7",
-										Double.NaN,
-										raster
-												.getSampleDouble(
-														x,
-														y,
-														7),
-										DELTA);
+						Assert.assertEquals(
+								"x=" + x + ",y=" + y + ",b=7",
+								Double.NaN,
+								raster.getSampleDouble(
+										x,
+										y,
+										7),
+								DELTA);
 					}
 					else {
-						Assert
-								.assertEquals(
-										"x=" + x + ",y=" + y + ",b=7",
-										TestUtils
-												.getTileValue(
-														x,
-														y,
-														7,
-														tileSize),
-										raster
-												.getSampleDouble(
-														x,
-														y,
-														7),
-										DELTA);
+						Assert.assertEquals(
+								"x=" + x + ",y=" + y + ",b=7",
+								TestUtils.getTileValue(
+										x,
+										y,
+										7,
+										tileSize),
+								raster.getSampleDouble(
+										x,
+										y,
+										7),
+								DELTA);
 
 					}
 				}
 			}
 			// there should be exactly one
-			Assert
-					.assertFalse(
-							it.hasNext());
+			Assert.assertFalse(it.hasNext());
 		}
 	}
 
@@ -367,56 +318,41 @@ public class GeoWaveBasicRasterIT extends
 			throws IOException {
 		final int numBands = 8;
 		final DataStore dataStore = dataStoreOptions.createDataStore();
-		final RasterDataAdapter adapter = RasterUtils
-				.createDataAdapterTypeDouble(
-						coverageName,
-						numBands,
-						tileSize,
-						new NoDataMergeStrategy());
-		final WritableRaster raster1 = RasterUtils
-				.createRasterTypeDouble(
-						numBands,
-						tileSize);
-		final WritableRaster raster2 = RasterUtils
-				.createRasterTypeDouble(
-						numBands,
-						tileSize);
+		final RasterDataAdapter adapter = RasterUtils.createDataAdapterTypeDouble(
+				coverageName,
+				numBands,
+				tileSize,
+				new NoDataMergeStrategy());
+		final WritableRaster raster1 = RasterUtils.createRasterTypeDouble(
+				numBands,
+				tileSize);
+		final WritableRaster raster2 = RasterUtils.createRasterTypeDouble(
+				numBands,
+				tileSize);
 
-		TestUtils
-				.fillTestRasters(
-						raster1,
-						raster2,
-						tileSize);
-		dataStore
-				.addType(
-						adapter);
-		dataStore
-				.addIndex(
-						adapter.getTypeName(),
-						TestUtils.DEFAULT_SPATIAL_INDEX);
-		try (Writer writer = dataStore
-				.createWriter(
-						adapter.getTypeName())) {
-			writer
-					.write(
-							RasterUtils
-									.createCoverageTypeDouble(
-											coverageName,
-											westLon,
-											eastLon,
-											southLat,
-											northLat,
-											raster1));
-			writer
-					.write(
-							RasterUtils
-									.createCoverageTypeDouble(
-											coverageName,
-											westLon,
-											eastLon,
-											southLat,
-											northLat,
-											raster2));
+		TestUtils.fillTestRasters(
+				raster1,
+				raster2,
+				tileSize);
+		dataStore.addType(adapter);
+		dataStore.addIndex(
+				adapter.getTypeName(),
+				TestUtils.DEFAULT_SPATIAL_INDEX);
+		try (Writer writer = dataStore.createWriter(adapter.getTypeName())) {
+			writer.write(RasterUtils.createCoverageTypeDouble(
+					coverageName,
+					westLon,
+					eastLon,
+					southLat,
+					northLat,
+					raster1));
+			writer.write(RasterUtils.createCoverageTypeDouble(
+					coverageName,
+					westLon,
+					eastLon,
+					southLat,
+					northLat,
+					raster2));
 		}
 	}
 
@@ -434,64 +370,50 @@ public class GeoWaveBasicRasterIT extends
 
 		// just ingest a number of rasters
 		final DataStore dataStore = dataStoreOptions.createDataStore();
-		final RasterDataAdapter basicAdapter = RasterUtils
-				.createDataAdapterTypeDouble(
-						coverageName,
-						numBands,
-						tileSize,
-						new NoDataMergeStrategy());
+		final RasterDataAdapter basicAdapter = RasterUtils.createDataAdapterTypeDouble(
+				coverageName,
+				numBands,
+				tileSize,
+				new NoDataMergeStrategy());
 		final RasterDataAdapter mergeStrategyOverriddenAdapter = new RasterDataAdapter(
 				basicAdapter,
 				coverageName,
 				mergeStrategy);
-		basicAdapter
-				.getMetadata()
-				.put(
-						"test-key",
-						"test-value");
-		dataStore
-				.addType(
-						mergeStrategyOverriddenAdapter);
-		dataStore
-				.addIndex(
-						mergeStrategyOverriddenAdapter.getTypeName(),
-						TestUtils.DEFAULT_SPATIAL_INDEX);
-		try (Writer writer = dataStore
-				.createWriter(
-						mergeStrategyOverriddenAdapter.getTypeName())) {
+		basicAdapter.getMetadata().put(
+				"test-key",
+				"test-value");
+		dataStore.addType(mergeStrategyOverriddenAdapter);
+		dataStore.addIndex(
+				mergeStrategyOverriddenAdapter.getTypeName(),
+				TestUtils.DEFAULT_SPATIAL_INDEX);
+		try (Writer writer = dataStore.createWriter(mergeStrategyOverriddenAdapter.getTypeName())) {
 			for (int r = 0; r < numRasters; r++) {
-				final WritableRaster raster = RasterUtils
-						.createRasterTypeDouble(
-								numBands,
-								tileSize);
+				final WritableRaster raster = RasterUtils.createRasterTypeDouble(
+						numBands,
+						tileSize);
 				for (int x = 0; x < tileSize; x++) {
 					for (int y = 0; y < tileSize; y++) {
 						for (int b = 0; b < numBands; b++) {
-							raster
-									.setSample(
+							raster.setSample(
+									x,
+									y,
+									b,
+									TestUtils.getTileValue(
 											x,
 											y,
 											b,
-											TestUtils
-													.getTileValue(
-															x,
-															y,
-															b,
-															r,
-															tileSize));
+											r,
+											tileSize));
 						}
 					}
 				}
-				writer
-						.write(
-								RasterUtils
-										.createCoverageTypeDouble(
-												coverageName,
-												westLon,
-												eastLon,
-												southLat,
-												northLat,
-												raster));
+				writer.write(RasterUtils.createCoverageTypeDouble(
+						coverageName,
+						westLon,
+						eastLon,
+						southLat,
+						northLat,
+						raster));
 			}
 		}
 	}
@@ -509,22 +431,14 @@ public class GeoWaveBasicRasterIT extends
 			throws IOException {
 		final DataStore dataStore = dataStoreOptions.createDataStore();
 
-		try (CloseableIterator<?> it = dataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										coverageName)
-								.constraints(
-										new IndexOnlySpatialQuery(
-												new GeometryFactory()
-														.toGeometry(
-																new Envelope(
-																		westLon,
-																		eastLon,
-																		southLat,
-																		northLat))))
-								.build())) {
+		try (CloseableIterator<?> it = dataStore.query(QueryBuilder.newBuilder().addTypeName(
+				coverageName).constraints(
+				new IndexOnlySpatialQuery(
+						new GeometryFactory().toGeometry(new Envelope(
+								westLon,
+								eastLon,
+								southLat,
+								northLat)))).build())) {
 			// the expected outcome is:
 			// band 1,2,3,4,5,6 has every value set correctly, band 0 has every
 			// even row set correctly and every odd row should be NaN, and band
@@ -532,42 +446,35 @@ public class GeoWaveBasicRasterIT extends
 			final GridCoverage coverage = (GridCoverage) it.next();
 			final Raster raster = coverage.getRenderedImage().getData();
 
-			Assert
-					.assertEquals(
-							tileSize,
-							raster.getWidth());
-			Assert
-					.assertEquals(
-							tileSize,
-							raster.getHeight());
+			Assert.assertEquals(
+					tileSize,
+					raster.getWidth());
+			Assert.assertEquals(
+					tileSize,
+					raster.getHeight());
 			for (int x = 0; x < tileSize; x++) {
 				for (int y = 0; y < tileSize; y++) {
 					for (int b = 0; b < numBands; b++) {
-						Assert
-								.assertEquals(
-										"x=" + x + ",y=" + y + ",b=" + b,
-										expectedValue
-												.getExpectedValue(
-														x,
-														y,
-														b,
-														numRasters,
-														tileSize),
-										raster
-												.getSampleDouble(
-														x,
-														y,
-														b),
-										TestUtils.DOUBLE_EPSILON);
+						Assert.assertEquals(
+								"x=" + x + ",y=" + y + ",b=" + b,
+								expectedValue.getExpectedValue(
+										x,
+										y,
+										b,
+										numRasters,
+										tileSize),
+								raster.getSampleDouble(
+										x,
+										y,
+										b),
+								TestUtils.DOUBLE_EPSILON);
 
 					}
 				}
 			}
 
 			// there should be exactly one
-			Assert
-					.assertFalse(
-							it.hasNext());
+			Assert.assertFalse(it.hasNext());
 		}
 	}
 
@@ -593,13 +500,12 @@ public class GeoWaveBasicRasterIT extends
 				final int tileSize ) {
 			double sum = 0;
 			for (int r = 0; r < numRasters; r++) {
-				sum += TestUtils
-						.getTileValue(
-								x,
-								y,
-								b,
-								r,
-								tileSize);
+				sum += TestUtils.getTileValue(
+						x,
+						y,
+						b,
+						r,
+						tileSize);
 			}
 			return sum;
 		}
@@ -619,13 +525,12 @@ public class GeoWaveBasicRasterIT extends
 			final boolean isSum = ((b % 2) == 0);
 
 			for (int r = 0; r < numRasters; r++) {
-				sum += TestUtils
-						.getTileValue(
-								x,
-								y,
-								isSum ? b : b - 1,
-								r,
-								tileSize);
+				sum += TestUtils.getTileValue(
+						x,
+						y,
+						isSum ? b : b - 1,
+						r,
+						tileSize);
 			}
 			if (isSum) {
 				return sum;
@@ -676,16 +581,14 @@ public class GeoWaveBasicRasterIT extends
 				final RasterTile<MergeCounter> nextTile,
 				final SampleModel sampleModel ) {
 			if (nextTile instanceof ServerMergeableRasterTile) {
-				final WritableRaster nextRaster = Raster
-						.createWritableRaster(
-								sampleModel,
-								nextTile.getDataBuffer(),
-								null);
-				final WritableRaster thisRaster = Raster
-						.createWritableRaster(
-								sampleModel,
-								thisTile.getDataBuffer(),
-								null);
+				final WritableRaster nextRaster = Raster.createWritableRaster(
+						sampleModel,
+						nextTile.getDataBuffer(),
+						null);
+				final WritableRaster thisRaster = Raster.createWritableRaster(
+						sampleModel,
+						thisTile.getDataBuffer(),
+						null);
 				final MergeCounter mergeCounter = thisTile.getMetadata();
 				// we're merging, this is the incremented new number of merges
 				final int newNumMerges = mergeCounter.getNumMerges() + nextTile.getMetadata().getNumMerges() + 1;
@@ -698,38 +601,32 @@ public class GeoWaveBasicRasterIT extends
 				for (int x = nextRaster.getMinX(); x < maxX; x++) {
 					for (int y = nextRaster.getMinY(); y < maxY; y++) {
 						for (int b = 0; (b + 1) < nextRaster.getNumBands(); b += 2) {
-							final double thisSample = thisRaster
-									.getSampleDouble(
-											x,
-											y,
-											b);
-							final double nextSample = nextRaster
-									.getSampleDouble(
-											x,
-											y,
-											b);
+							final double thisSample = thisRaster.getSampleDouble(
+									x,
+									y,
+									b);
+							final double nextSample = nextRaster.getSampleDouble(
+									x,
+									y,
+									b);
 
 							final double sum = thisSample + nextSample;
 							final double average = sum / totalTiles;
-							thisRaster
-									.setSample(
-											x,
-											y,
-											b,
-											sum);
-							thisRaster
-									.setSample(
-											x,
-											y,
-											b + 1,
-											average);
+							thisRaster.setSample(
+									x,
+									y,
+									b,
+									sum);
+							thisRaster.setSample(
+									x,
+									y,
+									b + 1,
+									average);
 						}
 					}
 				}
-				thisTile
-						.setMetadata(
-								new MergeCounter(
-										newNumMerges));
+				thisTile.setMetadata(new MergeCounter(
+						newNumMerges));
 			}
 		}
 
@@ -769,21 +666,15 @@ public class GeoWaveBasicRasterIT extends
 
 		@Override
 		public byte[] toBinary() {
-			final ByteBuffer buf = ByteBuffer
-					.allocate(
-							12);
-			buf
-					.putInt(
-							mergeCounter);
+			final ByteBuffer buf = ByteBuffer.allocate(12);
+			buf.putInt(mergeCounter);
 			return buf.array();
 		}
 
 		@Override
 		public void fromBinary(
 				final byte[] bytes ) {
-			final ByteBuffer buf = ByteBuffer
-					.wrap(
-							bytes);
+			final ByteBuffer buf = ByteBuffer.wrap(bytes);
 			mergeCounter = buf.getInt();
 		}
 	}

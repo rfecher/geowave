@@ -96,6 +96,7 @@ public class MapReduceMemoryDataStore extends
 	public PersistentAdapterStore getAdapterStore() {
 		return adapterStore;
 	}
+
 	public InternalAdapterStore getInternalAdapterStore() {
 		return internalAdapterStore;
 	}

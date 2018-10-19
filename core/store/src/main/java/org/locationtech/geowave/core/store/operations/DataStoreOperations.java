@@ -47,25 +47,29 @@ public interface DataStoreOperations
 
 	/**
 	 * Creates a new writer that can be used by an index.
-	 *
+	 * 
+	 * @param typeName
+	 *            TODO
+	 * @param adapterId
+	 *            The name of the adapter.
 	 * @param indexId
 	 *            The basic name of the table. Note that that basic
 	 *            implementation of the factory will allow for a table namespace
 	 *            to prefix this name
-	 * @param adapterId
-	 *            The name of the adapter.
 	 * @param options
 	 *            basic options available
 	 * @param splits
 	 *            If the table is created, these splits will be added as
 	 *            partition keys. Null can be used to imply not to add any
 	 *            splits.
+	 *
 	 * @return The appropriate writer
 	 * @throws TableNotFoundException
 	 *             The table does not exist in this Accumulo instance
 	 */
 	public RowWriter createWriter(
 			Index index,
+			String typeName,
 			short adapterId );
 
 	public MetadataWriter createMetadataWriter(

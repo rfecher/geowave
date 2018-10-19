@@ -68,14 +68,6 @@ public class DataStatisticsAggregation<T> implements
 			final byte[] bytes ) {}
 
 	@Override
-	public InternalDataStatistics<T, ?, ?> merge(
-			final InternalDataStatistics<T, ?, ?> result1,
-			final InternalDataStatistics<T, ?, ?> result2 ) {
-		result1.merge(result2);
-		return result1;
-	}
-
-	@Override
 	public byte[] resultToBinary(
 			final InternalDataStatistics<T, ?, ?> result ) {
 		return PersistenceUtils.toBinary(result);

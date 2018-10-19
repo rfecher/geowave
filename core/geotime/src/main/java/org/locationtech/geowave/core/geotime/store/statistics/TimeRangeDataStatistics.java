@@ -76,8 +76,8 @@ abstract public class TimeRangeDataStatistics<T> extends
 	@Override
 	public byte[] toBinary() {
 		final ByteBuffer buffer = super.binaryBuffer(16);
-		buffer.putDouble(min);
-		buffer.putDouble(max);
+		buffer.putLong(min);
+		buffer.putLong(max);
 		return buffer.array();
 	}
 

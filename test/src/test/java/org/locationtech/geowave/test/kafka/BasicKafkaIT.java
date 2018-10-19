@@ -59,20 +59,16 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 public class BasicKafkaIT extends
 		AbstractGeoWaveIT
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					BasicKafkaIT.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(BasicKafkaIT.class);
 	private static final Map<String, Integer> EXPECTED_COUNT_PER_ADAPTER_ID = new HashMap<>();
 
 	static {
-		EXPECTED_COUNT_PER_ADAPTER_ID
-				.put(
-						"gpxpoint",
-						11911);
-		EXPECTED_COUNT_PER_ADAPTER_ID
-				.put(
-						"gpxtrack",
-						4);
+		EXPECTED_COUNT_PER_ADAPTER_ID.put(
+				"gpxpoint",
+				11911);
+		EXPECTED_COUNT_PER_ADAPTER_ID.put(
+				"gpxtrack",
+				4);
 	}
 
 	protected static final String TEST_DATA_ZIP_RESOURCE_PATH = TestUtils.TEST_RESOURCE_PACKAGE
@@ -98,69 +94,41 @@ public class BasicKafkaIT extends
 	@BeforeClass
 	public static void extractTestFiles()
 			throws URISyntaxException {
-		ZipUtils
-				.unZipFile(
-						new File(
-								BasicKafkaIT.class
-										.getClassLoader()
-										.getResource(
-												TEST_DATA_ZIP_RESOURCE_PATH)
-										.toURI()),
-						TestUtils.TEST_CASE_BASE);
+		ZipUtils.unZipFile(
+				new File(
+						BasicKafkaIT.class.getClassLoader().getResource(
+								TEST_DATA_ZIP_RESOURCE_PATH).toURI()),
+				TestUtils.TEST_CASE_BASE);
 
 		startMillis = System.currentTimeMillis();
-		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"*         RUNNING BasicKafkaIT          *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("*         RUNNING BasicKafkaIT          *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@AfterClass
 	public static void reportTest() {
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("*      FINISHED BasicKafkaIT            *");
 		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"*      FINISHED BasicKafkaIT            *");
-		LOGGER
-				.warn(
-						"*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-								+ "s elapsed.                 *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+				.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+						+ "s elapsed.                 *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testBasicIngestGpx()
 			throws Exception {
-		KafkaTestUtils
-				.testKafkaStage(
-						OSM_GPX_INPUT_DIR);
-		KafkaTestUtils
-				.testKafkaIngest(
-						dataStorePluginOptions,
-						false,
-						OSM_GPX_INPUT_DIR);
+		KafkaTestUtils.testKafkaStage(OSM_GPX_INPUT_DIR);
+		KafkaTestUtils.testKafkaIngest(
+				dataStorePluginOptions,
+				false,
+				OSM_GPX_INPUT_DIR);
 
 		final DataStatisticsStore statsStore = dataStorePluginOptions.createDataStatisticsStore();
 		final PersistentAdapterStore adapterStore = dataStorePluginOptions.createAdapterStore();
@@ -170,14 +138,8 @@ public class BasicKafkaIT extends
 			while (adapterIterator.hasNext()) {
 				final InternalDataAdapter<?> internalDataAdapter = adapterIterator.next();
 				final FeatureDataAdapter adapter = (FeatureDataAdapter) internalDataAdapter.getAdapter();
-				final StatisticsId statsId = VectorStatisticsQueryBuilder
-						.newBuilder()
-						.factory()
-						.bbox()
-						.fieldName(
-								adapter.getFeatureType().getGeometryDescriptor().getLocalName())
-						.build()
-						.getId();
+				final StatisticsId statsId = VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
+						adapter.getFeatureType().getGeometryDescriptor().getLocalName()).build().getId();
 				// query by the full bounding box, make sure there is more than
 				// 0 count and make sure the count matches the number of results
 				try (final CloseableIterator<BoundingBoxDataStatistics<?>> bboxStatIt = (CloseableIterator) statsStore
@@ -198,9 +160,7 @@ public class BasicKafkaIT extends
 								bboxStat.getMaxX(),
 								bboxStat.getMinY(),
 								bboxStat.getMaxY());
-						final Geometry spatialFilter = factory
-								.toGeometry(
-										env);
+						final Geometry spatialFilter = factory.toGeometry(env);
 						final QueryConstraints query = new SpatialQuery(
 								spatialFilter);
 						final int resultCount = testQuery(
@@ -219,9 +179,7 @@ public class BasicKafkaIT extends
 						assertEquals(
 								"'" + adapter.getTypeName()
 										+ "' adapter entries ingested does not match expected count",
-								EXPECTED_COUNT_PER_ADAPTER_ID
-										.get(
-												adapter.getTypeName()),
+								EXPECTED_COUNT_PER_ADAPTER_ID.get(adapter.getTypeName()),
 								new Integer(
 										resultCount));
 						adapterCount++;
@@ -240,15 +198,9 @@ public class BasicKafkaIT extends
 			throws Exception {
 		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = dataStorePluginOptions.createDataStore();
 
-		final CloseableIterator<?> accumuloResults = geowaveStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										TestUtils.DEFAULT_SPATIAL_INDEX.getName())
-								.build());
+		final CloseableIterator<?> accumuloResults = geowaveStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				TestUtils.DEFAULT_SPATIAL_INDEX.getName()).build());
 
 		int resultCount = 0;
 		while (accumuloResults.hasNext()) {

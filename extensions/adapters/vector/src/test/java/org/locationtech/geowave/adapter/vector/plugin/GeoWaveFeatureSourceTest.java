@@ -142,7 +142,6 @@ public class GeoWaveFeatureSourceTest extends
 			FeatureNumericRangeStatistics popStats = null;
 			while (stats.hasNext()) {
 				final InternalDataStatistics<?, ?, ?> statsData = stats.next();
-				System.out.println(statsData.toString());
 				if (statsData instanceof BoundingBoxDataStatistics) {
 					bboxStats = (BoundingBoxDataStatistics<SimpleFeature>) statsData;
 				}

@@ -29,11 +29,7 @@ public class GeoWaveGrpcTestUtils
 	public static byte[] wkbSpatialQuery;
 	static {
 		try {
-			wkbSpatialQuery = new WKBWriter()
-					.write(
-							new WKTReader()
-									.read(
-											wktSpatialQuery));
+			wkbSpatialQuery = new WKBWriter().write(new WKTReader().read(wktSpatialQuery));
 		}
 		catch (final ParseException e) {
 			e.printStackTrace();

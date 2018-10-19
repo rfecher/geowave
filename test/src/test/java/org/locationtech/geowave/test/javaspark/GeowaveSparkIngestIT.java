@@ -50,9 +50,7 @@ import com.vividsolutions.jts.util.Stopwatch;
 public class GeowaveSparkIngestIT extends
 		AbstractGeoWaveBasicVectorIT
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					GeowaveSparkIngestIT.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeowaveSparkIngestIT.class);
 	private final static String S3URL = "s3.amazonaws.com";
 	protected static final String GDELT_INPUT_FILES = "s3://geowave-test/data/gdelt";
 	private static final int GDELT_COUNT = 448675;
@@ -72,44 +70,22 @@ public class GeowaveSparkIngestIT extends
 	public static void reportTestStart() {
 		stopwatch.reset();
 		stopwatch.start();
-		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"*  RUNNING GeoWaveJavaSparkIngestIT           *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("*  RUNNING GeoWaveJavaSparkIngestIT           *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@AfterClass
 	public static void reportTestFinish() {
 		stopwatch.stop();
-		LOGGER
-				.warn(
-						"-----------------------------------------");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"* FINISHED GeoWaveJavaSparkIngestIT           *");
-		LOGGER
-				.warn(
-						"*         " + stopwatch.getTimeString() + " elapsed.             *");
-		LOGGER
-				.warn(
-						"*                                       *");
-		LOGGER
-				.warn(
-						"-----------------------------------------");
+		LOGGER.warn("-----------------------------------------");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("* FINISHED GeoWaveJavaSparkIngestIT           *");
+		LOGGER.warn("*         " + stopwatch.getTimeString() + " elapsed.             *");
+		LOGGER.warn("*                                       *");
+		LOGGER.warn("-----------------------------------------");
 	}
 
 	@Test
@@ -117,13 +93,12 @@ public class GeowaveSparkIngestIT extends
 			throws Exception {
 
 		// ingest test points
-		TestUtils
-				.testSparkIngest(
-						dataStore,
-						DimensionalityType.SPATIAL,
-						S3URL,
-						GDELT_INPUT_FILES,
-						"gdelt");
+		TestUtils.testSparkIngest(
+				dataStore,
+				DimensionalityType.SPATIAL,
+				S3URL,
+				GDELT_INPUT_FILES,
+				"gdelt");
 
 		final DataStatisticsStore statsStore = dataStore.createDataStatisticsStore();
 		final PersistentAdapterStore adapterStore = dataStore.createAdapterStore();
@@ -135,14 +110,8 @@ public class GeowaveSparkIngestIT extends
 
 				// query by the full bounding box, make sure there is more than
 				// 0 count and make sure the count matches the number of results
-				final StatisticsId statsId = VectorStatisticsQueryBuilder
-						.newBuilder()
-						.factory()
-						.bbox()
-						.fieldName(
-								adapter.getFeatureType().getGeometryDescriptor().getLocalName())
-						.build()
-						.getId();
+				final StatisticsId statsId = VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
+						adapter.getFeatureType().getGeometryDescriptor().getLocalName()).build().getId();
 				try (final CloseableIterator<BoundingBoxDataStatistics<?>> bboxStatIt = (CloseableIterator) statsStore
 						.getDataStatistics(
 								internalDataAdapter.getAdapterId(),
@@ -161,9 +130,7 @@ public class GeowaveSparkIngestIT extends
 								bboxStat.getMaxX(),
 								bboxStat.getMinY(),
 								bboxStat.getMaxY());
-						final Geometry spatialFilter = factory
-								.toGeometry(
-										env);
+						final Geometry spatialFilter = factory.toGeometry(env);
 						final QueryConstraints query = new SpatialQuery(
 								spatialFilter);
 						final int resultCount = testQuery(
@@ -195,9 +162,7 @@ public class GeowaveSparkIngestIT extends
 		}
 
 		// Clean up
-		TestUtils
-				.deleteAll(
-						dataStore);
+		TestUtils.deleteAll(dataStore);
 
 	}
 
@@ -207,17 +172,10 @@ public class GeowaveSparkIngestIT extends
 			throws Exception {
 		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = dataStore.createDataStore();
 
-		final CloseableIterator<?> accumuloResults = geowaveStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										TestUtils.DEFAULT_SPATIAL_INDEX.getName())
-								.constraints(
-										query)
-								.build());
+		final CloseableIterator<?> accumuloResults = geowaveStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				TestUtils.DEFAULT_SPATIAL_INDEX.getName()).constraints(
+				query).build());
 
 		int resultCount = 0;
 		while (accumuloResults.hasNext()) {

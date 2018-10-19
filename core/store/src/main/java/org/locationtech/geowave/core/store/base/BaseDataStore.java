@@ -32,6 +32,7 @@ import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.IndexDependentDataAdapter;
+import org.locationtech.geowave.core.store.adapter.InitializeWithIndicesDataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
@@ -115,14 +116,14 @@ public class BaseDataStore implements
 
 	public void store(
 			final Index index ) {
-		if (baseOptions.isPersistIndex() && !indexStore.indexExists(index.getName())) {
+		if (!indexStore.indexExists(index.getName())) {
 			indexStore.addIndex(index);
 		}
 	}
 
 	protected synchronized void store(
 			final InternalDataAdapter<?> adapter ) {
-		if (baseOptions.isPersistAdapter() && !adapterStore.adapterExists(adapter.getAdapterId())) {
+		if (!adapterStore.adapterExists(adapter.getAdapterId())) {
 			adapterStore.addAdapter(adapter);
 		}
 
@@ -373,7 +374,7 @@ public class BaseDataStore implements
 						results.add(queryConstraints(
 								Collections.singletonList(adapter.getAdapterId()),
 								indexAdapterPair.getLeft(),
-								sanitizedConstraints,
+								adapterIndexConstraints,
 								filter,
 								queryOptions,
 								tempAdapterStore,
@@ -837,7 +838,7 @@ public class BaseDataStore implements
 			final AdapterToIndexMapping existingMapping = indexMappingStore
 					.getIndicesForAdapter(
 							adapterId);
-			if (existingMapping != null) {
+			if ((existingMapping != null) && (existingMapping.getIndexNames().length > 0)) {
 				// reduce the provided indices to only those that don't already
 				// exist
 				final Index[] newIndices = Arrays
@@ -856,7 +857,15 @@ public class BaseDataStore implements
 									"Indices already available for type '" + typeName
 											+ "'. Writing existing data to new indices for consistency.");
 
-					for (final Index index : indices) {
+
+					if (adapter.getAdapter() instanceof InitializeWithIndicesDataAdapter) {
+						((InitializeWithIndicesDataAdapter)adapter.getAdapter()).init(indices);
+						adapterStore.removeAdapter(adapter.getAdapterId());
+						adapterStore
+								.addAdapter(
+										adapter);
+					}
+					for (final Index index : newIndices) {
 						store(
 								index);
 						initOnIndexWriterCreate(
@@ -904,6 +913,13 @@ public class BaseDataStore implements
 				}
 			}
 			else {
+				if (adapter.getAdapter() instanceof InitializeWithIndicesDataAdapter) {
+					((InitializeWithIndicesDataAdapter)adapter.getAdapter()).init(indices);
+					adapterStore.removeAdapter(adapter.getAdapterId());
+					adapterStore
+							.addAdapter(
+									adapter);
+				}
 				indexMappingStore
 						.addAdapterIndexMapping(
 								new AdapterToIndexMapping(
@@ -991,13 +1007,35 @@ public class BaseDataStore implements
 			LOGGER.warn("Aggregation must be defined");
 			return null;
 		}
-		return (R) internalQuery(
+		R results = null;
+
+		final Aggregation<P, R, T> aggregation = query.getDataTypeQueryOptions().getAggregation();
+		try (CloseableIterator<R> resultsIt = internalQuery(
 				query.getQueryConstraints(),
 				new BaseQueryOptions(
 						query,
 						adapterStore,
 						internalAdapterStore),
-				false);
+				false)) {
+			while (resultsIt.hasNext()) {
+				final R next = resultsIt.next();
+				if (results == null) {
+					results = next;
+				}
+				else {
+					results = aggregation.merge(
+							results,
+							next);
+				}
+			}
+		}
+		if (results == null) {
+			aggregation.clearResult();
+			return aggregation.getResult();
+		}
+		else {
+			return results;
+		}
 	}
 
 	protected <R> CloseableIterator<InternalDataStatistics<?, R, ?>> internalQueryStatistics(
@@ -1171,7 +1209,6 @@ public class BaseDataStore implements
 
 	@Override
 	public void deleteAll() {
-		// TODO Auto-generated method stub
-
+		deleteEverything();
 	}
 }
