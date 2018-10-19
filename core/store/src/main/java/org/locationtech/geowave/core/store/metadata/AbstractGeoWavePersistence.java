@@ -149,9 +149,9 @@ public abstract class AbstractGeoWavePersistence<T extends Persistable>
 	}
 
 	public void remove(
-			final ByteArrayId adapterId ) {
+			final ByteArrayId primaryId ) {
 		deleteObject(
-				adapterId,
+				primaryId,
 				null);
 
 	}
