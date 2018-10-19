@@ -1177,7 +1177,7 @@ public class BaseDataStore implements
 		// If this index is the only index remaining for a given type, then we need 
 		// to throw an exception first (no deletion will occur).
 	
-		final ArrayList<AdapterToIndexMapping> markedAdapters = new ArrayList<AdapterToIndexMapping>();
+		final ArrayList<Short> markedAdapters = new ArrayList<Short>();
 		while (it.hasNext()) {
 
 			final InternalDataAdapter<?> dataAdapter = it.next();
@@ -1193,7 +1193,7 @@ public class BaseDataStore implements
 					}
 					else {
 						// mark the index for removal
-						markedAdapters.add(adapterIndexMap);
+						markedAdapters.add(adapterIndexMap.getAdapterId());
 					}
 				}
 			}
@@ -1202,15 +1202,11 @@ public class BaseDataStore implements
 
 		// take out the index from the mapping, statistics, and data
 		for (int i = 0; i < markedAdapters.size(); i++) {
-			final AdapterToIndexMapping adapterMap = markedAdapters.get(i);
-			final short adapterId = adapterMap.getAdapterId();
+			final short adapterId = markedAdapters.get(i);
 
-			// maintain consistency and remove the adapter data from all the indices
-			// (equivalent to deleting all the data for the adapter)
-			for (String mappedIndexName : adapterMap.getIndexNames()) {
-				baseOperations.deleteAll(mappedIndexName, adapterId);
-			}
-			
+			//remove the data
+			baseOperations.deleteAll(indexName, adapterId);
+						
 			// remove all stats for the adapter
 			this.statisticsStore.removeAllStatistics(adapterId);
 						
