@@ -205,7 +205,7 @@ public abstract class GeoWaveAnalyticJobRunner extends
 			final InternalDataAdapter<?> adapter ) {
 		JobContextAdapterStore.addDataAdapter(
 				config,
-				adapter);
+				adapter.getAdapter());
 		JobContextInternalAdapterStore.addTypeName(
 				config,
 				adapter.getTypeName(),

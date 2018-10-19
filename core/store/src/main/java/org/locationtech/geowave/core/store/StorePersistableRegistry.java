@@ -155,9 +155,9 @@ public class StorePersistableRegistry implements
 			new PersistableIdAndConstructor(
 					(short) 231,
 					CommonQueryOptions::new),
-			new PersistableIdAndConstructor(
-					(short) 232,
-					InternalDataAdapterWrapper::new),
+//			new PersistableIdAndConstructor(
+//					(short) 232,
+//					InternalDataAdapterWrapper::new),
 			new PersistableIdAndConstructor(
 					(short) 233,
 					CountAggregation::new),
