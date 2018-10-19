@@ -42,10 +42,10 @@ public class FeatureBoundingBoxStatistics extends
 	}
 
 	public FeatureBoundingBoxStatistics(
-			final Short internalDataAdapterId,
+			final Short adapterId,
 			final String fieldName ) {
 		this(
-				internalDataAdapterId,
+				adapterId,
 				fieldName,
 				null,
 				null);
@@ -63,12 +63,12 @@ public class FeatureBoundingBoxStatistics extends
 	}
 
 	public FeatureBoundingBoxStatistics(
-			final Short internalDataAdapterId,
+			final Short adapterId,
 			final String fieldName,
 			final SimpleFeatureType reprojectedType,
 			final MathTransform transform ) {
 		super(
-				internalDataAdapterId,
+				adapterId,
 				fieldName);
 		this.reprojectedType = reprojectedType;
 		this.transform = transform;

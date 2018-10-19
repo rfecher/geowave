@@ -94,8 +94,8 @@ public class AccumuloMetadataReader implements
 			// For stats w/ no server-side support, need to merge here
 			if ((metadataType == MetadataType.STATS) && !options.isServerSideLibraryEnabled()) {
 
-				final HashMap<Text, Key> keyMap = new HashMap();
-				final HashMap<Text, InternalDataStatistics<?, ?, ?>> mergedDataMap = new HashMap();
+				final HashMap<Text, Key> keyMap = new HashMap<>();
+				final HashMap<Text, InternalDataStatistics<?, ?, ?>> mergedDataMap = new HashMap<>();
 				final Iterator<Entry<Key, Value>> it = scanner.iterator();
 
 				while (it.hasNext()) {

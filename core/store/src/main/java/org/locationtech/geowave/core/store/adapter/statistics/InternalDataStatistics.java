@@ -53,10 +53,9 @@ public interface InternalDataStatistics<T, R, B extends StatisticsQueryBuilder<R
 	static < R> InternalDataStatistics<?, R, ?> reduce(
 			final InternalDataStatistics<?, R, ?> a,
 			final InternalDataStatistics<?, R, ?> b ) {
-		final InternalDataStatistics<?, R, ?> c = a.duplicate();
-		c
+		a
 				.merge(
 						b);
-		return c;
+		return a;
 	}
 }

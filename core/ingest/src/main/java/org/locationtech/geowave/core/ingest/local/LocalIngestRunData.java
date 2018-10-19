@@ -159,7 +159,7 @@ public class LocalIngestRunData implements
 	{
 
 		@Override
-		public Writer<?> create(
+		public synchronized Writer<?> create(
 				final TypeNameKeyWithIndices adapterWithIndices )
 				throws Exception {
 			dataStore.addType(adapterStore.getAdapter(adapterWithIndices.typeName));

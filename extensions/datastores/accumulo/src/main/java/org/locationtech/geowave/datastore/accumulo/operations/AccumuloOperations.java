@@ -310,7 +310,7 @@ public class AccumuloOperations implements
 				options.isEnableBlockCache());
 	}
 
-	public boolean createTable(
+	public synchronized boolean createTable(
 			final String tableName,
 			final boolean enableVersioning,
 			final boolean enableBlockCache ) {

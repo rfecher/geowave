@@ -37,6 +37,7 @@ abstract public class SpatialField implements
 	protected SpatialField() {
 		geometryReader = new GeometryWrapperReader();
 		geometryWriter = new GeometryWrapperWriter();
+		this.fieldName = GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME;
 	}
 
 	public SpatialField(
@@ -139,7 +140,7 @@ abstract public class SpatialField implements
 		final int fieldNameLength = buf.getInt();
 		final byte[] fieldNameBytes = new byte[fieldNameLength];
 		buf.get(fieldNameBytes);
-
+		fieldName = StringUtils.stringFromBinary(fieldNameBytes);
 		final byte[] dimensionBinary = new byte[bytes.length - fieldNameLength - 4];
 		buf.get(dimensionBinary);
 		baseDefinition = (NumericDimensionDefinition) PersistenceUtils.fromBinary(dimensionBinary);

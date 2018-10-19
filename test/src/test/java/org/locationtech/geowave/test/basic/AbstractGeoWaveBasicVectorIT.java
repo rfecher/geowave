@@ -51,6 +51,7 @@ import org.locationtech.geowave.core.store.adapter.statistics.RowRangeHistogramS
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsId;
 import org.locationtech.geowave.core.store.adapter.statistics.StatisticsProvider;
 import org.locationtech.geowave.core.store.api.Aggregation;
+import org.locationtech.geowave.core.store.api.AggregationQuery;
 import org.locationtech.geowave.core.store.api.AggregationQueryBuilder;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
@@ -201,9 +202,10 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 						aggBldr.aggregate(
 								internalDataAdapter.getTypeName(),
 								(Aggregation) new DuplicateCountAggregation());
-						final Long countResult = geowaveStore.aggregate(aggBldr.build());
+						final DuplicateCount countResult = (DuplicateCount) geowaveStore
+								.aggregate((AggregationQuery) aggBldr.build());
 						if (countResult != null) {
-							duplicates += countResult;
+							duplicates += countResult.count;
 						}
 					}
 					aggBldr.count(internalDataAdapter.getTypeName());
@@ -235,7 +237,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 			}
 			if (visitedDataIds.contains(entry.getDataId())) {
 				// only aggregate when you find a duplicate entry
-
+				count++;
 			}
 			visitedDataIds.add(entry.getDataId());
 		}
@@ -675,11 +677,11 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 				// finally check the one stat that is more manually calculated -
 				// the bounding box
 				StatisticsQuery<Envelope> query = VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
-						adapter.getFeatureType().getGeometryDescriptor().getLocalName()).build();
+						adapter.getFeatureType().getGeometryDescriptor().getLocalName()).dataType(
+						adapter.getTypeName()).build();
 				StatisticsId id = query.getId();
 				final Envelope bboxStat = getDataStorePluginOptions().createDataStore().aggregateStatistics(
 						query);
-
 				Assert.assertNotNull(bboxStat);
 				Assert.assertEquals(
 						"The min X of the bounding box stat does not match the expected value",
