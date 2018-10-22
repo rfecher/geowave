@@ -268,9 +268,6 @@ public class TieredSFCIndexStrategy implements
 		if (rowId.length > 0) {
 			final Integer orderedSfcIndex = orderedSfcIndexToTierId.inverse().get(
 					rowId[0]);
-			if (orderedSfcIndex == null || orderedSfcs == null) {
-				System.err.println("crap");
-			}
 			return BinnedSFCUtils.getRangeForId(
 					rowId,
 					baseDefinitions,

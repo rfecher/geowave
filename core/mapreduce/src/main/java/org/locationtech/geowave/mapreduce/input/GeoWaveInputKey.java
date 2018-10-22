@@ -84,8 +84,8 @@ public class GeoWaveInputKey implements
 											: StringUtils
 													.stringToBinary(
 															indexName),
-									key.getSortKey() == null ? new byte[0] : key.getSortKey(),
 									key.getPartitionKey() == null ? new byte[0] : key.getPartitionKey(),
+									key.getSortKey() == null ? new byte[0] : key.getSortKey(),
 									key.getDataId()));
 		}
 		this.key = key;

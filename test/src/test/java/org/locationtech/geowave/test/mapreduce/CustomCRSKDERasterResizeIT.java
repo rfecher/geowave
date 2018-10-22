@@ -234,18 +234,6 @@ public class CustomCRSKDERasterResizeIT
 
 		final int numLevels = (BASE_MAX_LEVEL - BASE_MIN_LEVEL) + 1;
 		final double[][][][] initialSampleValuesPerRequestSize = new double[numLevels][][][];
-		try(CloseableIterator<Object> objIt = outputDataStorePluginOptions.createDataStore().query(QueryBuilder.newBuilder().build())) {
-			int c = 0;
-			while (objIt.hasNext()) {
-				objIt.next();
-				c++;
-			}
-			System.err.println("number of rows: " + c);
-			Statistics<?> [] s=outputDataStorePluginOptions.createDataStore().queryStatistics(StatisticsQueryBuilder.newBuilder().build());
-			for (Statistics<?> a : s) {
-				System.err.println("data type: "+a.getDataTypeName() + ";  type: "+a.getType() +"; id:" + a.getId() + "; result:" + a.getResult()); 
-			}
-		}
 		for (int l = 0; l < numLevels; l++) {
 			initialSampleValuesPerRequestSize[l] = testSamplesMatch(
 					TEST_COVERAGE_NAME_PREFIX,
