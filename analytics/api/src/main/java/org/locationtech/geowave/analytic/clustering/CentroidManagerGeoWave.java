@@ -488,9 +488,7 @@ public class CentroidManagerGeoWave<T> implements
 		try (final CloseableIterator<T> it = getRawCentroids(
 				fromBatchId,
 				groupID)) {
-			dataStore.addType(adapter);
-			dataStore.addIndex(
-					adapter.getTypeName(),
+			dataStore.addType(adapter,
 					index);
 			try (final Writer indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 				while (it.hasNext()) {

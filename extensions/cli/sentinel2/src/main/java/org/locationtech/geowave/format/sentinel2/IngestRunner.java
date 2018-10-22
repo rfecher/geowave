@@ -118,9 +118,7 @@ public class IngestRunner extends
 		sceneType = provider.sceneFeatureTypeBuilder().buildFeatureType();
 		final FeatureDataAdapter sceneAdapter = new FeatureDataAdapter(
 				sceneType);
-		vectorStore.addType(sceneAdapter);
-		vectorStore.addIndex(
-				sceneAdapter.getTypeName(),
+		vectorStore.addType(sceneAdapter,
 				vectorIndices);
 		sceneWriter = vectorStore.createWriter(sceneAdapter.getTypeName());
 
@@ -128,9 +126,7 @@ public class IngestRunner extends
 		final FeatureDataAdapter bandAdapter = new FeatureDataAdapter(
 				bandType);
 
-		vectorStore.addType(bandAdapter);
-		vectorStore.addIndex(
-				bandAdapter.getTypeName(),
+		vectorStore.addType(bandAdapter,
 				vectorIndices);
 		bandWriter = vectorStore.createWriter(bandAdapter.getTypeName());
 	}

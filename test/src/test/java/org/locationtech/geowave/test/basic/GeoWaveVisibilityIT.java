@@ -175,9 +175,7 @@ public class GeoWaveVisibilityIT extends
 				raster1,
 				raster2,
 				tileSize);
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX);
 		try (Writer writer = dataStore.createWriter(adapter.getTypeName())) {
 			// Write the first raster w/ vis info
@@ -557,9 +555,7 @@ public class GeoWaveVisibilityIT extends
 				raster1,
 				raster2,
 				tileSize);
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX);
 		try (Writer writer = dataStore.createWriter(adapter.getTypeName())) {
 			// Write the first raster w/ vis info
@@ -736,9 +732,7 @@ public class GeoWaveVisibilityIT extends
 		final FeatureDataAdapter adapter = new FeatureDataAdapter(
 				getType());
 		final DataStore store = dataStoreOptions.createDataStore();
-		store.addType(adapter);
-		store.addIndex(
-				adapter.getTypeName(),
+		store.addType(adapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX);
 		try (Writer writer = store.createWriter(adapter.getTypeName())) {
 			for (int i = 0; i < TOTAL_FEATURES; i++) {

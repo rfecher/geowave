@@ -155,9 +155,7 @@ public class AccumuloOptionsTest
 		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 		final DataTypeAdapter<TestGeometry> adapter = new TestGeometryAdapter();
 
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
+		mockDataStore.addType(adapter,
 				index);
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId2 = indexWriter.write(
@@ -203,9 +201,7 @@ public class AccumuloOptionsTest
 		final String typeName = adapter.getTypeName();
 
 		accumuloOptions.setUseLocalityGroups(false);
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
+		mockDataStore.addType(adapter,
 				index);
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId1 = indexWriter.write(
@@ -249,9 +245,7 @@ public class AccumuloOptionsTest
 
 		accumuloOptions.setUseLocalityGroups(true);
 		mockDataStore.deleteAll();
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
+		mockDataStore.addType(adapter,
 				index);
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId2 = indexWriter.write(
@@ -302,9 +296,7 @@ public class AccumuloOptionsTest
 		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 		final DataTypeAdapter<TestGeometry> adapter = new TestGeometryAdapter();
 
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
+		mockDataStore.addType(adapter,
 				index);
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId2 = indexWriter.write(
@@ -374,9 +366,7 @@ public class AccumuloOptionsTest
 		final DataTypeAdapter<TestGeometry> adapter0 = new TestGeometryAdapter();
 		final DataTypeAdapter<TestGeometry> adapter1 = new AnotherAdapter();
 
-		mockDataStore.addType(adapter0);
-		mockDataStore.addIndex(
-				adapter0.getTypeName(),
+		mockDataStore.addType(adapter0,
 				index);
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter0.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId0 = indexWriter.write(
@@ -387,9 +377,7 @@ public class AccumuloOptionsTest
 							"test_pt_0")).getFirstPartitionAndSortKeyPair();
 		}
 
-		mockDataStore.addType(adapter1);
-		mockDataStore.addIndex(
-				adapter1.getTypeName(),
+		mockDataStore.addType(adapter1,
 				index);
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter1.getTypeName())) {
 			final Pair<ByteArrayId, ByteArrayId> rowId0 = indexWriter.write(
@@ -477,9 +465,7 @@ public class AccumuloOptionsTest
 				0,
 				count);
 
-		mockDataStore.addType(adapter0);
-		mockDataStore.addIndex(
-				adapter0.getTypeName(),
+		mockDataStore.addType(adapter0,
 				index);
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter0.getTypeName())) {
 			indexWriter.write(

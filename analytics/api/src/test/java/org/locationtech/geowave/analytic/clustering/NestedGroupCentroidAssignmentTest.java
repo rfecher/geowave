@@ -55,9 +55,7 @@ public class NestedGroupCentroidAssignmentTest
 			final Index index,
 			final T entry )
 			throws IOException {
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				index);
 		try (Writer writer = dataStore.createWriter(adapter.getTypeName())) {
 			writer.write(entry);

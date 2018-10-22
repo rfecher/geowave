@@ -55,9 +55,7 @@ public class KafkaIngestRunData implements
 			throws MismatchedIndexToAdapterMapping {
 		Writer indexWriter = adapterIdToWriterCache.get(adapter.getTypeName());
 		if (indexWriter == null) {
-			dataStore.addType(adapter);
-			dataStore.addIndex(
-					adapter.getTypeName(),
+			dataStore.addType(adapter,
 					requiredIndices);
 			indexWriter = dataStore.createWriter(adapter.getTypeName());
 			adapterIdToWriterCache.put(

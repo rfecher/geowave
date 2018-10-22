@@ -121,9 +121,7 @@ public class GeoServerIngestIT
 				features.size()));
 		int ingestedFeatures = 0;
 		final int featuresPer5Percent = features.size() / 20;
-		ds.addType(fda);
-		ds.addIndex(
-				fda.getTypeName(),
+		ds.addType(fda,
 				spatialIdx,
 				spatialTemporalIdx);
 		try (Writer writer = ds.createWriter(fda.getTypeName())) {

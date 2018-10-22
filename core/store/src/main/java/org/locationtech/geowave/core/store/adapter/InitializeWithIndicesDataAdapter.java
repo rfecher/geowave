@@ -7,6 +7,6 @@ public interface InitializeWithIndicesDataAdapter<T> extends
 		DataTypeAdapter<T>
 {
 
-	void init(
+	boolean init(
 			Index... indices );
 }

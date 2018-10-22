@@ -295,9 +295,7 @@ public class GeoWaveGrpcVectorService extends
 					}
 
 					// create index writer to actually write data
-					dataStore.addType(adapter);
-					dataStore.addIndex(
-							adapter.getTypeName(),
+					dataStore.addType(adapter,
 							pIndex);
 					writer = dataStore.createWriter(adapter.getTypeName());
 

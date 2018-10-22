@@ -347,9 +347,7 @@ public class GeoWaveOutputFormat extends
 						LOGGER.warn("Index '" + indexName + "' does not exist");
 					}
 				}
-				dataStore.addType(adapter);
-				dataStore.addIndex(
-						adapter.getTypeName(),
+				dataStore.addType(adapter,
 						indices);
 				writer = dataStore.createWriter(adapter.getTypeName());
 

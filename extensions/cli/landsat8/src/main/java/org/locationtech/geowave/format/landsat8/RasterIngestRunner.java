@@ -347,9 +347,7 @@ public class RasterIngestRunner extends
 								}
 							},
 							new NoDataMergeStrategy());
-					store.addType(adapter);
-					store.addIndex(
-							adapter.getTypeName(),
+					store.addType(adapter,
 							indices);
 					writer = store.createWriter(adapter.getTypeName());
 					writerCache.put(
@@ -504,9 +502,7 @@ public class RasterIngestRunner extends
 							ingestOptions.isCreateHistogram(),
 							noDataValues,
 							new NoDataMergeStrategy());
-					store.addType(adapter);
-					store.addIndex(
-							adapter.getTypeName(),
+					store.addType(adapter,
 							indices);
 					writer = store.createWriter(adapter.getTypeName());
 					writerCache.put(

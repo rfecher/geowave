@@ -76,9 +76,7 @@ public class SqlResultsWriter
 
 		final DataStore featureStore = outputDataStore.createDataStore();
 		final Index featureIndex = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
-		featureStore.addType(featureAdapter);
-		featureStore.addIndex(
-				featureAdapter.getTypeName(),
+		featureStore.addType(featureAdapter,
 				featureIndex);
 		try (Writer writer = featureStore.createWriter(featureAdapter.getTypeName())) {
 

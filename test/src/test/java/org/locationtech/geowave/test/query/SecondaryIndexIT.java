@@ -414,9 +414,7 @@ public class SecondaryIndexIT
 				schema);
 		index = TestUtils.DEFAULT_SPATIAL_INDEX;
 		dataAdapter.init(index);
-		dataStore.addType(dataAdapter);
-		dataStore.addIndex(
-				dataAdapter.getTypeName(),
+		dataStore.addType(dataAdapter,
 				index);
 		try (@SuppressWarnings("unchecked")
 		final Writer<SimpleFeature> writer = dataStore.createWriter(dataAdapter.getTypeName())) {

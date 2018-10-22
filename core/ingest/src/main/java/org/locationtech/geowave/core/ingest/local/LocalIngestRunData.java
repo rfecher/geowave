@@ -162,9 +162,7 @@ public class LocalIngestRunData implements
 		public synchronized Writer<?> create(
 				final TypeNameKeyWithIndices adapterWithIndices )
 				throws Exception {
-			dataStore.addType(adapterStore.getAdapter(adapterWithIndices.typeName));
-			dataStore.addIndex(
-					adapterWithIndices.typeName,
+			dataStore.addType(adapterStore.getAdapter(adapterWithIndices.typeName),
 					adapterWithIndices.indices);
 			return dataStore.createWriter(adapterWithIndices.typeName);
 		}

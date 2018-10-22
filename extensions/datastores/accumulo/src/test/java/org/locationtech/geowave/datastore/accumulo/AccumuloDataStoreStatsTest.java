@@ -231,9 +231,7 @@ public class AccumuloDataStoreStatsTest
 					33)
 		});
 		ByteArrayId partitionKey = null;
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
+		mockDataStore.addType(adapter,
 				index);
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			partitionKey = indexWriter.write(
@@ -524,9 +522,7 @@ public class AccumuloDataStoreStatsTest
 					"aaa",
 					"bbb"
 				}).hasNext());
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
+		mockDataStore.addType(adapter,
 				index);
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			indexWriter.write(new TestGeometry(

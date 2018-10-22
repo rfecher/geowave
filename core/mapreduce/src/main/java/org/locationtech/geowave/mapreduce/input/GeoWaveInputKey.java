@@ -78,11 +78,15 @@ public class GeoWaveInputKey implements
 			// ID to gaurantee uniqueness and effectively disable
 			// aggregating by only the data ID
 			dataId = new ByteArrayId(
-					Bytes.concat(
-							key.getDataId(),
-							key.getSortKey() == null ? new byte[0] : key.getSortKey(),
-							key.getPartitionKey() == null ? new byte[0] : key.getPartitionKey(),
-							indexName == null ? new byte[0] : StringUtils.stringToBinary(indexName)));
+					Bytes
+							.concat(
+									indexName == null ? new byte[0]
+											: StringUtils
+													.stringToBinary(
+															indexName),
+									key.getSortKey() == null ? new byte[0] : key.getSortKey(),
+									key.getPartitionKey() == null ? new byte[0] : key.getPartitionKey(),
+									key.getDataId()));
 		}
 		this.key = key;
 	}
@@ -90,22 +94,27 @@ public class GeoWaveInputKey implements
 	public Pair<byte[], byte[]> getPartitionAndSortKey(
 			final Index index ) {
 		final int partitionKeyLength = index.getIndexStrategy().getPartitionKeyLength();
-		final int indexIdLength = StringUtils.stringToBinary(index.getName()).length;
+		final int indexIdLength = StringUtils
+				.stringToBinary(
+						index.getName()).length;
 		if (dataId.getBytes().length < (indexIdLength + partitionKeyLength)) {
 			return null;
 		}
 		else {
-			final byte[] partitionKey = Arrays.copyOfRange(
-					dataId.getBytes(),
-					indexIdLength,
-					indexIdLength + partitionKeyLength);
-			final byte[] sortKey = Arrays.copyOfRange(
-					dataId.getBytes(),
-					indexIdLength + partitionKeyLength,
-					dataId.getBytes().length);
-			return ImmutablePair.of(
-					partitionKey,
-					sortKey);
+			final byte[] partitionKey = Arrays
+					.copyOfRange(
+							dataId.getBytes(),
+							indexIdLength,
+							indexIdLength + partitionKeyLength);
+			final byte[] sortKey = Arrays
+					.copyOfRange(
+							dataId.getBytes(),
+							indexIdLength + partitionKeyLength,
+							dataId.getBytes().length);
+			return ImmutablePair
+					.of(
+							partitionKey,
+							sortKey);
 		}
 	}
 
@@ -139,26 +148,34 @@ public class GeoWaveInputKey implements
 	@Override
 	public int compareTo(
 			final GeoWaveInputKey o ) {
-		final byte[] internalAdapterIdBytes = ByteArrayUtils.shortToByteArray(internalAdapterId);
-		final int adapterCompare = WritableComparator.compareBytes(
-				internalAdapterIdBytes,
-				0,
-				internalAdapterIdBytes.length,
-				ByteArrayUtils.shortToByteArray(o.internalAdapterId),
-				0,
-				ByteArrayUtils.shortToByteArray(o.internalAdapterId).length);
+		final byte[] internalAdapterIdBytes = ByteArrayUtils
+				.shortToByteArray(
+						internalAdapterId);
+		final int adapterCompare = WritableComparator
+				.compareBytes(
+						internalAdapterIdBytes,
+						0,
+						internalAdapterIdBytes.length,
+						ByteArrayUtils
+								.shortToByteArray(
+										o.internalAdapterId),
+						0,
+						ByteArrayUtils
+								.shortToByteArray(
+										o.internalAdapterId).length);
 
 		if (adapterCompare != 0) {
 			return adapterCompare;
 		}
 		final GeoWaveInputKey other = o;
-		return WritableComparator.compareBytes(
-				dataId.getBytes(),
-				0,
-				dataId.getBytes().length,
-				other.dataId.getBytes(),
-				0,
-				other.dataId.getBytes().length);
+		return WritableComparator
+				.compareBytes(
+						dataId.getBytes(),
+						0,
+						dataId.getBytes().length,
+						other.dataId.getBytes(),
+						0,
+						other.dataId.getBytes().length);
 	}
 
 	@Override
@@ -188,7 +205,9 @@ public class GeoWaveInputKey implements
 				return false;
 			}
 		}
-		else if (!dataId.equals(other.dataId)) {
+		else if (!dataId
+				.equals(
+						other.dataId)) {
 			return false;
 		}
 		if (internalAdapterId == null) {
@@ -196,7 +215,9 @@ public class GeoWaveInputKey implements
 				return false;
 			}
 		}
-		else if (!internalAdapterId.equals(other.internalAdapterId)) {
+		else if (!internalAdapterId
+				.equals(
+						other.internalAdapterId)) {
 			return false;
 		}
 		return true;
@@ -209,7 +230,9 @@ public class GeoWaveInputKey implements
 		internalAdapterId = input.readShort();
 		final int dataIdLength = input.readInt();
 		final byte[] dataIdBytes = new byte[dataIdLength];
-		input.readFully(dataIdBytes);
+		input
+				.readFully(
+						dataIdBytes);
 		dataId = new ByteArrayId(
 				dataIdBytes);
 	}
@@ -218,8 +241,14 @@ public class GeoWaveInputKey implements
 	public void write(
 			final DataOutput output )
 			throws IOException {
-		output.writeShort(internalAdapterId);
-		output.writeInt(dataId.getBytes().length);
-		output.write(dataId.getBytes());
+		output
+				.writeShort(
+						internalAdapterId);
+		output
+				.writeInt(
+						dataId.getBytes().length);
+		output
+				.write(
+						dataId.getBytes());
 	}
 }

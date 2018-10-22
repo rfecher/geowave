@@ -125,9 +125,7 @@ public class PolygonDataIdQueryIT extends
 	public void ingestSampleData()
 			throws IOException {
 		final DataStore store = dataStore.createDataStore();
-		store.addType(dataAdapter);
-		store.addIndex(
-				dataAdapter.getTypeName(),
+		store.addType(dataAdapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX);
 		try (@SuppressWarnings("unchecked")
 		Writer writer = store.createWriter(dataAdapter.getTypeName())) {

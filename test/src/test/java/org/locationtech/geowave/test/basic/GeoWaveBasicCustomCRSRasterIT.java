@@ -336,9 +336,7 @@ public class GeoWaveBasicCustomCRSRasterIT extends
 				raster1,
 				raster2,
 				tileSize);
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				TestUtils.createCustomCRSPrimaryIndex());
 		try (Writer writer = dataStore.createWriter(adapter.getTypeName())) {
 			writer.write(createCoverageTypeDouble(
@@ -404,9 +402,7 @@ public class GeoWaveBasicCustomCRSRasterIT extends
 		basicAdapter.getMetadata().put(
 				"test-key",
 				"test-value");
-		dataStore.addType(mergeStrategyOverriddenAdapter);
-		dataStore.addIndex(
-				mergeStrategyOverriddenAdapter.getTypeName(),
+		dataStore.addType(mergeStrategyOverriddenAdapter,
 				TestUtils.createCustomCRSPrimaryIndex());
 		try (Writer writer = dataStore.createWriter(mergeStrategyOverriddenAdapter.getTypeName())) {
 			for (int r = 0; r < numRasters; r++) {

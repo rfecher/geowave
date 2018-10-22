@@ -229,10 +229,7 @@ public class SplitsProviderIT extends
 		final SimpleFeatureType sft = SimpleIngest.createPointFeatureType();
 		final Index idx = SimpleIngest.createSpatialIndex();
 		final GeotoolsFeatureDataAdapter fda = SimpleIngest.createDataAdapter(sft);
-		dataStore.addType(fda);
-		dataStore.addIndex(
-				fda.getTypeName(),
-				idx);
+		dataStore.addType(fda, idx);
 		try (final Writer<SimpleFeature> writer = dataStore.createWriter(fda.getTypeName())) {
 
 			switch (distr) {

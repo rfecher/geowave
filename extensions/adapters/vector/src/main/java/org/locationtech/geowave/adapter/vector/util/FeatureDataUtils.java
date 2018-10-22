@@ -44,7 +44,9 @@ import org.slf4j.LoggerFactory;
 
 public class FeatureDataUtils
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(FeatureDataUtils.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					FeatureDataUtils.class);
 
 	public static SimpleFeature defaultCRSTransform(
 			final SimpleFeature entry,
@@ -57,12 +59,16 @@ public class FeatureDataUtils
 		final CoordinateReferenceSystem crs = entry.getFeatureType().getCoordinateReferenceSystem();
 		SimpleFeature defaultCRSEntry = entry;
 
-		if (!GeometryUtils.getDefaultCRS().equals(
-				crs)) {
+		if (!GeometryUtils
+				.getDefaultCRS()
+				.equals(
+						crs)) {
 			MathTransform featureTransform = null;
-			if ((persistedType.getCoordinateReferenceSystem() != null)
-					&& persistedType.getCoordinateReferenceSystem().equals(
-							crs) && (transform != null)) {
+			if ((persistedType.getCoordinateReferenceSystem() != null) && persistedType
+					.getCoordinateReferenceSystem()
+					.equals(
+							crs)
+					&& (transform != null)) {
 				// we can use the transform we have already calculated for this
 				// feature
 				featureTransform = transform;
@@ -71,10 +77,11 @@ public class FeatureDataUtils
 				// this feature differs from the persisted type in CRS,
 				// calculate the transform
 				try {
-					featureTransform = CRS.findMathTransform(
-							crs,
-							GeometryUtils.getDefaultCRS(),
-							true);
+					featureTransform = CRS
+							.findMathTransform(
+									crs,
+									GeometryUtils.getDefaultCRS(),
+									true);
 				}
 				catch (final FactoryException e) {
 					LOGGER
@@ -84,10 +91,11 @@ public class FeatureDataUtils
 				}
 			}
 			if (featureTransform != null) {
-				defaultCRSEntry = GeometryUtils.crsTransform(
-						defaultCRSEntry,
-						reprojectedType,
-						featureTransform);
+				defaultCRSEntry = GeometryUtils
+						.crsTransform(
+								defaultCRSEntry,
+								reprojectedType,
+								featureTransform);
 			}
 		}
 		return defaultCRSEntry;
@@ -99,8 +107,12 @@ public class FeatureDataUtils
 		// urn:ogc:def:crs:EPSG::4326
 		final CoordinateSystem cs = crs == null ? null : crs.getCoordinateSystem();
 		if ((cs != null) && (cs.getDimension() > 0)) {
-			return cs.getAxis(
-					0).getDirection().name().toString();
+			return cs
+					.getAxis(
+							0)
+					.getDirection()
+					.name()
+					.toString();
 		}
 		return "EAST";
 	}
@@ -112,32 +124,50 @@ public class FeatureDataUtils
 			final String axis )
 			throws SchemaException {
 
-		SimpleFeatureType featureType = (nameSpace != null) && (nameSpace.length() > 0) ? DataUtilities.createType(
-				nameSpace,
-				typeName,
-				typeDescriptor) : DataUtilities.createType(
-				typeName,
-				typeDescriptor);
+		SimpleFeatureType featureType = (nameSpace != null) && (nameSpace.length() > 0) ? DataUtilities
+				.createType(
+						nameSpace,
+						typeName,
+						typeDescriptor)
+				: DataUtilities
+						.createType(
+								typeName,
+								typeDescriptor);
 
-		final String lCaseAxis = axis.toLowerCase(Locale.ENGLISH);
+		final String lCaseAxis = axis
+				.toLowerCase(
+						Locale.ENGLISH);
 		final CoordinateReferenceSystem crs = featureType.getCoordinateReferenceSystem();
-		final String typeAxis = getAxis(crs);
+		final String typeAxis = getAxis(
+				crs);
 		// Default for EPSG:4326 is lat/long, If the provided type was
 		// long/lat, then re-establish the order
-		if ((crs != null) && crs.getIdentifiers().toString().contains(
-				"EPSG:4326") && !lCaseAxis.equalsIgnoreCase(typeAxis)) {
+		if ((crs != null) && crs
+				.getIdentifiers()
+				.toString()
+				.contains(
+						"EPSG:4326")
+				&& !lCaseAxis
+						.equalsIgnoreCase(
+								typeAxis)) {
 			final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-			builder.init(featureType);
+			builder
+					.init(
+							featureType);
 
 			try {
 				// truely no way to force lat first
 				// but it is the default in later versions of GeoTools.
 				// this all depends on the authority at the time of creation
-				featureType = SimpleFeatureTypeBuilder.retype(
-						featureType,
-						CRS.decode(
-								"EPSG:4326",
-								lCaseAxis.equals("east")));
+				featureType = SimpleFeatureTypeBuilder
+						.retype(
+								featureType,
+								CRS
+										.decode(
+												"EPSG:4326",
+												lCaseAxis
+														.equals(
+																"east")));
 			}
 			catch (final FactoryException e) {
 				throw new SchemaException(
@@ -159,14 +189,16 @@ public class FeatureDataUtils
 		for (final AttributeDescriptor descriptor : descriptors) {
 			defaults[p++] = descriptor.getDefaultValue();
 		}
-		final SimpleFeature newFeature = SimpleFeatureBuilder.build(
-				featureType,
-				defaults,
-				UUID.randomUUID().toString());
+		final SimpleFeature newFeature = SimpleFeatureBuilder
+				.build(
+						featureType,
+						defaults,
+						UUID.randomUUID().toString());
 		for (final Pair<String, Object> entry : entries) {
-			newFeature.setAttribute(
-					entry.getKey(),
-					entry.getValue());
+			newFeature
+					.setAttribute(
+							entry.getKey(),
+							entry.getValue());
 		}
 		return newFeature;
 	}
@@ -176,17 +208,25 @@ public class FeatureDataUtils
 			String typeName ) {
 		// if no id provided, locate a single featureadapter
 		if (typeName == null) {
-			final List<String> typeNameList = FeatureDataUtils.getFeatureTypeNames(dataStore);
+			final List<String> typeNameList = FeatureDataUtils
+					.getFeatureTypeNames(
+							dataStore);
 			if (typeNameList.size() >= 1) {
-				typeName = typeNameList.get(0);
+				typeName = typeNameList
+						.get(
+								0);
 			}
 			else if (typeNameList.isEmpty()) {
-				LOGGER.error("No feature adapters found for use with time param");
+				LOGGER
+						.error(
+								"No feature adapters found for use with time param");
 
 				return null;
 			}
 			else {
-				LOGGER.error("Multiple feature adapters found. Please specify one.");
+				LOGGER
+						.error(
+								"Multiple feature adapters found. Please specify one.");
 
 				return null;
 			}
@@ -195,8 +235,12 @@ public class FeatureDataUtils
 		final PersistentAdapterStore adapterStore = dataStore.createAdapterStore();
 		final InternalAdapterStore internalAdapterStore = dataStore.createInternalAdapterStore();
 
-		final DataTypeAdapter<?> adapter = adapterStore.getAdapter(
-				internalAdapterStore.getAdapterId(typeName)).getAdapter();
+		final DataTypeAdapter<?> adapter = adapterStore
+				.getAdapter(
+						internalAdapterStore
+								.getAdapterId(
+										typeName))
+				.getAdapter();
 
 		if ((adapter != null) && (adapter instanceof GeotoolsFeatureDataAdapter)) {
 			final GeotoolsFeatureDataAdapter gtAdapter = (GeotoolsFeatureDataAdapter) adapter;
@@ -212,14 +256,19 @@ public class FeatureDataUtils
 			final String newTypeName ) {
 
 		// Get original feature type info
-		final SimpleFeatureType oldType = FeatureDataUtils.getFeatureType(
-				storeOptions,
-				originalTypeName);
+		final SimpleFeatureType oldType = FeatureDataUtils
+				.getFeatureType(
+						storeOptions,
+						originalTypeName);
 
 		// Build type using new name
 		final SimpleFeatureTypeBuilder sftBuilder = new SimpleFeatureTypeBuilder();
-		sftBuilder.init(oldType);
-		sftBuilder.setName(newTypeName);
+		sftBuilder
+				.init(
+						oldType);
+		sftBuilder
+				.setName(
+						newTypeName);
 		final SimpleFeatureType newType = sftBuilder.buildFeatureType();
 
 		// Create new adapter that will use new typename
@@ -235,8 +284,12 @@ public class FeatureDataUtils
 		final PersistentAdapterStore adapterStore = dataStore.createAdapterStore();
 		final InternalAdapterStore internalAdapterStore = dataStore.createInternalAdapterStore();
 
-		final DataTypeAdapter<?> adapter = adapterStore.getAdapter(
-				internalAdapterStore.getAdapterId(typeName)).getAdapter();
+		final DataTypeAdapter<?> adapter = adapterStore
+				.getAdapter(
+						internalAdapterStore
+								.getAdapterId(
+										typeName))
+				.getAdapter();
 
 		if ((adapter != null) && (adapter instanceof GeotoolsFeatureDataAdapter)) {
 			final GeotoolsFeatureDataAdapter gtAdapter = (GeotoolsFeatureDataAdapter) adapter;
@@ -256,8 +309,12 @@ public class FeatureDataUtils
 		final PersistentAdapterStore adapterStore = dataStore.createAdapterStore();
 		final InternalAdapterStore internalAdapterStore = dataStore.createInternalAdapterStore();
 
-		final DataTypeAdapter<?> adapter = adapterStore.getAdapter(
-				internalAdapterStore.getAdapterId(typeName)).getAdapter();
+		final DataTypeAdapter<?> adapter = adapterStore
+				.getAdapter(
+						internalAdapterStore
+								.getAdapterId(
+										typeName))
+				.getAdapter();
 
 		if ((adapter != null) && (adapter instanceof GeotoolsFeatureDataAdapter)) {
 			final GeotoolsFeatureDataAdapter gtAdapter = (GeotoolsFeatureDataAdapter) adapter;
@@ -268,7 +325,9 @@ public class FeatureDataUtils
 			if ((timeDescriptors == null) || !timeDescriptors.hasTime()) {
 				for (final AttributeDescriptor attrDesc : featureType.getAttributeDescriptors()) {
 					final Class<?> bindingClass = attrDesc.getType().getBinding();
-					if (TimeUtils.isTemporal(bindingClass)) {
+					if (TimeUtils
+							.isTemporal(
+									bindingClass)) {
 						return attrDesc.getLocalName();
 					}
 				}
@@ -290,32 +349,36 @@ public class FeatureDataUtils
 
 	public static int getFeatureAdapterCount(
 			final DataStorePluginOptions dataStore ) {
-		final CloseableIterator<InternalDataAdapter<?>> adapterIt = dataStore.createAdapterStore().getAdapters();
-		int featureAdapters = 0;
+		try (final CloseableIterator<InternalDataAdapter<?>> adapterIt = dataStore.createAdapterStore().getAdapters()) {
 
-		while (adapterIt.hasNext()) {
-			final DataTypeAdapter<?> adapter = adapterIt.next().getAdapter();
-			if (adapter instanceof GeotoolsFeatureDataAdapter) {
-				featureAdapters++;
+			int featureAdapters = 0;
+
+			while (adapterIt.hasNext()) {
+				final DataTypeAdapter<?> adapter = adapterIt.next().getAdapter();
+				if (adapter instanceof GeotoolsFeatureDataAdapter) {
+					featureAdapters++;
+				}
 			}
-		}
 
-		return featureAdapters;
+			return featureAdapters;
+		}
 	}
 
 	public static List<String> getFeatureTypeNames(
 			final DataStorePluginOptions dataStore ) {
 		final ArrayList<String> featureTypeNames = new ArrayList<>();
 
-		final CloseableIterator<InternalDataAdapter<?>> adapterIt = dataStore.createAdapterStore().getAdapters();
-
-		while (adapterIt.hasNext()) {
-			final DataTypeAdapter<?> adapter = adapterIt.next().getAdapter();
-			if (adapter instanceof GeotoolsFeatureDataAdapter) {
-				featureTypeNames.add(adapter.getTypeName());
+		try (final CloseableIterator<InternalDataAdapter<?>> adapterIt = dataStore.createAdapterStore().getAdapters()) {
+			while (adapterIt.hasNext()) {
+				final DataTypeAdapter<?> adapter = adapterIt.next().getAdapter();
+				if (adapter instanceof GeotoolsFeatureDataAdapter) {
+					featureTypeNames
+							.add(
+									adapter.getTypeName());
+				}
 			}
-		}
 
-		return featureTypeNames;
+			return featureTypeNames;
+		}
 	}
 }

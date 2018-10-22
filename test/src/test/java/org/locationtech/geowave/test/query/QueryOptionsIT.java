@@ -204,9 +204,7 @@ public class QueryOptionsIT
 			final DataTypeAdapter<?> adapter )
 			throws IOException {
 		final DataStore store = dataStoreOptions.createDataStore();
-		store.addType(adapter);
-		store.addIndex(
-				adapter.getTypeName(),
+		store.addType(adapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX);
 		try (@SuppressWarnings("rawtypes")
 		Writer writer = store.createWriter(adapter.getTypeName())) {

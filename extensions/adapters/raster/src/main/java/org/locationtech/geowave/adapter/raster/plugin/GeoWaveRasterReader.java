@@ -381,7 +381,21 @@ public class GeoWaveRasterReader extends
 				.dataType(
 						coverageName)
 				.build());
-
+		if (envelope == null) {
+			CoordinateReferenceSystem crs = getCoordinateReferenceSystem(coverageName);
+			 double minX = crs.getCoordinateSystem().getAxis(0).getMinimumValue();
+			 double maxX = crs.getCoordinateSystem().getAxis(0).getMaximumValue();
+			 double minY = crs.getCoordinateSystem().getAxis(1).getMinimumValue();
+			 double maxY = crs.getCoordinateSystem().getAxis(1).getMaximumValue();
+				final GeneralEnvelope env = new GeneralEnvelope(
+						new Rectangle2D.Double(
+								minX,
+								minY,
+								maxX - minX,
+								maxY - minY));
+				env.setCoordinateReferenceSystem(crs);
+				return env;
+		}
 		// try to use both the bounding box and the overview statistics to
 		// determine the width and height at the highest resolution
 		final GeneralEnvelope env = new GeneralEnvelope(
@@ -758,7 +772,7 @@ public class GeoWaveRasterReader extends
 		// portions of the inherited class, which does not handle
 		// multiple coverage names
 		final double[][] resLevels = getResolutionLevels(coverageName);
-		if (resLevels.length == 0) {
+		if (resLevels == null || resLevels.length == 0) {
 			return false;
 		}
 		numOverviews = resLevels.length - 1;

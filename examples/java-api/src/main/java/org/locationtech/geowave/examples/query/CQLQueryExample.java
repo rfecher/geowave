@@ -139,9 +139,7 @@ public class CQLQueryExample
 		}
 
 		System.out.println("Ingesting canned data...");
-		dataStore.addType(ADAPTER);
-		dataStore.addIndex(
-				ADAPTER.getTypeName(),
+		dataStore.addType(ADAPTER,
 				index);
 		try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(ADAPTER.getTypeName())) {
 			for (final SimpleFeature sf : points) {

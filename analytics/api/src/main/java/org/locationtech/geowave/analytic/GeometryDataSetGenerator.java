@@ -188,9 +188,7 @@ public class GeometryDataSetGenerator
 						0).getFeatureType());
 
 		LOGGER.info("Writing " + featureData.size() + " records to " + adapter.getFeatureType().getTypeName());
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				index);
 		try (Writer writer = dataStore.createWriter(adapter.getTypeName())) {
 			for (final SimpleFeature feature : featureData) {

@@ -101,9 +101,7 @@ public class KMeansUtils
 
 		final DataStore featureStore = outputDataStore.createDataStore();
 		final Index featureIndex = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
-		featureStore.addType(featureAdapter);
-		featureStore.addIndex(
-				featureAdapter.getTypeName(),
+		featureStore.addType(featureAdapter,
 				featureIndex);
 		try (Writer writer = featureStore.createWriter(featureAdapter.getTypeName())) {
 			for (final Vector center : clusterModel.clusterCenters()) {
@@ -207,9 +205,7 @@ public class KMeansUtils
 		final Index featureIndex = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 
 		final PolygonAreaCalculator polyCalc = (computeMetadata ? new PolygonAreaCalculator() : null);
-		featureStore.addType(featureAdapter);
-		featureStore.addIndex(
-				featureAdapter.getTypeName(),
+		featureStore.addType(featureAdapter,
 				featureIndex);
 		try (Writer writer = featureStore.createWriter(featureAdapter.getTypeName())) {
 

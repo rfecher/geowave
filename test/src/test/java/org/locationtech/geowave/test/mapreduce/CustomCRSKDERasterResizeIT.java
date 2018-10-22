@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.locationtech.geowave.test.mapreduce;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -41,8 +42,12 @@ import org.locationtech.geowave.analytic.mapreduce.operations.KdeCommand;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
 import org.locationtech.geowave.core.cli.parser.ManualOperationParams;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
+import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.GeoWaveStoreFinder;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
+import org.locationtech.geowave.core.store.api.Statistics;
+import org.locationtech.geowave.core.store.api.StatisticsQueryBuilder;
 import org.locationtech.geowave.core.store.cli.config.AddIndexCommand;
 import org.locationtech.geowave.core.store.cli.config.AddStoreCommand;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
@@ -229,6 +234,18 @@ public class CustomCRSKDERasterResizeIT
 
 		final int numLevels = (BASE_MAX_LEVEL - BASE_MIN_LEVEL) + 1;
 		final double[][][][] initialSampleValuesPerRequestSize = new double[numLevels][][][];
+		try(CloseableIterator<Object> objIt = outputDataStorePluginOptions.createDataStore().query(QueryBuilder.newBuilder().build())) {
+			int c = 0;
+			while (objIt.hasNext()) {
+				objIt.next();
+				c++;
+			}
+			System.err.println("number of rows: " + c);
+			Statistics<?> [] s=outputDataStorePluginOptions.createDataStore().queryStatistics(StatisticsQueryBuilder.newBuilder().build());
+			for (Statistics<?> a : s) {
+				System.err.println("data type: "+a.getDataTypeName() + ";  type: "+a.getType() +"; id:" + a.getId() + "; result:" + a.getResult()); 
+			}
+		}
 		for (int l = 0; l < numLevels; l++) {
 			initialSampleValuesPerRequestSize[l] = testSamplesMatch(
 					TEST_COVERAGE_NAME_PREFIX,
@@ -349,13 +366,14 @@ public class CustomCRSKDERasterResizeIT
 					tileSizeCoverageName,
 					pixelDimensions,
 					queryEnvelope,
-					null,
+					Color.BLACK,
 					null,
 					null);
 			final RenderedImage image = gridCoverage.getRenderedImage();
 			final Raster raster = image.getData();
 			rasters[coverageCount++] = raster;
 		}
+		boolean atLeastOneResult = expectedResults != null;
 		for (int i = 0; i < numCoverages; i++) {
 			final boolean initialResults = expectedResults == null;
 			if (initialResults) {
@@ -384,6 +402,9 @@ public class CustomCRSKDERasterResizeIT
 								b);
 						if (initialResults) {
 							expectedResults[x][y][b] = sample;
+							if (!atLeastOneResult && sample !=0) {
+								atLeastOneResult = true;
+							}
 						}
 						else {
 							Assert.assertEquals(
@@ -398,6 +419,7 @@ public class CustomCRSKDERasterResizeIT
 				}
 			}
 		}
+		Assert.assertTrue("There should be at least one value that is not black", atLeastOneResult);
 		return expectedResults;
 	}
 }

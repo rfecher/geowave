@@ -71,9 +71,7 @@ public class SimpleIngest
 
 		// This describes how to index the data
 		final Index index = createSpatialIndex();
-		geowaveDataStore.addType(dataTypeAdapter);
-		geowaveDataStore.addIndex(
-				dataTypeAdapter.getTypeName(),
+		geowaveDataStore.addType(dataTypeAdapter,
 				index);
 		// make sure to close the index writer (a try-with-resources block such
 		// as this automatically closes the resource when exiting the block)

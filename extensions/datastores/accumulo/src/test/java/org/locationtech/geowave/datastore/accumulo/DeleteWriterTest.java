@@ -174,9 +174,7 @@ public class DeleteWriterTest
 
 		adapter = new TestGeometryAdapter();
 		final GeometryFactory factory = new GeometryFactory();
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
+		mockDataStore.addType(adapter,
 				index);
 		try (Writer indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			rowIds1 = indexWriter.write(new AccumuloDataStoreStatsTest.TestGeometry(

@@ -218,9 +218,7 @@ public class GeoWaveVectorSerializationIT extends
 		final org.locationtech.geowave.core.store.api.DataStore geowaveStore = dataStore.createDataStore();
 
 		final SimpleFeature sf = serBuilder.buildFeature("343");
-		geowaveStore.addType(serAdapter);
-		geowaveStore.addIndex(
-				serAdapter.getTypeName(),
+		geowaveStore.addType(serAdapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX);
 		try (Writer writer = geowaveStore.createWriter(serAdapter.getTypeName())) {
 			writer.write(sf);

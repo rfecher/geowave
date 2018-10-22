@@ -173,9 +173,7 @@ public class SpatialTemporalQueryIT
 				timeStampAdapter.getFeatureType());
 		final SimpleFeatureBuilder featureTimeRangeBuilder = new SimpleFeatureBuilder(
 				timeRangeAdapter.getFeatureType());
-		dataStore.addType(timeStampAdapter);
-		dataStore.addIndex(
-				timeStampAdapter.getTypeName(),
+		dataStore.addType(timeStampAdapter,
 				YEAR_INDEX,
 				MONTH_INDEX,
 				DAY_INDEX);
@@ -183,9 +181,7 @@ public class SpatialTemporalQueryIT
 		// time ranges for days isn't tested so we don't have to deal with
 		// ingesting into the day index, the multi-year test case (requiring
 		// 1000+ partitions)
-		dataStore.addType(timeRangeAdapter);
-		dataStore.addIndex(
-				timeRangeAdapter.getTypeName(),
+		dataStore.addType(timeRangeAdapter,
 				YEAR_INDEX,
 				MONTH_INDEX);
 		final Writer rangeWriters = dataStore.createWriter(timeRangeAdapter.getTypeName());

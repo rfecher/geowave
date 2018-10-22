@@ -108,9 +108,7 @@ public class AccumuloRangeQueryTest
 
 		index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 		adapter = new TestGeometryAdapter();
-		mockDataStore.addType(adapter);
-		mockDataStore.addIndex(
-				adapter.getTypeName(),
+		mockDataStore.addType(adapter,
 				index);
 		try (Writer writer = mockDataStore.createWriter(adapter.getTypeName())) {
 			writer.write(testdata);

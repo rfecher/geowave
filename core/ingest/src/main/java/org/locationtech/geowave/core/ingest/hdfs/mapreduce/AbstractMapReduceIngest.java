@@ -60,7 +60,7 @@ abstract public class AbstractMapReduceIngest<T extends Persistable & DataAdapte
 	protected final List<IndexPluginOptions> indexOptions;
 	protected final VisibilityOptions ingestOptions;
 	protected final Path inputFile;
-	protected final String typeName;
+	protected final String formatPluginName;
 	protected final IngestFromHdfsPlugin<?, ?> parentPlugin;
 	protected final T ingestPlugin;
 
@@ -69,14 +69,14 @@ abstract public class AbstractMapReduceIngest<T extends Persistable & DataAdapte
 			final List<IndexPluginOptions> indexOptions,
 			final VisibilityOptions ingestOptions,
 			final Path inputFile,
-			final String typeName,
+			final String formatPluginName,
 			final IngestFromHdfsPlugin<?, ?> parentPlugin,
 			final T ingestPlugin ) {
 		this.dataStoreOptions = dataStoreOptions;
 		this.indexOptions = indexOptions;
 		this.ingestOptions = ingestOptions;
 		this.inputFile = inputFile;
-		this.typeName = typeName;
+		this.formatPluginName = formatPluginName;
 		this.parentPlugin = parentPlugin;
 		this.ingestPlugin = ingestPlugin;
 	}
@@ -84,7 +84,7 @@ abstract public class AbstractMapReduceIngest<T extends Persistable & DataAdapte
 	public String getJobName() {
 		return String.format(
 				JOB_NAME,
-				typeName,
+				formatPluginName,
 				inputFile.toString(),
 				dataStoreOptions.getGeowaveNamespace(),
 				getIngestDescription());
@@ -165,9 +165,7 @@ abstract public class AbstractMapReduceIngest<T extends Persistable & DataAdapte
 				// context of the datastore before distributing ingest
 				// however, after ingest we should cleanup any pre-created
 				// metadata for which there is no data
-				store.addType(dataAdapter);
-				store.addIndex(
-						dataAdapter.getTypeName(),
+				store.addType(dataAdapter,
 						indices);
 
 				GeoWaveOutputFormat.addDataAdapter(
@@ -218,6 +216,7 @@ abstract public class AbstractMapReduceIngest<T extends Persistable & DataAdapte
 			AdapterIndexMappingStore adapterIndexMappingStore = null;
 			InternalAdapterStore internalAdapterStore = null;
 			for (final DataTypeAdapter<?> dataAdapter : dataAdapters) {
+				String typeName = dataAdapter.getTypeName();
 				try (CloseableIterator<?> it = store.query(QueryBuilder.newBuilder().addTypeName(
 						typeName).limit(
 						1).build())) {
@@ -227,7 +226,7 @@ abstract public class AbstractMapReduceIngest<T extends Persistable & DataAdapte
 							internalAdapterStore = dataStoreOptions.createInternalAdapterStore();
 							adapterIndexMappingStore = dataStoreOptions.createAdapterIndexMappingStore();
 						}
-						final Short adapterId = internalAdapterStore.getAdapterId(dataAdapter.getTypeName());
+						final Short adapterId = internalAdapterStore.getAdapterId(typeName);
 						if (adapterId != null) {
 							internalAdapterStore.remove(adapterId);
 							adapterStore.removeAdapter(adapterId);

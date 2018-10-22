@@ -60,9 +60,7 @@ public class DistortionGroupManagementTest
 			final T entry )
 			throws IOException {
 		final DataStore store = storePluginOptions.createDataStore();
-		store.addType(adapter);
-		store.addIndex(
-				adapter.getTypeName(),
+		store.addType(adapter,
 				index);
 		try (Writer writer = store.createWriter(adapter.getTypeName())) {
 			writer.write(entry);
@@ -89,9 +87,7 @@ public class DistortionGroupManagementTest
 		storePluginOptions = new DataStorePluginOptions(
 				opts);
 		final DataStore store = storePluginOptions.createDataStore();
-		store.addType(adapter);
-		store.addIndex(
-				adapter.getTypeName(),
+		store.addType(adapter,
 				index);
 	}
 

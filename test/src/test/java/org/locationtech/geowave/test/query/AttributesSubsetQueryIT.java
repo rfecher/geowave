@@ -292,9 +292,7 @@ public class AttributesSubsetQueryIT extends
 
 		LOGGER.info("Ingesting canned data...");
 		final DataStore store = dataStore.createDataStore();
-		store.addType(dataAdapter);
-		store.addIndex(
-				dataAdapter.getTypeName(),
+		store.addType(dataAdapter,
 				TestUtils.DEFAULT_SPATIAL_INDEX);
 		try (Writer writer = store.createWriter(dataAdapter.getTypeName())) {
 			for (final SimpleFeature sf : buildCityDataSet()) {

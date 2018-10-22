@@ -210,9 +210,7 @@ public class KMeansDistortionMapReduceTest
 			final Index index,
 			final SimpleFeature feature )
 			throws IOException {
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				index);
 		try (Writer writer = dataStore.createWriter(adapter.getTypeName())) {
 			writer.write(feature);

@@ -89,9 +89,7 @@ public class WebMercatorRasterTest
 			bounds = SpatialDimensionalityTypeProvider.DEFAULT_UNBOUNDED_CRS_INTERVAL;
 		}
 		bounds /= 32.0;
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				index);
 		for (double xTile = 0; xTile < xTiles; xTile++) {
 			for (double yTile = 0; yTile < yTiles; yTile++) {

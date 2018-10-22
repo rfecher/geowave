@@ -77,9 +77,7 @@ public class MemoryDataStoreTest
 						"aaa&bbb");
 			}
 		};
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				index);
 		try (final Writer indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 
@@ -232,9 +230,7 @@ public class MemoryDataStoreTest
 			}
 		};
 
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				index1,
 				index2);
 		try (final Writer indexWriter = dataStore.createWriter(adapter.getTypeName())) {

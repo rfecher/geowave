@@ -88,9 +88,7 @@ public class DistortionGroupManagement
 		internalAdapterStore = dataStoreOptions.createInternalAdapterStore();
 
 		final DistortionDataAdapter adapter = new DistortionDataAdapter();
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				DISTORTIONS_INDEX);
 	}
 

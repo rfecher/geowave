@@ -177,8 +177,7 @@ public interface DataStore
 
 	void deleteAll();
 
-	<T> void addType(
-			DataTypeAdapter<T> dataTypeAdapter );
+	<T> void addType(DataTypeAdapter<T> dataTypeAdapter, Index... initialIndices );
 
 	/**
 	 * Returns an index writer to perform batched write operations for the given

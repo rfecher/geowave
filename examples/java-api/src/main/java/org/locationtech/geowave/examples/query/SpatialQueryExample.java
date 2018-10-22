@@ -95,9 +95,7 @@ public class SpatialQueryExample
 			final FeatureDataAdapter adapter,
 			final Index index,
 			final List<SimpleFeature> features ) {
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				index);
 		try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 			for (final SimpleFeature sf : features) {

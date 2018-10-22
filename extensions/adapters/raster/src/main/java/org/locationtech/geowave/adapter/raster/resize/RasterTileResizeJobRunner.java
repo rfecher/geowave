@@ -163,9 +163,7 @@ public class RasterTileResizeJobRunner extends
 				job.getConfiguration(),
 				index);
 		final DataStore store = outputStoreOptions.createDataStore();
-		store.addType(newAdapter);
-		store.addIndex(
-				newAdapter.getTypeName(),
+		store.addType(newAdapter,
 				index);
 		final short newInternalAdapterId = outputStoreOptions.createInternalAdapterStore().addTypeName(
 				newAdapter.getTypeName());

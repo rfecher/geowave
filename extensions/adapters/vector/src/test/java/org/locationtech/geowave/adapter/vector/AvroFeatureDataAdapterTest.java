@@ -128,9 +128,7 @@ public class AvroFeatureDataAdapterTest
 
 		final Index index = new SpatialIndexBuilder().createIndex();
 		adapter.init(index);
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				index);
 		try (Writer indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 			for (final SimpleFeature sf : data) {

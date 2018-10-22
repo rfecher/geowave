@@ -15,6 +15,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
+import org.locationtech.geowave.core.store.api.Query;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
@@ -125,7 +126,12 @@ public abstract class AbstractGeoWaveJobRunner extends
 			final int minInputSplits ) {
 		this.minInputSplits = minInputSplits;
 	}
-
+	public void setQuery(Query<?> query) {
+		setCommonQueryOptions(query.getCommonQueryOptions());
+		setDataTypeQueryOptions(query.getDataTypeQueryOptions());
+		setIndexQueryOptions(query.getIndexQueryOptions());
+		setQueryConstraints(query.getQueryConstraints());
+	}
 	public void setCommonQueryOptions(
 			final CommonQueryOptions commonOptions ) {
 		this.commonOptions = commonOptions;

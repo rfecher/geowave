@@ -173,9 +173,7 @@ public class GeoWaveDataStoreComponents
 		final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<>(
 				new GlobalVisibilityHandler<>(
 						transaction.composeVisibility()));
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				adapterIndices);
 		try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 			while (featureIt.hasNext()) {
@@ -197,9 +195,7 @@ public class GeoWaveDataStoreComponents
 		final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<>(
 				new GlobalVisibilityHandler<>(
 						transaction.composeVisibility()));
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
+		dataStore.addType(adapter,
 				adapterIndices);
 		try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 			indexWriter.write(

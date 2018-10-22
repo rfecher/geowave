@@ -173,10 +173,8 @@ public class KSamplerMapReduceTest
 		// should this initialization be handled by the runner class rather than
 		// externally such as in the test?
 		final DataStore dataStore = store.getDataStoreOptions().createDataStore();
-		dataStore.addType(adapter);
-		dataStore.addIndex(
-				adapter.getTypeName(),
-				new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()));
+		dataStore.addType(adapter,
+		new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()));
 
 		mapDriver.getConfiguration().setClass(
 				GeoWaveConfiguratorBase.enumToConfKey(
