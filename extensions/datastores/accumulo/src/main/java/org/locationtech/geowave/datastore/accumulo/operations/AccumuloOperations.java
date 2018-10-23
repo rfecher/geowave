@@ -966,6 +966,7 @@ public class AccumuloOperations implements
 	@Override
 	public boolean deleteAll(
 			final String indexName,
+			final String typeName,
 			final Short adapterId,
 			final String... additionalAuthorizations ) {
 		BatchDeleter deleter = null;

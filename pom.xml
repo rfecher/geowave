@@ -45,6 +45,7 @@
 		<accumulo.api>1.9</accumulo.api>
 		<bigtable.version>1.2.0</bigtable.version>
 		<cassandra.version>3.11.3</cassandra.version>
+		<redisson.version>3.8.2</redisson.version>
 		<grpc.version>1.13.1</grpc.version>
 		<netty.version>4.1.25.Final</netty.version>
 		<protobuf.version>3.5.1</protobuf.version>
@@ -92,7 +93,8 @@
 		<jacoco.version>0.7.4.201502262128</jacoco.version>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-		<test.args>-XX:CompressedClassSpaceSize=512m -XX:+UseSerialGC -Xms1g -Xmx2g -XX:MaxMetaspaceSize=512m</test.args>
+		<test.args>-XX:CompressedClassSpaceSize=512m -XX:+UseSerialGC -Xms1g
+			-Xmx2g -XX:MaxMetaspaceSize=512m</test.args>
 		<findbugs.version>3.0.1</findbugs.version>
 		<findbugs.omitVisitors>MutableStaticFields,FindReturnRef</findbugs.omitVisitors>
 		<findbugs.effort>Max</findbugs.effort>
@@ -181,6 +183,11 @@
 				<version>1.1</version>
 			</dependency>
 			<dependency>
+				<groupId>com.github.ben-manes.caffeine</groupId>
+				<artifactId>caffeine</artifactId>
+				<version>2.6.2</version>
+			</dependency>
+			<dependency>
 				<groupId>com.vividsolutions</groupId>
 				<artifactId>jts-core</artifactId>
 				<version>1.14.0</version>
@@ -256,6 +263,11 @@
 				<groupId>org.xerial.snappy</groupId>
 				<artifactId>snappy-java</artifactId>
 				<version>${snappy.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.redisson</groupId>
+				<artifactId>redisson</artifactId>
+				<version>${redisson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.accumulo</groupId>

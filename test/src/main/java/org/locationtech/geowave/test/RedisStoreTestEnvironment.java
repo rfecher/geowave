@@ -1,0 +1,71 @@
+package org.locationtech.geowave.test;
+
+import org.locationtech.geowave.core.store.GenericStoreFactory;
+import org.locationtech.geowave.core.store.StoreFactoryOptions;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.datastore.dynamodb.DynamoDBOptions;
+import org.locationtech.geowave.datastore.redis.RedisStoreFactoryFamily;
+import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
+
+import redis.embedded.RedisServer;
+
+public class RedisStoreTestEnvironment extends
+		StoreTestEnvironment
+{
+	private static final GenericStoreFactory<DataStore> STORE_FACTORY = new RedisStoreFactoryFamily()
+			.getDataStoreFactory();
+
+	private static RedisStoreTestEnvironment singletonInstance = null;
+
+    private RedisServer redisServer;
+
+	public static synchronized RedisStoreTestEnvironment getInstance() {
+		if (singletonInstance == null) {
+			singletonInstance = new RedisStoreTestEnvironment();
+		}
+		return singletonInstance;
+	}
+
+	@Override
+	public void setup() {
+		// DynamoDB IT's rely on an external dynamo local process
+		if (redisServer == null) {
+	         redisServer = RedisServer.builder()
+	                    .port(6379)
+	                    .setting("bind 127.0.0.1") // secure + prevents popups on Windows
+	                    .setting("maxmemory 128M")
+	                    .build();
+	            redisServer.start();
+		}
+
+	}
+
+	@Override
+	public void tearDown() {
+        if (redisServer != null) {
+            redisServer.stop();
+            redisServer = null;
+        }
+	}
+
+	@Override
+	protected GenericStoreFactory<DataStore> getDataStoreFactory() {
+		return STORE_FACTORY;
+	}
+
+	@Override
+	protected GeoWaveStoreType getStoreType() {
+		return GeoWaveStoreType.DYNAMODB;
+	}
+
+	@Override
+	protected void initOptions(
+			final StoreFactoryOptions options ) {
+		((DynamoDBOptions) options).setEndpoint("http://localhost:8000");
+	}
+
+	@Override
+	public TestEnvironment[] getDependentEnvironments() {
+		return new TestEnvironment[] {};
+	}
+}

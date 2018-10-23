@@ -48,8 +48,8 @@ import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.cassandra.CassandraRow;
 import org.locationtech.geowave.datastore.cassandra.CassandraRow.CassandraField;
-import org.locationtech.geowave.datastore.cassandra.operations.config.CassandraOptions;
-import org.locationtech.geowave.datastore.cassandra.operations.config.CassandraRequiredOptions;
+import org.locationtech.geowave.datastore.cassandra.config.CassandraOptions;
+import org.locationtech.geowave.datastore.cassandra.config.CassandraRequiredOptions;
 import org.locationtech.geowave.datastore.cassandra.util.KeyspaceStatePool;
 import org.locationtech.geowave.datastore.cassandra.util.KeyspaceStatePool.KeyspaceState;
 import org.locationtech.geowave.datastore.cassandra.util.SessionPool;
@@ -483,6 +483,7 @@ public class CassandraOperations implements
 	@Override
 	public boolean deleteAll(
 			final String indexName,
+			final String typeName,
 			final Short adapterId,
 			final String... additionalAuthorizations ) {
 		return false;

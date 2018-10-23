@@ -11,7 +11,6 @@
 package org.locationtech.geowave.datastore.accumulo;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -33,17 +32,13 @@ import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypePro
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.index.ByteArray;
-import org.locationtech.geowave.core.index.StringUtils;
-import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.AbstractDataAdapter;
-import org.locationtech.geowave.core.store.adapter.AdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler;
+import org.locationtech.geowave.core.store.adapter.NativeFieldHandler.RowBuilder;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentIndexFieldHandler;
-import org.locationtech.geowave.core.store.adapter.NativeFieldHandler.RowBuilder;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.QueryBuilder;
@@ -56,17 +51,13 @@ import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.metadata.AdapterIndexMappingStoreImpl;
 import org.locationtech.geowave.core.store.metadata.AdapterStoreImpl;
-import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.metadata.IndexStoreImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
 import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
 import org.locationtech.geowave.core.store.query.constraints.EverythingQuery;
 import org.locationtech.geowave.core.store.query.constraints.InsertionIdQuery;
-import org.locationtech.geowave.datastore.accumulo.AccumuloDataStore;
 import org.locationtech.geowave.datastore.accumulo.cli.config.AccumuloOptions;
-import org.locationtech.geowave.datastore.accumulo.index.secondary.AccumuloSecondaryIndexDataStore;
 import org.locationtech.geowave.datastore.accumulo.operations.AccumuloOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +68,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class AccumuloOptionsTest
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(AccumuloOptionsTest.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					AccumuloOptionsTest.class);
 
 	final AccumuloOptions accumuloOptions = new AccumuloOptions();
 
@@ -90,26 +83,24 @@ public class AccumuloOptionsTest
 	PersistentAdapterStore adapterStore;
 	InternalAdapterStore internalAdapterStore;
 
-	DataStatisticsStore statsStore;
-
 	AccumuloDataStore mockDataStore;
-
-	AccumuloSecondaryIndexDataStore secondaryIndexDataStore;
 
 	@Before
 	public void setUp() {
 		final MockInstance mockInstance = new MockInstance();
 		Connector mockConnector = null;
 		try {
-			mockConnector = mockInstance.getConnector(
-					"root",
-					new PasswordToken(
-							new byte[0]));
+			mockConnector = mockInstance
+					.getConnector(
+							"root",
+							new PasswordToken(
+									new byte[0]));
 		}
 		catch (AccumuloException | AccumuloSecurityException e) {
-			LOGGER.error(
-					"Failed to create mock accumulo connection",
-					e);
+			LOGGER
+					.error(
+							"Failed to create mock accumulo connection",
+							e);
 		}
 		final AccumuloOptions options = new AccumuloOptions();
 		accumuloOperations = new AccumuloOperations(
@@ -124,35 +115,21 @@ public class AccumuloOptionsTest
 				accumuloOperations,
 				accumuloOptions);
 
-		statsStore = new DataStatisticsStoreImpl(
-				accumuloOperations,
-				accumuloOptions);
-
-		secondaryIndexDataStore = new AccumuloSecondaryIndexDataStore(
-				accumuloOperations,
-				accumuloOptions);
-
 		internalAdapterStore = new InternalAdapterStoreImpl(
 				accumuloOperations);
 
 		mockDataStore = new AccumuloDataStore(
-				indexStore,
-				adapterStore,
-				statsStore,
-				secondaryIndexDataStore,
-				new AdapterIndexMappingStoreImpl(
-						accumuloOperations,
-						options),
 				accumuloOperations,
-				accumuloOptions,
-				internalAdapterStore);
+				options);
 	}
 
 	@Test
 	public void testIndexOptions()
 			throws IOException {
 
-		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		final Index index = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
 		final DataTypeAdapter<TestGeometry> adapter = new TestGeometryAdapter();
 
 		mockDataStore.addType(
@@ -181,7 +158,9 @@ public class AccumuloOptionsTest
 			// in the index store
 			assertEquals(
 					true,
-					indexStore.indexExists(index.getName()));
+					indexStore
+							.indexExists(
+									index.getName()));
 
 			// of course, the point is actually stored in this case
 			assertEquals(
@@ -195,7 +174,9 @@ public class AccumuloOptionsTest
 	public void testLocalityGroups()
 			throws IOException {
 
-		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		final Index index = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
 		final DataTypeAdapter<TestGeometry> adapter = new TestGeometryAdapter();
 
 		final String tableName = index.getName();
@@ -218,14 +199,16 @@ public class AccumuloOptionsTest
 				// return false
 				assertEquals(
 						false,
-						accumuloOperations.localityGroupExists(
-								tableName,
-								typeName));
+						accumuloOperations
+								.localityGroupExists(
+										tableName,
+										typeName));
 			}
 			catch (final AccumuloException | TableNotFoundException e) {
-				LOGGER.error(
-						"Locality Group check failed",
-						e);
+				LOGGER
+						.error(
+								"Locality Group check failed",
+								e);
 			}
 
 			final TestGeometry geom1 = (TestGeometry) mockDataStore.query(
@@ -245,7 +228,9 @@ public class AccumuloOptionsTest
 
 		}
 
-		accumuloOptions.setUseLocalityGroups(true);
+		accumuloOptions
+				.setUseLocalityGroups(
+						true);
 		mockDataStore.deleteAll();
 		mockDataStore.addType(
 				adapter,
@@ -264,14 +249,16 @@ public class AccumuloOptionsTest
 				// true
 				assertEquals(
 						true,
-						accumuloOperations.localityGroupExists(
-								tableName,
-								typeName));
+						accumuloOperations
+								.localityGroupExists(
+										tableName,
+										typeName));
 			}
 			catch (final AccumuloException | TableNotFoundException e) {
-				LOGGER.error(
-						"Locality Group check failed",
-						e);
+				LOGGER
+						.error(
+								"Locality Group check failed",
+								e);
 			}
 			final TestGeometry geom2 = (TestGeometry) mockDataStore.query(
 					QueryBuilder.newBuilder().addTypeName(
@@ -296,7 +283,9 @@ public class AccumuloOptionsTest
 	public void testAdapterOptions()
 			throws IOException {
 
-		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		final Index index = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
 		final DataTypeAdapter<TestGeometry> adapter = new TestGeometryAdapter();
 
 		mockDataStore.addType(
@@ -305,11 +294,14 @@ public class AccumuloOptionsTest
 		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
 			final Pair<ByteArray, ByteArray> rowId2 = indexWriter.write(
 
-					new TestGeometry(
-							factory.createPoint(new Coordinate(
-									25,
-									32)),
-							"test_pt_2")).getFirstPartitionAndSortKeyPair();
+							new TestGeometry(
+									factory
+											.createPoint(
+													new Coordinate(
+															25,
+															32)),
+									"test_pt_2"))
+					.getFirstPartitionAndSortKeyPair();
 
 			try (final CloseableIterator<?> geomItr = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
 					adapter.getTypeName()).indexName(
@@ -328,45 +320,60 @@ public class AccumuloOptionsTest
 						geom2.id);
 			}
 
-			try (final CloseableIterator<TestGeometry> geomItr = (CloseableIterator) mockDataStore.query(QueryBuilder
-					.newBuilder()
-					.addTypeName(
-							adapter.getTypeName())
-					.indexName(
-							index.getName())
-					.build())) {
+			try (final CloseableIterator<TestGeometry> geomItr = (CloseableIterator) mockDataStore
+					.query(
+							QueryBuilder
+									.newBuilder()
+									.addTypeName(
+											adapter.getTypeName())
+									.indexName(
+											index.getName())
+									.build())) {
 
 				while (geomItr.hasNext()) {
 					final TestGeometry geom2 = geomItr.next();
 
 					// specifying the adapter, this method returns the entry
 
-					assertTrue(Arrays.asList(
-							"test_pt_2",
-							"test_pt_1").contains(
-							geom2.id));
+					assertTrue(
+							Arrays
+									.asList(
+											"test_pt_2",
+											"test_pt_1")
+									.contains(
+											geom2.id));
 				}
 			}
 
-			final short internalAdapterId = internalAdapterStore.getAdapterId(adapter.getTypeName());
+			final short internalAdapterId = internalAdapterStore
+					.getAdapterId(
+							adapter.getTypeName());
 			// the adapter should not exist in the metadata table
 			assertEquals(
 					true,
-					adapterStore.adapterExists(internalAdapterId));
+					adapterStore
+							.adapterExists(
+									internalAdapterId));
 
 		}
 
-		final short internalAdapterId = internalAdapterStore.getAdapterId(adapter.getTypeName());
+		final short internalAdapterId = internalAdapterStore
+				.getAdapterId(
+						adapter.getTypeName());
 		// the adapter should exist in the metadata table
 		assertEquals(
 				true,
-				adapterStore.adapterExists(internalAdapterId));
+				adapterStore
+						.adapterExists(
+								internalAdapterId));
 	}
 
 	@Test
 	public void testDeleteAll()
 			throws IOException {
-		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
+		final Index index = new SpatialDimensionalityTypeProvider()
+				.createIndex(
+						new SpatialOptions());
 		final DataTypeAdapter<TestGeometry> adapter0 = new TestGeometryAdapter();
 		final DataTypeAdapter<TestGeometry> adapter1 = new AnotherAdapter();
 
@@ -401,10 +408,17 @@ public class AccumuloOptionsTest
 							"test_pt_1")).getFirstPartitionAndSortKeyPair();
 		}
 
-		CloseableIterator it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
-				adapter0.getTypeName()).indexName(
-				index.getName()).constraints(
-				new EverythingQuery()).build());
+		CloseableIterator it = mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										adapter0.getTypeName())
+								.indexName(
+										index.getName())
+								.constraints(
+										new EverythingQuery())
+								.build());
 		int count = 0;
 		while (it.hasNext()) {
 			it.next();
@@ -414,10 +428,17 @@ public class AccumuloOptionsTest
 				1,
 				count);
 
-		it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
-				adapter1.getTypeName()).indexName(
-				index.getName()).constraints(
-				new EverythingQuery()).build());
+		it = mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										adapter1.getTypeName())
+								.indexName(
+										index.getName())
+								.constraints(
+										new EverythingQuery())
+								.build());
 		count = 0;
 		while (it.hasNext()) {
 			it.next();
@@ -427,9 +448,15 @@ public class AccumuloOptionsTest
 				2,
 				count);
 
-		it = mockDataStore.query(QueryBuilder.newBuilder().indexName(
-				index.getName()).constraints(
-				new EverythingQuery()).build());
+		it = mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.indexName(
+										index.getName())
+								.constraints(
+										new EverythingQuery())
+								.build());
 		count = 0;
 		while (it.hasNext()) {
 			it.next();
@@ -441,14 +468,28 @@ public class AccumuloOptionsTest
 
 		// delete entry by data id & adapter id
 
-		assertTrue(mockDataStore.delete(QueryBuilder.newBuilder().addTypeName(
-				adapter0.getTypeName()).indexName(
-				index.getName()).constraints(
-				new EverythingQuery()).build()));
+		assertTrue(
+				mockDataStore
+						.delete(
+								QueryBuilder
+										.newBuilder()
+										.addTypeName(
+												adapter0.getTypeName())
+										.indexName(
+												index.getName())
+										.constraints(
+												new EverythingQuery())
+										.build()));
 
-		it = mockDataStore.query(QueryBuilder.newBuilder().indexName(
-				index.getName()).constraints(
-				new EverythingQuery()).build());
+		it = mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.indexName(
+										index.getName())
+								.constraints(
+										new EverythingQuery())
+								.build());
 		count = 0;
 		while (it.hasNext()) {
 			it.next();
@@ -458,10 +499,17 @@ public class AccumuloOptionsTest
 				2,
 				count);
 
-		it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
-				adapter0.getTypeName()).indexName(
-				index.getName()).constraints(
-				new EverythingQuery()).build());
+		it = mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										adapter0.getTypeName())
+								.indexName(
+										index.getName())
+								.constraints(
+										new EverythingQuery())
+								.build());
 		count = 0;
 		while (it.hasNext()) {
 			it.next();
@@ -471,19 +519,28 @@ public class AccumuloOptionsTest
 				0,
 				count);
 
-		mockDataStore.addType(
-				adapter0,
-				index);
-		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter0.getTypeName())) {
-			indexWriter.write(
-					new TestGeometry(
-							factory.createPoint(new Coordinate(
-									25,
-									32)),
-							"test_pt_2")).getFirstPartitionAndSortKeyPair();
+		mockDataStore
+				.addType(
+						adapter0,
+						index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore
+				.createWriter(
+						adapter0.getTypeName())) {
+			indexWriter
+					.write(
+							new TestGeometry(
+									factory
+											.createPoint(
+													new Coordinate(
+															25,
+															32)),
+									"test_pt_2"))
+					.getFirstPartitionAndSortKeyPair();
 
 		}
-		it = mockDataStore.query(QueryBuilder.newBuilder().build());
+		it = mockDataStore
+				.query(
+						QueryBuilder.newBuilder().build());
 		count = 0;
 		while (it.hasNext()) {
 			it.next();
@@ -500,10 +557,17 @@ public class AccumuloOptionsTest
 						new ByteArray(
 								"test_pt_1"))).build()));
 
-		it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
-				adapter1.getTypeName()).indexName(
-				index.getName()).constraints(
-				new EverythingQuery()).build());
+		it = mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.addTypeName(
+										adapter1.getTypeName())
+								.indexName(
+										index.getName())
+								.constraints(
+										new EverythingQuery())
+								.build());
 		count = 0;
 		while (it.hasNext()) {
 			it.next();
@@ -513,7 +577,9 @@ public class AccumuloOptionsTest
 				1,
 				count);
 
-		it = mockDataStore.query(QueryBuilder.newBuilder().build());
+		it = mockDataStore
+				.query(
+						QueryBuilder.newBuilder().build());
 		count = 0;
 		while (it.hasNext()) {
 			it.next();
@@ -523,13 +589,26 @@ public class AccumuloOptionsTest
 				2,
 				count);
 
-		assertTrue(mockDataStore.delete(QueryBuilder.newBuilder().indexName(
-				index.getName()).constraints(
-				new EverythingQuery()).build()));
+		assertTrue(
+				mockDataStore
+						.delete(
+								QueryBuilder
+										.newBuilder()
+										.indexName(
+												index.getName())
+										.constraints(
+												new EverythingQuery())
+										.build()));
 
-		it = mockDataStore.query(QueryBuilder.newBuilder().indexName(
-				index.getName()).constraints(
-				new EverythingQuery()).build());
+		it = mockDataStore
+				.query(
+						QueryBuilder
+								.newBuilder()
+								.indexName(
+										index.getName())
+								.constraints(
+										new EverythingQuery())
+								.build());
 		count = 0;
 		while (it.hasNext()) {
 			it.next();
@@ -616,8 +695,12 @@ public class AccumuloOptionsTest
 		private static final List<PersistentIndexFieldHandler<TestGeometry, ? extends CommonIndexValue, Object>> COMMON_FIELD_HANDLER_LIST = new ArrayList<>();
 
 		static {
-			COMMON_FIELD_HANDLER_LIST.add(GEOM_FIELD_HANDLER);
-			NATIVE_FIELD_HANDLER_LIST.add(ID_FIELD_HANDLER);
+			COMMON_FIELD_HANDLER_LIST
+					.add(
+							GEOM_FIELD_HANDLER);
+			NATIVE_FIELD_HANDLER_LIST
+					.add(
+							ID_FIELD_HANDLER);
 		}
 
 		public TestGeometryAdapter() {
@@ -641,11 +724,19 @@ public class AccumuloOptionsTest
 		@Override
 		public FieldReader getReader(
 				final String fieldId ) {
-			if (fieldId.equals(GEOM)) {
-				return FieldUtils.getDefaultReaderForClass(Geometry.class);
+			if (fieldId
+					.equals(
+							GEOM)) {
+				return FieldUtils
+						.getDefaultReaderForClass(
+								Geometry.class);
 			}
-			else if (fieldId.equals(ID)) {
-				return FieldUtils.getDefaultReaderForClass(String.class);
+			else if (fieldId
+					.equals(
+							ID)) {
+				return FieldUtils
+						.getDefaultReaderForClass(
+								String.class);
 			}
 			return null;
 		}
@@ -653,11 +744,19 @@ public class AccumuloOptionsTest
 		@Override
 		public FieldWriter getWriter(
 				final String fieldId ) {
-			if (fieldId.equals(GEOM)) {
-				return FieldUtils.getDefaultWriterForClass(Geometry.class);
+			if (fieldId
+					.equals(
+							GEOM)) {
+				return FieldUtils
+						.getDefaultWriterForClass(
+								Geometry.class);
 			}
-			else if (fieldId.equals(ID)) {
-				return FieldUtils.getDefaultWriterForClass(String.class);
+			else if (fieldId
+					.equals(
+							ID)) {
+				return FieldUtils
+						.getDefaultWriterForClass(
+								String.class);
 			}
 			return null;
 		}
@@ -672,10 +771,14 @@ public class AccumuloOptionsTest
 				public void setField(
 						final String id,
 						final Object fieldValue ) {
-					if (id.equals(GEOM)) {
+					if (id
+							.equals(
+									GEOM)) {
 						geom = (Geometry) fieldValue;
 					}
-					else if (id.equals(ID)) {
+					else if (id
+							.equals(
+									ID)) {
 						this.id = (String) fieldValue;
 					}
 				}
@@ -683,11 +786,19 @@ public class AccumuloOptionsTest
 				@Override
 				public void setFields(
 						final Map<String, Object> values ) {
-					if (values.containsKey(GEOM)) {
-						geom = (Geometry) values.get(GEOM);
+					if (values
+							.containsKey(
+									GEOM)) {
+						geom = (Geometry) values
+								.get(
+										GEOM);
 					}
-					if (values.containsKey(ID)) {
-						id = (String) values.get(ID);
+					if (values
+							.containsKey(
+									ID)) {
+						id = (String) values
+								.get(
+										ID);
 					}
 				}
 
@@ -707,15 +818,21 @@ public class AccumuloOptionsTest
 				final String fieldId ) {
 			int i = 0;
 			for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-				if (fieldId.equals(dimensionField.getFieldName())) {
+				if (fieldId
+						.equals(
+								dimensionField.getFieldName())) {
 					return i;
 				}
 				i++;
 			}
-			if (fieldId.equals(GEOM)) {
+			if (fieldId
+					.equals(
+							GEOM)) {
 				return i;
 			}
-			else if (fieldId.equals(ID)) {
+			else if (fieldId
+					.equals(
+							ID)) {
 				return i + 1;
 			}
 			return -1;

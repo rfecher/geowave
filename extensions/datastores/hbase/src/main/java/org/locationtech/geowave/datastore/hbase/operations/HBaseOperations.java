@@ -562,6 +562,7 @@ public class HBaseOperations implements
 	@Override
 	public boolean deleteAll(
 			final String indexName,
+			final String typeName,
 			final Short adapterId,
 			final String... additionalAuthorizations ) {
 		RowDeleter deleter = null;
@@ -570,21 +571,7 @@ public class HBaseOperations implements
 			deleter = createDeleter(
 					indexName,
 					additionalAuthorizations);
-			DataTypeAdapter<?> adapter = null;
 			Index index = null;
-			try (final CloseableIterator<GeoWaveMetadata> it = createMetadataReader(
-					MetadataType.ADAPTER).query(
-					new MetadataQuery(
-							ByteArrayUtils.shortToByteArray(adapterId),
-							null,
-							additionalAuthorizations))) {
-				if (!it.hasNext()) {
-					LOGGER.warn("Unable to find adapter to delete");
-					return false;
-				}
-				final GeoWaveMetadata adapterMd = it.next();
-				adapter = (DataTypeAdapter<?>) URLClassloaderUtils.fromBinary(adapterMd.getValue());
-			}
 			try (final CloseableIterator<GeoWaveMetadata> it = createMetadataReader(
 					MetadataType.INDEX).query(
 					new MetadataQuery(

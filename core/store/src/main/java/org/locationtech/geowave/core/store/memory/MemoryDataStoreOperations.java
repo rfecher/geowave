@@ -113,6 +113,7 @@ public class MemoryDataStoreOperations implements
 	@Override
 	public boolean deleteAll(
 			final String tableName,
+			final String typeName,
 			final Short internalAdapterId,
 			final String... additionalAuthorizations ) {
 		return false;
