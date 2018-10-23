@@ -8,27 +8,30 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.datastore.cassandra;
+package org.locationtech.geowave.datastore.redis;
 
+import org.locationtech.geowave.core.store.BaseDataStoreOptions;
 import org.locationtech.geowave.core.store.StoreFactoryHelper;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.datastore.cassandra.config.CassandraRequiredOptions;
-import org.locationtech.geowave.datastore.cassandra.operations.CassandraOperations;
+import org.locationtech.geowave.datastore.redis.config.RedisOptions;
+import org.locationtech.geowave.datastore.redis.operations.RedisOperations;
 
-public class CassandraFactoryHelper implements
+import com.beust.jcommander.ParametersDelegate;
+
+public class RedisFactoryHelper implements
 		StoreFactoryHelper
 {
 	@Override
 	public StoreFactoryOptions createOptionsInstance() {
-		return new CassandraRequiredOptions();
+		return new RedisOptions();
 	}
 
 	@Override
 	public DataStoreOperations createOperations(
 			final StoreFactoryOptions options ) {
-		return new CassandraOperations(
-				(CassandraRequiredOptions) options);
+		return new RedisOperations(
+				(RedisOptions) options);
 	}
 
 }

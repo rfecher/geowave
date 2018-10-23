@@ -13,15 +13,9 @@
  */
 package org.locationtech.geowave.datastore.hbase;
 
-import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
-import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
-import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.metadata.AdapterIndexMappingStoreImpl;
 import org.locationtech.geowave.core.store.metadata.AdapterStoreImpl;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
@@ -42,7 +36,7 @@ public class HBaseDataStore extends
 	public HBaseDataStore(
 			final HBaseOperations operations,
 			final HBaseOptions options ) {
-		this(
+		super(
 				new IndexStoreImpl(
 						operations,
 						options),
@@ -60,28 +54,6 @@ public class HBaseDataStore extends
 				options,
 				new InternalAdapterStoreImpl(
 						operations));
-	}
-
-	public HBaseDataStore(
-			final IndexStore indexStore,
-			final PersistentAdapterStore adapterStore,
-			final DataStatisticsStore statisticsStore,
-			final AdapterIndexMappingStore indexMappingStore,
-			final SecondaryIndexDataStore secondaryIndexDataStore,
-			final HBaseOperations operations,
-			final HBaseOptions options,
-			final InternalAdapterStore adapterMappingStore ) {
-		super(
-				indexStore,
-				adapterStore,
-				statisticsStore,
-				indexMappingStore,
-				secondaryIndexDataStore,
-				operations,
-				options,
-				adapterMappingStore);
-
-		secondaryIndexDataStore.setDataStore(this);
 	}
 
 	@Override

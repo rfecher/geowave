@@ -24,15 +24,14 @@ public class RedisStoreFactoryFamily extends
 		super(
 				TYPE,
 				DESCRIPTION,
-				null);
-				//new CassandraFactoryHelper());
+		new RedisFactoryHelper());
 	}
 
 	@Override
 	public GenericStoreFactory<DataStore> getDataStoreFactory() {
-		return new RedisStoreFactoryFamily(
+		return new RedisDataStoreFactory(
 				TYPE,
 				DESCRIPTION,
-				null);//new CassandraFactoryHelper());
+				new RedisFactoryHelper());
 	}
 }
