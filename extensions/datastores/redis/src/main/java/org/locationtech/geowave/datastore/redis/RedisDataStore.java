@@ -19,19 +19,19 @@ public class RedisDataStore extends
 		super(
 				new IndexStoreImpl(
 						operations,
-						options),
+						options.getStoreOptions()),
 				new AdapterStoreImpl(
 						operations,
-						options),
+						options.getStoreOptions()),
 				new DataStatisticsStoreImpl(
 						operations,
-						options),
+						options.getStoreOptions()),
 				new AdapterIndexMappingStoreImpl(
 						operations,
-						options),
+						options.getStoreOptions()),
 				new SecondaryIndexStoreImpl(),
 				operations,
-				options,
+				options.getStoreOptions(),
 				new InternalAdapterStoreImpl(
 						operations));
 	}
