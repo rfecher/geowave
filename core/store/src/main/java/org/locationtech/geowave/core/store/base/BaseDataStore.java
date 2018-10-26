@@ -607,6 +607,7 @@ public class BaseDataStore implements
 		baseOperations
 				.deleteAll(
 						index.getName(),
+						adapter.getTypeName(),
 						adapter.getAdapterId(),
 						additionalAuthorizations);
 	}

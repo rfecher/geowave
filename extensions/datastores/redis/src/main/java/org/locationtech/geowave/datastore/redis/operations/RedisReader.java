@@ -1,27 +1,252 @@
 package org.locationtech.geowave.datastore.redis.operations;
 
-import org.locationtech.geowave.core.store.operations.RowReader;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class RedisReader<T> implements RowReader<T>
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.index.ByteArrayRange;
+import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
+import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
+import org.locationtech.geowave.core.store.operations.BaseReaderParams;
+import org.locationtech.geowave.core.store.operations.ReaderParams;
+import org.locationtech.geowave.core.store.operations.RowReader;
+import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
+import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisRow;
+import org.locationtech.geowave.datastore.redis.util.RedisUtils;
+import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
+import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
+import org.redisson.api.RedissonClient;
+import org.redisson.client.protocol.ScoredEntry;
+
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
+
+public class RedisReader<T> implements
+		RowReader<T>
 {
+	private final CloseableIterator<T> iterator;
+
+	public RedisReader(
+			final RedissonClient client,
+			final ReaderParams<T> readerParams,
+			final String namespace ) {
+		this.iterator = createIteratorForReader(
+				client,
+				readerParams,
+				namespace);
+	}
+
+	public RedisReader(
+			final RedissonClient client,
+			final RecordReaderParams<T> recordReaderParams,
+			final String namespace ) {
+		this.iterator = createIteratorForRecordReader(
+				client,
+				recordReaderParams,
+				namespace);
+	}
+
+	private CloseableIterator<T> createIteratorForReader(
+			final RedissonClient client,
+			final ReaderParams<T> readerParams,
+			final String namespace ) {
+		final Collection<SinglePartitionQueryRanges> ranges = readerParams.getQueryRanges().getPartitionQueryRanges();
+
+		final Set<String> authorizations = Sets
+				.newHashSet(
+						readerParams.getAdditionalAuthorizations());
+		if ((ranges != null) && !ranges.isEmpty()) {
+			return createIterator(
+					client,
+					readerParams,
+					namespace,
+					ranges,
+					authorizations);
+		}
+		else {
+			final Iterator<GeoWaveRedisRow>[] iterators = new Iterator[readerParams.getAdapterIds().length];
+			int i = 0;
+			for (final short adapterId : readerParams.getAdapterIds()) {
+				final String setNamePrefix = RedisUtils
+						.getRowSetPrefix(
+								namespace,
+								readerParams
+										.getInternalAdapterStore()
+										.getTypeName(
+												adapterId),
+								readerParams.getIndex().getName());
+				final Stream<Pair<ByteArrayId, Iterator<ScoredEntry<GeoWaveRedisPersistedRow>>>> streamIt = RedisUtils
+						.getPartitions(
+								client,
+								setNamePrefix)
+						.stream()
+						.map(
+								p -> ImmutablePair
+										.of(
+												p,
+												RedisUtils
+														.getRowSet(
+																client,
+																setNamePrefix,
+																p.getBytes())
+														.entryRange(
+																Double.NEGATIVE_INFINITY,
+																true,
+																Double.POSITIVE_INFINITY,
+																true)
+														.iterator()));
+				iterators[i++] = streamIt
+						.flatMap(
+								p -> Streams
+										.stream(
+												Iterators
+														.transform(
+																p.getRight(),
+																pr -> new GeoWaveRedisRow(
+																		pr.getValue(),
+																		adapterId,
+																		p.getLeft().getBytes(),
+																		RedisUtils
+																				.getSortKey(
+																						pr.getScore())))))
+						.iterator();
+			}
+			return wrapResults(
+					Iterators
+							.concat(
+									iterators),
+					readerParams.getRowTransformer(),
+					authorizations);
+		}
+	}
+
+	private CloseableIterator<T> createIterator(
+			final RedissonClient client,
+			final BaseReaderParams<T> readerParams,
+			final String namespace,
+			final Collection<SinglePartitionQueryRanges> ranges,
+			final Set<String> authorizations ) {
+		final List<CloseableIterator<T>> list = Arrays
+				.stream(
+						ArrayUtils
+								.toObject(
+										readerParams.getAdapterIds()))
+				.map(
+						adapterId -> new BatchedRangeRead(
+								client,
+								RedisUtils
+										.getRowSetPrefix(
+												namespace,
+												readerParams
+														.getInternalAdapterStore()
+														.getTypeName(
+																adapterId),
+												readerParams.getIndex().getName()),
+								adapterId,
+								ranges,
+								readerParams.getRowTransformer(),
+								new ClientVisibilityFilter(
+										authorizations)).results())
+				.collect(
+						Collectors.toList());
+		return new CloseableIteratorWrapper<>(
+				new Closeable() {
+
+					@Override
+					public void close()
+							throws IOException {
+						for (final CloseableIterator<T> it : list) {
+							it.close();
+						}
+					}
+				},
+				Iterators
+						.concat(
+								list.iterator()));
+	}
+
+	private CloseableIterator<T> createIteratorForRecordReader(
+			final RedissonClient client,
+			final RecordReaderParams<T> recordReaderParams,
+			final String namespace ) {
+		final short[] adapterIds = recordReaderParams.getAdapterIds() != null ? recordReaderParams.getAdapterIds()
+				: new short[0];
+
+		final GeoWaveRowRange range = recordReaderParams.getRowRange();
+		final ByteArrayId startKey = range.isInfiniteStartSortKey() ? null
+				: new ByteArrayId(
+						range.getStartSortKey());
+		final ByteArrayId stopKey = range.isInfiniteStopSortKey() ? null
+				: new ByteArrayId(
+						range.getEndSortKey());
+		final SinglePartitionQueryRanges partitionRange = new SinglePartitionQueryRanges(
+				new ByteArrayId(
+						range.getPartitionKey()),
+				Collections
+						.singleton(
+								new ByteArrayRange(
+										startKey,
+										stopKey)));
+		final Set<String> authorizations = Sets
+				.newHashSet(
+						recordReaderParams.getAdditionalAuthorizations());
+		return createIterator(
+				client,
+				recordReaderParams,
+				namespace,
+				Collections
+						.singleton(
+								partitionRange),
+				authorizations);
+	}
+
+	@SuppressWarnings("unchecked")
+	private CloseableIterator<T> wrapResults(
+			final Iterator<GeoWaveRedisRow> results,
+			final GeoWaveRowIteratorTransformer<T> rowTransform,
+			final Set<String> authorizations ) {
+		return new CloseableIterator.Wrapper<>(
+				rowTransform
+						.apply(
+								(Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
+										Iterators
+												.filter(
+														results,
+														new ClientVisibilityFilter(
+																authorizations)))));
+	}
 
 	@Override
 	public boolean hasNext() {
-		// TODO Auto-generated method stub
-		return false;
+		return iterator.hasNext();
 	}
 
 	@Override
 	public T next() {
-		// TODO Auto-generated method stub
-		return null;
+		return iterator.next();
 	}
 
 	@Override
 	public void close()
 			throws Exception {
-		// TODO Auto-generated method stub
-		
+		iterator.close();
 	}
 
 }

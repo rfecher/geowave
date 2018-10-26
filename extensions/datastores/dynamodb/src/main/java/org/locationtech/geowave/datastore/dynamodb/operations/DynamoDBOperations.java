@@ -185,6 +185,7 @@ public class DynamoDBOperations implements
 	@Override
 	public boolean deleteAll(
 			final String indexName,
+			final String typeName,
 			final Short adapterId,
 			final String... additionalAuthorizations ) {
 		// TODO Auto-generated method stub

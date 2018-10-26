@@ -13,9 +13,16 @@
  */
 package org.locationtech.geowave.datastore.hbase;
 
+import org.locationtech.geowave.core.store.DataStoreOptions;
+import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
+import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
+import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
+import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.index.IndexStore;
+import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.metadata.AdapterIndexMappingStoreImpl;
 import org.locationtech.geowave.core.store.metadata.AdapterStoreImpl;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
@@ -29,6 +36,7 @@ import org.locationtech.geowave.datastore.hbase.operations.HBaseOperations;
 import org.locationtech.geowave.datastore.hbase.server.RowMergingServerOp;
 import org.locationtech.geowave.datastore.hbase.server.RowMergingVisibilityServerOp;
 import org.locationtech.geowave.mapreduce.BaseMapReduceDataStore;
+import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 
 public class HBaseDataStore extends
 		BaseMapReduceDataStore
@@ -56,6 +64,27 @@ public class HBaseDataStore extends
 						operations));
 	}
 
+	public HBaseDataStore(
+			final IndexStore indexStore,
+			final PersistentAdapterStore adapterStore,
+			final DataStatisticsStore statisticsStore,
+			final AdapterIndexMappingStore indexMappingStore,
+			final SecondaryIndexDataStore secondaryIndexDataStore,
+			final MapReduceDataStoreOperations operations,
+			final DataStoreOptions options,
+			final InternalAdapterStore adapterMappingStore ) {
+		super(
+				indexStore,
+				adapterStore,
+				statisticsStore,
+				indexMappingStore,
+				secondaryIndexDataStore,
+				operations,
+				options,
+				adapterMappingStore);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	protected <T> void initOnIndexWriterCreate(
 			final InternalDataAdapter<T> adapter,
@@ -63,30 +92,36 @@ public class HBaseDataStore extends
 		final String indexName = index.getName();
 		final boolean rowMerging = adapter.getAdapter() instanceof RowMergingDataAdapter;
 		if (rowMerging) {
-			if (!((HBaseOperations) baseOperations).isRowMergingEnabled(
-					adapter.getAdapterId(),
-					indexName)) {
-				((HBaseOperations) baseOperations).createTable(
-						index.getIndexStrategy().getPredefinedSplits(),
-						index.getName(),
-						false,
-						adapter.getAdapterId());
-				if (baseOptions.isServerSideLibraryEnabled()) {
-					((HBaseOperations) baseOperations).ensureServerSideOperationsObserverAttached(index.getName());
-					ServerOpHelper.addServerSideRowMerging(
-							((RowMergingDataAdapter<?, ?>) adapter.getAdapter()),
+			if (!((HBaseOperations) baseOperations)
+					.isRowMergingEnabled(
 							adapter.getAdapterId(),
-							(ServerSideOperations) baseOperations,
-							RowMergingServerOp.class.getName(),
-							RowMergingVisibilityServerOp.class.getName(),
-							indexName);
+							indexName)) {
+				((HBaseOperations) baseOperations)
+						.createTable(
+								index.getIndexStrategy().getPredefinedSplits(),
+								index.getName(),
+								false,
+								adapter.getAdapterId());
+				if (baseOptions.isServerSideLibraryEnabled()) {
+					((HBaseOperations) baseOperations)
+							.ensureServerSideOperationsObserverAttached(
+									index.getName());
+					ServerOpHelper
+							.addServerSideRowMerging(
+									((RowMergingDataAdapter<?, ?>) adapter.getAdapter()),
+									adapter.getAdapterId(),
+									(ServerSideOperations) baseOperations,
+									RowMergingServerOp.class.getName(),
+									RowMergingVisibilityServerOp.class.getName(),
+									indexName);
 				}
 
-				((HBaseOperations) baseOperations).verifyColumnFamily(
-						adapter.getAdapterId(),
-						false,
-						indexName,
-						true);
+				((HBaseOperations) baseOperations)
+						.verifyColumnFamily(
+								adapter.getAdapterId(),
+								false,
+								indexName,
+								true);
 			}
 		}
 	}

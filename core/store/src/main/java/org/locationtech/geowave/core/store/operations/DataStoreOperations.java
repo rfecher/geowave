@@ -38,6 +38,7 @@ public interface DataStoreOperations
 
 	public boolean deleteAll(
 			String indexName,
+			String typeName,
 			Short adapterId,
 			String... additionalAuthorizations );
 
