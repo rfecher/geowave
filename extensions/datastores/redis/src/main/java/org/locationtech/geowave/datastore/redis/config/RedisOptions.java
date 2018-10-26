@@ -7,6 +7,7 @@ import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.StoreFactoryFamilySpi;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.datastore.redis.RedisStoreFactoryFamily;
+import org.locationtech.geowave.datastore.redis.util.RedisUtils;
 import org.redisson.client.codec.Codec;
 import org.redisson.codec.LZ4Codec;
 import org.redisson.codec.SnappyCodecV2;
@@ -28,6 +29,16 @@ public class RedisOptions extends
 		public boolean isServerSideLibraryEnabled() {
 			return false;
 		}
+
+		@Override
+		protected int defaultMaxRangeDecomposition() {
+			return RedisUtils.REDIS_DEFAULT_MAX_RANGE_DECOMPOSITION;
+		}
+
+		@Override
+		protected int defaultAggregationMaxRangeDecomposition() {
+			return RedisUtils.REDIS_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION;
+		}
 	};
 
 	public RedisOptions() {
@@ -48,6 +59,16 @@ public class RedisOptions extends
 	@Override
 	public DataStoreOptions getStoreOptions() {
 		return baseOptions;
+	}
+
+	public void setAddress(
+			final String address ) {
+		this.address = address;
+	}
+
+	public void setCompression(
+			final Compression compression ) {
+		this.compression = compression;
 	}
 
 	public String getAddress() {
@@ -82,7 +103,7 @@ public class RedisOptions extends
 		}
 	};
 
-	private static class CompressionConverter implements
+	public static class CompressionConverter implements
 			IStringConverter<Compression>
 	{
 

@@ -56,7 +56,8 @@ public class GeoWaveBasicRasterIT extends
 		GeoWaveStoreType.BIGTABLE,
 		GeoWaveStoreType.CASSANDRA,
 		GeoWaveStoreType.DYNAMODB,
-		GeoWaveStoreType.HBASE
+		GeoWaveStoreType.HBASE,
+		GeoWaveStoreType.REDIS
 	})
 	protected DataStorePluginOptions dataStoreOptions;
 

@@ -82,9 +82,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class AccumuloDataStoreStatsTest
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					AccumuloDataStoreStatsTest.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(AccumuloDataStoreStatsTest.class);
 
 	final AccumuloOptions accumuloOptions = new AccumuloOptions();
 
@@ -105,17 +103,15 @@ public class AccumuloDataStoreStatsTest
 		final MockInstance mockInstance = new MockInstance();
 		Connector mockConnector = null;
 		try {
-			mockConnector = mockInstance
-					.getConnector(
-							"root",
-							new PasswordToken(
-									new byte[0]));
+			mockConnector = mockInstance.getConnector(
+					"root",
+					new PasswordToken(
+							new byte[0]));
 		}
 		catch (AccumuloException | AccumuloSecurityException e) {
-			LOGGER
-					.error(
-							"Failed to create mock accumulo connection",
-							e);
+			LOGGER.error(
+					"Failed to create mock accumulo connection",
+					e);
 		}
 		final AccumuloOptions options = new AccumuloOptions();
 
@@ -176,39 +172,33 @@ public class AccumuloDataStoreStatsTest
 	@Test
 	public void test()
 			throws IOException {
-		accumuloOptions
-				.setPersistDataStatistics(
-						true);
+		accumuloOptions.setPersistDataStatistics(true);
 		runtest();
 	}
 
 	private void runtest()
 			throws IOException {
 
-		final Index index = new SpatialDimensionalityTypeProvider()
-				.createIndex(
-						new SpatialOptions());
+		final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
 		final DataTypeAdapter<TestGeometry> adapter = new TestGeometryAdapter();
 
-		final Geometry testGeoFilter = factory
-				.createPolygon(
-						new Coordinate[] {
-							new Coordinate(
-									24,
-									33),
-							new Coordinate(
-									28,
-									33),
-							new Coordinate(
-									28,
-									31),
-							new Coordinate(
-									24,
-									31),
-							new Coordinate(
-									24,
-									33)
-						});
+		final Geometry testGeoFilter = factory.createPolygon(new Coordinate[] {
+			new Coordinate(
+					24,
+					33),
+			new Coordinate(
+					28,
+					33),
+			new Coordinate(
+					28,
+					31),
+			new Coordinate(
+					24,
+					31),
+			new Coordinate(
+					24,
+					33)
+		});
 		ByteArray partitionKey = null;
 		mockDataStore.addType(
 				adapter,
@@ -229,51 +219,34 @@ public class AccumuloDataStoreStatsTest
 							"test_pt_1"),
 					visWriterAAA).getPartitionKeys().iterator().next().getPartitionKey();
 			// they should all be the same partition key, let's just make sure
-			Assert
-					.assertEquals(
-							"test_pt_1 should have the same partition key as test_pt",
-							partitionKey,
-							testPartitionKey);
-			testPartitionKey = indexWriter
-					.write(
-							new TestGeometry(
-									factory
-											.createPoint(
-													new Coordinate(
-															27,
-															32)),
-									"test_pt_2"),
-							visWriterBBB)
-					.getPartitionKeys()
-					.iterator()
-					.next()
-					.getPartitionKey();
-			Assert
-					.assertEquals(
-							"test_pt_2 should have the same partition key as test_pt",
-							partitionKey,
-							testPartitionKey);
+			Assert.assertEquals(
+					"test_pt_1 should have the same partition key as test_pt",
+					partitionKey,
+					testPartitionKey);
+			testPartitionKey = indexWriter.write(
+					new TestGeometry(
+							factory.createPoint(new Coordinate(
+									27,
+									32)),
+							"test_pt_2"),
+					visWriterBBB).getPartitionKeys().iterator().next().getPartitionKey();
+			Assert.assertEquals(
+					"test_pt_2 should have the same partition key as test_pt",
+					partitionKey,
+					testPartitionKey);
 		}
 
 		final SpatialQuery query = new SpatialQuery(
 				testGeoFilter);
 
-		try (CloseableIterator<?> it1 = mockDataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.setAuthorizations(
-										new String[] {
-											"aaa",
-											"bbb"
-										})
-								.constraints(
-										query)
-								.build())) {
+		try (CloseableIterator<?> it1 = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).setAuthorizations(
+				new String[] {
+					"aaa",
+					"bbb"
+				}).constraints(
+				query).build())) {
 			int count = 0;
 			while (it1.hasNext()) {
 				it1.next();
@@ -284,92 +257,56 @@ public class AccumuloDataStoreStatsTest
 					count);
 		}
 
-		final short internalAdapterId = internalAdapterStore
-				.getAdapterId(
-						adapter.getTypeName());
-		Long count = mockDataStore
-				.aggregateStatistics(
-						StatisticsQueryBuilder
-								.newBuilder()
-								.factory()
-								.count()
-								.dataType(
-										adapter.getTypeName())
-								.addAuthorization(
-										"aaa")
-								.addAuthorization(
-										"bbb")
-								.build());
+		final short internalAdapterId = internalAdapterStore.getAdapterId(adapter.getTypeName());
+		Long count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").build());
 		assertEquals(
 				3,
 				count.longValue());
 
-		count = mockDataStore
-				.aggregateStatistics(
-						StatisticsQueryBuilder
-								.newBuilder()
-								.factory()
-								.count()
-								.dataType(
-										adapter.getTypeName())
-								.addAuthorization(
-										"aaa")
-								.build());
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").build());
 		assertEquals(
 				2,
 				count.longValue());
 
-		count = mockDataStore
-				.aggregateStatistics(
-						StatisticsQueryBuilder
-								.newBuilder()
-								.factory()
-								.count()
-								.dataType(
-										adapter.getTypeName())
-								.addAuthorization(
-										"bbb")
-								.build());
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"bbb").build());
 		assertEquals(
 				1,
 				count.longValue());
 
-		BoundingBoxDataStatistics<?> bboxStats = (BoundingBoxDataStatistics<?>) statsStore
-				.getDataStatistics(
-						internalAdapterId,
-						BoundingBoxDataStatistics.STATS_TYPE,
-						new String[] {
-							"aaa"
-						})
-				.next();
-		assertTrue(
-				(bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 26) && (bboxStats.getMinY() == 32)
-						&& (bboxStats.getMaxY() == 32));
+		BoundingBoxDataStatistics<?> bboxStats = (BoundingBoxDataStatistics<?>) statsStore.getDataStatistics(
+				internalAdapterId,
+				BoundingBoxDataStatistics.STATS_TYPE,
+				new String[] {
+					"aaa"
+				}).next();
+		assertTrue((bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 26) && (bboxStats.getMinY() == 32)
+				&& (bboxStats.getMaxY() == 32));
 
-		bboxStats = (BoundingBoxDataStatistics<?>) statsStore
-				.getDataStatistics(
-						internalAdapterId,
-						BoundingBoxDataStatistics.STATS_TYPE,
-						new String[] {
-							"bbb"
-						})
-				.next();
-		assertTrue(
-				(bboxStats.getMinX() == 27) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
-						&& (bboxStats.getMaxY() == 32));
+		bboxStats = (BoundingBoxDataStatistics<?>) statsStore.getDataStatistics(
+				internalAdapterId,
+				BoundingBoxDataStatistics.STATS_TYPE,
+				new String[] {
+					"bbb"
+				}).next();
+		assertTrue((bboxStats.getMinX() == 27) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
+				&& (bboxStats.getMaxY() == 32));
 
-		bboxStats = (BoundingBoxDataStatistics<?>) statsStore
-				.getDataStatistics(
-						internalAdapterId,
-						BoundingBoxDataStatistics.STATS_TYPE,
-						new String[] {
-							"aaa",
-							"bbb"
-						})
-				.next();
-		assertTrue(
-				(bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
-						&& (bboxStats.getMaxY() == 32));
+		bboxStats = (BoundingBoxDataStatistics<?>) statsStore.getDataStatistics(
+				internalAdapterId,
+				BoundingBoxDataStatistics.STATS_TYPE,
+				new String[] {
+					"aaa",
+					"bbb"
+				}).next();
+		assertTrue((bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
+				&& (bboxStats.getMaxY() == 32));
 
 		final AtomicBoolean found = new AtomicBoolean(
 				false);
@@ -385,34 +322,23 @@ public class AccumuloDataStoreStatsTest
 										"test_pt_2".getBytes(StringUtils.getGeoWaveCharset())))).build(),
 				new ScanCallback<TestGeometry, GeoWaveRow>() {
 
-							@Override
-							public void entryScanned(
-									final TestGeometry entry,
-									final GeoWaveRow row ) {
-								found
-										.getAndSet(
-												true);
-							}
-						});
-		assertFalse(
-				found.get());
+					@Override
+					public void entryScanned(
+							final TestGeometry entry,
+							final GeoWaveRow row ) {
+						found.getAndSet(true);
+					}
+				});
+		assertFalse(found.get());
 
-		try (CloseableIterator<?> it1 = mockDataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.setAuthorizations(
-										new String[] {
-											"aaa",
-											"bbb"
-										})
-								.constraints(
-										query)
-								.build())) {
+		try (CloseableIterator<?> it1 = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).setAuthorizations(
+				new String[] {
+					"aaa",
+					"bbb"
+				}).constraints(
+				query).build())) {
 			int c = 0;
 			while (it1.hasNext()) {
 				it1.next();
@@ -422,19 +348,10 @@ public class AccumuloDataStoreStatsTest
 					3,
 					c);
 		}
-		count = mockDataStore
-				.aggregateStatistics(
-						StatisticsQueryBuilder
-								.newBuilder()
-								.factory()
-								.count()
-								.dataType(
-										adapter.getTypeName())
-								.addAuthorization(
-										"aaa")
-								.addAuthorization(
-										"bbb")
-								.build());
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").build());
 		assertEquals(
 				3,
 				count.longValue());
@@ -448,22 +365,14 @@ public class AccumuloDataStoreStatsTest
 						new ByteArray(
 								"test_pt".getBytes(StringUtils.getGeoWaveCharset())))).build());
 
-		try (CloseableIterator<?> it1 = mockDataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.setAuthorizations(
-										new String[] {
-											"aaa",
-											"bbb"
-										})
-								.constraints(
-										query)
-								.build())) {
+		try (CloseableIterator<?> it1 = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).setAuthorizations(
+				new String[] {
+					"aaa",
+					"bbb"
+				}).constraints(
+				query).build())) {
 			int c = 0;
 			while (it1.hasNext()) {
 				it1.next();
@@ -474,160 +383,98 @@ public class AccumuloDataStoreStatsTest
 					c);
 		}
 
-		count = mockDataStore
-				.aggregateStatistics(
-						StatisticsQueryBuilder
-								.newBuilder()
-								.factory()
-								.count()
-								.dataType(
-										adapter.getTypeName())
-								.addAuthorization(
-										"aaa")
-								.addAuthorization(
-										"bbb")
-								.build());
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").addAuthorization(
+				"bbb").build());
 		assertEquals(
 				2,
 				count.longValue());
 
-		count = mockDataStore
-				.aggregateStatistics(
-						StatisticsQueryBuilder
-								.newBuilder()
-								.factory()
-								.count()
-								.dataType(
-										adapter.getTypeName())
-								.addAuthorization(
-										"aaa")
-								.build());
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"aaa").build());
 		assertEquals(
 				1,
 				count.longValue());
 
-		count = mockDataStore
-				.aggregateStatistics(
-						StatisticsQueryBuilder
-								.newBuilder()
-								.factory()
-								.count()
-								.dataType(
-										adapter.getTypeName())
-								.addAuthorization(
-										"bbb")
-								.build());
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"bbb").build());
 		assertEquals(
 				1,
 				count.longValue());
 
-		bboxStats = (BoundingBoxDataStatistics<?>) statsStore
-				.getDataStatistics(
-						internalAdapterId,
-						BoundingBoxDataStatistics.STATS_TYPE,
+		bboxStats = (BoundingBoxDataStatistics<?>) statsStore.getDataStatistics(
+				internalAdapterId,
+				BoundingBoxDataStatistics.STATS_TYPE,
+				new String[] {
+					"aaa"
+				}).next();
+		assertTrue((bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 26) && (bboxStats.getMinY() == 32)
+				&& (bboxStats.getMaxY() == 32));
+
+		bboxStats = (BoundingBoxDataStatistics<?>) statsStore.getDataStatistics(
+				internalAdapterId,
+				BoundingBoxDataStatistics.STATS_TYPE,
+				new String[] {
+					"bbb"
+				}).next();
+		assertTrue((bboxStats.getMinX() == 27) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
+				&& (bboxStats.getMaxY() == 32));
+
+		bboxStats = (BoundingBoxDataStatistics<?>) statsStore.getDataStatistics(
+				internalAdapterId,
+				BoundingBoxDataStatistics.STATS_TYPE,
+				new String[] {
+					"aaa",
+					"bbb"
+				}).next();
+		assertTrue((bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
+				&& (bboxStats.getMaxY() == 32));
+
+		found.set(false);
+
+		assertTrue(((BaseDataStore) mockDataStore).delete(
+				(Query) QueryBuilder.newBuilder().addTypeName(
+						adapter.getTypeName()).indexName(
+						index.getName()).setAuthorizations(
 						new String[] {
 							"aaa"
-						})
-				.next();
-		assertTrue(
-				(bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 26) && (bboxStats.getMinY() == 32)
-						&& (bboxStats.getMaxY() == 32));
+						}).build(),
+				new ScanCallback<TestGeometry, GeoWaveRow>() {
 
-		bboxStats = (BoundingBoxDataStatistics<?>) statsStore
-				.getDataStatistics(
-						internalAdapterId,
-						BoundingBoxDataStatistics.STATS_TYPE,
+					@Override
+					public void entryScanned(
+							final TestGeometry entry,
+							final GeoWaveRow row ) {
+						found.getAndSet(true);
+					}
+				}));
+		assertTrue(((BaseDataStore) mockDataStore).delete(
+				(Query) QueryBuilder.newBuilder().addTypeName(
+						adapter.getTypeName()).indexName(
+						index.getName()).setAuthorizations(
 						new String[] {
 							"bbb"
-						})
-				.next();
-		assertTrue(
-				(bboxStats.getMinX() == 27) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
-						&& (bboxStats.getMaxY() == 32));
+						}).build(),
+				new ScanCallback<TestGeometry, GeoWaveRow>() {
 
-		bboxStats = (BoundingBoxDataStatistics<?>) statsStore
-				.getDataStatistics(
-						internalAdapterId,
-						BoundingBoxDataStatistics.STATS_TYPE,
-						new String[] {
-							"aaa",
-							"bbb"
-						})
-				.next();
-		assertTrue(
-				(bboxStats.getMinX() == 25) && (bboxStats.getMaxX() == 27) && (bboxStats.getMinY() == 32)
-						&& (bboxStats.getMaxY() == 32));
-
-		found
-				.set(
-						false);
-
-		assertTrue(
-				((BaseDataStore) mockDataStore)
-						.delete(
-								(Query) QueryBuilder
-										.newBuilder()
-										.addTypeName(
-												adapter.getTypeName())
-										.indexName(
-												index.getName())
-										.setAuthorizations(
-												new String[] {
-													"aaa"
-												})
-										.build(),
-								new ScanCallback<TestGeometry, GeoWaveRow>() {
-
-									@Override
-									public void entryScanned(
-											final TestGeometry entry,
-											final GeoWaveRow row ) {
-										found
-												.getAndSet(
-														true);
-									}
-								}));
-		assertTrue(
-				((BaseDataStore) mockDataStore)
-						.delete(
-								(Query) QueryBuilder
-										.newBuilder()
-										.addTypeName(
-												adapter.getTypeName())
-										.indexName(
-												index.getName())
-										.setAuthorizations(
-												new String[] {
-													"bbb"
-												})
-										.build(),
-								new ScanCallback<TestGeometry, GeoWaveRow>() {
-
-									@Override
-									public void entryScanned(
-											final TestGeometry entry,
-											final GeoWaveRow row ) {
-										found
-												.getAndSet(
-														true);
-									}
-								}));
-		try (CloseableIterator<?> it1 = mockDataStore
-				.query(
-						QueryBuilder
-								.newBuilder()
-								.addTypeName(
-										adapter.getTypeName())
-								.indexName(
-										index.getName())
-								.setAuthorizations(
-										new String[] {
-											"aaa",
-											"bbb"
-										})
-								.constraints(
-										query)
-								.build())) {
+					@Override
+					public void entryScanned(
+							final TestGeometry entry,
+							final GeoWaveRow row ) {
+						found.getAndSet(true);
+					}
+				}));
+		try (CloseableIterator<?> it1 = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(
+				adapter.getTypeName()).indexName(
+				index.getName()).setAuthorizations(
+				new String[] {
+					"aaa",
+					"bbb"
+				}).constraints(
+				query).build())) {
 			int c = 0;
 			while (it1.hasNext()) {
 				it1.next();
@@ -638,98 +485,64 @@ public class AccumuloDataStoreStatsTest
 					c);
 		}
 
-		assertFalse(
-				statsStore
-						.getDataStatistics(
-								internalAdapterId,
-								CountDataStatistics.STATS_TYPE,
-								new String[] {
-									"aaa",
-									"bbb"
-								})
-						.hasNext());
-		mockDataStore
-				.addType(
-						adapter,
-						index);
-		try (Writer<TestGeometry> indexWriter = mockDataStore
-				.createWriter(
-						adapter.getTypeName())) {
-			indexWriter
-					.write(
-							new TestGeometry(
-									factory
-											.createPoint(
-													new Coordinate(
-															25,
-															32)),
-									"test_pt_2"));
+		assertFalse(statsStore.getDataStatistics(
+				internalAdapterId,
+				CountDataStatistics.STATS_TYPE,
+				new String[] {
+					"aaa",
+					"bbb"
+				}).hasNext());
+		mockDataStore.addType(
+				adapter,
+				index);
+		try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
+			indexWriter.write(new TestGeometry(
+					factory.createPoint(new Coordinate(
+							25,
+							32)),
+					"test_pt_2"));
 		}
-		count = mockDataStore
-				.aggregateStatistics(
-						StatisticsQueryBuilder
-								.newBuilder()
-								.factory()
-								.count()
-								.dataType(
-										adapter.getTypeName())
-								.addAuthorization(
-										"bbb")
-								.build());
+		count = mockDataStore.aggregateStatistics(StatisticsQueryBuilder.newBuilder().factory().count().dataType(
+				adapter.getTypeName()).addAuthorization(
+				"bbb").build());
 		assertEquals(
 				1,
 				count.longValue());
 
-		final StatisticsId id = StatisticsQueryBuilder
-				.newBuilder()
-				.factory()
-				.rowHistogram()
-				.indexName(
-						index.getName())
-				.partition(
-						partitionKey)
-				.build()
-				.getId();
+		final StatisticsId id = StatisticsQueryBuilder.newBuilder().factory().rowHistogram().indexName(
+				index.getName()).partition(
+				partitionKey).build().getId();
 		RowRangeHistogramStatistics<?> histogramStats;
-		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it = statsStore
-				.getDataStatistics(
-						internalAdapterId,
-						id.getExtendedId(),
-						id.getType(),
-						new String[] {
-							"bbb"
-						})) {
-			assertTrue(
-					it.hasNext());
+		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it = statsStore.getDataStatistics(
+				internalAdapterId,
+				id.getExtendedId(),
+				id.getType(),
+				new String[] {
+					"bbb"
+				})) {
+			assertTrue(it.hasNext());
 			histogramStats = (RowRangeHistogramStatistics<?>) it.next();
-			assertTrue(
-					histogramStats != null);
+			assertTrue(histogramStats != null);
 		}
 
-		statsStore
-				.removeAllStatistics(
-						internalAdapterId,
-						"bbb");
-		assertFalse(
-				statsStore
-						.getDataStatistics(
-								internalAdapterId,
-								CountDataStatistics.STATS_TYPE,
-								new String[] {
-									"bbb"
-								})
-						.hasNext());
+		statsStore.removeAllStatistics(
+				internalAdapterId,
+				"bbb");
+		assertFalse(statsStore.getDataStatistics(
+				internalAdapterId,
+				CountDataStatistics.STATS_TYPE,
+				new String[] {
+					"bbb"
+				}).hasNext());
 
-		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it = statsStore
-				.getDataStatistics(
-						internalAdapterId,
-						id.getExtendedId(),
-						id.getType(),
-						new String[] {
-							"bbb"
-						})) {
-			assertFalse(
-					it.hasNext());
+		try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it = statsStore.getDataStatistics(
+				internalAdapterId,
+				id.getExtendedId(),
+				id.getType(),
+				new String[] {
+					"bbb"
+				})) {
+			assertFalse(it.hasNext());
 		}
 	}
 
@@ -813,12 +626,8 @@ public class AccumuloDataStoreStatsTest
 		private static final List<PersistentIndexFieldHandler<TestGeometry, ? extends CommonIndexValue, Object>> COMMON_FIELD_HANDLER_LIST = new ArrayList<>();
 
 		static {
-			COMMON_FIELD_HANDLER_LIST
-					.add(
-							GEOM_FIELD_HANDLER);
-			NATIVE_FIELD_HANDLER_LIST
-					.add(
-							ID_FIELD_HANDLER);
+			COMMON_FIELD_HANDLER_LIST.add(GEOM_FIELD_HANDLER);
+			NATIVE_FIELD_HANDLER_LIST.add(ID_FIELD_HANDLER);
 		}
 
 		public TestGeometryAdapter() {
@@ -843,19 +652,11 @@ public class AccumuloDataStoreStatsTest
 		@Override
 		public FieldReader getReader(
 				final String fieldId ) {
-			if (fieldId
-					.equals(
-							GEOM)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								Geometry.class);
+			if (fieldId.equals(GEOM)) {
+				return FieldUtils.getDefaultReaderForClass(Geometry.class);
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
-				return FieldUtils
-						.getDefaultReaderForClass(
-								String.class);
+			else if (fieldId.equals(ID)) {
+				return FieldUtils.getDefaultReaderForClass(String.class);
 			}
 			return null;
 		}
@@ -863,19 +664,11 @@ public class AccumuloDataStoreStatsTest
 		@Override
 		public FieldWriter getWriter(
 				final String fieldId ) {
-			if (fieldId
-					.equals(
-							GEOM)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								Geometry.class);
+			if (fieldId.equals(GEOM)) {
+				return FieldUtils.getDefaultWriterForClass(Geometry.class);
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
-				return FieldUtils
-						.getDefaultWriterForClass(
-								String.class);
+			else if (fieldId.equals(ID)) {
+				return FieldUtils.getDefaultWriterForClass(String.class);
 			}
 			return null;
 		}
@@ -883,20 +676,14 @@ public class AccumuloDataStoreStatsTest
 		@Override
 		public InternalDataStatistics<TestGeometry, ?, ?> createDataStatistics(
 				final StatisticsId statisticsId ) {
-			if (BoundingBoxDataStatistics.STATS_TYPE
-					.equals(
-							statisticsId.getType())) {
+			if (BoundingBoxDataStatistics.STATS_TYPE.equals(statisticsId.getType())) {
 				return new GeoBoundingBoxStatistics();
 			}
-			else if (CountDataStatistics.STATS_TYPE
-					.equals(
-							statisticsId.getType())) {
+			else if (CountDataStatistics.STATS_TYPE.equals(statisticsId.getType())) {
 				return new CountDataStatistics<>();
 			}
-			LOGGER
-					.warn(
-							"Unrecognized statistics type " + statisticsId.getType().getString()
-									+ "; using count statistic");
+			LOGGER.warn("Unrecognized statistics type " + statisticsId.getType().getString()
+					+ "; using count statistic");
 			return null;
 		}
 
@@ -918,14 +705,10 @@ public class AccumuloDataStoreStatsTest
 				public void setField(
 						final String id,
 						final Object fieldValue ) {
-					if (id
-							.equals(
-									GEOM)) {
+					if (id.equals(GEOM)) {
 						geom = (Geometry) fieldValue;
 					}
-					else if (id
-							.equals(
-									ID)) {
+					else if (id.equals(ID)) {
 						this.id = (String) fieldValue;
 					}
 				}
@@ -933,19 +716,11 @@ public class AccumuloDataStoreStatsTest
 				@Override
 				public void setFields(
 						final Map<String, Object> values ) {
-					if (values
-							.containsKey(
-									GEOM)) {
-						geom = (Geometry) values
-								.get(
-										GEOM);
+					if (values.containsKey(GEOM)) {
+						geom = (Geometry) values.get(GEOM);
 					}
-					if (values
-							.containsKey(
-									ID)) {
-						id = (String) values
-								.get(
-										ID);
+					if (values.containsKey(ID)) {
+						id = (String) values.get(ID);
 					}
 				}
 			};
@@ -962,21 +737,15 @@ public class AccumuloDataStoreStatsTest
 				final String fieldId ) {
 			int i = 0;
 			for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model.getDimensions()) {
-				if (fieldId
-						.equals(
-								dimensionField.getFieldName())) {
+				if (fieldId.equals(dimensionField.getFieldName())) {
 					return i;
 				}
 				i++;
 			}
-			if (fieldId
-					.equals(
-							GEOM)) {
+			if (fieldId.equals(GEOM)) {
 				return i;
 			}
-			else if (fieldId
-					.equals(
-							ID)) {
+			else if (fieldId.equals(ID)) {
 				return i + 1;
 			}
 			return -1;

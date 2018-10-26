@@ -1,6 +1,6 @@
 package org.locationtech.geowave.datastore.redis.operations;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
@@ -15,10 +15,10 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 public class RedisWriter implements
 		RowWriter
 {
-	private static ByteArrayId EMPTY_PARTITION_KEY = new ByteArrayId();
+	private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
 	private final RedissonClient client;
 	private final String setNamePrefix;
-	private final LoadingCache<ByteArrayId, RScoredSortedSet<GeoWaveRedisPersistedRow>> setCache = Caffeine
+	private final LoadingCache<ByteArray, RScoredSortedSet<GeoWaveRedisPersistedRow>> setCache = Caffeine
 			.newBuilder()
 			.build(
 					partitionKey -> getSet(
@@ -58,12 +58,12 @@ public class RedisWriter implements
 	@Override
 	public void write(
 			final GeoWaveRow row ) {
-		ByteArrayId partitionKey;
+		ByteArray partitionKey;
 		if ((row.getPartitionKey() == null) || (row.getPartitionKey().length == 0)) {
 			partitionKey = EMPTY_PARTITION_KEY;
 		}
 		else {
-			partitionKey = new ByteArrayId(
+			partitionKey = new ByteArray(
 					row.getPartitionKey());
 		}
 		for (final GeoWaveValue value : row.getFieldValues()) {

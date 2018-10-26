@@ -5,6 +5,8 @@ import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.datastore.dynamodb.DynamoDBOptions;
 import org.locationtech.geowave.datastore.redis.RedisStoreFactoryFamily;
+import org.locationtech.geowave.datastore.redis.config.RedisOptions;
+import org.locationtech.geowave.datastore.redis.operations.RedisOperations;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
 
 import redis.embedded.RedisServer;
@@ -17,7 +19,7 @@ public class RedisStoreTestEnvironment extends
 
 	private static RedisStoreTestEnvironment singletonInstance = null;
 
-    private RedisServer redisServer;
+	private RedisServer redisServer;
 
 	public static synchronized RedisStoreTestEnvironment getInstance() {
 		if (singletonInstance == null) {
@@ -30,22 +32,23 @@ public class RedisStoreTestEnvironment extends
 	public void setup() {
 		// DynamoDB IT's rely on an external dynamo local process
 		if (redisServer == null) {
-	         redisServer = RedisServer.builder()
-	                    .port(6379)
-	                    .setting("bind 127.0.0.1") // secure + prevents popups on Windows
-	                    .setting("maxmemory 128M")
-	                    .build();
-	            redisServer.start();
+			redisServer = RedisServer.builder().port(
+					6379).setting(
+					"bind 127.0.0.1") // secure + prevents popups on Windows
+					.setting(
+							"maxmemory 128M")
+					.build();
+			redisServer.start();
 		}
 
 	}
 
 	@Override
 	public void tearDown() {
-        if (redisServer != null) {
-            redisServer.stop();
-            redisServer = null;
-        }
+		if (redisServer != null) {
+			redisServer.stop();
+			redisServer = null;
+		}
 	}
 
 	@Override
@@ -61,7 +64,7 @@ public class RedisStoreTestEnvironment extends
 	@Override
 	protected void initOptions(
 			final StoreFactoryOptions options ) {
-		((DynamoDBOptions) options).setEndpoint("http://localhost:8000");
+		((RedisOptions) options).setAddress("redis://127.0.0.1:6379");
 	}
 
 	@Override

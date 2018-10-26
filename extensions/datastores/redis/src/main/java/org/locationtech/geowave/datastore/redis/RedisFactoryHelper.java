@@ -10,14 +10,12 @@
  ******************************************************************************/
 package org.locationtech.geowave.datastore.redis;
 
-import org.locationtech.geowave.core.store.BaseDataStoreOptions;
 import org.locationtech.geowave.core.store.StoreFactoryHelper;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
 import org.locationtech.geowave.datastore.redis.config.RedisOptions;
 import org.locationtech.geowave.datastore.redis.operations.RedisOperations;
 
-import com.beust.jcommander.ParametersDelegate;
 
 public class RedisFactoryHelper implements
 		StoreFactoryHelper

@@ -24,20 +24,12 @@ public class GeoWaveRedisRowCodec extends
 			final byte[] dataId = new byte[buf.readUnsignedByte()];
 			final byte[] fieldMask = new byte[buf.readUnsignedByte()];
 			final byte[] visibility = new byte[buf.readUnsignedByte()];
-			final byte[] value = new byte[buf.readUnsignedByte()];
+			final byte[] value = new byte[buf.readUnsignedShort()];
 			final short numDuplicates = buf.readUnsignedByte();
-			buf
-					.readBytes(
-							dataId);
-			buf
-					.readBytes(
-							fieldMask);
-			buf
-					.readBytes(
-							visibility);
-			buf
-					.readBytes(
-							value);
+			buf.readBytes(dataId);
+			buf.readBytes(fieldMask);
+			buf.readBytes(visibility);
+			buf.readBytes(value);
 			return new GeoWaveRedisPersistedRow(
 					numDuplicates,
 					dataId,
@@ -55,33 +47,16 @@ public class GeoWaveRedisRowCodec extends
 			if (in instanceof GeoWaveRedisPersistedRow) {
 				final GeoWaveRedisPersistedRow row = (GeoWaveRedisPersistedRow) in;
 				final ByteBuf out = ByteBufAllocator.DEFAULT.buffer();
-				out
-						.writeByte(
-								row.getDataId().length);
-				out
-						.writeByte(
-								row.getFieldMask().length);
-				out
-						.writeByte(
-								row.getVisibility().length);
-				out
-						.writeByte(
-								row.getValue().length);
-				out
-						.writeByte(
-								row.getNumDuplicates());
-				out
-						.writeBytes(
-								row.getDataId());
-				out
-						.writeBytes(
-								row.getFieldMask());
-				out
-						.writeBytes(
-								row.getVisibility());
-				out
-						.writeBytes(
-								row.getValue());
+				out.writeByte(row.getDataId().length);
+				out.writeByte(row.getFieldMask().length);
+				out.writeByte(row.getVisibility().length);
+				out.writeShort(row.getValue().length);
+				out.writeByte(row.getNumDuplicates());
+				out.writeBytes(row.getDataId());
+				out.writeBytes(row.getFieldMask());
+				out.writeBytes(row.getVisibility());
+				out.writeBytes(row.getValue());
+				return out;
 			}
 			throw new IOException(
 					"Encoder only supports GeoWaveRedisRow");

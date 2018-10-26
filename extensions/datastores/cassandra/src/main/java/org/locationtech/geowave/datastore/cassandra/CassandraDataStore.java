@@ -61,7 +61,7 @@ public class CassandraDataStore extends
 				new InternalAdapterStoreImpl(
 						operations));
 	}
-	
+
 	@Override
 	public void prepareRecordWriter(
 			final Configuration conf ) {

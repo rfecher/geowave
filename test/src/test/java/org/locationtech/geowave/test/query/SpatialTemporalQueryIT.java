@@ -70,7 +70,8 @@ import com.vividsolutions.jts.geom.Point;
 @GeoWaveTestStore(value = {
 	GeoWaveStoreType.ACCUMULO,
 	GeoWaveStoreType.CASSANDRA,
-	GeoWaveStoreType.HBASE
+	GeoWaveStoreType.HBASE,
+	GeoWaveStoreType.REDIS
 })
 public class SpatialTemporalQueryIT
 {

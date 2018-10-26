@@ -24,7 +24,7 @@ public class GeoWaveMetadataCodec extends
 			final byte[] primaryId = new byte[buf.readUnsignedByte()];
 			final byte[] secondaryId = new byte[buf.readUnsignedByte()];
 			final byte[] visibility = new byte[buf.readUnsignedByte()];
-			final byte[] value = new byte[buf.readUnsignedByte()];
+			final byte[] value = new byte[buf.readUnsignedShort()];
 			buf
 					.readBytes(
 							primaryId);
@@ -52,38 +52,43 @@ public class GeoWaveMetadataCodec extends
 			if (in instanceof GeoWaveMetadata) {
 				final GeoWaveMetadata md = (GeoWaveMetadata) in;
 				final ByteBuf out = ByteBufAllocator.DEFAULT.buffer();
+				byte[] safeVisibility = md.getVisibility() != null ? md.getVisibility() : new byte[0];
+				byte[] safeSecondaryId = md.getSecondaryId() != null ? md.getSecondaryId() : new byte[0];
 				out
 						.writeByte(
 								md.getPrimaryId().length);
 				out
 						.writeByte(
-								md.getSecondaryId().length);
+								safeSecondaryId.length);
 				out
 						.writeByte(
-								md.getVisibility().length);
+								safeVisibility.length);
 				out
-						.writeByte(
+						.writeShort(
 								md.getValue().length);
 				out
 						.writeBytes(
 								md.getPrimaryId());
 				out
 						.writeBytes(
-								md.getSecondaryId());
+								safeSecondaryId);
 				out
 						.writeBytes(
-								md.getVisibility());
+								safeVisibility);
 				out
 						.writeBytes(
 								md.getValue());
+				return out;
 			}
-			throw new IOException(
-					"Encoder only supports GeoWave metadata");
+			else {
+				throw new IOException(
+						"Encoder only supports GeoWave metadata");
+			}
 		}
 	};
 
-	private GeoWaveMetadataCodec() {
-	}
+	private GeoWaveMetadataCodec() {}
+
 	@Override
 	public Decoder<Object> getValueDecoder() {
 		return decoder;

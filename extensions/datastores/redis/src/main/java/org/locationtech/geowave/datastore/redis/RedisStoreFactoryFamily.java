@@ -24,7 +24,7 @@ public class RedisStoreFactoryFamily extends
 		super(
 				TYPE,
 				DESCRIPTION,
-		new RedisFactoryHelper());
+				new RedisFactoryHelper());
 	}
 
 	@Override

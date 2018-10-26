@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataQuery;
@@ -20,12 +20,12 @@ import com.google.common.collect.Iterators;
 public class RedisMetadataReader implements
 		MetadataReader
 {
-	private RScoredSortedSet<GeoWaveMetadata> set;
-	private MetadataType metadataType;
+	private final RScoredSortedSet<GeoWaveMetadata> set;
+	private final MetadataType metadataType;
 
 	public RedisMetadataReader(
-			RScoredSortedSet<GeoWaveMetadata> set,
-			MetadataType metadataType ) {
+			final RScoredSortedSet<GeoWaveMetadata> set,
+			final MetadataType metadataType ) {
 		this.set = set;
 		this.metadataType = metadataType;
 	}
@@ -35,20 +35,37 @@ public class RedisMetadataReader implements
 			final MetadataQuery query ) {
 		Iterator<GeoWaveMetadata> results;
 		if (query.getPrimaryId() != null) {
-			results = set
-					.valueRange(
-							RedisUtils
-									.getScore(
-											query.getPrimaryId()),
-							true,
-							RedisUtils
-									.getScore(
-											ByteArrayId
-													.getNextPrefix(
-															query.getPrimaryId())),
-							false)
-					.iterator();
-
+			if (query.getPrimaryId().length > 6) {
+				// this primary ID and next prefix are going to be the same
+				// score
+				final double score = RedisUtils
+						.getScore(
+								query.getPrimaryId());
+				results = set
+						.valueRange(
+								score,
+								true,
+								score,
+								true)
+						.iterator();
+			}
+			else {
+				// the primary ID prefix is short enough that we can use the
+				// score of the next prefix to subset the data
+				results = set
+						.valueRange(
+								RedisUtils
+										.getScore(
+												query.getPrimaryId()),
+								true,
+								RedisUtils
+										.getScore(
+												ByteArray
+														.getNextPrefix(
+																query.getPrimaryId())),
+								false)
+						.iterator();
+			}
 		}
 		else {
 			results = set.iterator();

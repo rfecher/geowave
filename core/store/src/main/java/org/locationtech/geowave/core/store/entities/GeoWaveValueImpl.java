@@ -40,18 +40,15 @@ public class GeoWaveValueImpl implements
 			byte[] intermediateVisibility = values[0].getVisibility();
 			byte[] intermediateValue = values[0].getValue();
 			for (int i = 1; i < values.length; i++) {
-				intermediateFieldMask = BitmaskUtils
-						.generateANDBitmask(
-								intermediateFieldMask,
-								values[i].getFieldMask());
-				intermediateVisibility = DataStoreUtils
-						.mergeVisibilities(
-								intermediateVisibility,
-								values[i].getVisibility());
-				intermediateValue = ByteArrayUtils
-						.combineArrays(
-								intermediateValue,
-								values[i].getValue());
+				intermediateFieldMask = BitmaskUtils.generateANDBitmask(
+						intermediateFieldMask,
+						values[i].getFieldMask());
+				intermediateVisibility = DataStoreUtils.mergeVisibilities(
+						intermediateVisibility,
+						values[i].getVisibility());
+				intermediateValue = ByteArrayUtils.combineArrays(
+						intermediateValue,
+						values[i].getValue());
 
 			}
 			fieldMask = intermediateFieldMask;
@@ -88,15 +85,9 @@ public class GeoWaveValueImpl implements
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + Arrays
-				.hashCode(
-						fieldMask);
-		result = (prime * result) + Arrays
-				.hashCode(
-						value);
-		result = (prime * result) + Arrays
-				.hashCode(
-						visibility);
+		result = (prime * result) + Arrays.hashCode(fieldMask);
+		result = (prime * result) + Arrays.hashCode(value);
+		result = (prime * result) + Arrays.hashCode(visibility);
 		return result;
 	}
 
@@ -113,22 +104,19 @@ public class GeoWaveValueImpl implements
 			return false;
 		}
 		final GeoWaveValueImpl other = (GeoWaveValueImpl) obj;
-		if (!Arrays
-				.equals(
-						fieldMask,
-						other.fieldMask)) {
+		if (!Arrays.equals(
+				fieldMask,
+				other.fieldMask)) {
 			return false;
 		}
-		if (!Arrays
-				.equals(
-						value,
-						other.value)) {
+		if (!Arrays.equals(
+				value,
+				other.value)) {
 			return false;
 		}
-		if (!Arrays
-				.equals(
-						visibility,
-						other.visibility)) {
+		if (!Arrays.equals(
+				visibility,
+				other.visibility)) {
 			return false;
 		}
 		return true;

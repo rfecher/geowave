@@ -92,36 +92,30 @@ public class HBaseDataStore extends
 		final String indexName = index.getName();
 		final boolean rowMerging = adapter.getAdapter() instanceof RowMergingDataAdapter;
 		if (rowMerging) {
-			if (!((HBaseOperations) baseOperations)
-					.isRowMergingEnabled(
-							adapter.getAdapterId(),
-							indexName)) {
-				((HBaseOperations) baseOperations)
-						.createTable(
-								index.getIndexStrategy().getPredefinedSplits(),
-								index.getName(),
-								false,
-								adapter.getAdapterId());
+			if (!((HBaseOperations) baseOperations).isRowMergingEnabled(
+					adapter.getAdapterId(),
+					indexName)) {
+				((HBaseOperations) baseOperations).createTable(
+						index.getIndexStrategy().getPredefinedSplits(),
+						index.getName(),
+						false,
+						adapter.getAdapterId());
 				if (baseOptions.isServerSideLibraryEnabled()) {
-					((HBaseOperations) baseOperations)
-							.ensureServerSideOperationsObserverAttached(
-									index.getName());
-					ServerOpHelper
-							.addServerSideRowMerging(
-									((RowMergingDataAdapter<?, ?>) adapter.getAdapter()),
-									adapter.getAdapterId(),
-									(ServerSideOperations) baseOperations,
-									RowMergingServerOp.class.getName(),
-									RowMergingVisibilityServerOp.class.getName(),
-									indexName);
+					((HBaseOperations) baseOperations).ensureServerSideOperationsObserverAttached(index.getName());
+					ServerOpHelper.addServerSideRowMerging(
+							((RowMergingDataAdapter<?, ?>) adapter.getAdapter()),
+							adapter.getAdapterId(),
+							(ServerSideOperations) baseOperations,
+							RowMergingServerOp.class.getName(),
+							RowMergingVisibilityServerOp.class.getName(),
+							indexName);
 				}
 
-				((HBaseOperations) baseOperations)
-						.verifyColumnFamily(
-								adapter.getAdapterId(),
-								false,
-								indexName,
-								true);
+				((HBaseOperations) baseOperations).verifyColumnFamily(
+						adapter.getAdapterId(),
+						false,
+						indexName,
+						true);
 			}
 		}
 	}

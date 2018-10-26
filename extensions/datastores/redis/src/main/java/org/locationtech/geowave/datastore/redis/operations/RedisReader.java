@@ -6,15 +6,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -92,7 +91,7 @@ public class RedisReader<T> implements
 										.getTypeName(
 												adapterId),
 								readerParams.getIndex().getName());
-				final Stream<Pair<ByteArrayId, Iterator<ScoredEntry<GeoWaveRedisPersistedRow>>>> streamIt = RedisUtils
+				final Stream<Pair<ByteArray, Iterator<ScoredEntry<GeoWaveRedisPersistedRow>>>> streamIt = RedisUtils
 						.getPartitions(
 								client,
 								setNamePrefix)
@@ -143,7 +142,7 @@ public class RedisReader<T> implements
 			final String namespace,
 			final Collection<SinglePartitionQueryRanges> ranges,
 			final Set<String> authorizations ) {
-		final List<CloseableIterator<T>> list = Arrays
+		Iterator<CloseableIterator> it = Arrays
 				.stream(
 						ArrayUtils
 								.toObject(
@@ -163,41 +162,42 @@ public class RedisReader<T> implements
 								ranges,
 								readerParams.getRowTransformer(),
 								new ClientVisibilityFilter(
-										authorizations)).results())
-				.collect(
-						Collectors.toList());
+										authorizations)).results()).iterator();
+		CloseableIterator<T>[] itArray = Iterators.toArray(it, CloseableIterator.class);
 		return new CloseableIteratorWrapper<>(
 				new Closeable() {
+					AtomicBoolean closed = new AtomicBoolean(
+							false);
 
 					@Override
 					public void close()
 							throws IOException {
-						for (final CloseableIterator<T> it : list) {
-							it.close();
+						if (!closed
+								.getAndSet(
+										true)) {
+							Arrays.stream(itArray)
+									.forEach(
+											it -> it.close());
 						}
 					}
 				},
 				Iterators
-						.concat(
-								list.iterator()));
+						.concat(itArray));
 	}
 
 	private CloseableIterator<T> createIteratorForRecordReader(
 			final RedissonClient client,
 			final RecordReaderParams<T> recordReaderParams,
 			final String namespace ) {
-		final short[] adapterIds = recordReaderParams.getAdapterIds() != null ? recordReaderParams.getAdapterIds()
-				: new short[0];
-
 		final GeoWaveRowRange range = recordReaderParams.getRowRange();
-		final ByteArrayId startKey = range.isInfiniteStartSortKey() ? null
-				: new ByteArrayId(
+		final ByteArray startKey = range.isInfiniteStartSortKey() ? null
+				: new ByteArray(
 						range.getStartSortKey());
-		final ByteArrayId stopKey = range.isInfiniteStopSortKey() ? null
-				: new ByteArrayId(
+		final ByteArray stopKey = range.isInfiniteStopSortKey() ? null
+				: new ByteArray(
 						range.getEndSortKey());
 		final SinglePartitionQueryRanges partitionRange = new SinglePartitionQueryRanges(
-				new ByteArrayId(
+				new ByteArray(
 						range.getPartitionKey()),
 				Collections
 						.singleton(

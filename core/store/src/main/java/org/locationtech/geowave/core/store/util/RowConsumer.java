@@ -20,9 +20,7 @@ import org.slf4j.LoggerFactory;
 public class RowConsumer<T> implements
 		Iterator<T>
 {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(
-					RowConsumer.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(RowConsumer.class);
 	public static final Object POISON = new Object();
 	private Object nextRow = null;
 	private final BlockingQueue<Object> blockingQueue;
@@ -42,35 +40,29 @@ public class RowConsumer<T> implements
 				nextRow = blockingQueue.take();
 			}
 			catch (final InterruptedException e) {
-				LOGGER
-						.warn(
-								"Interrupted while waiting on hasNext",
-								e);
+				LOGGER.warn(
+						"Interrupted while waiting on hasNext",
+						e);
 				return false;
 			}
 		}
-		if (!nextRow
-				.equals(
-						POISON)) {
+		if (!nextRow.equals(POISON)) {
 			return true;
 		}
 		else {
 			try {
-				blockingQueue
-						.put(
-								POISON);
+				blockingQueue.put(POISON);
 			}
 			catch (final InterruptedException e) {
-				LOGGER
-						.warn(
-								"Interrupted while finishing consuming from queue",
-								e);
+				LOGGER.warn(
+						"Interrupted while finishing consuming from queue",
+						e);
 			}
 			nextRow = null;
 			return false;
 		}
 	}
-
+	int count = 0;
 	@Override
 	public T next() {
 		final T retVal = (T) nextRow;

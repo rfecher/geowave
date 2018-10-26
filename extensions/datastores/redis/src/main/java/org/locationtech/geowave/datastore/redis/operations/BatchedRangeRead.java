@@ -21,7 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -71,8 +71,8 @@ public class BatchedRangeRead<T>
 
 	private final static int MAX_CONCURRENT_READ = 100;
 	private final static int MAX_BOUNDED_READS_ENQUEUED = 1000000;
-	private static ByteArrayId EMPTY_PARTITION_KEY = new ByteArrayId();
-	private final LoadingCache<ByteArrayId, RScoredSortedSet<GeoWaveRedisPersistedRow>> setCache = Caffeine
+	private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
+	private final LoadingCache<ByteArray, RScoredSortedSet<GeoWaveRedisPersistedRow>> setCache = Caffeine
 			.newBuilder()
 			.build(
 					partitionKey -> getSet(
@@ -156,23 +156,27 @@ public class BatchedRangeRead<T>
 								1);
 						for (final RangeReadInfo r : reads) {
 							try {
-								ByteArrayId partitionKey;
+								ByteArray partitionKey;
 								if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
 									partitionKey = EMPTY_PARTITION_KEY;
 								}
 								else {
-									partitionKey = new ByteArrayId(
+									partitionKey = new ByteArray(
 											r.partitionKey);
 								}
 								readSemaphore.acquire();
-
 								final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f = setCache
-										.get(partitionKey)
+										.get(
+												partitionKey)
 										.entryRangeAsync(
 												r.startScore,
 												true,
 												r.endScore,
-												false);
+												// if we don't have enough
+												// precision we need to make
+												// sure the end is inclusive
+												r.endScore <= r.startScore);
+								queryCount.incrementAndGet();
 								f
 										.thenApply(
 												result -> {
@@ -290,7 +294,7 @@ public class BatchedRangeRead<T>
 						}
 					}
 				},
-				new RowConsumer(
+				new RowConsumer<>(
 						results));
 	}
 

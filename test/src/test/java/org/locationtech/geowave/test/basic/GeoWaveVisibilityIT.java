@@ -66,7 +66,8 @@ public class GeoWaveVisibilityIT extends
 		GeoWaveStoreType.ACCUMULO,
 		GeoWaveStoreType.CASSANDRA,
 		GeoWaveStoreType.HBASE,
-		GeoWaveStoreType.DYNAMODB
+		GeoWaveStoreType.DYNAMODB,
+		GeoWaveStoreType.REDIS
 	})
 	protected DataStorePluginOptions dataStoreOptions;
 

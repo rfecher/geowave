@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.locationtech.geowave.core.index.ByteArrayId;
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataType;
@@ -16,6 +16,9 @@ import com.google.common.collect.Streams;
 
 public class RedisUtils
 {
+	public static int REDIS_DEFAULT_MAX_RANGE_DECOMPOSITION = 250;
+	public static int REDIS_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION = 250;
+
 	public static RScoredSortedSet<GeoWaveMetadata> getMetadataSet(
 			final RedissonClient client,
 			final String namespace,
@@ -146,12 +149,12 @@ public class RedisUtils
 
 			System.err
 					.println(
-							new ByteArrayId(
+							new ByteArray(
 									shift(
 											val)).getHexString());
 			System.err
 					.println(
-							new ByteArrayId(
+							new ByteArray(
 									getSortKey(
 											val)).getHexString());
 
@@ -163,7 +166,7 @@ public class RedisUtils
 
 			System.err
 					.println(
-							new ByteArrayId(
+							new ByteArray(
 									getSortKey(
 											getScore(
 													getSortKey(
@@ -222,7 +225,7 @@ public class RedisUtils
 		return value;
 	}
 
-	public static Set<ByteArrayId> getPartitions(
+	public static Set<ByteArray> getPartitions(
 			final RedissonClient client,
 			final String setNamePrefix ) {
 		return Streams
@@ -232,13 +235,13 @@ public class RedisUtils
 								.getKeysByPattern(
 										setNamePrefix + "*"))
 				.map(
-						str -> str.length() > (setNamePrefix.length() + 1) ? new ByteArrayId(
+						str -> str.length() > (setNamePrefix.length() + 1) ? new ByteArray(
 								ByteArrayUtils
 										.byteArrayFromString(
 												str
 														.substring(
 																setNamePrefix.length() + 1)))
-								: new ByteArrayId())
+								: new ByteArray())
 				.collect(
 						Collectors.toSet());
 	}

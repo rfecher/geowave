@@ -30,9 +30,7 @@ public class RedisDataStoreFactory extends
 		}
 
 		return new RedisDataStore(
-				(RedisOperations) helper
-						.createOperations(
-								options),
-				(RedisOptions) options.getStoreOptions());
+				(RedisOperations) helper.createOperations(options),
+				((RedisOptions) options).getStoreOptions());
 	}
 }
