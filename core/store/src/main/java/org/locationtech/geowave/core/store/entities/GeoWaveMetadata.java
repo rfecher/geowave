@@ -12,7 +12,10 @@ package org.locationtech.geowave.core.store.entities;
 
 import java.util.Arrays;
 
-public class GeoWaveMetadata
+
+import com.google.common.primitives.UnsignedBytes;
+
+public class GeoWaveMetadata implements Comparable<GeoWaveMetadata>
 {
 	private final byte[] primaryId;
 	private final byte[] secondaryId;
@@ -50,18 +53,18 @@ public class GeoWaveMetadata
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + Arrays
+		result = (prime * result) +  ((primaryId == null || primaryId.length == 0) ? 0 : Arrays
 				.hashCode(
-						primaryId);
-		result = (prime * result) + Arrays
+						primaryId));
+		result = (prime * result) + ((secondaryId == null || secondaryId.length == 0) ? 0 :Arrays
 				.hashCode(
-						secondaryId);
-		result = (prime * result) + Arrays
+						secondaryId));
+		result = (prime * result) + ((value == null || value.length == 0) ? 0 :Arrays
 				.hashCode(
-						value);
-		result = (prime * result) + Arrays
+						value));
+		result = (prime * result) + ((visibility == null || visibility.length == 0) ? 0 :Arrays
 				.hashCode(
-						visibility);
+						visibility));
 		return result;
 	}
 
@@ -78,30 +81,89 @@ public class GeoWaveMetadata
 			return false;
 		}
 		final GeoWaveMetadata other = (GeoWaveMetadata) obj;
+		byte[] otherComp = other.primaryId != null && other.primaryId.length == 0 ? null : other.primaryId;
+		byte[] thisComp = primaryId != null && primaryId.length == 0 ? null : primaryId;
 		if (!Arrays
 				.equals(
-						primaryId,
-						other.primaryId)) {
+						thisComp,
+						otherComp)) {
 			return false;
 		}
+		otherComp = other.secondaryId != null && other.secondaryId.length == 0 ? null : other.secondaryId;
+		thisComp = secondaryId != null && secondaryId.length == 0 ? null : secondaryId;
 		if (!Arrays
 				.equals(
-						secondaryId,
-						other.secondaryId)) {
+						otherComp,thisComp)) {
 			return false;
 		}
+		otherComp = other.value != null && other.value.length == 0 ? null : other.value;
+		thisComp = value != null && value.length == 0 ? null : value;
 		if (!Arrays
 				.equals(
-						value,
-						other.value)) {
+						otherComp,
+						thisComp)) {
 			return false;
 		}
+		otherComp = other.visibility != null && other.visibility.length == 0 ? null : other.visibility;
+		thisComp = visibility != null && visibility.length == 0 ? null : visibility;
 		if (!Arrays
 				.equals(
-						visibility,
-						other.visibility)) {
+						otherComp,
+						thisComp)) {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public int compareTo(
+			GeoWaveMetadata obj ) {
+		if (this == obj) {
+			return 0;
+		}
+		if (obj == null) {
+			return 1;
+		}
+		if (getClass() != obj.getClass()) {
+			return 1;
+		}
+		final GeoWaveMetadata other = (GeoWaveMetadata) obj;
+		byte[] otherComp = other.primaryId == null ? new byte[0] : other.primaryId;
+		byte[] thisComp = primaryId == null ? new byte[0] : primaryId;
+		if (UnsignedBytes.lexicographicalComparator().compare(
+				thisComp,
+				otherComp) != 0) {
+			return UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
+		}
+		otherComp = other.secondaryId == null ? new byte[0]: other.secondaryId;
+		thisComp = secondaryId == null && secondaryId.length == 0 ? new byte[0] : secondaryId;
+		if (UnsignedBytes.lexicographicalComparator().compare(
+				thisComp,
+				otherComp) != 0) {
+			return UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
+		}
+		otherComp = other.value == null ? new byte[0]:other.value;
+		thisComp = value == null  ? new byte[0] : value;
+		if (UnsignedBytes.lexicographicalComparator().compare(
+				thisComp,
+				otherComp) != 0) {
+			return UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
+		}
+		otherComp = other.visibility == null ? new byte[0] : other.visibility;
+		thisComp = visibility == null? new byte[0] : visibility;
+		if (UnsignedBytes.lexicographicalComparator().compare(
+				thisComp,
+				otherComp) != 0) {
+			return UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
+		}
+		return 0;
 	}
 }

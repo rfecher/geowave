@@ -14,6 +14,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -88,6 +89,7 @@ public class BatchedRangeRead<T>
 	// to control it
 	private final Semaphore readSemaphore = new Semaphore(
 			MAX_CONCURRENT_READ);
+	private final boolean async;
 
 	protected BatchedRangeRead(
 			final RedissonClient client,
@@ -95,13 +97,15 @@ public class BatchedRangeRead<T>
 			final short adapterId,
 			final Collection<SinglePartitionQueryRanges> ranges,
 			final GeoWaveRowIteratorTransformer<T> rowTransformer,
-			final Predicate<GeoWaveRow> filter ) {
+			final Predicate<GeoWaveRow> filter,
+			final boolean async ) {
 		this.client = client;
 		this.setNamePrefix = setNamePrefix;
 		this.adapterId = adapterId;
 		this.ranges = ranges;
 		this.rowTransformer = rowTransformer;
 		this.filter = filter;
+		this.async = async;
 	}
 
 	private RScoredSortedSet<GeoWaveRedisPersistedRow> getSet(
@@ -111,6 +115,7 @@ public class BatchedRangeRead<T>
 						client,
 						setNamePrefix,
 						partitionKey);
+
 	}
 
 	public CloseableIterator<T> results() {
@@ -134,8 +139,48 @@ public class BatchedRangeRead<T>
 			}
 
 		}
-		return executeQueryAsync(
-				reads);
+		if (async) {
+			return executeQueryAsync(
+					reads);
+		}
+		else {
+			return executeQuery(
+					reads);
+		}
+	}
+
+	public CloseableIterator<T> executeQuery(
+			final List<RangeReadInfo> reads ) {
+		return new CloseableIterator.Wrapper<>(
+				Iterators
+						.concat(
+								reads
+										.stream()
+										.map(
+												r -> {
+													ByteArray partitionKey;
+													if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
+														partitionKey = EMPTY_PARTITION_KEY;
+													}
+													else {
+														partitionKey = new ByteArray(
+																r.partitionKey);
+													}
+													// if we don't have enough
+													// precision we need to make
+													// sure the end is inclusive
+													return transformAndFilter(
+															setCache
+																	.get(
+																			partitionKey)
+																	.entryRange(
+																			r.startScore,
+																			true,
+																			r.endScore,
+																			r.endScore <= r.startScore),
+															r.partitionKey);
+												})
+										.iterator()));
 	}
 
 	public CloseableIterator<T> executeQueryAsync(
@@ -178,13 +223,17 @@ public class BatchedRangeRead<T>
 												r.endScore <= r.startScore);
 								queryCount.incrementAndGet();
 								f
-										.thenApply(
-												result -> {
+										.handle(
+												(
+														result,
+														throwable ) -> {
 													if (!f.isSuccess()) {
-														LOGGER
-																.warn(
-																		"Async Redis query failed");
-
+														if (!f.isCancelled()) {
+															LOGGER
+																	.warn(
+																			"Async Redis query failed",
+																			throwable);
+														}
 														checkFinalize(
 																readSemaphore,
 																results,
@@ -193,53 +242,23 @@ public class BatchedRangeRead<T>
 													}
 													else {
 														try {
-															rowTransformer
-																	.apply(
-																			(Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
-																					Iterators
-																							.filter(
-																									Iterators
-																											.transform(
-																													result
-																															.iterator(),
-																													new Function<ScoredEntry<GeoWaveRedisPersistedRow>, GeoWaveRedisRow>() {
-
-																														@Override
-																														public GeoWaveRedisRow apply(
-																																final ScoredEntry<GeoWaveRedisPersistedRow> entry ) {
-																															// wrap
-																															// the
-																															// persisted
-																															// row
-																															// with
-																															// additional
-																															// metadata
-																															return new GeoWaveRedisRow(
-																																	entry
-																																			.getValue(),
-																																	adapterId,
-																																	r.partitionKey,
-																																	RedisUtils
-																																			.getSortKey(
-																																					entry
-																																							.getScore()));
-																														}
-																													}),
-																									filter)))
-																	.forEachRemaining(
-																			row -> {
-																				try {
-																					results
-																							.put(
-																									row);
-																				}
-																				catch (final InterruptedException e) {
-																					LOGGER
-																							.warn(
-																									"interrupted while waiting to enqueue a redis result",
-																									e);
-																				}
-																			});
+															transformAndFilter(
+																	result,
+																	r.partitionKey)
+																			.forEachRemaining(
+																					row -> {
+																						try {
+																							results
+																									.put(
+																											row);
+																						}
+																						catch (final InterruptedException e) {
+																							LOGGER
+																									.warn(
+																											"interrupted while waiting to enqueue a redis result",
+																											e);
+																						}
+																					});
 
 														}
 														finally {
@@ -251,9 +270,13 @@ public class BatchedRangeRead<T>
 														return result;
 													}
 												});
-								futures
-										.add(
-												f);
+								synchronized (futures) {
+
+									futures
+											.add(
+													f);
+
+								}
 							}
 							catch (final InterruptedException e) {
 								LOGGER
@@ -281,13 +304,18 @@ public class BatchedRangeRead<T>
 						}
 					}
 				},
-				"Cassandra Query Executor").start();
-		return new CloseableIteratorWrapper<T>(
+				"Redis Query Executor").start();
+		return new CloseableIteratorWrapper<>(
 				new Closeable() {
 					@Override
 					public void close()
 							throws IOException {
-						for (final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f : futures) {
+						List<RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>>> newFutures;
+						synchronized (futures) {
+							newFutures = new ArrayList<>(
+									futures);
+						}
+						for (final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f : newFutures) {
 							f
 									.cancel(
 											true);
@@ -296,6 +324,43 @@ public class BatchedRangeRead<T>
 				},
 				new RowConsumer<>(
 						results));
+	}
+
+	private Iterator<T> transformAndFilter(
+			final Collection<ScoredEntry<GeoWaveRedisPersistedRow>> result,
+			final byte[] partitionKey ) {
+//		List<ScoredEntry<GeoWaveRedisPersistedRow>> list=new ArrayList<>(result);
+//		Collections.sort(list);
+		return rowTransformer
+				.apply(
+						(Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
+								Iterators
+										.filter(
+												Iterators
+														.transform(
+																result.iterator(),
+																new Function<ScoredEntry<GeoWaveRedisPersistedRow>, GeoWaveRedisRow>() {
+
+																	@Override
+																	public GeoWaveRedisRow apply(
+																			final ScoredEntry<GeoWaveRedisPersistedRow> entry ) {
+																		// wrap
+																		// the
+																		// persisted
+																		// row
+																		// with
+																		// additional
+																		// metadata
+																		return new GeoWaveRedisRow(
+																				entry.getValue(),
+																				adapterId,
+																				partitionKey,
+																				RedisUtils
+																						.getSortKey(
+																								entry.getScore()));
+																	}
+																}),
+												filter)));
 	}
 
 	private static void checkFinalize(

@@ -1,7 +1,6 @@
 package org.locationtech.geowave.datastore.redis.operations;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.locationtech.geowave.core.index.ByteArray;
@@ -15,7 +14,8 @@ import org.locationtech.geowave.datastore.redis.util.RedisUtils;
 import org.redisson.api.RScoredSortedSet;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterators;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Streams;
 
 public class RedisMetadataReader implements
 		MetadataReader
@@ -30,10 +30,10 @@ public class RedisMetadataReader implements
 		this.metadataType = metadataType;
 	}
 
-	@Override
 	public CloseableIterator<GeoWaveMetadata> query(
-			final MetadataQuery query ) {
-		Iterator<GeoWaveMetadata> results;
+			final MetadataQuery query,
+			final boolean mergeStats ) {
+		Iterable<GeoWaveMetadata> results;
 		if (query.getPrimaryId() != null) {
 			if (query.getPrimaryId().length > 6) {
 				// this primary ID and next prefix are going to be the same
@@ -46,8 +46,7 @@ public class RedisMetadataReader implements
 								score,
 								true,
 								score,
-								true)
-						.iterator();
+								true);
 			}
 			else {
 				// the primary ID prefix is short enough that we can use the
@@ -63,15 +62,14 @@ public class RedisMetadataReader implements
 												ByteArray
 														.getNextPrefix(
 																query.getPrimaryId())),
-								false)
-						.iterator();
+								false);
 			}
 		}
 		else {
-			results = set.iterator();
+			results = set;
 		}
 		if (query.hasPrimaryId() || query.hasSecondaryId()) {
-			results = Iterators
+			results = Iterables
 					.filter(
 							results,
 							new Predicate<GeoWaveMetadata>() {
@@ -95,15 +93,34 @@ public class RedisMetadataReader implements
 								}
 							});
 		}
-		final CloseableIterator<GeoWaveMetadata> retVal = new CloseableIterator.Wrapper<>(
-				results);
-		return MetadataType.STATS
+		final boolean isStats = MetadataType.STATS
 				.equals(
 						metadataType)
-								? new StatisticsRowIterator(
-										retVal,
-										query.getAuthorizations())
-								: retVal;
+				&& mergeStats;
+		final CloseableIterator<GeoWaveMetadata> retVal;
+		if (isStats) {
+			retVal = new CloseableIterator.Wrapper<>(
+					Streams
+							.stream(
+									results)
+							.sorted()
+							.iterator());
+		}
+		else {
+			retVal = new CloseableIterator.Wrapper<>(
+					results.iterator());
+		}
+		return isStats ? new StatisticsRowIterator(
+				retVal,
+				query.getAuthorizations()) : retVal;
+	}
+
+	@Override
+	public CloseableIterator<GeoWaveMetadata> query(
+			final MetadataQuery query ) {
+		return query(
+				query,
+				true);
 	}
 
 	public static boolean startsWith(

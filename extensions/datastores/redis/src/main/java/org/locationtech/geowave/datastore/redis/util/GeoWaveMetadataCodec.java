@@ -52,8 +52,8 @@ public class GeoWaveMetadataCodec extends
 			if (in instanceof GeoWaveMetadata) {
 				final GeoWaveMetadata md = (GeoWaveMetadata) in;
 				final ByteBuf out = ByteBufAllocator.DEFAULT.buffer();
-				byte[] safeVisibility = md.getVisibility() != null ? md.getVisibility() : new byte[0];
-				byte[] safeSecondaryId = md.getSecondaryId() != null ? md.getSecondaryId() : new byte[0];
+				final byte[] safeVisibility = md.getVisibility() != null ? md.getVisibility() : new byte[0];
+				final byte[] safeSecondaryId = md.getSecondaryId() != null ? md.getSecondaryId() : new byte[0];
 				out
 						.writeByte(
 								md.getPrimaryId().length);

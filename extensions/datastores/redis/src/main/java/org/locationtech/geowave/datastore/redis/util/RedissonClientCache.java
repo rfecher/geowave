@@ -24,7 +24,7 @@ public class RedissonClientCache
 					address -> {
 						final Config config = new Config();
 						config
-								.useSingleServer()
+								.useSingleServer().setConnectTimeout(15000).setTimeout(15000)
 								.setAddress(
 										address);
 						return Redisson

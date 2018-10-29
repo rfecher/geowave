@@ -38,12 +38,12 @@ import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterators;
-
 public class RedisOperations implements
 		MapReduceDataStoreOperations
 {
-	private final static Logger LOGGER = LoggerFactory.getLogger(RedisOperations.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(
+					RedisOperations.class);
 	// private final static int WRITE_RESPONSE_THREAD_SIZE = 16;
 	// private final static int READ_RESPONSE_THREAD_SIZE = 16;
 	// protected final static ExecutorService WRITE_RESPONSE_THREADS =
@@ -54,22 +54,27 @@ public class RedisOperations implements
 	// MoreExecutors
 	// .getExitingExecutorService((ThreadPoolExecutor)
 	// Executors.newFixedThreadPool(READ_RESPONSE_THREAD_SIZE));
+	private static final boolean READER_ASYNC = true;
 	private final String gwNamespace;
 	// private final RedisOptions options;
 	private final RedissonClient client;
 
 	public RedisOperations(
 			final RedisOptions options ) {
-		if ((options.getGeowaveNamespace() == null) || options.getGeowaveNamespace().equals(
-				"")) {
+		if ((options.getGeowaveNamespace() == null) || options
+				.getGeowaveNamespace()
+				.equals(
+						"")) {
 			gwNamespace = "geowave";
 		}
 		else {
 			gwNamespace = options.getGeowaveNamespace();
 		}
 		// this.options = options;
-		client = RedissonClientCache.getInstance().getClient(
-				options.getAddress());
+		client = RedissonClientCache
+				.getInstance()
+				.getClient(
+						options.getAddress());
 	}
 
 	@Override
@@ -96,20 +101,26 @@ public class RedisOperations implements
 	private void deleteByPattern(
 			final String pattern ) {
 		final RKeys keySet = client.getKeys();
-//		final String[] keys = Iterators.toArray(
-//				keySet.getKeysByPattern(
-//						pattern).iterator(),
-//				String.class);
-//		keySet.delete(keys);
+		// final String[] keys = Iterators.toArray(
+		// keySet.getKeysByPattern(
+		// pattern).iterator(),
+		// String.class);
+		// keySet.delete(keys);
 
-		keySet.getKeysByPattern(
-				pattern).forEach(k -> keySet.delete(k));
+		keySet
+				.getKeysByPattern(
+						pattern)
+				.forEach(
+						k -> keySet
+								.delete(
+										k));
 	}
 
 	@Override
 	public void deleteAll()
 			throws Exception {
-		deleteByPattern(gwNamespace + "_*");
+		deleteByPattern(
+				gwNamespace + "_*");
 	}
 
 	@Override
@@ -118,10 +129,13 @@ public class RedisOperations implements
 			final String typeName,
 			final Short adapterId,
 			final String... additionalAuthorizations ) {
-		deleteByPattern(RedisUtils.getRowSetPrefix(
-				gwNamespace,
-				typeName,
-				indexName) + "*");
+		deleteByPattern(
+				RedisUtils
+						.getRowSetPrefix(
+								gwNamespace,
+								typeName,
+								indexName)
+						+ "*");
 		return true;
 	}
 
@@ -148,20 +162,22 @@ public class RedisOperations implements
 	public MetadataWriter createMetadataWriter(
 			final MetadataType metadataType ) {
 		return new RedisMetadataWriter(
-				RedisUtils.getMetadataSet(
-						client,
-						gwNamespace,
-						metadataType));
+				RedisUtils
+						.getMetadataSet(
+								client,
+								gwNamespace,
+								metadataType));
 	}
 
 	@Override
 	public MetadataReader createMetadataReader(
 			final MetadataType metadataType ) {
 		return new RedisMetadataReader(
-				RedisUtils.getMetadataSet(
-						client,
-						gwNamespace,
-						metadataType),
+				RedisUtils
+						.getMetadataSet(
+								client,
+								gwNamespace,
+								metadataType),
 				metadataType);
 	}
 
@@ -169,10 +185,11 @@ public class RedisOperations implements
 	public MetadataDeleter createMetadataDeleter(
 			final MetadataType metadataType ) {
 		return new RedisMetadataDeleter(
-				RedisUtils.getMetadataSet(
-						client,
-						gwNamespace,
-						metadataType),
+				RedisUtils
+						.getMetadataSet(
+								client,
+								gwNamespace,
+								metadataType),
 				metadataType);
 	}
 
@@ -182,7 +199,8 @@ public class RedisOperations implements
 		return new RedisReader<>(
 				client,
 				readerParams,
-				gwNamespace);
+				gwNamespace,
+				READER_ASYNC);
 	}
 
 	public RowDeleter createDeleter(
@@ -201,7 +219,13 @@ public class RedisOperations implements
 				createDeleter(
 						readerParams,
 						readerParams.getAdditionalAuthorizations()),
-				createReader(readerParams));
+				// intentionally don't run this reader as async because it does
+				// not work well while simultaneously deleting rows
+				new RedisReader<>(
+						client,
+						readerParams,
+						gwNamespace,
+						false));
 	}
 
 	@Override
@@ -209,19 +233,21 @@ public class RedisOperations implements
 			final Index index,
 			final PersistentAdapterStore adapterStore,
 			final AdapterIndexMappingStore adapterIndexMappingStore ) {
-		return DataStoreUtils.mergeData(
-				index,
-				adapterStore,
-				adapterIndexMappingStore);
+		return DataStoreUtils
+				.mergeData(
+						index,
+						adapterStore,
+						adapterIndexMappingStore);
 	}
 
 	@Override
 	public boolean mergeStats(
 			final DataStatisticsStore statsStore,
 			final InternalAdapterStore internalAdapterStore ) {
-		return DataStoreUtils.mergeStats(
-				statsStore,
-				internalAdapterStore);
+		return DataStoreUtils
+				.mergeStats(
+						statsStore,
+						internalAdapterStore);
 	}
 
 	@Override

@@ -45,11 +45,13 @@ public class RedisReader<T> implements
 	public RedisReader(
 			final RedissonClient client,
 			final ReaderParams<T> readerParams,
-			final String namespace ) {
+			final String namespace,
+			final boolean async ) {
 		this.iterator = createIteratorForReader(
 				client,
 				readerParams,
-				namespace);
+				namespace,
+				async);
 	}
 
 	public RedisReader(
@@ -65,7 +67,8 @@ public class RedisReader<T> implements
 	private CloseableIterator<T> createIteratorForReader(
 			final RedissonClient client,
 			final ReaderParams<T> readerParams,
-			final String namespace ) {
+			final String namespace,
+			final boolean async ) {
 		final Collection<SinglePartitionQueryRanges> ranges = readerParams.getQueryRanges().getPartitionQueryRanges();
 
 		final Set<String> authorizations = Sets
@@ -77,7 +80,8 @@ public class RedisReader<T> implements
 					readerParams,
 					namespace,
 					ranges,
-					authorizations);
+					authorizations,
+					async);
 		}
 		else {
 			final Iterator<GeoWaveRedisRow>[] iterators = new Iterator[readerParams.getAdapterIds().length];
@@ -141,8 +145,9 @@ public class RedisReader<T> implements
 			final BaseReaderParams<T> readerParams,
 			final String namespace,
 			final Collection<SinglePartitionQueryRanges> ranges,
-			final Set<String> authorizations ) {
-		Iterator<CloseableIterator> it = Arrays
+			final Set<String> authorizations,
+			final boolean async ) {
+		final Iterator<CloseableIterator> it = Arrays
 				.stream(
 						ArrayUtils
 								.toObject(
@@ -162,8 +167,13 @@ public class RedisReader<T> implements
 								ranges,
 								readerParams.getRowTransformer(),
 								new ClientVisibilityFilter(
-										authorizations)).results()).iterator();
-		CloseableIterator<T>[] itArray = Iterators.toArray(it, CloseableIterator.class);
+										authorizations),
+								async).results())
+				.iterator();
+		final CloseableIterator<T>[] itArray = Iterators
+				.toArray(
+						it,
+						CloseableIterator.class);
 		return new CloseableIteratorWrapper<>(
 				new Closeable() {
 					AtomicBoolean closed = new AtomicBoolean(
@@ -175,14 +185,17 @@ public class RedisReader<T> implements
 						if (!closed
 								.getAndSet(
 										true)) {
-							Arrays.stream(itArray)
+							Arrays
+									.stream(
+											itArray)
 									.forEach(
 											it -> it.close());
 						}
 					}
 				},
 				Iterators
-						.concat(itArray));
+						.concat(
+								itArray));
 	}
 
 	private CloseableIterator<T> createIteratorForRecordReader(
@@ -214,7 +227,10 @@ public class RedisReader<T> implements
 				Collections
 						.singleton(
 								partitionRange),
-				authorizations);
+				authorizations,
+				// there should already be sufficient parallelism created by
+				// input splits for record reader use cases
+				false);
 	}
 
 	@SuppressWarnings("unchecked")

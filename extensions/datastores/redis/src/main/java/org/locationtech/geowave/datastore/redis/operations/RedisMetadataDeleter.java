@@ -1,6 +1,5 @@
 package org.locationtech.geowave.datastore.redis.operations;
 
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
@@ -11,12 +10,12 @@ import org.redisson.api.RScoredSortedSet;
 public class RedisMetadataDeleter implements
 		MetadataDeleter
 {
-	private RScoredSortedSet<GeoWaveMetadata> set;
-	private MetadataType metadataType;
+	private final RScoredSortedSet<GeoWaveMetadata> set;
+	private final MetadataType metadataType;
 
 	public RedisMetadataDeleter(
-			RScoredSortedSet<GeoWaveMetadata> set,
-			MetadataType metadataType ) {
+			final RScoredSortedSet<GeoWaveMetadata> set,
+			final MetadataType metadataType ) {
 		this.set = set;
 		this.metadataType = metadataType;
 	}
@@ -29,9 +28,14 @@ public class RedisMetadataDeleter implements
 		boolean noFailures = true;
 		try (CloseableIterator<GeoWaveMetadata> it = new RedisMetadataReader(
 				set,
-				metadataType).query(query)) {
+				metadataType)
+						.query(
+								query,
+								false)) {
 			while (it.hasNext()) {
-				if (set.remove(it.next())) {
+				if (set
+						.remove(
+								it.next())) {
 					atLeastOneDeletion = true;
 				}
 				else {
