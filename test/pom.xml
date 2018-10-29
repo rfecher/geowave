@@ -670,6 +670,7 @@
 						<sourceDirectory>../extensions/datastores/bigtable/src/main/java</sourceDirectory>
 						<sourceDirectory>../extensions/datastores/cassandra/src/main/java</sourceDirectory>
 						<sourceDirectory>../extensions/datastores/dynamodb/src/main/java</sourceDirectory>
+						<sourceDirectory>../extensions/datastores/redis/src/main/java</sourceDirectory>
 						<sourceDirectory>../extensions/adapters/auth/src/main/java</sourceDirectory>
 						<sourceDirectory>../extensions/adapters/vector/src/main/java</sourceDirectory>
 						<sourceDirectory>../extensions/adapters/raster/src/main/java</sourceDirectory>
@@ -766,6 +767,13 @@
 			<properties>
 				<skipITs>false</skipITs>
 				<testStoreType>DYNAMODB</testStoreType>
+			</properties>
+		</profile>
+		<profile>
+			<id>redis-it</id>
+			<properties>
+				<skipITs>false</skipITs>
+				<testStoreType>REDIS</testStoreType>
 			</properties>
 		</profile>
 		<profile>
