@@ -56,9 +56,10 @@ import org.locationtech.geowave.test.spark.GeoWaveSparkSpatialJoinIT;
 	GeoWaveVectorSerializationIT.class,
 	BasicKafkaIT.class,
 	BasicMapReduceIT.class,
-//	// for now tests are taking too long in travis and landsatIT is a long test
-//	// LandsatIT.class,
-//	CustomCRSLandsatIT.class,
+	// // for now tests are taking too long in travis and landsatIT is a long
+	// test
+	// // LandsatIT.class,
+	// CustomCRSLandsatIT.class,
 	GeoWaveBasicRasterIT.class,
 	GeoWaveBasicCustomCRSRasterIT.class,
 	CustomCRSKDERasterResizeIT.class,

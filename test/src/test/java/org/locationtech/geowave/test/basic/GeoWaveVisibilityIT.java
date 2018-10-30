@@ -103,7 +103,7 @@ public class GeoWaveVisibilityIT extends
 		LOGGER.warn("-----------------------------------------");
 	}
 
-	 @Test
+	@Test
 	public void testIngestAndQueryMixedVisibilityRasters()
 			throws IOException {
 		final String coverageName = "testMixedVisibilityRasters";
@@ -124,7 +124,7 @@ public class GeoWaveVisibilityIT extends
 		TestUtils.deleteAll(dataStoreOptions);
 	}
 
-	 @Test
+	@Test
 	public void testComplexVisibility()
 			throws IOException {
 		final String coverageName = "testComplexVisibility";

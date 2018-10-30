@@ -34,7 +34,6 @@
 		<tag>HEAD</tag>
 	</scm>
 	<properties>
-	 <findbugs.skip>true</findbugs.skip>
 		<spark.version>2.3.1</spark.version>
 		<geotools.version>19.2</geotools.version>
 		<imageio.ext.version>1.1.24</imageio.ext.version>

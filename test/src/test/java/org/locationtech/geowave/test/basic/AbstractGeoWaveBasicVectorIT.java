@@ -514,7 +514,7 @@ abstract public class AbstractGeoWaveBasicVectorIT extends
 		LOGGER.warn(remainingFeatures + " features not deleted.");
 
 		Assert.assertTrue(
-				"Unable to delete all features in bulk delete, there are " + remainingFeatures +" not deleted",
+				"Unable to delete all features in bulk delete, there are " + remainingFeatures + " not deleted",
 				remainingFeatures == 0);
 		// Now for the final check, query everything again
 		queryResults = geowaveStore.query(QueryBuilder.newBuilder().indexName(
