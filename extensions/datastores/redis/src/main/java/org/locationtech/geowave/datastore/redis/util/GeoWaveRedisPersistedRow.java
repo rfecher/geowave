@@ -4,7 +4,9 @@ import java.util.Arrays;
 
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 
-public class GeoWaveRedisPersistedRow
+import com.google.common.primitives.UnsignedBytes;
+
+public class GeoWaveRedisPersistedRow implements Comparable<GeoWaveRedisPersistedRow>
 {
 	private final short numDuplicates;
 	private final byte[] dataId;
@@ -83,5 +85,56 @@ public class GeoWaveRedisPersistedRow
 			return false;
 		}
 		return true;
+	}
+	@Override
+	public int compareTo(
+			final GeoWaveRedisPersistedRow obj ) {
+		if (this == obj) {
+			return 0;
+		}
+		if (obj == null) {
+			return 1;
+		}
+		if (getClass() != obj.getClass()) {
+			return 1;
+		}
+		final GeoWaveRedisPersistedRow other = obj;
+		byte[] otherComp = other.dataId == null ? new byte[0] : other.dataId;
+		byte[] thisComp = dataId == null ? new byte[0] : dataId;
+		if (UnsignedBytes.lexicographicalComparator().compare(
+				thisComp,
+				otherComp) != 0) {
+			return UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
+		}
+		otherComp = other.getFieldMask() == null ? new byte[0]: other.getFieldMask();
+		thisComp = (getFieldMask() == null) && (getFieldMask().length == 0) ? new byte[0] : getFieldMask();
+		if (UnsignedBytes.lexicographicalComparator().compare(
+				thisComp,
+				otherComp) != 0) {
+			return UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
+		}
+		otherComp = other.getVisibility() == null ? new byte[0]:other.getVisibility();
+		thisComp = getVisibility() == null  ? new byte[0] : getVisibility();
+		if (UnsignedBytes.lexicographicalComparator().compare(
+				thisComp,
+				otherComp) != 0) {
+			return UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
+		}
+		otherComp = other.getValue() == null ? new byte[0] : other.getValue();
+		thisComp = getValue() == null? new byte[0] : getValue();
+		if (UnsignedBytes.lexicographicalComparator().compare(
+				thisComp,
+				otherComp) != 0) {
+			return UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
+		}
+		return Integer.compare(numDuplicates, other.numDuplicates);
 	}
 }

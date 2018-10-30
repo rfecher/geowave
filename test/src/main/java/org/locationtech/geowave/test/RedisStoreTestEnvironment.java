@@ -36,7 +36,7 @@ public class RedisStoreTestEnvironment extends
 					6379).setting(
 					"bind 127.0.0.1") // secure + prevents popups on Windows
 					.setting(
-							"maxmemory 128M").setting("timeout 15000")
+							"maxmemory 256M").setting("timeout 15000")
 					.build();
 			redisServer.start();
 		}

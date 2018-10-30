@@ -1,18 +1,25 @@
 package org.locationtech.geowave.datastore.redis.util;
 
 import java.util.BitSet;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.protocol.ScoredEntry;
 
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Streams;
+import com.google.common.primitives.Bytes;
 
 public class RedisUtils
 {
@@ -176,14 +183,20 @@ public class RedisUtils
 
 	private static byte[] shift(
 			long val ) {
-		final byte[] array = new byte[8];
 
 		final int radix = 1 << 8;
 		final int mask = radix - 1;
-		int pos = 8;
+		int trailingZeros = 0;
+		while ((((int) val) & mask) == 0) {
+			val >>>= 8;
+			trailingZeros++;
+		}
+		final byte[] array = new byte[8 - trailingZeros];
+		int pos = array.length;
 		do {
 			array[--pos] = (byte) (((int) val) & mask);
 			val >>>= 8;
+
 		}
 		while ((val != 0) && (pos > 0));
 
@@ -244,5 +257,67 @@ public class RedisUtils
 								: new ByteArray())
 				.collect(
 						Collectors.toSet());
+	}
+
+	public static Iterator<GeoWaveMetadata> groupByIds(
+			final Iterable<GeoWaveMetadata> result ) {
+		final ListMultimap<ByteArray, GeoWaveMetadata> multimap = MultimapBuilder.hashKeys().arrayListValues().build();
+		result
+				.forEach(
+						r -> multimap
+								.put(
+										new ByteArray(
+												Bytes
+														.concat(
+																r.getPrimaryId(),
+																r.getSecondaryId())),
+										r));
+		return multimap.values().iterator();
+	}
+
+	public static Collection<ScoredEntry<GeoWaveRedisPersistedRow>> groupByRow(
+			final Collection<ScoredEntry<GeoWaveRedisPersistedRow>> result ) {
+		// final List<ScoredEntry<GeoWaveRedisPersistedRow>> list = new
+		// ArrayList<>(
+		// result);
+		// Collections
+		// .sort(
+		// list,
+		// new Comparator<ScoredEntry<GeoWaveRedisPersistedRow>>() {
+		//
+		// @Override
+		// public int compare(
+		// final ScoredEntry<GeoWaveRedisPersistedRow> o1,
+		// final ScoredEntry<GeoWaveRedisPersistedRow> o2 ) {
+		// final int compareScore = Double
+		// .compare(
+		// o1.getScore(),
+		// o2.getScore());
+		// if (compareScore == 0) {
+		// return o1
+		// .getValue()
+		// .compareTo(
+		// o2.getValue());
+		// }
+		// return 0;
+		// }
+		// });
+		// return list;
+
+		final ListMultimap<Pair<Double, ByteArray>, ScoredEntry<GeoWaveRedisPersistedRow>> multimap = MultimapBuilder
+				.hashKeys()
+				.arrayListValues()
+				.build();
+		result
+				.forEach(
+						r -> multimap
+								.put(
+										Pair
+												.of(
+														r.getScore(),
+														new ByteArray(
+																r.getValue().getDataId())),
+										r));
+		return multimap.values();
 	}
 }

@@ -15,7 +15,6 @@ import org.redisson.api.RScoredSortedSet;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 
 public class RedisMetadataReader implements
 		MetadataReader
@@ -100,11 +99,9 @@ public class RedisMetadataReader implements
 		final CloseableIterator<GeoWaveMetadata> retVal;
 		if (isStats) {
 			retVal = new CloseableIterator.Wrapper<>(
-					Streams
-							.stream(
-									results)
-							.sorted()
-							.iterator());
+					RedisUtils
+							.groupByIds(
+									results));
 		}
 		else {
 			retVal = new CloseableIterator.Wrapper<>(

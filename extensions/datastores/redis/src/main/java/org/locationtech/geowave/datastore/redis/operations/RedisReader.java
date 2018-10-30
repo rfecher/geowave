@@ -18,6 +18,7 @@ import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
+import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
@@ -87,6 +88,9 @@ public class RedisReader<T> implements
 			final Iterator<GeoWaveRedisRow>[] iterators = new Iterator[readerParams.getAdapterIds().length];
 			int i = 0;
 			for (final short adapterId : readerParams.getAdapterIds()) {
+				boolean groupByRow = isGroupByRow(
+						readerParams,
+						adapterId);
 				final String setNamePrefix = RedisUtils
 						.getRowSetPrefix(
 								namespace,
@@ -101,20 +105,28 @@ public class RedisReader<T> implements
 								setNamePrefix)
 						.stream()
 						.map(
-								p -> ImmutablePair
-										.of(
-												p,
-												RedisUtils
-														.getRowSet(
-																client,
-																setNamePrefix,
-																p.getBytes())
-														.entryRange(
-																Double.NEGATIVE_INFINITY,
-																true,
-																Double.POSITIVE_INFINITY,
-																true)
-														.iterator()));
+								p -> {
+									final Collection<ScoredEntry<GeoWaveRedisPersistedRow>> result = RedisUtils
+											.getRowSet(
+													client,
+													setNamePrefix,
+													p.getBytes())
+											.entryRange(
+													Double.NEGATIVE_INFINITY,
+													true,
+													Double.POSITIVE_INFINITY,
+													true);
+									final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> it = groupByRow
+													? RedisUtils
+															.groupByRow(
+																	result)
+															.iterator()
+													: result.iterator();
+									return ImmutablePair
+											.of(
+													p,
+													it);
+								});
 				iterators[i++] = streamIt
 						.flatMap(
 								p -> Streams
@@ -168,7 +180,10 @@ public class RedisReader<T> implements
 								readerParams.getRowTransformer(),
 								new ClientVisibilityFilter(
 										authorizations),
-								async).results())
+								async,
+								isGroupByRow(
+										readerParams,
+										adapterId)).results())
 				.iterator();
 		final CloseableIterator<T>[] itArray = Iterators
 				.toArray(
@@ -196,6 +211,16 @@ public class RedisReader<T> implements
 				Iterators
 						.concat(
 								itArray));
+	}
+
+	private static boolean isGroupByRow(
+			final BaseReaderParams<?> readerParams,
+			final short adapterId ) {
+		return readerParams.isMixedVisibility() || (readerParams
+				.getAdapterStore()
+				.getAdapter(
+						adapterId)
+				.getAdapter() instanceof RowMergingDataAdapter);
 	}
 
 	private CloseableIterator<T> createIteratorForRecordReader(

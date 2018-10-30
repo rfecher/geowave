@@ -8,8 +8,12 @@ import org.redisson.client.handler.State;
 import org.redisson.client.protocol.Decoder;
 import org.redisson.client.protocol.Encoder;
 
+import com.clearspring.analytics.util.Varint;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 
 public class GeoWaveRedisRowCodec extends
 		BaseCodec
@@ -21,22 +25,35 @@ public class GeoWaveRedisRowCodec extends
 				final ByteBuf buf,
 				final State state )
 				throws IOException {
-			final byte[] dataId = new byte[buf.readUnsignedByte()];
-			final byte[] fieldMask = new byte[buf.readUnsignedByte()];
-			final byte[] visibility = new byte[buf.readUnsignedByte()];
-			final byte[] value = new byte[buf.readUnsignedShort()];
-			final short numDuplicates = buf.readUnsignedByte();
-			buf.readBytes(dataId);
-			buf.readBytes(fieldMask);
-			buf.readBytes(visibility);
-			buf.readBytes(value);
-			return new GeoWaveRedisPersistedRow(
-					numDuplicates,
-					dataId,
-					new GeoWaveValueImpl(
-							fieldMask,
-							visibility,
-							value));
+			try (final ByteBufInputStream in = new ByteBufInputStream(
+					buf)) {
+				final byte[] dataId = new byte[in.readUnsignedByte()];
+				final byte[] fieldMask = new byte[in.readUnsignedByte()];
+				final byte[] visibility = new byte[in.readUnsignedByte()];
+				final byte[] value = new byte[Varint
+						.readUnsignedVarInt(
+								in)];
+				final int numDuplicates = in.readUnsignedByte();
+				in
+						.read(
+								dataId);
+				in
+						.read(
+								fieldMask);
+				in
+						.read(
+								visibility);
+				in
+						.read(
+								value);
+				return new GeoWaveRedisPersistedRow(
+						(short) numDuplicates,
+						dataId,
+						new GeoWaveValueImpl(
+								fieldMask,
+								visibility,
+								value));
+			}
 		}
 	};
 	private final Encoder encoder = new Encoder() {
@@ -46,17 +63,41 @@ public class GeoWaveRedisRowCodec extends
 				throws IOException {
 			if (in instanceof GeoWaveRedisPersistedRow) {
 				final GeoWaveRedisPersistedRow row = (GeoWaveRedisPersistedRow) in;
-				final ByteBuf out = ByteBufAllocator.DEFAULT.buffer();
-				out.writeByte(row.getDataId().length);
-				out.writeByte(row.getFieldMask().length);
-				out.writeByte(row.getVisibility().length);
-				out.writeShort(row.getValue().length);
-				out.writeByte(row.getNumDuplicates());
-				out.writeBytes(row.getDataId());
-				out.writeBytes(row.getFieldMask());
-				out.writeBytes(row.getVisibility());
-				out.writeBytes(row.getValue());
-				return out;
+				final ByteBuf buf = ByteBufAllocator.DEFAULT.buffer();
+
+				try (final ByteBufOutputStream out = new ByteBufOutputStream(
+						buf)) {
+					out
+							.writeByte(
+									row.getDataId().length);
+					out
+							.writeByte(
+									row.getFieldMask().length);
+					out
+							.writeByte(
+									row.getVisibility().length);
+					Varint
+							.writeUnsignedVarInt(
+									row.getValue().length,
+									out);
+					out
+							.writeByte(
+									row.getNumDuplicates());
+					out
+							.write(
+									row.getDataId());
+					out
+							.write(
+									row.getFieldMask());
+					out
+							.write(
+									row.getVisibility());
+					out
+							.write(
+									row.getValue());
+					out.flush();
+					return out.buffer();
+				}
 			}
 			throw new IOException(
 					"Encoder only supports GeoWaveRedisRow");
