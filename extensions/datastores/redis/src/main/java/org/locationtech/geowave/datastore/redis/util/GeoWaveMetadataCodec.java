@@ -25,18 +25,10 @@ public class GeoWaveMetadataCodec extends
 			final byte[] secondaryId = new byte[buf.readUnsignedByte()];
 			final byte[] visibility = new byte[buf.readUnsignedByte()];
 			final byte[] value = new byte[buf.readUnsignedShort()];
-			buf
-					.readBytes(
-							primaryId);
-			buf
-					.readBytes(
-							secondaryId);
-			buf
-					.readBytes(
-							visibility);
-			buf
-					.readBytes(
-							value);
+			buf.readBytes(primaryId);
+			buf.readBytes(secondaryId);
+			buf.readBytes(visibility);
+			buf.readBytes(value);
 			return new GeoWaveMetadata(
 					primaryId,
 					secondaryId,
@@ -54,30 +46,14 @@ public class GeoWaveMetadataCodec extends
 				final ByteBuf out = ByteBufAllocator.DEFAULT.buffer();
 				final byte[] safeVisibility = md.getVisibility() != null ? md.getVisibility() : new byte[0];
 				final byte[] safeSecondaryId = md.getSecondaryId() != null ? md.getSecondaryId() : new byte[0];
-				out
-						.writeByte(
-								md.getPrimaryId().length);
-				out
-						.writeByte(
-								safeSecondaryId.length);
-				out
-						.writeByte(
-								safeVisibility.length);
-				out
-						.writeShort(
-								md.getValue().length);
-				out
-						.writeBytes(
-								md.getPrimaryId());
-				out
-						.writeBytes(
-								safeSecondaryId);
-				out
-						.writeBytes(
-								safeVisibility);
-				out
-						.writeBytes(
-								md.getValue());
+				out.writeByte(md.getPrimaryId().length);
+				out.writeByte(safeSecondaryId.length);
+				out.writeByte(safeVisibility.length);
+				out.writeShort(md.getValue().length);
+				out.writeBytes(md.getPrimaryId());
+				out.writeBytes(safeSecondaryId);
+				out.writeBytes(safeVisibility);
+				out.writeBytes(md.getValue());
 				return out;
 			}
 			else {

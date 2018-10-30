@@ -28,14 +28,11 @@ public class RedisMetadataDeleter implements
 		boolean noFailures = true;
 		try (CloseableIterator<GeoWaveMetadata> it = new RedisMetadataReader(
 				set,
-				metadataType)
-						.query(
-								query,
-								false)) {
+				metadataType).query(
+				query,
+				false)) {
 			while (it.hasNext()) {
-				if (set
-						.remove(
-								it.next())) {
+				if (set.remove(it.next())) {
 					atLeastOneDeletion = true;
 				}
 				else {

@@ -12,10 +12,10 @@ package org.locationtech.geowave.core.store.entities;
 
 import java.util.Arrays;
 
-
 import com.google.common.primitives.UnsignedBytes;
 
-public class GeoWaveMetadata implements Comparable<GeoWaveMetadata>
+public class GeoWaveMetadata implements
+		Comparable<GeoWaveMetadata>
 {
 	private final byte[] primaryId;
 	private final byte[] secondaryId;
@@ -53,18 +53,11 @@ public class GeoWaveMetadata implements Comparable<GeoWaveMetadata>
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) +  ((primaryId == null || primaryId.length == 0) ? 0 : Arrays
-				.hashCode(
-						primaryId));
-		result = (prime * result) + ((secondaryId == null || secondaryId.length == 0) ? 0 :Arrays
-				.hashCode(
-						secondaryId));
-		result = (prime * result) + ((value == null || value.length == 0) ? 0 :Arrays
-				.hashCode(
-						value));
-		result = (prime * result) + ((visibility == null || visibility.length == 0) ? 0 :Arrays
-				.hashCode(
-						visibility));
+		result = (prime * result) + ((primaryId == null || primaryId.length == 0) ? 0 : Arrays.hashCode(primaryId));
+		result = (prime * result)
+				+ ((secondaryId == null || secondaryId.length == 0) ? 0 : Arrays.hashCode(secondaryId));
+		result = (prime * result) + ((value == null || value.length == 0) ? 0 : Arrays.hashCode(value));
+		result = (prime * result) + ((visibility == null || visibility.length == 0) ? 0 : Arrays.hashCode(visibility));
 		return result;
 	}
 
@@ -83,33 +76,30 @@ public class GeoWaveMetadata implements Comparable<GeoWaveMetadata>
 		final GeoWaveMetadata other = (GeoWaveMetadata) obj;
 		byte[] otherComp = other.primaryId != null && other.primaryId.length == 0 ? null : other.primaryId;
 		byte[] thisComp = primaryId != null && primaryId.length == 0 ? null : primaryId;
-		if (!Arrays
-				.equals(
-						thisComp,
-						otherComp)) {
+		if (!Arrays.equals(
+				thisComp,
+				otherComp)) {
 			return false;
 		}
 		otherComp = other.secondaryId != null && other.secondaryId.length == 0 ? null : other.secondaryId;
 		thisComp = secondaryId != null && secondaryId.length == 0 ? null : secondaryId;
-		if (!Arrays
-				.equals(
-						otherComp,thisComp)) {
+		if (!Arrays.equals(
+				otherComp,
+				thisComp)) {
 			return false;
 		}
 		otherComp = other.value != null && other.value.length == 0 ? null : other.value;
 		thisComp = value != null && value.length == 0 ? null : value;
-		if (!Arrays
-				.equals(
-						otherComp,
-						thisComp)) {
+		if (!Arrays.equals(
+				otherComp,
+				thisComp)) {
 			return false;
 		}
 		otherComp = other.visibility != null && other.visibility.length == 0 ? null : other.visibility;
 		thisComp = visibility != null && visibility.length == 0 ? null : visibility;
-		if (!Arrays
-				.equals(
-						otherComp,
-						thisComp)) {
+		if (!Arrays.equals(
+				otherComp,
+				thisComp)) {
 			return false;
 		}
 		return true;
@@ -137,8 +127,8 @@ public class GeoWaveMetadata implements Comparable<GeoWaveMetadata>
 					thisComp,
 					otherComp);
 		}
-		otherComp = other.secondaryId == null ? new byte[0]: other.secondaryId;
-		thisComp = secondaryId == null && secondaryId.length == 0 ? new byte[0] : secondaryId;
+		otherComp = other.secondaryId == null ? new byte[0] : other.secondaryId;
+		thisComp = secondaryId == null ? new byte[0] : secondaryId;
 		if (UnsignedBytes.lexicographicalComparator().compare(
 				thisComp,
 				otherComp) != 0) {
@@ -146,8 +136,8 @@ public class GeoWaveMetadata implements Comparable<GeoWaveMetadata>
 					thisComp,
 					otherComp);
 		}
-		otherComp = other.value == null ? new byte[0]:other.value;
-		thisComp = value == null  ? new byte[0] : value;
+		otherComp = other.value == null ? new byte[0] : other.value;
+		thisComp = value == null ? new byte[0] : value;
 		if (UnsignedBytes.lexicographicalComparator().compare(
 				thisComp,
 				otherComp) != 0) {
@@ -156,7 +146,7 @@ public class GeoWaveMetadata implements Comparable<GeoWaveMetadata>
 					otherComp);
 		}
 		otherComp = other.visibility == null ? new byte[0] : other.visibility;
-		thisComp = visibility == null? new byte[0] : visibility;
+		thisComp = visibility == null ? new byte[0] : visibility;
 		if (UnsignedBytes.lexicographicalComparator().compare(
 				thisComp,
 				otherComp) != 0) {

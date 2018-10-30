@@ -16,7 +16,6 @@ import org.locationtech.geowave.core.store.operations.DataStoreOperations;
 import org.locationtech.geowave.datastore.redis.config.RedisOptions;
 import org.locationtech.geowave.datastore.redis.operations.RedisOperations;
 
-
 public class RedisFactoryHelper implements
 		StoreFactoryHelper
 {

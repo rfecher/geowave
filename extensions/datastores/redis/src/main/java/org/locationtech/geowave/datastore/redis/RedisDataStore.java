@@ -43,63 +43,63 @@ public class RedisDataStore extends
 						operations));
 	}
 
-//	@Override
-//	public void addIndex(
-//			final String typeName,
-//			final Index... indices ) {
-//		super.addIndex(
-//				typeName,
-//				transformTo52BitSortKeyArray(indices));
-//	}
-//
-//	@Override
-//	public <T> void addType(
-//			final DataTypeAdapter<T> dataTypeAdapter,
-//			final Index... initialIndices ) {
-//		super.addType(
-//				dataTypeAdapter,
-//				transformTo52BitSortKeyArray(initialIndices));
-//	}
-//
-//	private static Index[] transformTo52BitSortKeyArray(
-//			final Index[] indices ) {
-//		return Arrays
-//				.stream(
-//						indices)
-//				.map(
-//						i -> transformTo52BitSortKey(
-//								i))
-//				.toArray(
-//						i -> new Index[i]);
-//	}
-//
-//	private static Index transformTo52BitSortKey(
-//			final Index index ) {
-//		// TODO we may want to duplicate this index but cap its precision to 52
-//		// bits so that it can be well represented by the matissa of the redis
-//		// z-score
-//		return index;
-//	}
-//
-//	@Override
-//	public <T> void ingest(
-//			final URL url,
-//			final Index... index )
-//			throws MismatchedIndexToAdapterMapping {
-//		super.ingest(
-//				url,
-//				transformTo52BitSortKeyArray(index));
-//	}
-//
-//	@Override
-//	public <T> void ingest(
-//			final URL url,
-//			final IngestOptions<T> options,
-//			final Index... index )
-//			throws MismatchedIndexToAdapterMapping {
-//		super.ingest(
-//				url,
-//				options,
-//				transformTo52BitSortKeyArray(index));
-//	}
+	// @Override
+	// public void addIndex(
+	// final String typeName,
+	// final Index... indices ) {
+	// super.addIndex(
+	// typeName,
+	// transformTo52BitSortKeyArray(indices));
+	// }
+	//
+	// @Override
+	// public <T> void addType(
+	// final DataTypeAdapter<T> dataTypeAdapter,
+	// final Index... initialIndices ) {
+	// super.addType(
+	// dataTypeAdapter,
+	// transformTo52BitSortKeyArray(initialIndices));
+	// }
+	//
+	// private static Index[] transformTo52BitSortKeyArray(
+	// final Index[] indices ) {
+	// return Arrays
+	// .stream(
+	// indices)
+	// .map(
+	// i -> transformTo52BitSortKey(
+	// i))
+	// .toArray(
+	// i -> new Index[i]);
+	// }
+	//
+	// private static Index transformTo52BitSortKey(
+	// final Index index ) {
+	// // TODO we may want to duplicate this index but cap its precision to 52
+	// // bits so that it can be well represented by the matissa of the redis
+	// // z-score
+	// return index;
+	// }
+	//
+	// @Override
+	// public <T> void ingest(
+	// final URL url,
+	// final Index... index )
+	// throws MismatchedIndexToAdapterMapping {
+	// super.ingest(
+	// url,
+	// transformTo52BitSortKeyArray(index));
+	// }
+	//
+	// @Override
+	// public <T> void ingest(
+	// final URL url,
+	// final IngestOptions<T> options,
+	// final Index... index )
+	// throws MismatchedIndexToAdapterMapping {
+	// super.ingest(
+	// url,
+	// options,
+	// transformTo52BitSortKeyArray(index));
+	// }
 }

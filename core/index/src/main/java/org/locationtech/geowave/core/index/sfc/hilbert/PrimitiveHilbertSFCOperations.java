@@ -55,10 +55,9 @@ import com.google.uzaygezen.core.ranges.LongRangeHome;
 public class PrimitiveHilbertSFCOperations implements
 		HilbertSFCOperations
 {
-	protected final static long UNIT_CELL_SIZE = (long) Math
-			.pow(
-					2,
-					19);
+	protected final static long UNIT_CELL_SIZE = (long) Math.pow(
+			2,
+			19);
 	protected long[] binsPerDimension;
 
 	protected long minHilbertValue;
@@ -71,18 +70,15 @@ public class PrimitiveHilbertSFCOperations implements
 		int totalPrecision = 0;
 		for (int d = 0; d < dimensionDefs.length; d++) {
 			final SFCDimensionDefinition dimension = dimensionDefs[d];
-			binsPerDimension[d] = (long) Math
-					.pow(
-							2,
-							dimension.getBitsOfPrecision());
+			binsPerDimension[d] = (long) Math.pow(
+					2,
+					dimension.getBitsOfPrecision());
 			totalPrecision += dimension.getBitsOfPrecision();
 		}
 		minHilbertValue = 0;
-		maxHilbertValue = (long) (Math
-				.pow(
-						2,
-						totalPrecision)
-				- 1);
+		maxHilbertValue = (long) (Math.pow(
+				2,
+				totalPrecision) - 1);
 	}
 
 	@Override
@@ -103,14 +99,12 @@ public class PrimitiveHilbertSFCOperations implements
 		// Loop through each value, then normalize the value based on the
 		// dimension definition
 		for (int i = 0; i < dimensionDefinitions.length; i++) {
-			dimensionValues
-					.add(
-							normalizeDimension(
-									dimensionDefinitions[i],
-									values[i],
-									binsPerDimension[i],
-									false,
-									false));
+			dimensionValues.add(normalizeDimension(
+					dimensionDefinitions[i],
+					values[i],
+					binsPerDimension[i],
+					false,
+					false));
 		}
 
 		// Convert the normalized values to a BitVector
@@ -138,26 +132,19 @@ public class PrimitiveHilbertSFCOperations implements
 			final SFCDimensionDefinition[] dimensionDefinitions ) {
 		final BitVector[] bitVectors = new BitVector[values.size()];
 
-		final BitVector hilbertBitVector = BitVectorFactories.OPTIMAL
-				.apply(
-						compactHilbertCurve.getSpec().sumBitsPerDimension());
+		final BitVector hilbertBitVector = BitVectorFactories.OPTIMAL.apply(compactHilbertCurve
+				.getSpec()
+				.sumBitsPerDimension());
 
 		for (int i = 0; i < values.size(); i++) {
-			bitVectors[i] = BitVectorFactories.OPTIMAL
-					.apply(
-							dimensionDefinitions[i].getBitsOfPrecision());
-			bitVectors[i]
-					.copyFrom(
-							values
-									.get(
-											i));
+			bitVectors[i] = BitVectorFactories.OPTIMAL.apply(dimensionDefinitions[i].getBitsOfPrecision());
+			bitVectors[i].copyFrom(values.get(i));
 		}
 		synchronized (compactHilbertCurve) {
-			compactHilbertCurve
-					.index(
-							bitVectors,
-							0,
-							hilbertBitVector);
+			compactHilbertCurve.index(
+					bitVectors,
+					0,
+					hilbertBitVector);
 		}
 		return hilbertBitVector;
 	}
@@ -217,30 +204,22 @@ public class PrimitiveHilbertSFCOperations implements
 		final BitVector[] perDimensionBitVectors = new BitVector[dimensionDefinitions.length];
 
 		final int bits = compactHilbertCurve.getSpec().sumBitsPerDimension();
-		final BitVector hilbertBitVector = BitVectorFactories.OPTIMAL
-				.apply(
-						bits);
+		final BitVector hilbertBitVector = BitVectorFactories.OPTIMAL.apply(bits);
 		final int bytes = ((bits + 7) / 8);
 		if (hilbertValue.length < bytes) {
-			hilbertValue = Arrays
-					.copyOf(
-							hilbertValue,
-							bytes);
+			hilbertValue = Arrays.copyOf(
+					hilbertValue,
+					bytes);
 		}
-		hilbertBitVector
-				.copyFromBigEndian(
-						hilbertValue);
+		hilbertBitVector.copyFromBigEndian(hilbertValue);
 		for (int i = 0; i < dimensionDefinitions.length; i++) {
-			perDimensionBitVectors[i] = BitVectorFactories.OPTIMAL
-					.apply(
-							dimensionDefinitions[i].getBitsOfPrecision());
+			perDimensionBitVectors[i] = BitVectorFactories.OPTIMAL.apply(dimensionDefinitions[i].getBitsOfPrecision());
 		}
 
 		synchronized (compactHilbertCurve) {
-			compactHilbertCurve
-					.indexInverse(
-							hilbertBitVector,
-							perDimensionBitVectors);
+			compactHilbertCurve.indexInverse(
+					hilbertBitVector,
+					perDimensionBitVectors);
 		}
 		return perDimensionBitVectors;
 	}
@@ -273,9 +252,7 @@ public class PrimitiveHilbertSFCOperations implements
 			final boolean isMin,
 			final boolean overInclusiveOnEdge )
 			throws IllegalArgumentException {
-		final double normalizedValue = boundedDimensionDefinition
-				.normalize(
-						value);
+		final double normalizedValue = boundedDimensionDefinition.normalize(value);
 		if ((normalizedValue < 0) || (normalizedValue > 1)) {
 			throw new IllegalArgumentException(
 					"Value (" + value + ") is not within dimension bounds. The normalized value (" + normalizedValue
@@ -286,22 +263,15 @@ public class PrimitiveHilbertSFCOperations implements
 		// handle the edge differently
 		if ((isMin && !overInclusiveOnEdge) || (!isMin && overInclusiveOnEdge)) {
 			// this will round up on the edge
-			return (long) Math
-					.min(
-							Math
-									.floor(
-											normalizedValue * bins),
-							bins - 1);
+			return (long) Math.min(
+					Math.floor(normalizedValue * bins),
+					bins - 1);
 		}
 		else {
 			// this will round down on the edge
-			return (long) Math
-					.max(
-							Math
-									.ceil(
-											normalizedValue * bins)
-									- 1L,
-							0);
+			return (long) Math.max(
+					Math.ceil(normalizedValue * bins) - 1L,
+					0);
 
 		}
 
@@ -344,12 +314,8 @@ public class PrimitiveHilbertSFCOperations implements
 		}
 		// scale it to a value within the dimension definition range
 		return new NumericRange(
-				boundedDimensionDefinition
-						.denormalize(
-								min),
-				boundedDimensionDefinition
-						.denormalize(
-								max));
+				boundedDimensionDefinition.denormalize(min),
+				boundedDimensionDefinition.denormalize(max));
 
 	}
 
@@ -392,18 +358,11 @@ public class PrimitiveHilbertSFCOperations implements
 				// inclusive in this case)
 				normalizedMax = normalizedMin;
 			}
-			minRangeList
-					.add(
-							normalizedMin);
-			maxRangeList
-					.add(
-							normalizedMax);
-			region
-					.add(
-							LongRange
-									.of(
-											normalizedMin,
-											normalizedMax + 1L));
+			minRangeList.add(normalizedMin);
+			maxRangeList.add(normalizedMax);
+			region.add(LongRange.of(
+					normalizedMin,
+					normalizedMax + 1L));
 
 		}
 
@@ -411,46 +370,37 @@ public class PrimitiveHilbertSFCOperations implements
 				minRangeList,
 				maxRangeList);
 
-		final RegionInspector<LongRange, LongContent> regionInspector = SimpleRegionInspector
-				.create(
-						ImmutableList
-								.of(
-										region),
-						new LongContent(
-								minQuadSize),
-						Functions.<LongRange> identity(),
-						LongRangeHome.INSTANCE,
-						zero);
+		final RegionInspector<LongRange, LongContent> regionInspector = SimpleRegionInspector.create(
+				ImmutableList.of(region),
+				new LongContent(
+						minQuadSize),
+				Functions.<LongRange> identity(),
+				LongRangeHome.INSTANCE,
+				zero);
 
 		final PlainFilterCombiner<LongRange, Long, LongContent, LongRange> intervalCombiner = new PlainFilterCombiner<>(
-				LongRange
-						.of(
-								0,
-								1));
+				LongRange.of(
+						0,
+						1));
 
-		final QueryBuilder<LongRange, LongRange> queryBuilder = BacktrackingQueryBuilder
-				.create(
-						regionInspector,
-						intervalCombiner,
-						maxFilteredIndexedRanges,
-						removeVacuum,
-						LongRangeHome.INSTANCE,
-						zero);
+		final QueryBuilder<LongRange, LongRange> queryBuilder = BacktrackingQueryBuilder.create(
+				regionInspector,
+				intervalCombiner,
+				maxFilteredIndexedRanges,
+				removeVacuum,
+				LongRangeHome.INSTANCE,
+				zero);
 		synchronized (compactHilbertCurve) {
-			compactHilbertCurve
-					.accept(
-							new ZoomingSpaceVisitorAdapter(
-									compactHilbertCurve,
-									queryBuilder));
+			compactHilbertCurve.accept(new ZoomingSpaceVisitorAdapter(
+					compactHilbertCurve,
+					queryBuilder));
 		}
 		final List<FilteredIndexRange<LongRange, LongRange>> hilbertRanges = queryBuilder
 				.get()
 				.getFilteredIndexRanges();
 
 		final ByteArrayRange[] sfcRanges = new ByteArrayRange[hilbertRanges.size()];
-		final int expectedByteCount = (int) Math
-				.ceil(
-						totalPrecision / 8.0);
+		final int expectedByteCount = (int) Math.ceil(totalPrecision / 8.0);
 		if (expectedByteCount <= 0) {
 			// special case for no precision
 			return new RangeDecomposition(
@@ -463,9 +413,7 @@ public class PrimitiveHilbertSFCOperations implements
 					});
 		}
 		for (int i = 0; i < hilbertRanges.size(); i++) {
-			final FilteredIndexRange<LongRange, LongRange> range = hilbertRanges
-					.get(
-							i);
+			final FilteredIndexRange<LongRange, LongRange> range = hilbertRanges.get(i);
 			// sanity check that values fit within the expected range
 			// it seems that uzaygezen can produce a value at 2^totalPrecision
 			// rather than 2^totalPrecision - 1
@@ -478,26 +426,18 @@ public class PrimitiveHilbertSFCOperations implements
 					maxHilbertValue,
 					range.getIndexRange().getEnd() - 1);
 			// make sure its padded if necessary
-			final byte[] start = HilbertSFC
-					.fitExpectedByteCount(
-							expectedByteCount,
-							ByteBuffer
-									.allocate(
-											8)
-									.putLong(
-											startValue)
-									.array());
+			final byte[] start = HilbertSFC.fitExpectedByteCount(
+					expectedByteCount,
+					ByteBuffer.allocate(
+							8).putLong(
+							startValue).array());
 
 			// make sure its padded if necessary
-			final byte[] end = HilbertSFC
-					.fitExpectedByteCount(
-							expectedByteCount,
-							ByteBuffer
-									.allocate(
-											8)
-									.putLong(
-											endValue)
-									.array());
+			final byte[] end = HilbertSFC.fitExpectedByteCount(
+					expectedByteCount,
+					ByteBuffer.allocate(
+							8).putLong(
+							endValue).array());
 			sfcRanges[i] = new ByteArrayRange(
 					new ByteArray(
 							start),
@@ -515,13 +455,11 @@ public class PrimitiveHilbertSFCOperations implements
 			final long min,
 			final long max,
 			final long value ) {
-		return Math
-				.max(
-						Math
-								.min(
-										value,
-										max),
-						0);
+		return Math.max(
+				Math.min(
+						value,
+						max),
+				0);
 	}
 
 	/***
@@ -540,28 +478,17 @@ public class PrimitiveHilbertSFCOperations implements
 			final List<Long> minRangeList,
 			final List<Long> maxRangeList ) {
 		long maxRange = 1;
-		final int dimensionality = Math
-				.min(
-						minRangeList.size(),
-						maxRangeList.size());
+		final int dimensionality = Math.min(
+				minRangeList.size(),
+				maxRangeList.size());
 		for (int d = 0; d < dimensionality; d++) {
-			maxRange = Math
-					.max(
-							maxRange,
-							(Math
-									.abs(
-											maxRangeList
-													.get(
-															d)
-													- minRangeList
-															.get(
-																	d))
-									+ 1));
+			maxRange = Math.max(
+					maxRange,
+					(Math.abs(maxRangeList.get(d) - minRangeList.get(d)) + 1));
 		}
-		final long maxRangeDecomposed = (long) Math
-				.pow(
-						maxRange,
-						dimensionality);
+		final long maxRangeDecomposed = (long) Math.pow(
+				maxRange,
+				dimensionality);
 		if (maxRangeDecomposed <= UNIT_CELL_SIZE) {
 			return 1L;
 		}
@@ -601,14 +528,9 @@ public class PrimitiveHilbertSFCOperations implements
 				// inclusive in this case)
 				binMax = binMin;
 			}
-			estimatedIdCount *= (Math
-					.abs(
-							binMax - binMin)
-					+ 1);
+			estimatedIdCount *= (Math.abs(binMax - binMin) + 1);
 		}
-		return BigInteger
-				.valueOf(
-						estimatedIdCount);
+		return BigInteger.valueOf(estimatedIdCount);
 	}
 
 	@Override

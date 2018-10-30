@@ -30,10 +30,9 @@ public class RedisUtils
 			final RedissonClient client,
 			final String namespace,
 			final MetadataType metadataType ) {
-		return client
-				.getScoredSortedSet(
-						namespace + "_" + metadataType.toString(),
-						GeoWaveMetadataCodec.SINGLETON);
+		return client.getScoredSortedSet(
+				namespace + "_" + metadataType.toString(),
+				GeoWaveMetadataCodec.SINGLETON);
 	}
 
 	public static String getRowSetPrefix(
@@ -73,9 +72,7 @@ public class RedisUtils
 			final byte[] partitionKey ) {
 		String partitionStr;
 		if ((partitionKey != null) && (partitionKey.length > 0)) {
-			partitionStr = "_" + ByteArrayUtils
-					.byteArrayToString(
-							partitionKey);
+			partitionStr = "_" + ByteArrayUtils.byteArrayToString(partitionKey);
 		}
 		else {
 			partitionStr = "";
@@ -86,10 +83,9 @@ public class RedisUtils
 	public static RScoredSortedSet<GeoWaveRedisPersistedRow> getRowSet(
 			final RedissonClient client,
 			final String setName ) {
-		return client
-				.getScoredSortedSet(
-						setName,
-						GeoWaveRedisRowCodec.SINGLETON);
+		return client.getScoredSortedSet(
+				setName,
+				GeoWaveRedisRowCodec.SINGLETON);
 
 	}
 
@@ -110,75 +106,12 @@ public class RedisUtils
 
 	public static double getScore(
 			final byte[] byteArray ) {
-		return bytesToLong(
-				byteArray);
+		return bytesToLong(byteArray);
 	}
 
 	public static byte[] getSortKey(
 			final double score ) {
-		return shift(
-				(long) score);
-	}
-
-	public static void main(
-			final String[] args ) {
-		for (int i = 0; i < 10; i++) {
-			long val = new Random().nextLong();
-			// * Math
-			// .pow(
-			// 2,
-			// 52));
-
-			final BitSet set = BitSet
-					.valueOf(
-							new long[] {
-								val
-							});
-			for (int a = 0; a < 12; a++) {
-				set
-						.clear(
-								a);
-			}
-			val = set.toLongArray()[0];
-			System.err
-					.println(
-							val);
-
-			System.err
-					.println(
-							(double) val);
-
-			System.err
-					.println(
-							Long
-									.toHexString(
-											val));
-
-			System.err
-					.println(
-							new ByteArray(
-									shift(
-											val)).getHexString());
-			System.err
-					.println(
-							new ByteArray(
-									getSortKey(
-											val)).getHexString());
-
-			System.err
-					.println(
-							getScore(
-									getSortKey(
-											val)));
-
-			System.err
-					.println(
-							new ByteArray(
-									getSortKey(
-											getScore(
-													getSortKey(
-															val)))).getHexString());
-		}
+		return shift((long) score);
 	}
 
 	private static byte[] shift(

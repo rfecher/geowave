@@ -62,7 +62,9 @@ public class RowConsumer<T> implements
 			return false;
 		}
 	}
+
 	int count = 0;
+
 	@Override
 	public T next() {
 		final T retVal = (T) nextRow;

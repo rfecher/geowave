@@ -6,7 +6,8 @@ import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 
 import com.google.common.primitives.UnsignedBytes;
 
-public class GeoWaveRedisPersistedRow implements Comparable<GeoWaveRedisPersistedRow>
+public class GeoWaveRedisPersistedRow implements
+		Comparable<GeoWaveRedisPersistedRow>
 {
 	private final short numDuplicates;
 	private final byte[] dataId;
@@ -86,6 +87,7 @@ public class GeoWaveRedisPersistedRow implements Comparable<GeoWaveRedisPersiste
 		}
 		return true;
 	}
+
 	@Override
 	public int compareTo(
 			final GeoWaveRedisPersistedRow obj ) {
@@ -108,7 +110,7 @@ public class GeoWaveRedisPersistedRow implements Comparable<GeoWaveRedisPersiste
 					thisComp,
 					otherComp);
 		}
-		otherComp = other.getFieldMask() == null ? new byte[0]: other.getFieldMask();
+		otherComp = other.getFieldMask() == null ? new byte[0] : other.getFieldMask();
 		thisComp = (getFieldMask() == null) && (getFieldMask().length == 0) ? new byte[0] : getFieldMask();
 		if (UnsignedBytes.lexicographicalComparator().compare(
 				thisComp,
@@ -117,8 +119,8 @@ public class GeoWaveRedisPersistedRow implements Comparable<GeoWaveRedisPersiste
 					thisComp,
 					otherComp);
 		}
-		otherComp = other.getVisibility() == null ? new byte[0]:other.getVisibility();
-		thisComp = getVisibility() == null  ? new byte[0] : getVisibility();
+		otherComp = other.getVisibility() == null ? new byte[0] : other.getVisibility();
+		thisComp = getVisibility() == null ? new byte[0] : getVisibility();
 		if (UnsignedBytes.lexicographicalComparator().compare(
 				thisComp,
 				otherComp) != 0) {
@@ -127,7 +129,7 @@ public class GeoWaveRedisPersistedRow implements Comparable<GeoWaveRedisPersiste
 					otherComp);
 		}
 		otherComp = other.getValue() == null ? new byte[0] : other.getValue();
-		thisComp = getValue() == null? new byte[0] : getValue();
+		thisComp = getValue() == null ? new byte[0] : getValue();
 		if (UnsignedBytes.lexicographicalComparator().compare(
 				thisComp,
 				otherComp) != 0) {
@@ -135,6 +137,8 @@ public class GeoWaveRedisPersistedRow implements Comparable<GeoWaveRedisPersiste
 					thisComp,
 					otherComp);
 		}
-		return Integer.compare(numDuplicates, other.numDuplicates);
+		return Integer.compare(
+				numDuplicates,
+				other.numDuplicates);
 	}
 }

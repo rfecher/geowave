@@ -7,6 +7,8 @@ import org.redisson.client.codec.BaseCodec;
 import org.redisson.client.handler.State;
 import org.redisson.client.protocol.Decoder;
 import org.redisson.client.protocol.Encoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.clearspring.analytics.util.Varint;
 
@@ -18,6 +20,7 @@ import io.netty.buffer.ByteBufOutputStream;
 public class GeoWaveRedisRowCodec extends
 		BaseCodec
 {
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveRedisRowCodec.class);
 	protected static GeoWaveRedisRowCodec SINGLETON = new GeoWaveRedisRowCodec();
 	private final Decoder<Object> decoder = new Decoder<Object>() {
 		@Override
@@ -30,22 +33,20 @@ public class GeoWaveRedisRowCodec extends
 				final byte[] dataId = new byte[in.readUnsignedByte()];
 				final byte[] fieldMask = new byte[in.readUnsignedByte()];
 				final byte[] visibility = new byte[in.readUnsignedByte()];
-				final byte[] value = new byte[Varint
-						.readUnsignedVarInt(
-								in)];
+				final byte[] value = new byte[Varint.readUnsignedVarInt(in)];
 				final int numDuplicates = in.readUnsignedByte();
-				in
-						.read(
-								dataId);
-				in
-						.read(
-								fieldMask);
-				in
-						.read(
-								visibility);
-				in
-						.read(
-								value);
+				if (in.read(dataId) != dataId.length) {
+					LOGGER.warn("unable to read data ID");
+				}
+				if (in.read(fieldMask) != fieldMask.length) {
+					LOGGER.warn("unable to read fieldMask");
+				}
+				if (in.read(visibility) != visibility.length) {
+					LOGGER.warn("unable to read visibility");
+				}
+				if (in.read(value) != value.length) {
+					LOGGER.warn("unable to read value");
+				}
 				return new GeoWaveRedisPersistedRow(
 						(short) numDuplicates,
 						dataId,
@@ -67,34 +68,17 @@ public class GeoWaveRedisRowCodec extends
 
 				try (final ByteBufOutputStream out = new ByteBufOutputStream(
 						buf)) {
-					out
-							.writeByte(
-									row.getDataId().length);
-					out
-							.writeByte(
-									row.getFieldMask().length);
-					out
-							.writeByte(
-									row.getVisibility().length);
-					Varint
-							.writeUnsignedVarInt(
-									row.getValue().length,
-									out);
-					out
-							.writeByte(
-									row.getNumDuplicates());
-					out
-							.write(
-									row.getDataId());
-					out
-							.write(
-									row.getFieldMask());
-					out
-							.write(
-									row.getVisibility());
-					out
-							.write(
-									row.getValue());
+					out.writeByte(row.getDataId().length);
+					out.writeByte(row.getFieldMask().length);
+					out.writeByte(row.getVisibility().length);
+					Varint.writeUnsignedVarInt(
+							row.getValue().length,
+							out);
+					out.writeByte(row.getNumDuplicates());
+					out.write(row.getDataId());
+					out.write(row.getFieldMask());
+					out.write(row.getVisibility());
+					out.write(row.getValue());
 					out.flush();
 					return out.buffer();
 				}

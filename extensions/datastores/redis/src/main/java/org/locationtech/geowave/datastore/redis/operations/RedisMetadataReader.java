@@ -37,71 +37,54 @@ public class RedisMetadataReader implements
 			if (query.getPrimaryId().length > 6) {
 				// this primary ID and next prefix are going to be the same
 				// score
-				final double score = RedisUtils
-						.getScore(
-								query.getPrimaryId());
-				results = set
-						.valueRange(
-								score,
-								true,
-								score,
-								true);
+				final double score = RedisUtils.getScore(query.getPrimaryId());
+				results = set.valueRange(
+						score,
+						true,
+						score,
+						true);
 			}
 			else {
 				// the primary ID prefix is short enough that we can use the
 				// score of the next prefix to subset the data
-				results = set
-						.valueRange(
-								RedisUtils
-										.getScore(
-												query.getPrimaryId()),
-								true,
-								RedisUtils
-										.getScore(
-												ByteArray
-														.getNextPrefix(
-																query.getPrimaryId())),
-								false);
+				results = set.valueRange(
+						RedisUtils.getScore(query.getPrimaryId()),
+						true,
+						RedisUtils.getScore(ByteArray.getNextPrefix(query.getPrimaryId())),
+						false);
 			}
 		}
 		else {
 			results = set;
 		}
 		if (query.hasPrimaryId() || query.hasSecondaryId()) {
-			results = Iterables
-					.filter(
-							results,
-							new Predicate<GeoWaveMetadata>() {
+			results = Iterables.filter(
+					results,
+					new Predicate<GeoWaveMetadata>() {
 
-								@Override
-								public boolean apply(
-										@Nullable
+						@Override
+						public boolean apply(
+								@Nullable
 								final GeoWaveMetadata input ) {
-									if (query.hasPrimaryId() && !startsWith(
-											input.getPrimaryId(),
-											query.getPrimaryId())) {
-										return false;
-									}
-									if (query.hasSecondaryId() && !Arrays
-											.equals(
-													input.getSecondaryId(),
-													query.getSecondaryId())) {
-										return false;
-									}
-									return true;
-								}
-							});
+							if (query.hasPrimaryId() && !startsWith(
+									input.getPrimaryId(),
+									query.getPrimaryId())) {
+								return false;
+							}
+							if (query.hasSecondaryId() && !Arrays.equals(
+									input.getSecondaryId(),
+									query.getSecondaryId())) {
+								return false;
+							}
+							return true;
+						}
+					});
 		}
-		final boolean isStats = MetadataType.STATS
-				.equals(
-						metadataType)
-				&& mergeStats;
+		final boolean isStats = MetadataType.STATS.equals(metadataType) && mergeStats;
 		final CloseableIterator<GeoWaveMetadata> retVal;
 		if (isStats) {
 			retVal = new CloseableIterator.Wrapper<>(
-					RedisUtils
-							.groupByIds(
-									results));
+					RedisUtils.groupByIds(results));
 		}
 		else {
 			retVal = new CloseableIterator.Wrapper<>(

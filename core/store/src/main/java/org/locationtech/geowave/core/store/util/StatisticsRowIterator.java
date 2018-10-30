@@ -37,48 +37,40 @@ public class StatisticsRowIterator implements
 			final String... authorizations ) {
 		if ((authorizations != null) && (authorizations.length > 0)) {
 			final Set<String> authorizationsSet = new HashSet<>(
-					Arrays
-							.asList(
-									authorizations));
+					Arrays.asList(authorizations));
 			it = new CloseableIteratorWrapper<>(
 					resultIterator,
-					Iterators
-							.filter(
-									resultIterator,
-									new Predicate<GeoWaveMetadata>() {
-										@Override
-										public boolean apply(
-												final GeoWaveMetadata input ) {
-											String visibility = "";
-											if (input.getVisibility() != null) {
-												visibility = StringUtils
-														.stringFromBinary(
-																input.getVisibility());
-											}
-											return VisibilityExpression
-													.evaluate(
-															visibility,
-															authorizationsSet);
-										}
-									}));
+					Iterators.filter(
+							resultIterator,
+							new Predicate<GeoWaveMetadata>() {
+								@Override
+								public boolean apply(
+										final GeoWaveMetadata input ) {
+									String visibility = "";
+									if (input.getVisibility() != null) {
+										visibility = StringUtils.stringFromBinary(input.getVisibility());
+									}
+									return VisibilityExpression.evaluate(
+											visibility,
+											authorizationsSet);
+								}
+							}));
 		}
 		else {
 			it = new CloseableIteratorWrapper<>(
 					resultIterator,
-					Iterators
-							.filter(
-									resultIterator,
-									new Predicate<GeoWaveMetadata>() {
-										@Override
-										public boolean apply(
-												final GeoWaveMetadata input ) {
-											// we don't have any authorizations
-											// so this row cannot have any
-											// visibilities
-											return (input.getVisibility() == null)
-													|| (input.getVisibility().length == 0);
-										}
-									}));
+					Iterators.filter(
+							resultIterator,
+							new Predicate<GeoWaveMetadata>() {
+								@Override
+								public boolean apply(
+										final GeoWaveMetadata input ) {
+									// we don't have any authorizations
+									// so this row cannot have any
+									// visibilities
+									return (input.getVisibility() == null) || (input.getVisibility().length == 0);
+								}
+							}));
 		}
 	}
 
@@ -95,28 +87,17 @@ public class StatisticsRowIterator implements
 		while (it.hasNext()) {
 			final GeoWaveMetadata row = it.next();
 
-			final InternalDataStatistics<?, ?, ?> statEntry = entryToValue(
-					row);
+			final InternalDataStatistics<?, ?, ?> statEntry = entryToValue(row);
 
 			if (currentStatistics == null) {
 				currentStatistics = statEntry;
 			}
 			else {
-				if (statEntry
-						.getType()
-						.equals(
-								currentStatistics.getType())
-						&& statEntry
-								.getAdapterId()
-								.equals(
-										currentStatistics.getAdapterId())
-						&& statEntry
-								.getExtendedId()
-								.equals(
-										currentStatistics.getExtendedId())) {
-					currentStatistics
-							.merge(
-									statEntry);
+				if (statEntry.getType().equals(
+						currentStatistics.getType()) && statEntry.getAdapterId().equals(
+						currentStatistics.getAdapterId()) && statEntry.getExtendedId().equals(
+						currentStatistics.getExtendedId())) {
+					currentStatistics.merge(statEntry);
 				}
 				else {
 					nextVal = statEntry;
@@ -125,23 +106,18 @@ public class StatisticsRowIterator implements
 			}
 		}
 
-		return statsToMetadata(
-				currentStatistics);
+		return statsToMetadata(currentStatistics);
 	}
 
 	protected InternalDataStatistics<?, ?, ?> entryToValue(
 			final GeoWaveMetadata entry ) {
 		final InternalDataStatistics<?, ?, ?> basicStats = (InternalDataStatistics<?, ?, ?>) PersistenceUtils
-				.fromBinary(
-						entry.getValue());
+				.fromBinary(entry.getValue());
 		if (basicStats != null) {
-			DataStatisticsStoreImpl
-					.setFields(
-							entry,
-							basicStats,
-							ByteArrayUtils
-									.byteArrayToShort(
-											entry.getSecondaryId()));
+			DataStatisticsStoreImpl.setFields(
+					entry,
+					basicStats,
+					ByteArrayUtils.byteArrayToShort(entry.getSecondaryId()));
 		}
 		return basicStats;
 	}
@@ -149,18 +125,12 @@ public class StatisticsRowIterator implements
 	protected GeoWaveMetadata statsToMetadata(
 			final InternalDataStatistics<?, ?, ?> stats ) {
 		return new GeoWaveMetadata(
-				DataStatisticsStoreImpl
-						.getPrimaryId(
-								stats.getType(),
-								stats.getExtendedId())
-						.getBytes(),
-				ByteArrayUtils
-						.shortToByteArray(
-								stats.getAdapterId()),
+				DataStatisticsStoreImpl.getPrimaryId(
+						stats.getType(),
+						stats.getExtendedId()).getBytes(),
+				ByteArrayUtils.shortToByteArray(stats.getAdapterId()),
 				stats.getVisibility(),
-				PersistenceUtils
-						.toBinary(
-								stats));
+				PersistenceUtils.toBinary(stats));
 	}
 
 	@Override

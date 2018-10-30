@@ -216,11 +216,8 @@ public class RedisReader<T> implements
 	private static boolean isGroupByRow(
 			final BaseReaderParams<?> readerParams,
 			final short adapterId ) {
-		return readerParams.isMixedVisibility() || (readerParams
-				.getAdapterStore()
-				.getAdapter(
-						adapterId)
-				.getAdapter() instanceof RowMergingDataAdapter);
+		return readerParams.isMixedVisibility() || (readerParams.getAdapterStore().getAdapter(
+				adapterId).getAdapter() instanceof RowMergingDataAdapter);
 	}
 
 	private CloseableIterator<T> createIteratorForRecordReader(
@@ -228,30 +225,22 @@ public class RedisReader<T> implements
 			final RecordReaderParams<T> recordReaderParams,
 			final String namespace ) {
 		final GeoWaveRowRange range = recordReaderParams.getRowRange();
-		final ByteArray startKey = range.isInfiniteStartSortKey() ? null
-				: new ByteArray(
-						range.getStartSortKey());
-		final ByteArray stopKey = range.isInfiniteStopSortKey() ? null
-				: new ByteArray(
-						range.getEndSortKey());
+		final ByteArray startKey = range.isInfiniteStartSortKey() ? null : new ByteArray(
+				range.getStartSortKey());
+		final ByteArray stopKey = range.isInfiniteStopSortKey() ? null : new ByteArray(
+				range.getEndSortKey());
 		final SinglePartitionQueryRanges partitionRange = new SinglePartitionQueryRanges(
 				new ByteArray(
 						range.getPartitionKey()),
-				Collections
-						.singleton(
-								new ByteArrayRange(
-										startKey,
-										stopKey)));
-		final Set<String> authorizations = Sets
-				.newHashSet(
-						recordReaderParams.getAdditionalAuthorizations());
+				Collections.singleton(new ByteArrayRange(
+						startKey,
+						stopKey)));
+		final Set<String> authorizations = Sets.newHashSet(recordReaderParams.getAdditionalAuthorizations());
 		return createIterator(
 				client,
 				recordReaderParams,
 				namespace,
-				Collections
-						.singleton(
-								partitionRange),
+				Collections.singleton(partitionRange),
 				authorizations,
 				// there should already be sufficient parallelism created by
 				// input splits for record reader use cases
@@ -265,13 +254,11 @@ public class RedisReader<T> implements
 			final Set<String> authorizations ) {
 		return new CloseableIterator.Wrapper<>(
 				rowTransform
-						.apply(
-								(Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
-										Iterators
-												.filter(
-														results,
-														new ClientVisibilityFilter(
-																authorizations)))));
+						.apply((Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
+								Iterators.filter(
+										results,
+										new ClientVisibilityFilter(
+												authorizations)))));
 	}
 
 	@Override
