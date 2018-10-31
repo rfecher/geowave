@@ -1,10 +1,13 @@
 package org.locationtech.geowave.datastore.redis.operations;
 
+import java.time.Instant;
+
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedTimestampRow;
 import org.locationtech.geowave.datastore.redis.util.RedisUtils;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
@@ -23,18 +26,21 @@ public class RedisWriter implements
 			.build(
 					partitionKey -> getSet(
 							partitionKey.getBytes()));
+	boolean isTimestampRequired;
 
 	public RedisWriter(
 			final RedissonClient client,
 			final String namespace,
 			final String typeName,
-			final String indexName ) {
+			final String indexName,
+			final boolean isTimestampRequired ) {
 		this.client = client;
 		setNamePrefix = RedisUtils
 				.getRowSetPrefix(
 						namespace,
 						typeName,
 						indexName);
+		this.isTimestampRequired = isTimestampRequired;
 	}
 
 	private RScoredSortedSet<GeoWaveRedisPersistedRow> getSet(
@@ -43,7 +49,8 @@ public class RedisWriter implements
 				.getRowSet(
 						client,
 						setNamePrefix,
-						partitionKey);
+						partitionKey,
+						isTimestampRequired);
 	}
 
 	@Override
@@ -74,10 +81,15 @@ public class RedisWriter implements
 							RedisUtils
 									.getScore(
 											row.getSortKey()),
-							new GeoWaveRedisPersistedRow(
+							isTimestampRequired ? new GeoWaveRedisPersistedTimestampRow(
 									(short) row.getNumberOfDuplicates(),
 									row.getDataId(),
-									value));
+									value,
+									Instant.now())
+									: new GeoWaveRedisPersistedRow(
+											(short) row.getNumberOfDuplicates(),
+											row.getDataId(),
+											value));
 		}
 	}
 

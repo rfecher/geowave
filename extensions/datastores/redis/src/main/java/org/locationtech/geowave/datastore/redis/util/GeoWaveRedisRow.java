@@ -53,4 +53,8 @@ public class GeoWaveRedisRow extends
 		return persistedRow.getNumDuplicates();
 	}
 
+	public GeoWaveRedisPersistedRow getPersistedRow() {
+		return persistedRow;
+	}
+
 }

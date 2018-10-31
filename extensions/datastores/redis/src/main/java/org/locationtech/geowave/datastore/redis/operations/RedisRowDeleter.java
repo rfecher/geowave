@@ -1,14 +1,15 @@
 package org.locationtech.geowave.datastore.redis.operations;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisRow;
 import org.locationtech.geowave.datastore.redis.util.RedisUtils;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
@@ -20,11 +21,11 @@ public class RedisRowDeleter implements
 		RowDeleter
 {
 
-	private final LoadingCache<String, RScoredSortedSet<GeoWaveRedisPersistedRow>> setCache = Caffeine
+	private final LoadingCache<Pair<String, Short>, RScoredSortedSet<GeoWaveRedisPersistedRow>> setCache = Caffeine
 			.newBuilder()
 			.build(
-					name -> getSet(
-							name));
+					nameAndAdapterId -> getSet(
+							nameAndAdapterId));
 	private final RedissonClient client;
 	private final ReaderParams<?> params;
 	private final String namespace;
@@ -42,25 +43,31 @@ public class RedisRowDeleter implements
 	@Override
 	public void close()
 			throws Exception {
-		//TODO its unclear whether this is necessary
-//		setCache
-//				.asMap()
-//				.forEach(
-//						(
-//								k,
-//								v ) -> {
-//							if (v.isEmpty()) {
-//								v.delete();
-//							}
-//						});
+		// TODO its unclear whether this is necessary
+		// setCache
+		// .asMap()
+		// .forEach(
+		// (
+		// k,
+		// v ) -> {
+		// if (v.isEmpty()) {
+		// v.delete();
+		// }
+		// });
 	}
 
 	private RScoredSortedSet<GeoWaveRedisPersistedRow> getSet(
-			final String setName ) {
+			final Pair<String, Short> setNameAndAdapterId ) {
 		return RedisUtils
 				.getRowSet(
 						client,
-						setName);
+						setNameAndAdapterId.getLeft(),
+						RedisUtils
+								.isSortByTime(
+										params
+												.getAdapterStore()
+												.getAdapter(
+														setNameAndAdapterId.getRight())));
 	}
 
 	@Override
@@ -72,25 +79,21 @@ public class RedisRowDeleter implements
 								row.getPartitionKey()));
 		final RScoredSortedSet<GeoWaveRedisPersistedRow> set = setCache
 				.get(
-						RedisUtils
-								.getRowSetName(
-										namespace,
-										params
-												.getInternalAdapterStore()
-												.getTypeName(
-														row.getAdapterId()),
-										params.getIndex().getName(),
-										row.getPartitionKey()));
-		Arrays
-				.stream(
-						row.getFieldValues())
-				.forEach(
-						v -> set
-								.remove(
-										new GeoWaveRedisPersistedRow(
-												(short) row.getNumberOfDuplicates(),
-												row.getDataId(),
-												v)));
+						Pair
+								.of(
+										RedisUtils
+												.getRowSetName(
+														namespace,
+														params
+																.getInternalAdapterStore()
+																.getTypeName(
+																		row.getAdapterId()),
+														params.getIndex().getName(),
+														row.getPartitionKey()),
+										row.getAdapterId()));
+		set
+				.remove(
+						((GeoWaveRedisRow) row).getPersistedRow());
 	}
 
 }

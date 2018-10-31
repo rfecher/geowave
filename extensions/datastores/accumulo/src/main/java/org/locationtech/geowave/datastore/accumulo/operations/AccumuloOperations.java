@@ -69,6 +69,7 @@ import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
@@ -1361,8 +1362,7 @@ public class AccumuloOperations implements
 	@Override
 	public RowWriter createWriter(
 			final Index index,
-			final String typeName,
-			final short internalAdapterId ) {
+			InternalDataAdapter<?> adapter ) {
 		final String tableName = index.getName();
 		if (createTable(
 				tableName,
@@ -1371,11 +1371,11 @@ public class AccumuloOperations implements
 			try {
 				if (options.isUseLocalityGroups() && !localityGroupExists(
 						tableName,
-						typeName)) {
+						adapter.getTypeName())) {
 					addLocalityGroup(
 							tableName,
-							typeName,
-							internalAdapterId);
+							adapter.getTypeName(),
+							adapter.getAdapterId());
 				}
 			}
 			catch (AccumuloException | TableNotFoundException | AccumuloSecurityException e) {

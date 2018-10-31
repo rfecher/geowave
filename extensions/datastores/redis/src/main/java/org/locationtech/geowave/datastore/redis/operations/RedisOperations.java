@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
@@ -139,13 +140,13 @@ public class RedisOperations implements
 	@Override
 	public RowWriter createWriter(
 			final Index index,
-			final String typeName,
-			final short adapterId ) {
+			final InternalDataAdapter<?> adapter ) {
 		return new RedisWriter(
 				client,
 				gwNamespace,
-				typeName,
-				index.getName());
+				adapter.getTypeName(),
+				index.getName(),
+				RedisUtils.isSortByTime(adapter));
 	}
 
 	@Override

@@ -1,16 +1,21 @@
 package org.locationtech.geowave.datastore.redis.util;
 
-import java.util.BitSet;
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Random;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
+import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
+import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
+import org.locationtech.geowave.core.store.operations.BaseReaderParams;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
@@ -45,12 +50,14 @@ public class RedisUtils
 	public static RScoredSortedSet<GeoWaveRedisPersistedRow> getRowSet(
 			final RedissonClient client,
 			final String setNamePrefix,
-			final byte[] partitionKey ) {
+			final byte[] partitionKey,
+			final boolean requiresTimestamp ) {
 		return getRowSet(
 				client,
 				getRowSetName(
 						setNamePrefix,
-						partitionKey));
+						partitionKey),
+				requiresTimestamp);
 
 	}
 
@@ -82,10 +89,11 @@ public class RedisUtils
 
 	public static RScoredSortedSet<GeoWaveRedisPersistedRow> getRowSet(
 			final RedissonClient client,
-			final String setName ) {
+			final String setName,
+			final boolean requiresTimestamp ) {
 		return client.getScoredSortedSet(
 				setName,
-				GeoWaveRedisRowCodec.SINGLETON);
+				requiresTimestamp ? GeoWaveRedisRowWithTimestampCodec.SINGLETON : GeoWaveRedisRowCodec.SINGLETON);
 
 	}
 
@@ -94,14 +102,16 @@ public class RedisUtils
 			final String namespace,
 			final String typeName,
 			final String indexName,
-			final byte[] partitionKey ) {
+			final byte[] partitionKey,
+			final boolean requiresTimestamp ) {
 		return getRowSet(
 				client,
 				getRowSetPrefix(
 						namespace,
 						typeName,
 						indexName),
-				partitionKey);
+				partitionKey,
+				requiresTimestamp);
 	}
 
 	public static double getScore(
@@ -111,18 +121,23 @@ public class RedisUtils
 
 	public static byte[] getSortKey(
 			final double score ) {
-		return shift((long) score);
+		return longToBytes((long) score);
 	}
 
-	private static byte[] shift(
+	private static byte[] longToBytes(
 			long val ) {
 
 		final int radix = 1 << 8;
 		final int mask = radix - 1;
+		// we want to eliminate trailing 0's (ie. truncate the byte array by
+		// trailing 0's)
 		int trailingZeros = 0;
 		while ((((int) val) & mask) == 0) {
 			val >>>= 8;
 			trailingZeros++;
+			if (trailingZeros == 8) {
+				return new byte[0];
+			}
 		}
 		final byte[] array = new byte[8 - trailingZeros];
 		int pos = array.length;
@@ -136,38 +151,15 @@ public class RedisUtils
 		return array;
 	}
 
-	// private static byte[] longToBytes(
-	// final long value ) {
-	// long l = value;
-	// final byte[] bytes = new byte[8];
-	//
-	// bytes[7] = (byte) (l & 0x0f);
-	// l >>= 4;
-	// for (int i = 6; i > 1; i--) {
-	// bytes[i] = (byte) (l & 0xff);
-	// l >>= 8;
-	// }
-	// return bytes;
-	// }
-
 	private static long bytesToLong(
 			final byte[] bytes ) {
-		// grab the most significant 52 bits (matissa of a double) and make a
-		// long
-		// all of the left-most 6 bytes and the left 4 bits of the 7th byte
 		long value = 0;
-		// this accumulates the value for the first 6 bytes (48 bits)
 		for (int i = 0; i < 8; i++) {
 			value = (value << 8);
 			if (i < bytes.length) {
 				value += (bytes[i] & 0xff);
 			}
 		}
-		// and this is the final accumulation for bits 49-52
-		// value = (value << 4);
-		// if (bytes.length < 7) {
-		// value += (bytes[6] & 0xf0);
-		// }
 		return value;
 	}
 
@@ -209,7 +201,8 @@ public class RedisUtils
 	}
 
 	public static Collection<ScoredEntry<GeoWaveRedisPersistedRow>> groupByRow(
-			final Collection<ScoredEntry<GeoWaveRedisPersistedRow>> result ) {
+			final Collection<ScoredEntry<GeoWaveRedisPersistedRow>> result,
+			final boolean sortByTime ) {
 		// final List<ScoredEntry<GeoWaveRedisPersistedRow>> list = new
 		// ArrayList<>(
 		// result);
@@ -251,6 +244,61 @@ public class RedisUtils
 														new ByteArray(
 																r.getValue().getDataId())),
 										r));
+		if (sortByTime) {
+			multimap
+					.asMap()
+					.forEach(
+							(
+									k,
+									v ) -> Collections
+											.sort(
+													(List<ScoredEntry<GeoWaveRedisPersistedRow>>) v,
+													TIMESTAMP_COMPARATOR));
+		}
 		return multimap.values();
+	}
+
+	public static boolean isSortByTime(
+			final InternalDataAdapter<?> adapter ) {
+		return adapter.getAdapter() instanceof RowMergingDataAdapter;
+	}
+
+	public static Pair<Boolean, Boolean> isGroupByRowAndIsSortByTime(
+			final BaseReaderParams<?> readerParams,
+			final short adapterId ) {
+		final boolean sortByTime = isSortByTime(readerParams.getAdapterStore().getAdapter(
+				adapterId));
+		return Pair.of(
+				readerParams.isMixedVisibility() || sortByTime,
+				sortByTime);
+	}
+
+	private static final ReverseTimestampComparator TIMESTAMP_COMPARATOR = new ReverseTimestampComparator();
+
+	private static class ReverseTimestampComparator implements
+			Comparator<ScoredEntry<GeoWaveRedisPersistedRow>>,
+			Serializable
+	{
+		private static final long serialVersionUID = 2894647323275155231L;
+
+		@Override
+		public int compare(
+				final ScoredEntry<GeoWaveRedisPersistedRow> o1,
+				final ScoredEntry<GeoWaveRedisPersistedRow> o2 ) {
+			final GeoWaveRedisPersistedTimestampRow row1 = (GeoWaveRedisPersistedTimestampRow) o1.getValue();
+			final GeoWaveRedisPersistedTimestampRow row2 = (GeoWaveRedisPersistedTimestampRow) o2.getValue();
+			// we are purposely reversing the order because we want it to be
+			// sorted from most recent to least recent
+			final int compare = Long.compare(
+					row2.getSecondsSinceEpic(),
+					row1.getSecondsSinceEpic());
+			if (compare != 0) {
+				return compare;
+			}
+			return Integer.compare(
+					row2.getNanoOfSecond(),
+					row1.getNanoOfSecond());
+		}
+
 	}
 }

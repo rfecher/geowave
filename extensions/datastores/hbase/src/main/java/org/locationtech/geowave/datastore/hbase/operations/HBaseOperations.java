@@ -66,10 +66,10 @@ import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
@@ -926,13 +926,12 @@ public class HBaseOperations implements
 	@Override
 	public RowWriter createWriter(
 			final Index index,
-			final String typeName,
-			final short internalAdapterId ) {
+			final InternalDataAdapter<?> adapter ) {
 		final TableName tableName = getTableName(index.getName());
 		try {
 			final GeoWaveColumnFamily[] columnFamilies = new GeoWaveColumnFamily[1];
 			columnFamilies[0] = new StringColumnFamily(
-					ByteArrayUtils.shortToString(internalAdapterId));
+					ByteArrayUtils.shortToString(adapter.getAdapterId()));
 
 			createTable(
 					index.getIndexStrategy().getPredefinedSplits(),

@@ -18,7 +18,6 @@ import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
-import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
@@ -88,9 +87,10 @@ public class RedisReader<T> implements
 			final Iterator<GeoWaveRedisRow>[] iterators = new Iterator[readerParams.getAdapterIds().length];
 			int i = 0;
 			for (final short adapterId : readerParams.getAdapterIds()) {
-				boolean groupByRow = isGroupByRow(
-						readerParams,
-						adapterId);
+				final Pair<Boolean, Boolean> groupByRowAndSortByTime = RedisUtils
+						.isGroupByRowAndIsSortByTime(
+								readerParams,
+								adapterId);
 				final String setNamePrefix = RedisUtils
 						.getRowSetPrefix(
 								namespace,
@@ -110,16 +110,19 @@ public class RedisReader<T> implements
 											.getRowSet(
 													client,
 													setNamePrefix,
-													p.getBytes())
+													p.getBytes(),
+													groupByRowAndSortByTime.getRight())
 											.entryRange(
 													Double.NEGATIVE_INFINITY,
 													true,
 													Double.POSITIVE_INFINITY,
 													true);
-									final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> it = groupByRow
+									final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> it = groupByRowAndSortByTime
+											.getLeft()
 													? RedisUtils
 															.groupByRow(
-																	result)
+																	result,
+																	groupByRowAndSortByTime.getRight())
 															.iterator()
 													: result.iterator();
 									return ImmutablePair
@@ -181,9 +184,10 @@ public class RedisReader<T> implements
 								new ClientVisibilityFilter(
 										authorizations),
 								async,
-								isGroupByRow(
-										readerParams,
-										adapterId)).results())
+								RedisUtils
+										.isGroupByRowAndIsSortByTime(
+												readerParams,
+												adapterId)).results())
 				.iterator();
 		final CloseableIterator<T>[] itArray = Iterators
 				.toArray(
@@ -211,13 +215,6 @@ public class RedisReader<T> implements
 				Iterators
 						.concat(
 								itArray));
-	}
-
-	private static boolean isGroupByRow(
-			final BaseReaderParams<?> readerParams,
-			final short adapterId ) {
-		return readerParams.isMixedVisibility() || (readerParams.getAdapterStore().getAdapter(
-				adapterId).getAdapter() instanceof RowMergingDataAdapter);
 	}
 
 	private CloseableIterator<T> createIteratorForRecordReader(
