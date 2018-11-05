@@ -19,7 +19,11 @@ import com.beust.jcommander.ParametersDelegate;
 public class RedisOptions extends
 		StoreFactoryOptions
 {
-	@Parameter(names = "--address", required = true, description = "The address to connect to.")
+	@Parameter(names = {
+		"--address",
+		"-a"
+	}, required = true, description = "The address to connect to, such as redis://127.0.0.1:6379")
+
 	private String address;
 	@Parameter(names = "--compression", description = "Can be \"snappy\",\"lz4\", or \"none\". Defaults to snappy.", converter = CompressionConverter.class)
 	private Compression compression = Compression.SNAPPY;
