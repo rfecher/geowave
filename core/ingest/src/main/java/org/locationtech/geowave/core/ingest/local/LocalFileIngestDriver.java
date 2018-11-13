@@ -276,7 +276,9 @@ public class LocalFileIngestDriver extends
 							indexWriters);
 
 					count++;
-
+					if (count % 1000000 == 0) {
+						System.err.println("ingested " + count + " in " + ((System.currentTimeMillis() - time)/1000) + " seconds");
+					}
 				}
 				catch (final Exception e) {
 					throw new RuntimeException(

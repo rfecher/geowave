@@ -3,7 +3,9 @@ package org.locationtech.geowave.datastore.redis.util;
 import java.io.IOException;
 
 import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
+import org.locationtech.geowave.datastore.redis.config.RedisOptions.Compression;
 import org.redisson.client.codec.BaseCodec;
+import org.redisson.client.codec.Codec;
 import org.redisson.client.handler.State;
 import org.redisson.client.protocol.Decoder;
 import org.redisson.client.protocol.Encoder;
@@ -21,7 +23,7 @@ public class GeoWaveRedisRowWithTimestampCodec extends
 		BaseCodec
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveRedisRowWithTimestampCodec.class);
-	protected static GeoWaveRedisRowWithTimestampCodec SINGLETON = new GeoWaveRedisRowWithTimestampCodec();
+	protected static Codec SINGLETON = Compression.SNAPPY.getCodec(new GeoWaveRedisRowWithTimestampCodec());
 	private final Decoder<Object> decoder = new Decoder<Object>() {
 		@Override
 		public Object decode(
@@ -70,7 +72,9 @@ public class GeoWaveRedisRowWithTimestampCodec extends
 
 				try (final ByteBufOutputStream out = new ByteBufOutputStream(
 						buf)) {
-					GeoWaveRedisRowCodec.encodeRow(out, row);
+					GeoWaveRedisRowCodec.encodeRow(
+							out,
+							row);
 					out.writeInt((int) row.getSecondsSinceEpic());
 					out.writeInt(row.getNanoOfSecond());
 					out.flush();

@@ -23,6 +23,13 @@ public class RedisOptions extends
 	private String address;
 	@Parameter(names = "--compression", description = "Can be \"snappy\",\"lz4\", or \"none\". Defaults to snappy.", converter = CompressionConverter.class)
 	private Compression compression = Compression.SNAPPY;
+	
+	@Parameter(names = "--halo", description = "Persist data to disk using HaloDB embedded datastore.", converter = CompressionConverter.class)
+	private boolean useHaloDB = false;
+	@Parameter(names = "--maxDataIDSize", description = "When using HaloDB embedded datastore a maximum size for each data ID must be given")
+	private Integer maxDataIDSize = 4;
+	@Parameter(names = "--dir", description = "When using HaloDB embedded datastore a directory to write data to must be provided")
+	private String directory = "halodb";
 	@ParametersDelegate
 	protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
 		@Override
@@ -77,6 +84,18 @@ public class RedisOptions extends
 
 	public Compression getCompression() {
 		return compression;
+	}
+
+	public boolean isUseHaloDB() {
+		return useHaloDB;
+	}
+
+	public String getDirectory() {
+		return directory;
+	}
+
+	public Integer getMaxDataIDSize() {
+		return maxDataIDSize;
 	}
 
 	public static enum Compression {

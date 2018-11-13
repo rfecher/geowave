@@ -1,10 +1,11 @@
 package org.locationtech.geowave.datastore.redis.util;
 
 import java.io.IOException;
-import java.util.Random;
 
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
+import org.locationtech.geowave.datastore.redis.config.RedisOptions.Compression;
 import org.redisson.client.codec.BaseCodec;
+import org.redisson.client.codec.Codec;
 import org.redisson.client.handler.State;
 import org.redisson.client.protocol.Decoder;
 import org.redisson.client.protocol.Encoder;
@@ -15,7 +16,7 @@ import io.netty.buffer.ByteBufAllocator;
 public class GeoWaveMetadataCodec extends
 		BaseCodec
 {
-	protected static GeoWaveMetadataCodec SINGLETON = new GeoWaveMetadataCodec();
+	protected static Codec SINGLETON = Compression.SNAPPY.getCodec(new GeoWaveMetadataCodec());
 	private final Decoder<Object> decoder = new Decoder<Object>() {
 		@Override
 		public Object decode(
@@ -42,7 +43,7 @@ public class GeoWaveMetadataCodec extends
 		public ByteBuf encode(
 				final Object in )
 				throws IOException {
-			if (in instanceof GeoWaveMetadata) {				
+			if (in instanceof GeoWaveMetadata) {
 				return encodeMetadata((GeoWaveMetadata) in);
 			}
 			else {
@@ -51,7 +52,9 @@ public class GeoWaveMetadataCodec extends
 			}
 		}
 	};
-	protected static ByteBuf encodeMetadata( GeoWaveMetadata md) {
+
+	protected static ByteBuf encodeMetadata(
+			GeoWaveMetadata md ) {
 		final ByteBuf out = ByteBufAllocator.DEFAULT.buffer();
 		final byte[] safeVisibility = md.getVisibility() != null ? md.getVisibility() : new byte[0];
 		final byte[] safeSecondaryId = md.getSecondaryId() != null ? md.getSecondaryId() : new byte[0];

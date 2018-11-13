@@ -2,7 +2,9 @@ package org.locationtech.geowave.datastore.redis.util;
 
 import java.io.IOException;
 
+import org.locationtech.geowave.datastore.redis.config.RedisOptions.Compression;
 import org.redisson.client.codec.BaseCodec;
+import org.redisson.client.codec.Codec;
 import org.redisson.client.handler.State;
 import org.redisson.client.protocol.Decoder;
 import org.redisson.client.protocol.Encoder;
@@ -12,7 +14,7 @@ import io.netty.buffer.ByteBuf;
 public class GeoWaveMetadataWithTimestampCodec extends
 		BaseCodec
 {
-	protected static GeoWaveMetadataWithTimestampCodec SINGLETON = new GeoWaveMetadataWithTimestampCodec();
+	protected static Codec SINGLETON = Compression.SNAPPY.getCodec(new GeoWaveMetadataWithTimestampCodec());
 	private final Decoder<Object> decoder = new Decoder<Object>() {
 		@Override
 		public Object decode(
@@ -23,18 +25,10 @@ public class GeoWaveMetadataWithTimestampCodec extends
 			final byte[] secondaryId = new byte[buf.readUnsignedByte()];
 			final byte[] visibility = new byte[buf.readUnsignedByte()];
 			final byte[] value = new byte[buf.readUnsignedShort()];
-			buf
-					.readBytes(
-							primaryId);
-			buf
-					.readBytes(
-							secondaryId);
-			buf
-					.readBytes(
-							visibility);
-			buf
-					.readBytes(
-							value);
+			buf.readBytes(primaryId);
+			buf.readBytes(secondaryId);
+			buf.readBytes(visibility);
+			buf.readBytes(value);
 			return new GeoWaveTimestampMetadata(
 					primaryId,
 					secondaryId,
@@ -50,12 +44,8 @@ public class GeoWaveMetadataWithTimestampCodec extends
 				throws IOException {
 			if (in instanceof GeoWaveTimestampMetadata) {
 				final GeoWaveTimestampMetadata md = (GeoWaveTimestampMetadata) in;
-				final ByteBuf out = GeoWaveMetadataCodec
-						.encodeMetadata(
-								md);
-				out
-						.writeLong(
-								md.getMillisFromEpoch());
+				final ByteBuf out = GeoWaveMetadataCodec.encodeMetadata(md);
+				out.writeLong(md.getMillisFromEpoch());
 				return out;
 			}
 			else {

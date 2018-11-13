@@ -3,7 +3,9 @@ package org.locationtech.geowave.datastore.redis.util;
 import java.io.IOException;
 
 import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
+import org.locationtech.geowave.datastore.redis.config.RedisOptions.Compression;
 import org.redisson.client.codec.BaseCodec;
+import org.redisson.client.codec.Codec;
 import org.redisson.client.handler.State;
 import org.redisson.client.protocol.Decoder;
 import org.redisson.client.protocol.Encoder;
@@ -21,7 +23,7 @@ public class GeoWaveRedisRowCodec extends
 		BaseCodec
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveRedisRowCodec.class);
-	protected static GeoWaveRedisRowCodec SINGLETON = new GeoWaveRedisRowCodec();
+	protected static Codec SINGLETON = Compression.SNAPPY.getCodec(new GeoWaveRedisRowCodec());
 	private final Decoder<Object> decoder = new Decoder<Object>() {
 		@Override
 		public Object decode(
@@ -68,7 +70,9 @@ public class GeoWaveRedisRowCodec extends
 
 				try (final ByteBufOutputStream out = new ByteBufOutputStream(
 						buf)) {
-					encodeRow(out, row);
+					encodeRow(
+							out,
+							row);
 					out.flush();
 					return out.buffer();
 				}
@@ -77,8 +81,11 @@ public class GeoWaveRedisRowCodec extends
 					"Encoder only supports GeoWaveRedisRow");
 		}
 	};
-	
-	protected static void encodeRow(ByteBufOutputStream out, GeoWaveRedisPersistedRow row) throws IOException {
+
+	protected static void encodeRow(
+			ByteBufOutputStream out,
+			GeoWaveRedisPersistedRow row )
+			throws IOException {
 		out.writeByte(row.getDataId().length);
 		out.writeByte(row.getFieldMask().length);
 		out.writeByte(row.getVisibility().length);
