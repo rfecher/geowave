@@ -2,7 +2,6 @@ package org.locationtech.geowave.datastore.redis.util;
 
 import java.io.IOException;
 
-import org.locationtech.geowave.datastore.redis.config.RedisOptions.Compression;
 import org.redisson.client.codec.BaseCodec;
 import org.redisson.client.codec.Codec;
 import org.redisson.client.handler.State;
@@ -14,7 +13,7 @@ import io.netty.buffer.ByteBuf;
 public class GeoWaveMetadataWithTimestampCodec extends
 		BaseCodec
 {
-	protected static Codec SINGLETON = Compression.SNAPPY.getCodec(new GeoWaveMetadataWithTimestampCodec());
+	protected static Codec SINGLETON = new GeoWaveMetadataWithTimestampCodec();
 	private final Decoder<Object> decoder = new Decoder<Object>() {
 		@Override
 		public Object decode(

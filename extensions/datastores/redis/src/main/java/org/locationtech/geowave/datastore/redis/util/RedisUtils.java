@@ -100,7 +100,7 @@ public class RedisUtils
 		return new RedisScoredSetWrapper<>(
 				client,
 				setName,
-				requiresTimestamp ? GeoWaveRedisRowWithTimestampCodec.SINGLETON : GeoWaveRedisRowCodec.SINGLETON);
+				requiresTimestamp ? GeoWaveRedisRowWithTimestampCodec.SINGLETON : GeoWaveRedisDataIdCodec.SINGLETON);
 
 	}
 

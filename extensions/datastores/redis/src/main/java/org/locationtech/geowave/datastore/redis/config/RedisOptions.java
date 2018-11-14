@@ -24,7 +24,7 @@ public class RedisOptions extends
 	@Parameter(names = "--compression", description = "Can be \"snappy\",\"lz4\", or \"none\". Defaults to snappy.", converter = CompressionConverter.class)
 	private Compression compression = Compression.SNAPPY;
 	
-	@Parameter(names = "--halo", description = "Persist data to disk using HaloDB embedded datastore.", converter = CompressionConverter.class)
+	@Parameter(names = "--halo", description = "Persist data to disk using HaloDB embedded datastore.")
 	private boolean useHaloDB = false;
 	@Parameter(names = "--maxDataIDSize", description = "When using HaloDB embedded datastore a maximum size for each data ID must be given")
 	private Integer maxDataIDSize = 4;
