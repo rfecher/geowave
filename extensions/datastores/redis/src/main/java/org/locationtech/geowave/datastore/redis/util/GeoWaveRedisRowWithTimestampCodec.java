@@ -23,7 +23,7 @@ public class GeoWaveRedisRowWithTimestampCodec extends
 		BaseCodec
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(GeoWaveRedisRowWithTimestampCodec.class);
-	protected static Codec SINGLETON = Compression.SNAPPY.getCodec(new GeoWaveRedisRowWithTimestampCodec());
+	protected static Codec SINGLETON = new GeoWaveRedisRowWithTimestampCodec();
 	private final Decoder<Object> decoder = new Decoder<Object>() {
 		@Override
 		public Object decode(

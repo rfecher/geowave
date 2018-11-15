@@ -3,7 +3,6 @@ package org.locationtech.geowave.datastore.redis.util;
 import java.io.IOException;
 
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
-import org.locationtech.geowave.datastore.redis.config.RedisOptions.Compression;
 import org.redisson.client.codec.BaseCodec;
 import org.redisson.client.codec.Codec;
 import org.redisson.client.handler.State;
@@ -16,7 +15,7 @@ import io.netty.buffer.ByteBufAllocator;
 public class GeoWaveMetadataCodec extends
 		BaseCodec
 {
-	protected static Codec SINGLETON = Compression.SNAPPY.getCodec(new GeoWaveMetadataCodec());
+	protected static Codec SINGLETON = new GeoWaveMetadataCodec();
 	private final Decoder<Object> decoder = new Decoder<Object>() {
 		@Override
 		public Object decode(
