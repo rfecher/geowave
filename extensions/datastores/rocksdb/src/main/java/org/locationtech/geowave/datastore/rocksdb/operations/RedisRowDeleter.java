@@ -1,4 +1,4 @@
-package org.locationtech.geowave.datastore.redis.operations;
+package org.locationtech.geowave.datastore.rocksdb.operations;
 
 import java.util.Arrays;
 
@@ -7,10 +7,10 @@ import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
-import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedRow;
-import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisRow;
-import org.locationtech.geowave.datastore.redis.util.RedisScoredSetWrapper;
-import org.locationtech.geowave.datastore.redis.util.RedisUtils;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisRow;
+import org.locationtech.geowave.datastore.rocksdb.util.RedisScoredSetWrapper;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
 
@@ -51,11 +51,11 @@ public class RedisRowDeleter implements
 
 	private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(
 			final Pair<String, Short> setNameAndAdapterId ) {
-		return RedisUtils
+		return RocksDBUtils
 				.getRowSet(
 						client,
 						setNameAndAdapterId.getLeft(),
-						RedisUtils
+						RocksDBUtils
 								.isSortByTime(
 										adapterStore
 												.getAdapter(
@@ -69,7 +69,7 @@ public class RedisRowDeleter implements
 				.get(
 						Pair
 								.of(
-										RedisUtils
+										RocksDBUtils
 												.getRowSetName(
 														namespace,
 														internalAdapterStore

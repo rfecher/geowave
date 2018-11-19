@@ -1,4 +1,4 @@
-package org.locationtech.geowave.datastore.redis.operations;
+package org.locationtech.geowave.datastore.rocksdb.operations;
 
 import java.time.Instant;
 
@@ -6,17 +6,17 @@ import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
-import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedRow;
-import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedTimestampRow;
-import org.locationtech.geowave.datastore.redis.util.RedisScoredSetWrapper;
-import org.locationtech.geowave.datastore.redis.util.RedisUtils;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedTimestampRow;
+import org.locationtech.geowave.datastore.rocksdb.util.RedisScoredSetWrapper;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
-public class RedisWriter implements
+public class RocksDBWriter implements
 		RowWriter
 {
 	private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
@@ -29,14 +29,14 @@ public class RedisWriter implements
 							partitionKey.getBytes()));
 	boolean isTimestampRequired;
 
-	public RedisWriter(
+	public RocksDBWriter(
 			final RedissonClient client,
 			final String namespace,
 			final String typeName,
 			final String indexName,
 			final boolean isTimestampRequired ) {
 		this.client = client;
-		setNamePrefix = RedisUtils
+		setNamePrefix = RocksDBUtils
 				.getRowSetPrefix(
 						namespace,
 						typeName,
@@ -46,7 +46,7 @@ public class RedisWriter implements
 
 	private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(
 			final byte[] partitionKey ) {
-		return RedisUtils
+		return RocksDBUtils
 				.getRowSet(
 						client,
 						setNamePrefix,
@@ -79,7 +79,7 @@ public class RedisWriter implements
 					.get(
 							partitionKey)
 					.add(
-							RedisUtils
+							RocksDBUtils
 									.getScore(
 											row.getSortKey()),
 							isTimestampRequired ? new GeoWaveRedisPersistedTimestampRow(

@@ -1,4 +1,4 @@
-package org.locationtech.geowave.datastore.redis.operations;
+package org.locationtech.geowave.datastore.rocksdb.operations;
 
 import java.util.Arrays;
 
@@ -9,7 +9,7 @@ import org.locationtech.geowave.core.store.operations.MetadataQuery;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.util.StatisticsRowIterator;
-import org.locationtech.geowave.datastore.redis.util.RedisUtils;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.redisson.api.RScoredSortedSet;
 
 import com.google.common.base.Predicate;
@@ -36,7 +36,7 @@ public class RedisMetadataReader implements
 			if (query.getPrimaryId().length > 6) {
 				// this primary ID and next prefix are going to be the same
 				// score
-				final double score = RedisUtils.getScore(query.getPrimaryId());
+				final double score = RocksDBUtils.getScore(query.getPrimaryId());
 				results = set.valueRange(
 						score,
 						true,
@@ -47,9 +47,9 @@ public class RedisMetadataReader implements
 				// the primary ID prefix is short enough that we can use the
 				// score of the next prefix to subset the data
 				results = set.valueRange(
-						RedisUtils.getScore(query.getPrimaryId()),
+						RocksDBUtils.getScore(query.getPrimaryId()),
 						true,
-						RedisUtils.getScore(ByteArray.getNextPrefix(query.getPrimaryId())),
+						RocksDBUtils.getScore(ByteArray.getNextPrefix(query.getPrimaryId())),
 						false);
 			}
 		}
@@ -82,7 +82,7 @@ public class RedisMetadataReader implements
 		final CloseableIterator<GeoWaveMetadata> retVal;
 		if (isStats) {
 			retVal = new CloseableIterator.Wrapper<>(
-					RedisUtils.groupByIds(results));
+					RocksDBUtils.groupByIds(results));
 		}
 		else {
 			retVal = new CloseableIterator.Wrapper<>(

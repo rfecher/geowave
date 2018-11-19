@@ -9,6 +9,7 @@ import org.bouncycastle.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 
 public class RedisUtilsTest
 {
@@ -37,7 +38,7 @@ public class RedisUtilsTest
 			// we can work with within a z-score, let's cast to double and make
 			// sure we can go back and forth between z-score and sort key
 			final double originalScore = val;
-			final byte[] originalSortKey = RedisUtils.getSortKey(originalScore);
+			final byte[] originalSortKey = RocksDBUtils.getSortKey(originalScore);
 			assertRepeatedTransform(
 					originalScore,
 					originalSortKey);
@@ -48,7 +49,7 @@ public class RedisUtilsTest
 				final byte[] newOriginalSortKey = Arrays.copyOf(
 						originalSortKey,
 						length);
-				final double newOriginalScore = RedisUtils.getScore(newOriginalSortKey);
+				final double newOriginalScore = RocksDBUtils.getScore(newOriginalSortKey);
 				assertRepeatedTransform(
 						newOriginalScore,
 						newOriginalSortKey);
@@ -72,8 +73,8 @@ public class RedisUtilsTest
 			// hypothetically going back and forth one time should be a
 			// sufficient check but for sanity's sake go back and forth
 			// several times
-			currentScore = RedisUtils.getScore(currentSortKey);
-			currentSortKey = RedisUtils.getSortKey(currentScore);
+			currentScore = RocksDBUtils.getScore(currentSortKey);
+			currentSortKey = RocksDBUtils.getSortKey(currentScore);
 			assertEquals(
 					originalScore,
 					currentScore,

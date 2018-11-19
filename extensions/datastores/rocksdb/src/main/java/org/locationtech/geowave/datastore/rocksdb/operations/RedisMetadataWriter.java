@@ -1,9 +1,9 @@
-package org.locationtech.geowave.datastore.redis.operations;
+package org.locationtech.geowave.datastore.rocksdb.operations;
 
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataWriter;
-import org.locationtech.geowave.datastore.redis.util.GeoWaveTimestampMetadata;
-import org.locationtech.geowave.datastore.redis.util.RedisUtils;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveTimestampMetadata;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.redisson.api.RScoredSortedSet;
 
 public class RedisMetadataWriter implements
@@ -24,7 +24,7 @@ public class RedisMetadataWriter implements
 			final GeoWaveMetadata metadata ) {
 		set
 				.add(
-						RedisUtils
+						RocksDBUtils
 								.getScore(
 										metadata.getPrimaryId()),
 						requiresTimestamp ? new GeoWaveTimestampMetadata(

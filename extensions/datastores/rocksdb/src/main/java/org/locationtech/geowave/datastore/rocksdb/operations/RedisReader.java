@@ -1,4 +1,4 @@
-package org.locationtech.geowave.datastore.redis.operations;
+package org.locationtech.geowave.datastore.rocksdb.operations;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -24,9 +24,9 @@ import org.locationtech.geowave.core.store.operations.BaseReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
-import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedRow;
-import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisRow;
-import org.locationtech.geowave.datastore.redis.util.RedisUtils;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisRow;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
 import org.redisson.api.RedissonClient;
@@ -86,11 +86,11 @@ public class RedisReader<T> implements
 			final Iterator<GeoWaveRedisRow>[] iterators = new Iterator[readerParams.getAdapterIds().length];
 			int i = 0;
 			for (final short adapterId : readerParams.getAdapterIds()) {
-				final Pair<Boolean, Boolean> groupByRowAndSortByTime = RedisUtils
+				final Pair<Boolean, Boolean> groupByRowAndSortByTime = RocksDBUtils
 						.isGroupByRowAndIsSortByTime(
 								readerParams,
 								adapterId);
-				final String setNamePrefix = RedisUtils
+				final String setNamePrefix = RocksDBUtils
 						.getRowSetPrefix(
 								namespace,
 								readerParams
@@ -98,14 +98,14 @@ public class RedisReader<T> implements
 										.getTypeName(
 												adapterId),
 								readerParams.getIndex().getName());
-				final Stream<Pair<ByteArray, Iterator<ScoredEntry<GeoWaveRedisPersistedRow>>>> streamIt = RedisUtils
+				final Stream<Pair<ByteArray, Iterator<ScoredEntry<GeoWaveRedisPersistedRow>>>> streamIt = RocksDBUtils
 						.getPartitions(
 								client,
 								setNamePrefix)
 						.stream()
 						.map(
 								p -> {
-									final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result = RedisUtils
+									final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result = RocksDBUtils
 											.getRowSet(
 													client,
 													setNamePrefix,
@@ -118,7 +118,7 @@ public class RedisReader<T> implements
 													true);
 									final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> it = groupByRowAndSortByTime
 											.getLeft()
-													? RedisUtils
+													? RocksDBUtils
 															.groupByRow(
 																	result,
 																	groupByRowAndSortByTime.getRight())
@@ -140,7 +140,7 @@ public class RedisReader<T> implements
 																		pr.getValue(),
 																		adapterId,
 																		p.getLeft().getBytes(),
-																		RedisUtils
+																		RocksDBUtils
 																				.getSortKey(
 																						pr.getScore())))).iterator());
 			}
@@ -168,7 +168,7 @@ public class RedisReader<T> implements
 				.map(
 						adapterId -> new BatchedRangeRead(
 								client,
-								RedisUtils
+								RocksDBUtils
 										.getRowSetPrefix(
 												namespace,
 												readerParams
@@ -182,11 +182,11 @@ public class RedisReader<T> implements
 								new ClientVisibilityFilter(
 										authorizations),
 								async,
-								RedisUtils
+								RocksDBUtils
 										.isGroupByRowAndIsSortByTime(
 												readerParams,
 												adapterId),
-										RedisUtils.isSortByKeyRequired(readerParams)).results())
+										RocksDBUtils.isSortByKeyRequired(readerParams)).results())
 				.iterator();
 		final CloseableIterator<T>[] itArray = Iterators
 				.toArray(
@@ -264,8 +264,8 @@ public class RedisReader<T> implements
 	private static Iterator<GeoWaveRow> sortBySortKeyIfRequired(
 			final BaseReaderParams<?> params,
 			final Iterator<GeoWaveRow> it ) {
-		if (RedisUtils.isSortByKeyRequired(params)) {
-			return RedisUtils.sortBySortKey(it);
+		if (RocksDBUtils.isSortByKeyRequired(params)) {
+			return RocksDBUtils.sortBySortKey(it);
 		}
 		return it;
 	}

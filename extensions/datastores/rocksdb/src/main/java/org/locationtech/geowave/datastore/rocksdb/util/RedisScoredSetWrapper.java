@@ -1,4 +1,4 @@
-package org.locationtech.geowave.datastore.redis.util;
+package org.locationtech.geowave.datastore.rocksdb.util;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -100,8 +100,8 @@ public class RedisScoredSetWrapper<V> implements
 						endScore,
 						endScoreInclusive,
 						0,
-						RedisUtils.MAX_ROWS_FOR_PAGINATION);
-		if (currentResult.size() >= RedisUtils.MAX_ROWS_FOR_PAGINATION) {
+						RocksDBUtils.MAX_ROWS_FOR_PAGINATION);
+		if (currentResult.size() >= RocksDBUtils.MAX_ROWS_FOR_PAGINATION) {
 			return new LazyPaginatedEntryRange<>(
 					startScore,
 					startScoreInclusive,

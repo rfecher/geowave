@@ -1,4 +1,4 @@
-package org.locationtech.geowave.datastore.redis.util;
+package org.locationtech.geowave.datastore.rocksdb.util;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -27,7 +27,7 @@ import com.google.common.collect.Streams;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 
-public class RedisUtils
+public class RocksDBUtils
 {
 	protected static final int MAX_ROWS_FOR_PAGINATION = 1000000;
 	public static int REDIS_DEFAULT_MAX_RANGE_DECOMPOSITION = 250;

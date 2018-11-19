@@ -8,30 +8,30 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.datastore.redis;
+package org.locationtech.geowave.datastore.rocksdb;
 
 import org.locationtech.geowave.core.store.BaseDataStoreFamily;
 import org.locationtech.geowave.core.store.GenericStoreFactory;
 import org.locationtech.geowave.core.store.api.DataStore;
 
-public class RedisStoreFactoryFamily extends
+public class RocksDBStoreFactoryFamily extends
 		BaseDataStoreFamily
 {
 	private static final String TYPE = "redis";
 	private static final String DESCRIPTION = "A GeoWave store backed by data in Redis";
 
-	public RedisStoreFactoryFamily() {
+	public RocksDBStoreFactoryFamily() {
 		super(
 				TYPE,
 				DESCRIPTION,
-				new RedisFactoryHelper());
+				new RocksDBFactoryHelper());
 	}
 
 	@Override
 	public GenericStoreFactory<DataStore> getDataStoreFactory() {
-		return new RedisDataStoreFactory(
+		return new RocksDBDataStoreFactory(
 				TYPE,
 				DESCRIPTION,
-				new RedisFactoryHelper());
+				new RocksDBFactoryHelper());
 	}
 }

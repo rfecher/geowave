@@ -8,7 +8,7 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.datastore.redis.operations;
+package org.locationtech.geowave.datastore.rocksdb.operations;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -33,10 +33,10 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
 import org.locationtech.geowave.core.store.util.RowConsumer;
-import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedRow;
-import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisRow;
-import org.locationtech.geowave.datastore.redis.util.RedisScoredSetWrapper;
-import org.locationtech.geowave.datastore.redis.util.RedisUtils;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisRow;
+import org.locationtech.geowave.datastore.rocksdb.util.RedisScoredSetWrapper;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.redisson.api.RFuture;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
@@ -158,7 +158,7 @@ public class BatchedRangeRead<T>
 
 	private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(
 			final byte[] partitionKey ) {
-		return RedisUtils
+		return RocksDBUtils
 				.getRowSet(
 						client,
 						setNamePrefix,
@@ -171,11 +171,11 @@ public class BatchedRangeRead<T>
 		final List<RangeReadInfo> reads = new ArrayList<>();
 		for (final SinglePartitionQueryRanges r : ranges) {
 			for (final ByteArrayRange range : r.getSortKeyRanges()) {
-				final double start = range.getStart() != null ? RedisUtils
+				final double start = range.getStart() != null ? RocksDBUtils
 						.getScore(
 								range.getStart().getBytes())
 						: Double.NEGATIVE_INFINITY;
-				final double end = range.getEnd() != null ? RedisUtils
+				final double end = range.getEnd() != null ? RocksDBUtils
 						.getScore(
 								range.getEndAsNextPrefix().getBytes())
 						: Double.POSITIVE_INFINITY;
@@ -394,7 +394,7 @@ public class BatchedRangeRead<T>
 														Iterators
 																.transform(
 																		groupByRowAndSortByTimePair.getLeft()
-																				? RedisUtils
+																				? RocksDBUtils
 																						.groupByRow(
 																								result,
 																								groupByRowAndSortByTimePair
@@ -412,7 +412,7 @@ public class BatchedRangeRead<T>
 																						entry.getValue(),
 																						adapterId,
 																						partitionKey,
-																						RedisUtils
+																						RocksDBUtils
 																								.getSortKey(
 																										entry
 																												.getScore()));
@@ -425,7 +425,7 @@ public class BatchedRangeRead<T>
 			final boolean isRequired,
 			final Iterator<GeoWaveRow> it ) {
 		if (isRequired) {
-			return RedisUtils
+			return RocksDBUtils
 					.sortBySortKey(
 							it);
 		}

@@ -1,17 +1,17 @@
-package org.locationtech.geowave.datastore.redis;
+package org.locationtech.geowave.datastore.rocksdb;
 
 import org.locationtech.geowave.core.store.BaseDataStoreFactory;
 import org.locationtech.geowave.core.store.StoreFactoryHelper;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.core.store.api.DataStore;
-import org.locationtech.geowave.datastore.redis.config.RedisOptions;
-import org.locationtech.geowave.datastore.redis.operations.RedisOperations;
+import org.locationtech.geowave.datastore.rocksdb.config.RocksDBOptions;
+import org.locationtech.geowave.datastore.rocksdb.operations.RocksDBOperations;
 
-public class RedisDataStoreFactory extends
+public class RocksDBDataStoreFactory extends
 		BaseDataStoreFactory
 {
 
-	public RedisDataStoreFactory(
+	public RocksDBDataStoreFactory(
 			final String typeName,
 			final String description,
 			final StoreFactoryHelper helper ) {
@@ -24,13 +24,13 @@ public class RedisDataStoreFactory extends
 	@Override
 	public DataStore createStore(
 			final StoreFactoryOptions options ) {
-		if (!(options instanceof RedisOptions)) {
+		if (!(options instanceof RocksDBOptions)) {
 			throw new AssertionError(
-					"Expected " + RedisOptions.class.getSimpleName());
+					"Expected " + RocksDBOptions.class.getSimpleName());
 		}
 
-		return new RedisDataStore(
-				(RedisOperations) helper.createOperations(options),
-				((RedisOptions) options).getStoreOptions());
+		return new RocksDBDataStore(
+				(RocksDBOperations) helper.createOperations(options),
+				((RocksDBOptions) options).getStoreOptions());
 	}
 }

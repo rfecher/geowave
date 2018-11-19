@@ -1,4 +1,4 @@
-package org.locationtech.geowave.datastore.redis.util;
+package org.locationtech.geowave.datastore.rocksdb.util;
 
 import java.io.IOException;
 

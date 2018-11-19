@@ -1,4 +1,4 @@
-package org.locationtech.geowave.datastore.redis.util;
+package org.locationtech.geowave.datastore.rocksdb.util;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -43,11 +43,11 @@ public class LazyPaginatedEntryRange<V> extends
 		}
 		// subsequent chained iterators will be obtained from redis
 		// pagination
-		if ((currentResult.size() < RedisUtils.MAX_ROWS_FOR_PAGINATION)) {
+		if ((currentResult.size() < RocksDBUtils.MAX_ROWS_FOR_PAGINATION)) {
 			return null;
 		}
 		else {
-			currentOffset += RedisUtils.MAX_ROWS_FOR_PAGINATION;
+			currentOffset += RocksDBUtils.MAX_ROWS_FOR_PAGINATION;
 			currentResult = set
 					.entryRange(
 							startScore,
@@ -55,7 +55,7 @@ public class LazyPaginatedEntryRange<V> extends
 							endScore,
 							endScoreInclusive,
 							currentOffset,
-							RedisUtils.MAX_ROWS_FOR_PAGINATION);
+							RocksDBUtils.MAX_ROWS_FOR_PAGINATION);
 			return currentResult.iterator();
 		}
 	}

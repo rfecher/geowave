@@ -8,27 +8,27 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.datastore.redis;
+package org.locationtech.geowave.datastore.rocksdb;
 
 import org.locationtech.geowave.core.store.StoreFactoryHelper;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.datastore.redis.config.RedisOptions;
-import org.locationtech.geowave.datastore.redis.operations.RedisOperations;
+import org.locationtech.geowave.datastore.rocksdb.config.RocksDBOptions;
+import org.locationtech.geowave.datastore.rocksdb.operations.RocksDBOperations;
 
-public class RedisFactoryHelper implements
+public class RocksDBFactoryHelper implements
 		StoreFactoryHelper
 {
 	@Override
 	public StoreFactoryOptions createOptionsInstance() {
-		return new RedisOptions();
+		return new RocksDBOptions();
 	}
 
 	@Override
 	public DataStoreOperations createOperations(
 			final StoreFactoryOptions options ) {
-		return new RedisOperations(
-				(RedisOptions) options);
+		return new RocksDBOperations(
+				(RocksDBOptions) options);
 	}
 
 }

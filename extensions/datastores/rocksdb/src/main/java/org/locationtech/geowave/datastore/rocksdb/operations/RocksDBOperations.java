@@ -8,8 +8,9 @@
  *  Version 2.0 which accompanies this distribution and is available at
  *  http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
-package org.locationtech.geowave.datastore.redis.operations;
+package org.locationtech.geowave.datastore.rocksdb.operations;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
@@ -29,38 +30,30 @@ import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
-import org.locationtech.geowave.datastore.redis.config.RedisOptions;
-import org.locationtech.geowave.datastore.redis.util.RedisUtils;
-import org.locationtech.geowave.datastore.redis.util.RedissonClientCache;
+import org.locationtech.geowave.datastore.rocksdb.config.RocksDBOptions;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBCache;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
-import org.redisson.api.RKeys;
-import org.redisson.api.RedissonClient;
+import org.rocksdb.RocksDB;
 
-public class RedisOperations implements
-		MapReduceDataStoreOperations
+public class RocksDBOperations implements
+		MapReduceDataStoreOperations,
+		Closeable
 {
 	private static final boolean READER_ASYNC = true;
-	private final String gwNamespace;
-	private final RedisOptions options;
-	private final RedissonClient client;
+	private final RocksDBOptions options;
+	private final String directory;
 
-	public RedisOperations(
-			final RedisOptions options ) {
-		if ((options.getGeowaveNamespace() == null) || options
-				.getGeowaveNamespace()
-				.equals(
-						"")) {
-			gwNamespace = "geowave";
-		}
-		else {
-			gwNamespace = options.getGeowaveNamespace();
-		}
+	public RocksDBOperations(
+			final RocksDBOptions options ) {
+		directory = options.getDirectory() + "/" + options.getGeowaveNamespace();
+		// a factory method that returns a RocksDB instance
 		this.options = options;
-		client = RedissonClientCache
+		client = RocksDBCache
 				.getInstance()
 				.getClient(
-						options.getAddress());
+						directory);
+		client.
 	}
 
 	@Override
@@ -131,7 +124,7 @@ public class RedisOperations implements
 	public RowWriter createWriter(
 			final Index index,
 			final InternalDataAdapter<?> adapter ) {
-		return new RedisWriter(
+		return new RocksDBWriter(
 				client,
 				gwNamespace,
 				adapter.getTypeName(),
@@ -254,5 +247,13 @@ public class RedisOperations implements
 				internalAdapterStore,
 				indexName,
 				gwNamespace);
+	}
+
+	@Override
+	public void close() {
+		RocksDBCache
+				.getInstance()
+				.close(
+						directory);
 	}
 }

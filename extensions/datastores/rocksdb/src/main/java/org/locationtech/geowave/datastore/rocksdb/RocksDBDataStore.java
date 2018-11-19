@@ -1,4 +1,6 @@
-package org.locationtech.geowave.datastore.redis;
+package org.locationtech.geowave.datastore.rocksdb;
+
+import java.io.Closeable;
 
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.metadata.AdapterIndexMappingStoreImpl;
@@ -7,14 +9,15 @@ import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.metadata.IndexStoreImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
 import org.locationtech.geowave.core.store.metadata.SecondaryIndexStoreImpl;
-import org.locationtech.geowave.datastore.redis.operations.RedisOperations;
+import org.locationtech.geowave.datastore.rocksdb.operations.RocksDBOperations;
 import org.locationtech.geowave.mapreduce.BaseMapReduceDataStore;
 
-public class RedisDataStore extends
-		BaseMapReduceDataStore
+public class RocksDBDataStore extends
+		BaseMapReduceDataStore implements
+		Closeable
 {
-	public RedisDataStore(
-			final RedisOperations operations,
+	public RocksDBDataStore(
+			final RocksDBOperations operations,
 			final DataStoreOptions options ) {
 		super(
 				new IndexStoreImpl(
@@ -34,5 +37,10 @@ public class RedisDataStore extends
 				options,
 				new InternalAdapterStoreImpl(
 						operations));
+	}
+
+	@Override
+	public void close() {
+		((RocksDBOperations) baseOperations).close();
 	}
 }
