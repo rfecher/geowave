@@ -383,12 +383,14 @@ public class RasterIngestRunner extends
 		super.lastSceneComplete(analysisInfo);
 		if (!ingestOptions.isSkipMerge()) {
 			System.out.println("Merging overlapping tiles...");
+			long current = System.currentTimeMillis();
 			for (final Index index : indices) {
 				if (dataStorePluginOptions.createDataStoreOperations().mergeData(
 						index,
 						dataStorePluginOptions.createAdapterStore(),
 						dataStorePluginOptions.createInternalAdapterStore(),
 						dataStorePluginOptions.createAdapterIndexMappingStore())) {
+					System.err.println("took " + (System.currentTimeMillis() - current));
 					System.out.println("Successfully merged overlapping tiles within index '" + index.getName() + "'");
 				}
 				else {

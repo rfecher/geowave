@@ -61,7 +61,8 @@ public class RemoteIT extends
 		GeoWaveStoreType.HBASE,
 		GeoWaveStoreType.CASSANDRA,
 		GeoWaveStoreType.DYNAMODB,
-		GeoWaveStoreType.REDIS
+		GeoWaveStoreType.REDIS,
+		GeoWaveStoreType.ROCKSDB
 	}, namespace = TestUtils.TEST_NAMESPACE)
 	protected DataStorePluginOptions dataStoreOptions;
 

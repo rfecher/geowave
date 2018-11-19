@@ -108,7 +108,8 @@ public class GeoServerIT extends
 		GeoWaveStoreType.HBASE,
 		GeoWaveStoreType.CASSANDRA,
 		GeoWaveStoreType.DYNAMODB,
-		GeoWaveStoreType.REDIS
+		GeoWaveStoreType.REDIS,
+		GeoWaveStoreType.ROCKSDB
 	}, namespace = testName)
 	protected DataStorePluginOptions dataStoreOptions;
 
