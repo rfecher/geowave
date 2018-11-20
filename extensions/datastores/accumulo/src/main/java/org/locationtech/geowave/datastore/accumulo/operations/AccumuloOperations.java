@@ -301,7 +301,6 @@ public class AccumuloOperations implements
 				authorization);
 	}
 
-	@Override
 	public boolean createIndex(
 			final Index index )
 			throws IOException {

@@ -1901,7 +1901,6 @@ public class HBaseOperations implements
 		return version;
 	}
 
-	@Override
 	public boolean createIndex(
 			final Index index )
 			throws IOException {

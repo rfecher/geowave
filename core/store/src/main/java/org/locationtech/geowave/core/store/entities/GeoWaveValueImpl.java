@@ -16,13 +16,14 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.flatten.BitmaskUtils;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 
+
 public class GeoWaveValueImpl implements
 		GeoWaveValue
 {
-	private final byte[] fieldMask;
-	private final byte[] visibility;
-	private final byte[] value;
-
+	private byte[] fieldMask;
+	private byte[] visibility;
+	private byte[] value;
+	public GeoWaveValueImpl() {}
 	public GeoWaveValueImpl(
 			final GeoWaveValue[] values ) {
 		if ((values == null) || (values.length == 0)) {

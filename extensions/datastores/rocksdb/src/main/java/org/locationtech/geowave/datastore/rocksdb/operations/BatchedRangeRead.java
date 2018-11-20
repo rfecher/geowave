@@ -33,7 +33,7 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
 import org.locationtech.geowave.core.store.util.RowConsumer;
-import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRocksDBPersistedRow;
 import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisRow;
 import org.locationtech.geowave.datastore.rocksdb.util.RedisScoredSetWrapper;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
@@ -114,7 +114,7 @@ public class BatchedRangeRead<T>
 	private final static int MAX_CONCURRENT_READ = 100;
 	private final static int MAX_BOUNDED_READS_ENQUEUED = 1000000;
 	private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
-	private final LoadingCache<ByteArray, RedisScoredSetWrapper<GeoWaveRedisPersistedRow>> setCache = Caffeine
+	private final LoadingCache<ByteArray, RedisScoredSetWrapper<GeoWaveRocksDBPersistedRow>> setCache = Caffeine
 			.newBuilder()
 			.build(
 					partitionKey -> getSet(
@@ -156,10 +156,10 @@ public class BatchedRangeRead<T>
 		this.isSortFinalResultsBySortKey = isSortFinalResultsBySortKey;
 	}
 
-	private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(
+	private RedisScoredSetWrapper<GeoWaveRocksDBPersistedRow> getSet(
 			final byte[] partitionKey ) {
 		return RocksDBUtils
-				.getRowSet(
+				.getTable(
 						client,
 						setNamePrefix,
 						partitionKey,
@@ -241,7 +241,7 @@ public class BatchedRangeRead<T>
 	public CloseableIterator<T> executeQueryAsync(
 			final List<RangeReadInfo> reads ) {
 		// first create a list of asynchronous query executions
-		final List<RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>>> futures = Lists
+		final List<RFuture<Collection<ScoredEntry<GeoWaveRocksDBPersistedRow>>>> futures = Lists
 				.newArrayListWithExpectedSize(
 						reads.size());
 		final BlockingQueue<Object> results = new LinkedBlockingQueue<>(
@@ -265,7 +265,7 @@ public class BatchedRangeRead<T>
 											r.partitionKey);
 								}
 								readSemaphore.acquire();
-								final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f = setCache
+								final RFuture<Collection<ScoredEntry<GeoWaveRocksDBPersistedRow>>> f = setCache
 										.get(
 												partitionKey)
 										.entryRangeAsync(
@@ -365,12 +365,12 @@ public class BatchedRangeRead<T>
 					@Override
 					public void close()
 							throws IOException {
-						List<RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>>> newFutures;
+						List<RFuture<Collection<ScoredEntry<GeoWaveRocksDBPersistedRow>>>> newFutures;
 						synchronized (futures) {
 							newFutures = new ArrayList<>(
 									futures);
 						}
-						for (final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f : newFutures) {
+						for (final RFuture<Collection<ScoredEntry<GeoWaveRocksDBPersistedRow>>> f : newFutures) {
 							f
 									.cancel(
 											true);
@@ -382,7 +382,7 @@ public class BatchedRangeRead<T>
 	}
 
 	private Iterator<T> transformAndFilter(
-			final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result,
+			final Iterator<ScoredEntry<GeoWaveRocksDBPersistedRow>> result,
 			final byte[] partitionKey ) {
 		return rowTransformer
 				.apply(
@@ -400,11 +400,11 @@ public class BatchedRangeRead<T>
 																								groupByRowAndSortByTimePair
 																										.getRight())
 																				: result,
-																		new Function<ScoredEntry<GeoWaveRedisPersistedRow>, GeoWaveRedisRow>() {
+																		new Function<ScoredEntry<GeoWaveRocksDBPersistedRow>, GeoWaveRedisRow>() {
 
 																			@Override
 																			public GeoWaveRedisRow apply(
-																					final ScoredEntry<GeoWaveRedisPersistedRow> entry ) {
+																					final ScoredEntry<GeoWaveRocksDBPersistedRow> entry ) {
 																		// @formatter:off
 																		// wrap the persisted row with additional metadata
 																		// @formatter:on

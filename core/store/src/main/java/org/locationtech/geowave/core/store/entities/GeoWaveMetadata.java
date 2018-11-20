@@ -17,11 +17,11 @@ import com.google.common.primitives.UnsignedBytes;
 public class GeoWaveMetadata implements
 		Comparable<GeoWaveMetadata>
 {
-	private final byte[] primaryId;
-	private final byte[] secondaryId;
-	private final byte[] visibility;
-	private final byte[] value;
-
+	protected byte[] primaryId;
+	protected byte[] secondaryId;
+	protected byte[] visibility;
+	protected byte[] value;
+	public GeoWaveMetadata() {}
 	public GeoWaveMetadata(
 			final byte[] primaryId,
 			final byte[] secondaryId,

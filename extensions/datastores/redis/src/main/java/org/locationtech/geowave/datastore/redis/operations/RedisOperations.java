@@ -70,7 +70,6 @@ public class RedisOperations implements
 		return true;
 	}
 
-	@Override
 	public boolean createIndex(
 			final Index index )
 			throws IOException {

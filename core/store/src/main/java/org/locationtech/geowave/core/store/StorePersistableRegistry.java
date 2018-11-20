@@ -26,6 +26,8 @@ import org.locationtech.geowave.core.store.api.AggregationQuery;
 import org.locationtech.geowave.core.store.api.Query;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
+import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
+import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.locationtech.geowave.core.store.index.BasicIndexModel;
 import org.locationtech.geowave.core.store.index.CustomNameIndex;
 import org.locationtech.geowave.core.store.index.IndexMetaDataSet;
@@ -157,7 +159,7 @@ public class StorePersistableRegistry implements
 					CommonQueryOptions::new),
 //			new PersistableIdAndConstructor(
 //					(short) 232,
-//					InternalDataAdapterWrapper::new),
+//					GeoWaveMetadata::new),
 			new PersistableIdAndConstructor(
 					(short) 233,
 					CountAggregation::new),

@@ -394,7 +394,6 @@ public class DynamoDBOperations implements
 		return false;
 	}
 
-	@Override
 	public boolean createIndex(
 			final Index index )
 			throws IOException {

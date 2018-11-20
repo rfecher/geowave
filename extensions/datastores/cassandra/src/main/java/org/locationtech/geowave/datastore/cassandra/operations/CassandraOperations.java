@@ -648,7 +648,6 @@ public class CassandraOperations implements
 		return tableName;
 	}
 
-	@Override
 	public boolean createIndex(
 			final Index index )
 			throws IOException {

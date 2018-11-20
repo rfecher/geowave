@@ -24,7 +24,7 @@ import org.locationtech.geowave.core.store.operations.BaseReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
-import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRocksDBPersistedRow;
 import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisRow;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
@@ -91,22 +91,22 @@ public class RedisReader<T> implements
 								readerParams,
 								adapterId);
 				final String setNamePrefix = RocksDBUtils
-						.getRowSetPrefix(
+						.getTablePrefix(
 								namespace,
 								readerParams
 										.getInternalAdapterStore()
 										.getTypeName(
 												adapterId),
 								readerParams.getIndex().getName());
-				final Stream<Pair<ByteArray, Iterator<ScoredEntry<GeoWaveRedisPersistedRow>>>> streamIt = RocksDBUtils
+				final Stream<Pair<ByteArray, Iterator<ScoredEntry<GeoWaveRocksDBPersistedRow>>>> streamIt = RocksDBUtils
 						.getPartitions(
 								client,
 								setNamePrefix)
 						.stream()
 						.map(
 								p -> {
-									final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result = RocksDBUtils
-											.getRowSet(
+									final Iterator<ScoredEntry<GeoWaveRocksDBPersistedRow>> result = RocksDBUtils
+											.getTable(
 													client,
 													setNamePrefix,
 													p.getBytes(),
@@ -116,7 +116,7 @@ public class RedisReader<T> implements
 													true,
 													Double.POSITIVE_INFINITY,
 													true);
-									final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> it = groupByRowAndSortByTime
+									final Iterator<ScoredEntry<GeoWaveRocksDBPersistedRow>> it = groupByRowAndSortByTime
 											.getLeft()
 													? RocksDBUtils
 															.groupByRow(
@@ -169,7 +169,7 @@ public class RedisReader<T> implements
 						adapterId -> new BatchedRangeRead(
 								client,
 								RocksDBUtils
-										.getRowSetPrefix(
+										.getTablePrefix(
 												namespace,
 												readerParams
 														.getInternalAdapterStore()

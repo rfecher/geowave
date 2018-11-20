@@ -1,10 +1,10 @@
 package org.locationtech.geowave.datastore.rocksdb.util;
 
+import java.io.File;
 import java.io.Serializable;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,9 +17,6 @@ import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.BaseReaderParams;
 import org.locationtech.geowave.core.store.operations.MetadataType;
-import org.redisson.api.RScoredSortedSet;
-import org.redisson.api.RedissonClient;
-import org.redisson.client.protocol.ScoredEntry;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
@@ -33,57 +30,50 @@ public class RocksDBUtils
 	public static int REDIS_DEFAULT_MAX_RANGE_DECOMPOSITION = 250;
 	public static int REDIS_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION = 250;
 
-	public static RScoredSortedSet<GeoWaveMetadata> getMetadataSet(
-			final RedissonClient client,
-			final String namespace,
+	public static RocksDBMetadataTable getMetadataTable(
+			final RocksDBClient client,
 			final MetadataType metadataType ) {
-		// stats alaos store a timestamp because stats can be the exact same but
+		// stats also store a timestamp because stats can be the exact same but
 		// need to still be unique (consider multiple count statistics that are
 		// exactly the same count, but need to be merged)
 		return client
-				.getScoredSortedSet(
-						namespace + "_" + metadataType.toString(),
-						MetadataType.STATS
-								.equals(
-										metadataType) ? GeoWaveMetadataWithTimestampCodec.SINGLETON
-												: GeoWaveMetadataCodec.SINGLETON);
+				.getMetadataTable(
+						metadataType);
 	}
 
-	public static String getRowSetPrefix(
-			final String namespace,
+	public static String getTablePrefix(
 			final String typeName,
 			final String indexName ) {
-		return namespace + "_" + typeName + "_" + indexName;
+		return typeName + "_" + indexName;
 	}
 
-	public static RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getRowSet(
-			final RedissonClient client,
+	public static RocksDBIndexTable getIndexTable(
+			final RocksDBClient client,
 			final String setNamePrefix,
 			final byte[] partitionKey,
 			final boolean requiresTimestamp ) {
-		return getRowSet(
+		return getIndexTable(
 				client,
-				getRowSetName(
+				getTableName(
 						setNamePrefix,
 						partitionKey),
 				requiresTimestamp);
 
 	}
 
-	public static String getRowSetName(
+	public static String getTableName(
 			final String namespace,
 			final String typeName,
 			final String indexName,
 			final byte[] partitionKey ) {
-		return getRowSetName(
-				getRowSetPrefix(
-						namespace,
+		return getTableName(
+				getTablePrefix(
 						typeName,
 						indexName),
 				partitionKey);
 	}
 
-	public static String getRowSetName(
+	public static String getTableName(
 			final String setNamePrefix,
 			final byte[] partitionKey ) {
 		String partitionStr;
@@ -98,101 +88,52 @@ public class RocksDBUtils
 		return setNamePrefix + partitionStr;
 	}
 
-	public static RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getRowSet(
-			final RedissonClient client,
-			final String setName,
+	public static RocksDBIndexTable getIndexTable(
+			final RocksDBClient client,
+			final String tableName,
 			final boolean requiresTimestamp ) {
-		return new RedisScoredSetWrapper<>(
-				client,
-				setName,
-				requiresTimestamp ? GeoWaveRedisRowWithTimestampCodec.SINGLETON : GeoWaveRedisRowCodec.SINGLETON);
+		return client
+				.getIndexTable(
+						tableName,
+						requiresTimestamp);
 
 	}
 
-	public static RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getRowSet(
-			final RedissonClient client,
-			final String namespace,
+	public static RocksDBIndexTable getIndexTable(
+			final RocksDBClient client,
 			final String typeName,
 			final String indexName,
 			final byte[] partitionKey,
 			final boolean requiresTimestamp ) {
-		return getRowSet(
+		return getIndexTable(
 				client,
-				getRowSetPrefix(
-						namespace,
+				getTablePrefix(
 						typeName,
 						indexName),
 				partitionKey,
 				requiresTimestamp);
 	}
 
-	public static double getScore(
-			final byte[] byteArray ) {
-		return bytesToLong(
-				byteArray);
-	}
-
-	public static byte[] getSortKey(
-			final double score ) {
-		return longToBytes(
-				(long) score);
-	}
-
-	private static byte[] longToBytes(
-			long val ) {
-
-		final int radix = 1 << 8;
-		final int mask = radix - 1;
-		// we want to eliminate trailing 0's (ie. truncate the byte array by
-		// trailing 0's)
-		int trailingZeros = 0;
-		while ((((int) val) & mask) == 0) {
-			val >>>= 8;
-			trailingZeros++;
-			if (trailingZeros == 8) {
-				return new byte[0];
-			}
-		}
-		final byte[] array = new byte[8 - trailingZeros];
-		int pos = array.length;
-		do {
-			array[--pos] = (byte) (((int) val) & mask);
-			val >>>= 8;
-
-		}
-		while ((val != 0) && (pos > 0));
-
-		return array;
-	}
-
-	private static long bytesToLong(
-			final byte[] bytes ) {
-		long value = 0;
-		for (int i = 0; i < 8; i++) {
-			value = (value << 8);
-			if (i < bytes.length) {
-				value += (bytes[i] & 0xff);
-			}
-		}
-		return value;
-	}
-
 	public static Set<ByteArray> getPartitions(
-			final RedissonClient client,
-			final String setNamePrefix ) {
-		return Streams
+			final String directory,
+			final String tableNamePrefix ) {
+		return Arrays
 				.stream(
-						client
-								.getKeys()
-								.getKeysByPattern(
-										setNamePrefix + "*"))
+						new File(
+								directory)
+										.list(
+												(
+														dir,
+														name ) -> name
+																.startsWith(
+																		tableNamePrefix)))
 				.map(
-						str -> str.length() > (setNamePrefix.length() + 1) ? new ByteArray(
+						str -> str.length() > (tableNamePrefix.length() + 1) ? new ByteArray(
 								ByteArrayUtils
 										.byteArrayFromString(
 												str
 														.substring(
-																setNamePrefix.length() + 1)))
+																tableNamePrefix.length() + 1)))
 								: new ByteArray())
 				.collect(
 						Collectors.toSet());
@@ -211,37 +152,6 @@ public class RocksDBUtils
 																r.getPrimaryId(),
 																r.getSecondaryId())),
 										r));
-		return multimap.values().iterator();
-	}
-
-	public static Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> groupByRow(
-			final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result,
-			final boolean sortByTime ) {
-		final ListMultimap<Pair<Double, ByteArray>, ScoredEntry<GeoWaveRedisPersistedRow>> multimap = MultimapBuilder
-				.hashKeys()
-				.arrayListValues()
-				.build();
-		result
-				.forEachRemaining(
-						r -> multimap
-								.put(
-										Pair
-												.of(
-														r.getScore(),
-														new ByteArray(
-																r.getValue().getDataId())),
-										r));
-		if (sortByTime) {
-			multimap
-					.asMap()
-					.forEach(
-							(
-									k,
-									v ) -> Collections
-											.sort(
-													(List<ScoredEntry<GeoWaveRedisPersistedRow>>) v,
-													TIMESTAMP_COMPARATOR));
-		}
 		return multimap.values().iterator();
 	}
 
@@ -279,37 +189,6 @@ public class RocksDBUtils
 				.of(
 						readerParams.isMixedVisibility() || sortByTime,
 						sortByTime);
-	}
-
-	private static final ReverseTimestampComparator TIMESTAMP_COMPARATOR = new ReverseTimestampComparator();
-
-	private static class ReverseTimestampComparator implements
-			Comparator<ScoredEntry<GeoWaveRedisPersistedRow>>,
-			Serializable
-	{
-		private static final long serialVersionUID = 2894647323275155231L;
-
-		@Override
-		public int compare(
-				final ScoredEntry<GeoWaveRedisPersistedRow> o1,
-				final ScoredEntry<GeoWaveRedisPersistedRow> o2 ) {
-			final GeoWaveRedisPersistedTimestampRow row1 = (GeoWaveRedisPersistedTimestampRow) o1.getValue();
-			final GeoWaveRedisPersistedTimestampRow row2 = (GeoWaveRedisPersistedTimestampRow) o2.getValue();
-			// we are purposely reversing the order because we want it to be
-			// sorted from most recent to least recent
-			final int compare = Long
-					.compare(
-							row2.getSecondsSinceEpic(),
-							row1.getSecondsSinceEpic());
-			if (compare != 0) {
-				return compare;
-			}
-			return Integer
-					.compare(
-							row2.getNanoOfSecond(),
-							row1.getNanoOfSecond());
-		}
-
 	}
 
 	private static class SortKeyOrder implements

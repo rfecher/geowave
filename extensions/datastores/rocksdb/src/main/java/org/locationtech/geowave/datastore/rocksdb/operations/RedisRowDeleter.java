@@ -7,7 +7,7 @@ import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
-import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedRow;
+import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRocksDBPersistedRow;
 import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisRow;
 import org.locationtech.geowave.datastore.rocksdb.util.RedisScoredSetWrapper;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
@@ -21,7 +21,7 @@ public class RedisRowDeleter implements
 		RowDeleter
 {
 
-	private final LoadingCache<Pair<String, Short>, RedisScoredSetWrapper<GeoWaveRedisPersistedRow>> setCache = Caffeine
+	private final LoadingCache<Pair<String, Short>, RedisScoredSetWrapper<GeoWaveRocksDBPersistedRow>> setCache = Caffeine
 			.newBuilder()
 			.build(
 					nameAndAdapterId -> getSet(
@@ -49,10 +49,10 @@ public class RedisRowDeleter implements
 	public void close()
 			throws Exception {}
 
-	private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(
+	private RedisScoredSetWrapper<GeoWaveRocksDBPersistedRow> getSet(
 			final Pair<String, Short> setNameAndAdapterId ) {
 		return RocksDBUtils
-				.getRowSet(
+				.getTable(
 						client,
 						setNameAndAdapterId.getLeft(),
 						RocksDBUtils
@@ -65,12 +65,12 @@ public class RedisRowDeleter implements
 	@Override
 	public void delete(
 			final GeoWaveRow row ) {
-		final RedisScoredSetWrapper<GeoWaveRedisPersistedRow> set = setCache
+		final RedisScoredSetWrapper<GeoWaveRocksDBPersistedRow> set = setCache
 				.get(
 						Pair
 								.of(
 										RocksDBUtils
-												.getRowSetName(
+												.getTableName(
 														namespace,
 														internalAdapterStore
 																.getTypeName(

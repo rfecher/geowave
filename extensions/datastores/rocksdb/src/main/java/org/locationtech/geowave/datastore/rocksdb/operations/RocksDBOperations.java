@@ -32,6 +32,9 @@ import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.rocksdb.config.RocksDBOptions;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBCache;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClientCache;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
 import org.rocksdb.RocksDB;
@@ -42,59 +45,38 @@ public class RocksDBOperations implements
 {
 	private static final boolean READER_ASYNC = true;
 	private final RocksDBOptions options;
-	private final String directory;
+	private final RocksDBClient client;
+	private String directory;
 
 	public RocksDBOperations(
 			final RocksDBOptions options ) {
-		directory = options.getDirectory() + "/" + options.getGeowaveNamespace();
+		this.directory = options.getDirectory() + "/" + options.getGeowaveNamespace();
 		// a factory method that returns a RocksDB instance
 		this.options = options;
-		client = RocksDBCache
+		client = RocksDBClientCache
 				.getInstance()
 				.getClient(
 						directory);
-		client.
 	}
 
 	@Override
 	public boolean indexExists(
 			final String indexName )
 			throws IOException {
-		return true;
-	}
-
-	@Override
-	public boolean createIndex(
-			final Index index )
-			throws IOException {
-		return true;
+		return client.tableExists(indexName);
 	}
 
 	@Override
 	public boolean metadataExists(
 			final MetadataType type )
 			throws IOException {
-		return true;
-	}
-
-	private void deleteByPattern(
-			final String pattern ) {
-		final RKeys keySet = client.getKeys();
-
-		keySet
-				.getKeysByPattern(
-						pattern)
-				.forEach(
-						k -> keySet
-								.delete(
-										k));
+		return client.tableExists(type.name());
 	}
 
 	@Override
 	public void deleteAll()
 			throws Exception {
-		deleteByPattern(
-				gwNamespace + "_*");
+		//TODO
 	}
 
 	@Override
@@ -103,13 +85,7 @@ public class RocksDBOperations implements
 			final String typeName,
 			final Short adapterId,
 			final String... additionalAuthorizations ) {
-		deleteByPattern(
-				RedisUtils
-						.getRowSetPrefix(
-								gwNamespace,
-								typeName,
-								indexName)
-						+ "*");
+		//TODO
 		return true;
 	}
 
@@ -126,10 +102,9 @@ public class RocksDBOperations implements
 			final InternalDataAdapter<?> adapter ) {
 		return new RocksDBWriter(
 				client,
-				gwNamespace,
 				adapter.getTypeName(),
 				index.getName(),
-				RedisUtils
+				RocksDBUtils
 						.isSortByTime(
 								adapter));
 	}
@@ -137,14 +112,10 @@ public class RocksDBOperations implements
 	@Override
 	public MetadataWriter createMetadataWriter(
 			final MetadataType metadataType ) {
-		return new RedisMetadataWriter(
-				RedisUtils
-						.getMetadataSet(
+		return new RocksDBMetadataWriter(
+				RocksDBUtils
+						.getMetadataTable(
 								client,
-								gwNamespace,
-								metadataType),
-				MetadataType.STATS
-						.equals(
 								metadataType));
 	}
 
@@ -152,22 +123,19 @@ public class RocksDBOperations implements
 	public MetadataReader createMetadataReader(
 			final MetadataType metadataType ) {
 		return new RedisMetadataReader(
-				RedisUtils
-						.getMetadataSet(
+				RocksDBUtils
+						.getMetadataTable(
 								client,
-								gwNamespace,
-								metadataType),
-				metadataType);
+								metadataType));
 	}
 
 	@Override
 	public MetadataDeleter createMetadataDeleter(
 			final MetadataType metadataType ) {
 		return new RedisMetadataDeleter(
-				RedisUtils
-						.getMetadataSet(
+				RocksDBUtils
+						.getMetadataTable(
 								client,
-								gwNamespace,
 								metadataType),
 				metadataType);
 	}
@@ -251,7 +219,7 @@ public class RocksDBOperations implements
 
 	@Override
 	public void close() {
-		RocksDBCache
+		RocksDBClientCache
 				.getInstance()
 				.close(
 						directory);

@@ -1,17 +1,12 @@
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
-import java.time.Instant;
-
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
-import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedRow;
-import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisPersistedTimestampRow;
-import org.locationtech.geowave.datastore.rocksdb.util.RedisScoredSetWrapper;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBIndexTable;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
-import org.redisson.api.RScoredSortedSet;
-import org.redisson.api.RedissonClient;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
@@ -20,34 +15,32 @@ public class RocksDBWriter implements
 		RowWriter
 {
 	private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
-	private final RedissonClient client;
+	private final RocksDBClient client;
 	private final String setNamePrefix;
-	private final LoadingCache<ByteArray, RedisScoredSetWrapper<GeoWaveRedisPersistedRow>> setCache = Caffeine
+	private final LoadingCache<ByteArray, RocksDBIndexTable> tableCache = Caffeine
 			.newBuilder()
 			.build(
-					partitionKey -> getSet(
+					partitionKey -> getTable(
 							partitionKey.getBytes()));
 	boolean isTimestampRequired;
 
 	public RocksDBWriter(
-			final RedissonClient client,
-			final String namespace,
+			final RocksDBClient client,
 			final String typeName,
 			final String indexName,
 			final boolean isTimestampRequired ) {
 		this.client = client;
 		setNamePrefix = RocksDBUtils
-				.getRowSetPrefix(
-						namespace,
+				.getTablePrefix(
 						typeName,
 						indexName);
 		this.isTimestampRequired = isTimestampRequired;
 	}
 
-	private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(
+	private RocksDBIndexTable getTable(
 			final byte[] partitionKey ) {
 		return RocksDBUtils
-				.getRowSet(
+				.getIndexTable(
 						client,
 						setNamePrefix,
 						partitionKey,
@@ -75,37 +68,22 @@ public class RocksDBWriter implements
 					row.getPartitionKey());
 		}
 		for (final GeoWaveValue value : row.getFieldValues()) {
-			setCache
+			tableCache
 					.get(
 							partitionKey)
-					.add(
-							RocksDBUtils
-									.getScore(
-											row.getSortKey()),
-							isTimestampRequired ? new GeoWaveRedisPersistedTimestampRow(
-									(short) row.getNumberOfDuplicates(),
-									row.getDataId(),
-									value,
-									Instant.now())
-									: new GeoWaveRedisPersistedRow(
-											(short) row.getNumberOfDuplicates(),
-											row.getDataId(),
-											value));
+					.add(row.getSortKey(), row.getDataId(), (short)row.getNumberOfDuplicates(), value);
 
 		}
 	}
 
 	@Override
 	public void flush() {
-		setCache.asMap().forEach((k,v) -> v.flush());
+		tableCache.asMap().forEach((k,v) -> v.flush());
 	}
 
 	@Override
-	public void close()
-			throws Exception {
-		for (RedisScoredSetWrapper<GeoWaveRedisPersistedRow> set : setCache.asMap().values()) {
-			set.close();
-		}
+	public void close() {
+		flush();
 	}
 
 }
