@@ -98,6 +98,7 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<test.args>-XX:CompressedClassSpaceSize=512m -XX:+UseSerialGC -Xms1g -Xmx2g -XX:MaxMetaspaceSize=512m</test.args>
 		<findbugs.version>3.0.1</findbugs.version>
+		<findbugs.skip>true</findbugs.skip>
 		<findbugs.omitVisitors>MutableStaticFields,FindReturnRef</findbugs.omitVisitors>
 		<findbugs.effort>Max</findbugs.effort>
 		<findbugs.threshold>Medium</findbugs.threshold>

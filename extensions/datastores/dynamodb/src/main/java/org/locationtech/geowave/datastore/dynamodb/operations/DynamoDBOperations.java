@@ -86,7 +86,7 @@ public class DynamoDBOperations implements
 		this.options = options;
 		client = DynamoDBClientPool.getInstance().getClient(
 				options);
-		gwNamespace = options.getGeowaveNamespace();
+		gwNamespace = options.getGeoWaveNamespace();
 	}
 
 	public static DynamoDBOperations createOperations(

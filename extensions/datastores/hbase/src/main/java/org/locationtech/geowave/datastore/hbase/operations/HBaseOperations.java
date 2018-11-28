@@ -213,7 +213,7 @@ public class HBaseOperations implements
 			throws IOException {
 		return new HBaseOperations(
 				options.getZookeeper(),
-				options.getGeowaveNamespace(),
+				options.getGeoWaveNamespace(),
 				(HBaseOptions) options.getStoreOptions());
 	}
 

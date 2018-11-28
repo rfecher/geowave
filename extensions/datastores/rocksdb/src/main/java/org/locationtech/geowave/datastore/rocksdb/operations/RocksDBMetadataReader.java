@@ -1,64 +1,57 @@
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataQuery;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.util.StatisticsRowIterator;
-import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
-import org.redisson.api.RScoredSortedSet;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBMetadataTable;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 
-public class RedisMetadataReader implements
+public class RocksDBMetadataReader implements
 		MetadataReader
 {
-	private final RScoredSortedSet<GeoWaveMetadata> set;
+	private final RocksDBMetadataTable table;
 	private final MetadataType metadataType;
 
-	public RedisMetadataReader(
-			final RScoredSortedSet<GeoWaveMetadata> set,
+	public RocksDBMetadataReader(
+			final RocksDBMetadataTable table,
 			final MetadataType metadataType ) {
-		this.set = set;
+		this.table = table;
 		this.metadataType = metadataType;
 	}
 
 	public CloseableIterator<GeoWaveMetadata> query(
 			final MetadataQuery query,
 			final boolean mergeStats ) {
-		Iterable<GeoWaveMetadata> results;
-		if (query.getPrimaryId() != null) {
-			if (query.getPrimaryId().length > 6) {
-				// this primary ID and next prefix are going to be the same
-				// score
-				final double score = RocksDBUtils.getScore(query.getPrimaryId());
-				results = set.valueRange(
-						score,
-						true,
-						score,
-						true);
+		CloseableIterator<GeoWaveMetadata> originalResults;
+		Iterator<GeoWaveMetadata> resultsIt;
+		if (query.hasPrimaryId()) {
+			if (query.hasSecondaryId()) {
+				originalResults = table.iterator(
+						query.getPrimaryId(),
+						query.getSecondaryId());
+				resultsIt = originalResults;
 			}
 			else {
-				// the primary ID prefix is short enough that we can use the
-				// score of the next prefix to subset the data
-				results = set.valueRange(
-						RocksDBUtils.getScore(query.getPrimaryId()),
-						true,
-						RocksDBUtils.getScore(ByteArray.getNextPrefix(query.getPrimaryId())),
-						false);
+				originalResults = table.iterator(query.getPrimaryId());
+				resultsIt = originalResults;
 			}
 		}
 		else {
-			results = set;
+			originalResults = table.iterator();
+			resultsIt = originalResults;
 		}
 		if (query.hasPrimaryId() || query.hasSecondaryId()) {
-			results = Iterables.filter(
-					results,
+			resultsIt = Iterators.filter(
+					resultsIt,
 					new Predicate<GeoWaveMetadata>() {
 
 						@Override
@@ -79,15 +72,9 @@ public class RedisMetadataReader implements
 					});
 		}
 		final boolean isStats = MetadataType.STATS.equals(metadataType) && mergeStats;
-		final CloseableIterator<GeoWaveMetadata> retVal;
-		if (isStats) {
-			retVal = new CloseableIterator.Wrapper<>(
-					RocksDBUtils.groupByIds(results));
-		}
-		else {
-			retVal = new CloseableIterator.Wrapper<>(
-					results.iterator());
-		}
+		final CloseableIterator<GeoWaveMetadata> retVal = new CloseableIteratorWrapper<>(
+				originalResults,
+				resultsIt);
 		return isStats ? new StatisticsRowIterator(
 				retVal,
 				query.getAuthorizations()) : retVal;

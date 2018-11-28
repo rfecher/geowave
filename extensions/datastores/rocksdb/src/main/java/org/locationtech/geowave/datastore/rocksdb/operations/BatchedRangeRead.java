@@ -33,20 +33,14 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
 import org.locationtech.geowave.core.store.util.RowConsumer;
-import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRocksDBPersistedRow;
-import org.locationtech.geowave.datastore.rocksdb.util.GeoWaveRedisRow;
-import org.locationtech.geowave.datastore.rocksdb.util.RedisScoredSetWrapper;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBIndexTable;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
-import org.redisson.api.RFuture;
-import org.redisson.api.RScoredSortedSet;
-import org.redisson.api.RedissonClient;
-import org.redisson.client.protocol.ScoredEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -61,16 +55,13 @@ public class BatchedRangeRead<T>
 	private static class RangeReadInfo
 	{
 		byte[] partitionKey;
-		double startScore;
-		double endScore;
+		ByteArrayRange sortKeyRange;
 
 		public RangeReadInfo(
 				final byte[] partitionKey,
-				final double startScore,
-				final double endScore ) {
+				final ByteArrayRange sortKeyRange ) {
 			this.partitionKey = partitionKey;
-			this.startScore = startScore;
-			this.endScore = endScore;
+			this.sortKeyRange = sortKeyRange;
 		}
 	}
 
@@ -85,17 +76,19 @@ public class BatchedRangeRead<T>
 		public int compare(
 				final RangeReadInfo o1,
 				final RangeReadInfo o2 ) {
-			int comp = Double
+			int comp = UnsignedBytes
+					.lexicographicalComparator()
 					.compare(
-							o1.startScore,
-							o2.startScore);
+							o1.sortKeyRange.getStart().getBytes(),
+							o2.sortKeyRange.getStart().getBytes());
 			if (comp != 0) {
 				return comp;
 			}
-			comp = Double
+			comp = UnsignedBytes
+					.lexicographicalComparator()
 					.compare(
-							o1.endScore,
-							o2.endScore);
+							o1.sortKeyRange.getEnd().getBytes(),
+							o2.sortKeyRange.getEnd().getBytes());
 			if (comp != 0) {
 				return comp;
 			}
@@ -114,15 +107,15 @@ public class BatchedRangeRead<T>
 	private final static int MAX_CONCURRENT_READ = 100;
 	private final static int MAX_BOUNDED_READS_ENQUEUED = 1000000;
 	private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
-	private final LoadingCache<ByteArray, RedisScoredSetWrapper<GeoWaveRocksDBPersistedRow>> setCache = Caffeine
+	private final LoadingCache<ByteArray, RocksDBIndexTable> setCache = Caffeine
 			.newBuilder()
 			.build(
-					partitionKey -> getSet(
+					partitionKey -> getTable(
 							partitionKey.getBytes()));
 	private final Collection<SinglePartitionQueryRanges> ranges;
 	private final short adapterId;
-	private final String setNamePrefix;
-	private final RedissonClient client;
+	private final String indexNamePrefix;
+	private final RocksDBClient client;
 	private final GeoWaveRowIteratorTransformer<T> rowTransformer;
 	private final Predicate<GeoWaveRow> filter;
 
@@ -135,8 +128,8 @@ public class BatchedRangeRead<T>
 	private final boolean isSortFinalResultsBySortKey;
 
 	protected BatchedRangeRead(
-			final RedissonClient client,
-			final String setNamePrefix,
+			final RocksDBClient client,
+			final String indexNamePrefix,
 			final short adapterId,
 			final Collection<SinglePartitionQueryRanges> ranges,
 			final GeoWaveRowIteratorTransformer<T> rowTransformer,
@@ -145,7 +138,7 @@ public class BatchedRangeRead<T>
 			final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
 			final boolean isSortFinalResultsBySortKey ) {
 		this.client = client;
-		this.setNamePrefix = setNamePrefix;
+		this.indexNamePrefix = indexNamePrefix;
 		this.adapterId = adapterId;
 		this.ranges = ranges;
 		this.rowTransformer = rowTransformer;
@@ -156,12 +149,13 @@ public class BatchedRangeRead<T>
 		this.isSortFinalResultsBySortKey = isSortFinalResultsBySortKey;
 	}
 
-	private RedisScoredSetWrapper<GeoWaveRocksDBPersistedRow> getSet(
+	private RocksDBIndexTable getTable(
 			final byte[] partitionKey ) {
 		return RocksDBUtils
-				.getTable(
+				.getIndexTableFromPrefix(
 						client,
-						setNamePrefix,
+						indexNamePrefix,
+						adapterId,
 						partitionKey,
 						groupByRowAndSortByTimePair.getRight());
 
@@ -171,31 +165,22 @@ public class BatchedRangeRead<T>
 		final List<RangeReadInfo> reads = new ArrayList<>();
 		for (final SinglePartitionQueryRanges r : ranges) {
 			for (final ByteArrayRange range : r.getSortKeyRanges()) {
-				final double start = range.getStart() != null ? RocksDBUtils
-						.getScore(
-								range.getStart().getBytes())
-						: Double.NEGATIVE_INFINITY;
-				final double end = range.getEnd() != null ? RocksDBUtils
-						.getScore(
-								range.getEndAsNextPrefix().getBytes())
-						: Double.POSITIVE_INFINITY;
 				reads
 						.add(
 								new RangeReadInfo(
 										r.getPartitionKey().getBytes(),
-										start,
-										end));
+										range));
 			}
 
 		}
-//		if (async) {
-//			return executeQueryAsync(
-//					reads);
-//		}
-//		else {
-			return executeQuery(
-					reads);
-//		}
+		// if (async) {
+		// return executeQueryAsync(
+		// reads);
+		// }
+		// else {
+		return executeQuery(
+				reads);
+		// }
 	}
 
 	public CloseableIterator<T> executeQuery(
@@ -228,197 +213,27 @@ public class BatchedRangeRead<T>
 															setCache
 																	.get(
 																			partitionKey)
-																	.entryRange(
-																			r.startScore,
-																			true,
-																			r.endScore,
-																			r.endScore <= r.startScore),
+																	.iterator(
+																			r.sortKeyRange),
 															r.partitionKey);
 												})
 										.iterator()));
 	}
 
-	public CloseableIterator<T> executeQueryAsync(
-			final List<RangeReadInfo> reads ) {
-		// first create a list of asynchronous query executions
-		final List<RFuture<Collection<ScoredEntry<GeoWaveRocksDBPersistedRow>>>> futures = Lists
-				.newArrayListWithExpectedSize(
-						reads.size());
-		final BlockingQueue<Object> results = new LinkedBlockingQueue<>(
-				MAX_BOUNDED_READS_ENQUEUED);
-		new Thread(
-				new Runnable() {
-					@Override
-					public void run() {
-						// set it to 1 to make sure all queries are submitted in
-						// the loop
-						final AtomicInteger queryCount = new AtomicInteger(
-								1);
-						for (final RangeReadInfo r : reads) {
-							try {
-								ByteArray partitionKey;
-								if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
-									partitionKey = EMPTY_PARTITION_KEY;
-								}
-								else {
-									partitionKey = new ByteArray(
-											r.partitionKey);
-								}
-								readSemaphore.acquire();
-								final RFuture<Collection<ScoredEntry<GeoWaveRocksDBPersistedRow>>> f = setCache
-										.get(
-												partitionKey)
-										.entryRangeAsync(
-												r.startScore,
-												true,
-												r.endScore,
-												// if we don't have enough
-												// precision we need to make
-												// sure the end is inclusive
-												r.endScore <= r.startScore);
-								queryCount.incrementAndGet();
-								f
-										.handle(
-												(
-														result,
-														throwable ) -> {
-													if (!f.isSuccess()) {
-														if (!f.isCancelled()) {
-															LOGGER
-																	.warn(
-																			"Async Redis query failed",
-																			throwable);
-														}
-														checkFinalize(
-																readSemaphore,
-																results,
-																queryCount);
-														return result;
-													}
-													else {
-														try {
-															transformAndFilter(
-																	result.iterator(),
-																	r.partitionKey)
-																			.forEachRemaining(
-																					row -> {
-																						try {
-																							results
-																									.put(
-																											row);
-																						}
-																						catch (final InterruptedException e) {
-																							LOGGER
-																									.warn(
-																											"interrupted while waiting to enqueue a redis result",
-																											e);
-																						}
-																					});
-
-														}
-														finally {
-															checkFinalize(
-																	readSemaphore,
-																	results,
-																	queryCount);
-														}
-														return result;
-													}
-												});
-								synchronized (futures) {
-
-									futures
-											.add(
-													f);
-
-								}
-							}
-							catch (final InterruptedException e) {
-								LOGGER
-										.warn(
-												"Exception while executing query",
-												e);
-								readSemaphore.release();
-							}
-						}
-						// then decrement
-						if (queryCount.decrementAndGet() <= 0) {
-							// and if there are no queries, there may not have
-							// been any
-							// statements submitted
-							try {
-								results
-										.put(
-												RowConsumer.POISON);
-							}
-							catch (final InterruptedException e) {
-								LOGGER
-										.error(
-												"Interrupted while finishing blocking queue, this may result in deadlock!");
-							}
-						}
-					}
-				},
-				"Redis Query Executor").start();
-		return new CloseableIteratorWrapper<>(
-				new Closeable() {
-					@Override
-					public void close()
-							throws IOException {
-						List<RFuture<Collection<ScoredEntry<GeoWaveRocksDBPersistedRow>>>> newFutures;
-						synchronized (futures) {
-							newFutures = new ArrayList<>(
-									futures);
-						}
-						for (final RFuture<Collection<ScoredEntry<GeoWaveRocksDBPersistedRow>>> f : newFutures) {
-							f
-									.cancel(
-											true);
-						}
-					}
-				},
-				new RowConsumer<>(
-						results));
-	}
-
-	private Iterator<T> transformAndFilter(
-			final Iterator<ScoredEntry<GeoWaveRocksDBPersistedRow>> result,
+	private CloseableIterator<T> transformAndFilter(
+			final CloseableIterator<GeoWaveRow> result,
 			final byte[] partitionKey ) {
-		return rowTransformer
-				.apply(
-						sortByKeyIfRequired(
-								isSortFinalResultsBySortKey,
-								(Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
-										Iterators
-												.filter(
-														Iterators
-																.transform(
-																		groupByRowAndSortByTimePair.getLeft()
-																				? RocksDBUtils
-																						.groupByRow(
-																								result,
-																								groupByRowAndSortByTimePair
-																										.getRight())
-																				: result,
-																		new Function<ScoredEntry<GeoWaveRocksDBPersistedRow>, GeoWaveRedisRow>() {
-
-																			@Override
-																			public GeoWaveRedisRow apply(
-																					final ScoredEntry<GeoWaveRocksDBPersistedRow> entry ) {
-																		// @formatter:off
-																		// wrap the persisted row with additional metadata
-																		// @formatter:on
-																				return new GeoWaveRedisRow(
-																						entry.getValue(),
-																						adapterId,
-																						partitionKey,
-																						RocksDBUtils
-																								.getSortKey(
-																										entry
-																												.getScore()));
-																			}
-																		}),
-														filter))));
+		return new CloseableIteratorWrapper<>(
+				result,
+				rowTransformer
+						.apply(
+								sortByKeyIfRequired(
+										isSortFinalResultsBySortKey,
+										(Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator(
+												Iterators
+														.filter(
+																result,
+																filter)))));
 	}
 
 	private static Iterator<GeoWaveRow> sortByKeyIfRequired(

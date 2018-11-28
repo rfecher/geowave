@@ -16,7 +16,9 @@ public class RocksDBWriter implements
 {
 	private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
 	private final RocksDBClient client;
-	private final String setNamePrefix;
+	private final String indexNamePrefix;
+
+	private final short adapterId;
 	private final LoadingCache<ByteArray, RocksDBIndexTable> tableCache = Caffeine
 			.newBuilder()
 			.build(
@@ -26,11 +28,13 @@ public class RocksDBWriter implements
 
 	public RocksDBWriter(
 			final RocksDBClient client,
+			final short adapterId,
 			final String typeName,
 			final String indexName,
 			final boolean isTimestampRequired ) {
 		this.client = client;
-		setNamePrefix = RocksDBUtils
+		this.adapterId = adapterId;
+		indexNamePrefix = RocksDBUtils
 				.getTablePrefix(
 						typeName,
 						indexName);
@@ -40,9 +44,10 @@ public class RocksDBWriter implements
 	private RocksDBIndexTable getTable(
 			final byte[] partitionKey ) {
 		return RocksDBUtils
-				.getIndexTable(
+				.getIndexTableFromPrefix(
 						client,
-						setNamePrefix,
+						indexNamePrefix,
+						adapterId,
 						partitionKey,
 						isTimestampRequired);
 	}
@@ -71,19 +76,29 @@ public class RocksDBWriter implements
 			tableCache
 					.get(
 							partitionKey)
-					.add(row.getSortKey(), row.getDataId(), (short)row.getNumberOfDuplicates(), value);
+					.add(
+							row.getSortKey(),
+							row.getDataId(),
+							(short) row.getNumberOfDuplicates(),
+							value);
 
 		}
 	}
 
 	@Override
 	public void flush() {
-		tableCache.asMap().forEach((k,v) -> v.flush());
+		tableCache
+				.asMap()
+				.forEach(
+						(
+								k,
+								v ) -> v.flush());
 	}
 
 	@Override
 	public void close() {
 		flush();
+		tableCache.invalidateAll();
 	}
 
 }

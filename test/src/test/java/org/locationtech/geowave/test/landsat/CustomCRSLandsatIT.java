@@ -113,7 +113,8 @@ public class CustomCRSLandsatIT extends
 		GeoWaveStoreType.BIGTABLE,
 		GeoWaveStoreType.CASSANDRA,
 		GeoWaveStoreType.HBASE,
-		GeoWaveStoreType.REDIS
+		GeoWaveStoreType.REDIS,
+		GeoWaveStoreType.ROCKSDB
 	}, namespace = "customcrs")
 	protected DataStorePluginOptions dataStoreOptions;
 	private static final String CUSTOM_REFERENCE_LANDSAT_IMAGE_PATH = "src/test/resources/landsat/expected_custom.png";

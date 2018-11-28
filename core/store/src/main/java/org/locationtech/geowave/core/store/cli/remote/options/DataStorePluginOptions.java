@@ -185,7 +185,7 @@ public class DataStorePluginOptions extends
 	}
 
 	public String getGeowaveNamespace() {
-		return getFactoryOptions().getGeowaveNamespace();
+		return getFactoryOptions().getGeoWaveNamespace();
 	}
 
 }

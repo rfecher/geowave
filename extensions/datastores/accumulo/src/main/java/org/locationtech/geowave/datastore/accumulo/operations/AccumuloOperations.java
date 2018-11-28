@@ -913,7 +913,7 @@ public class AccumuloOperations implements
 				options.getInstance(),
 				options.getUser(),
 				options.getPassword(),
-				options.getGeowaveNamespace(),
+				options.getGeoWaveNamespace(),
 				(AccumuloOptions) options.getStoreOptions());
 	}
 

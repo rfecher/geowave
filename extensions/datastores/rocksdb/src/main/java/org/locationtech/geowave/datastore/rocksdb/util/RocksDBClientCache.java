@@ -14,12 +14,12 @@ public class RocksDBClientCache
 		return singletonInstance;
 	}
 
-
 	private final LoadingCache<String, RocksDBClient> clientCache = Caffeine
 			.newBuilder()
 			.build(
 					subDirectory -> {
-						return new RocksDBClient(subDirectory);
+						return new RocksDBClient(
+								subDirectory);
 					});
 
 	protected RocksDBClientCache() {}
@@ -43,12 +43,36 @@ public class RocksDBClientCache
 			client.close();
 		}
 		if (clientCache.estimatedSize() == 0) {
-
 			RocksDBClient.metadataOptions.close();
 			RocksDBClient.metadataOptions = null;
-			
-			RocksDBClient.indexOptions.close();
-			RocksDBClient.indexOptions = null;			
+
+			RocksDBClient.indexWriteOptions.close();
+			RocksDBClient.indexWriteOptions = null;
+
+			RocksDBClient.indexReadOptions.close();
+			RocksDBClient.indexReadOptions = null;
+		}
+	}
+
+	public synchronized void closeAll() {
+		clientCache
+				.asMap()
+				.forEach(
+						(
+								k,
+								v ) -> v.close());
+		clientCache.invalidateAll();
+		if (RocksDBClient.metadataOptions != null) {
+			RocksDBClient.metadataOptions.close();
+			RocksDBClient.metadataOptions = null;
+		}
+		if (RocksDBClient.indexWriteOptions != null) {
+			RocksDBClient.indexWriteOptions.close();
+			RocksDBClient.indexWriteOptions = null;
+		}
+		if (RocksDBClient.indexReadOptions != null) {
+			RocksDBClient.indexReadOptions.close();
+			RocksDBClient.indexReadOptions = null;
 		}
 	}
 }

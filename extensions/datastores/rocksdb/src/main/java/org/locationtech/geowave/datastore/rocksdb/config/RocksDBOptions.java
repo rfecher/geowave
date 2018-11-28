@@ -14,7 +14,7 @@ public class RocksDBOptions extends
 		StoreFactoryOptions
 {
 	@Parameter(names = "--directory", description = "The directory to read/write to.  Defaults to \"rocksdb\" in the working directory.")
-	private final String directory = "rocksdb";
+	private String directory = "rocksdb";
 	@ParametersDelegate
 	protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
 		@Override
@@ -24,12 +24,12 @@ public class RocksDBOptions extends
 
 		@Override
 		protected int defaultMaxRangeDecomposition() {
-			return RocksDBUtils.REDIS_DEFAULT_MAX_RANGE_DECOMPOSITION;
+			return RocksDBUtils.ROCKSDB_DEFAULT_MAX_RANGE_DECOMPOSITION;
 		}
 
 		@Override
 		protected int defaultAggregationMaxRangeDecomposition() {
-			return RocksDBUtils.REDIS_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION;
+			return RocksDBUtils.ROCKSDB_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION;
 		}
 	};
 
@@ -41,6 +41,11 @@ public class RocksDBOptions extends
 			final String geowaveNamespace ) {
 		super(
 				geowaveNamespace);
+	}
+
+	public void setDirectory(
+			final String directory ) {
+		this.directory = directory;
 	}
 
 	public String getDirectory() {

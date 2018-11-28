@@ -21,7 +21,7 @@ public class GeoWaveMetadata implements
 	protected byte[] secondaryId;
 	protected byte[] visibility;
 	protected byte[] value;
-	public GeoWaveMetadata() {}
+
 	public GeoWaveMetadata(
 			final byte[] primaryId,
 			final byte[] secondaryId,

@@ -47,20 +47,16 @@ public class RedisOperations implements
 
 	public RedisOperations(
 			final RedisOptions options ) {
-		if ((options.getGeowaveNamespace() == null) || options
-				.getGeowaveNamespace()
-				.equals(
-						"")) {
+		if ((options.getGeoWaveNamespace() == null) || options.getGeoWaveNamespace().equals(
+				"")) {
 			gwNamespace = "geowave";
 		}
 		else {
-			gwNamespace = options.getGeowaveNamespace();
+			gwNamespace = options.getGeoWaveNamespace();
 		}
 		this.options = options;
-		client = RedissonClientCache
-				.getInstance()
-				.getClient(
-						options.getAddress());
+		client = RedissonClientCache.getInstance().getClient(
+				options.getAddress());
 	}
 
 	@Override
@@ -99,8 +95,7 @@ public class RedisOperations implements
 	@Override
 	public void deleteAll()
 			throws Exception {
-		deleteByPattern(
-				gwNamespace + "_*");
+		deleteByPattern(gwNamespace + "_*");
 	}
 
 	@Override
@@ -109,13 +104,10 @@ public class RedisOperations implements
 			final String typeName,
 			final Short adapterId,
 			final String... additionalAuthorizations ) {
-		deleteByPattern(
-				RedisUtils
-						.getRowSetPrefix(
-								gwNamespace,
-								typeName,
-								indexName)
-						+ "*");
+		deleteByPattern(RedisUtils.getRowSetPrefix(
+				gwNamespace,
+				typeName,
+				indexName) + "*");
 		return true;
 	}
 
@@ -135,34 +127,28 @@ public class RedisOperations implements
 				gwNamespace,
 				adapter.getTypeName(),
 				index.getName(),
-				RedisUtils
-						.isSortByTime(
-								adapter));
+				RedisUtils.isSortByTime(adapter));
 	}
 
 	@Override
 	public MetadataWriter createMetadataWriter(
 			final MetadataType metadataType ) {
 		return new RedisMetadataWriter(
-				RedisUtils
-						.getMetadataSet(
-								client,
-								gwNamespace,
-								metadataType),
-				MetadataType.STATS
-						.equals(
-								metadataType));
+				RedisUtils.getMetadataSet(
+						client,
+						gwNamespace,
+						metadataType),
+				MetadataType.STATS.equals(metadataType));
 	}
 
 	@Override
 	public MetadataReader createMetadataReader(
 			final MetadataType metadataType ) {
 		return new RedisMetadataReader(
-				RedisUtils
-						.getMetadataSet(
-								client,
-								gwNamespace,
-								metadataType),
+				RedisUtils.getMetadataSet(
+						client,
+						gwNamespace,
+						metadataType),
 				metadataType);
 	}
 
@@ -170,11 +156,10 @@ public class RedisOperations implements
 	public MetadataDeleter createMetadataDeleter(
 			final MetadataType metadataType ) {
 		return new RedisMetadataDeleter(
-				RedisUtils
-						.getMetadataSet(
-								client,
-								gwNamespace,
-								metadataType),
+				RedisUtils.getMetadataSet(
+						client,
+						gwNamespace,
+						metadataType),
 				metadataType);
 	}
 
@@ -212,24 +197,22 @@ public class RedisOperations implements
 			final PersistentAdapterStore adapterStore,
 			final InternalAdapterStore internalAdapterStore,
 			final AdapterIndexMappingStore adapterIndexMappingStore ) {
-		return DataStoreUtils
-				.mergeData(
-						this,
-						options.getStoreOptions(),
-						index,
-						adapterStore,
-						internalAdapterStore,
-						adapterIndexMappingStore);
+		return DataStoreUtils.mergeData(
+				this,
+				options.getStoreOptions(),
+				index,
+				adapterStore,
+				internalAdapterStore,
+				adapterIndexMappingStore);
 	}
 
 	@Override
 	public boolean mergeStats(
 			final DataStatisticsStore statsStore,
 			final InternalAdapterStore internalAdapterStore ) {
-		return DataStoreUtils
-				.mergeStats(
-						statsStore,
-						internalAdapterStore);
+		return DataStoreUtils.mergeStats(
+				statsStore,
+				internalAdapterStore);
 	}
 
 	@Override

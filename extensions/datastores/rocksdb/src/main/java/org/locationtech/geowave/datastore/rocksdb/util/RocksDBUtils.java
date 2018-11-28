@@ -13,22 +13,18 @@ import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
-import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.BaseReaderParams;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Streams;
-import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 
 public class RocksDBUtils
 {
 	protected static final int MAX_ROWS_FOR_PAGINATION = 1000000;
-	public static int REDIS_DEFAULT_MAX_RANGE_DECOMPOSITION = 250;
-	public static int REDIS_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION = 250;
+	public static int ROCKSDB_DEFAULT_MAX_RANGE_DECOMPOSITION = 250;
+	public static int ROCKSDB_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION = 250;
 
 	public static RocksDBMetadataTable getMetadataTable(
 			final RocksDBClient client,
@@ -36,9 +32,7 @@ public class RocksDBUtils
 		// stats also store a timestamp because stats can be the exact same but
 		// need to still be unique (consider multiple count statistics that are
 		// exactly the same count, but need to be merged)
-		return client
-				.getMetadataTable(
-						metadataType);
+		return client.getMetadataTable(metadataType);
 	}
 
 	public static String getTablePrefix(
@@ -47,24 +41,27 @@ public class RocksDBUtils
 		return typeName + "_" + indexName;
 	}
 
-	public static RocksDBIndexTable getIndexTable(
+	public static RocksDBIndexTable getIndexTableFromPrefix(
 			final RocksDBClient client,
-			final String setNamePrefix,
+			final String namePrefix,
+			final short adapterId,
 			final byte[] partitionKey,
 			final boolean requiresTimestamp ) {
 		return getIndexTable(
 				client,
 				getTableName(
-						setNamePrefix,
+						namePrefix,
 						partitionKey),
+				adapterId,
+				partitionKey,
 				requiresTimestamp);
 
 	}
 
 	public static String getTableName(
-			final String namespace,
 			final String typeName,
 			final String indexName,
+			final short adapterId,
 			final byte[] partitionKey ) {
 		return getTableName(
 				getTablePrefix(
@@ -78,9 +75,7 @@ public class RocksDBUtils
 			final byte[] partitionKey ) {
 		String partitionStr;
 		if ((partitionKey != null) && (partitionKey.length > 0)) {
-			partitionStr = "_" + ByteArrayUtils
-					.byteArrayToString(
-							partitionKey);
+			partitionStr = "_" + ByteArrayUtils.byteArrayToString(partitionKey);
 		}
 		else {
 			partitionStr = "";
@@ -91,11 +86,14 @@ public class RocksDBUtils
 	public static RocksDBIndexTable getIndexTable(
 			final RocksDBClient client,
 			final String tableName,
+			final short adapterId,
+			final byte[] partitionKey,
 			final boolean requiresTimestamp ) {
-		return client
-				.getIndexTable(
-						tableName,
-						requiresTimestamp);
+		return client.getIndexTable(
+				tableName,
+				adapterId,
+				partitionKey,
+				requiresTimestamp);
 
 	}
 
@@ -103,6 +101,7 @@ public class RocksDBUtils
 			final RocksDBClient client,
 			final String typeName,
 			final String indexName,
+			final short adapterId,
 			final byte[] partitionKey,
 			final boolean requiresTimestamp ) {
 		return getIndexTable(
@@ -110,6 +109,7 @@ public class RocksDBUtils
 				getTablePrefix(
 						typeName,
 						indexName),
+				adapterId,
 				partitionKey,
 				requiresTimestamp);
 	}
@@ -139,22 +139,6 @@ public class RocksDBUtils
 						Collectors.toSet());
 	}
 
-	public static Iterator<GeoWaveMetadata> groupByIds(
-			final Iterable<GeoWaveMetadata> result ) {
-		final ListMultimap<ByteArray, GeoWaveMetadata> multimap = MultimapBuilder.hashKeys().arrayListValues().build();
-		result
-				.forEach(
-						r -> multimap
-								.put(
-										new ByteArray(
-												Bytes
-														.concat(
-																r.getPrimaryId(),
-																r.getSecondaryId())),
-										r));
-		return multimap.values().iterator();
-	}
-
 	public static boolean isSortByTime(
 			final InternalDataAdapter<?> adapter ) {
 		return adapter.getAdapter() instanceof RowMergingDataAdapter;
@@ -169,26 +153,19 @@ public class RocksDBUtils
 
 	public static Iterator<GeoWaveRow> sortBySortKey(
 			final Iterator<GeoWaveRow> it ) {
-		return Streams
-				.stream(
-						it)
-				.sorted(
-						SortKeyOrder.SINGLETON)
-				.iterator();
+		return Streams.stream(
+				it).sorted(
+				SortKeyOrder.SINGLETON).iterator();
 	}
 
 	public static Pair<Boolean, Boolean> isGroupByRowAndIsSortByTime(
 			final BaseReaderParams<?> readerParams,
 			final short adapterId ) {
-		final boolean sortByTime = isSortByTime(
-				readerParams
-						.getAdapterStore()
-						.getAdapter(
-								adapterId));
-		return Pair
-				.of(
-						readerParams.isMixedVisibility() || sortByTime,
-						sortByTime);
+		final boolean sortByTime = isSortByTime(readerParams.getAdapterStore().getAdapter(
+				adapterId));
+		return Pair.of(
+				readerParams.isMixedVisibility() || sortByTime,
+				sortByTime);
 	}
 
 	private static class SortKeyOrder implements
@@ -214,48 +191,40 @@ public class RocksDBUtils
 			byte[] otherComp = o2.getSortKey() == null ? new byte[0] : o2.getSortKey();
 			byte[] thisComp = o1.getSortKey() == null ? new byte[0] : o1.getSortKey();
 
-			int comp = UnsignedBytes
-					.lexicographicalComparator()
-					.compare(
-							thisComp,
-							otherComp);
+			int comp = UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
 			if (comp != 0) {
 				return comp;
 			}
 			otherComp = o2.getPartitionKey() == null ? new byte[0] : o2.getPartitionKey();
 			thisComp = o1.getPartitionKey() == null ? new byte[0] : o1.getPartitionKey();
 
-			comp = UnsignedBytes
-					.lexicographicalComparator()
-					.compare(
-							thisComp,
-							otherComp);
+			comp = UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
 			if (comp != 0) {
 				return comp;
 			}
-			comp = Short
-					.compare(
-							o1.getAdapterId(),
-							o2.getAdapterId());
+			comp = Short.compare(
+					o1.getAdapterId(),
+					o2.getAdapterId());
 			if (comp != 0) {
 				return comp;
 			}
 			otherComp = o2.getDataId() == null ? new byte[0] : o2.getDataId();
 			thisComp = o1.getDataId() == null ? new byte[0] : o1.getDataId();
 
-			comp = UnsignedBytes
-					.lexicographicalComparator()
-					.compare(
-							thisComp,
-							otherComp);
+			comp = UnsignedBytes.lexicographicalComparator().compare(
+					thisComp,
+					otherComp);
 
 			if (comp != 0) {
 				return comp;
 			}
-			return Integer
-					.compare(
-							o1.getNumberOfDuplicates(),
-							o2.getNumberOfDuplicates());
+			return Integer.compare(
+					o1.getNumberOfDuplicates(),
+					o2.getNumberOfDuplicates());
 		}
 
 	}

@@ -5,18 +5,20 @@ import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataQuery;
 import org.locationtech.geowave.core.store.operations.MetadataType;
-import org.redisson.api.RScoredSortedSet;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBGeoWaveMetadata;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBMetadataTable;
 
-public class RedisMetadataDeleter implements
+public class RocksDBMetadataDeleter implements
 		MetadataDeleter
 {
-	private final RScoredSortedSet<GeoWaveMetadata> set;
+	private final RocksDBMetadataTable table;
 	private final MetadataType metadataType;
+	private boolean closed = false;
 
-	public RedisMetadataDeleter(
-			final RScoredSortedSet<GeoWaveMetadata> set,
+	public RocksDBMetadataDeleter(
+			final RocksDBMetadataTable table,
 			final MetadataType metadataType ) {
-		this.set = set;
+		this.table = table;
 		this.metadataType = metadataType;
 	}
 
@@ -25,29 +27,32 @@ public class RedisMetadataDeleter implements
 			final MetadataQuery query ) {
 		boolean atLeastOneDeletion = false;
 
-		boolean noFailures = true;
-		try (CloseableIterator<GeoWaveMetadata> it = new RedisMetadataReader(
-				set,
+		try (CloseableIterator<GeoWaveMetadata> it = new RocksDBMetadataReader(
+				table,
 				metadataType).query(
 				query,
 				false)) {
 			while (it.hasNext()) {
-				if (set.remove(it.next())) {
-					atLeastOneDeletion = true;
-				}
-				else {
-					noFailures = false;
-				}
+				table.remove(((RocksDBGeoWaveMetadata) it.next()).getKey());
+				atLeastOneDeletion = true;
 			}
 		}
-		return atLeastOneDeletion && noFailures;
+		return atLeastOneDeletion;
 	}
 
 	@Override
-	public void flush() {}
+	public void flush() {
+		table.flush();
+	}
 
 	@Override
 	public void close()
-			throws Exception {}
+			throws Exception {
+		// guard against repeated calls to close
+		if (!closed) {
+			flush();
+			closed = true;
+		}
+	}
 
 }

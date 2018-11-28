@@ -1,26 +1,61 @@
 package org.locationtech.geowave.datastore.rocksdb.util;
 
-import java.time.Instant;
+import java.io.File;
 
+import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
-import org.locationtech.geowave.core.index.lexicoder.Lexicoders;
+import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
+import org.rocksdb.Options;
+import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
+import org.rocksdb.RocksIterator;
+import org.rocksdb.Slice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Longs;
 
 public class RocksDBIndexTable
 {
-	private final RocksDB db;
+	private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBIndexTable.class);
+	private RocksDB writeDb;
+	private RocksDB readDb;
+	private final Options writeOptions;
+	private final Options readOptions;
+	private final String subDirectory;
 	private final boolean requiresTimestamp;
+	private boolean readerDirty = false;
+	private boolean exists;
+	private final short adapterId;
+	private final byte[] partition;
 
 	public RocksDBIndexTable(
-			final RocksDB db,
+			final Options writeOptions,
+			final Options readOptions,
+			final String subDirectory,
+			final short adapterId,
+			final byte[] partition,
 			final boolean requiresTimestamp ) {
 		super();
-		this.db = db;
+		this.writeOptions = writeOptions;
+		this.readOptions = readOptions;
+		this.subDirectory = subDirectory;
 		this.requiresTimestamp = requiresTimestamp;
+		this.adapterId = adapterId;
+		this.partition = partition;
+		exists = new File(
+				subDirectory).exists();
+		try {
+			writeDb = RocksDB.open(subDirectory);
+		}
+		catch (RocksDBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void add(
@@ -30,34 +65,97 @@ public class RocksDBIndexTable
 			final GeoWaveValue value ) {
 		byte[] key;
 		if (requiresTimestamp) {
-			final Instant instant = Instant.now();
-			key = Bytes
-					.concat(
-							sortKey,
-							dataId,
-							Lexicoders.INT
-									.toByteArray(
-											(int) instant.getEpochSecond()),
-							Lexicoders.INT
-									.toByteArray(
-											instant.getNano()),
-							ByteArrayUtils
-									.shortToByteArray(
-											numDuplicates));
+			key = Bytes.concat(
+					sortKey,
+					dataId,
+					Longs.toByteArray(Long.MAX_VALUE - System.currentTimeMillis()),
+					value.getFieldMask(),
+					value.getVisibility(),
+					ByteArrayUtils.shortToByteArray(numDuplicates),
+					new byte[] {
+						(byte) sortKey.length,
+						(byte) value.getFieldMask().length,
+						(byte) value.getVisibility().length
+					});
 		}
 		else {
-			key = Bytes
-					.concat(
-							sortKey,
-							dataId,
-							ByteArrayUtils
-									.shortToByteArray(
-											numDuplicates));
+			key = Bytes.concat(
+					sortKey,
+					dataId,
+					value.getFieldMask(),
+					value.getVisibility(),
+					ByteArrayUtils.shortToByteArray(numDuplicates),
+					new byte[] {
+						(byte) sortKey.length,
+						(byte) value.getFieldMask().length,
+						(byte) value.getVisibility().length,
+					});
 		}
 		put(
 				key,
-				valueToBytes(
-						value));
+				value.getValue());
+	}
+
+	public void delete(
+			final byte[] key ) {
+		final RocksDB db = getWriteDb();
+		try {
+			readerDirty = true;
+			db.delete(key);
+		}
+		catch (final RocksDBException e) {
+			LOGGER.warn(
+					"Unable to delete key",
+					e);
+		}
+	}
+
+	public CloseableIterator<GeoWaveRow> iterator() {
+		final RocksDB readDb = getReadDb();
+		if (readDb == null) {
+			return new CloseableIterator.Empty<>();
+		}
+		final ReadOptions options = new ReadOptions().setFillCache(false);
+		final RocksIterator it = readDb.newIterator(options);
+		it.seekToFirst();
+		return new RocksDBRowIterator(
+				options,
+				it,
+				adapterId,
+				partition,
+				requiresTimestamp);
+	}
+
+	public CloseableIterator<GeoWaveRow> iterator(
+			final ByteArrayRange range ) {
+		final RocksDB readDb = getReadDb();
+		if (readDb == null) {
+			return new CloseableIterator.Empty<>();
+		}
+		final ReadOptions options;
+		final RocksIterator it;
+		if (range.getEnd() == null) {
+			options = null;
+			it = readDb.newIterator();
+		}
+		else {
+			options = new ReadOptions().setIterateUpperBound(new Slice(
+					range.getEndAsNextPrefix().getBytes()));
+			it = readDb.newIterator(options);
+		}
+		if (range.getStart() == null) {
+			it.seekToFirst();
+		}
+		else {
+			it.seek(range.getStart().getBytes());
+		}
+
+		return new RocksDBRowIterator(
+				options,
+				it,
+				adapterId,
+				partition,
+				requiresTimestamp);
 	}
 
 	private void put(
@@ -66,44 +164,115 @@ public class RocksDBIndexTable
 		// WriteBatch w = new WriteBatch();
 		// w.put(key, value);
 		// TODO batch writes
+		final RocksDB db = getWriteDb();
 		try {
-			db
-					.put(
-							key,
-							value);
+			readerDirty = true;
+			db.put(
+					key,
+					value);
 		}
 		catch (final RocksDBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.warn(
+					"Unable to write key-value",
+					e);
 		}
 	}
 
 	public void flush() {
 		// TODO flush batch writes
+		final RocksDB db = getWriteDb();
 		try {
 			db.compactRange();
 		}
 		catch (final RocksDBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.warn(
+					"Unable to compact range",
+					e);
+		}
+		// force re-opening a reader to catch the updates from this write
+		if (readerDirty && (readDb != null)) {
+			synchronized (this) {
+				if (readDb != null) {
+					readDb.close();
+					readDb = null;
+				}
+			}
 		}
 	}
 
-	private static byte[] valueToBytes(
-			final GeoWaveValue value ) {
-		return Bytes
-				.concat(
-						new byte[] {
-							(byte) value.getFieldMask().length,
-							(byte) value.getVisibility().length
-						},
-						value.getFieldMask(),
-						value.getVisibility(),
-						value.getValue());
-	}
-
 	public void close() {
-		db.close();
+		synchronized (this) {
+			if (writeDb != null) {
+				writeDb.close();
+				writeDb = null;
+			}
+			if (readDb != null) {
+				readDb.close();
+			}
+		}
 	}
 
+	private RocksDB getWriteDb() {
+		// avoid synchronization if unnecessary by checking for null outside
+		// synchronized block
+		// if (writeDb == null) {
+		// synchronized (this) {
+		// // check again within synchronized block
+		// if (writeDb == null) {
+		// try {
+		// if (exists || new File(
+		// subDirectory).mkdirs()) {
+		// exists = true;
+		// writeDb = RocksDB
+		// .open(
+		// writeOptions,
+		// subDirectory);
+		// }
+		// else {
+		// LOGGER
+		// .error(
+		// "Unable to open to create directory '" + subDirectory + "'");
+		// }
+		// }
+		// catch (final RocksDBException e) {
+		// LOGGER
+		// .error(
+		// "Unable to open for writing",
+		// e);
+		// }
+		// }
+		// }
+		// }
+		return writeDb;
+	}
+
+	private RocksDB getReadDb() {
+		return writeDb;
+		// if (!exists) {
+		// return null;
+		// }
+		// // avoid synchronization if unnecessary by checking for null outside
+		// // synchronized block
+		// if (readDb == null) {
+		// synchronized (this) {
+		// // check again within synchronized block
+		// if (readDb == null) {
+		// try {
+		// readerDirty = false;
+		// readDb = RocksDB
+		// .openReadOnly(
+		// readOptions,
+		// subDirectory);
+		// }
+		// catch (final RocksDBException e) {
+		// LOGGER
+		// .warn(
+		// "Unable to open for reading",
+		// e);
+		// }
+		// }
+		// }
+		// }
+		// return readDb;
+	}
 }

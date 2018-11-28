@@ -10,12 +10,15 @@
  ******************************************************************************/
 package org.locationtech.geowave.core.store.entities;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.locationtech.geowave.core.index.ByteArrayUtils;
+import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.flatten.BitmaskUtils;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 
+import com.google.common.primitives.Bytes;
 
 public class GeoWaveValueImpl implements
 		GeoWaveValue
@@ -23,7 +26,9 @@ public class GeoWaveValueImpl implements
 	private byte[] fieldMask;
 	private byte[] visibility;
 	private byte[] value;
+
 	public GeoWaveValueImpl() {}
+
 	public GeoWaveValueImpl(
 			final GeoWaveValue[] values ) {
 		if ((values == null) || (values.length == 0)) {

@@ -106,7 +106,8 @@ public class GeoServerIT
 		GeoWaveStoreType.HBASE,
 		GeoWaveStoreType.CASSANDRA,
 		GeoWaveStoreType.DYNAMODB,
-		GeoWaveStoreType.REDIS
+		GeoWaveStoreType.REDIS,
+		GeoWaveStoreType.ROCKSDB
 	})
 	protected DataStorePluginOptions dataStoreOptions;
 

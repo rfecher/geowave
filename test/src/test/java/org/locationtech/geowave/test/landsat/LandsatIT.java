@@ -112,7 +112,8 @@ public class LandsatIT extends
 		GeoWaveStoreType.BIGTABLE,
 		GeoWaveStoreType.CASSANDRA,
 		GeoWaveStoreType.HBASE,
-		GeoWaveStoreType.REDIS
+		GeoWaveStoreType.REDIS,
+		GeoWaveStoreType.ROCKSDB
 	})
 	protected DataStorePluginOptions dataStoreOptions;
 	private static final String REFERENCE_LANDSAT_IMAGE_PATH = "src/test/resources/landsat/expected.png";

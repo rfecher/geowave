@@ -31,13 +31,11 @@ import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.rocksdb.config.RocksDBOptions;
-import org.locationtech.geowave.datastore.rocksdb.util.RocksDBCache;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClientCache;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
-import org.rocksdb.RocksDB;
 
 public class RocksDBOperations implements
 		MapReduceDataStoreOperations,
@@ -46,37 +44,35 @@ public class RocksDBOperations implements
 	private static final boolean READER_ASYNC = true;
 	private final RocksDBOptions options;
 	private final RocksDBClient client;
-	private String directory;
+	private final String directory;
 
 	public RocksDBOperations(
 			final RocksDBOptions options ) {
-		this.directory = options.getDirectory() + "/" + options.getGeowaveNamespace();
+		directory = options.getDirectory() + "/" + options.getGeoWaveNamespace();
 		// a factory method that returns a RocksDB instance
 		this.options = options;
-		client = RocksDBClientCache
-				.getInstance()
-				.getClient(
-						directory);
+		client = RocksDBClientCache.getInstance().getClient(
+				directory);
 	}
 
 	@Override
 	public boolean indexExists(
 			final String indexName )
 			throws IOException {
-		return client.tableExists(indexName);
+		return client.indexTableExists(indexName);
 	}
 
 	@Override
 	public boolean metadataExists(
 			final MetadataType type )
 			throws IOException {
-		return client.tableExists(type.name());
+		return client.metadataTableExists(type);
 	}
 
 	@Override
 	public void deleteAll()
 			throws Exception {
-		//TODO
+		// TODO
 	}
 
 	@Override
@@ -85,7 +81,7 @@ public class RocksDBOperations implements
 			final String typeName,
 			final Short adapterId,
 			final String... additionalAuthorizations ) {
-		//TODO
+		// TODO
 		return true;
 	}
 
@@ -102,51 +98,47 @@ public class RocksDBOperations implements
 			final InternalDataAdapter<?> adapter ) {
 		return new RocksDBWriter(
 				client,
+				adapter.getAdapterId(),
 				adapter.getTypeName(),
 				index.getName(),
-				RocksDBUtils
-						.isSortByTime(
-								adapter));
+				RocksDBUtils.isSortByTime(adapter));
 	}
 
 	@Override
 	public MetadataWriter createMetadataWriter(
 			final MetadataType metadataType ) {
 		return new RocksDBMetadataWriter(
-				RocksDBUtils
-						.getMetadataTable(
-								client,
-								metadataType));
+				RocksDBUtils.getMetadataTable(
+						client,
+						metadataType));
 	}
 
 	@Override
 	public MetadataReader createMetadataReader(
 			final MetadataType metadataType ) {
-		return new RedisMetadataReader(
-				RocksDBUtils
-						.getMetadataTable(
-								client,
-								metadataType));
+		return new RocksDBMetadataReader(
+				RocksDBUtils.getMetadataTable(
+						client,
+						metadataType),
+				metadataType);
 	}
 
 	@Override
 	public MetadataDeleter createMetadataDeleter(
 			final MetadataType metadataType ) {
-		return new RedisMetadataDeleter(
-				RocksDBUtils
-						.getMetadataTable(
-								client,
-								metadataType),
+		return new RocksDBMetadataDeleter(
+				RocksDBUtils.getMetadataTable(
+						client,
+						metadataType),
 				metadataType);
 	}
 
 	@Override
 	public <T> RowReader<T> createReader(
 			final ReaderParams<T> readerParams ) {
-		return new RedisReader<>(
+		return new RocksDBReader<>(
 				client,
 				readerParams,
-				gwNamespace,
 				READER_ASYNC);
 	}
 
@@ -161,10 +153,9 @@ public class RocksDBOperations implements
 						readerParams.getAdditionalAuthorizations()),
 				// intentionally don't run this reader as async because it does
 				// not work well while simultaneously deleting rows
-				new RedisReader<>(
+				new RocksDBReader<>(
 						client,
 						readerParams,
-						gwNamespace,
 						false));
 	}
 
@@ -174,33 +165,30 @@ public class RocksDBOperations implements
 			final PersistentAdapterStore adapterStore,
 			final InternalAdapterStore internalAdapterStore,
 			final AdapterIndexMappingStore adapterIndexMappingStore ) {
-		return DataStoreUtils
-				.mergeData(
-						this,
-						options.getStoreOptions(),
-						index,
-						adapterStore,
-						internalAdapterStore,
-						adapterIndexMappingStore);
+		return DataStoreUtils.mergeData(
+				this,
+				options.getStoreOptions(),
+				index,
+				adapterStore,
+				internalAdapterStore,
+				adapterIndexMappingStore);
 	}
 
 	@Override
 	public boolean mergeStats(
 			final DataStatisticsStore statsStore,
 			final InternalAdapterStore internalAdapterStore ) {
-		return DataStoreUtils
-				.mergeStats(
-						statsStore,
-						internalAdapterStore);
+		return DataStoreUtils.mergeStats(
+				statsStore,
+				internalAdapterStore);
 	}
 
 	@Override
 	public <T> RowReader<T> createReader(
 			final RecordReaderParams<T> readerParams ) {
-		return new RedisReader<>(
+		return new RocksDBReader<>(
 				client,
-				readerParams,
-				gwNamespace);
+				readerParams);
 	}
 
 	@Override
@@ -209,19 +197,16 @@ public class RocksDBOperations implements
 			final PersistentAdapterStore adapterStore,
 			final InternalAdapterStore internalAdapterStore,
 			final String... authorizations ) {
-		return new RedisRowDeleter(
+		return new RocksDBRowDeleter(
 				client,
 				adapterStore,
 				internalAdapterStore,
-				indexName,
-				gwNamespace);
+				indexName);
 	}
 
 	@Override
 	public void close() {
-		RocksDBClientCache
-				.getInstance()
-				.close(
-						directory);
+		RocksDBClientCache.getInstance().close(
+				directory);
 	}
 }

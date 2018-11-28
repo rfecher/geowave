@@ -1,6 +1,7 @@
 package org.locationtech.geowave.datastore.rocksdb.util;
 
 import java.io.Closeable;
+import java.io.File;
 
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.rocksdb.Options;
@@ -13,10 +14,11 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 public class RocksDBClient implements
 		Closeable
 {
+
 	private static class CacheKey
 	{
-		private final String directory;
-		boolean requiresTimestamp;
+		protected final String directory;
+		protected final boolean requiresTimestamp;
 
 		public CacheKey(
 				final String directory,
@@ -60,22 +62,44 @@ public class RocksDBClient implements
 		}
 	}
 
-	private final Cache<String, CacheKey> keyCache = Caffeine.newBuilder().weakKeys().weakValues().build();
-	private final LoadingCache<CacheKey, RocksDBIndexTable> indexTableCache = Caffeine
+	private static class IndexCacheKey extends
+			CacheKey
+	{
+		protected final short adapterId;
+		protected final byte[] partition;
+
+		public IndexCacheKey(
+				final String directory,
+				final short adapterId,
+				final byte[] partition,
+				final boolean requiresTimestamp ) {
+			super(
+					directory,
+					requiresTimestamp);
+			this.adapterId = adapterId;
+			this.partition = partition;
+		}
+	}
+
+	private final Cache<String, CacheKey> keyCache = Caffeine.newBuilder().build();
+	private final LoadingCache<IndexCacheKey, RocksDBIndexTable> indexTableCache = Caffeine
 			.newBuilder()
 			.build(
 					key -> {
 						return new RocksDBIndexTable(
-								RocksDB
-										.open(
-												indexOptions,
-												key.directory),
+								indexWriteOptions,
+								indexReadOptions,
+								key.directory,
+								key.adapterId,
+								key.partition,
 								key.requiresTimestamp);
 					});
 	private final LoadingCache<CacheKey, RocksDBMetadataTable> metadataTableCache = Caffeine
 			.newBuilder()
 			.build(
 					key -> {
+						new File(
+								key.directory).mkdirs();
 						return new RocksDBMetadataTable(
 								RocksDB
 										.open(
@@ -85,7 +109,8 @@ public class RocksDBClient implements
 					});
 	private final String subDirectory;
 
-	protected static Options indexOptions = null;
+	protected static Options indexWriteOptions = null;
+	protected static Options indexReadOptions = null;
 	protected static Options metadataOptions = null;
 
 	public RocksDBClient(
@@ -93,25 +118,39 @@ public class RocksDBClient implements
 		this.subDirectory = subDirectory;
 	}
 
+	public String getSubDirectory() {
+		return subDirectory;
+	}
+
 	public synchronized RocksDBIndexTable getIndexTable(
 			final String tableName,
+			final short adapterId,
+			final byte[] partition,
 			final boolean requiresTimestamp ) {
 
-		if (indexOptions == null) {
+		if (indexWriteOptions == null) {
 			RocksDB.loadLibrary();
-			indexOptions = new Options()
+			final int cores = Runtime.getRuntime().availableProcessors();
+			indexWriteOptions = new Options()
 					.setCreateIfMissing(
 							true)
-					.prepareForBulkLoad();
+					.prepareForBulkLoad()
+					.setIncreaseParallelism(
+							cores);
+			indexReadOptions = new Options()
+					.setIncreaseParallelism(
+							cores);
 		}
 		final String directory = subDirectory + "/" + tableName;
 		return indexTableCache
 				.get(
-						keyCache
+						(IndexCacheKey) keyCache
 								.get(
 										directory,
-										d -> new CacheKey(
+										d -> new IndexCacheKey(
 												d,
+												adapterId,
+												partition,
 												requiresTimestamp)));
 	}
 
@@ -138,15 +177,30 @@ public class RocksDBClient implements
 																MetadataType.STATS))));
 	}
 
-	public boolean tableExists(
-			final String tableName ) {
-		return indexTableCache
+	public boolean indexTableExists(
+			final String indexName ) {	
+		// then look for prefixes of this index directory in which case there is
+		// a partition key
+		for (final String key : keyCache.asMap().keySet()) {
+			if (key
+					.substring(
+							subDirectory.length()).contains(indexName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean metadataTableExists(
+			final MetadataType type ) {
+		return keyCache
 				.getIfPresent(
-						tableName) != null;
+						subDirectory + "/" + type.name()) != null;
 	}
 
 	@Override
 	public void close() {
+		keyCache.invalidateAll();
 		indexTableCache
 				.asMap()
 				.values()

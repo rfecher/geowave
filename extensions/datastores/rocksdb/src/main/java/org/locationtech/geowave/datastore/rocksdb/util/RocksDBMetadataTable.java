@@ -1,17 +1,21 @@
 package org.locationtech.geowave.datastore.rocksdb.util;
 
-import org.joda.time.Instant;
-import org.locationtech.geowave.core.index.lexicoder.Lexicoders;
+import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
+import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
+import org.rocksdb.RocksIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Longs;
 
 public class RocksDBMetadataTable
 {
-	// TODO change this to private
-	public RocksDB db;
+	private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBMetadataTable.class);
+	private final RocksDB db;
 	private final boolean requiresTimestamp;
 
 	public RocksDBMetadataTable(
@@ -22,45 +26,79 @@ public class RocksDBMetadataTable
 		this.requiresTimestamp = requiresTimestamp;
 	}
 
+	public void remove(
+			final byte[] key ) {
+		try {
+			db.delete(key);
+		}
+		catch (final RocksDBException e) {
+			LOGGER.warn(
+					"Unable to delete metadata",
+					e);
+		}
+	}
+
 	public void add(
 			final GeoWaveMetadata value ) {
 		byte[] key;
+		final byte[] secondaryId = value.getSecondaryId() == null ? new byte[0] : value.getSecondaryId();
+		final byte[] visibility = value.getVisibility() == null ? new byte[0] : value.getVisibility();
 		if (requiresTimestamp) {
-			key = Bytes
-					.concat(
-							value.getPrimaryId(),
-							value.getSecondaryId(),
-							Lexicoders.LONG
-									.toByteArray(
-											Instant.now().getMillis()),
-							new byte[] {
-								(byte) value.getPrimaryId().length
-							});
+			key = Bytes.concat(
+					value.getPrimaryId(),
+					secondaryId,
+					Longs.toByteArray(Long.MAX_VALUE - System.currentTimeMillis()),
+					visibility,
+					new byte[] {
+						(byte) value.getPrimaryId().length,
+						(byte) visibility.length
+					});
 		}
 		else {
-			key = Bytes
-					.concat(
-							value.getPrimaryId(),
-							value.getSecondaryId(),
-							new byte[] {
-								(byte) value.getPrimaryId().length
-							});
+			key = Bytes.concat(
+					value.getPrimaryId(),
+					secondaryId,
+					visibility,
+					new byte[] {
+						(byte) value.getPrimaryId().length,
+						(byte) visibility.length
+					});
 		}
 		put(
 				key,
-				valueToBytes(
-						value));
+				value.getValue());
 	}
 
-	private static byte[] valueToBytes(
-			final GeoWaveMetadata value ) {
-		return Bytes
-				.concat(
-						new byte[] {
-							(byte) value.getVisibility().length
-						},
-						value.getVisibility(),
-						value.getValue());
+	public CloseableIterator<GeoWaveMetadata> iterator(
+			final byte[] primaryId ) {
+		return prefixIterator(primaryId);
+	}
+
+	public CloseableIterator<GeoWaveMetadata> iterator(
+			final byte[] primaryId,
+			final byte[] secondaryId ) {
+		return prefixIterator(Bytes.concat(
+				primaryId,
+				secondaryId));
+	}
+
+	private CloseableIterator<GeoWaveMetadata> prefixIterator(
+			final byte[] prefix ) {
+		final ReadOptions options = new ReadOptions().setPrefixSameAsStart(true);
+		final RocksIterator it = db.newIterator(options);
+		it.seek(prefix);
+		return new RocksDBMetadataIterator(
+				options,
+				it,
+				requiresTimestamp);
+	}
+
+	public CloseableIterator<GeoWaveMetadata> iterator() {
+		final RocksIterator it = db.newIterator();
+		it.seekToFirst();
+		return new RocksDBMetadataIterator(
+				it,
+				requiresTimestamp);
 	}
 
 	public void put(
@@ -70,14 +108,25 @@ public class RocksDBMetadataTable
 		// w.put(key, value);
 		// TODO batch writes
 		try {
-			db
-					.put(
-							key,
-							value);
+			db.put(
+					key,
+					value);
 		}
 		catch (final RocksDBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.warn(
+					"Unable to add metadata",
+					e);
+		}
+	}
+
+	public void flush() {
+		try {
+			db.compactRange();
+		}
+		catch (final RocksDBException e) {
+			LOGGER.warn(
+					"Unable to compact metadata range",
+					e);
 		}
 	}
 
