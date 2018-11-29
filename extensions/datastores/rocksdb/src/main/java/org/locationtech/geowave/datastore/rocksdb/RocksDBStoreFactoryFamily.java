@@ -17,8 +17,8 @@ import org.locationtech.geowave.core.store.api.DataStore;
 public class RocksDBStoreFactoryFamily extends
 		BaseDataStoreFamily
 {
-	private static final String TYPE = "redis";
-	private static final String DESCRIPTION = "A GeoWave store backed by data in Redis";
+	private static final String TYPE = "rocksdb";
+	private static final String DESCRIPTION = "A GeoWave store backed by data in RocksDB";
 
 	public RocksDBStoreFactoryFamily() {
 		super(

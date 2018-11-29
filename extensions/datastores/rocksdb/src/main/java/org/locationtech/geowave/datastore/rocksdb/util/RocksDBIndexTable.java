@@ -23,9 +23,12 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class RocksDBIndexTable
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBIndexTable.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(
+					RocksDBIndexTable.class);
 	private RocksDB writeDb;
 	private RocksDB readDb;
+	private long prevTime = Long.MAX_VALUE;
 	private final Options writeOptions;
 	private final Options readOptions;
 	private final String subDirectory;
@@ -52,7 +55,9 @@ public class RocksDBIndexTable
 		exists = new File(
 				subDirectory).exists();
 		try {
-			writeDb = RocksDB.open(subDirectory);
+			writeDb = RocksDB
+					.open(
+							subDirectory);
 		}
 		catch (final RocksDBException e) {
 			// TODO Auto-generated catch block
@@ -67,31 +72,49 @@ public class RocksDBIndexTable
 			final GeoWaveValue value ) {
 		byte[] key;
 		if (requiresTimestamp) {
-			key = Bytes.concat(
-					sortKey,
-					dataId,
-					Longs.toByteArray(Long.MAX_VALUE - System.currentTimeMillis()),
-					value.getFieldMask(),
-					value.getVisibility(),
-					ByteArrayUtils.shortToByteArray(numDuplicates),
-					new byte[] {
-						(byte) sortKey.length,
-						(byte) value.getFieldMask().length,
-						(byte) value.getVisibility().length
-					});
+			// sometimes rows can be written so quickly that they are the exact
+			// same millisecond - while Java does offer nanosecond precision,
+			// support is OS-dependent. Instead this check is done to ensure
+			// subsequent millis are written at least within this ingest
+			// process.
+			long time = Long.MAX_VALUE - System.currentTimeMillis();
+			if (time >= prevTime) {
+				time = prevTime - 1;
+			}
+			prevTime = time;
+			key = Bytes
+					.concat(
+							sortKey,
+							dataId,
+							Longs
+									.toByteArray(
+											time),
+							value.getFieldMask(),
+							value.getVisibility(),
+							ByteArrayUtils
+									.shortToByteArray(
+											numDuplicates),
+							new byte[] {
+								(byte) sortKey.length,
+								(byte) value.getFieldMask().length,
+								(byte) value.getVisibility().length
+							});
 		}
 		else {
-			key = Bytes.concat(
-					sortKey,
-					dataId,
-					value.getFieldMask(),
-					value.getVisibility(),
-					ByteArrayUtils.shortToByteArray(numDuplicates),
-					new byte[] {
-						(byte) sortKey.length,
-						(byte) value.getFieldMask().length,
-						(byte) value.getVisibility().length,
-					});
+			key = Bytes
+					.concat(
+							sortKey,
+							dataId,
+							value.getFieldMask(),
+							value.getVisibility(),
+							ByteArrayUtils
+									.shortToByteArray(
+											numDuplicates),
+							new byte[] {
+								(byte) sortKey.length,
+								(byte) value.getFieldMask().length,
+								(byte) value.getVisibility().length,
+							});
 		}
 		put(
 				key,
@@ -103,12 +126,15 @@ public class RocksDBIndexTable
 		final RocksDB db = getWriteDb();
 		try {
 			readerDirty = true;
-			db.delete(key);
+			db
+					.singleDelete(
+							key);
 		}
 		catch (final RocksDBException e) {
-			LOGGER.warn(
-					"Unable to delete key",
-					e);
+			LOGGER
+					.warn(
+							"Unable to delete key",
+							e);
 		}
 	}
 
@@ -117,8 +143,12 @@ public class RocksDBIndexTable
 		if (readDb == null) {
 			return new CloseableIterator.Empty<>();
 		}
-		final ReadOptions options = new ReadOptions().setFillCache(false);
-		final RocksIterator it = readDb.newIterator(options);
+		final ReadOptions options = new ReadOptions()
+				.setFillCache(
+						false);
+		final RocksIterator it = readDb
+				.newIterator(
+						options);
 		it.seekToFirst();
 		return new RocksDBRowIterator(
 				options,
@@ -141,15 +171,21 @@ public class RocksDBIndexTable
 			it = readDb.newIterator();
 		}
 		else {
-			options = new ReadOptions().setIterateUpperBound(new Slice(
-					range.getEndAsNextPrefix().getBytes()));
-			it = readDb.newIterator(options);
+			options = new ReadOptions()
+					.setIterateUpperBound(
+							new Slice(
+									range.getEndAsNextPrefix().getBytes()));
+			it = readDb
+					.newIterator(
+							options);
 		}
 		if (range.getStart() == null) {
 			it.seekToFirst();
 		}
 		else {
-			it.seek(range.getStart().getBytes());
+			it
+					.seek(
+							range.getStart().getBytes());
 		}
 
 		return new RocksDBRowIterator(
@@ -169,14 +205,16 @@ public class RocksDBIndexTable
 		final RocksDB db = getWriteDb();
 		try {
 			readerDirty = true;
-			db.put(
-					key,
-					value);
+			db
+					.put(
+							key,
+							value);
 		}
 		catch (final RocksDBException e) {
-			LOGGER.warn(
-					"Unable to write key-value",
-					e);
+			LOGGER
+					.warn(
+							"Unable to write key-value",
+							e);
 		}
 	}
 
@@ -188,9 +226,10 @@ public class RocksDBIndexTable
 			db.compactRange();
 		}
 		catch (final RocksDBException e) {
-			LOGGER.warn(
-					"Unable to compact range",
-					e);
+			LOGGER
+					.warn(
+							"Unable to compact range",
+							e);
 		}
 		// force re-opening a reader to catch the updates from this write
 		if (readerDirty && (readDb != null)) {

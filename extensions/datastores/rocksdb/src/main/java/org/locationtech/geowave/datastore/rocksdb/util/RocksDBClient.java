@@ -2,6 +2,7 @@ package org.locationtech.geowave.datastore.rocksdb.util;
 
 import java.io.Closeable;
 import java.io.File;
+import java.util.Map.Entry;
 
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.rocksdb.Options;
@@ -156,7 +157,6 @@ public class RocksDBClient implements
 			final short adapterId,
 			final byte[] partition,
 			final boolean requiresTimestamp ) {
-
 		if (indexWriteOptions == null) {
 			RocksDB.loadLibrary();
 			final int cores = Runtime.getRuntime().availableProcessors();
@@ -185,7 +185,6 @@ public class RocksDBClient implements
 
 	public synchronized RocksDBMetadataTable getMetadataTable(
 			final MetadataType type ) {
-
 		if (metadataOptions == null) {
 			RocksDB.loadLibrary();
 			metadataOptions = new Options()
@@ -227,6 +226,37 @@ public class RocksDBClient implements
 		return keyCache
 				.getIfPresent(
 						subDirectory + "/" + type.name()) != null;
+	}
+
+	public void close(
+			final String indexName,
+			final String typeName ) {
+		final String prefix = RocksDBUtils
+				.getTablePrefix(
+						typeName,
+						indexName);
+		for (final Entry<String, CacheKey> e : keyCache.asMap().entrySet()) {
+			final String key = e.getKey();
+			if (key
+					.substring(
+							subDirectory.length())
+					.startsWith(
+							prefix)) {
+				keyCache
+						.invalidate(
+								key);
+				final RocksDBIndexTable indexTable = indexTableCache
+						.getIfPresent(
+								e.getValue());
+				if (indexTable != null) {
+					indexTableCache
+							.invalidate(
+									e.getValue());
+					indexTable.close();
+				}
+
+			}
+		}
 	}
 
 	@Override

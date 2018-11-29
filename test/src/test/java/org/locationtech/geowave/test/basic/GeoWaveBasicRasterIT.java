@@ -288,7 +288,6 @@ public class GeoWaveBasicRasterIT extends
 		queryNoDataMergeStrategy(
 				noDataCoverageName,
 				noDataTileSize);
-
 		queryGeneralPurpose(
 				sumAndAveragingCoverageName,
 				sumAndAveragingTileSize,
