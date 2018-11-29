@@ -47,7 +47,7 @@ public class RedisOperations implements
 
 	public RedisOperations(
 			final RedisOptions options ) {
-		if ((options.getGeowaveNamespace() == null) || options.getGeowaveNamespace().equals(
+		if ((options.getGeoWaveNamespace() == null) || options.getGeoWaveNamespace().equals(
 				"")) {
 			gwNamespace = "geowave";
 		}

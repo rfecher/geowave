@@ -79,6 +79,35 @@ public class RocksDBClient implements
 			this.adapterId = adapterId;
 			this.partition = partition;
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = (prime * result) + adapterId;
+			return result;
+		}
+
+		@Override
+		public boolean equals(
+				final Object obj ) {
+			if (this == obj) {
+				return true;
+			}
+			if (!super.equals(
+					obj)) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final IndexCacheKey other = (IndexCacheKey) obj;
+			if (adapterId != other.adapterId) {
+				return false;
+			}
+			return true;
+		}
+
 	}
 
 	private final Cache<String, CacheKey> keyCache = Caffeine.newBuilder().build();
@@ -178,13 +207,15 @@ public class RocksDBClient implements
 	}
 
 	public boolean indexTableExists(
-			final String indexName ) {	
+			final String indexName ) {
 		// then look for prefixes of this index directory in which case there is
 		// a partition key
 		for (final String key : keyCache.asMap().keySet()) {
 			if (key
 					.substring(
-							subDirectory.length()).contains(indexName)) {
+							subDirectory.length())
+					.contains(
+							indexName)) {
 				return true;
 			}
 		}

@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class RocksDBIndexTable
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBIndexTable.class);
@@ -29,7 +31,7 @@ public class RocksDBIndexTable
 	private final String subDirectory;
 	private final boolean requiresTimestamp;
 	private boolean readerDirty = false;
-	private boolean exists;
+	private final boolean exists;
 	private final short adapterId;
 	private final byte[] partition;
 
@@ -52,7 +54,7 @@ public class RocksDBIndexTable
 		try {
 			writeDb = RocksDB.open(subDirectory);
 		}
-		catch (RocksDBException e) {
+		catch (final RocksDBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -178,6 +180,7 @@ public class RocksDBIndexTable
 		}
 	}
 
+	@SuppressFBWarnings(justification = "The null check outside of the synchronized block is intentional to minimize the need for synchronization.")
 	public void flush() {
 		// TODO flush batch writes
 		final RocksDB db = getWriteDb();
