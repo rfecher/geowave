@@ -218,14 +218,27 @@ public class RocksDBClient implements
 				return true;
 			}
 		}
-		return false;
+		// this could have been created by a different process so check the
+		// directory listing
+		return new File(
+				subDirectory)
+						.list(
+								(
+										dir,
+										name ) -> name
+												.contains(
+														indexName)).length > 0;
 	}
 
 	public boolean metadataTableExists(
 			final MetadataType type ) {
-		return keyCache
+		// this could have been created by a different process so check the
+		// directory listing
+		return (keyCache
 				.getIfPresent(
-						subDirectory + "/" + type.name()) != null;
+						subDirectory + "/" + type.name()) != null)
+				|| new File(
+						subDirectory + "/" + type.name()).exists();
 	}
 
 	public void close(

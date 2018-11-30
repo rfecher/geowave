@@ -123,7 +123,7 @@ public class RemoteIT extends
 		configServiceClient.addStoreReRoute(
 				store_name,
 				dataStoreOptions.getType(),
-				dataStoreOptions.getGeowaveNamespace(),
+				dataStoreOptions.getGeoWaveNamespace(),
 				dataStoreOptions.getOptionsAsMap());
 	}
 

@@ -206,7 +206,7 @@ public class LandsatIT extends
 		final StringBuilder str = new StringBuilder(
 				StoreFactoryOptions.GEOWAVE_NAMESPACE_OPTION).append(
 				"=").append(
-				dataStoreOptions.getGeowaveNamespace()).append(
+				dataStoreOptions.getGeoWaveNamespace()).append(
 				";equalizeHistogramOverride=false;interpolationOverride=").append(
 				Interpolation.INTERP_NEAREST);
 

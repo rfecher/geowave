@@ -13,8 +13,8 @@ import com.beust.jcommander.ParametersDelegate;
 public class RocksDBOptions extends
 		StoreFactoryOptions
 {
-	@Parameter(names = "--directory", description = "The directory to read/write to.  Defaults to \"rocksdb\" in the working directory.")
-	private String directory = "rocksdb";
+	@Parameter(names = "--myrocksdbdirectory", description = "The directory to read/write to.  Defaults to \"rocksdb\" in the working directory.")
+	private String myrocksdbdirectory = "rocksdb";
 	@ParametersDelegate
 	protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
 		@Override
@@ -45,11 +45,11 @@ public class RocksDBOptions extends
 
 	public void setDirectory(
 			final String directory ) {
-		this.directory = directory;
+		this.myrocksdbdirectory = directory;
 	}
 
 	public String getDirectory() {
-		return directory;
+		return myrocksdbdirectory;
 	}
 
 	@Override
