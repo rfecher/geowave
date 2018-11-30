@@ -34,7 +34,7 @@ public class RocksDBIndexTable
 	private final String subDirectory;
 	private final boolean requiresTimestamp;
 	private boolean readerDirty = false;
-	private final boolean exists;
+	private boolean exists;
 	private final short adapterId;
 	private final byte[] partition;
 
@@ -54,18 +54,18 @@ public class RocksDBIndexTable
 		this.partition = partition;
 		exists = new File(
 				subDirectory).exists();
-		try {
-			writeDb = RocksDB
-					.open(
-							subDirectory);
-		}
-		catch (final RocksDBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			writeDb = RocksDB
+//					.open(
+//							subDirectory);
+//		}
+//		catch (final RocksDBException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
-	public void add(
+	public synchronized void add(
 			final byte[] sortKey,
 			final byte[] dataId,
 			final short numDuplicates,
@@ -121,7 +121,7 @@ public class RocksDBIndexTable
 				value.getValue());
 	}
 
-	public void delete(
+	public synchronized void delete(
 			final byte[] key ) {
 		final RocksDB db = getWriteDb();
 		try {
@@ -138,7 +138,7 @@ public class RocksDBIndexTable
 		}
 	}
 
-	public CloseableIterator<GeoWaveRow> iterator() {
+	public synchronized  CloseableIterator<GeoWaveRow> iterator() {
 		final RocksDB readDb = getReadDb();
 		if (readDb == null) {
 			return new CloseableIterator.Empty<>();
@@ -150,7 +150,7 @@ public class RocksDBIndexTable
 				.newIterator(
 						options);
 		it.seekToFirst();
-		return new RocksDBRowIterator(
+		return new RocksDBRowIterator(this,
 				options,
 				it,
 				adapterId,
@@ -158,7 +158,7 @@ public class RocksDBIndexTable
 				requiresTimestamp);
 	}
 
-	public CloseableIterator<GeoWaveRow> iterator(
+	public synchronized  CloseableIterator<GeoWaveRow> iterator(
 			final ByteArrayRange range ) {
 		final RocksDB readDb = getReadDb();
 		if (readDb == null) {
@@ -188,7 +188,7 @@ public class RocksDBIndexTable
 							range.getStart().getBytes());
 		}
 
-		return new RocksDBRowIterator(
+		return new RocksDBRowIterator(this,
 				options,
 				it,
 				adapterId,
@@ -196,7 +196,7 @@ public class RocksDBIndexTable
 				requiresTimestamp);
 	}
 
-	private void put(
+	private synchronized void put(
 			final byte[] key,
 			final byte[] value ) {
 		// WriteBatch w = new WriteBatch();
@@ -257,64 +257,64 @@ public class RocksDBIndexTable
 	private RocksDB getWriteDb() {
 		// avoid synchronization if unnecessary by checking for null outside
 		// synchronized block
-		// if (writeDb == null) {
-		// synchronized (this) {
-		// // check again within synchronized block
-		// if (writeDb == null) {
-		// try {
-		// if (exists || new File(
-		// subDirectory).mkdirs()) {
-		// exists = true;
-		// writeDb = RocksDB
-		// .open(
-		// writeOptions,
-		// subDirectory);
-		// }
-		// else {
-		// LOGGER
-		// .error(
-		// "Unable to open to create directory '" + subDirectory + "'");
-		// }
-		// }
-		// catch (final RocksDBException e) {
-		// LOGGER
-		// .error(
-		// "Unable to open for writing",
-		// e);
-		// }
-		// }
-		// }
-		// }
+		 if (writeDb == null) {
+		 synchronized (this) {
+		 // check again within synchronized block
+		 if (writeDb == null) {
+		 try {
+		 if (exists || new File(
+		 subDirectory).mkdirs()) {
+		 exists = true;
+		 writeDb = RocksDB
+		 .open(
+		 writeOptions,
+		 subDirectory);
+		 }
+		 else {
+		 LOGGER
+		 .error(
+		 "Unable to open to create directory '" + subDirectory + "'");
+		 }
+		 }
+		 catch (final RocksDBException e) {
+		 LOGGER
+		 .error(
+		 "Unable to open for writing",
+		 e);
+		 }
+		 }
+		 }
+		 }
 		return writeDb;
 	}
 
 	private RocksDB getReadDb() {
-		return writeDb;
-		// if (!exists) {
-		// return null;
-		// }
-		// // avoid synchronization if unnecessary by checking for null outside
-		// // synchronized block
-		// if (readDb == null) {
-		// synchronized (this) {
-		// // check again within synchronized block
-		// if (readDb == null) {
-		// try {
-		// readerDirty = false;
-		// readDb = RocksDB
-		// .openReadOnly(
-		// readOptions,
-		// subDirectory);
-		// }
-		// catch (final RocksDBException e) {
-		// LOGGER
-		// .warn(
-		// "Unable to open for reading",
-		// e);
-		// }
-		// }
-		// }
-		// }
-		// return readDb;
+//		return writeDb;
+		 if (!exists) {
+		 return null;
+		 }
+		 // avoid synchronization if unnecessary by checking for null outside
+		 // synchronized block
+		 if (readDb == null) {
+		 synchronized (this) {
+		 // check again within synchronized block
+		 if (readDb == null) {
+		 try {
+		 readerDirty = false;
+		 readDb = RocksDB
+		 .openReadOnly(
+		 readOptions,
+		 subDirectory);
+		 }
+		 catch (final RocksDBException e) {
+		 LOGGER
+		 .warn(
+		 "Unable to open for reading",
+		 e);
+		 }
+		 }
+		 }
+		 }
+		 return readDb;
 	}
 }

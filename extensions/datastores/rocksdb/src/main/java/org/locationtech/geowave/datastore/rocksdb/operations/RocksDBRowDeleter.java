@@ -76,7 +76,7 @@ public class RocksDBRowDeleter implements
 	private final PersistentAdapterStore adapterStore;
 	private final InternalAdapterStore internalAdapterStore;
 	private final String indexName;
-	
+
 	public RocksDBRowDeleter(
 			final RocksDBClient client,
 			final PersistentAdapterStore adapterStore,
@@ -91,7 +91,12 @@ public class RocksDBRowDeleter implements
 	@Override
 	public void close()
 			throws Exception {
-		flush();
+		tableCache
+				.asMap()
+				.forEach(
+						(
+								k,
+								v ) -> v.flush());
 		tableCache.invalidateAll();
 	}
 
@@ -137,14 +142,6 @@ public class RocksDBRowDeleter implements
 	}
 
 	@Override
-	public void flush() {
-		tableCache
-				.asMap()
-				.forEach(
-						(
-								k,
-								v ) -> v.flush());
-		tableCache.invalidateAll();
-	}
+	public void flush() {}
 
 }

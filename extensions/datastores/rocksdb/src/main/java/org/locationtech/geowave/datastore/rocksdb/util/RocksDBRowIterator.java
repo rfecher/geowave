@@ -12,6 +12,7 @@ public class RocksDBRowIterator extends
 	private final boolean containsTimestamp;
 
 	public RocksDBRowIterator(
+			Object mutex,
 			final ReadOptions options,
 			final RocksIterator it,
 			final short adapterId,
