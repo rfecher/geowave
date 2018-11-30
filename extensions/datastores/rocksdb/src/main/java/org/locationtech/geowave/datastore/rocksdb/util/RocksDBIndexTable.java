@@ -23,9 +23,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class RocksDBIndexTable
 {
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(
-					RocksDBIndexTable.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBIndexTable.class);
 	private RocksDB writeDb;
 	private RocksDB readDb;
 	private long prevTime = Long.MAX_VALUE;
@@ -54,15 +52,15 @@ public class RocksDBIndexTable
 		this.partition = partition;
 		exists = new File(
 				subDirectory).exists();
-//		try {
-//			writeDb = RocksDB
-//					.open(
-//							subDirectory);
-//		}
-//		catch (final RocksDBException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		// try {
+		// writeDb = RocksDB
+		// .open(
+		// subDirectory);
+		// }
+		// catch (final RocksDBException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 	}
 
 	public synchronized void add(
@@ -82,39 +80,31 @@ public class RocksDBIndexTable
 				time = prevTime - 1;
 			}
 			prevTime = time;
-			key = Bytes
-					.concat(
-							sortKey,
-							dataId,
-							Longs
-									.toByteArray(
-											time),
-							value.getFieldMask(),
-							value.getVisibility(),
-							ByteArrayUtils
-									.shortToByteArray(
-											numDuplicates),
-							new byte[] {
-								(byte) sortKey.length,
-								(byte) value.getFieldMask().length,
-								(byte) value.getVisibility().length
-							});
+			key = Bytes.concat(
+					sortKey,
+					dataId,
+					Longs.toByteArray(time),
+					value.getFieldMask(),
+					value.getVisibility(),
+					ByteArrayUtils.shortToByteArray(numDuplicates),
+					new byte[] {
+						(byte) sortKey.length,
+						(byte) value.getFieldMask().length,
+						(byte) value.getVisibility().length
+					});
 		}
 		else {
-			key = Bytes
-					.concat(
-							sortKey,
-							dataId,
-							value.getFieldMask(),
-							value.getVisibility(),
-							ByteArrayUtils
-									.shortToByteArray(
-											numDuplicates),
-							new byte[] {
-								(byte) sortKey.length,
-								(byte) value.getFieldMask().length,
-								(byte) value.getVisibility().length,
-							});
+			key = Bytes.concat(
+					sortKey,
+					dataId,
+					value.getFieldMask(),
+					value.getVisibility(),
+					ByteArrayUtils.shortToByteArray(numDuplicates),
+					new byte[] {
+						(byte) sortKey.length,
+						(byte) value.getFieldMask().length,
+						(byte) value.getVisibility().length,
+					});
 		}
 		put(
 				key,
@@ -126,31 +116,25 @@ public class RocksDBIndexTable
 		final RocksDB db = getWriteDb();
 		try {
 			readerDirty = true;
-			db
-					.singleDelete(
-							key);
+			db.singleDelete(key);
 		}
 		catch (final RocksDBException e) {
-			LOGGER
-					.warn(
-							"Unable to delete key",
-							e);
+			LOGGER.warn(
+					"Unable to delete key",
+					e);
 		}
 	}
 
-	public synchronized  CloseableIterator<GeoWaveRow> iterator() {
+	public synchronized CloseableIterator<GeoWaveRow> iterator() {
 		final RocksDB readDb = getReadDb();
 		if (readDb == null) {
 			return new CloseableIterator.Empty<>();
 		}
-		final ReadOptions options = new ReadOptions()
-				.setFillCache(
-						false);
-		final RocksIterator it = readDb
-				.newIterator(
-						options);
+		final ReadOptions options = new ReadOptions().setFillCache(false);
+		final RocksIterator it = readDb.newIterator(options);
 		it.seekToFirst();
-		return new RocksDBRowIterator(this,
+		return new RocksDBRowIterator(
+				this,
 				options,
 				it,
 				adapterId,
@@ -158,7 +142,7 @@ public class RocksDBIndexTable
 				requiresTimestamp);
 	}
 
-	public synchronized  CloseableIterator<GeoWaveRow> iterator(
+	public synchronized CloseableIterator<GeoWaveRow> iterator(
 			final ByteArrayRange range ) {
 		final RocksDB readDb = getReadDb();
 		if (readDb == null) {
@@ -171,24 +155,19 @@ public class RocksDBIndexTable
 			it = readDb.newIterator();
 		}
 		else {
-			options = new ReadOptions()
-					.setIterateUpperBound(
-							new Slice(
-									range.getEndAsNextPrefix().getBytes()));
-			it = readDb
-					.newIterator(
-							options);
+			options = new ReadOptions().setIterateUpperBound(new Slice(
+					range.getEndAsNextPrefix().getBytes()));
+			it = readDb.newIterator(options);
 		}
 		if (range.getStart() == null) {
 			it.seekToFirst();
 		}
 		else {
-			it
-					.seek(
-							range.getStart().getBytes());
+			it.seek(range.getStart().getBytes());
 		}
 
-		return new RocksDBRowIterator(this,
+		return new RocksDBRowIterator(
+				this,
 				options,
 				it,
 				adapterId,
@@ -205,16 +184,14 @@ public class RocksDBIndexTable
 		final RocksDB db = getWriteDb();
 		try {
 			readerDirty = true;
-			db
-					.put(
-							key,
-							value);
+			db.put(
+					key,
+					value);
 		}
 		catch (final RocksDBException e) {
-			LOGGER
-					.warn(
-							"Unable to write key-value",
-							e);
+			LOGGER.warn(
+					"Unable to write key-value",
+					e);
 		}
 	}
 
@@ -226,10 +203,9 @@ public class RocksDBIndexTable
 			db.compactRange();
 		}
 		catch (final RocksDBException e) {
-			LOGGER
-					.warn(
-							"Unable to compact range",
-							e);
+			LOGGER.warn(
+					"Unable to compact range",
+					e);
 		}
 		// force re-opening a reader to catch the updates from this write
 		if (readerDirty && (readDb != null)) {
@@ -251,70 +227,67 @@ public class RocksDBIndexTable
 			if (readDb != null) {
 				readDb.close();
 			}
+
 		}
 	}
 
+	@SuppressFBWarnings(justification = "double check for null is intentional to avoid synchronized blocks when not needed.")
 	private RocksDB getWriteDb() {
 		// avoid synchronization if unnecessary by checking for null outside
 		// synchronized block
-		 if (writeDb == null) {
-		 synchronized (this) {
-		 // check again within synchronized block
-		 if (writeDb == null) {
-		 try {
-		 if (exists || new File(
-		 subDirectory).mkdirs()) {
-		 exists = true;
-		 writeDb = RocksDB
-		 .open(
-		 writeOptions,
-		 subDirectory);
-		 }
-		 else {
-		 LOGGER
-		 .error(
-		 "Unable to open to create directory '" + subDirectory + "'");
-		 }
-		 }
-		 catch (final RocksDBException e) {
-		 LOGGER
-		 .error(
-		 "Unable to open for writing",
-		 e);
-		 }
-		 }
-		 }
-		 }
+		if (writeDb == null) {
+			synchronized (this) {
+				// check again within synchronized block
+				if (writeDb == null) {
+					try {
+						if (exists || new File(
+								subDirectory).mkdirs()) {
+							exists = true;
+							writeDb = RocksDB.open(
+									writeOptions,
+									subDirectory);
+						}
+						else {
+							LOGGER.error("Unable to open to create directory '" + subDirectory + "'");
+						}
+					}
+					catch (final RocksDBException e) {
+						LOGGER.error(
+								"Unable to open for writing",
+								e);
+					}
+				}
+			}
+		}
 		return writeDb;
 	}
 
+	@SuppressFBWarnings(justification = "double check for null is intentional to avoid synchronized blocks when not needed.")
 	private RocksDB getReadDb() {
-//		return writeDb;
-		 if (!exists) {
-		 return null;
-		 }
-		 // avoid synchronization if unnecessary by checking for null outside
-		 // synchronized block
-		 if (readDb == null) {
-		 synchronized (this) {
-		 // check again within synchronized block
-		 if (readDb == null) {
-		 try {
-		 readerDirty = false;
-		 readDb = RocksDB
-		 .openReadOnly(
-		 readOptions,
-		 subDirectory);
-		 }
-		 catch (final RocksDBException e) {
-		 LOGGER
-		 .warn(
-		 "Unable to open for reading",
-		 e);
-		 }
-		 }
-		 }
-		 }
-		 return readDb;
+		// return writeDb;
+		if (!exists) {
+			return null;
+		}
+		// avoid synchronization if unnecessary by checking for null outside
+		// synchronized block
+		if (readDb == null) {
+			synchronized (this) {
+				// check again within synchronized block
+				if (readDb == null) {
+					try {
+						readerDirty = false;
+						readDb = RocksDB.openReadOnly(
+								readOptions,
+								subDirectory);
+					}
+					catch (final RocksDBException e) {
+						LOGGER.warn(
+								"Unable to open for reading",
+								e);
+					}
+				}
+			}
+		}
+		return readDb;
 	}
 }
