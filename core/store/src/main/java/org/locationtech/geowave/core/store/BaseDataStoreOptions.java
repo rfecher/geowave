@@ -20,6 +20,9 @@ public class BaseDataStoreOptions implements DataStoreOptions {
   @Parameter(names = "--enableServerSideLibrary", arity = 1)
   protected boolean enableServerSideLibrary = true;
 
+  @Parameter(names = "--enableSecondaryIndex", arity = 1)
+  protected boolean enableSecondaryIndex = false;
+
   @Parameter(names = "--maxRangeDecomposition", arity = 1)
   protected int configuredMaxRangeDecomposition = Integer.MIN_VALUE;
 
@@ -33,6 +36,15 @@ public class BaseDataStoreOptions implements DataStoreOptions {
 
   public void setPersistDataStatistics(final boolean persistDataStatistics) {
     this.persistDataStatistics = persistDataStatistics;
+  }
+
+  @Override
+  public boolean isSecondaryIndexing() {
+    return enableSecondaryIndex;
+  }
+
+  public void setSecondaryIndexing(final boolean enableSecondaryIndex) {
+    this.enableSecondaryIndex = enableSecondaryIndex;
   }
 
   @Override

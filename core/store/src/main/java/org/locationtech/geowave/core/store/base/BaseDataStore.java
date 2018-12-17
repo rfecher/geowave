@@ -146,19 +146,28 @@ public class BaseDataStore implements DataStore {
   }
 
   private <T> Writer<T> createWriter(final InternalDataAdapter<T> adapter, final Index... indices) {
-
-    final Writer<T>[] writers = new Writer[indices.length];
+    final Writer<T>[] writers =
+        new Writer[baseOptions.isSecondaryIndexing() ? indices.length + 1 : indices.length];
 
     int i = 0;
+    if (baseOptions.isSecondaryIndexing()) {
+      final DataStoreCallbackManager callbackManager =
+          new DataStoreCallbackManager(statisticsStore, secondaryIndexDataStore, true);
+      final List<IngestCallback<T>> callbacks =
+          Collections.singletonList(callbackManager.getIngestCallback(adapter, null));
+
+      final IngestCallbackList<T> callbacksList = new IngestCallbackList<>(callbacks);
+      writers[i++] =
+          createIndexWriter(
+              adapter, null, baseOperations, baseOptions, callbacksList, callbacksList);
+    }
     for (final Index index : indices) {
       final DataStoreCallbackManager callbackManager =
           new DataStoreCallbackManager(statisticsStore, secondaryIndexDataStore, i == 0);
-
       callbackManager.setPersistStats(baseOptions.isPersistDataStatistics());
 
-      final List<IngestCallback<T>> callbacks = new ArrayList<>();
-
-      callbacks.add(callbackManager.getIngestCallback(adapter, index));
+      final List<IngestCallback<T>> callbacks =
+          Collections.singletonList(callbackManager.getIngestCallback(adapter, index));
 
       final IngestCallbackList<T> callbacksList = new IngestCallbackList<>(callbacks);
       writers[i] =
@@ -256,6 +265,7 @@ public class BaseDataStore implements DataStore {
         throw new RuntimeException(
             "Constraint Query Type name does not match Query Options Type Name");
       }
+
     }
 
     final QueryConstraints sanitizedConstraints =
@@ -420,8 +430,10 @@ public class BaseDataStore implements DataStore {
           c.close();
         }
       }
+
     }, Iterators.concat(new CastIterator<T>(results.iterator())));
   }
+
 
   private boolean isAllAdapters(final String[] typeNames) {
     return Arrays.equals(internalAdapterStore.getTypeNames(), typeNames);

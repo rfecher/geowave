@@ -41,6 +41,7 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.exceptions.AdapterException;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.base.BaseDataStore;
 import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.index.IndexStore;
@@ -419,13 +420,13 @@ public class AccumuloUtils {
     final AccumuloOperations operations = new AccumuloOperations(connector, namespace, options);
     final IndexStore indexStore = new IndexStoreImpl(operations, options);
     if (indexStore.indexExists(index.getName())) {
-      final CloseableIterator<?> iterator =
-          new AccumuloDataStore(operations, options).query(null, null);
-      while (iterator.hasNext()) {
-        counter++;
-        iterator.next();
+      try (final CloseableIterator<?> iterator =
+          new AccumuloDataStore(operations, options).query(QueryBuilder.newBuilder().build())) {
+        while (iterator.hasNext()) {
+          counter++;
+          iterator.next();
+        }
       }
-      iterator.close();
     }
     return counter;
   }
