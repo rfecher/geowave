@@ -39,7 +39,6 @@ import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIterator.Wrapper;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.AdapterPersistenceEncoding;
-import org.locationtech.geowave.core.store.adapter.AdapterStore;
 import org.locationtech.geowave.core.store.adapter.IndexedAdapterPersistenceEncoding;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
@@ -87,7 +86,8 @@ public class BaseDataStoreUtils
 				entry,
 				adapter,
 				index,
-				customFieldVisibilityWriter).getRows();
+				customFieldVisibilityWriter,
+				false).getRows();
 	}
 
 	/**
@@ -293,7 +293,8 @@ public class BaseDataStoreUtils
 			final T entry,
 			final InternalDataAdapter<T> adapter,
 			final Index index,
-			final VisibilityWriter<T> customFieldVisibilityWriter ) {
+			final VisibilityWriter<T> customFieldVisibilityWriter,
+			boolean secondaryIndex) {
 		final CommonIndexModel indexModel = index.getIndexModel();
 
 		final AdapterPersistenceEncoding encodedData = adapter.encode(
@@ -306,7 +307,9 @@ public class BaseDataStoreUtils
 		final byte[] dataId = adapter.getDataId(
 				entry).getBytes();
 		final short internalAdapterId = adapter.getAdapterId();
-		if (!insertionIds.isEmpty()) {
+		
+		if ( !insertionIds.isEmpty()) {
+			if (!secondaryIndex) {
 			for (final Entry<String, CommonIndexValue> fieldValue : encodedData.getCommonData().getValues().entrySet()) {
 				final FieldInfo<?> fieldInfo = getFieldInfo(
 						indexModel,
@@ -331,10 +334,11 @@ public class BaseDataStoreUtils
 					}
 				}
 			}
+			}
 		}
 		else {
 			LOGGER.warn("Indexing failed to produce insertion ids; entry [" + adapter.getDataId(
-					entry).getString() + "] not saved.");
+					entry).getString() + "] not saved for index '"+index.getName()+"'.");
 		}
 
 		return new IntermediaryWriteEntryInfo(
@@ -358,6 +362,9 @@ public class BaseDataStoreUtils
 			final List<FieldInfo<?>> originalList,
 			final CommonIndexModel model,
 			final DataTypeAdapter<?> writableAdapter ) {
+		if (originalList.isEmpty()) {
+			return new GeoWaveValue[0];
+		}
 		final List<GeoWaveValue> retVal = new ArrayList<>();
 		final Map<ByteArray, List<Pair<Integer, FieldInfo<?>>>> vizToFieldMap = new LinkedHashMap<>();
 		boolean sharedVisibility = false;

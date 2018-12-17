@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2013-2018 Contributors to the Eclipse Foundation
- *   
+ *
  *  See the NOTICE file distributed with this work for additional
  *  information regarding copyright ownership.
  *  All rights reserved. This program and the accompanying materials
@@ -24,6 +24,9 @@ public class BaseDataStoreOptions implements
 	@Parameter(names = "--enableServerSideLibrary", arity = 1)
 	protected boolean enableServerSideLibrary = true;
 
+	@Parameter(names = "--enableSecondaryIndex", arity = 1)
+	protected boolean enableSecondaryIndex = false;
+
 	@Parameter(names = "--maxRangeDecomposition", arity = 1)
 	protected int configuredMaxRangeDecomposition = Integer.MIN_VALUE;
 
@@ -38,6 +41,16 @@ public class BaseDataStoreOptions implements
 	public void setPersistDataStatistics(
 			final boolean persistDataStatistics ) {
 		this.persistDataStatistics = persistDataStatistics;
+	}
+
+	@Override
+	public boolean isSecondaryIndexing() {
+		return enableSecondaryIndex;
+	}
+
+	public void setSecondaryIndexing(
+			final boolean enableSecondaryIndex ) {
+		this.enableSecondaryIndex = enableSecondaryIndex;
 	}
 
 	@Override
@@ -72,12 +85,13 @@ public class BaseDataStoreOptions implements
 
 	public void setMaxRangeDecomposition(
 			final int maxRangeDecomposition ) {
-		this.configuredMaxRangeDecomposition = maxRangeDecomposition;
+		configuredMaxRangeDecomposition = maxRangeDecomposition;
 	}
 
 	@Override
 	public int getAggregationMaxRangeDecomposition() {
-		return configuredAggregationMaxRangeDecomposition == Integer.MIN_VALUE ? defaultAggregationMaxRangeDecomposition()
+		return configuredAggregationMaxRangeDecomposition == Integer.MIN_VALUE
+				? defaultAggregationMaxRangeDecomposition()
 				: configuredAggregationMaxRangeDecomposition;
 	}
 
@@ -87,6 +101,6 @@ public class BaseDataStoreOptions implements
 
 	public void setAggregationMaxRangeDecomposition(
 			final int aggregationMaxRangeDecomposition ) {
-		this.configuredAggregationMaxRangeDecomposition = aggregationMaxRangeDecomposition;
+		configuredAggregationMaxRangeDecomposition = aggregationMaxRangeDecomposition;
 	}
 }

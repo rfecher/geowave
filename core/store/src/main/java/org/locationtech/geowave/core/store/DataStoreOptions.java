@@ -21,4 +21,6 @@ public interface DataStoreOptions
 	public int getMaxRangeDecomposition();
 
 	public int getAggregationMaxRangeDecomposition();
+	
+	public boolean isSecondaryIndexing();
 }

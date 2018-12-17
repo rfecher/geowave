@@ -89,10 +89,13 @@ class BaseIndexWriter<T> implements
 					entry,
 					adapter,
 					index,
-					fieldVisibilityWriter);
+					fieldVisibilityWriter,
+					options.isSecondaryIndexing());
+			if (!options.isSecondaryIndexing()) {
 			verifyVisibility(
 					fieldVisibilityWriter,
 					entryInfo);
+			}
 			final GeoWaveRow[] rows = entryInfo.getRows();
 
 			writer.write(rows);
