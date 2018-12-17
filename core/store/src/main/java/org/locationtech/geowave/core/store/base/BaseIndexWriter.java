@@ -73,8 +73,12 @@ class BaseIndexWriter<T> implements Writer<T> {
         LOGGER.error("Null writer - empty list returned");
         return new InsertionIds();
       }
-      entryInfo = BaseDataStoreUtils.getWriteInfo(entry, adapter, index, fieldVisibilityWriter);
-      verifyVisibility(fieldVisibilityWriter, entryInfo);
+      entryInfo =
+          BaseDataStoreUtils.getWriteInfo(
+              entry, adapter, index, fieldVisibilityWriter, options.isSecondaryIndexing());
+      if (!options.isSecondaryIndexing()) {
+        verifyVisibility(fieldVisibilityWriter, entryInfo);
+      }
       final GeoWaveRow[] rows = entryInfo.getRows();
 
       writer.write(rows);

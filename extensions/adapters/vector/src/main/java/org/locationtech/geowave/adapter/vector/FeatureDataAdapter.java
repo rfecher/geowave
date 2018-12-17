@@ -793,10 +793,16 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
 
   @Override
   public int getPositionOfOrderedField(final CommonIndexModel model, final String fieldName) {
-    final List<String> dimensionFieldNames = getDimensionFieldNames(model);
-    // first check CommonIndexModel dimensions
-    if (dimensionFieldNames.contains(fieldName)) {
-      return dimensionFieldNames.indexOf(fieldName);
+    int numDimensions;
+    if (model != null) {
+      final List<String> dimensionFieldNames = getDimensionFieldNames(model);
+      // first check CommonIndexModel dimensions
+      if (dimensionFieldNames.contains(fieldName)) {
+        return dimensionFieldNames.indexOf(fieldName);
+      }
+      numDimensions = dimensionFieldNames.size();
+    } else {
+      numDimensions = 0;
     }
     if (!positionMapsInitialized) {
       synchronized (this) {
@@ -809,7 +815,7 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     if (position == null) {
       return -1;
     }
-    return position.intValue() + dimensionFieldNames.size();
+    return position.intValue() + numDimensions;
   }
 
   @Override

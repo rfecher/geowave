@@ -76,7 +76,7 @@ public class BaseDataStoreUtils {
       final InternalDataAdapter<T> adapter,
       final Index index,
       final VisibilityWriter<T> customFieldVisibilityWriter) {
-    return getWriteInfo(entry, adapter, index, customFieldVisibilityWriter).getRows();
+    return getWriteInfo(entry, adapter, index, customFieldVisibilityWriter, false).getRows();
   }
 
   /**
@@ -231,7 +231,8 @@ public class BaseDataStoreUtils {
       final T entry,
       final InternalDataAdapter<T> adapter,
       final Index index,
-      final VisibilityWriter<T> customFieldVisibilityWriter) {
+      final VisibilityWriter<T> customFieldVisibilityWriter,
+      boolean secondaryIndex) {
     final CommonIndexModel indexModel = index.getIndexModel();
 
     final AdapterPersistenceEncoding encodedData = adapter.encode(entry, indexModel);
@@ -241,26 +242,29 @@ public class BaseDataStoreUtils {
 
     final byte[] dataId = adapter.getDataId(entry).getBytes();
     final short internalAdapterId = adapter.getAdapterId();
+
     if (!insertionIds.isEmpty()) {
-      for (final Entry<String, CommonIndexValue> fieldValue : encodedData.getCommonData()
-          .getValues().entrySet()) {
-        final FieldInfo<?> fieldInfo =
-            getFieldInfo(
-                indexModel, fieldValue.getKey(), fieldValue.getValue(), entry,
-                customFieldVisibilityWriter);
-        if (fieldInfo != null) {
-          fieldInfoList.add(fieldInfo);
-        }
-      }
-      for (final Entry<String, Object> fieldValue : encodedData.getAdapterExtendedData().getValues()
-          .entrySet()) {
-        if (fieldValue.getValue() != null) {
+      if (!secondaryIndex) {
+        for (final Entry<String, CommonIndexValue> fieldValue : encodedData.getCommonData()
+            .getValues().entrySet()) {
           final FieldInfo<?> fieldInfo =
               getFieldInfo(
-                  adapter, fieldValue.getKey(), fieldValue.getValue(), entry,
+                  indexModel, fieldValue.getKey(), fieldValue.getValue(), entry,
                   customFieldVisibilityWriter);
           if (fieldInfo != null) {
             fieldInfoList.add(fieldInfo);
+          }
+        }
+        for (final Entry<String, Object> fieldValue : encodedData.getAdapterExtendedData()
+            .getValues().entrySet()) {
+          if (fieldValue.getValue() != null) {
+            final FieldInfo<?> fieldInfo =
+                getFieldInfo(
+                    adapter, fieldValue.getKey(), fieldValue.getValue(), entry,
+                    customFieldVisibilityWriter);
+            if (fieldInfo != null) {
+              fieldInfoList.add(fieldInfo);
+            }
           }
         }
       }
@@ -268,7 +272,9 @@ public class BaseDataStoreUtils {
       LOGGER.warn(
           "Indexing failed to produce insertion ids; entry ["
               + adapter.getDataId(entry).getString()
-              + "] not saved.");
+              + "] not saved for index '"
+              + index.getName()
+              + "'.");
     }
 
     return new IntermediaryWriteEntryInfo(dataId, internalAdapterId, insertionIds,
@@ -285,6 +291,9 @@ public class BaseDataStoreUtils {
       final List<FieldInfo<?>> originalList,
       final CommonIndexModel model,
       final DataTypeAdapter<?> writableAdapter) {
+    if (originalList.isEmpty()) {
+      return new GeoWaveValue[0];
+    }
     final List<GeoWaveValue> retVal = new ArrayList<>();
     final Map<ByteArray, List<Pair<Integer, FieldInfo<?>>>> vizToFieldMap = new LinkedHashMap<>();
     boolean sharedVisibility = false;
