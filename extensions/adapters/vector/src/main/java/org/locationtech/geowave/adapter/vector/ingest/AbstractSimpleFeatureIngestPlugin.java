@@ -15,11 +15,11 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import org.apache.commons.lang.ArrayUtils;
-import org.locationtech.geowave.adapter.vector.AvroFeatureDataAdapter;
+import org.locationtech.geowave.adapter.vector.GeoWaveAvroFeatureDataAdapter;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.core.index.VarintUtils;
 import org.locationtech.geowave.core.index.persist.Persistable;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithMapper;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -36,7 +36,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 public abstract class AbstractSimpleFeatureIngestPlugin<I>
     implements LocalFileIngestPlugin<SimpleFeature>, IngestFromHdfsPlugin<I, SimpleFeature>,
-    AvroFormatPlugin<I, SimpleFeature>, Persistable {
+    GeoWaveAvroFormatPlugin<I, SimpleFeature>, Persistable {
   protected CQLFilterOptionProvider filterOptionProvider = new CQLFilterOptionProvider();
   protected FeatureSerializationOptionProvider serializationFormatOptionProvider =
       new FeatureSerializationOptionProvider();
@@ -111,7 +111,7 @@ public abstract class AbstractSimpleFeatureIngestPlugin<I>
   protected DataTypeAdapter<SimpleFeature> newAdapter(final SimpleFeatureType type,
       final FieldVisibilityHandler<SimpleFeature, Object> fieldVisiblityHandler) {
     if (serializationFormatOptionProvider.isAvro()) {
-      return new AvroFeatureDataAdapter(type);
+      return new GeoWaveAvroFeatureDataAdapter(type);
     }
     return new FeatureDataAdapter(type, fieldVisiblityHandler);
   }

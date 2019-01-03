@@ -9,7 +9,7 @@
  */
 package org.locationtech.geowave.core.ingest.spi;
 
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
 import org.locationtech.geowave.core.store.ingest.IngestFormatOptions;
 import org.locationtech.geowave.core.store.ingest.LocalFileIngestPlugin;
@@ -82,6 +82,6 @@ public interface IngestFormatPluginProviderSpi<I, O> {
    * @throws UnsupportedOperationException If staging data is not supported (generally this implies
    *         that ingesting using map-reduce or kafka will not be supported)
    */
-  public AvroFormatPlugin<I, O> createAvroFormatPlugin(IngestFormatOptions options)
+  public GeoWaveAvroFormatPlugin<I, O> createAvroFormatPlugin(IngestFormatOptions options)
       throws UnsupportedOperationException;
 }

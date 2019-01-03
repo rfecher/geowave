@@ -51,7 +51,7 @@ public class FeatureAdapterPersistableRegistry implements PersistableRegistrySpi
   @Override
   public PersistableIdAndConstructor[] getSupportedPersistables() {
     return new PersistableIdAndConstructor[] {
-        new PersistableIdAndConstructor((short) 500, AvroFeatureDataAdapter::new),
+        new PersistableIdAndConstructor((short) 500, GeoWaveAvroFeatureDataAdapter::new),
         new PersistableIdAndConstructor((short) 501, FeatureDataAdapter::new),
         new PersistableIdAndConstructor((short) 502, SecondaryIndexManager::new),
         new PersistableIdAndConstructor((short) 503, CQLFilterOptionProvider::new),

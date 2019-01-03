@@ -9,7 +9,7 @@
  */
 package org.locationtech.geowave.core.ingest.hdfs.mapreduce;
 
-import org.locationtech.geowave.core.ingest.avro.AvroSchemaProvider;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroSchemaProvider;
 import org.locationtech.geowave.core.store.ingest.IndexProvider;
 
 /**
@@ -22,7 +22,7 @@ import org.locationtech.geowave.core.store.ingest.IndexProvider;
  * @param <I> the type for intermediate data, it must match the type supported by the Avro schema
  * @param <O> the type that represents each data entry being ingested
  */
-public interface IngestFromHdfsPlugin<I, O> extends IndexProvider, AvroSchemaProvider {
+public interface IngestFromHdfsPlugin<I, O> extends IndexProvider, GeoWaveAvroSchemaProvider {
 
   /**
    * Returns a flag indicating to the ingestion framework whether it should try to use the

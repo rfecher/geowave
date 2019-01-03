@@ -20,7 +20,7 @@ import java.util.Map;
 import org.locationtech.geowave.core.cli.annotations.GeowaveOperation;
 import org.locationtech.geowave.core.cli.api.OperationParams;
 import org.locationtech.geowave.core.cli.api.ServiceEnabledCommand;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.kafka.IngestFromKafkaDriver;
 import org.locationtech.geowave.core.ingest.kafka.KafkaConsumerCommandLineOptions;
 import org.locationtech.geowave.core.ingest.local.LocalInputCommandLineOptions;
@@ -167,7 +167,8 @@ public class KafkaToGeowaveCommand extends ServiceEnabledCommand<Void> {
     inputIndexOptions = indexLoader.getLoadedIndexes();
 
     // Ingest Plugins
-    final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins = pluginFormats.createAvroPlugins();
+    final Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins =
+        pluginFormats.createAvroPlugins();
 
     // Driver
     driver = new IngestFromKafkaDriver(inputStoreOptions, inputIndexOptions, ingestPlugins,

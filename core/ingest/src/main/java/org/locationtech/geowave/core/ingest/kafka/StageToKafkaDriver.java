@@ -16,7 +16,7 @@ import java.util.Map;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import org.apache.avro.specific.SpecificRecordBase;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.local.AbstractLocalFileDriver;
 import org.locationtech.geowave.core.ingest.local.LocalInputCommandLineOptions;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -28,14 +28,14 @@ import org.slf4j.LoggerFactory;
  * plugin providers that are discovered through SPI.
  */
 public class StageToKafkaDriver<T extends SpecificRecordBase>
-    extends AbstractLocalFileDriver<AvroFormatPlugin<?, ?>, StageKafkaData<?>> {
+    extends AbstractLocalFileDriver<GeoWaveAvroFormatPlugin<?, ?>, StageKafkaData<?>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(StageToKafkaDriver.class);
 
-  private final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins;
+  private final Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins;
   private final KafkaProducerCommandLineOptions kafkaOptions;
 
   public StageToKafkaDriver(KafkaProducerCommandLineOptions kafkaOptions,
-      Map<String, AvroFormatPlugin<?, ?>> ingestPlugins,
+      Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins,
       LocalInputCommandLineOptions localOptions) {
     super(localOptions);
     this.kafkaOptions = kafkaOptions;
@@ -44,7 +44,7 @@ public class StageToKafkaDriver<T extends SpecificRecordBase>
 
   @Override
   protected void processFile(final URL file, final String typeName,
-      final AvroFormatPlugin<?, ?> plugin, final StageKafkaData<?> runData) {
+      final GeoWaveAvroFormatPlugin<?, ?> plugin, final StageKafkaData<?> runData) {
 
     try {
       final Producer<String, Object> producer =
@@ -65,7 +65,7 @@ public class StageToKafkaDriver<T extends SpecificRecordBase>
 
   public boolean runOperation(String inputPath, File configFile) {
 
-    final Map<String, AvroFormatPlugin<?, ?>> stageToKafkaPlugins = ingestPlugins;
+    final Map<String, GeoWaveAvroFormatPlugin<?, ?>> stageToKafkaPlugins = ingestPlugins;
 
     try {
       final StageKafkaData<T> runData = new StageKafkaData<T>(kafkaOptions.getProperties());

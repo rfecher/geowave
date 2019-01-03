@@ -18,7 +18,7 @@ import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +37,12 @@ public class StageRunData {
     this.fs = fs;
   }
 
-  public DataFileWriter getWriter(final String typeName, final AvroFormatPlugin plugin) {
+  public DataFileWriter getWriter(final String typeName, final GeoWaveAvroFormatPlugin plugin) {
     return getDataWriterCreateIfNull(typeName, plugin);
   }
 
   private synchronized DataFileWriter getDataWriterCreateIfNull(final String typeName,
-      final AvroFormatPlugin plugin) {
+      final GeoWaveAvroFormatPlugin plugin) {
     if (!cachedWriters.containsKey(typeName)) {
       FSDataOutputStream out = null;
       final DataFileWriter dfw = new DataFileWriter(new GenericDatumWriter());

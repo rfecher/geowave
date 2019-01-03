@@ -22,7 +22,7 @@ import org.apache.avro.file.CodecFactory;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.geotools.filter.text.cql2.CQLException;
-import org.locationtech.geowave.adapter.vector.AvroFeatureUtils;
+import org.locationtech.geowave.adapter.vector.GeoWaveAvroFeatureUtils;
 import org.locationtech.geowave.adapter.vector.avro.AvroAttributeValues;
 import org.locationtech.geowave.adapter.vector.avro.AvroSimpleFeatureCollection;
 import org.locationtech.geowave.adapter.vector.cli.VectorSection;
@@ -142,13 +142,13 @@ public class VectorLocalExportCommand extends DefaultOperation implements Comman
               new AvroSimpleFeatureCollection();
 
           simpleFeatureCollection
-              .setFeatureType(AvroFeatureUtils.buildFeatureDefinition(null, sft, null, ""));
+              .setFeatureType(GeoWaveAvroFeatureUtils.buildFeatureDefinition(null, sft, null, ""));
           final List<AvroAttributeValues> avList = new ArrayList<>(options.getBatchSize());
           while (it.hasNext() && (avList.size() < options.getBatchSize())) {
             final Object obj = it.next();
             if (obj instanceof SimpleFeature) {
               final AvroAttributeValues av =
-                  AvroFeatureUtils.buildAttributeValue((SimpleFeature) obj, sft);
+                  GeoWaveAvroFeatureUtils.buildAttributeValue((SimpleFeature) obj, sft);
               avList.add(av);
             }
           }

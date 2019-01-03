@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -15,11 +16,11 @@ import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileStream;
 import org.apache.avro.specific.SpecificDatumReader;
-import org.locationtech.geowave.adapter.vector.AvroFeatureUtils;
+import org.locationtech.geowave.adapter.vector.GeoWaveAvroFeatureUtils;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
-import org.locationtech.geowave.adapter.vector.avro.AttributeValues;
+import org.locationtech.geowave.adapter.vector.avro.AvroAttributeValues;
+import org.locationtech.geowave.adapter.vector.avro.AvroFeatureDefinition;
 import org.locationtech.geowave.adapter.vector.avro.AvroSimpleFeatureCollection;
-import org.locationtech.geowave.adapter.vector.avro.FeatureDefinition;
 import org.locationtech.geowave.adapter.vector.ingest.AbstractSimpleFeatureIngestPlugin;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.dimension.Time;
@@ -44,20 +45,19 @@ import org.slf4j.LoggerFactory;
  * using a map-reduce job. It supports OSM metadata.xml files if the file is directly in the root
  * base directory that is passed in command-line to the ingest framework.
  */
-public class AvroIngestPlugin
+public class GeoWaveAvroIngestPlugin
     extends AbstractSimpleFeatureIngestPlugin<AvroSimpleFeatureCollection> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AvroIngestPlugin.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveAvroIngestPlugin.class);
 
-  public AvroIngestPlugin() {}
+  public GeoWaveAvroIngestPlugin() {}
 
   @Override
   public String[] getFileExtensionFilters() {
-    return new String[] {
-      "avro", "dat", "bin", "json" // TODO: does the Avro DataFileReader actually
-      // support JSON
-      // formatted avro files, or should we limit the extensions
-      // to expected binary extensions?
+    return new String[] {"avro", "dat", "bin", "json" // TODO: does the Avro DataFileReader actually
+        // support JSON
+        // formatted avro files, or should we limit the extensions
+        // to expected binary extensions?
     };
   }
 
@@ -68,8 +68,7 @@ public class AvroIngestPlugin
   public boolean supportsFile(final URL file) {
 
     try (DataFileStream<AvroSimpleFeatureCollection> ds =
-        new DataFileStream<AvroSimpleFeatureCollection>(
-            file.openStream(),
+        new DataFileStream<AvroSimpleFeatureCollection>(file.openStream(),
             new SpecificDatumReader<AvroSimpleFeatureCollection>(
                 AvroSimpleFeatureCollection.getClassSchema()))) {
       if (ds.getHeader() != null) {
@@ -98,8 +97,7 @@ public class AvroIngestPlugin
   public CloseableIterator<AvroSimpleFeatureCollection> toAvroObjects(final URL input) {
     try {
       final DataFileStream<AvroSimpleFeatureCollection> reader =
-          new DataFileStream<AvroSimpleFeatureCollection>(
-              input.openStream(),
+          new DataFileStream<AvroSimpleFeatureCollection>(input.openStream(),
               new SpecificDatumReader<AvroSimpleFeatureCollection>(
                   AvroSimpleFeatureCollection.getClassSchema()));
 
@@ -125,8 +123,8 @@ public class AvroIngestPlugin
         }
       };
     } catch (final IOException e) {
-      LOGGER.warn(
-          "Unable to read file '" + input.getPath() + "' as AVRO SimpleFeatureCollection", e);
+      LOGGER.warn("Unable to read file '" + input.getPath() + "' as AVRO SimpleFeatureCollection",
+          e);
     }
     return new CloseableIterator.Empty<AvroSimpleFeatureCollection>();
   }
@@ -150,22 +148,22 @@ public class AvroIngestPlugin
 
   @Override
   protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-      final AvroSimpleFeatureCollection featureCollection,
-      final String[] indexNames,
+      final AvroSimpleFeatureCollection featureCollection, final String[] indexNames,
       final String globalVisibility) {
-    final FeatureDefinition featureDefinition = featureCollection.getFeatureType();
+    final AvroFeatureDefinition featureDefinition = featureCollection.getFeatureType();
     final List<GeoWaveData<SimpleFeature>> retVal = new ArrayList<GeoWaveData<SimpleFeature>>();
     SimpleFeatureType featureType;
     try {
-      featureType = AvroFeatureUtils.avroFeatureDefinitionToGTSimpleFeatureType(featureDefinition);
+      featureType =
+          GeoWaveAvroFeatureUtils.avroFeatureDefinitionToGTSimpleFeatureType(featureDefinition);
 
       final FeatureDataAdapter adapter = new FeatureDataAdapter(featureType);
       final List<String> attributeTypes = featureDefinition.getAttributeTypes();
-      for (final AttributeValues attributeValues : featureCollection.getSimpleFeatureCollection()) {
+      for (final AvroAttributeValues attributeValues : featureCollection
+          .getSimpleFeatureCollection()) {
         try {
-          final SimpleFeature simpleFeature =
-              AvroFeatureUtils.avroSimpleFeatureToGTSimpleFeature(
-                  featureType, attributeTypes, attributeValues);
+          final SimpleFeature simpleFeature = GeoWaveAvroFeatureUtils
+              .avroSimpleFeatureToGTSimpleFeature(featureType, attributeTypes, attributeValues);
           retVal.add(new GeoWaveData<SimpleFeature>(adapter, indexNames, simpleFeature));
         } catch (final Exception e) {
           LOGGER.warn("Unable to read simple feature from Avro", e);
@@ -185,11 +183,11 @@ public class AvroIngestPlugin
   public static class IngestAvroFeaturesFromHdfs
       extends AbstractIngestSimpleFeatureWithMapper<AvroSimpleFeatureCollection> {
     public IngestAvroFeaturesFromHdfs() {
-      this(new AvroIngestPlugin());
+      this(new GeoWaveAvroIngestPlugin());
       // this constructor will be used when deserialized
     }
 
-    public IngestAvroFeaturesFromHdfs(final AvroIngestPlugin parentPlugin) {
+    public IngestAvroFeaturesFromHdfs(final GeoWaveAvroIngestPlugin parentPlugin) {
       super(parentPlugin);
     }
   }

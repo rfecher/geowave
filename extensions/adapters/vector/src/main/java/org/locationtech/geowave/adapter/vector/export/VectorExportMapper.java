@@ -17,7 +17,7 @@ import java.util.Map;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.locationtech.geowave.adapter.vector.AvroFeatureUtils;
+import org.locationtech.geowave.adapter.vector.GeoWaveAvroFeatureUtils;
 import org.locationtech.geowave.adapter.vector.avro.AvroAttributeValues;
 import org.locationtech.geowave.adapter.vector.avro.AvroSimpleFeatureCollection;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
@@ -102,7 +102,7 @@ public class VectorExportMapper extends
         retVal = simpleFeatureCollection;
         newFeatureCollection();
       }
-      final AvroAttributeValues av = AvroFeatureUtils.buildAttributeValue(feature, sft);
+      final AvroAttributeValues av = GeoWaveAvroFeatureUtils.buildAttributeValue(feature, sft);
       avList.add(av);
       return retVal;
     }
@@ -112,7 +112,7 @@ public class VectorExportMapper extends
       simpleFeatureCollection = new AvroSimpleFeatureCollection();
       try {
         simpleFeatureCollection
-            .setFeatureType(AvroFeatureUtils.buildFeatureDefinition(null, sft, null, ""));
+            .setFeatureType(GeoWaveAvroFeatureUtils.buildFeatureDefinition(null, sft, null, ""));
       } catch (final IOException e) {
         // this should never actually happen, deault classification is
         // passed in

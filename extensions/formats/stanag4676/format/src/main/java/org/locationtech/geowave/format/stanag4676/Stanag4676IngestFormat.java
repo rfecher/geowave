@@ -9,14 +9,15 @@
  */
 package org.locationtech.geowave.format.stanag4676;
 
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
-import org.locationtech.geowave.core.ingest.avro.WholeFile;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.AvroWholeFile;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
 import org.locationtech.geowave.core.ingest.spi.IngestFormatPluginProviderSpi;
 import org.locationtech.geowave.core.store.ingest.IngestFormatOptions;
 import org.locationtech.geowave.core.store.ingest.LocalFileIngestPlugin;
 
-public class Stanag4676IngestFormat implements IngestFormatPluginProviderSpi<WholeFile, Object> {
+public class Stanag4676IngestFormat
+    implements IngestFormatPluginProviderSpi<AvroWholeFile, Object> {
   private static Stanag4676IngestPlugin singletonInstance;
 
   private static synchronized Stanag4676IngestPlugin getSingletonInstance() {
@@ -27,13 +28,13 @@ public class Stanag4676IngestFormat implements IngestFormatPluginProviderSpi<Who
   }
 
   @Override
-  public AvroFormatPlugin<WholeFile, Object> createAvroFormatPlugin(IngestFormatOptions options)
-      throws UnsupportedOperationException {
+  public GeoWaveAvroFormatPlugin<AvroWholeFile, Object> createAvroFormatPlugin(
+      IngestFormatOptions options) throws UnsupportedOperationException {
     return getSingletonInstance();
   }
 
   @Override
-  public IngestFromHdfsPlugin<WholeFile, Object> createIngestFromHdfsPlugin(
+  public IngestFromHdfsPlugin<AvroWholeFile, Object> createIngestFromHdfsPlugin(
       IngestFormatOptions options) throws UnsupportedOperationException {
     return getSingletonInstance();
   }

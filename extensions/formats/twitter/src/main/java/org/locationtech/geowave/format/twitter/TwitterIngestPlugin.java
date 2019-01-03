@@ -9,9 +9,12 @@
  */
 package org.locationtech.geowave.format.twitter;
 
-import com.google.common.collect.Iterators;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -29,7 +32,7 @@ import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigu
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.dimension.Time;
 import org.locationtech.geowave.core.index.StringUtils;
-import org.locationtech.geowave.core.ingest.avro.WholeFile;
+import org.locationtech.geowave.core.ingest.avro.AvroWholeFile;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithMapper;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithReducer;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -43,15 +46,17 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.Iterators;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /*
  */
-public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<WholeFile> {
+public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<AvroWholeFile> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TwitterIngestPlugin.class);
 
-  private SimpleFeatureBuilder twitterSftBuilder;
-  private SimpleFeatureType twitterSft;
+  private final SimpleFeatureBuilder twitterSftBuilder;
+  private final SimpleFeatureType twitterSft;
 
   public TwitterIngestPlugin() {
     twitterSft = TwitterUtils.createTwitterEventDataType();
@@ -79,12 +84,12 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
 
   @Override
   public Schema getAvroSchema() {
-    return WholeFile.getClassSchema();
+    return AvroWholeFile.getClassSchema();
   }
 
   @Override
-  public CloseableIterator<WholeFile> toAvroObjects(final URL input) {
-    final WholeFile avroFile = new WholeFile();
+  public CloseableIterator<AvroWholeFile> toAvroObjects(final URL input) {
+    final AvroWholeFile avroFile = new AvroWholeFile();
     avroFile.setOriginalFilePath(input.getPath());
     try {
       avroFile.setOriginalFile(ByteBuffer.wrap(IOUtils.toByteArray(input)));
@@ -102,12 +107,12 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
   }
 
   @Override
-  public IngestWithMapper<WholeFile, SimpleFeature> ingestWithMapper() {
+  public IngestWithMapper<AvroWholeFile, SimpleFeature> ingestWithMapper() {
     return new IngestTwitterFromHdfs(this);
   }
 
   @Override
-  public IngestWithReducer<WholeFile, ?, ?, SimpleFeature> ingestWithReducer() {
+  public IngestWithReducer<AvroWholeFile, ?, ?, SimpleFeature> ingestWithReducer() {
     // unsupported right now
     throw new UnsupportedOperationException("Twitter events cannot be ingested with a reducer");
   }
@@ -116,10 +121,9 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
   @SuppressFBWarnings(value = {"REC_CATCH_EXCEPTION"},
       justification = "Intentionally catching any possible exception as there may be unknown format issues in a file and we don't want to error partially through parsing")
   protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-      final WholeFile hfile, String[] indexNames, final String globalVisibility) {
+      final AvroWholeFile hfile, final String[] indexNames, final String globalVisibility) {
 
-    final List<GeoWaveData<SimpleFeature>> featureData =
-        new ArrayList<GeoWaveData<SimpleFeature>>();
+    final List<GeoWaveData<SimpleFeature>> featureData = new ArrayList<>();
 
     final InputStream in = new ByteArrayInputStream(hfile.getOriginalFile().array());
 
@@ -168,7 +172,7 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
           try {
             sr = new StringReader(line);
             jsonReader = Json.createReader(sr);
-            JsonObject tweet = jsonReader.readObject();
+            final JsonObject tweet = jsonReader.readObject();
 
             try {
               lon = tweet.getJsonObject("coordinates").getJsonArray("coordinates").getJsonNumber(0)
@@ -194,7 +198,7 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
               continue;
             }
 
-            JsonObject user = tweet.getJsonObject("user");
+            final JsonObject user = tweet.getJsonObject("user");
 
             tweetId = tweet.getString("id_str");
             userid = user.getString("id_str");
@@ -203,16 +207,19 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
             tweetText = tweet.getString("text");
 
             // nullable
-            if (!tweet.isNull("in_reply_to_user_id_str"))
+            if (!tweet.isNull("in_reply_to_user_id_str")) {
               inReplyUser = tweet.getString("in_reply_to_user_id_str");
+            }
 
-            if (!tweet.isNull("in_reply_to_status_id_str"))
+            if (!tweet.isNull("in_reply_to_status_id_str")) {
               inReplyStatus = tweet.getString("in_reply_to_status_id_str");
+            }
 
             retweetCount = tweet.getInt("retweet_count");
 
-            if (!tweet.isNull("lang"))
+            if (!tweet.isNull("lang")) {
               lang = tweet.getString("lang");
+            }
 
             twitterSftBuilder.set(TwitterUtils.TWITTER_USERID_ATTRIBUTE, userid);
             twitterSftBuilder.set(TwitterUtils.TWITTER_USERNAME_ATTRIBUTE, userName);
@@ -225,20 +232,21 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
             twitterSftBuilder.set(TwitterUtils.TWITTER_GEOMETRY_ATTRIBUTE,
                 geometryFactory.createPoint(coord));
 
-            SimpleFeature tweetSft = twitterSftBuilder.buildFeature(tweetId);
+            final SimpleFeature tweetSft = twitterSftBuilder.buildFeature(tweetId);
             // LOGGER.warn(tweetSft.toString());
 
-            featureData.add(new GeoWaveData<SimpleFeature>(TwitterUtils.TWITTER_SFT_NAME,
-                indexNames, tweetSft));
+            featureData.add(new GeoWaveData<>(TwitterUtils.TWITTER_SFT_NAME, indexNames, tweetSft));
           } catch (final Exception e) {
 
             LOGGER.error("Error parsing line: " + line, e);
             continue;
           } finally {
-            if (sr != null)
+            if (sr != null) {
               sr.close();
-            if (jsonReader != null)
+            }
+            if (jsonReader != null) {
               jsonReader.close();
+            }
           }
         }
 
@@ -252,7 +260,7 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
     } catch (final IOException e) {
       LOGGER.error("Failed to read gz entry: " + hfile.getOriginalFilePath(), e);
     }
-    return new CloseableIterator.Wrapper<GeoWaveData<SimpleFeature>>(featureData.iterator());
+    return new CloseableIterator.Wrapper<>(featureData.iterator());
   }
 
   @Override
@@ -261,12 +269,12 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
   }
 
   @Override
-  public IngestPluginBase<WholeFile, SimpleFeature> getIngestWithAvroPlugin() {
+  public IngestPluginBase<AvroWholeFile, SimpleFeature> getIngestWithAvroPlugin() {
     return new IngestTwitterFromHdfs(this);
   }
 
   public static class IngestTwitterFromHdfs
-      extends AbstractIngestSimpleFeatureWithMapper<WholeFile> {
+      extends AbstractIngestSimpleFeatureWithMapper<AvroWholeFile> {
     public IngestTwitterFromHdfs() {
       this(new TwitterIngestPlugin());
     }

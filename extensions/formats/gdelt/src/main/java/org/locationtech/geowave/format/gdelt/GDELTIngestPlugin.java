@@ -9,8 +9,6 @@
  */
 package org.locationtech.geowave.format.gdelt;
 
-import com.google.common.collect.Iterators;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -32,7 +30,7 @@ import org.locationtech.geowave.adapter.vector.util.SimpleFeatureUserDataConfigu
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.dimension.Time;
 import org.locationtech.geowave.core.index.StringUtils;
-import org.locationtech.geowave.core.ingest.avro.WholeFile;
+import org.locationtech.geowave.core.ingest.avro.AvroWholeFile;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithMapper;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithReducer;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -46,10 +44,12 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.Iterators;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /*
  */
-public class GDELTIngestPlugin extends AbstractSimpleFeatureIngestPlugin<WholeFile> {
+public class GDELTIngestPlugin extends AbstractSimpleFeatureIngestPlugin<AvroWholeFile> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GDELTIngestPlugin.class);
 
@@ -101,12 +101,12 @@ public class GDELTIngestPlugin extends AbstractSimpleFeatureIngestPlugin<WholeFi
 
   @Override
   public Schema getAvroSchema() {
-    return WholeFile.getClassSchema();
+    return AvroWholeFile.getClassSchema();
   }
 
   @Override
-  public CloseableIterator<WholeFile> toAvroObjects(final URL input) {
-    final WholeFile avroFile = new WholeFile();
+  public CloseableIterator<AvroWholeFile> toAvroObjects(final URL input) {
+    final AvroWholeFile avroFile = new AvroWholeFile();
     avroFile.setOriginalFilePath(input.getPath());
     try {
       avroFile.setOriginalFile(ByteBuffer.wrap(IOUtils.toByteArray(input)));
@@ -124,12 +124,12 @@ public class GDELTIngestPlugin extends AbstractSimpleFeatureIngestPlugin<WholeFi
   }
 
   @Override
-  public IngestWithMapper<WholeFile, SimpleFeature> ingestWithMapper() {
+  public IngestWithMapper<AvroWholeFile, SimpleFeature> ingestWithMapper() {
     return new IngestGDELTFromHdfs(this);
   }
 
   @Override
-  public IngestWithReducer<WholeFile, ?, ?, SimpleFeature> ingestWithReducer() {
+  public IngestWithReducer<AvroWholeFile, ?, ?, SimpleFeature> ingestWithReducer() {
     // unsupported right now
     throw new UnsupportedOperationException("GDELT events cannot be ingested with a reducer");
   }
@@ -138,7 +138,7 @@ public class GDELTIngestPlugin extends AbstractSimpleFeatureIngestPlugin<WholeFi
   @SuppressFBWarnings(value = {"REC_CATCH_EXCEPTION"},
       justification = "Intentionally catching any possible exception as there may be unknown format issues in a file and we don't want to error partially through parsing")
   protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-      final WholeFile hfile, final String[] indexNames, final String globalVisibility) {
+      final AvroWholeFile hfile, final String[] indexNames, final String globalVisibility) {
 
     final List<GeoWaveData<SimpleFeature>> featureData = new ArrayList<>();
 
@@ -307,11 +307,12 @@ public class GDELTIngestPlugin extends AbstractSimpleFeatureIngestPlugin<WholeFi
   }
 
   @Override
-  public IngestPluginBase<WholeFile, SimpleFeature> getIngestWithAvroPlugin() {
+  public IngestPluginBase<AvroWholeFile, SimpleFeature> getIngestWithAvroPlugin() {
     return new IngestGDELTFromHdfs(this);
   }
 
-  public static class IngestGDELTFromHdfs extends AbstractIngestSimpleFeatureWithMapper<WholeFile> {
+  public static class IngestGDELTFromHdfs
+      extends AbstractIngestSimpleFeatureWithMapper<AvroWholeFile> {
     public IngestGDELTFromHdfs() {
       this(new GDELTIngestPlugin());
     }

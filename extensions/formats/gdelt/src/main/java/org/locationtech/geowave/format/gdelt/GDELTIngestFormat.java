@@ -12,7 +12,7 @@ package org.locationtech.geowave.format.gdelt;
 import org.locationtech.geowave.adapter.vector.ingest.AbstractSimpleFeatureIngestFormat;
 import org.locationtech.geowave.adapter.vector.ingest.AbstractSimpleFeatureIngestPlugin;
 import org.locationtech.geowave.adapter.vector.ingest.DataSchemaOptionProvider;
-import org.locationtech.geowave.core.ingest.avro.WholeFile;
+import org.locationtech.geowave.core.ingest.avro.AvroWholeFile;
 import org.locationtech.geowave.core.store.ingest.IngestFormatOptions;
 
 /**
@@ -20,13 +20,13 @@ import org.locationtech.geowave.core.store.ingest.IngestFormatOptions;
  * directly from a local file system or staging data from a local files system and ingesting into
  * GeoWave using a map-reduce job.
  */
-public class GDELTIngestFormat extends AbstractSimpleFeatureIngestFormat<WholeFile> {
+public class GDELTIngestFormat extends AbstractSimpleFeatureIngestFormat<AvroWholeFile> {
 
   protected final DataSchemaOptionProvider dataSchemaOptionProvider =
       new DataSchemaOptionProvider();
 
   @Override
-  protected AbstractSimpleFeatureIngestPlugin<WholeFile> newPluginInstance(
+  protected AbstractSimpleFeatureIngestPlugin<AvroWholeFile> newPluginInstance(
       IngestFormatOptions options) {
     return new GDELTIngestPlugin(dataSchemaOptionProvider);
   }

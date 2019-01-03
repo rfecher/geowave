@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -11,7 +12,6 @@ package org.locationtech.geowave.adapter.vector;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -82,27 +82,20 @@ public class AvroFeatureDataAdapterTest {
       time1 = DateUtilities.parseISO("2005-05-19T18:33:55Z");
       time2 = DateUtilities.parseISO("2005-05-19T19:33:55Z");
 
-      schema =
-          DataUtilities.createType(
-              "sp.geostuff",
-              "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,whennot:Date,pid:String"); // typeBuilder.buildFeatureType();
+      schema = DataUtilities.createType("sp.geostuff",
+          "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,whennot:Date,pid:String"); // typeBuilder.buildFeatureType();
 
-      newFeature =
-          FeatureDataUtils.buildFeature(
-              schema,
-              new Pair[] {
-                Pair.of("geometry", factory.createPoint(new Coordinate(27.25, 41.25))),
-                Pair.of("pop", Long.valueOf(100)),
-                Pair.of("when", time1),
-                Pair.of("whennot", time2)
-              });
+      newFeature = FeatureDataUtils.buildFeature(schema,
+          new Pair[] {Pair.of("geometry", factory.createPoint(new Coordinate(27.25, 41.25))),
+              Pair.of("pop", Long.valueOf(100)), Pair.of("when", time1),
+              Pair.of("whennot", time2)});
     } catch (final Exception e) {
       e.printStackTrace();
     }
   }
 
-  private static void ingestCannedData(
-      final FeatureDataAdapter adapter, final List<SimpleFeature> data) throws IOException {
+  private static void ingestCannedData(final FeatureDataAdapter adapter,
+      final List<SimpleFeature> data) throws IOException {
 
     final Index index = new SpatialIndexBuilder().createIndex();
     adapter.init(index);
@@ -119,7 +112,7 @@ public class AvroFeatureDataAdapterTest {
   @Test
   public void basicTest() throws Exception {
 
-    final AvroFeatureDataAdapter adapter = new AvroFeatureDataAdapter(schema);
+    final GeoWaveAvroFeatureDataAdapter adapter = new GeoWaveAvroFeatureDataAdapter(schema);
 
     final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
     final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(schema);
@@ -153,12 +146,8 @@ public class AvroFeatureDataAdapterTest {
     // read data using the whole feature data adapter
     VectorQueryBuilder bldr =
         VectorQueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(INDEX_NAME);
-    bldr =
-        bldr.constraints(
-            bldr.constraintsFactory()
-                .spatialTemporalConstraints()
-                .spatialConstraints(new GeometryFactory().createPolygon(coordArray))
-                .build());
+    bldr = bldr.constraints(bldr.constraintsFactory().spatialTemporalConstraints()
+        .spatialConstraints(new GeometryFactory().createPolygon(coordArray)).build());
     try (final CloseableIterator<SimpleFeature> itr = dataStore.query(bldr.build())) {
 
       while (itr.hasNext()) {
@@ -176,56 +165,40 @@ public class AvroFeatureDataAdapterTest {
     final SimpleFeatureType schema =
         DataUtilities.createType("sp.geostuff", "geometry:Geometry:srid=4326,pop:java.lang.Long");
 
-    final AvroFeatureDataAdapter dataAdapter =
-        new AvroFeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final GeoWaveAvroFeatureDataAdapter dataAdapter = new GeoWaveAvroFeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index index = new SpatialIndexBuilder().createIndex();
     dataAdapter.init(index);
     final CoordinateReferenceSystem crs =
         dataAdapter.getFeatureType().getCoordinateReferenceSystem();
     assertTrue(crs.getIdentifiers().toString().contains("EPSG:4326"));
     @SuppressWarnings("unchecked")
-    final SimpleFeature originalFeature =
-        FeatureDataUtils.buildFeature(
-            schema,
-            new Pair[] {
-              Pair.of("geometry", factory.createPoint(new Coordinate(27.25, 41.25))),
-              Pair.of("pop", Long.valueOf(100))
-            });
+    final SimpleFeature originalFeature = FeatureDataUtils.buildFeature(schema,
+        new Pair[] {Pair.of("geometry", factory.createPoint(new Coordinate(27.25, 41.25))),
+            Pair.of("pop", Long.valueOf(100))});
 
-    final AdapterPersistenceEncoding persistenceEncoding =
-        dataAdapter.encode(
-            originalFeature, new SpatialIndexBuilder().createIndex().getIndexModel());
+    final AdapterPersistenceEncoding persistenceEncoding = dataAdapter.encode(originalFeature,
+        new SpatialIndexBuilder().createIndex().getIndexModel());
 
     final IndexedAdapterPersistenceEncoding encoding =
-        new IndexedAdapterPersistenceEncoding(
-            (short) 1,
-            persistenceEncoding.getDataId(),
-            null,
-            null,
-            1,
-            persistenceEncoding.getCommonData(),
-            new PersistentDataset<byte[]>(),
+        new IndexedAdapterPersistenceEncoding((short) 1, persistenceEncoding.getDataId(), null,
+            null, 1, persistenceEncoding.getCommonData(), new PersistentDataset<byte[]>(),
             persistenceEncoding.getAdapterExtendedData());
 
-    final SimpleFeature decodedFeature =
-        dataAdapter.decode(
-            encoding,
-            new PrimaryIndex(
-                null, // because
-                // we
-                // know
-                // the
-                // feature
-                // data
-                // adapter
-                // doesn't use the numeric index strategy
-                // and only the common index model to decode
-                // the simple feature, we pass along a null
-                // strategy to eliminate the necessity to
-                // send a serialization of the strategy in
-                // the options of this iterator
-                new SpatialIndexBuilder().createIndex().getIndexModel()));
+    final SimpleFeature decodedFeature = dataAdapter.decode(encoding, new PrimaryIndex(null, // because
+        // we
+        // know
+        // the
+        // feature
+        // data
+        // adapter
+        // doesn't use the numeric index strategy
+        // and only the common index model to decode
+        // the simple feature, we pass along a null
+        // strategy to eliminate the necessity to
+        // send a serialization of the strategy in
+        // the options of this iterator
+        new SpatialIndexBuilder().createIndex().getIndexModel()));
 
     assertTrue(originalFeature.getID().equals(decodedFeature.getID()));
     assertTrue(originalFeature.getAttributeCount() == decodedFeature.getAttributeCount());
@@ -239,35 +212,27 @@ public class AvroFeatureDataAdapterTest {
     schema.getDescriptor("when").getUserData().clear();
     schema.getDescriptor("whennot").getUserData().put("time", Boolean.TRUE);
 
-    final AvroFeatureDataAdapter dataAdapter =
-        new AvroFeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final GeoWaveAvroFeatureDataAdapter dataAdapter = new GeoWaveAvroFeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index index = new SpatialIndexBuilder().createIndex();
     dataAdapter.init(index);
     final byte[] binary = dataAdapter.toBinary();
 
-    final AvroFeatureDataAdapter dataAdapterCopy = new AvroFeatureDataAdapter();
+    final GeoWaveAvroFeatureDataAdapter dataAdapterCopy = new GeoWaveAvroFeatureDataAdapter();
     dataAdapterCopy.fromBinary(binary);
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("whennot").getUserData().get("time"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapterCopy.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
-      found |=
-          ((handler instanceof FeatureTimestampHandler)
-              && ((((FeatureTimestampHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMin()
-                      - time2.getTime())
-                  < 0.001));
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
+      found |= ((handler instanceof FeatureTimestampHandler)
+          && ((((FeatureTimestampHandler) handler).toIndexValue(newFeature).toNumericData().getMin()
+              - time2.getTime()) < 0.001));
     }
 
     assertTrue(found);
@@ -278,20 +243,18 @@ public class AvroFeatureDataAdapterTest {
     schema.getDescriptor("pid").getUserData().clear();
     schema.getDescriptor("pid").getUserData().put("visibility", Boolean.TRUE);
 
-    final AvroFeatureDataAdapter dataAdapter =
-        new AvroFeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final GeoWaveAvroFeatureDataAdapter dataAdapter = new GeoWaveAvroFeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index index = new SpatialIndexBuilder().createIndex();
     dataAdapter.init(index);
     final byte[] binary = dataAdapter.toBinary();
 
-    final AvroFeatureDataAdapter dataAdapterCopy = new AvroFeatureDataAdapter();
+    final GeoWaveAvroFeatureDataAdapter dataAdapterCopy = new GeoWaveAvroFeatureDataAdapter();
     dataAdapterCopy.fromBinary(binary);
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("pid").getUserData().get("visibility"));
   }
 
@@ -302,15 +265,13 @@ public class AvroFeatureDataAdapterTest {
     schema.getDescriptor("when").getUserData().put("time", Boolean.FALSE);
     schema.getDescriptor("whennot").getUserData().put("time", Boolean.FALSE);
 
-    final AvroFeatureDataAdapter dataAdapter =
-        new AvroFeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final GeoWaveAvroFeatureDataAdapter dataAdapter = new GeoWaveAvroFeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapter.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
       found |= (handler instanceof FeatureTimestampHandler);
     }
 
@@ -323,35 +284,27 @@ public class AvroFeatureDataAdapterTest {
     schema.getDescriptor("when").getUserData().clear();
     schema.getDescriptor("whennot").getUserData().clear();
 
-    final AvroFeatureDataAdapter dataAdapter =
-        new AvroFeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final GeoWaveAvroFeatureDataAdapter dataAdapter = new GeoWaveAvroFeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index index = new SpatialIndexBuilder().createIndex();
     dataAdapter.init(index);
     final byte[] binary = dataAdapter.toBinary();
 
-    final AvroFeatureDataAdapter dataAdapterCopy = new AvroFeatureDataAdapter();
+    final GeoWaveAvroFeatureDataAdapter dataAdapterCopy = new GeoWaveAvroFeatureDataAdapter();
     dataAdapterCopy.fromBinary(binary);
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("when").getUserData().get("time"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapterCopy.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
-      found |=
-          ((handler instanceof FeatureTimestampHandler)
-              && ((((FeatureTimestampHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMin()
-                      - time1.getTime())
-                  < 0.001));
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
+      found |= ((handler instanceof FeatureTimestampHandler)
+          && ((((FeatureTimestampHandler) handler).toIndexValue(newFeature).toNumericData().getMin()
+              - time1.getTime()) < 0.001));
     }
 
     assertTrue(found);
@@ -366,44 +319,31 @@ public class AvroFeatureDataAdapterTest {
     schema.getDescriptor("when").getUserData().put("start", Boolean.TRUE);
     schema.getDescriptor("whennot").getUserData().put("end", Boolean.TRUE);
 
-    final AvroFeatureDataAdapter dataAdapter =
-        new AvroFeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final GeoWaveAvroFeatureDataAdapter dataAdapter = new GeoWaveAvroFeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index index = new SpatialIndexBuilder().createIndex();
     dataAdapter.init(index);
     final byte[] binary = dataAdapter.toBinary();
 
-    final AvroFeatureDataAdapter dataAdapterCopy = new AvroFeatureDataAdapter();
+    final GeoWaveAvroFeatureDataAdapter dataAdapterCopy = new GeoWaveAvroFeatureDataAdapter();
     dataAdapterCopy.fromBinary(binary);
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("whennot").getUserData().get("end"));
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("when").getUserData().get("start"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapterCopy.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
-      found |=
-          ((handler instanceof FeatureTimeRangeHandler)
-              && ((((FeatureTimeRangeHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMin()
-                      - time1.getTime())
-                  < 0.001)
-              && ((((FeatureTimeRangeHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMax()
-                      - time2.getTime())
-                  < 0.001));
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
+      found |= ((handler instanceof FeatureTimeRangeHandler)
+          && ((((FeatureTimeRangeHandler) handler).toIndexValue(newFeature).toNumericData().getMin()
+              - time1.getTime()) < 0.001)
+          && ((((FeatureTimeRangeHandler) handler).toIndexValue(newFeature).toNumericData().getMax()
+              - time2.getTime()) < 0.001));
     }
 
     assertTrue(found);
@@ -412,10 +352,8 @@ public class AvroFeatureDataAdapterTest {
   @Test
   public void testInferredRange() throws SchemaException {
 
-    final SimpleFeatureType schema =
-        DataUtilities.createType(
-            "sp.geostuff",
-            "geometry:Geometry:srid=4326,pop:java.lang.Long,start:Date,end:Date,pid:String");
+    final SimpleFeatureType schema = DataUtilities.createType("sp.geostuff",
+        "geometry:Geometry:srid=4326,pop:java.lang.Long,start:Date,end:Date,pid:String");
 
     final List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
     final Object[] defaults = new Object[descriptors.size()];
@@ -433,44 +371,31 @@ public class AvroFeatureDataAdapterTest {
     newFeature.setAttribute("end", time2);
     newFeature.setAttribute("geometry", factory.createPoint(new Coordinate(27.25, 41.25)));
 
-    final AvroFeatureDataAdapter dataAdapter =
-        new AvroFeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final GeoWaveAvroFeatureDataAdapter dataAdapter = new GeoWaveAvroFeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index index = new SpatialIndexBuilder().createIndex();
     dataAdapter.init(index);
     final byte[] binary = dataAdapter.toBinary();
 
-    final AvroFeatureDataAdapter dataAdapterCopy = new AvroFeatureDataAdapter();
+    final GeoWaveAvroFeatureDataAdapter dataAdapterCopy = new GeoWaveAvroFeatureDataAdapter();
     dataAdapterCopy.fromBinary(binary);
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("end").getUserData().get("end"));
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("start").getUserData().get("start"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapterCopy.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
-      found |=
-          ((handler instanceof FeatureTimeRangeHandler)
-              && ((((FeatureTimeRangeHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMin()
-                      - time1.getTime())
-                  < 0.001)
-              && ((((FeatureTimeRangeHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMax()
-                      - time2.getTime())
-                  < 0.001));
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
+      found |= ((handler instanceof FeatureTimeRangeHandler)
+          && ((((FeatureTimeRangeHandler) handler).toIndexValue(newFeature).toNumericData().getMin()
+              - time1.getTime()) < 0.001)
+          && ((((FeatureTimeRangeHandler) handler).toIndexValue(newFeature).toNumericData().getMax()
+              - time2.getTime()) < 0.001));
     }
 
     assertTrue(found);
@@ -491,15 +416,13 @@ public class AvroFeatureDataAdapterTest {
     // build the type
     final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(typeBuilder.buildFeatureType());
 
-    final AvroFeatureDataAdapter dataAdapter =
-        new AvroFeatureDataAdapter(
-            builder.getFeatureType(),
-            new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final GeoWaveAvroFeatureDataAdapter dataAdapter = new GeoWaveAvroFeatureDataAdapter(builder.getFeatureType(),
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index index = new SpatialIndexBuilder().createIndex();
     dataAdapter.init(index);
     final byte[] binary = dataAdapter.toBinary();
 
-    final AvroFeatureDataAdapter dataAdapterCopy = new AvroFeatureDataAdapter();
+    final GeoWaveAvroFeatureDataAdapter dataAdapterCopy = new GeoWaveAvroFeatureDataAdapter();
     dataAdapterCopy.fromBinary(binary);
 
     assertEquals(

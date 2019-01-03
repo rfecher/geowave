@@ -9,7 +9,7 @@
  */
 package org.locationtech.geowave.format.geotools.vector;
 
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
 import org.locationtech.geowave.core.ingest.spi.IngestFormatPluginProviderSpi;
 import org.locationtech.geowave.core.store.ingest.IngestFormatOptions;
@@ -24,7 +24,7 @@ import org.opengis.feature.simple.SimpleFeature;
 public class GeoToolsVectorDataStoreIngestFormat
     implements IngestFormatPluginProviderSpi<Object, SimpleFeature> {
   @Override
-  public AvroFormatPlugin<Object, SimpleFeature> createAvroFormatPlugin(
+  public GeoWaveAvroFormatPlugin<Object, SimpleFeature> createAvroFormatPlugin(
       IngestFormatOptions options) {
     // unsupported right now
     throw new UnsupportedOperationException(

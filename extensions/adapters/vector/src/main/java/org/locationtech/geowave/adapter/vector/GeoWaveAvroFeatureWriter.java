@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,16 +24,16 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AvroFeatureWriter implements FieldWriter<SimpleFeature, Object> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AvroFeatureWriter.class);
+public class GeoWaveAvroFeatureWriter implements FieldWriter<SimpleFeature, Object> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveAvroFeatureWriter.class);
 
   private final EncoderFactory ef = EncoderFactory.get();
 
   private final SpecificDatumWriter<AvroSimpleFeature> datumWriter = new SpecificDatumWriter<>();
 
   @Override
-  public byte[] getVisibility(
-      final SimpleFeature rowValue, final String fieldName, final Object fieldValue) {
+  public byte[] getVisibility(final SimpleFeature rowValue, final String fieldName,
+      final Object fieldValue) {
     return new byte[] {};
   }
 
@@ -43,11 +44,8 @@ public class AvroFeatureWriter implements FieldWriter<SimpleFeature, Object> {
       serializedAttributes = serializeAvroSimpleFeature((SimpleFeature) fieldValue, null, null, "");
     } catch (final IOException e) {
       e.printStackTrace();
-      LOGGER.error(
-          "Error, failed to serialize SimpleFeature with id '"
-              + ((SimpleFeature) fieldValue).getID()
-              + "'",
-          e);
+      LOGGER.error("Error, failed to serialize SimpleFeature with id '"
+          + ((SimpleFeature) fieldValue).getID() + "'", e);
     }
 
     // there is no need to preface the payload with the class name and a
@@ -79,20 +77,17 @@ public class AvroFeatureWriter implements FieldWriter<SimpleFeature, Object> {
    *
    * @param sf Simple Feature to be serialized
    * @param avroObjectToReuse null or AvroSimpleFeature instance to be re-used. If null a new
-   *     instance will be allocated
+   *        instance will be allocated
    * @param defaultClassifications null map of attribute names vs. classification. if null all
-   *     values will be set to the default classification
+   *        values will be set to the default classification
    * @param defaultClassification null or default classification. if null and defaultClassifications
-   *     are not provided an exception will be thrown
+   *        are not provided an exception will be thrown
    * @return
    * @throws IOException
    */
-  public byte[] serializeAvroSimpleFeature(
-      final SimpleFeature sf,
-      AvroSimpleFeature avroObjectToReuse,
-      final Map<String, String> defaultClassifications,
-      final String defaultClassification)
-      throws IOException {
+  public byte[] serializeAvroSimpleFeature(final SimpleFeature sf,
+      AvroSimpleFeature avroObjectToReuse, final Map<String, String> defaultClassifications,
+      final String defaultClassification) throws IOException {
     if (sf == null) {
       throw new IOException("Feature cannot be null");
     }
@@ -107,12 +102,11 @@ public class AvroFeatureWriter implements FieldWriter<SimpleFeature, Object> {
       avroObjectToReuse = new AvroSimpleFeature();
     }
 
-    final AvroFeatureDefinition fd =
-        AvroFeatureUtils.buildFeatureDefinition(
-            avroObjectToReuse.getFeatureType(), sft, defaultClassifications, defaultClassification);
+    final AvroFeatureDefinition fd = GeoWaveAvroFeatureUtils.buildFeatureDefinition(
+        avroObjectToReuse.getFeatureType(), sft, defaultClassifications, defaultClassification);
     avroObjectToReuse.setFeatureType(fd);
 
-    final AvroAttributeValues av = AvroFeatureUtils.buildAttributeValue(sf, sft);
+    final AvroAttributeValues av = GeoWaveAvroFeatureUtils.buildAttributeValue(sf, sft);
     avroObjectToReuse.setValue(av);
 
     return serializeAvroSimpleFeature(avroObjectToReuse);

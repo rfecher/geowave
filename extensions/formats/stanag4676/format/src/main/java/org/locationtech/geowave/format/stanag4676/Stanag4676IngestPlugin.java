@@ -9,7 +9,6 @@
  */
 package org.locationtech.geowave.format.stanag4676;
 
-import com.google.common.collect.Iterators;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -33,7 +32,7 @@ import org.locationtech.geowave.core.geotime.store.dimension.Time;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.FloatCompareUtils;
 import org.locationtech.geowave.core.ingest.avro.AbstractStageWholeFileToAvro;
-import org.locationtech.geowave.core.ingest.avro.WholeFile;
+import org.locationtech.geowave.core.ingest.avro.AvroWholeFile;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithMapper;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithReducer;
@@ -60,9 +59,10 @@ import org.locationtech.jts.geom.LineString;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.Iterators;
 
 public class Stanag4676IngestPlugin extends AbstractStageWholeFileToAvro<Object>
-    implements IngestFromHdfsPlugin<WholeFile, Object>, LocalFileIngestPlugin<Object> {
+    implements IngestFromHdfsPlugin<AvroWholeFile, Object>, LocalFileIngestPlugin<Object> {
   private static Logger LOGGER = LoggerFactory.getLogger(Stanag4676IngestPlugin.class);
   public static final Index IMAGE_CHIP_INDEX = new NullIndex("IMAGERY_CHIPS");
 
@@ -97,12 +97,12 @@ public class Stanag4676IngestPlugin extends AbstractStageWholeFileToAvro<Object>
   }
 
   @Override
-  public IngestWithMapper<WholeFile, Object> ingestWithMapper() {
+  public IngestWithMapper<AvroWholeFile, Object> ingestWithMapper() {
     return new IngestWithReducerImpl();
   }
 
   @Override
-  public IngestWithReducer<WholeFile, ?, ?, Object> ingestWithReducer() {
+  public IngestWithReducer<AvroWholeFile, ?, ?, Object> ingestWithReducer() {
     return new IngestWithReducerImpl();
   }
 
@@ -119,8 +119,8 @@ public class Stanag4676IngestPlugin extends AbstractStageWholeFileToAvro<Object>
   }
 
   public static class IngestWithReducerImpl
-      implements IngestWithReducer<WholeFile, Text, Stanag4676EventWritable, Object>,
-      IngestWithMapper<WholeFile, Object> {
+      implements IngestWithReducer<AvroWholeFile, Text, Stanag4676EventWritable, Object>,
+      IngestWithMapper<AvroWholeFile, Object> {
     private final SimpleFeatureBuilder ptBuilder;
 
     private final SimpleFeatureBuilder motionBuilder;
@@ -193,7 +193,7 @@ public class Stanag4676IngestPlugin extends AbstractStageWholeFileToAvro<Object>
 
     @Override
     public CloseableIterator<KeyValueData<Text, Stanag4676EventWritable>> toIntermediateMapReduceData(
-        final WholeFile input) {
+        final AvroWholeFile input) {
       final TrackFileReader fileReader = new TrackFileReader();
       fileReader.setDecoder(new NATO4676Decoder());
       fileReader.setStreaming(true);
@@ -532,7 +532,7 @@ public class Stanag4676IngestPlugin extends AbstractStageWholeFileToAvro<Object>
     }
 
     @Override
-    public CloseableIterator<GeoWaveData<Object>> toGeoWaveData(final WholeFile input,
+    public CloseableIterator<GeoWaveData<Object>> toGeoWaveData(final AvroWholeFile input,
         final String[] indexNames, final String globalVisibility) {
       try (CloseableIterator<KeyValueData<Text, Stanag4676EventWritable>> intermediateData =
           toIntermediateMapReduceData(input)) {
@@ -564,7 +564,7 @@ public class Stanag4676IngestPlugin extends AbstractStageWholeFileToAvro<Object>
   }
 
   @Override
-  public IngestPluginBase<WholeFile, Object> getIngestWithAvroPlugin() {
+  public IngestPluginBase<AvroWholeFile, Object> getIngestWithAvroPlugin() {
     return ingestWithMapper();
   }
 

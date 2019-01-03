@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.locationtech.geowave.core.cli.api.DefaultPluginOptions;
 import org.locationtech.geowave.core.cli.api.PluginOptions;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
 import org.locationtech.geowave.core.ingest.local.LocalFileIngestDriver;
 import org.locationtech.geowave.core.ingest.spi.IngestFormatPluginProviderSpi;
@@ -127,13 +127,13 @@ public class IngestFormatPluginOptions extends DefaultPluginOptions implements P
     return ingestPlugins;
   }
 
-  public Map<String, AvroFormatPlugin<?, ?>> createAvroPlugins() {
-    Map<String, AvroFormatPlugin<?, ?>> ingestPlugins =
-        new HashMap<String, AvroFormatPlugin<?, ?>>();
+  public Map<String, GeoWaveAvroFormatPlugin<?, ?>> createAvroPlugins() {
+    Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins =
+        new HashMap<String, GeoWaveAvroFormatPlugin<?, ?>>();
     for (Entry<String, IngestFormatPluginProviderSpi<?, ?>> entry : plugins.entrySet()) {
       IngestFormatPluginProviderSpi<?, ?> formatPlugin = entry.getValue();
       IngestFormatOptions formatOptions = options.get(entry.getKey());
-      AvroFormatPlugin<?, ?> plugin = null;
+      GeoWaveAvroFormatPlugin<?, ?> plugin = null;
       try {
         plugin = formatPlugin.createAvroFormatPlugin(formatOptions);
         if (plugin == null) {

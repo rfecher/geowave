@@ -9,7 +9,7 @@
  */
 package org.locationtech.geowave.format.geotools.raster;
 
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
 import org.locationtech.geowave.core.ingest.spi.IngestFormatPluginProviderSpi;
 import org.locationtech.geowave.core.store.ingest.IngestFormatOptions;
@@ -25,8 +25,8 @@ public class GeoToolsRasterDataStoreIngestFormat
   private final RasterOptionProvider optionProvider = new RasterOptionProvider();
 
   @Override
-  public AvroFormatPlugin<Object, GridCoverage> createAvroFormatPlugin(IngestFormatOptions options)
-      throws UnsupportedOperationException {
+  public GeoWaveAvroFormatPlugin<Object, GridCoverage> createAvroFormatPlugin(
+      IngestFormatOptions options) throws UnsupportedOperationException {
     // unsupported right now
     throw new UnsupportedOperationException(
         "GeoTools raster files cannot be ingested using intermediate avro files");

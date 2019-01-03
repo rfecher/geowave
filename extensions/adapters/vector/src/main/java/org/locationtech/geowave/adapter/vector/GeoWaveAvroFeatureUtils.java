@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,7 +36,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
-public class AvroFeatureUtils {
+public class GeoWaveAvroFeatureUtils {
   private static final TWKBWriter WKB_WRITER = new TWKBWriter();
 
   private static final DecoderFactory DECODER_FACTORY = DecoderFactory.get();
@@ -43,7 +44,7 @@ public class AvroFeatureUtils {
       new SpecificDatumReader<>(AvroSimpleFeature.getClassSchema());
   private static final TWKBReader WKB_READER = new TWKBReader();
 
-  private AvroFeatureUtils() {}
+  private GeoWaveAvroFeatureUtils() {}
 
   /**
    * Add the attributes, types and classifications for the SimpleFeatureType to the provided
@@ -56,12 +57,9 @@ public class AvroFeatureUtils {
    * @return
    * @throws IOException
    */
-  public static AvroFeatureDefinition buildFeatureDefinition(
-      AvroFeatureDefinition fd,
-      final SimpleFeatureType sft,
-      final Map<String, String> defaultClassifications,
-      final String defaultClassification)
-      throws IOException {
+  public static AvroFeatureDefinition buildFeatureDefinition(AvroFeatureDefinition fd,
+      final SimpleFeatureType sft, final Map<String, String> defaultClassifications,
+      final String defaultClassification) throws IOException {
     if (fd == null) {
       fd = new AvroFeatureDefinition();
     }
@@ -76,8 +74,8 @@ public class AvroFeatureUtils {
 
       attributes.add(localName);
       types.add(attr.getType().getBinding().getCanonicalName());
-      classifications.add(
-          getClassification(localName, defaultClassifications, defaultClassification));
+      classifications
+          .add(getClassification(localName, defaultClassifications, defaultClassification));
     }
 
     fd.setAttributeNames(attributes);
@@ -94,14 +92,12 @@ public class AvroFeatureUtils {
    * @param localName - attribute name
    * @param defaultClassifications - map of attribute names to classification
    * @param defaultClassification - default classification to use if one is not mapped for the name
-   *     provided
+   *        provided
    * @return
    * @throws IOException
    */
-  private static String getClassification(
-      final String localName,
-      final Map<String, String> defaultClassifications,
-      final String defaultClassification)
+  private static String getClassification(final String localName,
+      final Map<String, String> defaultClassifications, final String defaultClassification)
       throws IOException {
     String classification;
 
@@ -112,10 +108,8 @@ public class AvroFeatureUtils {
     }
 
     if (classification == null) {
-      throw new IOException(
-          "No default classification was provided, and no classification for: '"
-              + localName
-              + "' was provided");
+      throw new IOException("No default classification was provided, and no classification for: '"
+          + localName + "' was provided");
     }
 
     return classification;
@@ -128,14 +122,14 @@ public class AvroFeatureUtils {
    * @param sft
    * @return
    */
-  public static synchronized AvroAttributeValues buildAttributeValue(
-      final SimpleFeature sf, final SimpleFeatureType sft) {
+  public static synchronized AvroAttributeValues buildAttributeValue(final SimpleFeature sf,
+      final SimpleFeatureType sft) {
     final AvroAttributeValues attributeValue = new AvroAttributeValues();
 
     final List<ByteBuffer> values = new ArrayList<>(sft.getAttributeCount());
 
-    attributeValue.setSerializationVersion(
-        ByteBuffer.wrap(new byte[] {FieldUtils.SERIALIZATION_VERSION}));
+    attributeValue
+        .setSerializationVersion(ByteBuffer.wrap(new byte[] {FieldUtils.SERIALIZATION_VERSION}));
 
     attributeValue.setFid(sf.getID());
 
@@ -171,8 +165,7 @@ public class AvroFeatureUtils {
     final AvroFeatureDefinition featureDefinition = sfc.getFeatureType();
     return avroSimpleFeatureToGTSimpleFeature(
         avroFeatureDefinitionToGTSimpleFeatureType(featureDefinition),
-        featureDefinition.getAttributeTypes(),
-        sfc.getValue());
+        featureDefinition.getAttributeTypes(), sfc.getValue());
   }
 
   public static SimpleFeatureType avroFeatureDefinitionToGTSimpleFeatureType(
@@ -191,10 +184,8 @@ public class AvroFeatureUtils {
     return sftb.buildFeatureType();
   }
 
-  public static SimpleFeature avroSimpleFeatureToGTSimpleFeature(
-      final SimpleFeatureType type,
-      final List<String> attributeTypes,
-      final AvroAttributeValues attributeValues)
+  public static SimpleFeature avroSimpleFeatureToGTSimpleFeature(final SimpleFeatureType type,
+      final List<String> attributeTypes, final AvroAttributeValues attributeValues)
       throws IOException, ClassNotFoundException, ParseException {
     // Convert
     SimpleFeature simpleFeature;
@@ -218,9 +209,8 @@ public class AvroFeatureUtils {
           sfb.add(WKB_READER.read(val.array()));
         }
       } else {
-        final FieldReader<?> fr =
-            FieldUtils.getDefaultReaderForClass(
-                Class.forName(jtsCompatibility(attributeTypes.get(i))));
+        final FieldReader<?> fr = FieldUtils
+            .getDefaultReaderForClass(Class.forName(jtsCompatibility(attributeTypes.get(i))));
         sfb.add(fr.readField(val.array(), serializationVersion));
       }
     }
@@ -241,12 +231,12 @@ public class AvroFeatureUtils {
    *
    * @param avroData serialized bytes of AvroSimpleFeature
    * @param avroObjectToReuse null or AvroSimpleFeature instance to be re-used. If null a new object
-   *     will be allocated.
+   *        will be allocated.
    * @return instance of AvroSimpleFeature with values parsed from avroData
    * @throws IOException
    */
-  private static AvroSimpleFeature deserializeASF(
-      final byte[] avroData, AvroSimpleFeature avroObjectToReuse) throws IOException {
+  private static AvroSimpleFeature deserializeASF(final byte[] avroData,
+      AvroSimpleFeature avroObjectToReuse) throws IOException {
     final BinaryDecoder decoder = DECODER_FACTORY.binaryDecoder(avroData, null);
     if (avroObjectToReuse == null) {
       avroObjectToReuse = new AvroSimpleFeature();

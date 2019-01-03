@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -9,7 +10,6 @@
 package org.locationtech.geowave.format.avro;
 
 import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.net.URL;
 import org.apache.avro.file.DataFileStream;
@@ -24,7 +24,7 @@ import org.opengis.feature.simple.SimpleFeature;
 
 public class AVROIngestTest {
   private DataSchemaOptionProvider optionsProvider;
-  private AvroIngestPlugin ingester;
+  private GeoWaveAvroIngestPlugin ingester;
   private String filePath;
   private int expectedCount;
 
@@ -33,7 +33,7 @@ public class AVROIngestTest {
     optionsProvider = new DataSchemaOptionProvider();
     optionsProvider.setSupplementalFields(true);
 
-    ingester = new AvroIngestPlugin();
+    ingester = new GeoWaveAvroIngestPlugin();
     ingester.init(null);
 
     filePath = "tornado_tracksbasicIT-export.avro";
@@ -83,11 +83,9 @@ public class AVROIngestTest {
   }
 
   private boolean validate(final URL file) {
-    try (DataFileStream<AvroSimpleFeatureCollection> ds =
-        new DataFileStream<>(
-            file.openStream(),
-            new SpecificDatumReader<AvroSimpleFeatureCollection>(
-                AvroSimpleFeatureCollection.getClassSchema()))) {
+    try (DataFileStream<AvroSimpleFeatureCollection> ds = new DataFileStream<>(file.openStream(),
+        new SpecificDatumReader<AvroSimpleFeatureCollection>(
+            AvroSimpleFeatureCollection.getClassSchema()))) {
       if (ds.getHeader() != null) {
         return true;
       }

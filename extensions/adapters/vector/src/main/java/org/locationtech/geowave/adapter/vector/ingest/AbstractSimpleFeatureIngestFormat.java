@@ -9,7 +9,7 @@
  */
 package org.locationtech.geowave.adapter.vector.ingest;
 
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
 import org.locationtech.geowave.core.ingest.spi.IngestFormatPluginProviderSpi;
 import org.locationtech.geowave.core.store.ingest.IngestFormatOptions;
@@ -33,7 +33,8 @@ public abstract class AbstractSimpleFeatureIngestFormat<I>
       IngestFormatOptions options);
 
   @Override
-  public AvroFormatPlugin<I, SimpleFeature> createAvroFormatPlugin(IngestFormatOptions options) {
+  public GeoWaveAvroFormatPlugin<I, SimpleFeature> createAvroFormatPlugin(
+      IngestFormatOptions options) {
     return getInstance(options);
   }
 

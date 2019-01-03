@@ -15,7 +15,7 @@ import java.util.Properties;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.ProducerConfig;
 import org.apache.avro.specific.SpecificRecordBase;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +35,12 @@ public class StageKafkaData<T extends SpecificRecordBase> {
   }
 
   public Producer<String, T> getProducer(final String typeName,
-      final AvroFormatPlugin<?, ?> plugin) {
+      final GeoWaveAvroFormatPlugin<?, ?> plugin) {
     return getProducerCreateIfNull(typeName, plugin);
   }
 
   private synchronized Producer<String, T> getProducerCreateIfNull(final String typeName,
-      final AvroFormatPlugin<?, ?> plugin) {
+      final GeoWaveAvroFormatPlugin<?, ?> plugin) {
     if (!cachedProducers.containsKey(typeName)) {
       final ProducerConfig producerConfig = new ProducerConfig(properties);
 

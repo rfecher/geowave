@@ -17,7 +17,7 @@ import org.apache.avro.file.DataFileWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.local.AbstractLocalFileDriver;
 import org.locationtech.geowave.core.ingest.local.LocalInputCommandLineOptions;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
  * providers that are discovered through SPI.
  */
 public class StageToHdfsDriver
-    extends AbstractLocalFileDriver<AvroFormatPlugin<?, ?>, StageRunData> {
+    extends AbstractLocalFileDriver<GeoWaveAvroFormatPlugin<?, ?>, StageRunData> {
   private static final Logger LOGGER = LoggerFactory.getLogger(StageToHdfsDriver.class);
-  private final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins;
+  private final Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins;
   private final String hdfsHostPort;
   private final String basePath;
 
-  public StageToHdfsDriver(final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins,
+  public StageToHdfsDriver(final Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins,
       final String hdfsHostPort, final String basePath,
       final LocalInputCommandLineOptions inputOptions) {
     super(inputOptions);
@@ -46,7 +46,7 @@ public class StageToHdfsDriver
 
   @Override
   protected void processFile(final URL file, final String typeName,
-      final AvroFormatPlugin<?, ?> plugin, final StageRunData runData) {
+      final GeoWaveAvroFormatPlugin<?, ?> plugin, final StageRunData runData) {
     final DataFileWriter writer = runData.getWriter(typeName, plugin);
     if (writer != null) {
       try (final CloseableIterator<?> objs = plugin.toAvroObjects(file)) {
@@ -65,7 +65,7 @@ public class StageToHdfsDriver
   public boolean runOperation(final String inputPath, final File configFile) {
 
     // first collect the stage to hdfs plugins
-    final Map<String, AvroFormatPlugin<?, ?>> stageToHdfsPlugins = ingestPlugins;
+    final Map<String, GeoWaveAvroFormatPlugin<?, ?>> stageToHdfsPlugins = ingestPlugins;
     final Configuration conf = new Configuration();
     conf.set("fs.defaultFS", hdfsHostPort);
     conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());

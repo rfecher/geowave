@@ -22,7 +22,7 @@ import org.locationtech.geowave.core.cli.annotations.GeowaveOperation;
 import org.locationtech.geowave.core.cli.api.OperationParams;
 import org.locationtech.geowave.core.cli.api.ServiceEnabledCommand;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.StageToHdfsDriver;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsDriver;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestFromHdfsPlugin;
@@ -177,7 +177,8 @@ public class LocalToMapReduceToGeowaveCommand extends ServiceEnabledCommand<Void
     inputIndexOptions = indexLoader.getLoadedIndexes();
 
     // Ingest Plugins
-    final Map<String, AvroFormatPlugin<?, ?>> avroIngestPlugins = pluginFormats.createAvroPlugins();
+    final Map<String, GeoWaveAvroFormatPlugin<?, ?>> avroIngestPlugins =
+        pluginFormats.createAvroPlugins();
 
     // Ingest Plugins
     final Map<String, IngestFromHdfsPlugin<?, ?>> hdfsIngestPlugins =

@@ -22,7 +22,7 @@ import org.locationtech.geowave.core.cli.annotations.GeowaveOperation;
 import org.locationtech.geowave.core.cli.api.OperationParams;
 import org.locationtech.geowave.core.cli.api.ServiceEnabledCommand;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.hdfs.StageToHdfsDriver;
 import org.locationtech.geowave.core.ingest.local.LocalInputCommandLineOptions;
 import org.locationtech.geowave.core.ingest.operations.options.IngestFormatPluginOptions;
@@ -109,7 +109,8 @@ public class LocalToHdfsCommand extends ServiceEnabledCommand<Void> {
     final String basePath = parameters.get(1);
 
     // Ingest Plugins
-    final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins = pluginFormats.createAvroPlugins();
+    final Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins =
+        pluginFormats.createAvroPlugins();
 
     // Driver
     final StageToHdfsDriver driver =

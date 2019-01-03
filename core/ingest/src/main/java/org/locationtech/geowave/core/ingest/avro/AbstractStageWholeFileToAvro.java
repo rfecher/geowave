@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * directly staging the binary of the file to Avro.
  */
 public abstract class AbstractStageWholeFileToAvro<O>
-    implements AvroFormatPlugin<AvroWholeFile, O> {
+    implements GeoWaveAvroFormatPlugin<AvroWholeFile, O> {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStageWholeFileToAvro.class);
 
   @Override

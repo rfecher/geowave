@@ -27,7 +27,7 @@ import kafka.consumer.ConsumerIterator;
 import kafka.consumer.ConsumerTimeoutException;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
-import org.locationtech.geowave.core.ingest.avro.AvroFormatPlugin;
+import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
 import org.locationtech.geowave.core.ingest.avro.GenericAvroSerializer;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.DataStore;
@@ -49,14 +49,14 @@ public class IngestFromKafkaDriver {
 
   private final DataStorePluginOptions storeOptions;
   private final List<IndexPluginOptions> indexOptions;
-  private final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins;
+  private final Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins;
   private final KafkaConsumerCommandLineOptions kafkaOptions;
   private final VisibilityOptions ingestOptions;
   private final List<Future<?>> futures = new ArrayList<>();
 
   public IngestFromKafkaDriver(final DataStorePluginOptions storeOptions,
       final List<IndexPluginOptions> indexOptions,
-      final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins,
+      final Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins,
       final KafkaConsumerCommandLineOptions kafkaOptions, final VisibilityOptions ingestOptions) {
     this.storeOptions = storeOptions;
     this.indexOptions = indexOptions;
@@ -102,19 +102,19 @@ public class IngestFromKafkaDriver {
     return true;
   }
 
-  private void addPluginsToQueue(final Map<String, AvroFormatPlugin<?, ?>> pluginProviders,
+  private void addPluginsToQueue(final Map<String, GeoWaveAvroFormatPlugin<?, ?>> pluginProviders,
       final List<String> queue) {
     queue.addAll(pluginProviders.keySet());
   }
 
   private void configureAndLaunchPlugins(final DataStore dataStore,
-      final Map<String, AvroFormatPlugin<?, ?>> pluginProviders, final List<String> queue) {
+      final Map<String, GeoWaveAvroFormatPlugin<?, ?>> pluginProviders, final List<String> queue) {
     try {
-      for (final Entry<String, AvroFormatPlugin<?, ?>> pluginProvider : pluginProviders
+      for (final Entry<String, GeoWaveAvroFormatPlugin<?, ?>> pluginProvider : pluginProviders
           .entrySet()) {
         final List<DataTypeAdapter<?>> adapters = new ArrayList<>();
 
-        AvroFormatPlugin<?, ?> avroFormatPlugin = null;
+        GeoWaveAvroFormatPlugin<?, ?> avroFormatPlugin = null;
         try {
           avroFormatPlugin = pluginProvider.getValue();
 
@@ -149,7 +149,7 @@ public class IngestFromKafkaDriver {
   }
 
   private Future<?> launchTopicConsumer(final String formatPluginName,
-      final AvroFormatPlugin<?, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
+      final GeoWaveAvroFormatPlugin<?, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
       final List<String> queue) throws IllegalArgumentException {
     final ExecutorService executorService = Executors.newFixedThreadPool(queue.size());
     return executorService.submit(new Runnable() {
@@ -166,7 +166,7 @@ public class IngestFromKafkaDriver {
   }
 
   public <T> void consumeFromTopic(final String formatPluginName,
-      final AvroFormatPlugin<T, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
+      final GeoWaveAvroFormatPlugin<T, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
       final List<String> queue) {
 
     final ConsumerConnector consumer = buildKafkaConsumer();
@@ -192,7 +192,7 @@ public class IngestFromKafkaDriver {
   }
 
   protected <T> void consumeMessages(final String formatPluginName,
-      final AvroFormatPlugin<T, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
+      final GeoWaveAvroFormatPlugin<T, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
       final KafkaStream<byte[], byte[]> stream) {
     int currentBatchId = 0;
     final int batchSize = kafkaOptions.getBatchSize();
@@ -242,7 +242,7 @@ public class IngestFromKafkaDriver {
   }
 
   protected synchronized <T> void processMessage(final T dataRecord,
-      final KafkaIngestRunData ingestRunData, final AvroFormatPlugin<T, ?> plugin)
+      final KafkaIngestRunData ingestRunData, final GeoWaveAvroFormatPlugin<T, ?> plugin)
       throws IOException {
 
     final IngestPluginBase<T, ?> ingestPlugin = plugin.getIngestWithAvroPlugin();
