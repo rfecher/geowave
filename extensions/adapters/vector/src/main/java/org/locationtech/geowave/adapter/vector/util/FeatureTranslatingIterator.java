@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -20,8 +21,7 @@ public class FeatureTranslatingIterator implements CloseableIterator<SimpleFeatu
   private final SimpleFeatureTranslator translator;
   private final CloseableIterator<SimpleFeature> iteratorDelegate;
 
-  public FeatureTranslatingIterator(
-      final SimpleFeatureType originalType,
+  public FeatureTranslatingIterator(final SimpleFeatureType originalType,
       final Collection<String> desiredFields,
       final CloseableIterator<SimpleFeature> originalFeatures) {
     translator = new SimpleFeatureTranslator(originalType, desiredFields);
@@ -53,8 +53,8 @@ public class FeatureTranslatingIterator implements CloseableIterator<SimpleFeatu
     private SimpleFeatureType newType;
     private SimpleFeatureBuilder sfBuilder;
 
-    public SimpleFeatureTranslator(
-        final SimpleFeatureType originalType, final Collection<String> fields) {
+    public SimpleFeatureTranslator(final SimpleFeatureType originalType,
+        final Collection<String> fields) {
       this.fields = fields;
       initialize(originalType);
     }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,10 +38,9 @@ public class XZOrderSFCTest {
   }
 
   private XZOrderSFC createSFC() {
-    SFCDimensionDefinition[] dimensions = {
-      new SFCDimensionDefinition(new BasicDimensionDefinition(-180.0, 180.0), 32),
-      new SFCDimensionDefinition(new BasicDimensionDefinition(-90.0, 90.0), 32)
-    };
+    SFCDimensionDefinition[] dimensions =
+        {new SFCDimensionDefinition(new BasicDimensionDefinition(-180.0, 180.0), 32),
+            new SFCDimensionDefinition(new BasicDimensionDefinition(-90.0, 90.0), 32)};
     return new XZOrderSFC(dimensions);
   }
 }

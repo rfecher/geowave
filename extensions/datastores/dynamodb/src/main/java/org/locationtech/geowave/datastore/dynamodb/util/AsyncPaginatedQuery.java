@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,10 +37,12 @@ public class AsyncPaginatedQuery extends LazyIteratorChain<Map<String, Attribute
    * The async paginated query is a much more complicated but asynchronous version of the paginated
    * query
    *
-   * <p>As soon a async paginated query is fired, multiple asynchronous query requests are fired in
+   * <p>
+   * As soon a async paginated query is fired, multiple asynchronous query requests are fired in
    * tandem across different async paginated queries.
    *
-   * <p>A max of "MAX_ASYNC_QUERY_RESULTS" can be in progress at any time
+   * <p>
+   * A max of "MAX_ASYNC_QUERY_RESULTS" can be in progress at any time
    */
   public AsyncPaginatedQuery(final QueryRequest request, final AmazonDynamoDBAsync dynamoDBClient) {
     lastRequest = request;
@@ -59,10 +62,12 @@ public class AsyncPaginatedQuery extends LazyIteratorChain<Map<String, Attribute
    * Get the next query data If the last request is equal to null then we have no more query
    * requests to fire
    *
-   * <p>If asyncQueryResults is not empty, we have already fetched the next query data that can be
-   * read immediately
+   * <p>
+   * If asyncQueryResults is not empty, we have already fetched the next query data that can be read
+   * immediately
    *
-   * <p>If due to max async query limit, we couldn't fire async requests, we fire the request now
+   * <p>
+   * If due to max async query limit, we couldn't fire async requests, we fire the request now
    */
   @Override
   protected Iterator<? extends Map<String, AttributeValue>> nextIterator(final int arg0) {
@@ -116,53 +121,51 @@ public class AsyncPaginatedQuery extends LazyIteratorChain<Map<String, Attribute
    * Fire the async query On success, we check to see if we can fire any more queries We continue to
    * fire queries until the global max is reached or we have asynchronously fired all queries
    *
-   * <p>Any waiting threads are signaled here
+   * <p>
+   * Any waiting threads are signaled here
    */
   private void makeAsyncQuery() {
     synchronized (monitorLock) {
       ++asyncRequestsInProgress;
-      dynamoDBClient.queryAsync(
-          lastRequest,
-          new AsyncHandler<QueryRequest, QueryResult>() {
+      dynamoDBClient.queryAsync(lastRequest, new AsyncHandler<QueryRequest, QueryResult>() {
 
-            /**
-             * On Error, add a null and notify the thread waiting This makes sure that they are not
-             * stuck waiting
-             */
-            @Override
-            public void onError(final Exception exception) {
-              LOGGER.error("Query async failed with Exception ", exception);
-              synchronized (monitorLock) {
-                --asyncRequestsInProgress;
-                decTotalAsyncRequestsInProgress();
-                asyncQueryResults.add(null);
-                monitorLock.notify();
-              }
+        /**
+         * On Error, add a null and notify the thread waiting This makes sure that they are not
+         * stuck waiting
+         */
+        @Override
+        public void onError(final Exception exception) {
+          LOGGER.error("Query async failed with Exception ", exception);
+          synchronized (monitorLock) {
+            --asyncRequestsInProgress;
+            decTotalAsyncRequestsInProgress();
+            asyncQueryResults.add(null);
+            monitorLock.notify();
+          }
+        }
+
+        /**
+         * On Success, fire a new request if we can Notify the waiting thread with the result
+         */
+        @Override
+        public void onSuccess(final QueryRequest request, final QueryResult result) {
+
+          synchronized (monitorLock) {
+            --asyncRequestsInProgress;
+            decTotalAsyncRequestsInProgress();
+
+            if ((result.getLastEvaluatedKey() != null) && !result.getLastEvaluatedKey().isEmpty()) {
+              lastRequest.setExclusiveStartKey(result.getLastEvaluatedKey());
+              checkAndAsyncQuery();
+            } else {
+              lastRequest = null;
             }
 
-            /**
-             * On Success, fire a new request if we can Notify the waiting thread with the result
-             */
-            @Override
-            public void onSuccess(final QueryRequest request, final QueryResult result) {
-
-              synchronized (monitorLock) {
-                --asyncRequestsInProgress;
-                decTotalAsyncRequestsInProgress();
-
-                if ((result.getLastEvaluatedKey() != null)
-                    && !result.getLastEvaluatedKey().isEmpty()) {
-                  lastRequest.setExclusiveStartKey(result.getLastEvaluatedKey());
-                  checkAndAsyncQuery();
-                } else {
-                  lastRequest = null;
-                }
-
-                asyncQueryResults.add(result);
-                monitorLock.notify();
-              }
-            }
-          });
+            asyncQueryResults.add(result);
+            monitorLock.notify();
+          }
+        }
+      });
     }
     return;
   }

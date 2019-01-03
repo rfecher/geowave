@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,14 +30,12 @@ public class FeatureTimeRangeHandler implements IndexFieldHandler<SimpleFeature,
   private final FieldVisibilityHandler<SimpleFeature, Object> visibilityHandler;
   private final String[] nativeFieldNames;
 
-  public FeatureTimeRangeHandler(
-      final FeatureAttributeHandler nativeStartTimeHandler,
+  public FeatureTimeRangeHandler(final FeatureAttributeHandler nativeStartTimeHandler,
       final FeatureAttributeHandler nativeEndTimeHandler) {
     this(nativeStartTimeHandler, nativeEndTimeHandler, null);
   }
 
-  public FeatureTimeRangeHandler(
-      final FeatureAttributeHandler nativeStartTimeHandler,
+  public FeatureTimeRangeHandler(final FeatureAttributeHandler nativeStartTimeHandler,
       final FeatureAttributeHandler nativeEndTimeHandler,
       final FieldVisibilityHandler<SimpleFeature, Object> visibilityHandler) {
     this.nativeStartTimeHandler = nativeStartTimeHandler;
@@ -73,8 +72,8 @@ public class FeatureTimeRangeHandler implements IndexFieldHandler<SimpleFeature,
     } else {
       visibility = new byte[] {};
     }
-    return new TimeRange(
-        TimeUtils.getTimeMillis(startObj), TimeUtils.getTimeMillis(endObj), visibility);
+    return new TimeRange(TimeUtils.getTimeMillis(startObj), TimeUtils.getTimeMillis(endObj),
+        visibility);
   }
 
   @SuppressWarnings("unchecked")
@@ -86,8 +85,7 @@ public class FeatureTimeRangeHandler implements IndexFieldHandler<SimpleFeature,
     final Class<?> endBindingClass = nativeEndTimeHandler.attrDesc.getType().getBinding();
     final Object endObj = TimeUtils.getTimeValue(endBindingClass, (long) value.getMax());
     return new PersistentValue[] {
-      new PersistentValue<Object>(nativeStartTimeHandler.getFieldName(), startObj),
-      new PersistentValue<Object>(nativeEndTimeHandler.getFieldName(), endObj),
-    };
+        new PersistentValue<Object>(nativeStartTimeHandler.getFieldName(), startObj),
+        new PersistentValue<Object>(nativeEndTimeHandler.getFieldName(), endObj),};
   }
 }

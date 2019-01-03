@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -9,7 +10,6 @@
 package org.locationtech.geowave.format.sentinel2;
 
 import static org.junit.Assert.assertTrue;
-
 import com.beust.jcommander.ParameterException;
 import it.geosolutions.jaiext.JAIExt;
 import java.io.File;
@@ -32,8 +32,8 @@ import org.locationtech.geowave.core.store.memory.MemoryStoreFactoryFamily;
 public class VectorIngestRunnerTest {
   @BeforeClass
   public static void setup() throws IOException {
-    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies()
-        .put("memory", new MemoryStoreFactoryFamily());
+    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put("memory",
+        new MemoryStoreFactoryFamily());
   }
 
   @Test
@@ -62,23 +62,16 @@ public class VectorIngestRunnerTest {
     analyzeOptions.setLocation("T30TXN");
     analyzeOptions.setStartDate(startDate);
     analyzeOptions.setEndDate(endDate);
-    analyzeOptions.setCqlFilter(
-        "BBOX(shape,-1.8274,42.3253,-1.6256,42.4735) AND (band='B4' OR band='B8')");
+    analyzeOptions
+        .setCqlFilter("BBOX(shape,-1.8274,42.3253,-1.6256,42.4735) AND (band='B4' OR band='B8')");
 
-    final VectorIngestRunner runner =
-        new VectorIngestRunner(
-            analyzeOptions, Arrays.asList("memorystore", "spatialindex,spatempindex"));
+    final VectorIngestRunner runner = new VectorIngestRunner(analyzeOptions,
+        Arrays.asList("memorystore", "spatialindex,spatempindex"));
 
     final ManualOperationParams params = new ManualOperationParams();
-    params
-        .getContext()
-        .put(
-            ConfigOptions.PROPERTIES_FILE_CONTEXT,
-            new File(
-                VectorIngestRunnerTest.class
-                    .getClassLoader()
-                    .getResource("geowave-config.properties")
-                    .toURI()));
+    params.getContext().put(ConfigOptions.PROPERTIES_FILE_CONTEXT,
+        new File(VectorIngestRunnerTest.class.getClassLoader()
+            .getResource("geowave-config.properties").toURI()));
 
     runner.runInternal(params);
 

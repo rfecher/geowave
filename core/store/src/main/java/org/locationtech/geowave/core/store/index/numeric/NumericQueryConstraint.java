@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,12 +26,8 @@ public class NumericQueryConstraint implements FilterableConstraints {
   protected boolean inclusiveLow;
   protected boolean inclusiveHigh;
 
-  public NumericQueryConstraint(
-      final String fieldName,
-      final Number lowerValue,
-      final Number upperValue,
-      final boolean inclusiveLow,
-      final boolean inclusiveHigh) {
+  public NumericQueryConstraint(final String fieldName, final Number lowerValue,
+      final Number upperValue, final boolean inclusiveLow, final boolean inclusiveHigh) {
     super();
     this.fieldName = fieldName;
     this.lowerValue = lowerValue;
@@ -68,17 +65,17 @@ public class NumericQueryConstraint implements FilterableConstraints {
   }
 
   public QueryRanges getQueryRanges() {
-    return new QueryRanges(
-        new ByteArrayRange(
-            new ByteArray(NumericFieldIndexStrategy.toIndexByte(lowerValue.doubleValue())),
-            new ByteArray(NumericFieldIndexStrategy.toIndexByte(upperValue.doubleValue()))));
+    return new QueryRanges(new ByteArrayRange(
+        new ByteArray(NumericFieldIndexStrategy.toIndexByte(lowerValue.doubleValue())),
+        new ByteArray(NumericFieldIndexStrategy.toIndexByte(upperValue.doubleValue()))));
   }
 
   /**
    * Returns an FilterableConstraints object that is the intersection of the numeric bounds of this
    * object and object passed in.
    *
-   * <p>This method returns an object with the highest min and lowest max of the two objects
+   * <p>
+   * This method returns an object with the highest min and lowest max of the two objects
    *
    * @param otherConstraint object whose constraints are 'intersected' with existing constraints
    * @return new {@link FilterableConstraints}
@@ -97,14 +94,10 @@ public class NumericQueryConstraint implements FilterableConstraints {
           Math.max(this.lowerValue.doubleValue(), otherNumeric.lowerValue.doubleValue());
       double newMax =
           Math.min(this.upperValue.doubleValue(), otherNumeric.upperValue.doubleValue());
-      boolean newIncLow =
-          lowEquals
-              ? (otherNumeric.inclusiveLow & inclusiveLow)
-              : (replaceMin ? otherNumeric.inclusiveLow : inclusiveLow);
-      boolean newIncHigh =
-          upperEquals
-              ? (otherNumeric.inclusiveHigh & inclusiveHigh)
-              : (replaceMax ? otherNumeric.inclusiveHigh : inclusiveHigh);
+      boolean newIncLow = lowEquals ? (otherNumeric.inclusiveLow & inclusiveLow)
+          : (replaceMin ? otherNumeric.inclusiveLow : inclusiveLow);
+      boolean newIncHigh = upperEquals ? (otherNumeric.inclusiveHigh & inclusiveHigh)
+          : (replaceMax ? otherNumeric.inclusiveHigh : inclusiveHigh);
 
       return new NumericQueryConstraint(fieldName, newMin, newMax, newIncLow, newIncHigh);
     }
@@ -115,7 +108,8 @@ public class NumericQueryConstraint implements FilterableConstraints {
    * Returns an FilterableConstraints object that is the union of the numeric bounds of this object
    * and object passed in.
    *
-   * <p>This method returns an object with the lowest min and highest max of the two objects
+   * <p>
+   * This method returns an object with the lowest min and highest max of the two objects
    *
    * @param otherConstraint object whose constraints are 'unioned' with existing constraints
    * @return new {@link FilterableConstraints}
@@ -135,14 +129,10 @@ public class NumericQueryConstraint implements FilterableConstraints {
       double newMax =
           Math.max(this.upperValue.doubleValue(), otherNumeric.upperValue.doubleValue());
 
-      boolean newIncLow =
-          lowEquals
-              ? (otherNumeric.inclusiveLow | inclusiveLow)
-              : (replaceMin ? otherNumeric.inclusiveLow : inclusiveLow);
-      boolean newIncHigh =
-          upperEquals
-              ? (otherNumeric.inclusiveHigh | inclusiveHigh)
-              : (replaceMax ? otherNumeric.inclusiveHigh : inclusiveHigh);
+      boolean newIncLow = lowEquals ? (otherNumeric.inclusiveLow | inclusiveLow)
+          : (replaceMin ? otherNumeric.inclusiveLow : inclusiveLow);
+      boolean newIncHigh = upperEquals ? (otherNumeric.inclusiveHigh | inclusiveHigh)
+          : (replaceMax ? otherNumeric.inclusiveHigh : inclusiveHigh);
 
       return new NumericQueryConstraint(fieldName, newMin, newMax, newIncLow, newIncHigh);
     }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,13 +24,9 @@ public class IndexedPersistenceEncoding<T> extends PersistenceEncoding<T> {
   private final ByteArray insertionSortKey;
   private final int duplicateCount;
 
-  public IndexedPersistenceEncoding(
-      final Short internalAdapterId,
-      final ByteArray dataId,
-      final ByteArray insertionPartitionKey,
-      final ByteArray insertionSortKey,
-      final int duplicateCount,
-      final PersistentDataset<T> commonData,
+  public IndexedPersistenceEncoding(final Short internalAdapterId, final ByteArray dataId,
+      final ByteArray insertionPartitionKey, final ByteArray insertionSortKey,
+      final int duplicateCount, final PersistentDataset<T> commonData,
       final PersistentDataset<byte[]> unknownData) {
     super(internalAdapterId, dataId, commonData, unknownData);
     this.insertionPartitionKey = insertionPartitionKey;

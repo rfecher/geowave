@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -50,11 +51,8 @@ public class PropertiesUtils implements Serializable {
             "Specified properties file was not found: [" + fnfEx.getLocalizedMessage() + "]",
             fnfEx);
       } catch (IOException ioEx) {
-        LOGGER.error(
-            "Exception occurred loading specified properties file: ["
-                + ioEx.getLocalizedMessage()
-                + "]",
-            ioEx);
+        LOGGER.error("Exception occurred loading specified properties file: ["
+            + ioEx.getLocalizedMessage() + "]", ioEx);
       }
     }
     return properties;
@@ -82,13 +80,12 @@ public class PropertiesUtils implements Serializable {
    */
   @SuppressWarnings({"rawtypes"})
   public PropertiesUtils(final Map properties) {
-    this(
-        new Getter() {
-          @Override
-          public Object get(String name) {
-            return properties.get(name);
-          }
-        });
+    this(new Getter() {
+      @Override
+      public Object get(String name) {
+        return properties.get(name);
+      }
+    });
   }
 
   /**
@@ -97,13 +94,12 @@ public class PropertiesUtils implements Serializable {
    * @param properties Map of properties to wrap
    */
   public PropertiesUtils(final Properties properties) {
-    this(
-        new Getter() {
-          @Override
-          public Object get(String name) {
-            return properties != null ? properties.get(name) : null;
-          }
-        });
+    this(new Getter() {
+      @Override
+      public Object get(String name) {
+        return properties != null ? properties.get(name) : null;
+      }
+    });
   }
 
   /**

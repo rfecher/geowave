@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -152,8 +153,8 @@ public class GeoWaveGTDataStore extends ContentDataStore {
     return unfiltered;
   }
 
-  protected Index[] getIndicesForAdapter(
-      final GeotoolsFeatureDataAdapter adapter, final boolean spatialOnly) {
+  protected Index[] getIndicesForAdapter(final GeotoolsFeatureDataAdapter adapter,
+      final boolean spatialOnly) {
     Index[] currentSelections = preferredIndexes.get(adapter.getFeatureType().getName().toString());
     if (currentSelections != null) {
       return filterIndices(currentSelections, spatialOnly);
@@ -258,8 +259,8 @@ public class GeoWaveGTDataStore extends ContentDataStore {
 
   @Override
   protected ContentFeatureSource createFeatureSource(final ContentEntry entry) throws IOException {
-    return new GeoWaveFeatureSource(
-        entry, Query.ALL, getAdapter(entry.getTypeName()), transactionsAllocator);
+    return new GeoWaveFeatureSource(entry, Query.ALL, getAdapter(entry.getTypeName()),
+        transactionsAllocator);
   }
 
   @Override
@@ -281,8 +282,8 @@ public class GeoWaveGTDataStore extends ContentDataStore {
    * @return GeoWaveTransactionState or null if subclass is handling differences
    * @throws IOException
    */
-  protected GeoWaveTransactionState getMyTransactionState(
-      final Transaction transaction, final GeoWaveFeatureSource source) throws IOException {
+  protected GeoWaveTransactionState getMyTransactionState(final Transaction transaction,
+      final GeoWaveFeatureSource source) throws IOException {
     synchronized (transaction) {
       GeoWaveTransactionState state = null;
       if (transaction == Transaction.AUTO_COMMIT) {
@@ -290,12 +291,8 @@ public class GeoWaveGTDataStore extends ContentDataStore {
       } else {
         state = (GeoWaveTransactionState) transaction.getState(this);
         if (state == null) {
-          state =
-              new GeoWaveTransactionManagementState(
-                  transactionBufferSize,
-                  source.getComponents(),
-                  transaction,
-                  (LockingManagement) lockingManager);
+          state = new GeoWaveTransactionManagementState(transactionBufferSize,
+              source.getComponents(), transaction, (LockingManagement) lockingManager);
           transaction.putState(this, state);
         }
       }
@@ -345,8 +342,8 @@ public class GeoWaveGTDataStore extends ContentDataStore {
     }
 
     if (currentSelectionsList.isEmpty()) {
-      currentSelectionsList.add(
-          new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()));
+      currentSelectionsList
+          .add(new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()));
     }
 
     return currentSelectionsList.toArray(new Index[currentSelectionsList.size()]);

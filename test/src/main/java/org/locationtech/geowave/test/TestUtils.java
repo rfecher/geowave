@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -97,9 +98,7 @@ public class TestUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
 
   public static enum DimensionalityType {
-    SPATIAL("spatial"),
-    SPATIAL_TEMPORAL("spatial_temporal"),
-    ALL("spatial,spatial_temporal");
+    SPATIAL("spatial"), SPATIAL_TEMPORAL("spatial_temporal"), ALL("spatial,spatial_temporal");
     private final String dimensionalityArg;
 
     private DimensionalityType(final String dimensionalityArg) {
@@ -163,20 +162,14 @@ public class TestUtils {
     return VersionUtil.compareVersions(VersionInfo.getVersion(), "2.2.0") >= 0;
   }
 
-  public static void testLocalIngest(
-      final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType,
-      final String ingestFilePath,
-      final int nthreads)
+  public static void testLocalIngest(final DataStorePluginOptions dataStore,
+      final DimensionalityType dimensionalityType, final String ingestFilePath, final int nthreads)
       throws Exception {
     testLocalIngest(dataStore, dimensionalityType, ingestFilePath, "geotools-vector", nthreads);
   }
 
-  public static void testLocalIngest(
-      final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType,
-      final String ingestFilePath)
-      throws Exception {
+  public static void testLocalIngest(final DataStorePluginOptions dataStore,
+      final DimensionalityType dimensionalityType, final String ingestFilePath) throws Exception {
     testLocalIngest(dataStore, dimensionalityType, ingestFilePath, "geotools-vector", 1);
   }
 
@@ -188,24 +181,15 @@ public class TestUtils {
     dataStore.createDataStore().delete(QueryBuilder.newBuilder().build());
   }
 
-  public static void testLocalIngest(
-      final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType,
-      final String ingestFilePath,
-      final String format,
-      final int nthreads)
-      throws Exception {
+  public static void testLocalIngest(final DataStorePluginOptions dataStore,
+      final DimensionalityType dimensionalityType, final String ingestFilePath, final String format,
+      final int nthreads) throws Exception {
     testLocalIngest(dataStore, dimensionalityType, null, ingestFilePath, format, nthreads);
   }
 
-  public static void testLocalIngest(
-      final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType,
-      final String crsCode,
-      final String ingestFilePath,
-      final String format,
-      final int nthreads)
-      throws Exception {
+  public static void testLocalIngest(final DataStorePluginOptions dataStore,
+      final DimensionalityType dimensionalityType, final String crsCode,
+      final String ingestFilePath, final String format, final int nthreads) throws Exception {
 
     // ingest a shapefile (geotools type) directly into GeoWave using the
     // ingest framework's main method and pre-defined commandline arguments
@@ -255,14 +239,9 @@ public class TestUtils {
     verifyStats(dataStore);
   }
 
-  public static void testS3LocalIngest(
-      final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType,
-      final String s3Url,
-      final String ingestFilePath,
-      final String format,
-      final int nthreads)
-      throws Exception {
+  public static void testS3LocalIngest(final DataStorePluginOptions dataStore,
+      final DimensionalityType dimensionalityType, final String s3Url, final String ingestFilePath,
+      final String format, final int nthreads) throws Exception {
 
     // ingest a shapefile (geotools type) directly into GeoWave using the
     // ingest framework's main method and pre-defined commandline arguments
@@ -312,21 +291,14 @@ public class TestUtils {
     verifyStats(dataStore);
   }
 
-  public static void testSparkIngest(
-      final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType,
-      final String format)
-      throws Exception {
+  public static void testSparkIngest(final DataStorePluginOptions dataStore,
+      final DimensionalityType dimensionalityType, final String format) throws Exception {
     testSparkIngest(dataStore, dimensionalityType, S3URL, S3_INPUT_PATH, format);
   }
 
-  public static void testSparkIngest(
-      final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType,
-      final String s3Url,
-      final String ingestFilePath,
-      final String format)
-      throws Exception {
+  public static void testSparkIngest(final DataStorePluginOptions dataStore,
+      final DimensionalityType dimensionalityType, final String s3Url, final String ingestFilePath,
+      final String format) throws Exception {
 
     // ingest a shapefile (geotools type) directly into GeoWave using the
     // ingest framework's main method and pre-defined commandline arguments
@@ -370,14 +342,8 @@ public class TestUtils {
     }
     props.setProperty(ConfigAWSCommand.AWS_S3_ENDPOINT_URL, s3Url);
 
-    sparkIngester.runOperation(
-        configFile,
-        localOptions,
-        "test",
-        indexes,
-        new VisibilityOptions(),
-        sparkOptions,
-        ingestFilePath);
+    sparkIngester.runOperation(configFile, localOptions, "test", indexes, new VisibilityOptions(),
+        sparkOptions, ingestFilePath);
 
     verifyStats(dataStore);
   }
@@ -453,9 +419,8 @@ public class TestUtils {
     return mathTransform;
   }
 
-  public static ExpectedResults getExpectedResults(
-      final URL[] expectedResultsResources, final CoordinateReferenceSystem crs)
-      throws IOException {
+  public static ExpectedResults getExpectedResults(final URL[] expectedResultsResources,
+      final CoordinateReferenceSystem crs) throws IOException {
     final Map<String, Object> map = new HashMap<>();
     DataStore dataStore = null;
     final Set<Long> hashedCentroids = new HashSet<>();
@@ -486,13 +451,8 @@ public class TestUtils {
           // TODO: Geometry has to be serialized and deserialized here
           // to make the centroid match the one coming out of the
           // database.
-          final long centroid =
-              hashCentroid(
-                  reader.read(
-                      writer.write(
-                          mathTransform != null
-                              ? JTS.transform(geometry, mathTransform)
-                              : geometry)));
+          final long centroid = hashCentroid(reader.read(writer
+              .write(mathTransform != null ? JTS.transform(geometry, mathTransform) : geometry)));
           hashedCentroids.add(centroid);
         }
       } catch (MismatchedDimensionException | TransformException | ParseException e) {
@@ -512,13 +472,11 @@ public class TestUtils {
     return featureToQuery(resourceToFeature(filterResource), null, null, true);
   }
 
-  public static QueryConstraints resourceToQuery(
-      final URL filterResource,
-      final Pair<String, String> optimalCqlQueryGeometryAndTimeFields,
-      final boolean useDuring)
+  public static QueryConstraints resourceToQuery(final URL filterResource,
+      final Pair<String, String> optimalCqlQueryGeometryAndTimeFields, final boolean useDuring)
       throws IOException {
-    return featureToQuery(
-        resourceToFeature(filterResource), optimalCqlQueryGeometryAndTimeFields, null, useDuring);
+    return featureToQuery(resourceToFeature(filterResource), optimalCqlQueryGeometryAndTimeFields,
+        null, useDuring);
   }
 
   public static SimpleFeature resourceToFeature(final URL filterResource) throws IOException {
@@ -548,10 +506,8 @@ public class TestUtils {
     return savedFilter;
   }
 
-  public static QueryConstraints featureToQuery(
-      final SimpleFeature savedFilter,
-      final Pair<String, String> optimalCqlQueryGeometryAndTimeField,
-      final String crsCode,
+  public static QueryConstraints featureToQuery(final SimpleFeature savedFilter,
+      final Pair<String, String> optimalCqlQueryGeometryAndTimeField, final String crsCode,
       final boolean useDuring) {
     final Geometry filterGeometry = (Geometry) savedFilter.getDefaultGeometry();
     final Object startObj = savedFilter.getAttribute(TEST_FILTER_START_TIME_ATTRIBUTE_NAME);
@@ -581,24 +537,21 @@ public class TestUtils {
             final Period period =
                 new DefaultPeriod(new DefaultInstant(ip1), new DefaultInstant(ip2));
             timeConstraint =
-                factory.during(
-                    factory.property(optimalCqlQueryGeometryAndTimeField.getRight()),
+                factory.during(factory.property(optimalCqlQueryGeometryAndTimeField.getRight()),
                     factory.literal(period));
           } else {
-            timeConstraint =
-                factory.and(
-                    factory.greaterOrEqual(
-                        factory.property(optimalCqlQueryGeometryAndTimeField.getRight()),
-                        factory.literal(startDate)),
-                    factory.lessOrEqual(
-                        factory.property(optimalCqlQueryGeometryAndTimeField.getRight()),
-                        factory.literal(endDate)));
+            timeConstraint = factory.and(
+                factory.greaterOrEqual(
+                    factory.property(optimalCqlQueryGeometryAndTimeField.getRight()),
+                    factory.literal(startDate)),
+                factory.lessOrEqual(
+                    factory.property(optimalCqlQueryGeometryAndTimeField.getRight()),
+                    factory.literal(endDate)));
           }
 
-          final And expression =
-              factory.and(
-                  geometryToSpatialOperator(filterGeometry, optimalCqlQueryGeometryAndTimeField),
-                  timeConstraint);
+          final And expression = factory.and(
+              geometryToSpatialOperator(filterGeometry, optimalCqlQueryGeometryAndTimeField),
+              timeConstraint);
           return new OptimalCQLQuery(expression);
         }
         return new SpatialTemporalQuery(startDate, endDate, filterGeometry, crsCode);
@@ -612,19 +565,18 @@ public class TestUtils {
     return new SpatialQuery(filterGeometry, crsCode);
   }
 
-  private static SpatialOperator geometryToSpatialOperator(
-      final Geometry jtsGeom, final Pair<String, String> optimalCqlQueryGeometryAndTimeField) {
+  private static SpatialOperator geometryToSpatialOperator(final Geometry jtsGeom,
+      final Pair<String, String> optimalCqlQueryGeometryAndTimeField) {
     final FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2();
     if (jtsGeom.equalsTopo(jtsGeom.getEnvelope())) {
-      return factory.bbox(
-          factory.property(optimalCqlQueryGeometryAndTimeField.getLeft()),
+      return factory.bbox(factory.property(optimalCqlQueryGeometryAndTimeField.getLeft()),
           new ReferencedEnvelope(jtsGeom.getEnvelopeInternal(), GeometryUtils.getDefaultCRS()));
     }
     // there apparently is no way to associate a CRS with a poly
     // intersection operation so it will have to assume the same CRS as the
     // feature type
-    return factory.intersects(
-        factory.property(optimalCqlQueryGeometryAndTimeField.getLeft()), factory.literal(jtsGeom));
+    return factory.intersects(factory.property(optimalCqlQueryGeometryAndTimeField.getLeft()),
+        factory.literal(jtsGeom));
   }
 
   protected static void replaceParameters(final Map<String, String> values, final File file)
@@ -655,8 +607,8 @@ public class TestUtils {
    * @param testName Name of the test that we are starting.
    * @param startMillis The time (millis) that the test started.
    */
-  public static void printEndOfTest(
-      final Logger LOGGER, final String testName, final long startMillis) {
+  public static void printEndOfTest(final Logger LOGGER, final String testName,
+      final long startMillis) {
     // Get Elapsed Time
     final double elapsedS = (System.currentTimeMillis() - startMillis) / 1000.;
     // Format
@@ -675,15 +627,12 @@ public class TestUtils {
    * @param bi sample
    * @param ref reference
    * @param minPctError used for testing subsampling - to ensure we are properly subsampling we want
-   *     there to be some error if subsampling is aggressive (10 pixels)
+   *        there to be some error if subsampling is aggressive (10 pixels)
    * @param maxPctError used for testing subsampling - we want to ensure at most we are off by this
-   *     percentile
+   *        percentile
    */
-  public static void testTileAgainstReference(
-      final BufferedImage actual,
-      final BufferedImage expected,
-      final double minPctError,
-      final double maxPctError) {
+  public static void testTileAgainstReference(final BufferedImage actual,
+      final BufferedImage expected, final double minPctError, final double maxPctError) {
     Assert.assertEquals(expected.getWidth(), actual.getWidth());
     Assert.assertEquals(expected.getHeight(), actual.getHeight());
     final int totalPixels = expected.getWidth() * expected.getHeight();
@@ -696,24 +645,21 @@ public class TestUtils {
         if (actual.getRGB(x, y) != expected.getRGB(x, y)) {
           errorPixels++;
           if (errorPixels > maxErrorPixels) {
-            Assert.fail(
-                String.format(
-                    "[%d,%d] failed to match ref=%d gen=%d",
-                    x, y, expected.getRGB(x, y), actual.getRGB(x, y)));
+            Assert.fail(String.format("[%d,%d] failed to match ref=%d gen=%d", x, y,
+                expected.getRGB(x, y), actual.getRGB(x, y)));
           }
         }
       }
     }
     if (errorPixels < minErrorPixels) {
-      Assert.fail(
-          String.format(
-              "Subsampling did not work as expected; error pixels (%d) did not exceed the minimum threshold (%d)",
-              errorPixels, minErrorPixels));
+      Assert.fail(String.format(
+          "Subsampling did not work as expected; error pixels (%d) did not exceed the minimum threshold (%d)",
+          errorPixels, minErrorPixels));
     }
 
     if (errorPixels > 0) {
-      System.out.println(
-          ((float) errorPixels / (float) totalPixels) + "% pixels differed from expected");
+      System.out
+          .println(((float) errorPixels / (float) totalPixels) + "% pixels differed from expected");
     }
   }
 
@@ -724,8 +670,8 @@ public class TestUtils {
     return getTileValue(x, y, b, 3, tileSize);
   }
 
-  public static void fillTestRasters(
-      final WritableRaster raster1, final WritableRaster raster2, final int tileSize) {
+  public static void fillTestRasters(final WritableRaster raster1, final WritableRaster raster2,
+      final int tileSize) {
     // for raster1 do the following:
     // set every even row in bands 0 and 1
     // set every value incorrectly in band 2
@@ -781,8 +727,8 @@ public class TestUtils {
 
   private static Random rng = null;
 
-  public static double getTileValue(
-      final int x, final int y, final int b, final int r, final int tileSize) {
+  public static double getTileValue(final int x, final int y, final int b, final int r,
+      final int tileSize) {
     // make this some random but repeatable and vary the scale
     final double resultOfFunction = randomFunction(x, y, b, r, tileSize);
     // this is meant to just vary the scale
@@ -799,8 +745,8 @@ public class TestUtils {
     }
   }
 
-  private static double randomFunction(
-      final int x, final int y, final int b, final int r, final int tileSize) {
+  private static double randomFunction(final int x, final int y, final int b, final int r,
+      final int tileSize) {
     return (((x + (y * tileSize)) * .1) / (b + 1)) + r;
   }
 
@@ -827,8 +773,8 @@ public class TestUtils {
    * @param expectedCode Integer HTTP Status code to expect from the response.
    * @param response The Response object on which .getStatus() will be performed.
    */
-  public static void assertStatusCode(
-      final String msg, final int expectedCode, final Response response) {
+  public static void assertStatusCode(final String msg, final int expectedCode,
+      final Response response) {
     final String assertionMsg =
         msg + String.format(": A %s response code should be received", expectedCode);
     Assert.assertEquals(assertionMsg, expectedCode, response.getStatus());

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -57,8 +58,8 @@ public class StripWeakCentroidsRunner<T> implements MapReduceJobRunner {
     return currentCentroidCount;
   }
 
-  protected CentroidManager<T> constructCentroidManager(
-      final Configuration config, final PropertyManagement runTimeProperties) throws IOException {
+  protected CentroidManager<T> constructCentroidManager(final Configuration config,
+      final PropertyManagement runTimeProperties) throws IOException {
     return new CentroidManagerGeoWave<T>(runTimeProperties);
   }
 
@@ -70,59 +71,54 @@ public class StripWeakCentroidsRunner<T> implements MapReduceJobRunner {
 
     final CentroidManager<T> centroidManager = constructCentroidManager(config, runTimeProperties);
 
-    return centroidManager.processForAllGroups(
-        new CentroidProcessingFn<T>() {
+    return centroidManager.processForAllGroups(new CentroidProcessingFn<T>() {
+      @Override
+      public int processGroup(final String groupID, final List<AnalyticItemWrapper<T>> centroids) {
+
+        if (centroids.size() <= minimum) {
+          currentCentroidCount = centroids.size();
+          return 0;
+        }
+
+        Collections.sort(centroids, new Comparator<AnalyticItemWrapper<T>>() {
+
           @Override
-          public int processGroup(
-              final String groupID, final List<AnalyticItemWrapper<T>> centroids) {
-
-            if (centroids.size() <= minimum) {
-              currentCentroidCount = centroids.size();
-              return 0;
-            }
-
-            Collections.sort(
-                centroids,
-                new Comparator<AnalyticItemWrapper<T>>() {
-
-                  @Override
-                  public int compare(
-                      final AnalyticItemWrapper<T> arg0, final AnalyticItemWrapper<T> arg1) {
-                    // be careful of overflow
-                    // also, descending
-                    return (arg1.getAssociationCount() - arg0.getAssociationCount()) < 0 ? -1 : 1;
-                  }
-                });
-            int position = breakStrategy.getBreakPoint(centroids);
-
-            // make sure we do not delete too many
-            // trim bottom third
-            position = Math.min(Math.max(minimum, position), maximum);
-
-            final String toDelete[] = new String[centroids.size() - position];
-
-            LOGGER.info("Deleting {} out of {}", toDelete.length, centroids.size());
-
-            int count = 0;
-            final Iterator<AnalyticItemWrapper<T>> it = centroids.iterator();
-            while (it.hasNext()) {
-              final AnalyticItemWrapper<T> centroid = it.next();
-              if (count++ >= position) {
-                toDelete[count - position - 1] = centroid.getID();
-              }
-            }
-            try {
-              centroidManager.delete(toDelete);
-            } catch (final IOException e) {
-              LOGGER.warn("Unable to delete the centriod mamager", e);
-              return -1;
-            }
-
-            currentCentroidCount += position;
-
-            return 0;
+          public int compare(final AnalyticItemWrapper<T> arg0, final AnalyticItemWrapper<T> arg1) {
+            // be careful of overflow
+            // also, descending
+            return (arg1.getAssociationCount() - arg0.getAssociationCount()) < 0 ? -1 : 1;
           }
         });
+        int position = breakStrategy.getBreakPoint(centroids);
+
+        // make sure we do not delete too many
+        // trim bottom third
+        position = Math.min(Math.max(minimum, position), maximum);
+
+        final String toDelete[] = new String[centroids.size() - position];
+
+        LOGGER.info("Deleting {} out of {}", toDelete.length, centroids.size());
+
+        int count = 0;
+        final Iterator<AnalyticItemWrapper<T>> it = centroids.iterator();
+        while (it.hasNext()) {
+          final AnalyticItemWrapper<T> centroid = it.next();
+          if (count++ >= position) {
+            toDelete[count - position - 1] = centroid.getID();
+          }
+        }
+        try {
+          centroidManager.delete(toDelete);
+        } catch (final IOException e) {
+          LOGGER.warn("Unable to delete the centriod mamager", e);
+          return -1;
+        }
+
+        currentCentroidCount += position;
+
+        return 0;
+      }
+    });
   }
 
   public static class MaxChangeBreakStrategy<T> implements BreakStrategy<T> {

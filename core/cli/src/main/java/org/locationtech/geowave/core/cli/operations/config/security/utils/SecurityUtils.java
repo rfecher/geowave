@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,7 +28,7 @@ public class SecurityUtils {
    *
    * @param value Value to decrypt. Should be wrapped with ENC{}
    * @param resourceLocation Optional value to specify the location of the encryption service
-   *     resource location
+   *        resource location
    * @return decrypted value
    */
   public static String decryptHexEncodedValue(String value, String resourceLocation)
@@ -42,10 +43,8 @@ public class SecurityUtils {
               "Encountered exception during content decryption: " + t.getLocalizedMessage(), t);
         }
       } else {
-        LOGGER.debug(
-            "WARNING: Value to decrypt was not propertly encoded and wrapped with "
-                + WRAPPER
-                + ". Not decrypting value.");
+        LOGGER.debug("WARNING: Value to decrypt was not propertly encoded and wrapped with "
+            + WRAPPER + ". Not decrypting value.");
         return value;
       }
     } else {
@@ -60,7 +59,7 @@ public class SecurityUtils {
    * @param value value to encrypt and hex-encode
    * @param resourceLocation resource token to use for encrypting the value
    * @return If encryption is successful, encrypted and hex-encoded string value is returned wrapped
-   *     with ENC{}
+   *         with ENC{}
    */
   public static String encryptAndHexEncodeValue(String value, String resourceLocation)
       throws Exception {
@@ -76,8 +75,7 @@ public class SecurityUtils {
       } else {
         LOGGER.debug(
             "WARNING: Value to encrypt already appears to be encrypted and already wrapped with "
-                + WRAPPER
-                + ". Not encrypting value.");
+                + WRAPPER + ". Not encrypting value.");
         return value;
       }
     } else {
@@ -92,7 +90,7 @@ public class SecurityUtils {
    * resource location
    *
    * @param resourceLocation location of the resource token to initialize the encryption service
-   *     with
+   *        with
    * @return An initialized instance of the encryption service
    * @throws Exception
    */
@@ -100,8 +98,8 @@ public class SecurityUtils {
       throws Throwable {
     if (encService == null) {
       if (resourceLocation != null && !"".equals(resourceLocation.trim())) {
-        LOGGER.trace(
-            "Setting resource location for encryption service: [" + resourceLocation + "]");
+        LOGGER
+            .trace("Setting resource location for encryption service: [" + resourceLocation + "]");
         encService = new GeoWaveEncryption(resourceLocation);
       } else {
         encService = new GeoWaveEncryption();

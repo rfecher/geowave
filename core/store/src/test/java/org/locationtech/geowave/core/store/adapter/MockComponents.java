@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -99,20 +100,12 @@ public class MockComponents {
     protected static final String INTEGER = "TestInteger";
     protected static final String ID = "TestIntegerAdapter";
 
-    public MockAbstractDataAdapter(
-        final List<
-                PersistentIndexFieldHandler<
-                    Integer, // RowType
-                    ? extends CommonIndexValue, // IndexFieldType
-                    Object // NativeFieldType
-                >>
-            _indexFieldHandlers,
-        final List<
-                NativeFieldHandler<
-                    Integer, // RowType
-                    Object // FieldType
-                >>
-            _nativeFieldHandlers) {
+    public MockAbstractDataAdapter(final List<PersistentIndexFieldHandler<Integer, // RowType
+        ? extends CommonIndexValue, // IndexFieldType
+        Object // NativeFieldType
+    >> _indexFieldHandlers, final List<NativeFieldHandler<Integer, // RowType
+        Object // FieldType
+    >> _nativeFieldHandlers) {
       super(_indexFieldHandlers, _nativeFieldHandlers);
     }
 
@@ -184,15 +177,12 @@ public class MockComponents {
 
     @Override
     public StatisticsId[] getSupportedStatistics() {
-      return new StatisticsId[] {
-        CountDataStatistics.STATS_TYPE.newBuilder().build().getId(),
-      };
+      return new StatisticsId[] {CountDataStatistics.STATS_TYPE.newBuilder().build().getId(),};
     }
 
     @Override
-    public <R, B extends StatisticsQueryBuilder<R, B>>
-        InternalDataStatistics<Integer, R, B> createDataStatistics(
-            final StatisticsId statisticsId) {
+    public <R, B extends StatisticsQueryBuilder<R, B>> InternalDataStatistics<Integer, R, B> createDataStatistics(
+        final StatisticsId statisticsId) {
       if (statisticsId.getType().equals(CountDataStatistics.STATS_TYPE)) {
         return (InternalDataStatistics<Integer, R, B>) new CountDataStatistics<Integer>();
       }
@@ -202,8 +192,8 @@ public class MockComponents {
     @Override
     public int getPositionOfOrderedField(final CommonIndexModel model, final String fieldName) {
       int i = 0;
-      for (final NumericDimensionField<? extends CommonIndexValue> dimensionField :
-          model.getDimensions()) {
+      for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model
+          .getDimensions()) {
         if (fieldName.equals(dimensionField.getFieldName())) {
           return i;
         }
@@ -221,8 +211,8 @@ public class MockComponents {
     public String getFieldNameForPosition(final CommonIndexModel model, final int position) {
       if (position < model.getDimensions().length) {
         int i = 0;
-        for (final NumericDimensionField<? extends CommonIndexValue> dimensionField :
-            model.getDimensions()) {
+        for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model
+            .getDimensions()) {
           if (i == position) {
             return dimensionField.getFieldName();
           }
@@ -240,12 +230,10 @@ public class MockComponents {
     }
 
     @Override
-    public EntryVisibilityHandler<Integer> getVisibilityHandler(
-        final CommonIndexModel indexModel,
-        final DataTypeAdapter<Integer> adapter,
-        final StatisticsId statisticsId) {
-      return new FieldNameStatisticVisibility<>(
-          new TestDimensionField().fieldName, indexModel, adapter);
+    public EntryVisibilityHandler<Integer> getVisibilityHandler(final CommonIndexModel indexModel,
+        final DataTypeAdapter<Integer> adapter, final StatisticsId statisticsId) {
+      return new FieldNameStatisticVisibility<>(new TestDimensionField().fieldName, indexModel,
+          adapter);
     }
   } // class MockAbstractDataAdapter
 
@@ -288,8 +276,8 @@ public class MockComponents {
     public void setVisibility(final byte[] visibility) {}
 
     @Override
-    public boolean overlaps(
-        final NumericDimensionField[] dimensions, final NumericData[] rangeData) {
+    public boolean overlaps(final NumericDimensionField[] dimensions,
+        final NumericData[] rangeData) {
       return (rangeData[0].getMin() <= indexValue) && (rangeData[0].getMax() >= indexValue);
     }
   }
@@ -405,8 +393,7 @@ public class MockComponents {
       final Integer newValue = Integer.decode(sNewRow);
 
       return new PersistentValue[] {
-        new PersistentValue<Object>(MockAbstractDataAdapter.INTEGER, newValue)
-      };
+          new PersistentValue<Object>(MockAbstractDataAdapter.INTEGER, newValue)};
     }
 
     @Override
@@ -535,16 +522,14 @@ public class MockComponents {
     public void fromBinary(final byte[] bytes) {}
 
     @Override
-    public QueryRanges getQueryRanges(
-        final MultiDimensionalNumericData indexedRange, final IndexMetaData... hints) {
+    public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+        final IndexMetaData... hints) {
       return getQueryRanges(indexedRange, -1, hints);
     }
 
     @Override
-    public QueryRanges getQueryRanges(
-        final MultiDimensionalNumericData indexedRange,
-        final int maxEstimatedRangeDecomposition,
-        final IndexMetaData... hints) {
+    public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+        final int maxEstimatedRangeDecomposition, final IndexMetaData... hints) {
       return new QueryRanges();
     }
 
@@ -558,8 +543,8 @@ public class MockComponents {
     }
 
     @Override
-    public InsertionIds getInsertionIds(
-        final MultiDimensionalNumericData indexedData, final int maxEstimatedDuplicateIds) {
+    public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+        final int maxEstimatedDuplicateIds) {
       return this.getInsertionIds(indexedData);
     }
 
@@ -591,19 +576,16 @@ public class MockComponents {
       for (int d = 0; d < coordinateRangesPerDimension.length; d++) {
         coordinateRangesPerDimension[d] = new CoordinateRange[1];
         coordinateRangesPerDimension[d][0] =
-            new CoordinateRange(
-                (long) dataRange.getMinValuesPerDimension()[0],
-                (long) dataRange.getMaxValuesPerDimension()[0],
-                new byte[] {});
+            new CoordinateRange((long) dataRange.getMinValuesPerDimension()[0],
+                (long) dataRange.getMaxValuesPerDimension()[0], new byte[] {});
       }
       return new MultiDimensionalCoordinateRanges[] {
-        new MultiDimensionalCoordinateRanges(new byte[] {}, coordinateRangesPerDimension)
-      };
+          new MultiDimensionalCoordinateRanges(new byte[] {}, coordinateRangesPerDimension)};
     }
 
     @Override
-    public MultiDimensionalNumericData getRangeForId(
-        final ByteArray partitionKey, final ByteArray sortKey) {
+    public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+        final ByteArray sortKey) {
       return null;
     }
 
@@ -614,20 +596,17 @@ public class MockComponents {
     }
 
     @Override
-    public Set<ByteArray> getQueryPartitionKeys(
-        final MultiDimensionalNumericData queryData, final IndexMetaData... hints) {
+    public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+        final IndexMetaData... hints) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public MultiDimensionalCoordinates getCoordinatesPerDimension(
-        final ByteArray partitionKey, final ByteArray sortKey) {
-      return new MultiDimensionalCoordinates(
-          new byte[] {},
-          new Coordinate[] {
-            new Coordinate((long) Double.parseDouble(new String(sortKey.getBytes())), new byte[] {})
-          });
+    public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+        final ByteArray sortKey) {
+      return new MultiDimensionalCoordinates(new byte[] {}, new Coordinate[] {new Coordinate(
+          (long) Double.parseDouble(new String(sortKey.getBytes())), new byte[] {})});
     }
 
     @Override
@@ -706,8 +685,8 @@ public class MockComponents {
   public static class IntegerWriter implements FieldWriter<Object, TestIndexFieldType> {
 
     @Override
-    public byte[] getVisibility(
-        final Object rowValue, final String fieldName, final TestIndexFieldType fieldValue) {
+    public byte[] getVisibility(final Object rowValue, final String fieldName,
+        final TestIndexFieldType fieldValue) {
       return fieldValue.getVisibility();
     }
 

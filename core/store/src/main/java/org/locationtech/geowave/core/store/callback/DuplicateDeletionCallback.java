@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,8 +38,8 @@ public class DuplicateDeletionCallback<T> implements DeleteCallback<T, GeoWaveRo
 
   private boolean closed = false;
 
-  public DuplicateDeletionCallback(
-      final BaseDataStore store, final InternalDataAdapter adapter, final Index index) {
+  public DuplicateDeletionCallback(final BaseDataStore store, final InternalDataAdapter adapter,
+      final Index index) {
     this.adapter = adapter;
     this.index = index;
     dataStore = store;
@@ -50,8 +51,10 @@ public class DuplicateDeletionCallback<T> implements DeleteCallback<T, GeoWaveRo
 
   @Override
   public void close() throws IOException {
-    if (closed) return;
-    else closed = true;
+    if (closed)
+      return;
+    else
+      closed = true;
     // make sure we take out the original rows first if they accidentally
     // got added to the duplicates
     for (int i = 0; i < origRows.size(); i++) {
@@ -65,13 +68,8 @@ public class DuplicateDeletionCallback<T> implements DeleteCallback<T, GeoWaveRo
       final InsertionIdData insertionId = entry.getValue();
       final InsertionIdQuery constraint =
           new InsertionIdQuery(insertionId.partitionKey, insertionId.sortKey, insertionId.dataId);
-      final Query<T> query =
-          (Query)
-              QueryBuilder.newBuilder()
-                  .indexName(index.getName())
-                  .addTypeName(adapter.getTypeName())
-                  .constraints(constraint)
-                  .build();
+      final Query<T> query = (Query) QueryBuilder.newBuilder().indexName(index.getName())
+          .addTypeName(adapter.getTypeName()).constraints(constraint).build();
 
       // we don't want the duplicates to try to delete one another
       // recursively over and over so we pass false for this deletion
@@ -91,9 +89,8 @@ public class DuplicateDeletionCallback<T> implements DeleteCallback<T, GeoWaveRo
         for (SinglePartitionInsertionIds insertId : ids.getPartitionKeys()) {
           if (!Arrays.equals(insertId.getPartitionKey().getBytes(), row.getPartitionKey())) {
             for (ByteArray sortKey : insertId.getSortKeys()) {
-              final InsertionIdData insertionId =
-                  new InsertionIdData(
-                      insertId.getPartitionKey().getBytes(), sortKey.getBytes(), row.getDataId());
+              final InsertionIdData insertionId = new InsertionIdData(
+                  insertId.getPartitionKey().getBytes(), sortKey.getBytes(), row.getDataId());
               if (!duplicateInsertionIds.containsKey(insertionId.partitionKey)) {
                 duplicateInsertionIds.put(insertionId.partitionKey, insertionId);
               }

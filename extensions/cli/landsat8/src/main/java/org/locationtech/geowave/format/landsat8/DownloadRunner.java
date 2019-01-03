@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,8 +26,7 @@ public class DownloadRunner extends AnalyzeRunner {
   private static final String DOWNLOAD_DIRECTORY = "images";
   protected Landsat8DownloadCommandLineOptions downloadOptions;
 
-  public DownloadRunner(
-      final Landsat8BasicCommandLineOptions analyzeOptions,
+  public DownloadRunner(final Landsat8BasicCommandLineOptions analyzeOptions,
       final Landsat8DownloadCommandLineOptions downloadOptions) {
     super(analyzeOptions);
     this.downloadOptions = downloadOptions;
@@ -54,8 +54,8 @@ public class DownloadRunner extends AnalyzeRunner {
       }
     }
     if (!localPath.getParentFile().exists() && !localPath.getParentFile().mkdirs()) {
-      LOGGER.warn(
-          "Unable to create directory '" + localPath.getParentFile().getAbsolutePath() + "'");
+      LOGGER
+          .warn("Unable to create directory '" + localPath.getParentFile().getAbsolutePath() + "'");
     }
     InputStream in = null;
     // first download the gzipped file
@@ -85,8 +85,8 @@ public class DownloadRunner extends AnalyzeRunner {
     }
   }
 
-  protected static File getDownloadTempFile(
-      final SimpleFeature band, final String workspaceDirectory) {
+  protected static File getDownloadTempFile(final SimpleFeature band,
+      final String workspaceDirectory) {
     File file = getDownloadFile(band, workspaceDirectory);
     return new File(file.getParentFile(), file.getName() + ".download");
   }
@@ -95,18 +95,7 @@ public class DownloadRunner extends AnalyzeRunner {
     final int path = (int) band.getAttribute(SceneFeatureIterator.PATH_ATTRIBUTE_NAME);
     final int row = (int) band.getAttribute(SceneFeatureIterator.ROW_ATTRIBUTE_NAME);
     final String entity = (String) band.getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME);
-    return new File(
-        workspaceDirectory
-            + File.separator
-            + DOWNLOAD_DIRECTORY
-            + File.separator
-            + path
-            + File.separator
-            + row
-            + File.separator
-            + entity
-            + File.separator
-            + band.getID()
-            + ".TIF");
+    return new File(workspaceDirectory + File.separator + DOWNLOAD_DIRECTORY + File.separator + path
+        + File.separator + row + File.separator + entity + File.separator + band.getID() + ".TIF");
   }
 }

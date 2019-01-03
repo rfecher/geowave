@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -90,18 +91,15 @@ public class DistributedRenderAggregation
     // NPEs
     System.setProperty("OPTIMIZE_LINE_WIDTH", Boolean.toString(options.isOptimizeLineWidth()));
     System.setProperty("MAX_FILTER_RULES", Integer.toString(options.getMaxFilters()));
-    System.setProperty(
-        "USE_GLOBAL_RENDERING_POOL",
+    System.setProperty("USE_GLOBAL_RENDERING_POOL",
         Boolean.toString(DistributedRenderOptions.isUseGlobalRenderPool()));
     new DefaultWebMapService(null).setApplicationContext(null);
     request.setFormatOptions(formatOptions);
     request.setWidth(options.getMapWidth());
     request.setHeight(options.getMapHeight());
     request.setTiled(options.isMetatile());
-    request.setScaleMethod(
-        options.isRenderScaleMethodAccurate()
-            ? ScaleComputationMethod.Accurate
-            : ScaleComputationMethod.OGC);
+    request.setScaleMethod(options.isRenderScaleMethodAccurate() ? ScaleComputationMethod.Accurate
+        : ScaleComputationMethod.OGC);
 
     if (options.isMetatile()) {
       // it doesn't matter what this is, as long as its not null, we are
@@ -114,12 +112,10 @@ public class DistributedRenderAggregation
     mapContent.addLayer(
         new FeatureLayer(new AsyncQueueFeatureCollection(type, queue), options.getStyle()));
     // produce map in a separate thread...
-    asyncRenderer =
-        CompletableFuture.supplyAsync(
-            () -> {
-              currentRenderer.produceMap(mapContent).dispose();
-              return currentRenderer.getDistributedRenderResult();
-            });
+    asyncRenderer = CompletableFuture.supplyAsync(() -> {
+      currentRenderer.produceMap(mapContent).dispose();
+      return currentRenderer.getDistributedRenderResult();
+    });
   }
 
   @Override

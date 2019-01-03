@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,11 +36,8 @@ public class NumericIndexStrategyWrapper implements NumericIndexStrategy {
   public byte[] toBinary() {
     final byte[] idBinary = StringUtils.stringToBinary(id);
     final byte[] delegateBinary = PersistenceUtils.toBinary(indexStrategy);
-    final ByteBuffer buf =
-        ByteBuffer.allocate(
-            VarintUtils.unsignedIntByteLength(idBinary.length)
-                + idBinary.length
-                + delegateBinary.length);
+    final ByteBuffer buf = ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(idBinary.length)
+        + idBinary.length + delegateBinary.length);
     VarintUtils.writeUnsignedInt(idBinary.length, buf);
     buf.put(idBinary);
     buf.put(delegateBinary);
@@ -59,16 +57,14 @@ public class NumericIndexStrategyWrapper implements NumericIndexStrategy {
   }
 
   @Override
-  public QueryRanges getQueryRanges(
-      final MultiDimensionalNumericData indexedRange, final IndexMetaData... hints) {
+  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+      final IndexMetaData... hints) {
     return indexStrategy.getQueryRanges(indexedRange, hints);
   }
 
   @Override
-  public QueryRanges getQueryRanges(
-      final MultiDimensionalNumericData indexedRange,
-      final int maxRangeDecomposition,
-      final IndexMetaData... hints) {
+  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+      final int maxRangeDecomposition, final IndexMetaData... hints) {
     return indexStrategy.getQueryRanges(indexedRange, maxRangeDecomposition, hints);
   }
 
@@ -78,14 +74,14 @@ public class NumericIndexStrategyWrapper implements NumericIndexStrategy {
   }
 
   @Override
-  public MultiDimensionalNumericData getRangeForId(
-      final ByteArray partitionKey, final ByteArray sortKey) {
+  public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+      final ByteArray sortKey) {
     return indexStrategy.getRangeForId(partitionKey, sortKey);
   }
 
   @Override
-  public MultiDimensionalCoordinates getCoordinatesPerDimension(
-      final ByteArray partitionKey, final ByteArray sortKey) {
+  public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+      final ByteArray sortKey) {
     return indexStrategy.getCoordinatesPerDimension(partitionKey, sortKey);
   }
 
@@ -100,8 +96,8 @@ public class NumericIndexStrategyWrapper implements NumericIndexStrategy {
   }
 
   @Override
-  public InsertionIds getInsertionIds(
-      final MultiDimensionalNumericData indexedData, final int maxDuplicateInsertionIds) {
+  public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+      final int maxDuplicateInsertionIds) {
     return indexStrategy.getInsertionIds(indexedData, maxDuplicateInsertionIds);
   }
 
@@ -127,8 +123,8 @@ public class NumericIndexStrategyWrapper implements NumericIndexStrategy {
   }
 
   @Override
-  public Set<ByteArray> getQueryPartitionKeys(
-      final MultiDimensionalNumericData queryData, final IndexMetaData... hints) {
+  public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+      final IndexMetaData... hints) {
     return indexStrategy.getQueryPartitionKeys(queryData, hints);
   }
 

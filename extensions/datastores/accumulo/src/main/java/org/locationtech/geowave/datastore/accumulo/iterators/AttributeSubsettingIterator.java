@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -45,8 +46,8 @@ public class AttributeSubsettingIterator extends TransformingIterator {
   }
 
   @Override
-  protected void transformRange(
-      final SortedKeyValueIterator<Key, Value> input, final KVBuffer output) throws IOException {
+  protected void transformRange(final SortedKeyValueIterator<Key, Value> input,
+      final KVBuffer output) throws IOException {
     while (input.hasTop()) {
       final Key wholeRowKey = input.getTopKey();
       final Value wholeRowVal = input.getTopValue();
@@ -97,8 +98,8 @@ public class AttributeSubsettingIterator extends TransformingIterator {
     }
   }
 
-  private Value constructNewValue(
-      final Value original, final byte[] originalBitmask, final byte[] newBitmask) {
+  private Value constructNewValue(final Value original, final byte[] originalBitmask,
+      final byte[] newBitmask) {
     final byte[] newBytes =
         BitmaskUtils.constructNewValue(original.get(), originalBitmask, newBitmask);
     if (newBytes == null) {
@@ -108,11 +109,8 @@ public class AttributeSubsettingIterator extends TransformingIterator {
   }
 
   @Override
-  public void init(
-      final SortedKeyValueIterator<Key, Value> source,
-      final Map<String, String> options,
-      final IteratorEnvironment env)
-      throws IOException {
+  public void init(final SortedKeyValueIterator<Key, Value> source,
+      final Map<String, String> options, final IteratorEnvironment env) throws IOException {
     super.init(source, options, env);
     // get fieldIds and associated adapter
     final String bitmaskStr = options.get(FIELD_SUBSET_BITMASK);
@@ -138,10 +136,8 @@ public class AttributeSubsettingIterator extends TransformingIterator {
 
   /** @return an {@link IteratorSetting} for this iterator */
   public static IteratorSetting getIteratorSetting() {
-    return new IteratorSetting(
-        AttributeSubsettingIterator.ITERATOR_PRIORITY,
-        AttributeSubsettingIterator.ITERATOR_NAME,
-        AttributeSubsettingIterator.class);
+    return new IteratorSetting(AttributeSubsettingIterator.ITERATOR_PRIORITY,
+        AttributeSubsettingIterator.ITERATOR_NAME, AttributeSubsettingIterator.class);
   }
 
   /**
@@ -152,14 +148,11 @@ public class AttributeSubsettingIterator extends TransformingIterator {
    * @param fieldIds the desired subset of fieldIds
    * @param numericDimensions the numeric dimension fields
    */
-  public static void setFieldNames(
-      final IteratorSetting setting,
-      final DataTypeAdapter<?> adapterAssociatedWithFieldIds,
-      final String[] fieldNames,
+  public static void setFieldNames(final IteratorSetting setting,
+      final DataTypeAdapter<?> adapterAssociatedWithFieldIds, final String[] fieldNames,
       final CommonIndexModel indexModel) {
-    final byte[] fieldSubsetBitmask =
-        BitmaskUtils.generateFieldSubsetBitmask(
-            indexModel, fieldNames, adapterAssociatedWithFieldIds);
+    final byte[] fieldSubsetBitmask = BitmaskUtils.generateFieldSubsetBitmask(indexModel,
+        fieldNames, adapterAssociatedWithFieldIds);
 
     setting.addOption(FIELD_SUBSET_BITMASK, ByteArrayUtils.byteArrayToString(fieldSubsetBitmask));
   }

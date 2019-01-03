@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,14 +24,16 @@ import org.opengis.feature.simple.SimpleFeature;
  * Fixed number of bins for a histogram. Unless configured, the range will expand dynamically,
  * redistributing the data as necessary into the wider bins.
  *
- * <p>The advantage of constraining the range of the statistic is to ignore values outside the
- * range, such as erroneous values. Erroneous values force extremes in the histogram. For example,
- * if the expected range of values falls between 0 and 1 and a value of 10000 occurs, then a single
- * bin contains the entire population between 0 and 1, a single bin represents the single value of
+ * <p>
+ * The advantage of constraining the range of the statistic is to ignore values outside the range,
+ * such as erroneous values. Erroneous values force extremes in the histogram. For example, if the
+ * expected range of values falls between 0 and 1 and a value of 10000 occurs, then a single bin
+ * contains the entire population between 0 and 1, a single bin represents the single value of
  * 10000. If there are extremes in the data, then use {@link FeatureNumericHistogramStatistics}
  * instead.
  *
- * <p>The default number of bins is 32.
+ * <p>
+ * The default number of bins is 32.
  */
 public class FeatureFixedBinNumericStatistics extends FixedBinNumericStatistics<SimpleFeature>
     implements FieldNameStatistic {
@@ -50,17 +53,13 @@ public class FeatureFixedBinNumericStatistics extends FixedBinNumericStatistics<
     super(adapterId, STATS_TYPE, fieldName);
   }
 
-  public FeatureFixedBinNumericStatistics(
-      final Short adapterId, final String fieldName, final int bins) {
+  public FeatureFixedBinNumericStatistics(final Short adapterId, final String fieldName,
+      final int bins) {
     super(adapterId, STATS_TYPE, fieldName, bins);
   }
 
-  public FeatureFixedBinNumericStatistics(
-      final Short internalDataAdapterId,
-      final String fieldName,
-      final int bins,
-      final double minValue,
-      final double maxValue) {
+  public FeatureFixedBinNumericStatistics(final Short internalDataAdapterId, final String fieldName,
+      final int bins, final double minValue, final double maxValue) {
     super(internalDataAdapterId, STATS_TYPE, fieldName, bins, minValue, maxValue);
   }
 
@@ -70,11 +69,7 @@ public class FeatureFixedBinNumericStatistics extends FixedBinNumericStatistics<
   }
 
   @Override
-  public InternalDataStatistics<
-          SimpleFeature,
-          FixedBinNumericHistogram,
-          FieldStatisticsQueryBuilder<FixedBinNumericHistogram>>
-      duplicate() {
+  public InternalDataStatistics<SimpleFeature, FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> duplicate() {
     return new FeatureFixedBinNumericStatistics(adapterId, getFieldName());
   }
 
@@ -138,13 +133,10 @@ public class FeatureFixedBinNumericStatistics extends FixedBinNumericStatistics<
     }
 
     @Override
-    public InternalDataStatistics<
-            SimpleFeature,
-            FixedBinNumericHistogram,
-            FieldStatisticsQueryBuilder<FixedBinNumericHistogram>>
-        create(final Short internalDataAdapterId, final String fieldName) {
-      return new FeatureFixedBinNumericStatistics(
-          internalDataAdapterId, fieldName, bins, minValue, maxValue);
+    public InternalDataStatistics<SimpleFeature, FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> create(
+        final Short internalDataAdapterId, final String fieldName) {
+      return new FeatureFixedBinNumericStatistics(internalDataAdapterId, fieldName, bins, minValue,
+          maxValue);
     }
 
     @Override

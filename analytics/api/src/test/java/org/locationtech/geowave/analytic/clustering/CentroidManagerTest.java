@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.analytic.clustering;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.List;
 import org.geotools.feature.type.BasicFeatureTypes;
@@ -39,14 +39,11 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 public class CentroidManagerTest {
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
-  private void ingest(
-      final DataStore dataStore,
-      final FeatureDataAdapter adapter,
-      final Index index,
-      final SimpleFeature feature)
-      throws IOException {
+  private void ingest(final DataStore dataStore, final FeatureDataAdapter adapter,
+      final Index index, final SimpleFeature feature) throws IOException {
     dataStore.addType(adapter, index);
     try (Writer writer = dataStore.createWriter(adapter.getTypeName())) {
       writer.write(feature);
@@ -57,29 +54,16 @@ public class CentroidManagerTest {
   public void testSampleRecall() throws IOException {
 
     final SimpleFeatureType ftype =
-        AnalyticFeature.createGeometryFeatureAdapter(
-                "centroid",
-                new String[] {"extra1"},
-                BasicFeatureTypes.DEFAULT_NAMESPACE,
-                ClusteringUtils.CLUSTERING_CRS)
+        AnalyticFeature
+            .createGeometryFeatureAdapter("centroid", new String[] {"extra1"},
+                BasicFeatureTypes.DEFAULT_NAMESPACE, ClusteringUtils.CLUSTERING_CRS)
             .getFeatureType();
     final GeometryFactory factory = new GeometryFactory();
     final String grp1 = "g1";
     final String grp2 = "g2";
-    SimpleFeature feature =
-        AnalyticFeature.createGeometryFeature(
-            ftype,
-            "b1",
-            "123",
-            "fred",
-            grp1,
-            20.30203,
-            factory.createPoint(new Coordinate(02.33, 0.23)),
-            new String[] {"extra1"},
-            new double[] {0.022},
-            1,
-            1,
-            0);
+    SimpleFeature feature = AnalyticFeature.createGeometryFeature(ftype, "b1", "123", "fred", grp1,
+        20.30203, factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
+        new double[] {0.022}, 1, 1, 0);
 
     final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     final FeatureDataAdapter adapter = new FeatureDataAdapter(ftype);
@@ -96,82 +80,30 @@ public class CentroidManagerTest {
         storeFamily.getInternalAdapterStoreFactory().createStore(opts);
     ingest(dataStore, adapter, index, feature);
 
-    feature =
-        AnalyticFeature.createGeometryFeature(
-            ftype,
-            "b1",
-            "231",
-            "flood",
-            grp1,
-            20.30203,
-            factory.createPoint(new Coordinate(02.33, 0.23)),
-            new String[] {"extra1"},
-            new double[] {0.022},
-            1,
-            1,
-            0);
+    feature = AnalyticFeature.createGeometryFeature(ftype, "b1", "231", "flood", grp1, 20.30203,
+        factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
+        new double[] {0.022}, 1, 1, 0);
     ingest(dataStore, adapter, index, feature);
 
-    feature =
-        AnalyticFeature.createGeometryFeature(
-            ftype,
-            "b1",
-            "321",
-            "flou",
-            grp2,
-            20.30203,
-            factory.createPoint(new Coordinate(02.33, 0.23)),
-            new String[] {"extra1"},
-            new double[] {0.022},
-            1,
-            1,
-            0);
+    feature = AnalyticFeature.createGeometryFeature(ftype, "b1", "321", "flou", grp2, 20.30203,
+        factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
+        new double[] {0.022}, 1, 1, 0);
     ingest(dataStore, adapter, index, feature);
 
-    feature =
-        AnalyticFeature.createGeometryFeature(
-            ftype,
-            "b2",
-            "312",
-            "flapper",
-            grp2,
-            20.30203,
-            factory.createPoint(new Coordinate(02.33, 0.23)),
-            new String[] {"extra1"},
-            new double[] {0.022},
-            1,
-            1,
-            0);
+    feature = AnalyticFeature.createGeometryFeature(ftype, "b2", "312", "flapper", grp2, 20.30203,
+        factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
+        new double[] {0.022}, 1, 1, 0);
     ingest(dataStore, adapter, index, feature);
 
     // and one feature with a different zoom level
-    feature =
-        AnalyticFeature.createGeometryFeature(
-            ftype,
-            "b2",
-            "312",
-            "flapper",
-            grp2,
-            20.30203,
-            factory.createPoint(new Coordinate(02.33, 0.23)),
-            new String[] {"extra1"},
-            new double[] {0.022},
-            2,
-            1,
-            0);
+    feature = AnalyticFeature.createGeometryFeature(ftype, "b2", "312", "flapper", grp2, 20.30203,
+        factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
+        new double[] {0.022}, 2, 1, 0);
     ingest(dataStore, adapter, index, feature);
 
-    CentroidManagerGeoWave<SimpleFeature> manager =
-        new CentroidManagerGeoWave<>(
-            dataStore,
-            indexStore,
-            adapterStore,
-            new SimpleFeatureItemWrapperFactory(),
-            adapter.getTypeName(),
-            internalAdapterStore.getAdapterId(adapter.getTypeName()),
-            index.getName(),
-            "b1",
-            1);
+    CentroidManagerGeoWave<SimpleFeature> manager = new CentroidManagerGeoWave<>(dataStore,
+        indexStore, adapterStore, new SimpleFeatureItemWrapperFactory(), adapter.getTypeName(),
+        internalAdapterStore.getAdapterId(adapter.getTypeName()), index.getName(), "b1", 1);
     List<AnalyticItemWrapper<SimpleFeature>> centroids = manager.getCentroidsForGroup(null);
 
     assertEquals(3, centroids.size());
@@ -185,33 +117,24 @@ public class CentroidManagerTest {
     feature = centroids.get(0).getWrappedItem();
     assertEquals(0.022, (Double) feature.getAttribute("extra1"), 0.001);
 
-    manager =
-        new CentroidManagerGeoWave<>(
-            dataStore,
-            indexStore,
-            adapterStore,
-            new SimpleFeatureItemWrapperFactory(),
-            adapter.getTypeName(),
-            internalAdapterStore.getAdapterId(adapter.getTypeName()),
-            index.getName(),
-            "b1",
-            1);
+    manager = new CentroidManagerGeoWave<>(dataStore, indexStore, adapterStore,
+        new SimpleFeatureItemWrapperFactory(), adapter.getTypeName(),
+        internalAdapterStore.getAdapterId(adapter.getTypeName()), index.getName(), "b1", 1);
 
-    manager.processForAllGroups(
-        new CentroidProcessingFn<SimpleFeature>() {
+    manager.processForAllGroups(new CentroidProcessingFn<SimpleFeature>() {
 
-          @Override
-          public int processGroup(
-              final String groupID, final List<AnalyticItemWrapper<SimpleFeature>> centroids) {
-            if (groupID.equals(grp1)) {
-              assertEquals(2, centroids.size());
-            } else if (groupID.equals(grp2)) {
-              assertEquals(1, centroids.size());
-            } else {
-              assertTrue("what group is this : " + groupID, false);
-            }
-            return 0;
-          }
-        });
+      @Override
+      public int processGroup(final String groupID,
+          final List<AnalyticItemWrapper<SimpleFeature>> centroids) {
+        if (groupID.equals(grp1)) {
+          assertEquals(2, centroids.size());
+        } else if (groupID.equals(grp2)) {
+          assertEquals(1, centroids.size());
+        } else {
+          assertTrue("what group is this : " + groupID, false);
+        }
+        return 0;
+      }
+    });
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,13 +36,8 @@ public class KDEReducer
     private final int x;
     private final int y;
 
-    public TileInfo(
-        final double tileWestLon,
-        final double tileEastLon,
-        final double tileSouthLat,
-        final double tileNorthLat,
-        final int x,
-        final int y) {
+    public TileInfo(final double tileWestLon, final double tileEastLon, final double tileSouthLat,
+        final double tileNorthLat, final int x, final int y) {
       this.tileWestLon = tileWestLon;
       this.tileEastLon = tileEastLon;
       this.tileSouthLat = tileSouthLat;
@@ -121,9 +117,8 @@ public class KDEReducer
   protected double prevPct = 0;
 
   @Override
-  protected void reduce(
-      final DoubleWritable key, final Iterable<LongWritable> values, final Context context)
-      throws IOException, InterruptedException {
+  protected void reduce(final DoubleWritable key, final Iterable<LongWritable> values,
+      final Context context) throws IOException, InterruptedException {
     if (key.get() < 0) {
       final double prevMax = -key.get();
       if (prevMax > max) {
@@ -159,26 +154,16 @@ public class KDEReducer
         raster.setSample(tileInfo.x, tileInfo.y, 1, normalizedValue);
 
         raster.setSample(tileInfo.x, tileInfo.y, 2, percentile);
-        context.write(
-            new GeoWaveOutputKey(coverageName, indexList.toArray(new String[0])),
-            RasterUtils.createCoverageTypeDouble(
-                coverageName,
-                tileInfo.tileWestLon,
-                tileInfo.tileEastLon,
-                tileInfo.tileSouthLat,
-                tileInfo.tileNorthLat,
-                MINS_PER_BAND,
-                MAXES_PER_BAND,
-                NAME_PER_BAND,
-                raster,
-                crsCode));
+        context.write(new GeoWaveOutputKey(coverageName, indexList.toArray(new String[0])),
+            RasterUtils.createCoverageTypeDouble(coverageName, tileInfo.tileWestLon,
+                tileInfo.tileEastLon, tileInfo.tileSouthLat, tileInfo.tileNorthLat, MINS_PER_BAND,
+                MAXES_PER_BAND, NAME_PER_BAND, raster, crsCode));
         currentKey++;
       }
     }
   }
 
-  @SuppressFBWarnings(
-      value = "INT_BAD_REM_BY_1",
+  @SuppressFBWarnings(value = "INT_BAD_REM_BY_1",
       justification = "The calculation is appropriate if we ever want to vary to tile size.")
   private TileInfo fromCellIndexToTileInfo(final long index) {
     final int xPost = (int) (index / numYPosts);
@@ -197,12 +182,7 @@ public class KDEReducer
     final double tileSouthLat = ((yTile * crsHeight) / numYTiles) + yMin;
     final double tileEastLon = tileWestLon + (crsWidth / numXTiles);
     final double tileNorthLat = tileSouthLat + (crsHeight / numYTiles);
-    return new TileInfo(
-        tileWestLon,
-        tileEastLon,
-        tileSouthLat,
-        tileNorthLat,
-        x,
+    return new TileInfo(tileWestLon, tileEastLon, tileSouthLat, tileNorthLat, x,
         KDEJobRunner.TILE_SIZE - y - 1); // remember java rasters go
     // from 0 at the
     // top
@@ -218,15 +198,11 @@ public class KDEReducer
     minLevels = context.getConfiguration().getInt(KDEJobRunner.MIN_LEVEL_KEY, 1);
     maxLevels = context.getConfiguration().getInt(KDEJobRunner.MAX_LEVEL_KEY, 25);
     coverageName = context.getConfiguration().get(KDEJobRunner.COVERAGE_NAME_KEY, "");
-    valueRangePerDimension =
-        new ValueRange[] {
-          new ValueRange(
-              context.getConfiguration().getDouble(KDEJobRunner.X_MIN_KEY, -180),
-              context.getConfiguration().getDouble(KDEJobRunner.X_MAX_KEY, 180)),
-          new ValueRange(
-              context.getConfiguration().getDouble(KDEJobRunner.Y_MIN_KEY, -90),
-              context.getConfiguration().getDouble(KDEJobRunner.Y_MAX_KEY, 90))
-        };
+    valueRangePerDimension = new ValueRange[] {
+        new ValueRange(context.getConfiguration().getDouble(KDEJobRunner.X_MIN_KEY, -180),
+            context.getConfiguration().getDouble(KDEJobRunner.X_MAX_KEY, 180)),
+        new ValueRange(context.getConfiguration().getDouble(KDEJobRunner.Y_MIN_KEY, -90),
+            context.getConfiguration().getDouble(KDEJobRunner.Y_MAX_KEY, 90))};
     crsCode = context.getConfiguration().get(KDEJobRunner.OUTPUT_CRSCODE_KEY);
 
     numLevels = (maxLevels - minLevels) + 1;
@@ -244,8 +220,8 @@ public class KDEReducer
       }
 
     } else {
-      indexList.add(
-          new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName());
+      indexList
+          .add(new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName());
     }
   }
 }

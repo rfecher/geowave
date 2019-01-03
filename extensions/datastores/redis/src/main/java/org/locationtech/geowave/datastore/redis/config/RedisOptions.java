@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,30 +27,28 @@ public class RedisOptions extends StoreFactoryOptions {
   @Parameter(names = "--address", required = true, description = "The address to connect to.")
   private String address;
 
-  @Parameter(
-      names = "--compression",
+  @Parameter(names = "--compression",
       description = "Can be \"snappy\",\"lz4\", or \"none\". Defaults to snappy.",
       converter = CompressionConverter.class)
   private Compression compression = Compression.SNAPPY;
 
   @ParametersDelegate
-  protected BaseDataStoreOptions baseOptions =
-      new BaseDataStoreOptions() {
-        @Override
-        public boolean isServerSideLibraryEnabled() {
-          return false;
-        }
+  protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
+    @Override
+    public boolean isServerSideLibraryEnabled() {
+      return false;
+    }
 
-        @Override
-        protected int defaultMaxRangeDecomposition() {
-          return RedisUtils.REDIS_DEFAULT_MAX_RANGE_DECOMPOSITION;
-        }
+    @Override
+    protected int defaultMaxRangeDecomposition() {
+      return RedisUtils.REDIS_DEFAULT_MAX_RANGE_DECOMPOSITION;
+    }
 
-        @Override
-        protected int defaultAggregationMaxRangeDecomposition() {
-          return RedisUtils.REDIS_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION;
-        }
-      };
+    @Override
+    protected int defaultAggregationMaxRangeDecomposition() {
+      return RedisUtils.REDIS_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION;
+    }
+  };
 
   public RedisOptions() {
     super();
@@ -86,9 +85,7 @@ public class RedisOptions extends StoreFactoryOptions {
   }
 
   public static enum Compression {
-    SNAPPY(c -> new SnappyCodec(c)),
-    L4Z(c -> new LZ4Codec(c)),
-    NONE(c -> c);
+    SNAPPY(c -> new SnappyCodec(c)), L4Z(c -> new LZ4Codec(c)), NONE(c -> c);
     private Function<Codec, Codec> compressionTransform;
 
     private Compression(final Function<Codec, Codec> compressionTransform) {

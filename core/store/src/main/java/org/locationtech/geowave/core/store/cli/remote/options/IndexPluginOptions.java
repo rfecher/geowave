@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,13 +37,15 @@ public class IndexPluginOptions extends DefaultPluginOptions implements PluginOp
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexPluginOptions.class);
 
   private String indexType;
-  @ParametersDelegate private BasicIndexOptions basicIndexOptions = new BasicIndexOptions();
+  @ParametersDelegate
+  private BasicIndexOptions basicIndexOptions = new BasicIndexOptions();
 
   // This is the plugin loaded from SPI based on "type"
   private DimensionalityTypeProviderSpi indexPlugin = null;
 
   // These are the options loaded from indexPlugin based on "type"
-  @ParametersDelegate private DimensionalityTypeOptions indexOptions = null;
+  @ParametersDelegate
+  private DimensionalityTypeOptions indexOptions = null;
 
   /** Constructor */
   public IndexPluginOptions() {}
@@ -105,17 +108,12 @@ public class IndexPluginOptions extends DefaultPluginOptions implements PluginOp
     Index retVal = index;
     if ((options.basicIndexOptions.getNumPartitions() > 1)
         && options.basicIndexOptions.getPartitionStrategy().equals(PartitionStrategy.ROUND_ROBIN)) {
-      retVal =
-          new CustomNameIndex(
-              new CompoundIndexStrategy(
-                  new RoundRobinKeyIndexStrategy(options.basicIndexOptions.getNumPartitions()),
-                  index.getIndexStrategy()),
-              index.getIndexModel(),
-              index.getName()
-                  + "_"
-                  + PartitionStrategy.ROUND_ROBIN.name()
-                  + "_"
-                  + options.basicIndexOptions.getNumPartitions());
+      retVal = new CustomNameIndex(
+          new CompoundIndexStrategy(
+              new RoundRobinKeyIndexStrategy(options.basicIndexOptions.getNumPartitions()),
+              index.getIndexStrategy()),
+          index.getIndexModel(), index.getName() + "_" + PartitionStrategy.ROUND_ROBIN.name() + "_"
+              + options.basicIndexOptions.getNumPartitions());
     } else if (options.basicIndexOptions.getNumPartitions() > 1) {
       // default to round robin partitioning (none is not valid if there
       // are more than 1 partition)
@@ -123,22 +121,16 @@ public class IndexPluginOptions extends DefaultPluginOptions implements PluginOp
         LOGGER.warn(
             "Partition strategy is necessary when using more than 1 partition, defaulting to 'hash' partitioning.");
       }
-      retVal =
-          new CustomNameIndex(
-              new CompoundIndexStrategy(
-                  new HashKeyIndexStrategy(options.basicIndexOptions.getNumPartitions()),
-                  index.getIndexStrategy()),
-              index.getIndexModel(),
-              index.getName()
-                  + "_"
-                  + PartitionStrategy.HASH.name()
-                  + "_"
-                  + options.basicIndexOptions.getNumPartitions());
+      retVal = new CustomNameIndex(
+          new CompoundIndexStrategy(
+              new HashKeyIndexStrategy(options.basicIndexOptions.getNumPartitions()),
+              index.getIndexStrategy()),
+          index.getIndexModel(), index.getName() + "_" + PartitionStrategy.HASH.name() + "_"
+              + options.basicIndexOptions.getNumPartitions());
     }
     if ((options.getNameOverride() != null) && (options.getNameOverride().length() > 0)) {
-      retVal =
-          new CustomNameIndex(
-              retVal.getIndexStrategy(), retVal.getIndexModel(), options.getNameOverride());
+      retVal = new CustomNameIndex(retVal.getIndexStrategy(), retVal.getIndexModel(),
+          options.getNameOverride());
     }
     return retVal;
   }
@@ -148,9 +140,7 @@ public class IndexPluginOptions extends DefaultPluginOptions implements PluginOp
   }
 
   public static enum PartitionStrategy {
-    NONE,
-    HASH,
-    ROUND_ROBIN;
+    NONE, HASH, ROUND_ROBIN;
   }
 
   public abstract static class BaseIndexBuilder<T extends IndexBuilder> implements IndexBuilder {

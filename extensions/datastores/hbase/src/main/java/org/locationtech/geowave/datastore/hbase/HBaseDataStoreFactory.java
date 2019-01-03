@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -18,8 +19,8 @@ import org.locationtech.geowave.datastore.hbase.cli.config.HBaseRequiredOptions;
 import org.locationtech.geowave.datastore.hbase.operations.HBaseOperations;
 
 public class HBaseDataStoreFactory extends BaseDataStoreFactory {
-  public HBaseDataStoreFactory(
-      final String typeName, final String description, final StoreFactoryHelper helper) {
+  public HBaseDataStoreFactory(final String typeName, final String description,
+      final StoreFactoryHelper helper) {
     super(typeName, description, helper);
   }
 
@@ -35,7 +36,7 @@ public class HBaseDataStoreFactory extends BaseDataStoreFactory {
 
     final DataStoreOperations hbaseOperations = helper.createOperations(opts);
 
-    return new HBaseDataStore(
-        (HBaseOperations) hbaseOperations, (HBaseOptions) opts.getStoreOptions());
+    return new HBaseDataStore((HBaseOperations) hbaseOperations,
+        (HBaseOptions) opts.getStoreOptions());
   }
 }

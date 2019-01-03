@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,8 +52,7 @@ public class ConfigOptions {
   public static final String GEOWAVE_CACHE_FILE = "config.properties";
 
   /** Allow the user to override the config file location */
-  @Parameter(
-      names = {"-cf", "--config-file"},
+  @Parameter(names = {"-cf", "--config-file"},
       description = "Override configuration file (default is <home>/.geowave/config.properties)")
   private String configFile;
 
@@ -76,9 +76,8 @@ public class ConfigOptions {
     // HP Fortify "Path Manipulation" false positive
     // What Fortify considers "user input" comes only
     // from users with OS-level access anyway
-    final String cachePath =
-        String.format(
-            "%s%s%s", System.getProperty("user.home"), File.separator, GEOWAVE_CACHE_PATH);
+    final String cachePath = String.format("%s%s%s", System.getProperty("user.home"),
+        File.separator, GEOWAVE_CACHE_PATH);
     return new File(cachePath);
   }
 
@@ -97,15 +96,13 @@ public class ConfigOptions {
     if (version != null) {
       return formatConfigFile(version, defaultPath);
     } else {
-      final String[] configFiles =
-          defaultPath.list(
-              new FilenameFilter() {
+      final String[] configFiles = defaultPath.list(new FilenameFilter() {
 
-                @Override
-                public boolean accept(File dir, String name) {
-                  return name.endsWith("-config.properties");
-                }
-              });
+        @Override
+        public boolean accept(File dir, String name) {
+          return name.endsWith("-config.properties");
+        }
+      });
       if (configFiles != null && configFiles.length > 0) {
         final String backupVersion = configFiles[0].substring(0, configFiles[0].length() - 18);
         return formatConfigFile(backupVersion, defaultPath);
@@ -126,36 +123,32 @@ public class ConfigOptions {
     // HP Fortify "Path Manipulation" false positive
     // What Fortify considers "user input" comes only
     // from users with OS-level access anyway
-    final String configFile =
-        String.format(
-            "%s%s%s%s%s",
-            defaultPath.getAbsolutePath(), File.separator, version, "-", GEOWAVE_CACHE_FILE);
+    final String configFile = String.format("%s%s%s%s%s", defaultPath.getAbsolutePath(),
+        File.separator, version, "-", GEOWAVE_CACHE_FILE);
     return new File(configFile);
   }
 
-  public static boolean writeProperties(
-      final File configFile, final Properties properties, Class<?> clazz, String namespacePrefix) {
+  public static boolean writeProperties(final File configFile, final Properties properties,
+      Class<?> clazz, String namespacePrefix) {
     try {
-      Properties tmp =
-          new Properties() {
-            private static final long serialVersionUID = 1L;
+      Properties tmp = new Properties() {
+        private static final long serialVersionUID = 1L;
 
-            @Override
-            public Set<Object> keySet() {
-              return Collections.unmodifiableSet(new TreeSet<Object>(super.keySet()));
-            }
+        @Override
+        public Set<Object> keySet() {
+          return Collections.unmodifiableSet(new TreeSet<Object>(super.keySet()));
+        }
 
-            @Override
-            public synchronized Enumeration<Object> keys() {
-              return Collections.enumeration(new TreeSet<Object>(super.keySet()));
-            }
-          };
+        @Override
+        public synchronized Enumeration<Object> keys() {
+          return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+        }
+      };
 
       // check if encryption is enabled - it is by default and would need
       // to be explicitly disabled
-      if (Boolean.parseBoolean(
-          properties.getProperty(
-              Constants.ENCRYPTION_ENABLED_KEY, Constants.ENCRYPTION_ENABLED_DEFAULT))) {
+      if (Boolean.parseBoolean(properties.getProperty(Constants.ENCRYPTION_ENABLED_KEY,
+          Constants.ENCRYPTION_ENABLED_DEFAULT))) {
         // check if any values exist that need to be encrypted before
         // written to properties
         if (clazz != null) {
@@ -175,14 +168,11 @@ public class ConfigOptions {
                     String encryptedValue = value;
                     try {
                       File tokenFile = SecurityUtils.getFormattedTokenKeyFileForConfig(configFile);
-                      encryptedValue =
-                          SecurityUtils.encryptAndHexEncodeValue(
-                              value, tokenFile.getAbsolutePath());
+                      encryptedValue = SecurityUtils.encryptAndHexEncodeValue(value,
+                          tokenFile.getAbsolutePath());
                     } catch (Exception e) {
-                      LOGGER.error(
-                          "An error occurred encrypting specified password value: "
-                              + e.getLocalizedMessage(),
-                          e);
+                      LOGGER.error("An error occurred encrypting specified password value: "
+                          + e.getLocalizedMessage(), e);
                       encryptedValue = value;
                     }
                     properties.setProperty(storeFieldName, encryptedValue);

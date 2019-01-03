@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -64,10 +65,7 @@ public class RocksDBClient implements Closeable {
     protected final short adapterId;
     protected final byte[] partition;
 
-    public IndexCacheKey(
-        final String directory,
-        final short adapterId,
-        final byte[] partition,
+    public IndexCacheKey(final String directory, final short adapterId, final byte[] partition,
         final boolean requiresTimestamp) {
       super(directory, requiresTimestamp);
       this.adapterId = adapterId;
@@ -103,25 +101,16 @@ public class RocksDBClient implements Closeable {
 
   private final Cache<String, CacheKey> keyCache = Caffeine.newBuilder().build();
   private final LoadingCache<IndexCacheKey, RocksDBIndexTable> indexTableCache =
-      Caffeine.newBuilder()
-          .build(
-              key -> {
-                return new RocksDBIndexTable(
-                    indexWriteOptions,
-                    indexReadOptions,
-                    key.directory,
-                    key.adapterId,
-                    key.partition,
-                    key.requiresTimestamp);
-              });
+      Caffeine.newBuilder().build(key -> {
+        return new RocksDBIndexTable(indexWriteOptions, indexReadOptions, key.directory,
+            key.adapterId, key.partition, key.requiresTimestamp);
+      });
   private final LoadingCache<CacheKey, RocksDBMetadataTable> metadataTableCache =
-      Caffeine.newBuilder()
-          .build(
-              key -> {
-                new File(key.directory).mkdirs();
-                return new RocksDBMetadataTable(
-                    RocksDB.open(metadataOptions, key.directory), key.requiresTimestamp);
-              });
+      Caffeine.newBuilder().build(key -> {
+        new File(key.directory).mkdirs();
+        return new RocksDBMetadataTable(RocksDB.open(metadataOptions, key.directory),
+            key.requiresTimestamp);
+      });
   private final String subDirectory;
 
   protected static Options indexWriteOptions = null;
@@ -136,11 +125,8 @@ public class RocksDBClient implements Closeable {
     return subDirectory;
   }
 
-  public synchronized RocksDBIndexTable getIndexTable(
-      final String tableName,
-      final short adapterId,
-      final byte[] partition,
-      final boolean requiresTimestamp) {
+  public synchronized RocksDBIndexTable getIndexTable(final String tableName, final short adapterId,
+      final byte[] partition, final boolean requiresTimestamp) {
     if (indexWriteOptions == null) {
       RocksDB.loadLibrary();
       final int cores = Runtime.getRuntime().availableProcessors();
@@ -149,10 +135,8 @@ public class RocksDBClient implements Closeable {
       indexReadOptions = new Options().setIncreaseParallelism(cores);
     }
     final String directory = subDirectory + "/" + tableName;
-    return indexTableCache.get(
-        (IndexCacheKey)
-            keyCache.get(
-                directory, d -> new IndexCacheKey(d, adapterId, partition, requiresTimestamp)));
+    return indexTableCache.get((IndexCacheKey) keyCache.get(directory,
+        d -> new IndexCacheKey(d, adapterId, partition, requiresTimestamp)));
   }
 
   public synchronized RocksDBMetadataTable getMetadataTable(final MetadataType type) {
@@ -161,8 +145,8 @@ public class RocksDBClient implements Closeable {
       metadataOptions = new Options().setCreateIfMissing(true).optimizeForSmallDb();
     }
     final String directory = subDirectory + "/" + type.name();
-    return metadataTableCache.get(
-        keyCache.get(directory, d -> new CacheKey(d, type.equals(MetadataType.STATS))));
+    return metadataTableCache
+        .get(keyCache.get(directory, d -> new CacheKey(d, type.equals(MetadataType.STATS))));
   }
 
   public boolean indexTableExists(final String indexName) {

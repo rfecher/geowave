@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,22 +36,12 @@ import org.locationtech.geowave.core.store.index.CommonIndexValue;
  */
 public class CommonIndexedPersistenceEncoding extends IndexedPersistenceEncoding<CommonIndexValue> {
 
-  public CommonIndexedPersistenceEncoding(
-      final short internalAdapterId,
-      final ByteArray dataId,
-      final ByteArray insertionPartitionKey,
-      final ByteArray insertionSortKey,
-      final int duplicateCount,
-      final PersistentDataset<CommonIndexValue> commonData,
+  public CommonIndexedPersistenceEncoding(final short internalAdapterId, final ByteArray dataId,
+      final ByteArray insertionPartitionKey, final ByteArray insertionSortKey,
+      final int duplicateCount, final PersistentDataset<CommonIndexValue> commonData,
       final PersistentDataset<byte[]> unknownData) {
-    super(
-        internalAdapterId,
-        dataId,
-        insertionPartitionKey,
-        insertionSortKey,
-        duplicateCount,
-        commonData,
-        unknownData);
+    super(internalAdapterId, dataId, insertionPartitionKey, insertionSortKey, duplicateCount,
+        commonData, unknownData);
   }
 
   /**
@@ -76,9 +67,8 @@ public class CommonIndexedPersistenceEncoding extends IndexedPersistenceEncoding
           // final MultiDimensionalNumericData md =
           // correctForNormalizationError(index.getIndexStrategy().getRangeForId(insertionId));
           // used to check the result of the index strategy
-          if (LOGGER.isDebugEnabled()
-              && checkCoverage(
-                  boxRangeData, index.getIndexStrategy().getRangeForId(partitionKey, sortKey))) {
+          if (LOGGER.isDebugEnabled() && checkCoverage(boxRangeData,
+              index.getIndexStrategy().getRangeForId(partitionKey, sortKey))) {
             LOGGER.error(
                 "Index strategy produced an unmatching tile during encoding and storing an entry");
           }
@@ -101,16 +91,15 @@ public class CommonIndexedPersistenceEncoding extends IndexedPersistenceEncoding
    * @param innerTile
    * @return
    */
-  private boolean checkCoverage(
-      final MultiDimensionalNumericData boxRangeData, final MultiDimensionalNumericData innerTile) {
+  private boolean checkCoverage(final MultiDimensionalNumericData boxRangeData,
+      final MultiDimensionalNumericData innerTile) {
     for (int i = 0; i < boxRangeData.getDimensionCount(); i++) {
       final double i1 = innerTile.getDataPerDimension()[i].getMin();
       final double i2 = innerTile.getDataPerDimension()[i].getMax();
       final double j1 = boxRangeData.getDataPerDimension()[i].getMin();
       final double j2 = boxRangeData.getDataPerDimension()[i].getMax();
-      final boolean overlaps =
-          ((i1 < j2) || DoubleMath.fuzzyEquals(i1, j2, DOUBLE_TOLERANCE))
-              && ((i2 > j1) || DoubleMath.fuzzyEquals(i2, j1, DOUBLE_TOLERANCE));
+      final boolean overlaps = ((i1 < j2) || DoubleMath.fuzzyEquals(i1, j2, DOUBLE_TOLERANCE))
+          && ((i2 > j1) || DoubleMath.fuzzyEquals(i2, j1, DOUBLE_TOLERANCE));
       if (!overlaps) {
         return false;
       }

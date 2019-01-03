@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,8 +27,9 @@ import org.locationtech.geowave.mapreduce.input.GeoWaveInputFormat;
  * By the nature of holding single instances of Writable instances by the serializers, this class
  * and its contents may be only accessed by one 'worker' (at a time).
  *
- * <p>The helper methods assume all Writable instances are wrapped in an ObjectWritable. The reason
- * for this approach, consistent with other support classes in this package, is to allow mappers and
+ * <p>
+ * The helper methods assume all Writable instances are wrapped in an ObjectWritable. The reason for
+ * this approach, consistent with other support classes in this package, is to allow mappers and
  * reducers to use the generic ObjectWritable since entry inputs maybe be associated with different
  * adapters, and thus have different associated Writable instances. Configuration of Hadoop Mappers
  * and Reducers requires a specific type.
@@ -40,13 +42,12 @@ public class HadoopWritableSerializationTool {
   private final ObjectWritable objectWritable = new ObjectWritable();
 
   public HadoopWritableSerializationTool(final JobContext jobContext) {
-    this(
-        GeoWaveInputFormat.getJobContextAdapterStore(jobContext),
+    this(GeoWaveInputFormat.getJobContextAdapterStore(jobContext),
         GeoWaveInputFormat.getJobContextInternalAdapterStore(jobContext));
   }
 
-  public HadoopWritableSerializationTool(
-      final TransientAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore) {
+  public HadoopWritableSerializationTool(final TransientAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore) {
     super();
     this.adapterStore = adapterStore;
     this.internalAdapterStore = internalAdapterStore;
@@ -92,21 +93,20 @@ public class HadoopWritableSerializationTool {
         serializer = hadoopAdapter.createWritableSerializer();
         serializers.put(typeName, serializer);
       } else {
-        serializer =
-            new HadoopWritableSerializer<Object, Writable>() {
-              final ObjectWritable writable = new ObjectWritable();
+        serializer = new HadoopWritableSerializer<Object, Writable>() {
+          final ObjectWritable writable = new ObjectWritable();
 
-              @Override
-              public ObjectWritable toWritable(final Object entry) {
-                writable.set(entry);
-                return writable;
-              }
+          @Override
+          public ObjectWritable toWritable(final Object entry) {
+            writable.set(entry);
+            return writable;
+          }
 
-              @Override
-              public Object fromWritable(final Writable writable) {
-                return ((ObjectWritable) writable).get();
-              }
-            };
+          @Override
+          public Object fromWritable(final Writable writable) {
+            return ((ObjectWritable) writable).get();
+          }
+        };
       }
     }
     return serializer;

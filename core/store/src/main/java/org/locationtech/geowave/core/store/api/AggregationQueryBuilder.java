@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,10 +20,9 @@ import org.locationtech.geowave.core.store.query.aggregate.AggregationQueryBuild
  * @param <R> result type for the aggregation
  * @param <T> data type of the entries for the aggregation
  * @param <A> the type of the builder, useful for extending this builder and maintaining the builder
- *     type
+ *        type
  */
-public interface AggregationQueryBuilder<
-        P extends Persistable, R, T, A extends AggregationQueryBuilder<P, R, T, A>>
+public interface AggregationQueryBuilder<P extends Persistable, R, T, A extends AggregationQueryBuilder<P, R, T, A>>
     extends BaseQueryBuilder<R, AggregationQuery<P, R, T>, A> {
   /**
    * Provide the Aggregation function and the type name to apply the aggregation on
@@ -47,8 +47,7 @@ public interface AggregationQueryBuilder<
    *
    * @return an AggregationQueryBuilder
    */
-  static <P extends Persistable, R, T, A extends AggregationQueryBuilder<P, R, T, A>>
-      AggregationQueryBuilder<P, R, T, A> newBuilder() {
+  static <P extends Persistable, R, T, A extends AggregationQueryBuilder<P, R, T, A>> AggregationQueryBuilder<P, R, T, A> newBuilder() {
     return new AggregationQueryBuilderImpl<>();
   }
 }

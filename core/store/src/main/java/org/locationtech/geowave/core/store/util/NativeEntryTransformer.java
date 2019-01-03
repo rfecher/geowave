@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,13 +26,9 @@ public class NativeEntryTransformer<T> implements GeoWaveRowIteratorTransformer<
   private final double[] maxResolutionSubsamplingPerDimension;
   private final boolean decodePersistenceEncoding;
 
-  public NativeEntryTransformer(
-      final PersistentAdapterStore adapterStore,
-      final Index index,
-      final QueryFilter clientFilter,
-      final ScanCallback<T, ? extends GeoWaveRow> scanCallback,
-      final byte[] fieldSubsetBitmask,
-      final double[] maxResolutionSubsamplingPerDimension,
+  public NativeEntryTransformer(final PersistentAdapterStore adapterStore, final Index index,
+      final QueryFilter clientFilter, final ScanCallback<T, ? extends GeoWaveRow> scanCallback,
+      final byte[] fieldSubsetBitmask, final double[] maxResolutionSubsamplingPerDimension,
       final boolean decodePersistenceEncoding) {
     this.adapterStore = adapterStore;
     this.index = index;
@@ -44,14 +41,8 @@ public class NativeEntryTransformer<T> implements GeoWaveRowIteratorTransformer<
 
   @Override
   public Iterator<T> apply(Iterator<GeoWaveRow> rowIter) {
-    return new NativeEntryIteratorWrapper<T>(
-        adapterStore,
-        index,
-        rowIter,
-        clientFilter,
-        scanCallback,
-        fieldSubsetBitmask,
-        maxResolutionSubsamplingPerDimension,
+    return new NativeEntryIteratorWrapper<T>(adapterStore, index, rowIter, clientFilter,
+        scanCallback, fieldSubsetBitmask, maxResolutionSubsamplingPerDimension,
         decodePersistenceEncoding);
   }
 }

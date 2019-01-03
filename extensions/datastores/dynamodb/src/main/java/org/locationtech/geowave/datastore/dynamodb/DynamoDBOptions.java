@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,6 +30,7 @@ class RegionConvertor implements IStringConverter<Regions> {
   }
 }
 
+
 /** JCommander helper class for Protocol */
 class ProtocolConvertor implements IStringConverter<Protocol> {
 
@@ -36,26 +38,22 @@ class ProtocolConvertor implements IStringConverter<Protocol> {
   public Protocol convert(final String protocolName) {
     final String protocolLowerCase = protocolName.toLowerCase();
     if (!protocolLowerCase.equals("http") && !protocolLowerCase.equals("https")) {
-      throw new ParameterException(
-          "Value "
-              + protocolName
-              + "can not be converted to Protocol. "
-              + "Available values are: http and https.");
+      throw new ParameterException("Value " + protocolName + "can not be converted to Protocol. "
+          + "Available values are: http and https.");
     }
 
     return Protocol.valueOf(protocolLowerCase);
   }
 }
 
+
 public class DynamoDBOptions extends StoreFactoryOptions {
-  @Parameter(
-      names = "--endpoint",
+  @Parameter(names = "--endpoint",
       description = "The endpoint to connect to(specify either endpoint/region not both) ",
       required = false)
   protected String endpoint;
 
-  @Parameter(
-      names = "--region",
+  @Parameter(names = "--region",
       description = "The AWS region to use(specify either endpoint/region not both)")
   protected Regions region = null;
 
@@ -66,45 +64,34 @@ public class DynamoDBOptions extends StoreFactoryOptions {
   protected long readCapacity = 5;
 
   /** List of client configuration that the user can tweak */
-  @Parameter(
-      names = "--maxConnections",
+  @Parameter(names = "--maxConnections",
       description = "The maximum number of open http(s) connections" + " active at any given time")
   protected int maxConnections = ClientConfiguration.DEFAULT_MAX_CONNECTIONS;
 
   @Parameter(names = "--protocol", description = "The protocol to use. HTTP or HTTPS")
   protected Protocol protocol = Protocol.HTTPS;
 
-  @Parameter(
-      names = "--cacheResponseMetadata",
-      description =
-          "Whether to cache responses from aws(true or false). "
-              + "High performance systems can disable this but debugging will be more difficult")
+  @Parameter(names = "--cacheResponseMetadata",
+      description = "Whether to cache responses from aws(true or false). "
+          + "High performance systems can disable this but debugging will be more difficult")
   protected boolean enableCacheResponseMetadata =
       ClientConfiguration.DEFAULT_CACHE_RESPONSE_METADATA;
 
   // End of client configuration parameters
 
   @ParametersDelegate
-  protected BaseDataStoreOptions baseOptions =
-      new BaseDataStoreOptions() {
-        @Override
-        public boolean isServerSideLibraryEnabled() {
-          return false;
-        }
-      };
+  protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
+    @Override
+    public boolean isServerSideLibraryEnabled() {
+      return false;
+    }
+  };
 
   public DynamoDBOptions() {}
 
-  public DynamoDBOptions(
-      String endpoint,
-      Regions region,
-      long writeCapacity,
-      long readCapacity,
-      int maxConnections,
-      Protocol protocol,
-      boolean enableCacheResponseMetadata,
-      String gwNamespace,
-      BaseDataStoreOptions baseOptions) {
+  public DynamoDBOptions(String endpoint, Regions region, long writeCapacity, long readCapacity,
+      int maxConnections, Protocol protocol, boolean enableCacheResponseMetadata,
+      String gwNamespace, BaseDataStoreOptions baseOptions) {
     super(gwNamespace);
     this.endpoint = endpoint;
     this.region = region;

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,9 +30,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Hyperloglog provides an estimated cardinality of the number of unique values for an attribute.
  */
-public class FeatureHyperLogLogStatistics
-    extends AbstractDataStatistics<
-        SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>>
+public class FeatureHyperLogLogStatistics extends
+    AbstractDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>>
     implements FieldNameStatistic {
   private static final Logger LOGGER = LoggerFactory.getLogger(FeatureHyperLogLogStatistics.class);
   public static final FieldStatisticsType<HyperLogLogPlus> STATS_TYPE =
@@ -52,10 +52,10 @@ public class FeatureHyperLogLogStatistics
    * @param dataAdapterId
    * @param fieldName
    * @param precision number of bits to support counting. 2^p is the maximum count value per
-   *     distinct value. 1 <= p <= 32
+   *        distinct value. 1 <= p <= 32
    */
-  public FeatureHyperLogLogStatistics(
-      final Short adapterId, final String fieldName, final int precision) {
+  public FeatureHyperLogLogStatistics(final Short adapterId, final String fieldName,
+      final int precision) {
     super(adapterId, STATS_TYPE, fieldName);
     loglog = new HyperLogLogPlus(precision);
     this.precision = precision;
@@ -67,9 +67,7 @@ public class FeatureHyperLogLogStatistics
   }
 
   @Override
-  public InternalDataStatistics<
-          SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>>
-      duplicate() {
+  public InternalDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>> duplicate() {
     return new FeatureHyperLogLogStatistics(adapterId, getFieldName(), precision);
   }
 
@@ -177,9 +175,8 @@ public class FeatureHyperLogLogStatistics
     }
 
     @Override
-    public InternalDataStatistics<
-            SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>>
-        create(final Short internalDataAdapterId, final String fieldName) {
+    public InternalDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>> create(
+        final Short internalDataAdapterId, final String fieldName) {
       return new FeatureHyperLogLogStatistics(internalDataAdapterId, fieldName, precision);
     }
 

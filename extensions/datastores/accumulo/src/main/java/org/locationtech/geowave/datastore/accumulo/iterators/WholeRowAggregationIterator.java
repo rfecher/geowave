@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -49,11 +50,8 @@ public class WholeRowAggregationIterator extends WholeRowQueryFilterIterator {
         }
       }
       final CommonIndexedPersistenceEncoding encoding =
-          QueryFilterIterator.getEncoding(
-              currentRow,
-              queryFilterIterator.partitionKeyLength,
-              commonData,
-              unreadData.isEmpty() ? null : new UnreadFieldDataList(unreadData));
+          QueryFilterIterator.getEncoding(currentRow, queryFilterIterator.partitionKeyLength,
+              commonData, unreadData.isEmpty() ? null : new UnreadFieldDataList(unreadData));
       boolean queryFilterResult = true;
       if (aggregationIterator.queryFilterIterator.isSet()) {
         queryFilterResult = aggregationIterator.queryFilterIterator.applyRowFilter(encoding);
@@ -67,11 +65,8 @@ public class WholeRowAggregationIterator extends WholeRowQueryFilterIterator {
   }
 
   @Override
-  public void init(
-      final SortedKeyValueIterator<Key, Value> source,
-      final Map<String, String> options,
-      final IteratorEnvironment env)
-      throws IOException {
+  public void init(final SortedKeyValueIterator<Key, Value> source,
+      final Map<String, String> options, final IteratorEnvironment env) throws IOException {
     aggregationIterator = new AggregationIterator();
     aggregationIterator.setParent(new WholeRowAggregationParent());
     aggregationIterator.setOptions(options);
@@ -85,8 +80,8 @@ public class WholeRowAggregationIterator extends WholeRowQueryFilterIterator {
     final SortedKeyValueIterator<Key, Value> iterator = super.deepCopy(env);
     if (iterator instanceof WholeRowAggregationIterator) {
       aggregationIterator = new AggregationIterator();
-      aggregationIterator.deepCopyIterator(
-          ((WholeRowAggregationIterator) iterator).aggregationIterator);
+      aggregationIterator
+          .deepCopyIterator(((WholeRowAggregationIterator) iterator).aggregationIterator);
       aggregationIterator.setParent(new WholeRowAggregationParent());
     }
     return iterator;
@@ -113,20 +108,16 @@ public class WholeRowAggregationIterator extends WholeRowQueryFilterIterator {
   }
 
   @Override
-  public void seek(
-      final Range range, final Collection<ByteSequence> columnFamilies, final boolean inclusive)
-      throws IOException {
+  public void seek(final Range range, final Collection<ByteSequence> columnFamilies,
+      final boolean inclusive) throws IOException {
     aggregationIterator.seek(range, columnFamilies, inclusive);
   }
 
   public class WholeRowAggregationParent implements SortedKeyValueIterator<Key, Value> {
 
     @Override
-    public void init(
-        final SortedKeyValueIterator<Key, Value> source,
-        final Map<String, String> options,
-        final IteratorEnvironment env)
-        throws IOException {
+    public void init(final SortedKeyValueIterator<Key, Value> source,
+        final Map<String, String> options, final IteratorEnvironment env) throws IOException {
       WholeRowAggregationIterator.super.init(source, options, env);
     }
 
@@ -141,9 +132,8 @@ public class WholeRowAggregationIterator extends WholeRowQueryFilterIterator {
     }
 
     @Override
-    public void seek(
-        final Range range, final Collection<ByteSequence> columnFamilies, final boolean inclusive)
-        throws IOException {
+    public void seek(final Range range, final Collection<ByteSequence> columnFamilies,
+        final boolean inclusive) throws IOException {
       WholeRowAggregationIterator.super.seek(range, columnFamilies, inclusive);
     }
 

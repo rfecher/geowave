@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -42,11 +43,9 @@ public class PersistableStore implements Persistable {
     for (final String key : strOptions.stringPropertyNames()) {
       final byte[] keyBinary = StringUtils.stringToBinary(key);
       final byte[] valueBinary = StringUtils.stringToBinary(strOptions.getProperty(key));
-      final int entryLength =
-          keyBinary.length
-              + valueBinary.length
-              + VarintUtils.unsignedIntByteLength(keyBinary.length)
-              + VarintUtils.unsignedIntByteLength(valueBinary.length);
+      final int entryLength = keyBinary.length + valueBinary.length
+          + VarintUtils.unsignedIntByteLength(keyBinary.length)
+          + VarintUtils.unsignedIntByteLength(valueBinary.length);
       final ByteBuffer buf = ByteBuffer.allocate(entryLength);
       VarintUtils.writeUnsignedInt(keyBinary.length, buf);
       buf.put(keyBinary);
@@ -76,8 +75,8 @@ public class PersistableStore implements Persistable {
       final int valueLength = VarintUtils.readUnsignedInt(buf);
       final byte[] valueBinary = new byte[valueLength];
       buf.get(valueBinary);
-      configOptions.put(
-          StringUtils.stringFromBinary(keyBinary), StringUtils.stringFromBinary(valueBinary));
+      configOptions.put(StringUtils.stringFromBinary(keyBinary),
+          StringUtils.stringFromBinary(valueBinary));
     }
     pluginOptions = new DataStorePluginOptions();
     pluginOptions.load(configOptions, null);

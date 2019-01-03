@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,13 +35,10 @@ public class GeoWaveStoreFinder {
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveStoreFinder.class);
   public static String STORE_HINT_KEY = "store_name";
 
-  public static final ConfigOption STORE_HINT_OPTION =
-      new ConfigOption(
-          STORE_HINT_KEY,
-          "Set the GeoWave store, by default it will try to discover based on matching config options. "
-              + getStoreNames(),
-          true,
-          String.class);
+  public static final ConfigOption STORE_HINT_OPTION = new ConfigOption(STORE_HINT_KEY,
+      "Set the GeoWave store, by default it will try to discover based on matching config options. "
+          + getStoreNames(),
+      true, String.class);
 
   private static Map<String, StoreFactoryFamilySpi> registeredStoreFactoryFamilies = null;
 
@@ -50,11 +48,8 @@ public class GeoWaveStoreFinder {
     if (factory == null) {
       return null;
     }
-    return factory
-        .getDataStatisticsStoreFactory()
-        .createStore(
-            ConfigUtils.populateOptionsFromList(
-                factory.getDataStatisticsStoreFactory().createOptionsInstance(), configOptions));
+    return factory.getDataStatisticsStoreFactory().createStore(ConfigUtils.populateOptionsFromList(
+        factory.getDataStatisticsStoreFactory().createOptionsInstance(), configOptions));
   }
 
   public static DataStore createDataStore(final Map<String, String> configOptions) {
@@ -62,11 +57,8 @@ public class GeoWaveStoreFinder {
     if (factory == null) {
       return null;
     }
-    return factory
-        .getDataStoreFactory()
-        .createStore(
-            ConfigUtils.populateOptionsFromList(
-                factory.getDataStoreFactory().createOptionsInstance(), configOptions));
+    return factory.getDataStoreFactory().createStore(ConfigUtils.populateOptionsFromList(
+        factory.getDataStoreFactory().createOptionsInstance(), configOptions));
   }
 
   public static PersistentAdapterStore createAdapterStore(final Map<String, String> configOptions) {
@@ -74,11 +66,8 @@ public class GeoWaveStoreFinder {
     if (factory == null) {
       return null;
     }
-    return factory
-        .getAdapterStoreFactory()
-        .createStore(
-            ConfigUtils.populateOptionsFromList(
-                factory.getAdapterStoreFactory().createOptionsInstance(), configOptions));
+    return factory.getAdapterStoreFactory().createStore(ConfigUtils.populateOptionsFromList(
+        factory.getAdapterStoreFactory().createOptionsInstance(), configOptions));
   }
 
   public static InternalAdapterStore createInternalAdapterStore(
@@ -87,12 +76,9 @@ public class GeoWaveStoreFinder {
     if (factory == null) {
       return null;
     }
-    return factory
-        .getInternalAdapterStoreFactory()
-        .createStore(
-            ConfigUtils.populateOptionsFromList(
-                // factory.getAdapterStoreFactory().createOptionsInstance(),
-                factory.getInternalAdapterStoreFactory().createOptionsInstance(), configOptions));
+    return factory.getInternalAdapterStoreFactory().createStore(ConfigUtils.populateOptionsFromList(
+        // factory.getAdapterStoreFactory().createOptionsInstance(),
+        factory.getInternalAdapterStoreFactory().createOptionsInstance(), configOptions));
   }
 
   public static AdapterIndexMappingStore createAdapterIndexMappingStore(
@@ -101,12 +87,9 @@ public class GeoWaveStoreFinder {
     if (factory == null) {
       return null;
     }
-    return factory
-        .getAdapterIndexMappingStoreFactory()
-        .createStore(
-            ConfigUtils.populateOptionsFromList(
-                factory.getAdapterIndexMappingStoreFactory().createOptionsInstance(),
-                configOptions));
+    return factory.getAdapterIndexMappingStoreFactory()
+        .createStore(ConfigUtils.populateOptionsFromList(
+            factory.getAdapterIndexMappingStoreFactory().createOptionsInstance(), configOptions));
   }
 
   public static IndexStore createIndexStore(final Map<String, String> configOptions) {
@@ -114,11 +97,8 @@ public class GeoWaveStoreFinder {
     if (factory == null) {
       return null;
     }
-    return factory
-        .getIndexStoreFactory()
-        .createStore(
-            ConfigUtils.populateOptionsFromList(
-                factory.getIndexStoreFactory().createOptionsInstance(), configOptions));
+    return factory.getIndexStoreFactory().createStore(ConfigUtils.populateOptionsFromList(
+        factory.getIndexStoreFactory().createOptionsInstance(), configOptions));
   }
 
   public static SecondaryIndexDataStore createSecondaryIndexDataStore(
@@ -127,39 +107,32 @@ public class GeoWaveStoreFinder {
     if (factory == null) {
       return null;
     }
-    return factory
-        .getSecondaryIndexDataStore()
-        .createStore(
-            ConfigUtils.populateOptionsFromList(
-                factory.getSecondaryIndexDataStore().createOptionsInstance(), configOptions));
+    return factory.getSecondaryIndexDataStore().createStore(ConfigUtils.populateOptionsFromList(
+        factory.getSecondaryIndexDataStore().createOptionsInstance(), configOptions));
   }
 
-  private static List<String> getMissingRequiredOptions(
-      final StoreFactoryFamilySpi factory, final Map<String, String> configOptions) {
-    final ConfigOption[] options =
-        ConfigUtils.createConfigOptionsFromJCommander(
-            factory.getDataStoreFactory().createOptionsInstance(), false);
+  private static List<String> getMissingRequiredOptions(final StoreFactoryFamilySpi factory,
+      final Map<String, String> configOptions) {
+    final ConfigOption[] options = ConfigUtils.createConfigOptionsFromJCommander(
+        factory.getDataStoreFactory().createOptionsInstance(), false);
     final List<String> missing = new ArrayList<String>();
     for (final ConfigOption option : options) {
-      if (!option.isOptional()
-          && (!configOptions.containsKey(option.getName())
-              || (configOptions.get(option.getName()).equals("null")))) {
+      if (!option.isOptional() && (!configOptions.containsKey(option.getName())
+          || (configOptions.get(option.getName()).equals("null")))) {
         missing.add(option.getName());
       }
     }
     return missing;
   }
 
-  private static List<String> getMatchingRequiredOptions(
-      final StoreFactoryFamilySpi factory, final Map<String, String> configOptions) {
-    final ConfigOption[] options =
-        ConfigUtils.createConfigOptionsFromJCommander(
-            factory.getDataStoreFactory().createOptionsInstance(), false);
+  private static List<String> getMatchingRequiredOptions(final StoreFactoryFamilySpi factory,
+      final Map<String, String> configOptions) {
+    final ConfigOption[] options = ConfigUtils.createConfigOptionsFromJCommander(
+        factory.getDataStoreFactory().createOptionsInstance(), false);
     final List<String> matching = new ArrayList<String>();
     for (final ConfigOption option : options) {
-      if (!option.isOptional()
-          && (configOptions.containsKey(option.getName())
-              && (!configOptions.get(option.getName()).equals("null")))) {
+      if (!option.isOptional() && (configOptions.containsKey(option.getName())
+          && (!configOptions.get(option.getName()).equals("null")))) {
         matching.add(option.getName());
       }
     }
@@ -180,11 +153,8 @@ public class GeoWaveStoreFinder {
         // HP Fortify "Improper Output Neutralization" false positive
         // What Fortify considers "user input" comes only
         // from users with OS-level access anyway
-        LOGGER.error(
-            "Unable to find config options for store '"
-                + storeHint.toString()
-                + "'."
-                + ConfigUtils.getOptions(missingOptions));
+        LOGGER.error("Unable to find config options for store '" + storeHint.toString() + "'."
+            + ConfigUtils.getOptions(missingOptions));
         return null;
       } else {
         // HP Fortify "Improper Output Neutralization" false positive
@@ -222,9 +192,8 @@ public class GeoWaveStoreFinder {
       final StoreFactoryFamilySpi factory = entry.getValue();
       final List<String> missingOptions = getMissingRequiredOptions(factory, configOptions);
       final List<String> matchingOptions = getMatchingRequiredOptions(factory, configOptions);
-      if (missingOptions.isEmpty()
-          && ((matchingFactory == null)
-              || (matchingOptions.size() >= matchingFactoryRequiredOptionsCount))) {
+      if (missingOptions.isEmpty() && ((matchingFactory == null)
+          || (matchingOptions.size() >= matchingFactoryRequiredOptionsCount))) {
         matchingFactory = factory;
         matchingFactoriesHaveSameRequiredOptionsCount =
             (matchingOptions.size() == matchingFactoryRequiredOptionsCount);
@@ -247,16 +216,13 @@ public class GeoWaveStoreFinder {
     return ConfigUtils.getOptions(uniqueNames).toString();
   }
 
-  public static boolean exactMatch(
-      final StoreFactoryFamilySpi geowaveStoreFactoryFamily,
+  public static boolean exactMatch(final StoreFactoryFamilySpi geowaveStoreFactoryFamily,
       final Map<String, String> filteredParams) {
     return exactMatch(geowaveStoreFactoryFamily, filteredParams, null);
   }
 
-  public static boolean exactMatch(
-      final StoreFactoryFamilySpi geowaveStoreFactoryFamily,
-      final Map<String, String> filteredParams,
-      final Map<String, String> originalParams) {
+  public static boolean exactMatch(final StoreFactoryFamilySpi geowaveStoreFactoryFamily,
+      final Map<String, String> filteredParams, final Map<String, String> originalParams) {
     final ConfigOption[] requiredOptions =
         GeoWaveStoreFinder.getRequiredOptions(geowaveStoreFactoryFamily);
     // first ensure all required options are fulfilled
@@ -267,8 +233,8 @@ public class GeoWaveStoreFinder {
     }
     // next ensure that all params match an available option
     final Set<String> availableOptions = new HashSet<String>();
-    for (final ConfigOption option :
-        GeoWaveStoreFinder.getAllOptions(geowaveStoreFactoryFamily, true)) {
+    for (final ConfigOption option : GeoWaveStoreFinder.getAllOptions(geowaveStoreFactoryFamily,
+        true)) {
       availableOptions.add(option.getName());
     }
     for (final String optionName : filteredParams.keySet()) {
@@ -280,10 +246,9 @@ public class GeoWaveStoreFinder {
     // lastly try to create the index store (pick a minimally required
     // store)
     try {
-      final StoreFactoryOptions options =
-          ConfigUtils.populateOptionsFromList(
-              geowaveStoreFactoryFamily.getDataStoreFactory().createOptionsInstance(),
-              originalParams != null ? originalParams : filteredParams);
+      final StoreFactoryOptions options = ConfigUtils.populateOptionsFromList(
+          geowaveStoreFactoryFamily.getDataStoreFactory().createOptionsInstance(),
+          originalParams != null ? originalParams : filteredParams);
       geowaveStoreFactoryFamily.getIndexStoreFactory().createStore(options);
     } catch (final Exception e) {
       LOGGER.info("supplied map is not able to construct index store", e);
@@ -292,8 +257,7 @@ public class GeoWaveStoreFinder {
     return true;
   }
 
-  public static synchronized Map<String, StoreFactoryFamilySpi>
-      getRegisteredStoreFactoryFamilies() {
+  public static synchronized Map<String, StoreFactoryFamilySpi> getRegisteredStoreFactoryFamilies() {
     registeredStoreFactoryFamilies =
         getRegisteredFactories(StoreFactoryFamilySpi.class, registeredStoreFactoryFamilies);
     return registeredStoreFactoryFamilies;
@@ -302,10 +266,8 @@ public class GeoWaveStoreFinder {
   public static synchronized ConfigOption[] getAllOptions(
       final StoreFactoryFamilySpi storeFactoryFamily, boolean includeHidden) {
     final List<ConfigOption> allOptions = new ArrayList<ConfigOption>();
-    allOptions.addAll(
-        Arrays.asList(
-            ConfigUtils.createConfigOptionsFromJCommander(
-                storeFactoryFamily.getDataStoreFactory().createOptionsInstance(), includeHidden)));
+    allOptions.addAll(Arrays.asList(ConfigUtils.createConfigOptionsFromJCommander(
+        storeFactoryFamily.getDataStoreFactory().createOptionsInstance(), includeHidden)));
     // TODO our JCommanderPrefixTranslator's use of reflection does not
     // follow inheritance, these are commonly inherited classes and options
     // for all data stores provided as a stop gap until we can investigate

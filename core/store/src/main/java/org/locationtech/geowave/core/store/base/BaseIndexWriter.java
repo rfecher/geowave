@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,13 +39,9 @@ class BaseIndexWriter<T> implements Writer<T> {
   protected final InternalDataAdapter<T> adapter;
   final Closeable closable;
 
-  public BaseIndexWriter(
-      final InternalDataAdapter<T> adapter,
-      final Index index,
-      final DataStoreOperations operations,
-      final DataStoreOptions options,
-      final IngestCallback<T> callback,
-      final Closeable closable) {
+  public BaseIndexWriter(final InternalDataAdapter<T> adapter, final Index index,
+      final DataStoreOperations operations, final DataStoreOptions options,
+      final IngestCallback<T> callback, final Closeable closable) {
     this.operations = operations;
     this.options = options;
     this.index = index;
@@ -109,18 +106,15 @@ class BaseIndexWriter<T> implements Writer<T> {
     }
   }
 
-  private void verifyVisibility(
-      final VisibilityWriter customFieldVisibilityWriter,
+  private void verifyVisibility(final VisibilityWriter customFieldVisibilityWriter,
       final IntermediaryWriteEntryInfo ingestInfo) {
     if (customFieldVisibilityWriter != DataStoreUtils.UNCONSTRAINED_VISIBILITY) {
       for (final GeoWaveValue value : ingestInfo.getValues()) {
         if ((value.getVisibility() != null) && (value.getVisibility().length > 0)) {
-          if (!operations.ensureAuthorizations(
-              null, StringUtils.stringFromBinary(value.getVisibility()))) {
-            LOGGER.error(
-                "Unable to set authorizations for ingested visibility '"
-                    + StringUtils.stringFromBinary(value.getVisibility())
-                    + "'");
+          if (!operations.ensureAuthorizations(null,
+              StringUtils.stringFromBinary(value.getVisibility()))) {
+            LOGGER.error("Unable to set authorizations for ingested visibility '"
+                + StringUtils.stringFromBinary(value.getVisibility()) + "'");
           }
         }
       }

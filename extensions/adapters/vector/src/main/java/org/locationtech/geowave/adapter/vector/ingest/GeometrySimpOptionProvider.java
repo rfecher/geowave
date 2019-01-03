@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -16,21 +17,16 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
 public class GeometrySimpOptionProvider implements Persistable {
-  @Parameter(
-      names = "--maxVertices",
-      description =
-          "Maximum number of vertices to allow for the feature. Features with over this vertice count will be discarded.")
+  @Parameter(names = "--maxVertices",
+      description = "Maximum number of vertices to allow for the feature. Features with over this vertice count will be discarded.")
   private int maxVertices = Integer.MAX_VALUE;
 
-  @Parameter(
-      names = "--minSimpVertices",
+  @Parameter(names = "--minSimpVertices",
       description = "Minimum vertex count to qualify for geometry simplification.")
   private int simpVertMin = Integer.MAX_VALUE;
 
-  @Parameter(
-      names = "--tolerance",
-      description =
-          "Maximum error tolerance in geometry simplification. Should range from 0.0 to 1.0 (i.e. .1 = 10%)")
+  @Parameter(names = "--tolerance",
+      description = "Maximum error tolerance in geometry simplification. Should range from 0.0 to 1.0 (i.e. .1 = 10%)")
   private double tolerance = 0.02;
 
   public Geometry simplifyGeometry(Geometry geom) {
@@ -46,11 +42,8 @@ public class GeometrySimpOptionProvider implements Persistable {
 
   @Override
   public byte[] toBinary() {
-    final byte[] backingBuffer =
-        new byte
-            [VarintUtils.unsignedIntByteLength(maxVertices)
-                + VarintUtils.unsignedIntByteLength(simpVertMin)
-                + Double.BYTES];
+    final byte[] backingBuffer = new byte[VarintUtils.unsignedIntByteLength(maxVertices)
+        + VarintUtils.unsignedIntByteLength(simpVertMin) + Double.BYTES];
     ByteBuffer buf = ByteBuffer.wrap(backingBuffer);
     VarintUtils.writeUnsignedInt(maxVertices, buf);
     VarintUtils.writeUnsignedInt(simpVertMin, buf);

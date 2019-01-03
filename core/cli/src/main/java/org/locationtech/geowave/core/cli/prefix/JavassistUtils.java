@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -55,8 +56,8 @@ public class JavassistUtils {
    * @param attr
    * @return
    */
-  public static AnnotationsAttribute cloneAnnotationsAttribute(
-      ConstPool constPool, AnnotationsAttribute attr, ElementType validElementType) {
+  public static AnnotationsAttribute cloneAnnotationsAttribute(ConstPool constPool,
+      AnnotationsAttribute attr, ElementType validElementType) {
 
     // We can use system class loader here because the annotations for
     // Target
@@ -122,9 +123,8 @@ public class JavassistUtils {
     for (Class<?> claz : paramTypes) {
       paramTypesCtClass.add(pool.get(claz.getName()));
     }
-    String desc =
-        Descriptor.ofMethod(
-            pool.get(m.getReturnType().getName()), paramTypesCtClass.toArray(new CtClass[] {}));
+    String desc = Descriptor.ofMethod(pool.get(m.getReturnType().getName()),
+        paramTypesCtClass.toArray(new CtClass[] {}));
     CtMethod method = clz.getMethod(m.getName(), desc);
     return method;
   }
@@ -137,14 +137,12 @@ public class JavassistUtils {
    */
   public static void copyClassAnnotations(CtClass oldClass, CtClass newClass) {
     // Load the existing annotations attributes
-    AnnotationsAttribute classAnnotations =
-        (AnnotationsAttribute)
-            oldClass.getClassFile().getAttribute(AnnotationsAttribute.visibleTag);
+    AnnotationsAttribute classAnnotations = (AnnotationsAttribute) oldClass.getClassFile()
+        .getAttribute(AnnotationsAttribute.visibleTag);
 
     // Clone them
-    AnnotationsAttribute copyClassAttribute =
-        JavassistUtils.cloneAnnotationsAttribute(
-            newClass.getClassFile2().getConstPool(), classAnnotations, ElementType.TYPE);
+    AnnotationsAttribute copyClassAttribute = JavassistUtils.cloneAnnotationsAttribute(
+        newClass.getClassFile2().getConstPool(), classAnnotations, ElementType.TYPE);
 
     // Set the annotations on the new class
     newClass.getClassFile().addAttribute(copyClassAttribute);
@@ -164,9 +162,8 @@ public class JavassistUtils {
         (AnnotationsAttribute) method.getMethodInfo().getAttribute(AnnotationsAttribute.visibleTag);
 
     // Clone them
-    AnnotationsAttribute copyMethodAttribute =
-        JavassistUtils.cloneAnnotationsAttribute(
-            field.getFieldInfo2().getConstPool(), methodAnnotations, ElementType.FIELD);
+    AnnotationsAttribute copyMethodAttribute = JavassistUtils.cloneAnnotationsAttribute(
+        field.getFieldInfo2().getConstPool(), methodAnnotations, ElementType.FIELD);
 
     // Set the annotations on the new class
     field.getFieldInfo().addAttribute(copyMethodAttribute);

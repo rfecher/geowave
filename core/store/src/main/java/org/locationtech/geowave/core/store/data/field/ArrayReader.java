@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,19 +34,18 @@ public class ArrayReader<FieldType> implements FieldReader<FieldType[]> {
 
     final byte encoding = fieldData[0];
 
-    SerializationHelper<FieldType> serializationHelper =
-        new SerializationHelper<FieldType>() {
+    SerializationHelper<FieldType> serializationHelper = new SerializationHelper<FieldType>() {
 
-          @Override
-          public int readUnsignedInt(ByteBuffer buffer) {
-            return VarintUtils.readUnsignedInt(buffer);
-          }
+      @Override
+      public int readUnsignedInt(ByteBuffer buffer) {
+        return VarintUtils.readUnsignedInt(buffer);
+      }
 
-          @Override
-          public FieldType readField(FieldReader<FieldType> reader, byte[] bytes) {
-            return reader.readField(bytes);
-          }
-        };
+      @Override
+      public FieldType readField(FieldReader<FieldType> reader, byte[] bytes) {
+        return reader.readField(bytes);
+      }
+    };
 
     // try to read the encoding first
     if (encoding == Encoding.FIXED_SIZE_ENCODING.getByteEncoding()) {
@@ -62,18 +62,17 @@ public class ArrayReader<FieldType> implements FieldReader<FieldType[]> {
   @Override
   public FieldType[] readField(final byte[] fieldData, final byte serializationVersion) {
     if (serializationVersion < FieldUtils.SERIALIZATION_VERSION) {
-      SerializationHelper<FieldType> serializationHelper =
-          new SerializationHelper<FieldType>() {
-            @Override
-            public int readUnsignedInt(ByteBuffer buffer) {
-              return buffer.getInt();
-            }
+      SerializationHelper<FieldType> serializationHelper = new SerializationHelper<FieldType>() {
+        @Override
+        public int readUnsignedInt(ByteBuffer buffer) {
+          return buffer.getInt();
+        }
 
-            @Override
-            public FieldType readField(FieldReader<FieldType> reader, byte[] bytes) {
-              return reader.readField(bytes, serializationVersion);
-            }
-          };
+        @Override
+        public FieldType readField(FieldReader<FieldType> reader, byte[] bytes) {
+          return reader.readField(bytes, serializationVersion);
+        }
+      };
 
       final byte encoding = fieldData[0];
 
@@ -93,8 +92,8 @@ public class ArrayReader<FieldType> implements FieldReader<FieldType[]> {
   }
 
   @SuppressWarnings("unchecked")
-  protected FieldType[] readFixedSizeField(
-      final byte[] fieldData, final SerializationHelper<FieldType> serializationHelper) {
+  protected FieldType[] readFixedSizeField(final byte[] fieldData,
+      final SerializationHelper<FieldType> serializationHelper) {
     if (fieldData.length < 1) {
       return null;
     }
@@ -132,17 +131,15 @@ public class ArrayReader<FieldType> implements FieldReader<FieldType[]> {
         }
       }
     }
-    final FieldType[] resultArray =
-        (FieldType[])
-            Array.newInstance(
-                GenericTypeResolver.resolveTypeArgument(reader.getClass(), FieldReader.class),
-                result.size());
+    final FieldType[] resultArray = (FieldType[]) Array.newInstance(
+        GenericTypeResolver.resolveTypeArgument(reader.getClass(), FieldReader.class),
+        result.size());
     return result.toArray(resultArray);
   }
 
   @SuppressWarnings("unchecked")
-  protected FieldType[] readVariableSizeField(
-      final byte[] fieldData, final SerializationHelper<FieldType> serializationHelper) {
+  protected FieldType[] readVariableSizeField(final byte[] fieldData,
+      final SerializationHelper<FieldType> serializationHelper) {
     if ((fieldData == null) || (fieldData.length == 0)) {
       return null;
     }
@@ -165,11 +162,9 @@ public class ArrayReader<FieldType> implements FieldReader<FieldType[]> {
         result.add(null);
       }
     }
-    final FieldType[] resultArray =
-        (FieldType[])
-            Array.newInstance(
-                GenericTypeResolver.resolveTypeArgument(reader.getClass(), FieldReader.class),
-                result.size());
+    final FieldType[] resultArray = (FieldType[]) Array.newInstance(
+        GenericTypeResolver.resolveTypeArgument(reader.getClass(), FieldReader.class),
+        result.size());
     return result.toArray(resultArray);
   }
 

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -17,13 +18,8 @@ public class RocksDBRowIterator extends AbstractRocksDBIterator<GeoWaveRow> {
   private final byte[] partition;
   private final boolean containsTimestamp;
 
-  public RocksDBRowIterator(
-      Object mutex,
-      final ReadOptions options,
-      final RocksIterator it,
-      final short adapterId,
-      final byte[] partition,
-      final boolean containsTimestamp) {
+  public RocksDBRowIterator(Object mutex, final ReadOptions options, final RocksIterator it,
+      final short adapterId, final byte[] partition, final boolean containsTimestamp) {
     super(options, it);
     this.adapterId = adapterId;
     this.partition = partition;

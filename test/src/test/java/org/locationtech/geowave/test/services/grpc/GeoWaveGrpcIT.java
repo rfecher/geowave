@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -45,20 +46,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(GeoWaveITRunner.class)
-@Environments({
-  Environment.MAP_REDUCE,
-  Environment.KAFKA,
-})
-@GeoWaveTestStore(
-    value = {
-      GeoWaveStoreType.ACCUMULO,
-      GeoWaveStoreType.BIGTABLE,
-      GeoWaveStoreType.CASSANDRA,
-      GeoWaveStoreType.DYNAMODB,
-      GeoWaveStoreType.HBASE,
-      GeoWaveStoreType.REDIS,
-      GeoWaveStoreType.ROCKSDB
-    })
+@Environments({Environment.MAP_REDUCE, Environment.KAFKA,})
+@GeoWaveTestStore(value = {GeoWaveStoreType.ACCUMULO, GeoWaveStoreType.BIGTABLE,
+    GeoWaveStoreType.CASSANDRA, GeoWaveStoreType.DYNAMODB, GeoWaveStoreType.HBASE,
+    GeoWaveStoreType.REDIS, GeoWaveStoreType.ROCKSDB})
 public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveGrpcIT.class);
   private static File configFile = null;
@@ -89,10 +80,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED GeoWaveGrpcIT  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -122,8 +111,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     // Core Mapreduce Tests
     client.configHDFSCommand();
     map = client.listCommand();
-    Assert.assertEquals(
-        GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfs(), map.get("hdfs.defaultFS.url"));
+    Assert.assertEquals(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfs(),
+        map.get("hdfs.defaultFS.url"));
     org.apache.log4j.Logger.getRootLogger().setLevel(Level.WARN);
 
     // Core Ingest Tests
@@ -131,10 +120,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED LocalToHdfsCommand  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -142,10 +129,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED LocalToGeowaveCommand  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -153,10 +138,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED LocalToKafkaCommand  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -164,10 +147,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED KafkaToGeowaveCommand  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -175,10 +156,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED MapReduceToGeowaveCommand  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -186,10 +165,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED ListPluginsCommand  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -198,10 +175,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED LocalToMapReduceToGeowaveCommand  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -209,10 +184,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED SparkToGeowaveCommand  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -222,10 +195,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED vectorIngest  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -235,10 +206,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED vectorQuery  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -249,10 +218,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED cqlQuery  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -263,10 +230,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED spatialQuery  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -281,10 +246,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED spatialTemporalQuery  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -297,10 +260,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED core cli tests  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -316,10 +277,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED analytic mapreduce tests  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -328,10 +287,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED spark kmeans *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -339,10 +296,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED spark sql *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -350,10 +305,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED spatial join  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -370,13 +323,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     Assert.assertTrue(!result.equalsIgnoreCase(""));
 
     result = client.AddIndexGroupCommand();
-    Assert.assertTrue(
-        result.contains(
-            "indexgroup."
-                + GeoWaveGrpcTestUtils.indexName
-                + "-group.opts."
-                + GeoWaveGrpcTestUtils.indexName
-                + ".numPartitions=1"));
+    Assert.assertTrue(result.contains("indexgroup." + GeoWaveGrpcTestUtils.indexName
+        + "-group.opts." + GeoWaveGrpcTestUtils.indexName + ".numPartitions=1"));
 
     Assert.assertTrue(client.CalculateStatCommand());
     Assert.assertTrue(client.RecalculateStatsCommand());
@@ -390,21 +338,19 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
         "indexgroup." + GeoWaveGrpcTestUtils.indexName + "-group successfully removed", result);
 
     result = client.RemoveIndexCommand();
-    Assert.assertEquals(
-        "index." + GeoWaveGrpcTestUtils.indexName + " successfully removed", result);
+    Assert.assertEquals("index." + GeoWaveGrpcTestUtils.indexName + " successfully removed",
+        result);
 
     Assert.assertTrue(client.RemoveAdapterCommand());
 
     result = client.RemoveStoreCommand();
-    Assert.assertEquals(
-        "store." + GeoWaveGrpcTestUtils.storeName + " successfully removed", result);
+    Assert.assertEquals("store." + GeoWaveGrpcTestUtils.storeName + " successfully removed",
+        result);
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED core store tests *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
 
@@ -480,10 +426,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED Init  *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }

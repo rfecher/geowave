@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,7 +28,8 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransforme
  * the data store implementation to provide implementations of {@link ParallelDecoder.RowProvider}
  * to be used for providing rows from the underlying database.
  *
- * <p>Note: The row transformer passed in MUST be thread-safe, as decoding happens in parallel.
+ * <p>
+ * Note: The row transformer passed in MUST be thread-safe, as decoding happens in parallel.
  *
  * @param <T> the type of the decoded rows
  */
@@ -60,14 +62,8 @@ public abstract class ParallelDecoder<T> implements Iterator<T>, Closeable {
   public ParallelDecoder(GeoWaveRowIteratorTransformer<T> rowTransformer, int numThreads) {
     this.numThreads = numThreads;
     this.rowTransformer = rowTransformer;
-    this.threadPool =
-        new ThreadPoolExecutor(
-            numThreads,
-            numThreads,
-            60,
-            TimeUnit.SECONDS,
-            new LinkedBlockingQueue<Runnable>(),
-            Executors.defaultThreadFactory());
+    this.threadPool = new ThreadPoolExecutor(numThreads, numThreads, 60, TimeUnit.SECONDS,
+        new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory());
     ((ThreadPoolExecutor) this.threadPool).allowCoreThreadTimeOut(true);
     results = new ArrayBlockingQueue<Object>(RESULT_BUFFER_SIZE);
   }

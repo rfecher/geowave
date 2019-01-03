@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,7 +28,8 @@ import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
  * Class that implements a compound index strategy. It's a wrapper around two NumericIndexStrategy
  * objects that can externally be treated as a multi-dimensional NumericIndexStrategy.
  *
- * <p>Each of the 'wrapped' strategies cannot share the same dimension definition.
+ * <p>
+ * Each of the 'wrapped' strategies cannot share the same dimension definition.
  */
 public class CompoundIndexStrategy implements NumericIndexStrategy {
 
@@ -37,9 +39,7 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
   private int metaDataSplit = -1;
 
   public CompoundIndexStrategy(
-      final PartitionIndexStrategy<
-              ? extends MultiDimensionalNumericData, ? extends MultiDimensionalNumericData>
-          subStrategy1,
+      final PartitionIndexStrategy<? extends MultiDimensionalNumericData, ? extends MultiDimensionalNumericData> subStrategy1,
       final NumericIndexStrategy subStrategy2) {
     this.subStrategy1 = subStrategy1;
     this.subStrategy2 = subStrategy2;
@@ -48,8 +48,7 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
 
   protected CompoundIndexStrategy() {}
 
-  public PartitionIndexStrategy<MultiDimensionalNumericData, MultiDimensionalNumericData>
-      getPrimarySubStrategy() {
+  public PartitionIndexStrategy<MultiDimensionalNumericData, MultiDimensionalNumericData> getPrimarySubStrategy() {
     return subStrategy1;
   }
 
@@ -62,10 +61,8 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
     final byte[] delegateBinary1 = PersistenceUtils.toBinary(subStrategy1);
     final byte[] delegateBinary2 = PersistenceUtils.toBinary(subStrategy2);
     final ByteBuffer buf =
-        ByteBuffer.allocate(
-            VarintUtils.unsignedIntByteLength(delegateBinary1.length)
-                + delegateBinary1.length
-                + delegateBinary2.length);
+        ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(delegateBinary1.length)
+            + delegateBinary1.length + delegateBinary2.length);
     VarintUtils.writeUnsignedInt(delegateBinary1.length, buf);
     buf.put(delegateBinary1);
     buf.put(delegateBinary2);
@@ -100,21 +97,18 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public QueryRanges getQueryRanges(
-      final MultiDimensionalNumericData indexedRange, final IndexMetaData... hints) {
+  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+      final IndexMetaData... hints) {
     return getQueryRanges(indexedRange, -1, hints);
   }
 
   @Override
-  public QueryRanges getQueryRanges(
-      final MultiDimensionalNumericData indexedRange,
-      final int maxEstimatedRangeDecomposition,
-      final IndexMetaData... hints) {
+  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+      final int maxEstimatedRangeDecomposition, final IndexMetaData... hints) {
     final Set<ByteArray> partitionIds =
         subStrategy1.getQueryPartitionKeys(indexedRange, extractHints(hints, 0));
-    final QueryRanges queryRanges =
-        subStrategy2.getQueryRanges(
-            indexedRange, maxEstimatedRangeDecomposition, extractHints(hints, 1));
+    final QueryRanges queryRanges = subStrategy2.getQueryRanges(indexedRange,
+        maxEstimatedRangeDecomposition, extractHints(hints, 1));
 
     return new QueryRanges(partitionIds, queryRanges);
   }
@@ -125,28 +119,25 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public InsertionIds getInsertionIds(
-      final MultiDimensionalNumericData indexedData, final int maxEstimatedDuplicateIds) {
+  public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+      final int maxEstimatedDuplicateIds) {
     final Collection<ByteArray> partitionKeys = subStrategy1.getInsertionPartitionKeys(indexedData);
     final InsertionIds insertionIds =
         subStrategy2.getInsertionIds(indexedData, maxEstimatedDuplicateIds);
 
     final boolean partitionKeysEmpty = (partitionKeys == null) || partitionKeys.isEmpty();
-    if ((insertionIds == null)
-        || (insertionIds.getPartitionKeys() == null)
+    if ((insertionIds == null) || (insertionIds.getPartitionKeys() == null)
         || insertionIds.getPartitionKeys().isEmpty()) {
       if (partitionKeysEmpty) {
         return new InsertionIds();
       } else {
-        return new InsertionIds(
-            Collections2.transform(
-                partitionKeys,
-                new Function<ByteArray, SinglePartitionInsertionIds>() {
-                  @Override
-                  public SinglePartitionInsertionIds apply(final ByteArray input) {
-                    return new SinglePartitionInsertionIds(input);
-                  }
-                }));
+        return new InsertionIds(Collections2.transform(partitionKeys,
+            new Function<ByteArray, SinglePartitionInsertionIds>() {
+              @Override
+              public SinglePartitionInsertionIds apply(final ByteArray input) {
+                return new SinglePartitionInsertionIds(input);
+              }
+            }));
       }
     } else if (partitionKeysEmpty) {
       return insertionIds;
@@ -154,40 +145,35 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
       final List<SinglePartitionInsertionIds> permutations =
           new ArrayList<>(insertionIds.getPartitionKeys().size() * partitionKeys.size());
       for (final ByteArray partitionKey : partitionKeys) {
-        permutations.addAll(
-            Collections2.transform(
-                insertionIds.getPartitionKeys(),
-                new Function<SinglePartitionInsertionIds, SinglePartitionInsertionIds>() {
-                  @Override
-                  public SinglePartitionInsertionIds apply(
-                      final SinglePartitionInsertionIds input) {
-                    if (input.getPartitionKey() != null) {
-                      return new SinglePartitionInsertionIds(
-                          new ByteArray(
-                              ByteArrayUtils.combineArrays(
-                                  partitionKey.getBytes(), input.getPartitionKey().getBytes())),
-                          input.getSortKeys());
-                    } else {
-                      return new SinglePartitionInsertionIds(partitionKey, input.getSortKeys());
-                    }
-                  }
-                }));
+        permutations.addAll(Collections2.transform(insertionIds.getPartitionKeys(),
+            new Function<SinglePartitionInsertionIds, SinglePartitionInsertionIds>() {
+              @Override
+              public SinglePartitionInsertionIds apply(final SinglePartitionInsertionIds input) {
+                if (input.getPartitionKey() != null) {
+                  return new SinglePartitionInsertionIds(new ByteArray(ByteArrayUtils
+                      .combineArrays(partitionKey.getBytes(), input.getPartitionKey().getBytes())),
+                      input.getSortKeys());
+                } else {
+                  return new SinglePartitionInsertionIds(partitionKey, input.getSortKeys());
+                }
+              }
+            }));
       }
       return new InsertionIds(permutations);
     }
   }
 
   @Override
-  public MultiDimensionalNumericData getRangeForId(
-      final ByteArray partitionKey, final ByteArray sortKey) {
+  public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+      final ByteArray sortKey) {
     return subStrategy2.getRangeForId(trimPartitionIdForSortStrategy(partitionKey), sortKey);
   }
 
   @Override
-  public MultiDimensionalCoordinates getCoordinatesPerDimension(
-      final ByteArray partitionKey, final ByteArray sortKey) {
-    return subStrategy2.getCoordinatesPerDimension(
-        trimPartitionIdForSortStrategy(partitionKey), sortKey);
+  public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+      final ByteArray sortKey) {
+    return subStrategy2.getCoordinatesPerDimension(trimPartitionIdForSortStrategy(partitionKey),
+        sortKey);
   }
 
   private ByteArray trimPartitionIdForSortStrategy(final ByteArray partitionKey) {
@@ -258,15 +244,13 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
   public List<IndexMetaData> createMetaData() {
     final List<IndexMetaData> result = new ArrayList<IndexMetaData>();
     for (final IndexMetaData metaData : (List<IndexMetaData>) subStrategy1.createMetaData()) {
-      result.add(
-          new CompoundIndexMetaDataWrapper(
-              metaData, subStrategy1.getPartitionKeyLength(), (byte) 0));
+      result.add(new CompoundIndexMetaDataWrapper(metaData, subStrategy1.getPartitionKeyLength(),
+          (byte) 0));
     }
     metaDataSplit = result.size();
     for (final IndexMetaData metaData : (List<IndexMetaData>) subStrategy2.createMetaData()) {
-      result.add(
-          new CompoundIndexMetaDataWrapper(
-              metaData, subStrategy1.getPartitionKeyLength(), (byte) 1));
+      result.add(new CompoundIndexMetaDataWrapper(metaData, subStrategy1.getPartitionKeyLength(),
+          (byte) 1));
     }
     return result;
   }
@@ -306,8 +290,8 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
 
     protected CompoundIndexMetaDataWrapper() {}
 
-    public CompoundIndexMetaDataWrapper(
-        final IndexMetaData metaData, final int partition1Length, final byte index) {
+    public CompoundIndexMetaDataWrapper(final IndexMetaData metaData, final int partition1Length,
+        final byte index) {
       super();
       this.partition1Length = partition1Length;
       this.metaData = metaData;
@@ -348,14 +332,13 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
     private InsertionIds trimPartitionForSubstrategy(final InsertionIds insertionIds) {
       final List<SinglePartitionInsertionIds> retVal = new ArrayList<>();
       for (final SinglePartitionInsertionIds partitionIds : insertionIds.getPartitionKeys()) {
-        final ByteArray trimmedPartitionId =
-            CompoundIndexStrategy.trimPartitionForSubstrategy(
-                partition1Length, index == 0, partitionIds.getPartitionKey());
+        final ByteArray trimmedPartitionId = CompoundIndexStrategy.trimPartitionForSubstrategy(
+            partition1Length, index == 0, partitionIds.getPartitionKey());
         if (trimmedPartitionId == null) {
           return insertionIds;
         } else {
-          retVal.add(
-              new SinglePartitionInsertionIds(trimmedPartitionId, partitionIds.getSortKeys()));
+          retVal
+              .add(new SinglePartitionInsertionIds(trimmedPartitionId, partitionIds.getSortKeys()));
         }
       }
       return new InsertionIds(retVal);
@@ -381,23 +364,18 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
    * @param isFirstSubstrategy if the trimming is for the first substrategy
    * @param compoundPartitionId the compound partition id
    * @return if the partition id requires trimming, the new trimmed key will be returned, otherwise
-   *     if trimming isn't necessary it returns null
+   *         if trimming isn't necessary it returns null
    */
-  private static ByteArray trimPartitionForSubstrategy(
-      final int partition1Length,
-      final boolean isFirstSubstrategy,
-      final ByteArray compoundPartitionId) {
+  private static ByteArray trimPartitionForSubstrategy(final int partition1Length,
+      final boolean isFirstSubstrategy, final ByteArray compoundPartitionId) {
     if ((partition1Length > 0)
         && ((compoundPartitionId.getBytes().length - partition1Length) > 0)) {
       if (isFirstSubstrategy) {
         return new ByteArray(
             Arrays.copyOfRange(compoundPartitionId.getBytes(), 0, partition1Length));
       } else {
-        return new ByteArray(
-            Arrays.copyOfRange(
-                compoundPartitionId.getBytes(),
-                partition1Length,
-                compoundPartitionId.getBytes().length));
+        return new ByteArray(Arrays.copyOfRange(compoundPartitionId.getBytes(), partition1Length,
+            compoundPartitionId.getBytes().length));
       }
     }
     return null;
@@ -424,17 +402,16 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
         new HashSet<>(partitionKeys1.size() * partitionKeys2.size());
     for (final ByteArray partitionKey1 : partitionKeys1) {
       for (final ByteArray partitionKey2 : partitionKeys2) {
-        partitionKeys.add(
-            new ByteArray(
-                ByteArrayUtils.combineArrays(partitionKey1.getBytes(), partitionKey2.getBytes())));
+        partitionKeys.add(new ByteArray(
+            ByteArrayUtils.combineArrays(partitionKey1.getBytes(), partitionKey2.getBytes())));
       }
     }
     return partitionKeys;
   }
 
   @Override
-  public Set<ByteArray> getQueryPartitionKeys(
-      final MultiDimensionalNumericData queryData, final IndexMetaData... hints) {
+  public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+      final IndexMetaData... hints) {
     final Set<ByteArray> partitionKeys1 = subStrategy1.getQueryPartitionKeys(queryData, hints);
     final Set<ByteArray> partitionKeys2 = subStrategy2.getQueryPartitionKeys(queryData, hints);
     if ((partitionKeys1 == null) || partitionKeys1.isEmpty()) {
@@ -448,9 +425,8 @@ public class CompoundIndexStrategy implements NumericIndexStrategy {
         new HashSet<ByteArray>(partitionKeys1.size() * partitionKeys2.size());
     for (final ByteArray partitionKey1 : partitionKeys1) {
       for (final ByteArray partitionKey2 : partitionKeys2) {
-        partitionKeys.add(
-            new ByteArray(
-                ByteArrayUtils.combineArrays(partitionKey1.getBytes(), partitionKey2.getBytes())));
+        partitionKeys.add(new ByteArray(
+            ByteArrayUtils.combineArrays(partitionKey1.getBytes(), partitionKey2.getBytes())));
       }
     }
     return partitionKeys;

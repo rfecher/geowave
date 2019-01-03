@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -21,8 +22,8 @@ public class JobContextInternalAdapterStore implements InternalAdapterStore {
   private final InternalAdapterStore persistentInternalAdapterStore;
   protected final BiMap<String, Short> cache = HashBiMap.create();
 
-  public JobContextInternalAdapterStore(
-      final JobContext context, final InternalAdapterStore persistentInternalAdapterStore) {
+  public JobContextInternalAdapterStore(final JobContext context,
+      final InternalAdapterStore persistentInternalAdapterStore) {
     this.context = context;
     this.persistentInternalAdapterStore = persistentInternalAdapterStore;
   }
@@ -96,8 +97,8 @@ public class JobContextInternalAdapterStore implements InternalAdapterStore {
     return persistentInternalAdapterStore.remove(typeName);
   }
 
-  public static void addTypeName(
-      final Configuration configuration, final String typeName, final short adapterId) {
+  public static void addTypeName(final Configuration configuration, final String typeName,
+      final short adapterId) {
     GeoWaveConfiguratorBase.addTypeName(CLASS, configuration, typeName, adapterId);
   }
 

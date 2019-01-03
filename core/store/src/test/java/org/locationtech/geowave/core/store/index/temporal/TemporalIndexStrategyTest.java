@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,10 +27,8 @@ public class TemporalIndexStrategyTest {
   public void testInsertions() {
     final InsertionIds insertionIds = strategy.getInsertionIds(date);
     Assert.assertTrue(insertionIds.getSize() == 1);
-    Assert.assertTrue(
-        insertionIds
-            .getCompositeInsertionIds()
-            .contains(new ByteArray(Lexicoders.LONG.toByteArray(date.getTime()))));
+    Assert.assertTrue(insertionIds.getCompositeInsertionIds()
+        .contains(new ByteArray(Lexicoders.LONG.toByteArray(date.getTime()))));
   }
 
   @Test
@@ -37,13 +36,8 @@ public class TemporalIndexStrategyTest {
     final QueryRanges ranges =
         strategy.getQueryRanges(new TemporalQueryConstraint(fieldId, date, date));
     Assert.assertTrue(ranges.getCompositeQueryRanges().size() == 1);
-    Assert.assertTrue(
-        ranges
-            .getCompositeQueryRanges()
-            .get(0)
-            .equals(
-                new ByteArrayRange(
-                    new ByteArray(Lexicoders.LONG.toByteArray(date.getTime())),
-                    new ByteArray(Lexicoders.LONG.toByteArray(date.getTime())))));
+    Assert.assertTrue(ranges.getCompositeQueryRanges().get(0)
+        .equals(new ByteArrayRange(new ByteArray(Lexicoders.LONG.toByteArray(date.getTime())),
+            new ByteArray(Lexicoders.LONG.toByteArray(date.getTime())))));
   }
 }

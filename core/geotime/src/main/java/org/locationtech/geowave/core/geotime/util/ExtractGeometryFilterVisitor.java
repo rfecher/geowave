@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -86,8 +87,8 @@ public class ExtractGeometryFilterVisitor extends NullFilterVisitor {
    * This FilterVisitor is stateless - use ExtractGeometryFilterVisitor.BOUNDS_VISITOR. You may also
    * subclass in order to reuse this functionality in your own FilterVisitor implementation.
    */
-  public ExtractGeometryFilterVisitor(
-      final CoordinateReferenceSystem crs, final String attributeOfInterest) {
+  public ExtractGeometryFilterVisitor(final CoordinateReferenceSystem crs,
+      final String attributeOfInterest) {
     this.crs = crs;
     this.attributeOfInterest = attributeOfInterest;
   }
@@ -97,11 +98,11 @@ public class ExtractGeometryFilterVisitor extends NullFilterVisitor {
    * @param crs
    * @return null if empty constraint (infinite not supported)
    */
-  public static ExtractGeometryFilterVisitorResult getConstraints(
-      final Filter filter, final CoordinateReferenceSystem crs, final String attributeOfInterest) {
+  public static ExtractGeometryFilterVisitorResult getConstraints(final Filter filter,
+      final CoordinateReferenceSystem crs, final String attributeOfInterest) {
     final ExtractGeometryFilterVisitorResult geoAndCompareOpData =
-        (ExtractGeometryFilterVisitorResult)
-            filter.accept(new ExtractGeometryFilterVisitor(crs, attributeOfInterest), null);
+        (ExtractGeometryFilterVisitorResult) filter
+            .accept(new ExtractGeometryFilterVisitor(crs, attributeOfInterest), null);
     final Geometry geo = geoAndCompareOpData.getGeometry();
     // empty or infinite geometry simply return null as we can't create
     // linear constraints from
@@ -133,9 +134,8 @@ public class ExtractGeometryFilterVisitor extends NullFilterVisitor {
       } else if (data instanceof Envelope) {
         return new GeometryFactory().toGeometry((Envelope) data);
       } else if (data instanceof CoordinateReferenceSystem) {
-        return new GeometryFactory()
-            .toGeometry(
-                new ReferencedEnvelope((CoordinateReferenceSystem) data).transform(crs, true));
+        return new GeometryFactory().toGeometry(
+            new ReferencedEnvelope((CoordinateReferenceSystem) data).transform(crs, true));
       }
     } catch (TransformException | FactoryException e) {
       LOGGER.warn("Unable to transform geometry", e);
@@ -163,23 +163,14 @@ public class ExtractGeometryFilterVisitor extends NullFilterVisitor {
     if (attributeOfInterest.equals(filter.getExpression1().toString())) {
       final Geometry bbox = bbox(data);
       final BoundingBox referencedBBox = filter.getBounds();
-      Geometry bounds =
-          new GeometryFactory()
-              .toGeometry(
-                  new Envelope(
-                      referencedBBox.getMinX(),
-                      referencedBBox.getMaxX(),
-                      referencedBBox.getMinY(),
-                      referencedBBox.getMaxY()));
+      Geometry bounds = new GeometryFactory().toGeometry(new Envelope(referencedBBox.getMinX(),
+          referencedBBox.getMaxX(), referencedBBox.getMinY(), referencedBBox.getMaxY()));
 
-      if ((crs != null)
-          && (referencedBBox.getCoordinateReferenceSystem() != null)
+      if ((crs != null) && (referencedBBox.getCoordinateReferenceSystem() != null)
           && !crs.equals(referencedBBox.getCoordinateReferenceSystem())) {
         try {
-          bounds =
-              JTS.transform(
-                  bounds,
-                  CRS.findMathTransform(referencedBBox.getCoordinateReferenceSystem(), crs, true));
+          bounds = JTS.transform(bounds,
+              CRS.findMathTransform(referencedBBox.getCoordinateReferenceSystem(), crs, true));
         } catch (MismatchedDimensionException | TransformException | FactoryException e) {
           LOGGER.error("Unable to transforma bbox", e);
         }
@@ -230,16 +221,13 @@ public class ExtractGeometryFilterVisitor extends NullFilterVisitor {
           // if predicates match then we can combine the geometry as
           // well as predicate
           if (currentResult.matchPredicate(finalResult)) {
-            finalResult =
-                new ExtractGeometryFilterVisitorResult(
-                    finalResult.getGeometry().intersection(currentGeom),
-                    currentResult.getCompareOp());
+            finalResult = new ExtractGeometryFilterVisitorResult(
+                finalResult.getGeometry().intersection(currentGeom), currentResult.getCompareOp());
           } else {
             // if predicate doesn't match then still combine
             // geometry but set predicate to null
-            finalResult =
-                new ExtractGeometryFilterVisitorResult(
-                    finalResult.getGeometry().intersection(currentGeom), null);
+            finalResult = new ExtractGeometryFilterVisitorResult(
+                finalResult.getGeometry().intersection(currentGeom), null);
           }
         } else {
           finalResult = new ExtractGeometryFilterVisitorResult(finalResult.getGeometry(), null);
@@ -264,9 +252,8 @@ public class ExtractGeometryFilterVisitor extends NullFilterVisitor {
 
   @Override
   public Object visit(final Or filter, final Object data) {
-    ExtractGeometryFilterVisitorResult finalResult =
-        new ExtractGeometryFilterVisitorResult(
-            new GeometryFactory().toGeometry(new Envelope()), null);
+    ExtractGeometryFilterVisitorResult finalResult = new ExtractGeometryFilterVisitorResult(
+        new GeometryFactory().toGeometry(new Envelope()), null);
     for (final Filter f : filter.getChildren()) {
       final Object obj = f.accept(this, data);
       if ((obj != null) && (obj instanceof ExtractGeometryFilterVisitorResult)) {
@@ -278,13 +265,11 @@ public class ExtractGeometryFilterVisitor extends NullFilterVisitor {
           finalResult = currentResult;
         } else if (!Double.isInfinite(currentArea) && !Double.isNaN(currentArea)) {
           if (currentResult.matchPredicate(finalResult)) {
-            finalResult =
-                new ExtractGeometryFilterVisitorResult(
-                    finalResult.getGeometry().union(currentGeom), currentResult.getCompareOp());
+            finalResult = new ExtractGeometryFilterVisitorResult(
+                finalResult.getGeometry().union(currentGeom), currentResult.getCompareOp());
           } else {
-            finalResult =
-                new ExtractGeometryFilterVisitorResult(
-                    finalResult.getGeometry().union(currentGeom), null);
+            finalResult = new ExtractGeometryFilterVisitorResult(
+                finalResult.getGeometry().union(currentGeom), null);
           }
         } else {
           finalResult = new ExtractGeometryFilterVisitorResult(finalResult.getGeometry(), null);
@@ -375,8 +360,8 @@ public class ExtractGeometryFilterVisitor extends NullFilterVisitor {
     if (bbox != null) {
       return geometryAndDegrees.getLeft().union(bbox);
     } else {
-      return new ExtractGeometryFilterVisitorResult(
-          geometryAndDegrees.getLeft(), CompareOperation.INTERSECTS);
+      return new ExtractGeometryFilterVisitorResult(geometryAndDegrees.getLeft(),
+          CompareOperation.INTERSECTS);
     }
   }
 

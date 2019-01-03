@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -21,7 +22,8 @@ import javax.media.jai.operator.MosaicDescriptor;
  * Mosaic operations, which will mask all values under 1.0.
  * org.geotools.coverage.processing.operation.Resample2D line 631 in gt-coverage-12.1
  *
- * <p>This is mostly the same as MosaicDescriptor with the one key difference being that the default
+ * <p>
+ * This is mostly the same as MosaicDescriptor with the one key difference being that the default
  * source threshold is Double.MIN_VALUE instead of 1.0
  */
 public class SourceThresholdFixMosaicDescriptor extends MosaicDescriptor {
@@ -31,33 +33,21 @@ public class SourceThresholdFixMosaicDescriptor extends MosaicDescriptor {
   /** */
   private static final long serialVersionUID = 1L;
   /** The parameter class list for this operation. */
-  private static final Class[] paramClasses = {
-    javax.media.jai.operator.MosaicType.class,
-    javax.media.jai.PlanarImage[].class,
-    javax.media.jai.ROI[].class,
-    double[][].class,
-    double[].class
-  };
+  private static final Class[] paramClasses =
+      {javax.media.jai.operator.MosaicType.class, javax.media.jai.PlanarImage[].class,
+          javax.media.jai.ROI[].class, double[][].class, double[].class};
 
   /** The parameter name list for this operation. */
-  private static final String[] paramNames = {
-    "mosaicType", "sourceAlpha", "sourceROI", "sourceThreshold", "backgroundValues"
-  };
+  private static final String[] paramNames =
+      {"mosaicType", "sourceAlpha", "sourceROI", "sourceThreshold", "backgroundValues"};
 
   /** The parameter default value list for this operation. */
-  private static final Object[] paramDefaults = {
-    MOSAIC_TYPE_OVERLAY,
-    null,
-    null,
-    new double[][] {
-      {Double.MIN_VALUE
-        // if this is less than or equal to 0, it will only work on the
-        // first band because of a bug with the source extender within JAI's
-        // Mosaic operation
-      }
-    },
-    new double[] {0.0}
-  };
+  private static final Object[] paramDefaults =
+      {MOSAIC_TYPE_OVERLAY, null, null, new double[][] {{Double.MIN_VALUE
+      // if this is less than or equal to 0, it will only work on the
+      // first band because of a bug with the source extender within JAI's
+      // Mosaic operation
+      }}, new double[] {0.0}};
 
   static boolean registered = false;
 

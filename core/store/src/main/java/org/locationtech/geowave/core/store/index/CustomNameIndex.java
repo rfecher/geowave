@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -20,10 +21,8 @@ public class CustomNameIndex extends PrimaryIndex {
     super();
   }
 
-  public CustomNameIndex(
-      final NumericIndexStrategy indexStrategy,
-      final CommonIndexModel indexModel,
-      final String name) {
+  public CustomNameIndex(final NumericIndexStrategy indexStrategy,
+      final CommonIndexModel indexModel, final String name) {
     super(indexStrategy, indexModel);
     this.name = name;
   }
@@ -37,11 +36,8 @@ public class CustomNameIndex extends PrimaryIndex {
   public byte[] toBinary() {
     final byte[] selfBinary = super.toBinary();
     final byte[] idBinary = StringUtils.stringToBinary(name);
-    final ByteBuffer buf =
-        ByteBuffer.allocate(
-            VarintUtils.unsignedIntByteLength(selfBinary.length)
-                + idBinary.length
-                + selfBinary.length);
+    final ByteBuffer buf = ByteBuffer.allocate(
+        VarintUtils.unsignedIntByteLength(selfBinary.length) + idBinary.length + selfBinary.length);
     VarintUtils.writeUnsignedInt(selfBinary.length, buf);
     buf.put(selfBinary);
     buf.put(idBinary);

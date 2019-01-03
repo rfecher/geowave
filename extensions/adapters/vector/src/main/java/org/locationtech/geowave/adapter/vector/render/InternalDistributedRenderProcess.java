@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,20 +31,13 @@ import org.opengis.feature.simple.SimpleFeature;
  * For example, a pixel size of 3 would skip an estimated 3x3 pixel cell in GeoWave's row IDs. Note
  * that rows are only skipped when a feature successfully passes filters.
  */
-@DescribeProcess(
-    title = "InternalDistributedRender",
-    description =
-        "This process will enable GeoWave to render WMS requests within the server and then this will be responsible for compositing the result client-side.")
+@DescribeProcess(title = "InternalDistributedRender",
+    description = "This process will enable GeoWave to render WMS requests within the server and then this will be responsible for compositing the result client-side.")
 public class InternalDistributedRenderProcess {
-  @DescribeResult(
-      name = "result",
-      description =
-          "This is just a pass-through, the key is to provide enough information within invertQuery to perform a map to screen transform")
-  public GridCoverage2D execute(
-      @DescribeParameter(
-              name = "data",
-              description = "Feature collection containing the rendered image")
-          final SimpleFeatureCollection features)
+  @DescribeResult(name = "result",
+      description = "This is just a pass-through, the key is to provide enough information within invertQuery to perform a map to screen transform")
+  public GridCoverage2D execute(@DescribeParameter(name = "data",
+      description = "Feature collection containing the rendered image") final SimpleFeatureCollection features)
       throws ProcessException {
     // vector-to-raster render transform that take a single feature that
     // wraps a distributed render result and converts it to a GridCoverage2D

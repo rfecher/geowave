@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -92,12 +93,9 @@ public class HBaseStoreTestEnvironment extends StoreTestEnvironment {
       Thread.currentThread().setContextClassLoader(hbaseMiniClusterCl);
       if (!TestUtils.isSet(System.getProperty(ZookeeperTestEnvironment.ZK_PROPERTY_NAME))) {
         try {
-          final Configuration conf =
-              (Configuration)
-                  Class.forName(
-                          "org.apache.hadoop.hbase.HBaseConfiguration", true, hbaseMiniClusterCl)
-                      .getMethod("create")
-                      .invoke(null);
+          final Configuration conf = (Configuration) Class
+              .forName("org.apache.hadoop.hbase.HBaseConfiguration", true, hbaseMiniClusterCl)
+              .getMethod("create").invoke(null);
           System.setProperty("test.build.data.basedirectory", DEFAULT_HBASE_TEMP_DIR);
           conf.setBoolean("hbase.online.schema.update.enable", true);
           conf.setBoolean("hbase.defaults.for.version.skip", true);
@@ -110,16 +108,12 @@ public class HBaseStoreTestEnvironment extends StoreTestEnvironment {
             conf.setBoolean("hbase.security.visibility.mutations.checkauths", true);
 
             // setup vis IT configuration
-            conf.setClass(
-                VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS,
-                SimpleScanLabelGenerator.class,
-                ScanLabelGenerator.class);
+            conf.setClass(VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS,
+                SimpleScanLabelGenerator.class, ScanLabelGenerator.class);
 
-            conf.setClass(
-                VisibilityLabelServiceManager.VISIBILITY_LABEL_SERVICE_CLASS,
+            conf.setClass(VisibilityLabelServiceManager.VISIBILITY_LABEL_SERVICE_CLASS,
                 // DefaultVisibilityLabelServiceImpl.class,
-                HBaseTestVisibilityLabelServiceImpl.class,
-                VisibilityLabelService.class);
+                HBaseTestVisibilityLabelServiceImpl.class, VisibilityLabelService.class);
 
             // Install the VisibilityController as a system
             // processor
@@ -130,12 +124,10 @@ public class HBaseStoreTestEnvironment extends StoreTestEnvironment {
           // minicluster class loader
           hbaseLocalCluster =
               Class.forName("org.apache.hadoop.hbase.HBaseTestingUtility", true, hbaseMiniClusterCl)
-                  .getConstructor(Configuration.class)
-                  .newInstance(conf);
+                  .getConstructor(Configuration.class).newInstance(conf);
 
           // Start the cluster
-          hbaseLocalCluster
-              .getClass()
+          hbaseLocalCluster.getClass()
               .getMethod("startMiniHBaseCluster", Integer.TYPE, Integer.TYPE)
               .invoke(hbaseLocalCluster, 1, NUM_REGION_SERVERS);
 
@@ -189,8 +181,8 @@ public class HBaseStoreTestEnvironment extends StoreTestEnvironment {
   public void tearDown() {
     try {
       hbaseLocalCluster.getClass().getMethod("shutdownMiniCluster").invoke(hbaseLocalCluster);
-      if (!(Boolean)
-          hbaseLocalCluster.getClass().getMethod("cleanupTestDir").invoke(hbaseLocalCluster)) {
+      if (!(Boolean) hbaseLocalCluster.getClass().getMethod("cleanupTestDir")
+          .invoke(hbaseLocalCluster)) {
         LOGGER.warn("Unable to delete mini hbase temporary directory");
       }
       hbaseLocalCluster = null;

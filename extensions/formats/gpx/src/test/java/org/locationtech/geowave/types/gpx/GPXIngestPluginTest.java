@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.types.gpx;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,21 +32,19 @@ public class GPXIngestPluginTest {
   @Before
   public void setup() {
 
-    expectedResults.put(
-        "12345_1_Example_gpx",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Tags").toString().equals("tag1 ||| tag2")
-                && feature.getAttribute("User").toString().equals("Foo")
-                && feature.getAttribute("UserId").toString().equals("12345")
-                && feature.getAttribute("TrackId").toString().equals("12345")
-                && feature.getAttribute("NumberPoints").toString().equals("7")
-                && feature.getAttribute("Duration").toString().equals("251000")
-                && (feature.getAttribute("EndTimeStamp") != null)
-                && (feature.getAttribute("StartTimeStamp") != null);
-          }
-        });
+    expectedResults.put("12345_1_Example_gpx", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Tags").toString().equals("tag1 ||| tag2")
+            && feature.getAttribute("User").toString().equals("Foo")
+            && feature.getAttribute("UserId").toString().equals("12345")
+            && feature.getAttribute("TrackId").toString().equals("12345")
+            && feature.getAttribute("NumberPoints").toString().equals("7")
+            && feature.getAttribute("Duration").toString().equals("251000")
+            && (feature.getAttribute("EndTimeStamp") != null)
+            && (feature.getAttribute("StartTimeStamp") != null);
+      }
+    });
   }
 
   @Test
@@ -54,15 +52,11 @@ public class GPXIngestPluginTest {
     final Set<String> expectedSet = HelperClass.buildSet(expectedResults);
 
     final GpxIngestPlugin pluggin = new GpxIngestPlugin();
-    pluggin.init(
-        new File(this.getClass().getClassLoader().getResource("metadata.xml").getPath())
-            .getParentFile()
-            .toURI()
-            .toURL());
+    pluggin.init(new File(this.getClass().getClassLoader().getResource("metadata.xml").getPath())
+        .getParentFile().toURI().toURL());
 
-    final CloseableIterator<GeoWaveData<SimpleFeature>> consumer =
-        pluggin.toGeoWaveData(
-            this.getClass().getClassLoader().getResource("12345.xml"), new String[] {"123"}, "");
+    final CloseableIterator<GeoWaveData<SimpleFeature>> consumer = pluggin.toGeoWaveData(
+        this.getClass().getClassLoader().getResource("12345.xml"), new String[] {"123"}, "");
 
     int totalCount = 0;
     while (consumer.hasNext()) {
@@ -81,9 +75,7 @@ public class GPXIngestPluginTest {
       System.out.println("Failed matches:");
       System.out.println(expectedSet);
     }
-    assertEquals(
-        "All expected data set should be matched; zero unmatched data expected",
-        0,
+    assertEquals("All expected data set should be matched; zero unmatched data expected", 0,
         expectedSet.size());
   }
 }

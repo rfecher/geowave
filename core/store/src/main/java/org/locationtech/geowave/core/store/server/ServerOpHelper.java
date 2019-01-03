@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,8 +29,8 @@ public class ServerOpHelper {
   private static final String ROW_MERGING_SUFFIX = "_COMBINER";
   public static final String ROW_MERGING_VISIBILITY_SUFFIX = "_VISIBILITY_COMBINER";
 
-  public static boolean updateServerOps(
-      final ServerSideOperations operations, final String index, final ServerOpConfig... configs) {
+  public static boolean updateServerOps(final ServerSideOperations operations, final String index,
+      final ServerOpConfig... configs) {
     if ((configs != null) && (configs.length > 0)) {
       final Map<String, ImmutableSet<ServerOpScope>> iteratorScopes =
           operations.listServerOps(index);
@@ -53,12 +54,8 @@ public class ServerOpHelper {
                 // this iterator exists with the wrong
                 // scope, we will assume we want to remove
                 // it and add the new configuration
-                LOGGER.warn(
-                    "found iterator '"
-                        + config.getServerOpName()
-                        + "' missing scope '"
-                        + s.name()
-                        + "', removing it and re-attaching");
+                LOGGER.warn("found iterator '" + config.getServerOpName() + "' missing scope '"
+                    + s.name() + "', removing it and re-attaching");
 
                 mustDelete = true;
                 break;
@@ -102,83 +99,51 @@ public class ServerOpHelper {
           configuredOptions = config.getOptions(new HashMap<String, String>());
         }
         if (mustDelete) {
-          operations.updateServerOp(
-              index,
-              config.getServerOpPriority(),
-              config.getServerOpName(),
-              config.getServerOpClass(),
-              configuredOptions,
-              existingScopes,
-              configuredScopes);
+          operations.updateServerOp(index, config.getServerOpPriority(), config.getServerOpName(),
+              config.getServerOpClass(), configuredOptions, existingScopes, configuredScopes);
         } else if (!exists) {
-          operations.addServerOp(
-              index,
-              config.getServerOpPriority(),
-              config.getServerOpName(),
-              config.getServerOpClass(),
-              configuredOptions,
-              configuredScopes);
+          operations.addServerOp(index, config.getServerOpPriority(), config.getServerOpName(),
+              config.getServerOpClass(), configuredOptions, configuredScopes);
         }
       }
     }
     return true;
   }
 
-  public static void addServerSideRowMerging(
-      final RowMergingDataAdapter<?, ?> adapter,
-      final short internalAdapterId,
-      final ServerSideOperations operations,
-      final String serverOpClassName,
-      final String serverOpVisiblityClassName,
+  public static void addServerSideRowMerging(final RowMergingDataAdapter<?, ?> adapter,
+      final short internalAdapterId, final ServerSideOperations operations,
+      final String serverOpClassName, final String serverOpVisiblityClassName,
       final String tableName) {
     final RowTransform rowTransform = adapter.getTransform();
     if (rowTransform != null) {
       final OptionProvider optionProvider =
           new RowMergingAdapterOptionProvider(internalAdapterId, adapter);
-      final ServerOpConfig rowMergingCombinerConfig =
-          new ServerOpConfig(
-              EnumSet.allOf(ServerOpScope.class),
-              rowTransform.getBaseTransformPriority(),
-              rowTransform.getTransformName() + ROW_MERGING_SUFFIX,
-              serverOpClassName,
-              optionProvider);
-      final ServerOpConfig rowMergingVisibilityCombinerConfig =
-          new ServerOpConfig(
-              EnumSet.of(ServerOpScope.SCAN),
-              rowTransform.getBaseTransformPriority() + 1,
-              rowTransform.getTransformName() + ROW_MERGING_VISIBILITY_SUFFIX,
-              serverOpVisiblityClassName,
-              optionProvider);
+      final ServerOpConfig rowMergingCombinerConfig = new ServerOpConfig(
+          EnumSet.allOf(ServerOpScope.class), rowTransform.getBaseTransformPriority(),
+          rowTransform.getTransformName() + ROW_MERGING_SUFFIX, serverOpClassName, optionProvider);
+      final ServerOpConfig rowMergingVisibilityCombinerConfig = new ServerOpConfig(
+          EnumSet.of(ServerOpScope.SCAN), rowTransform.getBaseTransformPriority() + 1,
+          rowTransform.getTransformName() + ROW_MERGING_VISIBILITY_SUFFIX,
+          serverOpVisiblityClassName, optionProvider);
 
-      updateServerOps(
-          operations, tableName, rowMergingCombinerConfig, rowMergingVisibilityCombinerConfig);
+      updateServerOps(operations, tableName, rowMergingCombinerConfig,
+          rowMergingVisibilityCombinerConfig);
     }
   }
 
-  public static void addServerSideMerging(
-      final ServerSideOperations operations,
-      final String mergingOpBaseName,
-      final int mergingOpBasePriority,
-      final String serverOpClassName,
-      final String serverOpVisiblityClassName,
-      final OptionProvider optionProvider,
-      final String tableName) {
+  public static void addServerSideMerging(final ServerSideOperations operations,
+      final String mergingOpBaseName, final int mergingOpBasePriority,
+      final String serverOpClassName, final String serverOpVisiblityClassName,
+      final OptionProvider optionProvider, final String tableName) {
     final ServerOpConfig rowMergingCombinerConfig =
-        new ServerOpConfig(
-            EnumSet.allOf(ServerOpScope.class),
-            mergingOpBasePriority,
-            mergingOpBaseName + ROW_MERGING_SUFFIX,
-            serverOpClassName,
-            optionProvider);
+        new ServerOpConfig(EnumSet.allOf(ServerOpScope.class), mergingOpBasePriority,
+            mergingOpBaseName + ROW_MERGING_SUFFIX, serverOpClassName, optionProvider);
     final ServerOpConfig rowMergingVisibilityCombinerConfig =
-        new ServerOpConfig(
-            EnumSet.of(ServerOpScope.SCAN),
-            mergingOpBasePriority + 1,
-            mergingOpBaseName + ROW_MERGING_VISIBILITY_SUFFIX,
-            serverOpVisiblityClassName,
+        new ServerOpConfig(EnumSet.of(ServerOpScope.SCAN), mergingOpBasePriority + 1,
+            mergingOpBaseName + ROW_MERGING_VISIBILITY_SUFFIX, serverOpVisiblityClassName,
             optionProvider);
 
-    updateServerOps(
-        operations, tableName, rowMergingCombinerConfig, rowMergingVisibilityCombinerConfig);
+    updateServerOps(operations, tableName, rowMergingCombinerConfig,
+        rowMergingVisibilityCombinerConfig);
   }
 }

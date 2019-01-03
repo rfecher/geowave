@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,42 +23,26 @@ public class HBaseMiniClusterClassLoader extends URLClassLoader {
    * If the class being loaded starts with any of these strings, we will skip trying to load it from
    * the coprocessor jar and instead delegate directly to the parent ClassLoader.
    */
-  private static final String[] CLASS_PREFIX_EXEMPTIONS =
-      new String[] {
-        // Java standard library:
-        "com.sun.",
-        "sun.",
-        "java.",
-        "javax.",
-        "org.ietf",
-        "org.omg",
-        "org.w3c",
-        "org.xml",
-        "sunw.",
-        // logging
-        "org.apache.commons.logging",
-        "org.apache.log4j",
-        "com.hadoop",
-        // Hadoop/HBase/ZK:
-        "org.apache.hadoop.security",
-        "org.apache.hadoop.conf",
-        "org.apache.hadoop.fs",
-        "org.apache.hadoop.util",
-        "org.apache.hadoop.io"
-      };
+  private static final String[] CLASS_PREFIX_EXEMPTIONS = new String[] {
+      // Java standard library:
+      "com.sun.", "sun.", "java.", "javax.", "org.ietf", "org.omg", "org.w3c", "org.xml", "sunw.",
+      // logging
+      "org.apache.commons.logging", "org.apache.log4j", "com.hadoop",
+      // Hadoop/HBase/ZK:
+      "org.apache.hadoop.security", "org.apache.hadoop.conf", "org.apache.hadoop.fs",
+      "org.apache.hadoop.util", "org.apache.hadoop.io"};
 
   private static ClassLoader hbaseMiniClusterCl;
 
   public static synchronized ClassLoader getInstance(final ClassLoader parentCl) {
     if (hbaseMiniClusterCl == null) {
-      hbaseMiniClusterCl =
-          java.security.AccessController.doPrivileged(
-              new java.security.PrivilegedAction<ClassLoader>() {
-                @Override
-                public ClassLoader run() {
-                  return new HBaseMiniClusterClassLoader(parentCl);
-                }
-              });
+      hbaseMiniClusterCl = java.security.AccessController
+          .doPrivileged(new java.security.PrivilegedAction<ClassLoader>() {
+            @Override
+            public ClassLoader run() {
+              return new HBaseMiniClusterClassLoader(parentCl);
+            }
+          });
     }
     return hbaseMiniClusterCl;
   }
@@ -66,12 +51,11 @@ public class HBaseMiniClusterClassLoader extends URLClassLoader {
   public HBaseMiniClusterClassLoader(ClassLoader parent) {
     super(new URL[] {}, parent);
     // search for JAR files in the given directory
-    FileFilter jarFilter =
-        new FileFilter() {
-          public boolean accept(File pathname) {
-            return pathname.getName().endsWith(".jar");
-          }
-        };
+    FileFilter jarFilter = new FileFilter() {
+      public boolean accept(File pathname) {
+        return pathname.getName().endsWith(".jar");
+      }
+    };
 
     // create URL for each JAR file found
     File[] jarFiles = new File("target/hbase/lib").listFiles(jarFilter);
@@ -87,9 +71,8 @@ public class HBaseMiniClusterClassLoader extends URLClassLoader {
       }
     }
     try {
-      final String jarPath =
-          ClasspathUtils.setupPathingJarClassPath(
-              new File("target/hbase/lib"), HBaseMiniClusterClassLoader.class);
+      final String jarPath = ClasspathUtils.setupPathingJarClassPath(new File("target/hbase/lib"),
+          HBaseMiniClusterClassLoader.class);
       addURL(new File(jarPath).toURI().toURL());
     } catch (IOException e1) {
       // TODO Auto-generated catch block

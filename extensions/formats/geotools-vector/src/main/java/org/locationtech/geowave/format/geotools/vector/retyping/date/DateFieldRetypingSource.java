@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,22 +31,21 @@ public class DateFieldRetypingSource extends AbstractFieldRetypingSource {
   private final Map<String, String> fieldNameToTimestampFormat;
   private final ThreadLocal<Map<String, SimpleDateFormat>> fieldToFormatObjMap;
 
-  public DateFieldRetypingSource(
-      final SimpleFeatureType typeIn, final Map<String, String> fieldNameToTimestampFormat) {
+  public DateFieldRetypingSource(final SimpleFeatureType typeIn,
+      final Map<String, String> fieldNameToTimestampFormat) {
     this.typeIn = typeIn;
     this.fieldNameToTimestampFormat = fieldNameToTimestampFormat;
 
-    this.fieldToFormatObjMap =
-        new ThreadLocal<Map<String, SimpleDateFormat>>() {
-          @Override
-          protected Map<String, SimpleDateFormat> initialValue() {
-            final Map<String, SimpleDateFormat> localFieldToFormat = new HashMap<>();
-            for (Entry<String, String> entry : fieldNameToTimestampFormat.entrySet()) {
-              localFieldToFormat.put(entry.getKey(), new SimpleDateFormat(entry.getValue()));
-            }
-            return localFieldToFormat;
-          }
-        };
+    this.fieldToFormatObjMap = new ThreadLocal<Map<String, SimpleDateFormat>>() {
+      @Override
+      protected Map<String, SimpleDateFormat> initialValue() {
+        final Map<String, SimpleDateFormat> localFieldToFormat = new HashMap<>();
+        for (Entry<String, String> entry : fieldNameToTimestampFormat.entrySet()) {
+          localFieldToFormat.put(entry.getKey(), new SimpleDateFormat(entry.getValue()));
+        }
+        return localFieldToFormat;
+      }
+    };
   }
 
   @Override
@@ -111,11 +111,8 @@ public class DateFieldRetypingSource extends AbstractFieldRetypingSource {
       final StringBuilder logBuilder = new StringBuilder();
       logBuilder.append("Type: " + typeLabel);
       for (AttributeDescriptor propDef : type.getAttributeDescriptors()) {
-        logBuilder.append(
-            "\nField: "
-                + propDef.getLocalName()
-                + ", Type: "
-                + propDef.getType().getBinding().getSimpleName());
+        logBuilder.append("\nField: " + propDef.getLocalName() + ", Type: "
+            + propDef.getType().getBinding().getSimpleName());
       }
       LOGGER.debug(logBuilder.toString());
     }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,8 +31,8 @@ public class RocksDBMetadataReader implements MetadataReader {
     this.metadataType = metadataType;
   }
 
-  public CloseableIterator<GeoWaveMetadata> query(
-      final MetadataQuery query, final boolean mergeStats) {
+  public CloseableIterator<GeoWaveMetadata> query(final MetadataQuery query,
+      final boolean mergeStats) {
     CloseableIterator<GeoWaveMetadata> originalResults;
     Iterator<GeoWaveMetadata> resultsIt;
     if (query.hasPrimaryId()) {
@@ -47,24 +48,20 @@ public class RocksDBMetadataReader implements MetadataReader {
       resultsIt = originalResults;
     }
     if (query.hasPrimaryId() || query.hasSecondaryId()) {
-      resultsIt =
-          Iterators.filter(
-              resultsIt,
-              new Predicate<GeoWaveMetadata>() {
+      resultsIt = Iterators.filter(resultsIt, new Predicate<GeoWaveMetadata>() {
 
-                @Override
-                public boolean apply(final GeoWaveMetadata input) {
-                  if (query.hasPrimaryId()
-                      && !startsWith(input.getPrimaryId(), query.getPrimaryId())) {
-                    return false;
-                  }
-                  if (query.hasSecondaryId()
-                      && !Arrays.equals(input.getSecondaryId(), query.getSecondaryId())) {
-                    return false;
-                  }
-                  return true;
-                }
-              });
+        @Override
+        public boolean apply(final GeoWaveMetadata input) {
+          if (query.hasPrimaryId() && !startsWith(input.getPrimaryId(), query.getPrimaryId())) {
+            return false;
+          }
+          if (query.hasSecondaryId()
+              && !Arrays.equals(input.getSecondaryId(), query.getSecondaryId())) {
+            return false;
+          }
+          return true;
+        }
+      });
     }
     final boolean isStats = MetadataType.STATS.equals(metadataType) && mergeStats;
     final CloseableIterator<GeoWaveMetadata> retVal =

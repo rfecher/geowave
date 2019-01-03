@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,9 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @GeowaveOperation(name = "explain", parentOperation = GeowaveTopLevelSection.class)
-@Parameters(
-    commandDescription =
-        "See what arguments are missing and " + "what values will be used for GeoWave commands")
+@Parameters(commandDescription = "See what arguments are missing and "
+    + "what values will be used for GeoWave commands")
 public class ExplainCommand extends DefaultOperation implements Command {
 
   private static Logger LOGGER = LoggerFactory.getLogger(ExplainCommand.class);

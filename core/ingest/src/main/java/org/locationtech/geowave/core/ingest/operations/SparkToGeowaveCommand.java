@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,9 +31,11 @@ public class SparkToGeowaveCommand extends ServiceEnabledCommand<Void> {
   @Parameter(description = "<input directory> <store name> <comma delimited index/group list>")
   private List<String> parameters = new ArrayList<String>();
 
-  @ParametersDelegate private VisibilityOptions ingestOptions = new VisibilityOptions();
+  @ParametersDelegate
+  private VisibilityOptions ingestOptions = new VisibilityOptions();
 
-  @ParametersDelegate private SparkCommandLineOptions sparkOptions = new SparkCommandLineOptions();
+  @ParametersDelegate
+  private SparkCommandLineOptions sparkOptions = new SparkCommandLineOptions();
 
   @ParametersDelegate
   private LocalInputCommandLineOptions localInputOptions = new LocalInputCommandLineOptions();
@@ -64,8 +67,8 @@ public class SparkToGeowaveCommand extends ServiceEnabledCommand<Void> {
     return parameters;
   }
 
-  public void setParameters(
-      final String inputPath, final String storeName, final String commaSeparatedIndexes) {
+  public void setParameters(final String inputPath, final String storeName,
+      final String commaSeparatedIndexes) {
     parameters = new ArrayList<String>();
     parameters.add(inputPath);
     parameters.add(storeName);
@@ -115,14 +118,8 @@ public class SparkToGeowaveCommand extends ServiceEnabledCommand<Void> {
     final SparkIngestDriver driver = new SparkIngestDriver();
 
     // Execute
-    if (!driver.runOperation(
-        configFile,
-        localInputOptions,
-        inputStoreName,
-        indexList,
-        ingestOptions,
-        sparkOptions,
-        inputPath)) {
+    if (!driver.runOperation(configFile, localInputOptions, inputStoreName, indexList,
+        ingestOptions, sparkOptions, inputPath)) {
       throw new RuntimeException("Ingest failed to execute");
     }
 

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,10 +35,8 @@ public class StageToHdfsDriver
   private final String hdfsHostPort;
   private final String basePath;
 
-  public StageToHdfsDriver(
-      final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins,
-      final String hdfsHostPort,
-      final String basePath,
+  public StageToHdfsDriver(final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins,
+      final String hdfsHostPort, final String basePath,
       final LocalInputCommandLineOptions inputOptions) {
     super(inputOptions);
     this.ingestPlugins = ingestPlugins;
@@ -46,11 +45,8 @@ public class StageToHdfsDriver
   }
 
   @Override
-  protected void processFile(
-      final URL file,
-      final String typeName,
-      final AvroFormatPlugin<?, ?> plugin,
-      final StageRunData runData) {
+  protected void processFile(final URL file, final String typeName,
+      final AvroFormatPlugin<?, ?> plugin, final StageRunData runData) {
     final DataFileWriter writer = runData.getWriter(typeName, plugin);
     if (writer != null) {
       try (final CloseableIterator<?> objs = plugin.toAvroObjects(file)) {

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,7 +29,7 @@ public interface LocalPluginBase {
    * Initialize the plugin and give it the base directory that is provided by the user.
    *
    * @param url The base directory provided as a command-line argument (if the argument is a file,
-   *     the base directory given will be its parent directory).
+   *        the base directory given will be its parent directory).
    */
   public void init(URL url);
 

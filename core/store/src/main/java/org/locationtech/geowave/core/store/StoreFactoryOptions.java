@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -74,11 +75,8 @@ public abstract class StoreFactoryOptions {
         propsUtils.getBoolean(Constants.CONSOLE_DEFAULT_ECHO_ENABLED_KEY, false);
     boolean passwordEchoEnabled =
         propsUtils.getBoolean(Constants.CONSOLE_PASSWORD_ECHO_ENABLED_KEY, defaultEchoEnabled);
-    LOGGER.debug(
-        "Default console echo is {}, Password console echo is {}",
-        new Object[] {
-          defaultEchoEnabled ? "enabled" : "disabled", passwordEchoEnabled ? "enabled" : "disabled"
-        });
+    LOGGER.debug("Default console echo is {}, Password console echo is {}", new Object[] {
+        defaultEchoEnabled ? "enabled" : "disabled", passwordEchoEnabled ? "enabled" : "disabled"});
     for (Field field : this.getClass().getDeclaredFields()) {
       for (Annotation annotation : field.getAnnotations()) {
         if (annotation.annotationType() == Parameter.class) {
@@ -95,18 +93,11 @@ public abstract class StoreFactoryOptions {
             try {
               value = field.get(this);
               if (value == null) {
-                JCommander.getConsole()
-                    .println(
-                        "Field ["
-                            + field.getName()
-                            + "] is required: "
-                            + Arrays.toString(parameter.names())
-                            + ": "
-                            + parameter.description());
+                JCommander.getConsole().println("Field [" + field.getName() + "] is required: "
+                    + Arrays.toString(parameter.names()) + ": " + parameter.description());
                 JCommander.getConsole().print("Enter value for [" + field.getName() + "]: ");
                 boolean echoEnabled =
-                    JCommanderParameterUtils.isPassword(parameter)
-                        ? passwordEchoEnabled
+                    JCommanderParameterUtils.isPassword(parameter) ? passwordEchoEnabled
                         : defaultEchoEnabled;
                 char[] password = JCommander.getConsole().readPassword(echoEnabled);
                 String strPassword = new String(password);
@@ -114,8 +105,7 @@ public abstract class StoreFactoryOptions {
 
                 if (!"".equals(strPassword.trim())) {
                   value =
-                      (strPassword != null && !"".equals(strPassword.trim()))
-                          ? strPassword.trim()
+                      (strPassword != null && !"".equals(strPassword.trim())) ? strPassword.trim()
                           : null;
                 }
                 if (value == null) {
@@ -126,12 +116,8 @@ public abstract class StoreFactoryOptions {
                 }
               }
             } catch (Exception ex) {
-              LOGGER.error(
-                  "An error occurred validating plugin options for ["
-                      + this.getClass().getName()
-                      + "]: "
-                      + ex.getLocalizedMessage(),
-                  ex);
+              LOGGER.error("An error occurred validating plugin options for ["
+                  + this.getClass().getName() + "]: " + ex.getLocalizedMessage(), ex);
             }
           }
         }

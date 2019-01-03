@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,7 +38,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Captures changes made to a FeatureStore prior to being committed.
  *
- * <p>This is used to simulate the functionality of a database including transaction independence.
+ * <p>
+ * This is used to simulate the functionality of a database including transaction independence.
  *
  * @source $URL$
  */
@@ -69,9 +71,7 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
   private final String typeName;
 
   private static class ModifiedFeature {
-    public ModifiedFeature(
-        final SimpleFeature oldFeature,
-        final SimpleFeature newFeature,
+    public ModifiedFeature(final SimpleFeature oldFeature, final SimpleFeature newFeature,
         final boolean alreadyWritten) {
       super();
       this.newFeature = newFeature;
@@ -92,13 +92,9 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
    *
    * @throws IOException
    */
-  public GeoWaveTransactionManagement(
-      final int maxAdditionBufferSize,
-      final GeoWaveDataStoreComponents components,
-      final String typeName,
-      final Transaction transaction,
-      final LockingManagement lockingManager,
-      final String txID)
+  public GeoWaveTransactionManagement(final int maxAdditionBufferSize,
+      final GeoWaveDataStoreComponents components, final String typeName,
+      final Transaction transaction, final LockingManagement lockingManager, final String txID)
       throws IOException {
     super(components);
     this.maxAdditionBufferSize = maxAdditionBufferSize;
@@ -117,9 +113,7 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
   @Override
   public boolean isEmpty() {
     synchronized (mutex) {
-      return modifiedFeatures.isEmpty()
-          && addedFidList.isEmpty()
-          && removedFeatures.isEmpty()
+      return modifiedFeatures.isEmpty() && addedFidList.isEmpty() && removedFeatures.isEmpty()
           && addedFeatures.isEmpty();
     }
   }
@@ -182,20 +176,15 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
       }
     } else {
       synchronized (mutex) {
-        modifiedFeatures.put(
-            fid,
-            new ModifiedFeature(
-                modRecord == null ? original : modRecord.oldFeature, updated, false));
+        modifiedFeatures.put(fid, new ModifiedFeature(
+            modRecord == null ? original : modRecord.oldFeature, updated, false));
       }
     }
     final ReferencedEnvelope bounds = new ReferencedEnvelope((CoordinateReferenceSystem) null);
     bounds.include(original.getBounds());
     bounds.include(updated.getBounds());
-    components
-        .getGTstore()
-        .getListenerManager()
-        .fireFeaturesChanged(
-            components.getAdapter().getFeatureType().getTypeName(), transaction, bounds, false);
+    components.getGTstore().getListenerManager().fireFeaturesChanged(
+        components.getAdapter().getFeatureType().getTypeName(), transaction, bounds, false);
   }
 
   @Override
@@ -211,14 +200,9 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
       flushAddsToStore(true);
     }
     addedFeatures.put(fid, feature);
-    components
-        .getGTstore()
-        .getListenerManager()
-        .fireFeaturesAdded(
-            components.getAdapter().getFeatureType().getTypeName(),
-            transaction,
-            ReferencedEnvelope.reference(feature.getBounds()),
-            false);
+    components.getGTstore().getListenerManager().fireFeaturesAdded(
+        components.getAdapter().getFeatureType().getTypeName(), transaction,
+        ReferencedEnvelope.reference(feature.getBounds()), false);
   }
 
   @Override
@@ -234,14 +218,9 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
         modifiedFeatures.remove(fid);
       }
     }
-    components
-        .getGTstore()
-        .getListenerManager()
-        .fireFeaturesRemoved(
-            components.getAdapter().getFeatureType().getTypeName(),
-            transaction,
-            ReferencedEnvelope.reference(feature.getBounds()),
-            false);
+    components.getGTstore().getListenerManager().fireFeaturesRemoved(
+        components.getAdapter().getFeatureType().getTypeName(), transaction,
+        ReferencedEnvelope.reference(feature.getBounds()), false);
   }
 
   public void rollback() throws IOException {
@@ -273,9 +252,7 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
 
   private void flushAddsToStore(final boolean autoCommitAdds) throws IOException {
     final Set<String> captureList = autoCommitAdds ? new HashSet<>() : addedFidList;
-    components.write(
-        addedFeatures.values().iterator(),
-        captureList,
+    components.write(addedFeatures.values().iterator(), captureList,
         autoCommitAdds ? new GeoWaveEmptyTransaction(components) : this);
     addedFeatures.clear();
   }
@@ -312,11 +289,8 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
       final ModifiedFeature modFeature = modifiedFeatures.get(delFeatured.getID());
       // only want notify updates to existing (not new) features
       if ((modFeature == null) || modFeature.alreadyWritten) {
-        components
-            .getGTstore()
-            .getListenerManager()
-            .fireFeaturesRemoved(
-                typeName, transaction, ReferencedEnvelope.reference(delFeatured.getBounds()), true);
+        components.getGTstore().getListenerManager().fireFeaturesRemoved(typeName, transaction,
+            ReferencedEnvelope.reference(delFeatured.getBounds()), true);
       }
     }
 
@@ -326,14 +300,8 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
       final ReferencedEnvelope bounds = new ReferencedEnvelope((CoordinateReferenceSystem) null);
       bounds.include(pair.getLeft().getBounds());
       bounds.include(pair.getRight().getBounds());
-      components
-          .getGTstore()
-          .getListenerManager()
-          .fireFeaturesChanged(
-              typeName,
-              transaction,
-              ReferencedEnvelope.reference(pair.getRight().getBounds()),
-              true);
+      components.getGTstore().getListenerManager().fireFeaturesChanged(typeName, transaction,
+          ReferencedEnvelope.reference(pair.getRight().getBounds()), true);
     }
 
     statsCache = null;
@@ -382,8 +350,8 @@ public class GeoWaveTransactionManagement extends AbstractTransactionManagement
   }
 
   @Override
-  public CloseableIterator<SimpleFeature> interweaveTransaction(
-      final Integer limit, final Filter filter, final CloseableIterator<SimpleFeature> it) {
+  public CloseableIterator<SimpleFeature> interweaveTransaction(final Integer limit,
+      final Filter filter, final CloseableIterator<SimpleFeature> it) {
     return new CloseableIterator<SimpleFeature>() {
 
       Iterator<SimpleFeature> addedIt = addedFeatures.values().iterator();

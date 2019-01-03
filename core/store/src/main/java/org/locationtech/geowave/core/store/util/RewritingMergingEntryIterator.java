@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,21 +27,17 @@ public class RewritingMergingEntryIterator<T> extends MergingEntryIterator<T> {
   private final RowWriter writer;
   private final RowDeleter deleter;
 
-  public RewritingMergingEntryIterator(
-      final PersistentAdapterStore adapterStore,
-      final Index index,
-      final Iterator<GeoWaveRow> scannerIt,
-      final Map<Short, RowMergingDataAdapter> mergingAdapters,
-      final RowWriter writer,
-      final RowDeleter deleter) {
+  public RewritingMergingEntryIterator(final PersistentAdapterStore adapterStore, final Index index,
+      final Iterator<GeoWaveRow> scannerIt, final Map<Short, RowMergingDataAdapter> mergingAdapters,
+      final RowWriter writer, final RowDeleter deleter) {
     super(adapterStore, index, scannerIt, null, null, mergingAdapters, null);
     this.writer = writer;
     this.deleter = deleter;
   }
 
   @Override
-  protected GeoWaveRow mergeSingleRowValues(
-      final GeoWaveRow singleRow, final RowTransform rowTransform) {
+  protected GeoWaveRow mergeSingleRowValues(final GeoWaveRow singleRow,
+      final RowTransform rowTransform) {
     if (singleRow.getFieldValues().length < 2) {
       return singleRow;
     }

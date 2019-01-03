@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,10 +24,7 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 @GeowaveOperation(name = "getds", parentOperation = GeoServerSection.class)
 @Parameters(commandDescription = "Get GeoServer DataStore info")
 public class GeoServerGetDatastoreCommand extends GeoServerCommand<String> {
-  @Parameter(
-      names = {"-ws", "--workspace"},
-      required = false,
-      description = "workspace name")
+  @Parameter(names = {"-ws", "--workspace"}, required = false, description = "workspace name")
   private String workspace = null;
 
   @Parameter(description = "<datastore name>")
@@ -58,13 +56,9 @@ public class GeoServerGetDatastoreCommand extends GeoServerCommand<String> {
       final JSONObject datastore = jsonResponse.getJSONObject("dataStore");
       return "\nGeoServer store info for '" + datastore + "': " + datastore.toString(2);
     }
-    final String errorMessage =
-        "Error getting GeoServer store info for '"
-            + datastore
-            + "': "
-            + getStoreResponse.readEntity(String.class)
-            + "\nGeoServer Response Code = "
-            + getStoreResponse.getStatus();
+    final String errorMessage = "Error getting GeoServer store info for '" + datastore + "': "
+        + getStoreResponse.readEntity(String.class) + "\nGeoServer Response Code = "
+        + getStoreResponse.getStatus();
     return handleError(getStoreResponse, errorMessage);
   }
 }

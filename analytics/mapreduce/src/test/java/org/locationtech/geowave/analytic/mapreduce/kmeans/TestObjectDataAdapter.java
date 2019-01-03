@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,35 +35,33 @@ public class TestObjectDataAdapter extends AbstractDataAdapter<TestObject>
   private static final String ID = "myId";
   private static final String GROUP_ID = "myGroupId";
 
-  private static final PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object>
-      GEOM_FIELD_HANDLER =
-          new PersistentIndexFieldHandler<TestObject, CommonIndexValue, Object>() {
+  private static final PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object> GEOM_FIELD_HANDLER =
+      new PersistentIndexFieldHandler<TestObject, CommonIndexValue, Object>() {
 
-            @Override
-            public String[] getNativeFieldNames() {
-              return new String[] {GEOM};
-            }
+        @Override
+        public String[] getNativeFieldNames() {
+          return new String[] {GEOM};
+        }
 
-            @Override
-            public CommonIndexValue toIndexValue(final TestObject row) {
-              return new GeometryWrapper(row.geo, new byte[0]);
-            }
+        @Override
+        public CommonIndexValue toIndexValue(final TestObject row) {
+          return new GeometryWrapper(row.geo, new byte[0]);
+        }
 
-            @Override
-            public PersistentValue<Object>[] toNativeValues(final CommonIndexValue indexValue) {
-              return new PersistentValue[] {
-                new PersistentValue<Object>(GEOM, ((GeometryWrapper) indexValue).getGeometry())
-              };
-            }
+        @Override
+        public PersistentValue<Object>[] toNativeValues(final CommonIndexValue indexValue) {
+          return new PersistentValue[] {
+              new PersistentValue<Object>(GEOM, ((GeometryWrapper) indexValue).getGeometry())};
+        }
 
-            @Override
-            public byte[] toBinary() {
-              return new byte[0];
-            }
+        @Override
+        public byte[] toBinary() {
+          return new byte[0];
+        }
 
-            @Override
-            public void fromBinary(final byte[] bytes) {}
-          };
+        @Override
+        public void fromBinary(final byte[] bytes) {}
+      };
 
   private static final NativeFieldHandler<TestObject, Object> ID_FIELD_HANDLER =
       new NativeFieldHandler<TestObject, Object>() {
@@ -94,9 +93,8 @@ public class TestObjectDataAdapter extends AbstractDataAdapter<TestObject>
 
   private static final List<NativeFieldHandler<TestObject, Object>> NATIVE_FIELD_HANDLER_LIST =
       new ArrayList<>();
-  private static final List<
-          PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object>>
-      COMMON_FIELD_HANDLER_LIST = new ArrayList<>();
+  private static final List<PersistentIndexFieldHandler<TestObject, ? extends CommonIndexValue, Object>> COMMON_FIELD_HANDLER_LIST =
+      new ArrayList<>();
 
   static {
     COMMON_FIELD_HANDLER_LIST.add(GEOM_FIELD_HANDLER);
@@ -202,8 +200,8 @@ public class TestObjectDataAdapter extends AbstractDataAdapter<TestObject>
   @Override
   public int getPositionOfOrderedField(final CommonIndexModel model, final String fieldId) {
     int i = 0;
-    for (final NumericDimensionField<? extends CommonIndexValue> dimensionField :
-        model.getDimensions()) {
+    for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model
+        .getDimensions()) {
       if (fieldId.equals(dimensionField.getFieldName())) {
         return i;
       }
@@ -223,8 +221,8 @@ public class TestObjectDataAdapter extends AbstractDataAdapter<TestObject>
   public String getFieldNameForPosition(final CommonIndexModel model, final int position) {
     if (position < model.getDimensions().length) {
       int i = 0;
-      for (final NumericDimensionField<? extends CommonIndexValue> dimensionField :
-          model.getDimensions()) {
+      for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model
+          .getDimensions()) {
         if (i == position) {
           return dimensionField.getFieldName();
         }

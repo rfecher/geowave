@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,58 +34,45 @@ public class AttributeTypes {
 
   public static AttributeType getAttributeType(String imposm3TypeName) {
     switch (imposm3TypeName) {
-      case "id":
-        {
-          return AttributeDefinitionCache.get(Long.class);
-        }
-      case "osm_id":
-        {
-          return AttributeDefinitionCache.get(Long.class);
-        }
-      case "string":
-        {
-          return AttributeDefinitionCache.get(String.class);
-        }
-      case "pseudoarea":
-        {
-          return AttributeDefinitionCache.get(Double.class);
-        }
-      case "zorder":
-        {
-          return AttributeDefinitionCache.get(Short.class);
-        }
-      case "wayzorder":
-        {
-          return AttributeDefinitionCache.get(Short.class);
-        }
-      case "mapping_value":
-        {
-          return AttributeDefinitionCache.get(String.class);
-        }
-      case "boolint":
-        {
-          return AttributeDefinitionCache.get(Boolean.class);
-        }
-      case "direction":
-        {
-          return AttributeDefinitionCache.get(String.class);
-        }
-      case "mapping_key":
-        {
-          return AttributeDefinitionCache.get(String.class);
-        }
-      case "integer":
-        {
-          return AttributeDefinitionCache.get(Integer.class);
-        }
-      case "geometry":
-        {
-          return AttributeDefinitionCache.get(Geometry.class);
-        }
-      case "validated_geometry":
-        {
-          return AttributeDefinitionCache.get(Geometry.class);
-        }
+      case "id": {
+        return AttributeDefinitionCache.get(Long.class);
+      }
+      case "osm_id": {
+        return AttributeDefinitionCache.get(Long.class);
+      }
+      case "string": {
+        return AttributeDefinitionCache.get(String.class);
+      }
+      case "pseudoarea": {
+        return AttributeDefinitionCache.get(Double.class);
+      }
+      case "zorder": {
+        return AttributeDefinitionCache.get(Short.class);
+      }
+      case "wayzorder": {
+        return AttributeDefinitionCache.get(Short.class);
+      }
+      case "mapping_value": {
+        return AttributeDefinitionCache.get(String.class);
+      }
+      case "boolint": {
+        return AttributeDefinitionCache.get(Boolean.class);
+      }
+      case "direction": {
+        return AttributeDefinitionCache.get(String.class);
+      }
+      case "mapping_key": {
+        return AttributeDefinitionCache.get(String.class);
+      }
+      case "integer": {
+        return AttributeDefinitionCache.get(Integer.class);
+      }
+      case "geometry": {
+        return AttributeDefinitionCache.get(Geometry.class);
+      }
+      case "validated_geometry": {
+        return AttributeDefinitionCache.get(Geometry.class);
+      }
     }
     return null;
   }
@@ -204,23 +192,15 @@ public class AttributeTypes {
       }
       String val = String.valueOf(source).toLowerCase(Locale.ENGLISH).trim();
 
-      if (val.equals("1")
-          || val.equals("true")
-          || val.equals("t")
-          || val.equals("y")
+      if (val.equals("1") || val.equals("true") || val.equals("t") || val.equals("y")
           || val.equals("yes")) {
         return true;
-      } else if (val.equals("0")
-          || val.equals("false")
-          || val.equals("f")
-          || val.equals("n")
+      } else if (val.equals("0") || val.equals("false") || val.equals("f") || val.equals("n")
           || val.equals("no")) {
         return false;
       }
-      log.warn(
-          "Unable to parse value: "
-              + val
-              + " as boolean, defaulting to true based on presence of value");
+      log.warn("Unable to parse value: " + val
+          + " as boolean, defaulting to true based on presence of value");
       return true;
     }
 

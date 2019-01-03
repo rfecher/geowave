@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,20 +35,25 @@ import org.slf4j.LoggerFactory;
  * command). Allow these arguments to be placed an 'args' list for 'main' executables (e.g.
  * ToolRunner).
  *
- * <p>The class supports some basic conversions.
+ * <p>
+ * The class supports some basic conversions.
  *
- * <p>Non-serializable objects: {@link Persistable} instances are converted to and from byte
- * formats. {@link QueryConstraints} is a special case, supporting WKT String. {@link Path} are
- * converted to a from string representation of the their URI.
+ * <p>
+ * Non-serializable objects: {@link Persistable} instances are converted to and from byte formats.
+ * {@link QueryConstraints} is a special case, supporting WKT String. {@link Path} are converted to
+ * a from string representation of the their URI.
  *
- * <p>Serializable objects: {@link NumericRange} supports min,max in string representation (e.g.
+ * <p>
+ * Serializable objects: {@link NumericRange} supports min,max in string representation (e.g.
  * "1.0,2.0")
  *
- * <p>NOTE: ConfigutationWrapper implementation is scopeless.
+ * <p>
+ * NOTE: ConfigutationWrapper implementation is scopeless.
  *
- * <p>EXPECTED FUTURE WORK: I am bit unsatisfied with the duality of the parameters base class. In
- * one case, in is treated a description for a class value and, in the other case, it is treated as
- * a description for the type of a property value. The former is really a descriptor of a Class of
+ * <p>
+ * EXPECTED FUTURE WORK: I am bit unsatisfied with the duality of the parameters base class. In one
+ * case, in is treated a description for a class value and, in the other case, it is treated as a
+ * description for the type of a property value. The former is really a descriptor of a Class of
  * type class. Generics do not help due to erasure. The impact of this inconsistency is the
  * inability to validate on 'store'. Instead, validation occurs on 'gets'. The ultimate goal is to
  * uniformly provide feedback to parameters from command line arguments and property files on
@@ -73,9 +79,7 @@ public class PropertyManagement implements Serializable {
     converters.add(new ByteConverter());
   }
 
-  public PropertyManagement(
-      final PropertyConverter<?>[] converters,
-      final ParameterEnum<?>[] names,
+  public PropertyManagement(final PropertyConverter<?>[] converters, final ParameterEnum<?>[] names,
       final Object[] values) {
     this.converters.add(new QueryConverter());
     this.converters.add(new PathConverter());
@@ -108,19 +112,16 @@ public class PropertyManagement implements Serializable {
     return getPropertyValue(propertyName);
   }
 
-  public synchronized <T> void store(
-      final ParameterEnum<?> property, final T value, final PropertyConverter<T> converter) {
+  public synchronized <T> void store(final ParameterEnum<?> property, final T value,
+      final PropertyConverter<T> converter) {
     Serializable convertedValue;
     try {
       convertedValue = converter.convert(value);
     } catch (final Exception e) {
       throw new IllegalArgumentException(
-          String.format(
-              "Cannot store %s with value %s. Expected type = %s; Error message = %s",
-              property.self().toString(),
-              value.toString(),
-              property.getHelper().getBaseClass().toString(),
-              e.getLocalizedMessage()),
+          String.format("Cannot store %s with value %s. Expected type = %s; Error message = %s",
+              property.self().toString(), value.toString(),
+              property.getHelper().getBaseClass().toString(), e.getLocalizedMessage()),
           e);
     }
     localProperties.put(property, convertedValue);
@@ -133,18 +134,16 @@ public class PropertyManagement implements Serializable {
       try {
         convertedValue = convertIfNecessary(property, value);
       } catch (final Exception e) {
-        throw new IllegalArgumentException(
-            String.format(
-                "Cannot store %s with value %s:%s",
-                property.self().toString(), value.toString(), e.getLocalizedMessage()));
+        throw new IllegalArgumentException(String.format("Cannot store %s with value %s:%s",
+            property.self().toString(), value.toString(), e.getLocalizedMessage()));
       }
       localProperties.put(property, convertedValue);
     }
   }
 
   /** Does not work for non-serializable data (e.g. Path or Persistable) */
-  public synchronized Serializable storeIfEmpty(
-      final ParameterEnum<?> propertyEnum, final Serializable value) {
+  public synchronized Serializable storeIfEmpty(final ParameterEnum<?> propertyEnum,
+      final Serializable value) {
     if (!containsPropertyValue(propertyEnum) && (value != null)) {
       LOGGER.info("Setting parameter : {} to {}", propertyEnum.toString(), value.toString());
       store(propertyEnum, value);
@@ -153,8 +152,8 @@ public class PropertyManagement implements Serializable {
     return getPropertyValue(propertyEnum);
   }
 
-  public synchronized void copy(
-      final ParameterEnum<?> propertyNameFrom, final ParameterEnum<?> propertyNameTo) {
+  public synchronized void copy(final ParameterEnum<?> propertyNameFrom,
+      final ParameterEnum<?> propertyNameTo) {
     if (containsPropertyValue(propertyNameFrom)) {
       localProperties.put(propertyNameTo, getPropertyValue(propertyNameFrom));
     }
@@ -162,8 +161,8 @@ public class PropertyManagement implements Serializable {
 
   public synchronized void storeAll(final ParameterEnum<?>[] names, final Object[] values) {
     if (values.length != names.length) {
-      LOGGER.error(
-          "The number of values must equal the number of names passed to the store method");
+      LOGGER
+          .error("The number of values must equal the number of names passed to the store method");
       throw new IllegalArgumentException(
           "The number of values must equal the number of names passed to the store method");
     }
@@ -173,8 +172,8 @@ public class PropertyManagement implements Serializable {
     }
   }
 
-  public void setConfig(
-      final ParameterEnum<?>[] parameters, final Configuration config, final Class<?> scope) {
+  public void setConfig(final ParameterEnum<?>[] parameters, final Configuration config,
+      final Class<?> scope) {
     for (final ParameterEnum param : parameters) {
       Object value;
       try {
@@ -190,22 +189,16 @@ public class PropertyManagement implements Serializable {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T getClassInstance(
-      final ParameterEnum<?> property, final Class<T> iface, final Class<?> defaultClass)
-      throws InstantiationException {
+  public <T> T getClassInstance(final ParameterEnum<?> property, final Class<T> iface,
+      final Class<?> defaultClass) throws InstantiationException {
     final Object o = getPropertyValue(property);
 
     try {
-      final Class<?> clazz =
-          o == null
-              ? defaultClass
-              : (o instanceof Class) ? (Class<?>) o : Class.forName(o.toString());
+      final Class<?> clazz = o == null ? defaultClass
+          : (o instanceof Class) ? (Class<?>) o : Class.forName(o.toString());
       if (!property.getHelper().getBaseClass().isAssignableFrom(clazz)) {
-        LOGGER.error(
-            "Class for property "
-                + property.self().toString()
-                + " does not implement "
-                + property.getHelper().getBaseClass().toString());
+        LOGGER.error("Class for property " + property.self().toString() + " does not implement "
+            + property.getHelper().getBaseClass().toString());
       }
       return (T) clazz.newInstance();
     } catch (final ClassNotFoundException e) {
@@ -314,8 +307,8 @@ public class PropertyManagement implements Serializable {
     return defaultValue;
   }
 
-  public NumericRange getPropertyAsRange(
-      final ParameterEnum<?> property, final NumericRange defaultValue) {
+  public NumericRange getPropertyAsRange(final ParameterEnum<?> property,
+      final NumericRange defaultValue) {
     final Object val = getPropertyValue(property);
     if (val != null) {
       if (val instanceof NumericRange) {
@@ -325,8 +318,8 @@ public class PropertyManagement implements Serializable {
       final String[] parts = p.split(",");
       try {
         if (parts.length == 2) {
-          return new NumericRange(
-              Double.parseDouble(parts[0].trim()), Double.parseDouble(parts[1].trim()));
+          return new NumericRange(Double.parseDouble(parts[0].trim()),
+              Double.parseDouble(parts[1].trim()));
         } else {
           return new NumericRange(0, Double.parseDouble(p));
         }
@@ -346,8 +339,8 @@ public class PropertyManagement implements Serializable {
         return validate((Class<?>) val, property.getHelper().getBaseClass());
       }
       try {
-        return validate(
-            (Class<?>) Class.forName(val.toString()), property.getHelper().getBaseClass());
+        return validate((Class<?>) Class.forName(val.toString()),
+            property.getHelper().getBaseClass());
       } catch (final ClassNotFoundException e) {
         LOGGER.error("Class not found for property " + property, e);
       } catch (final java.lang.IllegalArgumentException ex) {
@@ -366,8 +359,8 @@ public class PropertyManagement implements Serializable {
         return validate((Class<T>) val, property.getHelper().getBaseClass());
       }
       try {
-        return validate(
-            (Class<T>) Class.forName(val.toString()), property.getHelper().getBaseClass());
+        return validate((Class<T>) Class.forName(val.toString()),
+            property.getHelper().getBaseClass());
       } catch (final ClassNotFoundException e) {
         LOGGER.error("Class not found for property " + property.self().toString());
         throw e;
@@ -381,18 +374,16 @@ public class PropertyManagement implements Serializable {
     throw new ClassNotFoundException("Value not found for property " + property.self().toString());
   }
 
-  public <T> Class<? extends T> getPropertyAsClass(
-      final ParameterEnum<?> property,
-      final Class<? extends T> iface,
-      final Class<? extends T> defaultClass) {
+  public <T> Class<? extends T> getPropertyAsClass(final ParameterEnum<?> property,
+      final Class<? extends T> iface, final Class<? extends T> defaultClass) {
     final Object val = getPropertyValue(property);
     if (val != null) {
       if (val instanceof Class) {
         return validate((Class<T>) val, property.getHelper().getBaseClass());
       }
       try {
-        return validate(
-            (Class<T>) Class.forName(val.toString()), property.getHelper().getBaseClass());
+        return validate((Class<T>) Class.forName(val.toString()),
+            property.getHelper().getBaseClass());
       } catch (final ClassNotFoundException e) {
         LOGGER.error("Class not found for property " + property, e);
       } catch (final java.lang.IllegalArgumentException ex) {
@@ -458,7 +449,8 @@ public class PropertyManagement implements Serializable {
    * Add to the set of converters used to take a String representation of a value and convert it
    * into another serializable form.
    *
-   * <p>This is done if the preferred internal representation does not match that of a string. For
+   * <p>
+   * This is done if the preferred internal representation does not match that of a string. For
    * example, a query is maintained as bytes even though it can be provided as a query
    *
    * @param converter
@@ -472,9 +464,8 @@ public class PropertyManagement implements Serializable {
     return PersistenceUtils.toBinary(persistableObject);
   }
 
-  private static Persistable fromBytes(final byte[] data)
-      throws InstantiationException, IllegalAccessException, ClassNotFoundException,
-          UnsupportedEncodingException {
+  private static Persistable fromBytes(final byte[] data) throws InstantiationException,
+      IllegalAccessException, ClassNotFoundException, UnsupportedEncodingException {
     return PersistenceUtils.fromBinary(data);
   }
 
@@ -482,16 +473,12 @@ public class PropertyManagement implements Serializable {
     if (value != null) {
       if (value instanceof Class) {
         if (((Class<?>) value).isAssignableFrom(propertyName.getHelper().getBaseClass())) {
-          throw new IllegalArgumentException(
-              String.format(
-                  "%s does not accept class %s",
-                  propertyName.self().toString(), ((Class<?>) value).getName()));
+          throw new IllegalArgumentException(String.format("%s does not accept class %s",
+              propertyName.self().toString(), ((Class<?>) value).getName()));
         }
       } else if (!propertyName.getHelper().getBaseClass().isInstance(value)) {
-        throw new IllegalArgumentException(
-            String.format(
-                "%s does not accept type %s",
-                propertyName.self().toString(), value.getClass().getName()));
+        throw new IllegalArgumentException(String.format("%s does not accept type %s",
+            propertyName.self().toString(), value.getClass().getName()));
       }
     }
     return value;
@@ -502,14 +489,16 @@ public class PropertyManagement implements Serializable {
       throws Exception {
 
     if (!(value instanceof Serializable)) {
-      for (@SuppressWarnings("rawtypes") final PropertyConverter converter : converters) {
+      for (@SuppressWarnings("rawtypes")
+      final PropertyConverter converter : converters) {
         if (converter.baseClass().isAssignableFrom(property.getHelper().getBaseClass())) {
           return converter.convert(value);
         }
       }
     }
     if (!property.getHelper().getBaseClass().isInstance(value) && (value instanceof String)) {
-      for (@SuppressWarnings("rawtypes") final PropertyConverter converter : converters) {
+      for (@SuppressWarnings("rawtypes")
+      final PropertyConverter converter : converters) {
         if (converter.baseClass().isAssignableFrom(property.getHelper().getBaseClass())) {
           return converter.convert(converter.convert(value.toString()));
         }
@@ -542,9 +531,8 @@ public class PropertyManagement implements Serializable {
       try {
         return toBytes(ob);
       } catch (final UnsupportedEncodingException e) {
-        throw new IllegalArgumentException(
-            String.format(
-                "Cannot convert %s to a Query: %s", ob.toString(), e.getLocalizedMessage()));
+        throw new IllegalArgumentException(String.format("Cannot convert %s to a Query: %s",
+            ob.toString(), e.getLocalizedMessage()));
       }
     }
 
@@ -652,9 +640,8 @@ public class PropertyManagement implements Serializable {
       try {
         return toBytes(ob);
       } catch (final UnsupportedEncodingException e) {
-        throw new IllegalArgumentException(
-            String.format(
-                "Cannot convert %s to a Persistable: %s", ob.toString(), e.getLocalizedMessage()));
+        throw new IllegalArgumentException(String.format("Cannot convert %s to a Persistable: %s",
+            ob.toString(), e.getLocalizedMessage()));
       }
     }
 

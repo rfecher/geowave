@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -14,7 +15,7 @@ import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 /** Interface which defines a numeric index strategy. */
 public interface NumericIndexStrategy
     extends SortedIndexStrategy<MultiDimensionalNumericData, MultiDimensionalNumericData>,
-        PartitionIndexStrategy<MultiDimensionalNumericData, MultiDimensionalNumericData> {
+    PartitionIndexStrategy<MultiDimensionalNumericData, MultiDimensionalNumericData> {
 
   /**
    * Return an integer coordinate in each dimension for the given insertion ID plus a bin ID if that
@@ -22,10 +23,10 @@ public interface NumericIndexStrategy
    *
    * @param insertionId the insertion ID to determine the coordinates for
    * @return the integer coordinate that the given insertion ID represents and associated bin ID if
-   *     that dimension is continuous
+   *         that dimension is continuous
    */
-  public MultiDimensionalCoordinates getCoordinatesPerDimension(
-      ByteArray partitionKey, ByteArray sortKey);
+  public MultiDimensionalCoordinates getCoordinatesPerDimension(ByteArray partitionKey,
+      ByteArray sortKey);
 
   /**
    * Return an integer coordinate range in each dimension for the given data range plus a bin ID if
@@ -33,7 +34,7 @@ public interface NumericIndexStrategy
    *
    * @param dataRange the range to determine the coordinates for
    * @return the integer coordinate ranges that the given data ID represents and associated bin IDs
-   *     if a dimension is continuous
+   *         if a dimension is continuous
    */
   public MultiDimensionalCoordinateRanges[] getCoordinateRangesPerDimension(
       MultiDimensionalNumericData dataRange, IndexMetaData... hints);

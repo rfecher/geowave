@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -91,14 +92,20 @@ public class GeoWaveOutputKey<T>
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     GeoWaveOutputKey other = (GeoWaveOutputKey) obj;
-    if (!Arrays.equals(indexNames, other.indexNames)) return false;
+    if (!Arrays.equals(indexNames, other.indexNames))
+      return false;
     if (typeName == null) {
-      if (other.typeName != null) return false;
-    } else if (!typeName.equals(other.typeName)) return false;
+      if (other.typeName != null)
+        return false;
+    } else if (!typeName.equals(other.typeName))
+      return false;
     return true;
   }
 

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -124,8 +125,7 @@ public class FileUploadResource extends ServerResource {
       try {
         uuid = UUID.fromString(provided);
       } catch (IllegalArgumentException e) {
-        throw new ResourceException(
-            Status.CLIENT_ERROR_BAD_REQUEST,
+        throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST,
             String.format("'%s' must be a valid UUID", KEY_BATCH_UUID));
       }
     }

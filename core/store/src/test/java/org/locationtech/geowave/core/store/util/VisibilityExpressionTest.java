@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -12,7 +13,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import com.google.common.collect.Sets;
 import java.text.ParseException;
 import org.junit.Test;
@@ -103,8 +103,8 @@ public class VisibilityExpressionTest {
     } catch (Exception e) {
       // Expected
       assertTrue(e.getCause() instanceof ParseException);
-      assertEquals(
-          "Left parenthesis found with no matching right parenthesis.", e.getCause().getMessage());
+      assertEquals("Left parenthesis found with no matching right parenthesis.",
+          e.getCause().getMessage());
     }
 
     try {
@@ -113,8 +113,8 @@ public class VisibilityExpressionTest {
     } catch (Exception e) {
       // Expected
       assertTrue(e.getCause() instanceof ParseException);
-      assertEquals(
-          "Right parenthesis found with no matching left parenthesis.", e.getCause().getMessage());
+      assertEquals("Right parenthesis found with no matching left parenthesis.",
+          e.getCause().getMessage());
     }
 
     try {

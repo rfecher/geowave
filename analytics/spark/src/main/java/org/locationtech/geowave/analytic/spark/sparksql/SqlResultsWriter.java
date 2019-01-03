@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,8 +42,8 @@ public class SqlResultsWriter {
   private final DataStorePluginOptions outputDataStore;
   private final NumberFormat nf;
 
-  public SqlResultsWriter(
-      final Dataset<Row> results, final DataStorePluginOptions outputDataStore) {
+  public SqlResultsWriter(final Dataset<Row> results,
+      final DataStorePluginOptions outputDataStore) {
     this.results = results;
     this.outputDataStore = outputDataStore;
 
@@ -53,8 +54,8 @@ public class SqlResultsWriter {
   public void writeResults(String typeName) {
     if (typeName == null) {
       typeName = DEFAULT_TYPE_NAME;
-      LOGGER.warn(
-          "Using default type name (adapter id): '" + DEFAULT_TYPE_NAME + "' for SQL output");
+      LOGGER
+          .warn("Using default type name (adapter id): '" + DEFAULT_TYPE_NAME + "' for SQL output");
     }
 
     final StructType schema = results.schema();

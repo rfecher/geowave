@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -21,18 +22,19 @@ import org.locationtech.geowave.core.store.adapter.statistics.histogram.FixedBin
  * Fixed number of bins for a histogram. Unless configured, the range will expand dynamically,
  * redistributing the data as necessary into the wider bins.
  *
- * <p>The advantage of constraining the range of the statistic is to ignore values outside the
- * range, such as erroneous values. Erroneous values force extremes in the histogram. For example,
- * if the expected range of values falls between 0 and 1 and a value of 10000 occurs, then a single
- * bin contains the entire population between 0 and 1, a single bin represents the single value of
+ * <p>
+ * The advantage of constraining the range of the statistic is to ignore values outside the range,
+ * such as erroneous values. Erroneous values force extremes in the histogram. For example, if the
+ * expected range of values falls between 0 and 1 and a value of 10000 occurs, then a single bin
+ * contains the entire population between 0 and 1, a single bin represents the single value of
  * 10000. If there are extremes in the data, then use {@link FeatureNumericHistogramStatistics}
  * instead.
  *
- * <p>The default number of bins is 32.
+ * <p>
+ * The default number of bins is 32.
  */
-public abstract class FixedBinNumericStatistics<T>
-    extends AbstractDataStatistics<
-        T, FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> {
+public abstract class FixedBinNumericStatistics<T> extends
+    AbstractDataStatistics<T, FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> {
   protected FixedBinNumericHistogram histogram;
 
   protected FixedBinNumericStatistics() {
@@ -40,35 +42,22 @@ public abstract class FixedBinNumericStatistics<T>
     histogram = new FixedBinNumericHistogram(1024);
   }
 
-  public FixedBinNumericStatistics(
-      final Short internalDataAdapterId,
-      final StatisticsType<
-              FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>>
-          type,
+  public FixedBinNumericStatistics(final Short internalDataAdapterId,
+      final StatisticsType<FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> type,
       final String fieldName) {
     this(internalDataAdapterId, type, fieldName, 1024);
   }
 
-  public FixedBinNumericStatistics(
-      final Short internalDataAdapterId,
-      final StatisticsType<
-              FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>>
-          type,
-      final String fieldName,
-      final int bins) {
+  public FixedBinNumericStatistics(final Short internalDataAdapterId,
+      final StatisticsType<FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> type,
+      final String fieldName, final int bins) {
     super(internalDataAdapterId, type, fieldName);
     histogram = new FixedBinNumericHistogram(bins);
   }
 
-  public FixedBinNumericStatistics(
-      final Short internalDataAdapterId,
-      final StatisticsType<
-              FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>>
-          type,
-      final String fieldName,
-      final int bins,
-      final double minValue,
-      final double maxValue) {
+  public FixedBinNumericStatistics(final Short internalDataAdapterId,
+      final StatisticsType<FixedBinNumericHistogram, FieldStatisticsQueryBuilder<FixedBinNumericHistogram>> type,
+      final String fieldName, final int bins, final double minValue, final double maxValue) {
     super(internalDataAdapterId, type, fieldName);
     histogram = new FixedBinNumericHistogram(bins, minValue, maxValue);
   }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,8 +28,8 @@ public class CassandraMetadataReader implements MetadataReader {
   private final CassandraOperations operations;
   private final MetadataType metadataType;
 
-  public CassandraMetadataReader(
-      final CassandraOperations operations, final MetadataType metadataType) {
+  public CassandraMetadataReader(final CassandraOperations operations,
+      final MetadataType metadataType) {
     this.operations = operations;
     this.metadataType = metadataType;
   }
@@ -42,46 +43,31 @@ public class CassandraMetadataReader implements MetadataReader {
     }
     final Select select = operations.getSelect(tableName, selectedColumns);
     if (query.hasPrimaryId()) {
-      final Where where =
-          select.where(
-              QueryBuilder.eq(
-                  CassandraMetadataWriter.PRIMARY_ID_KEY, ByteBuffer.wrap(query.getPrimaryId())));
+      final Where where = select.where(QueryBuilder.eq(CassandraMetadataWriter.PRIMARY_ID_KEY,
+          ByteBuffer.wrap(query.getPrimaryId())));
       if (query.hasSecondaryId()) {
-        where.and(
-            QueryBuilder.eq(
-                CassandraMetadataWriter.SECONDARY_ID_KEY, ByteBuffer.wrap(query.getSecondaryId())));
+        where.and(QueryBuilder.eq(CassandraMetadataWriter.SECONDARY_ID_KEY,
+            ByteBuffer.wrap(query.getSecondaryId())));
       }
     } else if (query.hasSecondaryId()) {
-      select
-          .allowFiltering()
-          .where(
-              QueryBuilder.eq(
-                  CassandraMetadataWriter.SECONDARY_ID_KEY,
-                  ByteBuffer.wrap(query.getSecondaryId())));
+      select.allowFiltering().where(QueryBuilder.eq(CassandraMetadataWriter.SECONDARY_ID_KEY,
+          ByteBuffer.wrap(query.getSecondaryId())));
     }
     final ResultSet rs = operations.getSession().execute(select);
-    final CloseableIterator<GeoWaveMetadata> retVal =
-        new CloseableIterator.Wrapper<>(
-            Iterators.transform(
-                rs.iterator(),
-                new com.google.common.base.Function<Row, GeoWaveMetadata>() {
-                  @Override
-                  public GeoWaveMetadata apply(final Row result) {
-                    return new GeoWaveMetadata(
-                        query.hasPrimaryId()
-                            ? query.getPrimaryId()
-                            : result
-                                .get(CassandraMetadataWriter.PRIMARY_ID_KEY, ByteBuffer.class)
-                                .array(),
-                        useSecondaryId(query)
-                            ? query.getSecondaryId()
-                            : result
-                                .get(CassandraMetadataWriter.SECONDARY_ID_KEY, ByteBuffer.class)
-                                .array(),
-                        getVisibility(result),
-                        result.get(CassandraMetadataWriter.VALUE_KEY, ByteBuffer.class).array());
-                  }
-                }));
+    final CloseableIterator<GeoWaveMetadata> retVal = new CloseableIterator.Wrapper<>(Iterators
+        .transform(rs.iterator(), new com.google.common.base.Function<Row, GeoWaveMetadata>() {
+          @Override
+          public GeoWaveMetadata apply(final Row result) {
+            return new GeoWaveMetadata(
+                query.hasPrimaryId() ? query.getPrimaryId()
+                    : result.get(CassandraMetadataWriter.PRIMARY_ID_KEY, ByteBuffer.class).array(),
+                useSecondaryId(query) ? query.getSecondaryId()
+                    : result.get(CassandraMetadataWriter.SECONDARY_ID_KEY, ByteBuffer.class)
+                        .array(),
+                getVisibility(result),
+                result.get(CassandraMetadataWriter.VALUE_KEY, ByteBuffer.class).array());
+          }
+        }));
     return MetadataType.STATS.equals(metadataType)
         ? new StatisticsRowIterator(retVal, query.getAuthorizations())
         : retVal;
@@ -103,20 +89,15 @@ public class CassandraMetadataReader implements MetadataReader {
         return new String[] {CassandraMetadataWriter.VALUE_KEY};
       }
 
-      return new String[] {
-        CassandraMetadataWriter.SECONDARY_ID_KEY, CassandraMetadataWriter.VALUE_KEY
-      };
+      return new String[] {CassandraMetadataWriter.SECONDARY_ID_KEY,
+          CassandraMetadataWriter.VALUE_KEY};
     }
     if (useSecondaryId(query)) {
-      return new String[] {
-        CassandraMetadataWriter.PRIMARY_ID_KEY, CassandraMetadataWriter.VALUE_KEY
-      };
+      return new String[] {CassandraMetadataWriter.PRIMARY_ID_KEY,
+          CassandraMetadataWriter.VALUE_KEY};
     }
-    return new String[] {
-      CassandraMetadataWriter.PRIMARY_ID_KEY,
-      CassandraMetadataWriter.SECONDARY_ID_KEY,
-      CassandraMetadataWriter.VALUE_KEY
-    };
+    return new String[] {CassandraMetadataWriter.PRIMARY_ID_KEY,
+        CassandraMetadataWriter.SECONDARY_ID_KEY, CassandraMetadataWriter.VALUE_KEY};
   }
 
   private boolean useSecondaryId(final MetadataQuery query) {

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,13 +41,18 @@ public interface GeoWaveColumnFamily {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj) return true;
-      if (obj == null) return false;
-      if (getClass() != obj.getClass()) return false;
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
       StringColumnFamily other = (StringColumnFamily) obj;
       if (columnFamily == null) {
-        if (other.columnFamily != null) return false;
-      } else if (!columnFamily.equals(other.columnFamily)) return false;
+        if (other.columnFamily != null)
+          return false;
+      } else if (!columnFamily.equals(other.columnFamily))
+        return false;
       return true;
     }
   }
@@ -90,11 +96,15 @@ public interface GeoWaveColumnFamily {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj) return true;
-      if (obj == null) return false;
-      if (getClass() != obj.getClass()) return false;
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
       ByteArrayColumnFamily other = (ByteArrayColumnFamily) obj;
-      if (!Arrays.equals(columnFamily, other.columnFamily)) return false;
+      if (!Arrays.equals(columnFamily, other.columnFamily))
+        return false;
       return true;
     }
   }

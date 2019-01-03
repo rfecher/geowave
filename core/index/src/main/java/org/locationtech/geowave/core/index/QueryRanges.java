@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,8 +32,7 @@ public class QueryRanges {
   }
 
   public QueryRanges(final Set<ByteArray> partitionKeys, final QueryRanges queryRanges) {
-    if ((queryRanges == null)
-        || (queryRanges.partitionRanges == null)
+    if ((queryRanges == null) || (queryRanges.partitionRanges == null)
         || queryRanges.partitionRanges.isEmpty()) {
       partitionRanges = fromPartitionKeys(partitionKeys);
     } else if ((partitionKeys == null) || partitionKeys.isEmpty()) {
@@ -47,10 +47,8 @@ public class QueryRanges {
           } else if (sortKeyRange.getPartitionKey() == null) {
             newPartitionKey = partitionKey;
           } else {
-            newPartitionKey =
-                new ByteArray(
-                    ByteArrayUtils.combineArrays(
-                        partitionKey.getBytes(), sortKeyRange.getPartitionKey().getBytes()));
+            newPartitionKey = new ByteArray(ByteArrayUtils.combineArrays(partitionKey.getBytes(),
+                sortKeyRange.getPartitionKey().getBytes()));
           }
           partitionRanges.add(
               new SinglePartitionQueryRanges(newPartitionKey, sortKeyRange.getSortKeyRanges()));
@@ -101,8 +99,7 @@ public class QueryRanges {
     if (partitionKeys == null) {
       return null;
     }
-    return Collections2.transform(
-        partitionKeys,
+    return Collections2.transform(partitionKeys,
         new Function<ByteArray, SinglePartitionQueryRanges>() {
           @Override
           public SinglePartitionQueryRanges apply(final ByteArray input) {
@@ -135,17 +132,12 @@ public class QueryRanges {
         internalQueryRanges.addAll(partition.getSortKeyRanges());
       } else {
         for (final ByteArrayRange sortKeyRange : partition.getSortKeyRanges()) {
-          internalQueryRanges.add(
-              new ByteArrayRange(
-                  new ByteArray(
-                      ByteArrayUtils.combineArrays(
-                          partition.getPartitionKey().getBytes(),
-                          sortKeyRange.getStart().getBytes())),
-                  new ByteArray(
-                      ByteArrayUtils.combineArrays(
-                          partition.getPartitionKey().getBytes(),
-                          sortKeyRange.getEnd().getBytes())),
-                  sortKeyRange.singleValue));
+          internalQueryRanges.add(new ByteArrayRange(
+              new ByteArray(ByteArrayUtils.combineArrays(partition.getPartitionKey().getBytes(),
+                  sortKeyRange.getStart().getBytes())),
+              new ByteArray(ByteArrayUtils.combineArrays(partition.getPartitionKey().getBytes(),
+                  sortKeyRange.getEnd().getBytes())),
+              sortKeyRange.singleValue));
         }
       }
     }

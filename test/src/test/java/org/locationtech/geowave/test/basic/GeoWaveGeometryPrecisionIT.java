@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -50,16 +51,9 @@ import org.slf4j.LoggerFactory;
 public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveGeometryPrecisionIT.class);
 
-  @GeoWaveTestStore(
-      value = {
-        GeoWaveStoreType.ACCUMULO,
-        GeoWaveStoreType.BIGTABLE,
-        GeoWaveStoreType.CASSANDRA,
-        GeoWaveStoreType.DYNAMODB,
-        GeoWaveStoreType.HBASE,
-        GeoWaveStoreType.REDIS,
-        GeoWaveStoreType.ROCKSDB
-      })
+  @GeoWaveTestStore(value = {GeoWaveStoreType.ACCUMULO, GeoWaveStoreType.BIGTABLE,
+      GeoWaveStoreType.CASSANDRA, GeoWaveStoreType.DYNAMODB, GeoWaveStoreType.HBASE,
+      GeoWaveStoreType.REDIS, GeoWaveStoreType.ROCKSDB})
   protected DataStorePluginOptions dataStorePluginOptions;
 
   private static long startMillis;
@@ -87,10 +81,8 @@ public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("---------------------------------------");
     LOGGER.warn("*                                     *");
     LOGGER.warn("* FINISHED GeoWaveGeometryPrecisionIT *");
-    LOGGER.warn(
-        "*            "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.             *");
+    LOGGER.warn("*            " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.             *");
     LOGGER.warn("*                                     *");
     LOGGER.warn("---------------------------------------");
   }
@@ -102,8 +94,8 @@ public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
 
     sftBuilder.setName(FEATURE_TYPE_NAME);
 
-    sftBuilder.add(
-        ab.binding(Geometry.class).nillable(false).buildDescriptor(GEOMETRY_ATTRIBUTE_NAME));
+    sftBuilder
+        .add(ab.binding(Geometry.class).nillable(false).buildDescriptor(GEOMETRY_ATTRIBUTE_NAME));
     sftBuilder.add(ab.binding(Date.class).nillable(true).buildDescriptor(TIME_ATTRIBUTE_NAME));
 
     featureType = sftBuilder.buildFeatureType();
@@ -138,16 +130,13 @@ public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
     }
   }
 
-  private void testPrecision(
-      Geometry[] geometries, Geometry[] expected, final @Nullable Integer geometryPrecision) {
+  private void testPrecision(Geometry[] geometries, Geometry[] expected,
+      final @Nullable Integer geometryPrecision) {
     ingestData(geometries, geometryPrecision);
     VectorQueryBuilder builder = VectorQueryBuilder.newBuilder();
     Query<SimpleFeature> query =
-        builder
-            .addTypeName(FEATURE_TYPE_NAME)
-            .indexName(spatialIndex.getName())
-            .constraints(builder.constraintsFactory().noConstraints())
-            .build();
+        builder.addTypeName(FEATURE_TYPE_NAME).indexName(spatialIndex.getName())
+            .constraints(builder.constraintsFactory().noConstraints()).build();
 
     try (CloseableIterator<SimpleFeature> features = dataStore.query(query)) {
       List<SimpleFeature> results = Lists.newArrayList(features);
@@ -159,12 +148,8 @@ public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
     }
 
     builder = VectorQueryBuilder.newBuilder();
-    query =
-        builder
-            .addTypeName(FEATURE_TYPE_NAME)
-            .indexName(spatialTemporalIndex.getName())
-            .constraints(builder.constraintsFactory().noConstraints())
-            .build();
+    query = builder.addTypeName(FEATURE_TYPE_NAME).indexName(spatialTemporalIndex.getName())
+        .constraints(builder.constraintsFactory().noConstraints()).build();
 
     try (CloseableIterator<SimpleFeature> features = dataStore.query(query)) {
       List<SimpleFeature> results = Lists.newArrayList(features);
@@ -180,15 +165,11 @@ public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
   public void testFullPrecision() {
     GeometryFactory factory = GeometryUtils.GEOMETRY_FACTORY;
     Geometry[] geometries =
-        new Geometry[] {
-          factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
-          factory.createLineString(
-              new Coordinate[] {
-                new Coordinate(123456789.987654321, -123456789.987654321),
-                new Coordinate(987654321.123456789, -987654321.123456789)
-              }),
-          factory.createPoint(new Coordinate(0, 0))
-        };
+        new Geometry[] {factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
+            factory.createLineString(
+                new Coordinate[] {new Coordinate(123456789.987654321, -123456789.987654321),
+                    new Coordinate(987654321.123456789, -987654321.123456789)}),
+            factory.createPoint(new Coordinate(0, 0))};
     testPrecision(geometries, geometries, null);
   }
 
@@ -196,25 +177,17 @@ public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
   public void testMaxPrecision() {
     GeometryFactory factory = GeometryUtils.GEOMETRY_FACTORY;
     Geometry[] geometries =
-        new Geometry[] {
-          factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
-          factory.createLineString(
-              new Coordinate[] {
-                new Coordinate(123456789.987654321, -123456789.987654321),
-                new Coordinate(987654321.123456789, -987654321.123456789)
-              }),
-          factory.createPoint(new Coordinate(0, 0))
-        };
+        new Geometry[] {factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
+            factory.createLineString(
+                new Coordinate[] {new Coordinate(123456789.987654321, -123456789.987654321),
+                    new Coordinate(987654321.123456789, -987654321.123456789)}),
+            factory.createPoint(new Coordinate(0, 0))};
     Geometry[] expected =
-        new Geometry[] {
-          factory.createPoint(new Coordinate(12.1234568, -10.9876543)),
-          factory.createLineString(
-              new Coordinate[] {
-                new Coordinate(123456789.9876543, -123456789.9876543),
-                new Coordinate(987654321.1234568, -987654321.1234568)
-              }),
-          factory.createPoint(new Coordinate(0, 0))
-        };
+        new Geometry[] {factory.createPoint(new Coordinate(12.1234568, -10.9876543)),
+            factory.createLineString(
+                new Coordinate[] {new Coordinate(123456789.9876543, -123456789.9876543),
+                    new Coordinate(987654321.1234568, -987654321.1234568)}),
+            factory.createPoint(new Coordinate(0, 0))};
     testPrecision(geometries, expected, GeometryUtils.MAX_GEOMETRY_PRECISION);
   }
 
@@ -222,25 +195,15 @@ public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
   public void testPrecision3() {
     GeometryFactory factory = GeometryUtils.GEOMETRY_FACTORY;
     Geometry[] geometries =
-        new Geometry[] {
-          factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
-          factory.createLineString(
-              new Coordinate[] {
-                new Coordinate(123456789.987654321, -123456789.987654321),
-                new Coordinate(987654321.123456789, -987654321.123456789)
-              }),
-          factory.createPoint(new Coordinate(0, 0))
-        };
-    Geometry[] expected =
-        new Geometry[] {
-          factory.createPoint(new Coordinate(12.123, -10.988)),
-          factory.createLineString(
-              new Coordinate[] {
-                new Coordinate(123456789.988, -123456789.988),
-                new Coordinate(987654321.123, -987654321.123)
-              }),
-          factory.createPoint(new Coordinate(0, 0))
-        };
+        new Geometry[] {factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
+            factory.createLineString(
+                new Coordinate[] {new Coordinate(123456789.987654321, -123456789.987654321),
+                    new Coordinate(987654321.123456789, -987654321.123456789)}),
+            factory.createPoint(new Coordinate(0, 0))};
+    Geometry[] expected = new Geometry[] {factory.createPoint(new Coordinate(12.123, -10.988)),
+        factory.createLineString(new Coordinate[] {new Coordinate(123456789.988, -123456789.988),
+            new Coordinate(987654321.123, -987654321.123)}),
+        factory.createPoint(new Coordinate(0, 0))};
     testPrecision(geometries, expected, 3);
   }
 
@@ -248,24 +211,15 @@ public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
   public void testPrecision0() {
     GeometryFactory factory = GeometryUtils.GEOMETRY_FACTORY;
     Geometry[] geometries =
-        new Geometry[] {
-          factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
-          factory.createLineString(
-              new Coordinate[] {
-                new Coordinate(123456789.987654321, -123456789.987654321),
-                new Coordinate(987654321.123456789, -987654321.123456789)
-              }),
-          factory.createPoint(new Coordinate(0, 0))
-        };
-    Geometry[] expected =
-        new Geometry[] {
-          factory.createPoint(new Coordinate(12, -11)),
-          factory.createLineString(
-              new Coordinate[] {
-                new Coordinate(123456790, -123456790), new Coordinate(987654321, -987654321)
-              }),
-          factory.createPoint(new Coordinate(0, 0))
-        };
+        new Geometry[] {factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
+            factory.createLineString(
+                new Coordinate[] {new Coordinate(123456789.987654321, -123456789.987654321),
+                    new Coordinate(987654321.123456789, -987654321.123456789)}),
+            factory.createPoint(new Coordinate(0, 0))};
+    Geometry[] expected = new Geometry[] {
+        factory.createPoint(new Coordinate(12, -11)), factory.createLineString(new Coordinate[] {
+            new Coordinate(123456790, -123456790), new Coordinate(987654321, -987654321)}),
+        factory.createPoint(new Coordinate(0, 0))};
     testPrecision(geometries, expected, 0);
   }
 
@@ -273,24 +227,15 @@ public class GeoWaveGeometryPrecisionIT extends AbstractGeoWaveBasicVectorIT {
   public void testNegativePrecision() {
     GeometryFactory factory = GeometryUtils.GEOMETRY_FACTORY;
     Geometry[] geometries =
-        new Geometry[] {
-          factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
-          factory.createLineString(
-              new Coordinate[] {
-                new Coordinate(123456789.987654321, -123456789.987654321),
-                new Coordinate(987654321.123456789, -987654321.123456789)
-              }),
-          factory.createPoint(new Coordinate(0, 0))
-        };
-    Geometry[] expected =
-        new Geometry[] {
-          factory.createPoint(new Coordinate(0, 0)),
-          factory.createLineString(
-              new Coordinate[] {
-                new Coordinate(123457000, -123457000), new Coordinate(987654000, -987654000)
-              }),
-          factory.createPoint(new Coordinate(0, 0))
-        };
+        new Geometry[] {factory.createPoint(new Coordinate(12.123456789, -10.987654321)),
+            factory.createLineString(
+                new Coordinate[] {new Coordinate(123456789.987654321, -123456789.987654321),
+                    new Coordinate(987654321.123456789, -987654321.123456789)}),
+            factory.createPoint(new Coordinate(0, 0))};
+    Geometry[] expected = new Geometry[] {
+        factory.createPoint(new Coordinate(0, 0)), factory.createLineString(new Coordinate[] {
+            new Coordinate(123457000, -123457000), new Coordinate(987654000, -987654000)}),
+        factory.createPoint(new Coordinate(0, 0))};
     testPrecision(geometries, expected, -3);
   }
 

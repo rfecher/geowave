@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,8 +25,7 @@ import org.slf4j.LoggerFactory;
 public class CQLFilterOptionProvider implements Filter, Persistable {
   private static final Logger LOGGER = LoggerFactory.getLogger(CQLFilterOptionProvider.class);
 
-  @Parameter(
-      names = "--cql",
+  @Parameter(names = "--cql",
       description = "A CQL filter, only data matching this filter will be ingested",
       converter = ConvertCQLStrToFilterConverter.class)
   private FilterParameter convertedFilter = new FilterParameter(null, null);

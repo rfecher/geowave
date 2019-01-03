@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -53,7 +54,8 @@ public class BitmaskUtils {
    * Generates a composite bitmask given a list of field positions. The composite bitmask represents
    * a true bit for every positive field position
    *
-   * <p>For example, given field 0, field 1, and field 2 this method will return 00000111
+   * <p>
+   * For example, given field 0, field 1, and field 2 this method will return 00000111
    *
    * @param fieldPositions a list of field positions
    * @return a composite bitmask
@@ -72,7 +74,8 @@ public class BitmaskUtils {
    * Generates a composite bitmask given a single field position. The composite bitmask represents a
    * true bit for this field position
    *
-   * <p>For example, given field 2 this method will return 00000100
+   * <p>
+   * For example, given field 2 this method will return 00000100
    *
    * @param fieldPosition a field position
    * @return a composite bitmask
@@ -82,26 +85,23 @@ public class BitmaskUtils {
   }
 
   private static LoadingCache<ByteArray, List<Integer>> fieldPositionCache =
-      CacheBuilder.newBuilder()
-          .maximumSize(100)
-          .build(
-              new CacheLoader<ByteArray, List<Integer>>() {
+      CacheBuilder.newBuilder().maximumSize(100).build(new CacheLoader<ByteArray, List<Integer>>() {
 
-                @Override
-                public List<Integer> load(ByteArray key) throws Exception {
-                  final List<Integer> fieldPositions = new ArrayList<>();
-                  int currentByte = 0;
-                  for (final byte singleByteBitMask : key.getBytes()) {
-                    for (int bit = 0; bit < 8; ++bit) {
-                      if (((singleByteBitMask >>> bit) & 0x1) == 1) {
-                        fieldPositions.add((currentByte * 8) + bit);
-                      }
-                    }
-                    currentByte++;
-                  }
-                  return fieldPositions;
-                }
-              });
+        @Override
+        public List<Integer> load(ByteArray key) throws Exception {
+          final List<Integer> fieldPositions = new ArrayList<>();
+          int currentByte = 0;
+          for (final byte singleByteBitMask : key.getBytes()) {
+            for (int bit = 0; bit < 8; ++bit) {
+              if (((singleByteBitMask >>> bit) & 0x1) == 1) {
+                fieldPositions.add((currentByte * 8) + bit);
+              }
+            }
+            currentByte++;
+          }
+          return fieldPositions;
+        }
+      });
 
   /**
    * Iterates the set (true) bits within the given composite bitmask and generates a list of field
@@ -142,23 +142,20 @@ public class BitmaskUtils {
    * @param adapterAssociatedWithFieldIds the adapter for the type whose fields are being subsetted
    * @return the field subset bitmask
    */
-  public static byte[] generateFieldSubsetBitmask(
-      final CommonIndexModel indexModel,
-      final String[] fieldNames,
-      final DataTypeAdapter<?> adapterAssociatedWithFieldIds) {
+  public static byte[] generateFieldSubsetBitmask(final CommonIndexModel indexModel,
+      final String[] fieldNames, final DataTypeAdapter<?> adapterAssociatedWithFieldIds) {
     final SortedSet<Integer> fieldPositions = new TreeSet<Integer>();
 
     // dimension fields must also be included
-    for (final NumericDimensionField<? extends CommonIndexValue> dimension :
-        indexModel.getDimensions()) {
-      fieldPositions.add(
-          adapterAssociatedWithFieldIds.getPositionOfOrderedField(
-              indexModel, dimension.getFieldName()));
+    for (final NumericDimensionField<? extends CommonIndexValue> dimension : indexModel
+        .getDimensions()) {
+      fieldPositions.add(adapterAssociatedWithFieldIds.getPositionOfOrderedField(indexModel,
+          dimension.getFieldName()));
     }
 
     for (final String fieldName : fieldNames) {
-      fieldPositions.add(
-          adapterAssociatedWithFieldIds.getPositionOfOrderedField(indexModel, fieldName));
+      fieldPositions
+          .add(adapterAssociatedWithFieldIds.getPositionOfOrderedField(indexModel, fieldName));
     }
     return generateCompositeBitmask(fieldPositions);
   }
@@ -171,8 +168,8 @@ public class BitmaskUtils {
    * @param newBitmask the field subset bitmask
    * @return the subsetted value as a byte[]
    */
-  public static byte[] constructNewValue(
-      final byte[] value, final byte[] originalBitmask, final byte[] newBitmask) {
+  public static byte[] constructNewValue(final byte[] value, final byte[] originalBitmask,
+      final byte[] newBitmask) {
 
     final ByteBuffer originalBytes = ByteBuffer.wrap(value);
     final List<byte[]> valsToKeep = new ArrayList<>();

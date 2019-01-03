@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,15 +25,13 @@ import org.locationtech.geowave.core.store.cli.remote.options.StatsCommandLineOp
 
 @GeowaveOperation(name = "rmstat", parentOperation = RemoteSection.class)
 @Parameters(
-    commandDescription =
-        "Remove a statistic from the remote store. You will be prompted with are you sure")
+    commandDescription = "Remove a statistic from the remote store. You will be prompted with are you sure")
 public class RemoveStatCommand extends AbstractStatsCommand<Void> {
 
   @Parameter(description = "<store name> <datatype name> <stat type>")
   private List<String> parameters = new ArrayList<>();
 
-  @Parameter(
-      names = {"--fieldName"},
+  @Parameter(names = {"--fieldName"},
       description = "If the statistic is maintained per field, optionally provide a field name")
   private String fieldName = "";
 
@@ -44,18 +43,16 @@ public class RemoveStatCommand extends AbstractStatsCommand<Void> {
   }
 
   @Override
-  protected boolean performStatsCommand(
-      final DataStorePluginOptions storeOptions,
-      final InternalDataAdapter<?> adapter,
-      final StatsCommandLineOptions statsOptions)
+  protected boolean performStatsCommand(final DataStorePluginOptions storeOptions,
+      final InternalDataAdapter<?> adapter, final StatsCommandLineOptions statsOptions)
       throws IOException {
 
     // Remove the stat
     final DataStatisticsStore statStore = storeOptions.createDataStatisticsStore();
     final String[] authorizations = getAuthorizations(statsOptions.getAuthorizations());
 
-    if (!statStore.removeStatistics(
-        adapter.getAdapterId(), fieldName, new BaseStatisticsType<>(statType), authorizations)) {
+    if (!statStore.removeStatistics(adapter.getAdapterId(), fieldName,
+        new BaseStatisticsType<>(statType), authorizations)) {
       throw new RuntimeException("Unable to remove statistic: " + statType);
     }
 

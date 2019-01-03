@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,8 +37,7 @@ public class JobContextAdapterStore implements TransientAdapterStore {
   private InternalAdapterStore internalAdapterStore = null;
   private final Map<String, DataTypeAdapter<?>> adapterCache = new HashMap<>();
 
-  public JobContextAdapterStore(
-      final JobContext context,
+  public JobContextAdapterStore(final JobContext context,
       final PersistentAdapterStore persistentAdapterStore,
       final InternalAdapterStore internalAdapterStore) {
     this.context = context;
@@ -97,39 +97,34 @@ public class JobContextAdapterStore implements TransientAdapterStore {
   public CloseableIterator<DataTypeAdapter<?>> getAdapters() {
     final CloseableIterator<InternalDataAdapter<?>> it = persistentAdapterStore.getAdapters();
     // cache any results
-    return new CloseableIteratorWrapper<DataTypeAdapter<?>>(
-        it,
-        IteratorUtils.transformedIterator(
-            it,
-            new Transformer() {
+    return new CloseableIteratorWrapper<DataTypeAdapter<?>>(it,
+        IteratorUtils.transformedIterator(it, new Transformer() {
 
-              @Override
-              public Object transform(final Object obj) {
-                if (obj instanceof DataTypeAdapter) {
-                  adapterCache.put(((DataTypeAdapter) obj).getTypeName(), (DataTypeAdapter) obj);
-                }
-                return obj;
-              }
-            }));
+          @Override
+          public Object transform(final Object obj) {
+            if (obj instanceof DataTypeAdapter) {
+              adapterCache.put(((DataTypeAdapter) obj).getTypeName(), (DataTypeAdapter) obj);
+            }
+            return obj;
+          }
+        }));
   }
 
   public List<String> getTypeNames() {
     final DataTypeAdapter<?>[] userAdapters =
         GeoWaveConfiguratorBase.getDataAdapters(CLASS, context);
     if ((userAdapters == null) || (userAdapters.length <= 0)) {
-      return IteratorUtils.toList(
-          IteratorUtils.transformedIterator(
-              getAdapters(),
-              new Transformer() {
+      return IteratorUtils
+          .toList(IteratorUtils.transformedIterator(getAdapters(), new Transformer() {
 
-                @Override
-                public Object transform(final Object input) {
-                  if (input instanceof DataTypeAdapter) {
-                    return ((DataTypeAdapter) input).getTypeName();
-                  }
-                  return input;
-                }
-              }));
+            @Override
+            public Object transform(final Object input) {
+              if (input instanceof DataTypeAdapter) {
+                return ((DataTypeAdapter) input).getTypeName();
+              }
+              return input;
+            }
+          }));
     } else {
       final List<String> retVal = new ArrayList<>(userAdapters.length);
       for (final DataTypeAdapter<?> adapter : userAdapters) {
@@ -139,8 +134,8 @@ public class JobContextAdapterStore implements TransientAdapterStore {
     }
   }
 
-  protected static DataTypeAdapter<?> getDataAdapter(
-      final JobContext context, final String typeName) {
+  protected static DataTypeAdapter<?> getDataAdapter(final JobContext context,
+      final String typeName) {
     return GeoWaveConfiguratorBase.getDataAdapter(CLASS, context, typeName);
   }
 
@@ -148,8 +143,8 @@ public class JobContextAdapterStore implements TransientAdapterStore {
     return GeoWaveConfiguratorBase.getDataAdapters(CLASS, context);
   }
 
-  public static void addDataAdapter(
-      final Configuration configuration, final DataTypeAdapter<?> adapter) {
+  public static void addDataAdapter(final Configuration configuration,
+      final DataTypeAdapter<?> adapter) {
     GeoWaveConfiguratorBase.addDataAdapter(CLASS, configuration, adapter);
   }
 

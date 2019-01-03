@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,12 +29,8 @@ public class RocksDBRow extends MergeableGeoWaveRow implements GeoWaveRow {
   private final byte[] dataId;
   private final short duplicates;
 
-  public RocksDBRow(
-      final short adapterId,
-      final byte[] partition,
-      final byte[] key,
-      final byte[] value,
-      final boolean containsTimestamp) {
+  public RocksDBRow(final short adapterId, final byte[] partition, final byte[] key,
+      final byte[] value, final boolean containsTimestamp) {
     super();
     this.adapterId = adapterId;
     this.partition = partition;
@@ -43,11 +40,9 @@ public class RocksDBRow extends MergeableGeoWaveRow implements GeoWaveRow {
     buf.get(sortKey);
     final byte[] fieldMask = new byte[key[key.length - 2]];
     final byte[] visibility = new byte[key[key.length - 1]];
-    dataId =
-        new byte
-            [containsTimestamp
-                ? key.length - 13 - sortKey.length - fieldMask.length - visibility.length
-                : key.length - 5 - sortKey.length - fieldMask.length - visibility.length];
+    dataId = new byte[containsTimestamp
+        ? key.length - 13 - sortKey.length - fieldMask.length - visibility.length
+        : key.length - 5 - sortKey.length - fieldMask.length - visibility.length];
     buf.get(dataId);
     if (containsTimestamp) {
       // just skip 8 bytes - we don't care to parse out the timestamp but

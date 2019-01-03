@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,15 +41,12 @@ public class ClusteringUtils {
 
   static final Logger LOGGER = LoggerFactory.getLogger(ClusteringUtils.class);
 
-  private static DataTypeAdapter<?> createAdapter(
-      final String sampleDataTypeId,
-      final String sampleDataNamespaceURI,
-      final AdapterStore adapterStore,
+  private static DataTypeAdapter<?> createAdapter(final String sampleDataTypeId,
+      final String sampleDataNamespaceURI, final AdapterStore adapterStore,
       final String[] dimensionNames) {
 
-    final FeatureDataAdapter adapter =
-        AnalyticFeature.createGeometryFeatureAdapter(
-            sampleDataTypeId, dimensionNames, sampleDataNamespaceURI, CLUSTERING_CRS);
+    final FeatureDataAdapter adapter = AnalyticFeature.createGeometryFeatureAdapter(
+        sampleDataTypeId, dimensionNames, sampleDataNamespaceURI, CLUSTERING_CRS);
 
     final ByteArray dbId = new ByteArray(sampleDataTypeId);
     if (!adapterStore.adapterExists(dbId)) {
@@ -62,9 +60,8 @@ public class ClusteringUtils {
   public static DataTypeAdapter[] getAdapters(final PropertyManagement propertyManagement)
       throws IOException {
 
-    final PersistableStore store =
-        (PersistableStore)
-            StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(propertyManagement);
+    final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE
+        .getHelper().getValue(propertyManagement);
 
     final AdapterStore adapterStore = store.getDataStoreOptions().createAdapterStore();
 
@@ -82,9 +79,8 @@ public class ClusteringUtils {
 
   public static Index[] getIndices(final PropertyManagement propertyManagement) {
 
-    final PersistableStore store =
-        (PersistableStore)
-            StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(propertyManagement);
+    final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE
+        .getHelper().getValue(propertyManagement);
 
     final IndexStore indexStore = store.getDataStoreOptions().createIndexStore();
 
@@ -106,42 +102,34 @@ public class ClusteringUtils {
   protected static QueryRanges getGeoWaveRangesForQuery(final Polygon polygon) {
 
     final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
-    final QueryRanges ranges =
-        DataStoreUtils.constraintsToQueryRanges(
-            new SpatialQuery(polygon).getIndexConstraints(index),
-            index.getIndexStrategy(),
-            null,
-            -1);
+    final QueryRanges ranges = DataStoreUtils.constraintsToQueryRanges(
+        new SpatialQuery(polygon).getIndexConstraints(index), index.getIndexStrategy(), null, -1);
 
     return ranges;
   }
 
   public static Index createIndex(final PropertyManagement propertyManagement) {
 
-    final PersistableStore store =
-        (PersistableStore)
-            StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(propertyManagement);
+    final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE
+        .getHelper().getValue(propertyManagement);
 
     final IndexStore indexStore = store.getDataStoreOptions().createIndexStore();
-    return indexStore.getIndex(
-        propertyManagement.getPropertyAsString(CentroidParameters.Centroid.INDEX_NAME));
+    return indexStore
+        .getIndex(propertyManagement.getPropertyAsString(CentroidParameters.Centroid.INDEX_NAME));
   }
 
   public static DataTypeAdapter<?> createAdapter(final PropertyManagement propertyManagement)
       throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-    final Class<DimensionExtractor> dimensionExtractorClass =
-        propertyManagement.getPropertyAsClass(
-            CommonParameters.Common.DIMENSION_EXTRACT_CLASS, DimensionExtractor.class);
+    final Class<DimensionExtractor> dimensionExtractorClass = propertyManagement.getPropertyAsClass(
+        CommonParameters.Common.DIMENSION_EXTRACT_CLASS, DimensionExtractor.class);
 
     return ClusteringUtils.createAdapter(
         propertyManagement.getPropertyAsString(CentroidParameters.Centroid.DATA_TYPE_ID),
-        propertyManagement.getPropertyAsString(
-            CentroidParameters.Centroid.DATA_NAMESPACE_URI, BasicFeatureTypes.DEFAULT_NAMESPACE),
-        ((PersistableStore)
-                StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(propertyManagement))
-            .getDataStoreOptions()
-            .createAdapterStore(),
+        propertyManagement.getPropertyAsString(CentroidParameters.Centroid.DATA_NAMESPACE_URI,
+            BasicFeatureTypes.DEFAULT_NAMESPACE),
+        ((PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper()
+            .getValue(propertyManagement)).getDataStoreOptions().createAdapterStore(),
         dimensionExtractorClass.newInstance().getDimensionNames());
   }
 }

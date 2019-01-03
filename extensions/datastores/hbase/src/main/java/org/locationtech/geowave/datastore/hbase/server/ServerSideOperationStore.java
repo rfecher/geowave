@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,13 +31,8 @@ public class ServerSideOperationStore {
 
   public ServerSideOperationStore() {}
 
-  public void addOperation(
-      final String namespace,
-      final String qualifier,
-      final String opName,
-      final int priority,
-      final ImmutableSet<ServerOpScope> scopes,
-      final byte[] classId,
+  public void addOperation(final String namespace, final String qualifier, final String opName,
+      final int priority, final ImmutableSet<ServerOpScope> scopes, final byte[] classId,
       final Map<String, String> options) {
     final TableKey key = new TableKey(namespace, qualifier);
     TableOpStore tableStore = map.get(key);
@@ -47,8 +43,8 @@ public class ServerSideOperationStore {
     tableStore.addOperation(opName, priority, scopes, classId, options);
   }
 
-  public Collection<HBaseServerOp> getOperations(
-      final String namespace, final String qualifier, final ServerOpScope scope) {
+  public Collection<HBaseServerOp> getOperations(final String namespace, final String qualifier,
+      final ServerOpScope scope) {
     final TableOpStore tableStore = map.get(new TableKey(namespace, qualifier));
     if (tableStore != null) {
       return tableStore.getOperations(scope);
@@ -59,28 +55,21 @@ public class ServerSideOperationStore {
   private static class TableOpStore {
     SortedMap<ServerSideOperationKey, ServerSideOperationValue> map = new TreeMap<>();
 
-    private void addOperation(
-        final String opName,
-        final int priority,
-        final ImmutableSet<ServerOpScope> scopes,
-        final byte[] classId,
+    private void addOperation(final String opName, final int priority,
+        final ImmutableSet<ServerOpScope> scopes, final byte[] classId,
         final Map<String, String> options) {
-      map.put(
-          new ServerSideOperationKey(opName, priority),
+      map.put(new ServerSideOperationKey(opName, priority),
           new ServerSideOperationValue(scopes, classId, options));
     }
 
     private Collection<HBaseServerOp> getOperations(final ServerOpScope scope) {
-      return Collections2.filter(
-          Collections2.transform(
-              map.values(),
-              new Function<ServerSideOperationValue, HBaseServerOp>() {
-                @Override
-                public HBaseServerOp apply(final ServerSideOperationValue input) {
-                  return input.getOperation(scope);
-                }
-              }),
-          Predicates.notNull());
+      return Collections2.filter(Collections2.transform(map.values(),
+          new Function<ServerSideOperationValue, HBaseServerOp>() {
+            @Override
+            public HBaseServerOp apply(final ServerSideOperationValue input) {
+              return input.getOperation(scope);
+            }
+          }), Predicates.notNull());
     }
   }
 
@@ -90,9 +79,7 @@ public class ServerSideOperationStore {
     private Map<String, String> options;
     private HBaseServerOp operation;
 
-    public ServerSideOperationValue(
-        final ImmutableSet<ServerOpScope> scopes,
-        final byte[] classId,
+    public ServerSideOperationValue(final ImmutableSet<ServerOpScope> scopes, final byte[] classId,
         final Map<String, String> options) {
       super();
       this.scopes = scopes;

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,13 +36,8 @@ import org.locationtech.geowave.core.index.sfc.data.NumericRange;
  */
 public class TemporalBinningStrategy implements BinningStrategy {
   public static enum Unit {
-    MINUTE(Calendar.MINUTE),
-    HOUR(Calendar.HOUR_OF_DAY),
-    DAY(Calendar.DAY_OF_MONTH),
-    WEEK(Calendar.WEEK_OF_YEAR),
-    MONTH(Calendar.MONTH),
-    YEAR(Calendar.YEAR),
-    DECADE(-1);
+    MINUTE(Calendar.MINUTE), HOUR(Calendar.HOUR_OF_DAY), DAY(Calendar.DAY_OF_MONTH), WEEK(
+        Calendar.WEEK_OF_YEAR), MONTH(Calendar.MONTH), YEAR(Calendar.YEAR), DECADE(-1);
     // java.util.Calendar does not define a field number for decade
     // use -1 since that value is unused
 
@@ -122,8 +118,8 @@ public class TemporalBinningStrategy implements BinningStrategy {
     final Calendar valueCal = Calendar.getInstance(TimeZone.getTimeZone(timezone));
     valueCal.setTimeInMillis((long) value);
 
-    return new BinValue(
-        getBinId(valueCal), valueCal.getTimeInMillis() - epochCal.getTimeInMillis());
+    return new BinValue(getBinId(valueCal),
+        valueCal.getTimeInMillis() - epochCal.getTimeInMillis());
   }
 
   private long getBinSizeMillis() {
@@ -155,8 +151,7 @@ public class TemporalBinningStrategy implements BinningStrategy {
     return binSizeMillis;
   }
 
-  @SuppressFBWarnings(
-      value = {"SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"},
+  @SuppressFBWarnings(value = {"SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"},
       justification = "Fallthrough intentional for time parsing; default case is provided")
   protected void setToEpoch(final Calendar value) {
     // reset appropriate values to 0 based on the unit
@@ -222,47 +217,30 @@ public class TemporalBinningStrategy implements BinningStrategy {
       default:
         return StringUtils.stringToBinary(Integer.toString(value.get(Calendar.YEAR)));
       case MONTH:
-        return StringUtils.stringToBinary(
-            (Integer.toString(value.get(Calendar.YEAR))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))));
+        return StringUtils.stringToBinary((Integer.toString(value.get(Calendar.YEAR)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))));
       case WEEK:
-        return StringUtils.stringToBinary(
-            Integer.toString(value.get(Calendar.YEAR))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.WEEK_OF_YEAR)));
+        return StringUtils.stringToBinary(Integer.toString(value.get(Calendar.YEAR)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.WEEK_OF_YEAR)));
       case DAY:
-        return StringUtils.stringToBinary(
-            (Integer.toString(value.get(Calendar.YEAR))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH))));
+        return StringUtils.stringToBinary((Integer.toString(value.get(Calendar.YEAR)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH))));
       case HOUR:
-        return StringUtils.stringToBinary(
-            (Integer.toString(value.get(Calendar.YEAR))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.HOUR_OF_DAY))));
+        return StringUtils.stringToBinary((Integer.toString(value.get(Calendar.YEAR)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.HOUR_OF_DAY))));
       case MINUTE:
-        return StringUtils.stringToBinary(
-            (Integer.toString(value.get(Calendar.YEAR))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.HOUR_OF_DAY))
-                + "_"
-                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MINUTE))));
+        return StringUtils.stringToBinary((Integer.toString(value.get(Calendar.YEAR)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.HOUR_OF_DAY)) + "_"
+            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MINUTE))));
     }
   }
 
-  @SuppressFBWarnings(
-      value = {"SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"},
+  @SuppressFBWarnings(value = {"SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"},
       justification = "Fallthrough intentional for time parsing")
   private Calendar getStartEpoch(final byte[] binId) {
     final String str = StringUtils.stringFromBinary(binId);
@@ -355,9 +333,8 @@ public class TemporalBinningStrategy implements BinningStrategy {
       }
       // we have the millis for range, but to normalize for this bin we
       // need to subtract the epoch of the bin
-      bins.add(
-          new BinRange(
-              getBinId(cal), startMillis - epochIterator, endMillis - epochIterator, fullExtent));
+      bins.add(new BinRange(getBinId(cal), startMillis - epochIterator, endMillis - epochIterator,
+          fullExtent));
       epochIterator = nextEpoch;
       // iterate until we reach our end epoch
     } while (!lastBin);

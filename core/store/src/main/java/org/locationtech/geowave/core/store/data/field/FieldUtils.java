@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -50,9 +51,8 @@ public class FieldUtils {
     while (serializationProviders.hasNext()) {
       final FieldSerializationProviderSpi<?> serializationProvider = serializationProviders.next();
       if (serializationProvider != null) {
-        final Class<?> type =
-            GenericTypeResolver.resolveTypeArgument(
-                serializationProvider.getClass(), FieldSerializationProviderSpi.class);
+        final Class<?> type = GenericTypeResolver.resolveTypeArgument(
+            serializationProvider.getClass(), FieldSerializationProviderSpi.class);
         final FieldReader<?> reader = serializationProvider.getFieldReader();
         if (reader != null) {
           if (fieldReaderRegistry.containsKey(type)) {
@@ -98,8 +98,8 @@ public class FieldUtils {
     return (FieldWriter<?, T>) getAssignableValueFromClassMap(myClass, internalFieldWriters);
   }
 
-  public static <T> T getAssignableValueFromClassMap(
-      final Class<?> myClass, final Map<Class<?>, T> classToAssignableValueMap) {
+  public static <T> T getAssignableValueFromClassMap(final Class<?> myClass,
+      final Map<Class<?>, T> classToAssignableValueMap) {
     // loop through the map to discover the first class that is assignable
     // from myClass
     for (final Entry<Class<?>, T> candidate : classToAssignableValueMap.entrySet()) {
@@ -113,7 +113,7 @@ public class FieldUtils {
   public static <RowType, FieldType> FieldWriter<RowType, FieldType> getDefaultWriterForClass(
       final Class<FieldType> myClass,
       final FieldVisibilityHandler<RowType, Object> visibilityHandler) {
-    return new BasicWriter<RowType, FieldType>(
-        getDefaultWriterForClass(myClass), visibilityHandler);
+    return new BasicWriter<RowType, FieldType>(getDefaultWriterForClass(myClass),
+        visibilityHandler);
   }
 }

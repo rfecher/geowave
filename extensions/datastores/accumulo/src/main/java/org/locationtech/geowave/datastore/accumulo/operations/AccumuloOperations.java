@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -149,23 +150,18 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
    * parameters.
    *
    * @param zookeeperUrl The comma-delimited URLs for all zookeeper servers, this will be directly
-   *     used to instantiate a ZookeeperInstance
+   *        used to instantiate a ZookeeperInstance
    * @param instanceName The zookeeper instance name, this will be directly used to instantiate a
-   *     ZookeeperInstance
+   *        ZookeeperInstance
    * @param userName The username for an account to establish an Accumulo connector
    * @param password The password for the account to establish an Accumulo connector
    * @param tableNamespace An optional string that is prefixed to any of the table names
    * @throws AccumuloException Thrown if a generic exception occurs when establishing a connector
    * @throws AccumuloSecurityException the credentials passed in are invalid
    */
-  public AccumuloOperations(
-      final String zookeeperUrl,
-      final String instanceName,
-      final String userName,
-      final String password,
-      final String tableNamespace,
-      final AccumuloOptions options)
-      throws AccumuloException, AccumuloSecurityException {
+  public AccumuloOperations(final String zookeeperUrl, final String instanceName,
+      final String userName, final String password, final String tableNamespace,
+      final AccumuloOptions options) throws AccumuloException, AccumuloSecurityException {
     this(null, tableNamespace, options);
     this.password = password;
     connector =
@@ -189,16 +185,10 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
    * @param password An optional string that is prefixed to any of the table names
    * @param tableNamespace An optional string that is prefixed to any of the table names
    */
-  public AccumuloOperations(
-      final Connector connector, final String tableNamespace, final AccumuloOptions options) {
-    this(
-        DEFAULT_NUM_THREADS,
-        DEFAULT_TIMEOUT_MILLIS,
-        DEFAULT_BYTE_BUFFER_SIZE,
-        DEFAULT_AUTHORIZATION,
-        tableNamespace,
-        connector,
-        options);
+  public AccumuloOperations(final Connector connector, final String tableNamespace,
+      final AccumuloOptions options) {
+    this(DEFAULT_NUM_THREADS, DEFAULT_TIMEOUT_MILLIS, DEFAULT_BYTE_BUFFER_SIZE,
+        DEFAULT_AUTHORIZATION, tableNamespace, connector, options);
   }
 
   /**
@@ -212,14 +202,9 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
    * @param tableNamespace An optional string that is prefixed to any of the table names
    * @param connector The connector to use for all operations
    */
-  public AccumuloOperations(
-      final int numThreads,
-      final long timeoutMillis,
-      final long byteBufferSize,
-      final String authorization,
-      final String tableNamespace,
-      final Connector connector,
-      final AccumuloOptions options) {
+  public AccumuloOperations(final int numThreads, final long timeoutMillis,
+      final long byteBufferSize, final String authorization, final String tableNamespace,
+      final Connector connector, final AccumuloOptions options) {
     this.numThreads = numThreads;
     this.timeoutMillis = timeoutMillis;
     this.byteBufferSize = byteBufferSize;
@@ -251,18 +236,17 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     final String[] safeAdditionalAuthorizations =
         additionalAuthorizations == null ? new String[] {} : additionalAuthorizations;
 
-    return authorization == null
-        ? safeAdditionalAuthorizations
+    return authorization == null ? safeAdditionalAuthorizations
         : (String[]) ArrayUtils.add(safeAdditionalAuthorizations, authorization);
   }
 
   public boolean createIndex(final Index index) throws IOException {
-    return createTable(
-        index.getName(), options.isServerSideLibraryEnabled(), options.isEnableBlockCache());
+    return createTable(index.getName(), options.isServerSideLibraryEnabled(),
+        options.isEnableBlockCache());
   }
 
-  public synchronized boolean createTable(
-      final String tableName, final boolean enableVersioning, final boolean enableBlockCache) {
+  public synchronized boolean createTable(final String tableName, final boolean enableVersioning,
+      final boolean enableBlockCache) {
     final String qName = getQualifiedTableName(tableName);
 
     if (!connector.tableOperations().exists(qName)) {
@@ -296,14 +280,10 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   public long getRowCount(final String tableName, final String... additionalAuthorizations) {
     RowIterator rowIterator;
     try {
-      rowIterator =
-          new RowIterator(
-              connector.createScanner(
-                  getQualifiedTableName(tableName),
-                  (authorization == null)
-                      ? new Authorizations(additionalAuthorizations)
-                      : new Authorizations(
-                          (String[]) ArrayUtils.add(additionalAuthorizations, authorization))));
+      rowIterator = new RowIterator(connector.createScanner(getQualifiedTableName(tableName),
+          (authorization == null) ? new Authorizations(additionalAuthorizations)
+              : new Authorizations(
+                  (String[]) ArrayUtils.add(additionalAuthorizations, authorization))));
       while (rowIterator.hasNext()) {
         rowIterator.next();
       }
@@ -347,9 +327,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     for (final String tableName : tableNames) {
       connector.tableOperations().delete(tableName);
     }
-    DataAdapterAndIndexCache.getInstance(
-            RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID,
-            tableNamespace,
+    DataAdapterAndIndexCache
+        .getInstance(RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID, tableNamespace,
             AccumuloStoreFactoryFamily.TYPE)
         .deleteAll();
     locGrpCache.clear();
@@ -357,18 +336,14 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     ensuredPartitionCache.clear();
   }
 
-  public boolean delete(
-      final String tableName,
-      final ByteArray rowId,
-      final String columnFamily,
-      final byte[] columnQualifier,
-      final String... additionalAuthorizations) {
-    return this.delete(
-        tableName, Arrays.asList(rowId), columnFamily, columnQualifier, additionalAuthorizations);
+  public boolean delete(final String tableName, final ByteArray rowId, final String columnFamily,
+      final byte[] columnQualifier, final String... additionalAuthorizations) {
+    return this.delete(tableName, Arrays.asList(rowId), columnFamily, columnQualifier,
+        additionalAuthorizations);
   }
 
-  public boolean deleteAll(
-      final String tableName, final String columnFamily, final String... additionalAuthorizations) {
+  public boolean deleteAll(final String tableName, final String columnFamily,
+      final String... additionalAuthorizations) {
     BatchDeleter deleter = null;
     try {
       deleter = createBatchDeleter(tableName, additionalAuthorizations);
@@ -386,12 +361,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     }
   }
 
-  public boolean delete(
-      final String tableName,
-      final List<ByteArray> rowIds,
-      final String columnFamily,
-      final byte[] columnQualifier,
-      final String... authorizations) {
+  public boolean delete(final String tableName, final List<ByteArray> rowIds,
+      final String columnFamily, final byte[] columnQualifier, final String... authorizations) {
 
     boolean success = true;
     BatchDeleter deleter = null;
@@ -449,9 +420,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     }
 
     // check accumulo to see if locality group exists
-    final boolean groupExists =
-        connector.tableOperations().exists(qName)
-            && connector.tableOperations().getLocalityGroups(qName).keySet().contains(typeName);
+    final boolean groupExists = connector.tableOperations().exists(qName)
+        && connector.tableOperations().getLocalityGroups(qName).keySet().contains(typeName);
 
     // update the cache
     if (groupExists) {
@@ -492,26 +462,21 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     }
   }
 
-  public ClientSideIteratorScanner createClientScanner(
-      final String tableName, final String... additionalAuthorizations)
-      throws TableNotFoundException {
+  public ClientSideIteratorScanner createClientScanner(final String tableName,
+      final String... additionalAuthorizations) throws TableNotFoundException {
     return new ClientSideIteratorScanner(createScanner(tableName, additionalAuthorizations));
   }
 
   public Scanner createScanner(final String tableName, final String... additionalAuthorizations)
       throws TableNotFoundException {
-    return connector.createScanner(
-        getQualifiedTableName(tableName),
+    return connector.createScanner(getQualifiedTableName(tableName),
         new Authorizations(getAuthorizations(additionalAuthorizations)));
   }
 
-  public BatchScanner createBatchScanner(
-      final String tableName, final String... additionalAuthorizations)
-      throws TableNotFoundException {
-    return connector.createBatchScanner(
-        getQualifiedTableName(tableName),
-        new Authorizations(getAuthorizations(additionalAuthorizations)),
-        numThreads);
+  public BatchScanner createBatchScanner(final String tableName,
+      final String... additionalAuthorizations) throws TableNotFoundException {
+    return connector.createBatchScanner(getQualifiedTableName(tableName),
+        new Authorizations(getAuthorizations(additionalAuthorizations)), numThreads);
   }
 
   @Override
@@ -556,27 +521,19 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
           ensuredAuths.add(auth);
         }
       } catch (AccumuloException | AccumuloSecurityException e) {
-        LOGGER.error(
-            "Unable to add authorizations '"
-                + Arrays.toString(unensuredAuths.toArray(new String[] {}))
-                + "'",
-            e);
+        LOGGER.error("Unable to add authorizations '"
+            + Arrays.toString(unensuredAuths.toArray(new String[] {})) + "'", e);
         return false;
       }
     }
     return true;
   }
 
-  public BatchDeleter createBatchDeleter(
-      final String tableName, final String... additionalAuthorizations)
-      throws TableNotFoundException {
-    return connector.createBatchDeleter(
-        getQualifiedTableName(tableName),
-        new Authorizations(getAuthorizations(additionalAuthorizations)),
-        numThreads,
-        new BatchWriterConfig()
-            .setMaxWriteThreads(numThreads)
-            .setMaxMemory(byteBufferSize)
+  public BatchDeleter createBatchDeleter(final String tableName,
+      final String... additionalAuthorizations) throws TableNotFoundException {
+    return connector.createBatchDeleter(getQualifiedTableName(tableName),
+        new Authorizations(getAuthorizations(additionalAuthorizations)), numThreads,
+        new BatchWriterConfig().setMaxWriteThreads(numThreads).setMaxMemory(byteBufferSize)
             .setTimeout(timeoutMillis, TimeUnit.MILLISECONDS));
   }
 
@@ -615,13 +572,9 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     }
   }
 
-  public boolean attachIterators(
-      final String tableName,
-      final boolean createTable,
-      final boolean enableVersioning,
-      final boolean enableBlockCache,
-      final IteratorConfig... iterators)
-      throws TableNotFoundException {
+  public boolean attachIterators(final String tableName, final boolean createTable,
+      final boolean enableVersioning, final boolean enableBlockCache,
+      final IteratorConfig... iterators) throws TableNotFoundException {
     final String qName = getQualifiedTableName(tableName);
     if (createTable && !connector.tableOperations().exists(qName)) {
       createTable(tableName, enableVersioning, enableBlockCache);
@@ -650,12 +603,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
                   // this iterator exists with the wrong
                   // scope, we will assume we want to remove
                   // it and add the new configuration
-                  LOGGER.warn(
-                      "found iterator '"
-                          + iteratorConfig.getIteratorName()
-                          + "' missing scope '"
-                          + s.name()
-                          + "', removing it and re-attaching");
+                  LOGGER.warn("found iterator '" + iteratorConfig.getIteratorName()
+                      + "' missing scope '" + s.name() + "', removing it and re-attaching");
 
                   mustDelete = true;
                   break;
@@ -669,10 +618,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
               final Iterator<IteratorScope> it = existingScopes.iterator();
               while (it.hasNext()) {
                 final IteratorScope scope = it.next();
-                final IteratorSetting setting =
-                    connector
-                        .tableOperations()
-                        .getIteratorSetting(qName, iteratorConfig.getIteratorName(), scope);
+                final IteratorSetting setting = connector.tableOperations()
+                    .getIteratorSetting(qName, iteratorConfig.getIteratorName(), scope);
                 if (setting != null) {
                   final Map<String, String> existingOptions = setting.getOptions();
                   configuredOptions = iteratorConfig.getOptions(existingOptions);
@@ -702,25 +649,19 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
             }
           }
           if (mustDelete) {
-            connector
-                .tableOperations()
-                .removeIterator(qName, iteratorConfig.getIteratorName(), existingScopes);
+            connector.tableOperations().removeIterator(qName, iteratorConfig.getIteratorName(),
+                existingScopes);
             exists = false;
           }
           if (!exists) {
             if (configuredOptions == null) {
               configuredOptions = iteratorConfig.getOptions(new HashMap<String, String>());
             }
-            connector
-                .tableOperations()
-                .attachIterator(
-                    qName,
-                    new IteratorSetting(
-                        iteratorConfig.getIteratorPriority(),
-                        iteratorConfig.getIteratorName(),
-                        iteratorConfig.getIteratorClass(),
-                        configuredOptions),
-                    configuredScopes);
+            connector.tableOperations().attachIterator(qName,
+                new IteratorSetting(iteratorConfig.getIteratorPriority(),
+                    iteratorConfig.getIteratorName(), iteratorConfig.getIteratorClass(),
+                    configuredOptions),
+                configuredScopes);
           }
         }
       }
@@ -732,12 +673,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
 
   public static AccumuloOperations createOperations(final AccumuloRequiredOptions options)
       throws AccumuloException, AccumuloSecurityException {
-    return new AccumuloOperations(
-        options.getZookeeper(),
-        options.getInstance(),
-        options.getUser(),
-        options.getPassword(),
-        options.getGeoWaveNamespace(),
+    return new AccumuloOperations(options.getZookeeper(), options.getInstance(), options.getUser(),
+        options.getPassword(), options.getGeoWaveNamespace(),
         (AccumuloOptions) options.getStoreOptions());
   }
 
@@ -779,10 +716,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   @Override
-  public boolean deleteAll(
-      final String indexName,
-      final String typeName,
-      final Short adapterId,
+  public boolean deleteAll(final String indexName, final String typeName, final Short adapterId,
       final String... additionalAuthorizations) {
     BatchDeleter deleter = null;
     try {
@@ -819,8 +753,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
         } else {
           ((Scanner) scanner).setRange(AccumuloUtils.byteArrayRangeToAccumuloRange(r));
         }
-        if ((params.getLimit() != null)
-            && (params.getLimit() > 0)
+        if ((params.getLimit() != null) && (params.getLimit() > 0)
             && (params.getLimit() < ((Scanner) scanner).getBatchSize())) {
           // do allow the limit to be set to some enormous size.
           ((Scanner) scanner).setBatchSize(Math.min(1024, params.getLimit()));
@@ -835,32 +768,24 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
         }
       }
       if (params.getMaxResolutionSubsamplingPerDimension() != null) {
-        if (params.getMaxResolutionSubsamplingPerDimension().length
-            != params.getIndex().getIndexStrategy().getOrderedDimensionDefinitions().length) {
-          LOGGER.warn(
-              "Unable to subsample for table '"
-                  + tableName
-                  + "'. Subsample dimensions = "
-                  + params.getMaxResolutionSubsamplingPerDimension().length
-                  + " when indexed dimensions = "
-                  + params.getIndex().getIndexStrategy().getOrderedDimensionDefinitions().length);
+        if (params.getMaxResolutionSubsamplingPerDimension().length != params.getIndex()
+            .getIndexStrategy().getOrderedDimensionDefinitions().length) {
+          LOGGER.warn("Unable to subsample for table '" + tableName + "'. Subsample dimensions = "
+              + params.getMaxResolutionSubsamplingPerDimension().length
+              + " when indexed dimensions = "
+              + params.getIndex().getIndexStrategy().getOrderedDimensionDefinitions().length);
         } else {
 
-          final int cardinalityToSubsample =
-              (int)
-                  Math.round(
-                      IndexUtils.getDimensionalBitsUsed(
-                              params.getIndex().getIndexStrategy(),
-                              params.getMaxResolutionSubsamplingPerDimension())
-                          + (8 * params.getIndex().getIndexStrategy().getPartitionKeyLength()));
+          final int cardinalityToSubsample = (int) Math
+              .round(IndexUtils.getDimensionalBitsUsed(params.getIndex().getIndexStrategy(),
+                  params.getMaxResolutionSubsamplingPerDimension())
+                  + (8 * params.getIndex().getIndexStrategy().getPartitionKeyLength()));
 
-          final IteratorSetting iteratorSettings =
-              new IteratorSetting(
-                  FixedCardinalitySkippingIterator.CARDINALITY_SKIPPING_ITERATOR_PRIORITY,
-                  FixedCardinalitySkippingIterator.CARDINALITY_SKIPPING_ITERATOR_NAME,
-                  FixedCardinalitySkippingIterator.class);
-          iteratorSettings.addOption(
-              FixedCardinalitySkippingIterator.CARDINALITY_SKIP_INTERVAL,
+          final IteratorSetting iteratorSettings = new IteratorSetting(
+              FixedCardinalitySkippingIterator.CARDINALITY_SKIPPING_ITERATOR_PRIORITY,
+              FixedCardinalitySkippingIterator.CARDINALITY_SKIPPING_ITERATOR_NAME,
+              FixedCardinalitySkippingIterator.class);
+          iteratorSettings.addOption(FixedCardinalitySkippingIterator.CARDINALITY_SKIP_INTERVAL,
               Integer.toString(cardinalityToSubsample));
           scanner.addScanIterator(iteratorSettings);
         }
@@ -877,38 +802,28 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     return scanner;
   }
 
-  protected <T> void addConstraintsScanIteratorSettings(
-      final BaseReaderParams<T> params, final ScannerBase scanner, final DataStoreOptions options) {
+  protected <T> void addConstraintsScanIteratorSettings(final BaseReaderParams<T> params,
+      final ScannerBase scanner, final DataStoreOptions options) {
     addFieldSubsettingToIterator(params, scanner);
     IteratorSetting iteratorSettings = null;
     if (params.isServersideAggregation()) {
       if (params.isMixedVisibility()) {
-        iteratorSettings =
-            new IteratorSetting(
-                QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
-                QueryFilterIterator.QUERY_ITERATOR_NAME,
-                WholeRowAggregationIterator.class);
+        iteratorSettings = new IteratorSetting(QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
+            QueryFilterIterator.QUERY_ITERATOR_NAME, WholeRowAggregationIterator.class);
       } else {
-        iteratorSettings =
-            new IteratorSetting(
-                QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
-                QueryFilterIterator.QUERY_ITERATOR_NAME,
-                AggregationIterator.class);
+        iteratorSettings = new IteratorSetting(QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
+            QueryFilterIterator.QUERY_ITERATOR_NAME, AggregationIterator.class);
       }
       if (!(params.getAggregation().getRight() instanceof CommonIndexAggregation)
           && (params.getAggregation().getLeft() != null)) {
-        iteratorSettings.addOption(
-            AggregationIterator.ADAPTER_OPTION_NAME,
-            ByteArrayUtils.byteArrayToString(
-                PersistenceUtils.toBinary(params.getAggregation().getLeft())));
+        iteratorSettings.addOption(AggregationIterator.ADAPTER_OPTION_NAME, ByteArrayUtils
+            .byteArrayToString(PersistenceUtils.toBinary(params.getAggregation().getLeft())));
       }
       final Aggregation aggr = params.getAggregation().getRight();
-      iteratorSettings.addOption(
-          AggregationIterator.AGGREGATION_OPTION_NAME,
+      iteratorSettings.addOption(AggregationIterator.AGGREGATION_OPTION_NAME,
           ByteArrayUtils.byteArrayToString(PersistenceUtils.toClassId(aggr)));
       if (aggr.getParameters() != null) { // sets the parameters
-        iteratorSettings.addOption(
-            AggregationIterator.PARAMETER_OPTION_NAME,
+        iteratorSettings.addOption(AggregationIterator.PARAMETER_OPTION_NAME,
             ByteArrayUtils.byteArrayToString((PersistenceUtils.toBinary(aggr.getParameters()))));
       }
     }
@@ -919,39 +834,26 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
       usingDistributableFilter = true;
       if (iteratorSettings == null) {
         if (params.isMixedVisibility()) {
-          iteratorSettings =
-              new IteratorSetting(
-                  QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
-                  QueryFilterIterator.QUERY_ITERATOR_NAME,
-                  WholeRowQueryFilterIterator.class);
+          iteratorSettings = new IteratorSetting(QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
+              QueryFilterIterator.QUERY_ITERATOR_NAME, WholeRowQueryFilterIterator.class);
         } else {
-          iteratorSettings =
-              new IteratorSetting(
-                  QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
-                  QueryFilterIterator.QUERY_ITERATOR_NAME,
-                  QueryFilterIterator.class);
+          iteratorSettings = new IteratorSetting(QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
+              QueryFilterIterator.QUERY_ITERATOR_NAME, QueryFilterIterator.class);
         }
       }
-      iteratorSettings.addOption(
-          QueryFilterIterator.FILTER,
+      iteratorSettings.addOption(QueryFilterIterator.FILTER,
           ByteArrayUtils.byteArrayToString(PersistenceUtils.toBinary(params.getFilter())));
       if (!iteratorSettings.getOptions().containsKey(QueryFilterIterator.MODEL)) {
         // it may already be added as an option if its an aggregation
-        iteratorSettings.addOption(
-            QueryFilterIterator.MODEL,
-            ByteArrayUtils.byteArrayToString(
-                PersistenceUtils.toBinary(params.getIndex().getIndexModel())));
-        iteratorSettings.addOption(
-            QueryFilterIterator.PARTITION_KEY_LENGTH,
+        iteratorSettings.addOption(QueryFilterIterator.MODEL, ByteArrayUtils
+            .byteArrayToString(PersistenceUtils.toBinary(params.getIndex().getIndexModel())));
+        iteratorSettings.addOption(QueryFilterIterator.PARTITION_KEY_LENGTH,
             Integer.toString(params.getIndex().getIndexStrategy().getPartitionKeyLength()));
       }
     } else if ((iteratorSettings == null) && params.isMixedVisibility()) {
       // we have to at least use a whole row iterator
-      iteratorSettings =
-          new IteratorSetting(
-              QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
-              QueryFilterIterator.QUERY_ITERATOR_NAME,
-              WholeRowIterator.class);
+      iteratorSettings = new IteratorSetting(QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
+          QueryFilterIterator.QUERY_ITERATOR_NAME, WholeRowIterator.class);
     }
     if (!usingDistributableFilter) {
       // it ends up being duplicative and slower to add both a
@@ -964,23 +866,20 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     }
   }
 
-  protected <T> void addIndexFilterToIterator(
-      final BaseReaderParams<T> params, final ScannerBase scanner) {
+  protected <T> void addIndexFilterToIterator(final BaseReaderParams<T> params,
+      final ScannerBase scanner) {
     final List<MultiDimensionalCoordinateRangesArray> coords = params.getCoordinateRanges();
     if ((coords != null) && !coords.isEmpty()) {
       final IteratorSetting iteratorSetting =
-          new IteratorSetting(
-              NumericIndexStrategyFilterIterator.IDX_FILTER_ITERATOR_PRIORITY,
+          new IteratorSetting(NumericIndexStrategyFilterIterator.IDX_FILTER_ITERATOR_PRIORITY,
               NumericIndexStrategyFilterIterator.IDX_FILTER_ITERATOR_NAME,
               NumericIndexStrategyFilterIterator.class);
 
-      iteratorSetting.addOption(
-          NumericIndexStrategyFilterIterator.INDEX_STRATEGY_KEY,
-          ByteArrayUtils.byteArrayToString(
-              PersistenceUtils.toBinary(params.getIndex().getIndexStrategy())));
+      iteratorSetting.addOption(NumericIndexStrategyFilterIterator.INDEX_STRATEGY_KEY,
+          ByteArrayUtils
+              .byteArrayToString(PersistenceUtils.toBinary(params.getIndex().getIndexStrategy())));
 
-      iteratorSetting.addOption(
-          NumericIndexStrategyFilterIterator.COORDINATE_RANGE_KEY,
+      iteratorSetting.addOption(NumericIndexStrategyFilterIterator.COORDINATE_RANGE_KEY,
           ByteArrayUtils.byteArrayToString(
               new ArrayOfArrays(coords.toArray(new MultiDimensionalCoordinateRangesArray[] {}))
                   .toBinary()));
@@ -988,35 +887,32 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     }
   }
 
-  protected <T> void addFieldSubsettingToIterator(
-      final BaseReaderParams<T> params, final ScannerBase scanner) {
+  protected <T> void addFieldSubsettingToIterator(final BaseReaderParams<T> params,
+      final ScannerBase scanner) {
     if ((params.getFieldSubsets() != null) && !params.isAggregation()) {
       final String[] fieldNames = params.getFieldSubsets().getLeft();
       final DataTypeAdapter<?> associatedAdapter = params.getFieldSubsets().getRight();
       if ((fieldNames != null) && (fieldNames.length > 0) && (associatedAdapter != null)) {
         final IteratorSetting iteratorSetting = AttributeSubsettingIterator.getIteratorSetting();
 
-        AttributeSubsettingIterator.setFieldNames(
-            iteratorSetting, associatedAdapter, fieldNames, params.getIndex().getIndexModel());
+        AttributeSubsettingIterator.setFieldNames(iteratorSetting, associatedAdapter, fieldNames,
+            params.getIndex().getIndexModel());
 
-        iteratorSetting.addOption(
-            AttributeSubsettingIterator.WHOLE_ROW_ENCODED_KEY,
+        iteratorSetting.addOption(AttributeSubsettingIterator.WHOLE_ROW_ENCODED_KEY,
             Boolean.toString(params.isMixedVisibility()));
         scanner.addScanIterator(iteratorSetting);
       }
     }
   }
 
-  protected <T> void addRowScanIteratorSettings(
-      final ReaderParams<T> params, final ScannerBase scanner) {
+  protected <T> void addRowScanIteratorSettings(final ReaderParams<T> params,
+      final ScannerBase scanner) {
     addFieldSubsettingToIterator(params, scanner);
     if (params.isMixedVisibility()) {
       // we have to at least use a whole row iterator
       final IteratorSetting iteratorSettings =
-          new IteratorSetting(
-              QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
-              QueryFilterIterator.QUERY_ITERATOR_NAME,
-              WholeRowIterator.class);
+          new IteratorSetting(QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
+              QueryFilterIterator.QUERY_ITERATOR_NAME, WholeRowIterator.class);
       scanner.addScanIterator(iteratorSettings);
     }
   }
@@ -1028,13 +924,10 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
 
     addConstraintsScanIteratorSettings(params, scanner, options);
 
-    return new AccumuloReader<>(
-        scanner,
-        params.getRowTransformer(),
+    return new AccumuloReader<>(scanner, params.getRowTransformer(),
         params.getIndex().getIndexStrategy().getPartitionKeyLength(),
         params.isMixedVisibility() && !params.isServersideAggregation(),
-        params.isClientsideRowMerging(),
-        true);
+        params.isClientsideRowMerging(), true);
   }
 
   protected <T> Scanner getScanner(final RecordReaderParams<T> params) {
@@ -1046,43 +939,33 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
       if (range == null) {
         scanner.setRange(new Range());
       } else {
-        scanner.setRange(
-            AccumuloSplitsProvider.toAccumuloRange(
-                range, params.getIndex().getIndexStrategy().getPartitionKeyLength()));
+        scanner.setRange(AccumuloSplitsProvider.toAccumuloRange(range,
+            params.getIndex().getIndexStrategy().getPartitionKeyLength()));
       }
-      if ((params.getLimit() != null)
-          && (params.getLimit() > 0)
+      if ((params.getLimit() != null) && (params.getLimit() > 0)
           && (params.getLimit() < scanner.getBatchSize())) {
         // do allow the limit to be set to some enormous size.
         scanner.setBatchSize(Math.min(1024, params.getLimit()));
       }
       if (params.getMaxResolutionSubsamplingPerDimension() != null) {
-        if (params.getMaxResolutionSubsamplingPerDimension().length
-            != params.getIndex().getIndexStrategy().getOrderedDimensionDefinitions().length) {
-          LOGGER.warn(
-              "Unable to subsample for table '"
-                  + tableName
-                  + "'. Subsample dimensions = "
-                  + params.getMaxResolutionSubsamplingPerDimension().length
-                  + " when indexed dimensions = "
-                  + params.getIndex().getIndexStrategy().getOrderedDimensionDefinitions().length);
+        if (params.getMaxResolutionSubsamplingPerDimension().length != params.getIndex()
+            .getIndexStrategy().getOrderedDimensionDefinitions().length) {
+          LOGGER.warn("Unable to subsample for table '" + tableName + "'. Subsample dimensions = "
+              + params.getMaxResolutionSubsamplingPerDimension().length
+              + " when indexed dimensions = "
+              + params.getIndex().getIndexStrategy().getOrderedDimensionDefinitions().length);
         } else {
 
-          final int cardinalityToSubsample =
-              (int)
-                  Math.round(
-                      IndexUtils.getDimensionalBitsUsed(
-                              params.getIndex().getIndexStrategy(),
-                              params.getMaxResolutionSubsamplingPerDimension())
-                          + (8 * params.getIndex().getIndexStrategy().getPartitionKeyLength()));
+          final int cardinalityToSubsample = (int) Math
+              .round(IndexUtils.getDimensionalBitsUsed(params.getIndex().getIndexStrategy(),
+                  params.getMaxResolutionSubsamplingPerDimension())
+                  + (8 * params.getIndex().getIndexStrategy().getPartitionKeyLength()));
 
-          final IteratorSetting iteratorSettings =
-              new IteratorSetting(
-                  FixedCardinalitySkippingIterator.CARDINALITY_SKIPPING_ITERATOR_PRIORITY,
-                  FixedCardinalitySkippingIterator.CARDINALITY_SKIPPING_ITERATOR_NAME,
-                  FixedCardinalitySkippingIterator.class);
-          iteratorSettings.addOption(
-              FixedCardinalitySkippingIterator.CARDINALITY_SKIP_INTERVAL,
+          final IteratorSetting iteratorSettings = new IteratorSetting(
+              FixedCardinalitySkippingIterator.CARDINALITY_SKIPPING_ITERATOR_PRIORITY,
+              FixedCardinalitySkippingIterator.CARDINALITY_SKIPPING_ITERATOR_NAME,
+              FixedCardinalitySkippingIterator.class);
+          iteratorSettings.addOption(FixedCardinalitySkippingIterator.CARDINALITY_SKIP_INTERVAL,
               Integer.toString(cardinalityToSubsample));
           scanner.addScanIterator(iteratorSettings);
         }
@@ -1104,20 +987,14 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   public <T> RowReader<T> createReader(final RecordReaderParams<T> readerParams) {
     final ScannerBase scanner = getScanner(readerParams);
     addConstraintsScanIteratorSettings(readerParams, scanner, options);
-    return new AccumuloReader<>(
-        scanner,
-        readerParams.getRowTransformer(),
+    return new AccumuloReader<>(scanner, readerParams.getRowTransformer(),
         readerParams.getIndex().getIndexStrategy().getPartitionKeyLength(),
-        readerParams.isMixedVisibility() && !readerParams.isServersideAggregation(),
-        false,
-        false);
+        readerParams.isMixedVisibility() && !readerParams.isServersideAggregation(), false, false);
   }
 
   @Override
-  public RowDeleter createRowDeleter(
-      final String indexName,
-      final PersistentAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore,
+  public RowDeleter createRowDeleter(final String indexName,
+      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
       final String... authorizations) {
     try {
       return new AccumuloRowDeleter(createBatchDeleter(indexName, authorizations));
@@ -1130,8 +1007,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   @Override
   public RowWriter createWriter(final Index index, final InternalDataAdapter<?> adapter) {
     final String tableName = index.getName();
-    if (createTable(
-        tableName, options.isServerSideLibraryEnabled(), options.isEnableBlockCache())) {
+    if (createTable(tableName, options.isServerSideLibraryEnabled(),
+        options.isEnableBlockCache())) {
       try {
         if (options.isUseLocalityGroups()
             && !localityGroupExists(tableName, adapter.getTypeName())) {
@@ -1172,13 +1049,10 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
           iteratorsAttached = true;
 
           final BasicOptionProvider optionProvider = new BasicOptionProvider(new HashMap<>());
-          ServerOpHelper.addServerSideMerging(
-              this,
+          ServerOpHelper.addServerSideMerging(this,
               DataStatisticsStoreImpl.STATISTICS_COMBINER_NAME,
-              DataStatisticsStoreImpl.STATS_COMBINER_PRIORITY,
-              MergingCombiner.class.getName(),
-              MergingVisibilityCombiner.class.getName(),
-              optionProvider,
+              DataStatisticsStoreImpl.STATS_COMBINER_PRIORITY, MergingCombiner.class.getName(),
+              MergingVisibilityCombiner.class.getName(), optionProvider,
               AbstractGeoWavePersistence.METADATA_TABLE);
         }
       }
@@ -1203,22 +1077,20 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   @Override
-  public boolean mergeData(
-      final Index index,
-      final PersistentAdapterStore adapterStore,
+  public boolean mergeData(final Index index, final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final AdapterIndexMappingStore adapterIndexMappingStore) {
     if (options.isServerSideLibraryEnabled()) {
       return compactTable(index.getName());
     } else {
-      return DataStoreUtils.mergeData(
-          this, options, index, adapterStore, internalAdapterStore, adapterIndexMappingStore);
+      return DataStoreUtils.mergeData(this, options, index, adapterStore, internalAdapterStore,
+          adapterIndexMappingStore);
     }
   }
 
   @Override
-  public boolean mergeStats(
-      final DataStatisticsStore statsStore, final InternalAdapterStore internalAdapterStore) {
+  public boolean mergeStats(final DataStatisticsStore statsStore,
+      final InternalAdapterStore internalAdapterStore) {
     if (options.isServerSideLibraryEnabled()) {
       return compactTable(AbstractGeoWavePersistence.METADATA_TABLE);
     } else {
@@ -1245,16 +1117,12 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
       final String qName = getQualifiedTableName(tableName);
 
       if (enable) {
-        connector
-            .tableOperations()
-            .attachIterator(
-                qName,
-                new IteratorSetting(20, "vers", VersioningIterator.class.getName()),
-                EnumSet.allOf(IteratorScope.class));
+        connector.tableOperations().attachIterator(qName,
+            new IteratorSetting(20, "vers", VersioningIterator.class.getName()),
+            EnumSet.allOf(IteratorScope.class));
       } else {
-        connector
-            .tableOperations()
-            .removeIterator(qName, "vers", EnumSet.allOf(IteratorScope.class));
+        connector.tableOperations().removeIterator(qName, "vers",
+            EnumSet.allOf(IteratorScope.class));
       }
     }
   }
@@ -1262,12 +1130,9 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   public void setMaxVersions(final String tableName, final int maxVersions)
       throws AccumuloException, TableNotFoundException, AccumuloSecurityException {
     for (final IteratorScope iterScope : IteratorScope.values()) {
-      connector
-          .tableOperations()
-          .setProperty(
-              getQualifiedTableName(tableName),
-              Property.TABLE_ITERATOR_PREFIX + iterScope.name() + ".vers.opt.maxVersions",
-              Integer.toString(maxVersions));
+      connector.tableOperations().setProperty(getQualifiedTableName(tableName),
+          Property.TABLE_ITERATOR_PREFIX + iterScope.name() + ".vers.opt.maxVersions",
+          Integer.toString(maxVersions));
     }
   }
 
@@ -1281,15 +1146,13 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
             @Override
             public ImmutableSet<ServerOpScope> apply(final EnumSet<IteratorScope> input) {
               return Sets.immutableEnumSet(
-                  Iterables.transform(
-                      input,
-                      new Function<IteratorScope, ServerOpScope>() {
+                  Iterables.transform(input, new Function<IteratorScope, ServerOpScope>() {
 
-                        @Override
-                        public ServerOpScope apply(final IteratorScope input) {
-                          return fromAccumulo(input);
-                        }
-                      }));
+                    @Override
+                    public ServerOpScope apply(final IteratorScope input) {
+                      return fromAccumulo(input);
+                    }
+                  }));
             }
           });
     } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
@@ -1324,15 +1187,13 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
 
   private static EnumSet<IteratorScope> toEnumSet(final ImmutableSet<ServerOpScope> scopes) {
     final Collection<IteratorScope> c =
-        Collections2.transform(
-            scopes,
-            new Function<ServerOpScope, IteratorScope>() {
+        Collections2.transform(scopes, new Function<ServerOpScope, IteratorScope>() {
 
-              @Override
-              public IteratorScope apply(@Nonnull final ServerOpScope scope) {
-                return toAccumulo(scope);
-              }
-            });
+          @Override
+          public IteratorScope apply(@Nonnull final ServerOpScope scope) {
+            return toAccumulo(scope);
+          }
+        });
     EnumSet<IteratorScope> itSet;
     if (!c.isEmpty()) {
       final Iterator<IteratorScope> it = c.iterator();
@@ -1350,13 +1211,11 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   @Override
-  public Map<String, String> getServerOpOptions(
-      final String index, final String serverOpName, final ServerOpScope scope) {
+  public Map<String, String> getServerOpOptions(final String index, final String serverOpName,
+      final ServerOpScope scope) {
     try {
-      final IteratorSetting setting =
-          connector
-              .tableOperations()
-              .getIteratorSetting(getQualifiedTableName(index), serverOpName, toAccumulo(scope));
+      final IteratorSetting setting = connector.tableOperations()
+          .getIteratorSetting(getQualifiedTableName(index), serverOpName, toAccumulo(scope));
       if (setting != null) {
         return setting.getOptions();
       }
@@ -1367,45 +1226,33 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   @Override
-  public void removeServerOp(
-      final String index, final String serverOpName, final ImmutableSet<ServerOpScope> scopes) {
+  public void removeServerOp(final String index, final String serverOpName,
+      final ImmutableSet<ServerOpScope> scopes) {
 
     try {
-      connector
-          .tableOperations()
-          .removeIterator(getQualifiedTableName(index), serverOpName, toEnumSet(scopes));
+      connector.tableOperations().removeIterator(getQualifiedTableName(index), serverOpName,
+          toEnumSet(scopes));
     } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
       LOGGER.error("Unable to remove iterator", e);
     }
   }
 
   @Override
-  public void addServerOp(
-      final String index,
-      final int priority,
-      final String name,
-      final String operationClass,
-      final Map<String, String> properties,
+  public void addServerOp(final String index, final int priority, final String name,
+      final String operationClass, final Map<String, String> properties,
       final ImmutableSet<ServerOpScope> configuredScopes) {
     try {
-      connector
-          .tableOperations()
-          .attachIterator(
-              getQualifiedTableName(index),
-              new IteratorSetting(priority, name, operationClass, properties),
-              toEnumSet(configuredScopes));
+      connector.tableOperations().attachIterator(getQualifiedTableName(index),
+          new IteratorSetting(priority, name, operationClass, properties),
+          toEnumSet(configuredScopes));
     } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
       LOGGER.error("Unable to attach iterator", e);
     }
   }
 
   @Override
-  public void updateServerOp(
-      final String index,
-      final int priority,
-      final String name,
-      final String operationClass,
-      final Map<String, String> properties,
+  public void updateServerOp(final String index, final int priority, final String name,
+      final String operationClass, final Map<String, String> properties,
       final ImmutableSet<ServerOpScope> currentScopes,
       final ImmutableSet<ServerOpScope> newScopes) {
     removeServerOp(index, name, currentScopes);
@@ -1413,9 +1260,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   public boolean isRowMergingEnabled(final short internalAdapterId, final String indexId) {
-    return DataAdapterAndIndexCache.getInstance(
-            RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID,
-            tableNamespace,
+    return DataAdapterAndIndexCache
+        .getInstance(RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID, tableNamespace,
             AccumuloStoreFactoryFamily.TYPE)
         .add(internalAdapterId, indexId);
   }
@@ -1457,11 +1303,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
       // WholeRowIterator so therefore we need to backup to using the
       // slower delete by row technique
       final RowDeleter rowDeleter =
-          createRowDeleter(
-              readerParams.getIndex().getName(),
-              readerParams.getAdapterStore(),
-              readerParams.getInternalAdapterStore(),
-              readerParams.getAdditionalAuthorizations());
+          createRowDeleter(readerParams.getIndex().getName(), readerParams.getAdapterStore(),
+              readerParams.getInternalAdapterStore(), readerParams.getAdditionalAuthorizations());
       if (rowDeleter != null) {
         return new QueryAndDeleteByRow<>(rowDeleter, createReader(readerParams));
       }
@@ -1476,12 +1319,9 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     scanner.removeScanIterator(BatchDeleter.class.getName() + ".NOVALUE");
     // this is applicable to accumulo versions >= 1.9
     scanner.removeScanIterator(BatchDeleter.class.getName().replaceAll("[.]", "_") + "_NOVALUE");
-    return new AccumuloDeleter<>(
-        (BatchDeleter) scanner,
-        readerParams.getRowTransformer(),
+    return new AccumuloDeleter<>((BatchDeleter) scanner, readerParams.getRowTransformer(),
         readerParams.getIndex().getIndexStrategy().getPartitionKeyLength(),
         readerParams.isMixedVisibility() && !readerParams.isServersideAggregation(),
-        readerParams.isClientsideRowMerging(),
-        true);
+        readerParams.isClientsideRowMerging(), true);
   }
 }

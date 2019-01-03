@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -60,8 +61,7 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
   @Override
   protected SimpleFeatureType[] getTypes() {
     return new SimpleFeatureType[] {
-      SimpleFeatureUserDataConfigurationSet.configureType(twitterSft)
-    };
+        SimpleFeatureUserDataConfigurationSet.configureType(twitterSft)};
   }
 
   @Override
@@ -113,10 +113,8 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
   }
 
   @Override
-  @SuppressFBWarnings(
-      value = {"REC_CATCH_EXCEPTION"},
-      justification =
-          "Intentionally catching any possible exception as there may be unknown format issues in a file and we don't want to error partially through parsing")
+  @SuppressFBWarnings(value = {"REC_CATCH_EXCEPTION"},
+      justification = "Intentionally catching any possible exception as there may be unknown format issues in a file and we don't want to error partially through parsing")
   protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
       final WholeFile hfile, String[] indexNames, final String globalVisibility) {
 
@@ -173,28 +171,14 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
             JsonObject tweet = jsonReader.readObject();
 
             try {
-              lon =
-                  tweet
-                      .getJsonObject("coordinates")
-                      .getJsonArray("coordinates")
-                      .getJsonNumber(0)
-                      .doubleValue();
-              lat =
-                  tweet
-                      .getJsonObject("coordinates")
-                      .getJsonArray("coordinates")
-                      .getJsonNumber(1)
-                      .doubleValue();
+              lon = tweet.getJsonObject("coordinates").getJsonArray("coordinates").getJsonNumber(0)
+                  .doubleValue();
+              lat = tweet.getJsonObject("coordinates").getJsonArray("coordinates").getJsonNumber(1)
+                  .doubleValue();
               LOGGER.debug("line " + lineNumber + " at POINT(" + lon + " " + lat + ")");
             } catch (final Exception e) {
-              LOGGER.debug(
-                  "Error reading twitter coordinate on line "
-                      + lineNumber
-                      + " of "
-                      + hfile.getOriginalFilePath()
-                      + "\n"
-                      + line,
-                  e);
+              LOGGER.debug("Error reading twitter coordinate on line " + lineNumber + " of "
+                  + hfile.getOriginalFilePath() + "\n" + line, e);
               continue;
             }
 
@@ -205,12 +189,8 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
               dtgString = tweet.getString("created_at");
               dtg = TwitterUtils.parseDate(dtgString);
             } catch (final Exception e) {
-              LOGGER.warn(
-                  "Error reading tweet date on line "
-                      + lineNumber
-                      + " of "
-                      + hfile.getOriginalFilePath(),
-                  e);
+              LOGGER.warn("Error reading tweet date on line " + lineNumber + " of "
+                  + hfile.getOriginalFilePath(), e);
               continue;
             }
 
@@ -231,7 +211,8 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
 
             retweetCount = tweet.getInt("retweet_count");
 
-            if (!tweet.isNull("lang")) lang = tweet.getString("lang");
+            if (!tweet.isNull("lang"))
+              lang = tweet.getString("lang");
 
             twitterSftBuilder.set(TwitterUtils.TWITTER_USERID_ATTRIBUTE, userid);
             twitterSftBuilder.set(TwitterUtils.TWITTER_USERNAME_ATTRIBUTE, userName);
@@ -241,22 +222,23 @@ public class TwitterIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
             twitterSftBuilder.set(TwitterUtils.TWITTER_RETWEETCOUNT_ATTRIBUTE, retweetCount);
             twitterSftBuilder.set(TwitterUtils.TWITTER_LANG_ATTRIBUTE, lang);
             twitterSftBuilder.set(TwitterUtils.TWITTER_DTG_ATTRIBUTE, dtg);
-            twitterSftBuilder.set(
-                TwitterUtils.TWITTER_GEOMETRY_ATTRIBUTE, geometryFactory.createPoint(coord));
+            twitterSftBuilder.set(TwitterUtils.TWITTER_GEOMETRY_ATTRIBUTE,
+                geometryFactory.createPoint(coord));
 
             SimpleFeature tweetSft = twitterSftBuilder.buildFeature(tweetId);
             // LOGGER.warn(tweetSft.toString());
 
-            featureData.add(
-                new GeoWaveData<SimpleFeature>(
-                    TwitterUtils.TWITTER_SFT_NAME, indexNames, tweetSft));
+            featureData.add(new GeoWaveData<SimpleFeature>(TwitterUtils.TWITTER_SFT_NAME,
+                indexNames, tweetSft));
           } catch (final Exception e) {
 
             LOGGER.error("Error parsing line: " + line, e);
             continue;
           } finally {
-            if (sr != null) sr.close();
-            if (jsonReader != null) jsonReader.close();
+            if (sr != null)
+              sr.close();
+            if (jsonReader != null)
+              jsonReader.close();
           }
         }
 

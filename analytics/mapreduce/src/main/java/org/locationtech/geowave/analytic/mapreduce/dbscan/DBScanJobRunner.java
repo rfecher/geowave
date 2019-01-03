@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,14 +44,9 @@ import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 /** Run a single DBScan job producing micro clusters over a set of neighbors */
 public class DBScanJobRunner extends NNJobRunner {
 
-  private static final String[] CodecsRank =
-      new String[] {
-        "BZip2",
-        // "Gzip",
-        "Lz4",
-        "Snappy",
-        "Lzo",
-      };
+  private static final String[] CodecsRank = new String[] {"BZip2",
+      // "Gzip",
+      "Lz4", "Snappy", "Lzo",};
 
   private boolean firstIteration = true;
   private long memInMB = 4096;
@@ -75,8 +71,8 @@ public class DBScanJobRunner extends NNJobRunner {
     Class<? extends CompressionCodec> bestCodecClass =
         org.apache.hadoop.io.compress.DefaultCodec.class;
     int rank = 0;
-    for (final Class<? extends CompressionCodec> codecClass :
-        CompressionCodecFactory.getCodecClasses(conf)) {
+    for (final Class<? extends CompressionCodec> codecClass : CompressionCodecFactory
+        .getCodecClasses(conf)) {
       int r = 1;
       for (final String codecs : CodecsRank) {
         if (codecClass.getName().contains(codecs)) {
@@ -122,40 +118,27 @@ public class DBScanJobRunner extends NNJobRunner {
     runTimeProperties.storeIfEmpty(HullParameters.Hull.DATA_TYPE_ID, "concave_hull");
     final String adapterID =
         runTimeProperties.getPropertyAsString(HullParameters.Hull.DATA_TYPE_ID, "concave_hull");
-    final String namespaceURI =
-        runTimeProperties
-            .storeIfEmpty(
-                HullParameters.Hull.DATA_NAMESPACE_URI, BasicFeatureTypes.DEFAULT_NAMESPACE)
-            .toString();
+    final String namespaceURI = runTimeProperties
+        .storeIfEmpty(HullParameters.Hull.DATA_NAMESPACE_URI, BasicFeatureTypes.DEFAULT_NAMESPACE)
+        .toString();
 
-    JobContextAdapterStore.addDataAdapter(
-        config,
-        AnalyticFeature.createGeometryFeatureAdapter(
-            adapterID, new String[0], namespaceURI, ClusteringUtils.CLUSTERING_CRS));
-    JobContextInternalAdapterStore.addTypeName(
-        config, adapterID, InternalAdapterStoreImpl.getLazyInitialAdapterId(adapterID));
+    JobContextAdapterStore.addDataAdapter(config, AnalyticFeature.createGeometryFeatureAdapter(
+        adapterID, new String[0], namespaceURI, ClusteringUtils.CLUSTERING_CRS));
+    JobContextInternalAdapterStore.addTypeName(config, adapterID,
+        InternalAdapterStoreImpl.getLazyInitialAdapterId(adapterID));
 
-    final Projection<?> projectionFunction =
-        runTimeProperties.getClassInstance(
-            HullParameters.Hull.PROJECTION_CLASS, Projection.class, SimpleFeatureProjection.class);
+    final Projection<?> projectionFunction = runTimeProperties.getClassInstance(
+        HullParameters.Hull.PROJECTION_CLASS, Projection.class, SimpleFeatureProjection.class);
 
     projectionFunction.setup(runTimeProperties, getScope(), config);
 
     runTimeProperties.setConfig(
-        new ParameterEnum[] {
-          HullParameters.Hull.PROJECTION_CLASS,
-          GlobalParameters.Global.BATCH_ID,
-          HullParameters.Hull.ZOOM_LEVEL,
-          HullParameters.Hull.ITERATION,
-          HullParameters.Hull.DATA_TYPE_ID,
-          HullParameters.Hull.DATA_NAMESPACE_URI,
-          ClusteringParameters.Clustering.MINIMUM_SIZE,
-          Partition.GEOMETRIC_DISTANCE_UNIT,
-          Partition.DISTANCE_THRESHOLDS,
-          Partition.MAX_MEMBER_SELECTION
-        },
-        config,
-        getScope());
+        new ParameterEnum[] {HullParameters.Hull.PROJECTION_CLASS, GlobalParameters.Global.BATCH_ID,
+            HullParameters.Hull.ZOOM_LEVEL, HullParameters.Hull.ITERATION,
+            HullParameters.Hull.DATA_TYPE_ID, HullParameters.Hull.DATA_NAMESPACE_URI,
+            ClusteringParameters.Clustering.MINIMUM_SIZE, Partition.GEOMETRIC_DISTANCE_UNIT,
+            Partition.DISTANCE_THRESHOLDS, Partition.MAX_MEMBER_SELECTION},
+        config, getScope());
 
     // HP Fortify "Command Injection" false positive
     // What Fortify considers "externally-influenced input"
@@ -166,19 +149,10 @@ public class DBScanJobRunner extends NNJobRunner {
   @Override
   public Collection<ParameterEnum<?>> getParameters() {
     final Collection<ParameterEnum<?>> params = super.getParameters();
-    params.addAll(
-        Arrays.asList(
-            new ParameterEnum<?>[] {
-              Partition.PARTITIONER_CLASS,
-              Partition.MAX_DISTANCE,
-              Partition.MAX_MEMBER_SELECTION,
-              Global.BATCH_ID,
-              Hull.DATA_TYPE_ID,
-              Hull.PROJECTION_CLASS,
-              Clustering.MINIMUM_SIZE,
-              Partition.GEOMETRIC_DISTANCE_UNIT,
-              Partition.DISTANCE_THRESHOLDS
-            }));
+    params.addAll(Arrays.asList(new ParameterEnum<?>[] {Partition.PARTITIONER_CLASS,
+        Partition.MAX_DISTANCE, Partition.MAX_MEMBER_SELECTION, Global.BATCH_ID, Hull.DATA_TYPE_ID,
+        Hull.PROJECTION_CLASS, Clustering.MINIMUM_SIZE, Partition.GEOMETRIC_DISTANCE_UNIT,
+        Partition.DISTANCE_THRESHOLDS}));
     return params;
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -15,7 +16,8 @@ import java.util.TreeMap;
 /**
  * Provides parameters related to a track.
  *
- * <p>Top-level information about the track is expressed in the Track class itself.
+ * <p>
+ * Top-level information about the track is expressed in the Track class itself.
  */
 public class TrackEvent {
   private Long id;
@@ -157,7 +159,8 @@ public class TrackEvent {
   /**
    * Provides identity information about a track.
    *
-   * <p>values are derived from STANAG 1241.
+   * <p>
+   * values are derived from STANAG 1241.
    *
    * @return {@link TrackIdentity}
    */
@@ -166,8 +169,7 @@ public class TrackEvent {
   }
 
   public void setIdentities(final List<TrackIdentity> identities) {
-    this.identities = identities;
-    ;
+    this.identities = identities;;
   }
 
   /**
@@ -195,8 +197,7 @@ public class TrackEvent {
   }
 
   public void setClassifications(final List<TrackClassification> classifications) {
-    this.classifications = classifications;
-    ;
+    this.classifications = classifications;;
   }
 
   /**
@@ -224,8 +225,7 @@ public class TrackEvent {
   }
 
   public void setManagements(final List<TrackManagement> managements) {
-    this.managements = managements;
-    ;
+    this.managements = managements;;
   }
 
   /**
@@ -253,8 +253,7 @@ public class TrackEvent {
   }
 
   public void setMotionImages(final List<MotionImagery> motionImages) {
-    this.motionImages = motionImages;
-    ;
+    this.motionImages = motionImages;;
   }
 
   /**
@@ -282,8 +281,7 @@ public class TrackEvent {
   }
 
   public void setTrackRelations(final List<LineageRelation> trackRelations) {
-    this.trackRelations = trackRelations;
-    ;
+    this.trackRelations = trackRelations;;
   }
 
   /**

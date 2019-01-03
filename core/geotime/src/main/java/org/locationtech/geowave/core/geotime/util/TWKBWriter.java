@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -117,16 +118,16 @@ public class TWKBWriter {
     precision.writePointArray(multiPoint.getCoordinates(), output);
   }
 
-  private void writeMultiLineString(
-      MultiLineString multiLine, PrecisionWriter precision, DataOutput output) throws IOException {
+  private void writeMultiLineString(MultiLineString multiLine, PrecisionWriter precision,
+      DataOutput output) throws IOException {
     Varint.writeUnsignedVarInt(multiLine.getNumGeometries(), output);
     for (int i = 0; i < multiLine.getNumGeometries(); i++) {
       precision.writePointArray(multiLine.getGeometryN(i).getCoordinates(), output);
     }
   }
 
-  private void writeMultiPolygon(
-      MultiPolygon multiPolygon, PrecisionWriter precision, DataOutput output) throws IOException {
+  private void writeMultiPolygon(MultiPolygon multiPolygon, PrecisionWriter precision,
+      DataOutput output) throws IOException {
     Varint.writeUnsignedVarInt(multiPolygon.getNumGeometries(), output);
     for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
       Polygon polygon = (Polygon) multiPolygon.getGeometryN(i);
@@ -142,8 +143,8 @@ public class TWKBWriter {
     }
   }
 
-  private void writeGeometryCollection(
-      GeometryCollection geoms, PrecisionWriter precision, DataOutput output) throws IOException {
+  private void writeGeometryCollection(GeometryCollection geoms, PrecisionWriter precision,
+      DataOutput output) throws IOException {
     Varint.writeUnsignedVarInt(geoms.getNumGeometries(), output);
     for (int i = 0; i < geoms.getNumGeometries(); i++) {
       Geometry geom = geoms.getGeometryN(i);

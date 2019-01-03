@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -50,8 +51,8 @@ public class SpatialQueryFilter extends BasicQueryFilter {
   public enum CompareOperation implements SpatialQueryCompareOp {
     CONTAINS {
       @Override
-      public boolean compare(
-          final Geometry dataGeometry, final PreparedGeometry constraintGeometry) {
+      public boolean compare(final Geometry dataGeometry,
+          final PreparedGeometry constraintGeometry) {
         return constraintGeometry.contains(dataGeometry);
       }
 
@@ -63,8 +64,8 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     OVERLAPS {
 
       @Override
-      public boolean compare(
-          final Geometry dataGeometry, final PreparedGeometry constraintGeometry) {
+      public boolean compare(final Geometry dataGeometry,
+          final PreparedGeometry constraintGeometry) {
         return constraintGeometry.overlaps(dataGeometry);
       }
 
@@ -75,8 +76,8 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     },
     INTERSECTS {
       @Override
-      public boolean compare(
-          final Geometry dataGeometry, final PreparedGeometry constraintGeometry) {
+      public boolean compare(final Geometry dataGeometry,
+          final PreparedGeometry constraintGeometry) {
         return constraintGeometry.intersects(dataGeometry);
       }
 
@@ -87,8 +88,8 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     },
     TOUCHES {
       @Override
-      public boolean compare(
-          final Geometry dataGeometry, final PreparedGeometry constraintGeometry) {
+      public boolean compare(final Geometry dataGeometry,
+          final PreparedGeometry constraintGeometry) {
         return constraintGeometry.touches(dataGeometry);
       }
 
@@ -99,8 +100,8 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     },
     WITHIN {
       @Override
-      public boolean compare(
-          final Geometry dataGeometry, final PreparedGeometry constraintGeometry) {
+      public boolean compare(final Geometry dataGeometry,
+          final PreparedGeometry constraintGeometry) {
         return constraintGeometry.within(dataGeometry);
       }
 
@@ -111,8 +112,8 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     },
     DISJOINT {
       @Override
-      public boolean compare(
-          final Geometry dataGeometry, final PreparedGeometry constraintGeometry) {
+      public boolean compare(final Geometry dataGeometry,
+          final PreparedGeometry constraintGeometry) {
         return constraintGeometry.disjoint(dataGeometry);
       }
 
@@ -123,8 +124,8 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     },
     CROSSES {
       @Override
-      public boolean compare(
-          final Geometry dataGeometry, final PreparedGeometry constraintGeometry) {
+      public boolean compare(final Geometry dataGeometry,
+          final PreparedGeometry constraintGeometry) {
         return constraintGeometry.crosses(dataGeometry);
       }
 
@@ -135,8 +136,8 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     },
     EQUALS {
       @Override
-      public boolean compare(
-          final Geometry dataGeometry, final PreparedGeometry constraintGeometry) {
+      public boolean compare(final Geometry dataGeometry,
+          final PreparedGeometry constraintGeometry) {
         // This method is same as Geometry.equalsTopo which is
         // computationally expensive.
         // See equalsExact for quick structural equality
@@ -158,29 +159,18 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     super();
   }
 
-  public SpatialQueryFilter(
-      final MultiDimensionalNumericData query,
+  public SpatialQueryFilter(final MultiDimensionalNumericData query,
       final NumericDimensionField<?>[] orderedConstrainedDimensionDefinitions,
       final NumericDimensionField<?>[] unconstrainedDimensionDefinitions,
-      final Geometry queryGeometry,
-      final CompareOperation compareOp,
+      final Geometry queryGeometry, final CompareOperation compareOp,
       final BasicQueryCompareOperation nonSpatialCompareOp) {
-    this(
-        stripGeometry(
-            query, orderedConstrainedDimensionDefinitions, unconstrainedDimensionDefinitions),
-        queryGeometry,
-        compareOp,
-        nonSpatialCompareOp);
+    this(stripGeometry(query, orderedConstrainedDimensionDefinitions,
+        unconstrainedDimensionDefinitions), queryGeometry, compareOp, nonSpatialCompareOp);
   }
 
-  private SpatialQueryFilter(
-      final StrippedGeometry strippedGeometry,
-      final Geometry queryGeometry,
-      final CompareOperation compareOp,
-      final BasicQueryCompareOperation nonSpatialCompareOp) {
-    super(
-        strippedGeometry.strippedQuery,
-        strippedGeometry.strippedDimensionDefinitions,
+  private SpatialQueryFilter(final StrippedGeometry strippedGeometry, final Geometry queryGeometry,
+      final CompareOperation compareOp, final BasicQueryCompareOperation nonSpatialCompareOp) {
+    super(strippedGeometry.strippedQuery, strippedGeometry.strippedDimensionDefinitions,
         nonSpatialCompareOp);
     preparedGeometryImage = new GeometryImage(FACTORY.create(queryGeometry));
     geometryFieldNames = strippedGeometry.geometryFieldNames;
@@ -192,8 +182,7 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     private final NumericDimensionField<?>[] strippedDimensionDefinitions;
     private final Set<String> geometryFieldNames;
 
-    public StrippedGeometry(
-        final MultiDimensionalNumericData strippedQuery,
+    public StrippedGeometry(final MultiDimensionalNumericData strippedQuery,
         final NumericDimensionField<?>[] strippedDimensionDefinitions,
         final Set<String> geometryFieldNames) {
       this.strippedQuery = strippedQuery;
@@ -202,8 +191,7 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     }
   }
 
-  private static StrippedGeometry stripGeometry(
-      final MultiDimensionalNumericData query,
+  private static StrippedGeometry stripGeometry(final MultiDimensionalNumericData query,
       final NumericDimensionField<?>[] orderedConstrainedDimensionDefinitions,
       final NumericDimensionField<?>[] unconstrainedDimensionDefinitions) {
     final Set<String> geometryFieldNames = new HashSet<>();
@@ -233,8 +221,7 @@ public class SpatialQueryFilter extends BasicQueryFilter {
     return new StrippedGeometry(
         new BasicNumericDataset(
             numericDataPerDimension.toArray(new NumericData[numericDataPerDimension.size()])),
-        fields.toArray(new NumericDimensionField<?>[fields.size()]),
-        geometryFieldNames);
+        fields.toArray(new NumericDimensionField<?>[fields.size()]), geometryFieldNames);
   }
 
   public static boolean isSpatial(final NumericDimensionField<?> d) {
@@ -244,8 +231,8 @@ public class SpatialQueryFilter extends BasicQueryFilter {
   }
 
   @Override
-  public boolean accept(
-      final CommonIndexModel indexModel, final IndexedPersistenceEncoding<?> persistenceEncoding) {
+  public boolean accept(final CommonIndexModel indexModel,
+      final IndexedPersistenceEncoding<?> persistenceEncoding) {
     if (preparedGeometryImage == null) {
       return true;
     }
@@ -295,13 +282,10 @@ public class SpatialQueryFilter extends BasicQueryFilter {
         StringUtils.stringsToBinary(geometryFieldNames.toArray(new String[0]));
     final byte[] theRest = super.toBinary();
     final ByteBuffer buf =
-        ByteBuffer.allocate(
-            VarintUtils.unsignedIntByteLength(compareOperation.ordinal())
-                + VarintUtils.unsignedIntByteLength(geometryBinary.length)
-                + VarintUtils.unsignedIntByteLength(geometryFieldNamesBytes.length)
-                + geometryBinary.length
-                + geometryFieldNamesBytes.length
-                + theRest.length);
+        ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(compareOperation.ordinal())
+            + VarintUtils.unsignedIntByteLength(geometryBinary.length)
+            + VarintUtils.unsignedIntByteLength(geometryFieldNamesBytes.length)
+            + geometryBinary.length + geometryFieldNamesBytes.length + theRest.length);
     VarintUtils.writeUnsignedInt(compareOperation.ordinal(), buf);
     VarintUtils.writeUnsignedInt(geometryBinary.length, buf);
     VarintUtils.writeUnsignedInt(geometryFieldNamesBytes.length, buf);
@@ -336,15 +320,18 @@ public class SpatialQueryFilter extends BasicQueryFilter {
    * This class is used for interning a PreparedGeometry. Prepared geometries cannot be interned
    * since they do not extend Object.hashCode().
    *
-   * <p>Interning a geometry assumes a geometry is already constructed on the heap at the time
+   * <p>
+   * Interning a geometry assumes a geometry is already constructed on the heap at the time
    * interning begins. The byte image of geometry provides a more efficient component to hash and
    * associate with a single image of the geometry.
    *
-   * <p>The approach of interning the Geometry prior to construction of a PreparedGeometry lead to
+   * <p>
+   * The approach of interning the Geometry prior to construction of a PreparedGeometry lead to
    * excessive memory use. Thus, this class is constructed to hold the prepared geometry and prevent
    * reconstruction of the underlying geometry from a byte array if the Geometry has been interned.
    *
-   * <p>Using this approach increased performance of a large query unit test by 40% and reduced heap
+   * <p>
+   * Using this approach increased performance of a large query unit test by 40% and reduced heap
    * memory consumption by roughly 50%.
    */
   public static class GeometryImage {

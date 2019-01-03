@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,8 +52,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void removeTypeCommand(
       org.locationtech.geowave.service.grpc.protobuf.RemoveTypeCommandParametersProtos request,
-      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
     RemoveTypeCommand cmd = new RemoveTypeCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
@@ -78,9 +78,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void removeStoreCommand(
       org.locationtech.geowave.service.grpc.protobuf.RemoveStoreCommandParametersProtos request,
-      StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos> responseObserver) {
 
     RemoveStoreCommand cmd = new RemoveStoreCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -95,7 +93,8 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
     LOGGER.info("Executing RemoveStoreCommand...");
     try {
       final String result = cmd.computeResults(params);
-      final StringResponseProtos resp = StringResponseProtos.newBuilder().setResponseValue(result).build();
+      final StringResponseProtos resp =
+          StringResponseProtos.newBuilder().setResponseValue(result).build();
       responseObserver.onNext(resp);
       responseObserver.onCompleted();
 
@@ -107,9 +106,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void listTypesCommand(
       org.locationtech.geowave.service.grpc.protobuf.ListTypesCommandParametersProtos request,
-      StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos> responseObserver) {
 
     ListTypesCommand cmd = new ListTypesCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -124,7 +121,8 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
     LOGGER.info("Executing ListAdapterCommand...");
     try {
       final String result = cmd.computeResults(params);
-      final StringResponseProtos resp = StringResponseProtos.newBuilder().setResponseValue(result).build();
+      final StringResponseProtos resp =
+          StringResponseProtos.newBuilder().setResponseValue(result).build();
       responseObserver.onNext(resp);
       responseObserver.onCompleted();
 
@@ -136,8 +134,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void calculateStatCommand(
       org.locationtech.geowave.service.grpc.protobuf.CalculateStatCommandParametersProtos request,
-      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
     CalculateStatCommand cmd = new CalculateStatCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
@@ -163,9 +160,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void removeIndexGroupCommand(
       org.locationtech.geowave.service.grpc.protobuf.RemoveIndexGroupCommandParametersProtos request,
-      StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos> responseObserver) {
 
     RemoveIndexGroupCommand cmd = new RemoveIndexGroupCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -180,7 +175,8 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
     LOGGER.info("Executing RemoveIndexGroupCommand...");
     try {
       final String result = cmd.computeResults(params);
-      final StringResponseProtos resp = StringResponseProtos.newBuilder().setResponseValue(result).build();
+      final StringResponseProtos resp =
+          StringResponseProtos.newBuilder().setResponseValue(result).build();
       responseObserver.onNext(resp);
       responseObserver.onCompleted();
 
@@ -192,8 +188,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void recalculateStatsCommand(
       org.locationtech.geowave.service.grpc.protobuf.RecalculateStatsCommandParametersProtos request,
-      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
     RecalculateStatsCommand cmd = new RecalculateStatsCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
@@ -219,9 +214,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void listStatsCommand(
       org.locationtech.geowave.service.grpc.protobuf.ListStatsCommandParametersProtos request,
-      StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos> responseObserver) {
 
     ListStatsCommand cmd = new ListStatsCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -236,7 +229,8 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
     LOGGER.info("Executing ListStatsCommand...");
     try {
       final String result = cmd.computeResults(params);
-      final StringResponseProtos resp = StringResponseProtos.newBuilder().setResponseValue(result).build();
+      final StringResponseProtos resp =
+          StringResponseProtos.newBuilder().setResponseValue(result).build();
       responseObserver.onNext(resp);
       responseObserver.onCompleted();
 
@@ -248,9 +242,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void listIndicesCommand(
       org.locationtech.geowave.service.grpc.protobuf.ListIndicesCommandParametersProtos request,
-      StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos> responseObserver) {
 
     ListIndicesCommand cmd = new ListIndicesCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -265,7 +257,8 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
     LOGGER.info("Executing ListIndexCommand...");
     try {
       final String result = cmd.computeResults(params);
-      final StringResponseProtos resp = StringResponseProtos.newBuilder().setResponseValue(result).build();
+      final StringResponseProtos resp =
+          StringResponseProtos.newBuilder().setResponseValue(result).build();
       responseObserver.onNext(resp);
       responseObserver.onCompleted();
 
@@ -277,8 +270,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void clearCommand(
       org.locationtech.geowave.service.grpc.protobuf.ClearCommandParametersProtos request,
-      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
     ClearCommand cmd = new ClearCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
@@ -304,9 +296,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void versionCommand(
       org.locationtech.geowave.service.grpc.protobuf.VersionCommandParametersProtos request,
-      io.grpc.stub.StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos>
-          responseObserver) {
+      io.grpc.stub.StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos> responseObserver) {
 
     VersionCommand cmd = new VersionCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -333,9 +323,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void addIndexGroupCommand(
       org.locationtech.geowave.service.grpc.protobuf.AddIndexGroupCommandParametersProtos request,
-      StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos> responseObserver) {
 
     AddIndexGroupCommand cmd = new AddIndexGroupCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -350,7 +338,8 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
     LOGGER.info("Executing AddIndexGroupCommand...");
     try {
       final String result = cmd.computeResults(params);
-      final StringResponseProtos resp = StringResponseProtos.newBuilder().setResponseValue(result).build();
+      final StringResponseProtos resp =
+          StringResponseProtos.newBuilder().setResponseValue(result).build();
       responseObserver.onNext(resp);
       responseObserver.onCompleted();
 
@@ -362,9 +351,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void removeIndexCommand(
       org.locationtech.geowave.service.grpc.protobuf.RemoveIndexCommandParametersProtos request,
-      StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos> responseObserver) {
 
     RemoveIndexCommand cmd = new RemoveIndexCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -379,7 +366,8 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
     LOGGER.info("Executing RemoveIndexCommand...");
     try {
       final String result = cmd.computeResults(params);
-      final StringResponseProtos resp = StringResponseProtos.newBuilder().setResponseValue(result).build();
+      final StringResponseProtos resp =
+          StringResponseProtos.newBuilder().setResponseValue(result).build();
       responseObserver.onNext(resp);
       responseObserver.onCompleted();
 
@@ -391,8 +379,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase
   @Override
   public void removeStatCommand(
       org.locationtech.geowave.service.grpc.protobuf.RemoveStatCommandParametersProtos request,
-      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
 
     RemoveStatCommand cmd = new RemoveStatCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();

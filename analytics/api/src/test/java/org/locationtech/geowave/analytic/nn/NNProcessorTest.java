@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -11,7 +12,6 @@ package org.locationtech.geowave.analytic.nn;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,104 +49,84 @@ public class NNProcessorTest {
   }
 
   NNProcessor<Integer, Integer> buildProcessor() {
-    return new NNProcessor<Integer, Integer>(
-        new Partitioner<Object>() {
+    return new NNProcessor<Integer, Integer>(new Partitioner<Object>() {
 
-          /** */
-          private static final long serialVersionUID = 1L;
+      /** */
+      private static final long serialVersionUID = 1L;
 
-          @Override
-          public void initialize(final JobContext context, final Class<?> scope)
-              throws IOException {}
+      @Override
+      public void initialize(final JobContext context, final Class<?> scope) throws IOException {}
 
-          @Override
-          public List<org.locationtech.geowave.analytic.partitioner.Partitioner.PartitionData>
-              getCubeIdentifiers(final Object entry) {
-            return Collections.singletonList(
-                new PartitionData(
-                    new ByteArray(new byte[] {}),
-                    NNProcessorTest.partition((Integer) entry),
-                    true));
-          }
+      @Override
+      public List<org.locationtech.geowave.analytic.partitioner.Partitioner.PartitionData> getCubeIdentifiers(
+          final Object entry) {
+        return Collections.singletonList(new PartitionData(new ByteArray(new byte[] {}),
+            NNProcessorTest.partition((Integer) entry), true));
+      }
 
-          @Override
-          public void partition(
-              final Object entry,
-              final org.locationtech.geowave.analytic.partitioner.Partitioner.PartitionDataCallback
-                  callback)
-              throws Exception {
-            for (final PartitionData pd : getCubeIdentifiers(entry)) {
-              callback.partitionWith(pd);
-            }
-          }
+      @Override
+      public void partition(final Object entry,
+          final org.locationtech.geowave.analytic.partitioner.Partitioner.PartitionDataCallback callback)
+          throws Exception {
+        for (final PartitionData pd : getCubeIdentifiers(entry)) {
+          callback.partitionWith(pd);
+        }
+      }
 
-          @Override
-          public Collection<ParameterEnum<?>> getParameters() {
-            return Collections.emptyList();
-          }
+      @Override
+      public Collection<ParameterEnum<?>> getParameters() {
+        return Collections.emptyList();
+      }
 
-          @Override
-          public void setup(
-              final PropertyManagement runTimeProperties,
-              final Class<?> scope,
-              final Configuration configuration) {}
-        },
-        new TypeConverter<Integer>() {
-          @Override
-          public Integer convert(final ByteArray id, final Object o) {
-            return (Integer) o;
-          }
-        },
-        new DistanceProfileGenerateFn<Integer, Integer>() {
+      @Override
+      public void setup(final PropertyManagement runTimeProperties, final Class<?> scope,
+          final Configuration configuration) {}
+    }, new TypeConverter<Integer>() {
+      @Override
+      public Integer convert(final ByteArray id, final Object o) {
+        return (Integer) o;
+      }
+    }, new DistanceProfileGenerateFn<Integer, Integer>() {
 
-          @Override
-          public DistanceProfile<Integer> computeProfile(final Integer item1, final Integer item2) {
-            return new DistanceProfile<Integer>(
-                Math.abs(item1.doubleValue() - item2.doubleValue()), item1);
-          }
-        },
-        200,
-        new PartitionData(new ByteArray(new byte[] {}), new ByteArray("123"), true));
+      @Override
+      public DistanceProfile<Integer> computeProfile(final Integer item1, final Integer item2) {
+        return new DistanceProfile<Integer>(Math.abs(item1.doubleValue() - item2.doubleValue()),
+            item1);
+      }
+    }, 200, new PartitionData(new ByteArray(new byte[] {}), new ByteArray("123"), true));
   }
 
   @Test
   public void testNormalOp() throws IOException, InterruptedException {
 
-    runProcess(
-        buildProcessor(),
-        new CompleteNotifier<Integer>() {
+    runProcess(buildProcessor(), new CompleteNotifier<Integer>() {
 
-          @Override
-          public void complete(
-              final ByteArray id, final Integer value, final NeighborList<Integer> list)
-              throws IOException, InterruptedException {
-            final Iterator<Entry<ByteArray, Integer>> it = list.iterator();
-            final List<Integer> expectedResultSet =
-                new ArrayList<Integer>(expectedResults.get(value));
-            assertNotNull(expectedResultSet);
-            while (it.hasNext()) {
-              final Integer result = it.next().getValue();
-              assertTrue("" + value + " with " + result, expectedResultSet.remove(result));
-            }
-            assertTrue(expectedResultSet.isEmpty());
-          }
-        });
+      @Override
+      public void complete(final ByteArray id, final Integer value,
+          final NeighborList<Integer> list) throws IOException, InterruptedException {
+        final Iterator<Entry<ByteArray, Integer>> it = list.iterator();
+        final List<Integer> expectedResultSet = new ArrayList<Integer>(expectedResults.get(value));
+        assertNotNull(expectedResultSet);
+        while (it.hasNext()) {
+          final Integer result = it.next().getValue();
+          assertTrue("" + value + " with " + result, expectedResultSet.remove(result));
+        }
+        assertTrue(expectedResultSet.isEmpty());
+      }
+    });
   }
 
   @Test
   public void testRemoveOp() throws IOException, InterruptedException {
     final NNProcessor<Integer, Integer> processor = buildProcessor();
-    runProcess(
-        processor,
-        new CompleteNotifier<Integer>() {
+    runProcess(processor, new CompleteNotifier<Integer>() {
 
-          @Override
-          public void complete(
-              final ByteArray id, final Integer value, final NeighborList<Integer> list)
-              throws IOException, InterruptedException {
-            processor.remove(id);
-          }
-        });
+      @Override
+      public void complete(final ByteArray id, final Integer value,
+          final NeighborList<Integer> list) throws IOException, InterruptedException {
+        processor.remove(id);
+      }
+    });
   }
 
   @Test
@@ -161,29 +141,25 @@ public class NNProcessorTest {
     addToProcess(processor, 1833);
     addToProcess(processor, 2033);
     processor.trimSmallPartitions(10);
-    processor.process(
-        new NeighborListFactory<Integer>() {
+    processor.process(new NeighborListFactory<Integer>() {
 
-          @Override
-          public NeighborList<Integer> buildNeighborList(
-              final ByteArray cnterId, final Integer center) {
-            return new DefaultNeighborList<Integer>();
-          }
-        },
-        new CompleteNotifier<Integer>() {
+      @Override
+      public NeighborList<Integer> buildNeighborList(final ByteArray cnterId,
+          final Integer center) {
+        return new DefaultNeighborList<Integer>();
+      }
+    }, new CompleteNotifier<Integer>() {
 
-          @Override
-          public void complete(
-              final ByteArray id, final Integer value, final NeighborList<Integer> list)
-              throws IOException, InterruptedException {
-            fail("Should not get here");
-          }
-        });
+      @Override
+      public void complete(final ByteArray id, final Integer value,
+          final NeighborList<Integer> list) throws IOException, InterruptedException {
+        fail("Should not get here");
+      }
+    });
   }
 
-  private void runProcess(
-      final NNProcessor<Integer, Integer> processor, final CompleteNotifier<Integer> notifier)
-      throws IOException, InterruptedException {
+  private void runProcess(final NNProcessor<Integer, Integer> processor,
+      final CompleteNotifier<Integer> notifier) throws IOException, InterruptedException {
 
     addToProcess(processor, 293);
     addToProcess(processor, 233);
@@ -194,16 +170,14 @@ public class NNProcessorTest {
     addToProcess(processor, 1833);
     addToProcess(processor, 2033);
 
-    processor.process(
-        new NeighborListFactory<Integer>() {
+    processor.process(new NeighborListFactory<Integer>() {
 
-          @Override
-          public NeighborList<Integer> buildNeighborList(
-              final ByteArray cnterId, final Integer center) {
-            return new DefaultNeighborList<Integer>();
-          }
-        },
-        notifier);
+      @Override
+      public NeighborList<Integer> buildNeighborList(final ByteArray cnterId,
+          final Integer center) {
+        return new DefaultNeighborList<Integer>();
+      }
+    }, notifier);
   }
 
   private static ByteArray partition(final Integer v) {

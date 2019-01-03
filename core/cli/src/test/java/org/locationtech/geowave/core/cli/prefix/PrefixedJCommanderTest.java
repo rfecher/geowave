@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -84,9 +85,8 @@ public class PrefixedJCommanderTest {
     PrefixedArguments args = new PrefixedArguments();
     PrefixedJCommander commander = new PrefixedJCommander();
     commander.addPrefixedObject(args);
-    Assert.assertTrue(
-        commander.getPrefixedObjects().contains(args)
-            && commander.getPrefixedObjects().size() == 1);
+    Assert.assertTrue(commander.getPrefixedObjects().contains(args)
+        && commander.getPrefixedObjects().size() == 1);
   }
 
   private static class PrefixedArguments {
@@ -99,11 +99,13 @@ public class PrefixedJCommanderTest {
   }
 
   private static class NullDelegate {
-    @ParametersDelegate private ArgumentChildren value = null;
+    @ParametersDelegate
+    private ArgumentChildren value = null;
   }
 
   private static class ArgumentsCollection {
-    @ParametersDelegate private List<Object> argChildren = new ArrayList<Object>();
+    @ParametersDelegate
+    private List<Object> argChildren = new ArrayList<Object>();
   }
 
   private static class Arguments {

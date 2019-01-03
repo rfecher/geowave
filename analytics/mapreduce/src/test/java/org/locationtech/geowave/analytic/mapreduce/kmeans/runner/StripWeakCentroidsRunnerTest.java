@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -9,7 +10,6 @@
 package org.locationtech.geowave.analytic.mapreduce.kmeans.runner;
 
 import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,10 +67,7 @@ public class StripWeakCentroidsRunnerTest {
   public void testMaxDense() throws Exception {
 
     final List<AnalyticItemWrapper<Long>> list = new ArrayList<>();
-    final int cnts[] =
-        new int[] {
-          900, 600, 800,
-        };
+    final int cnts[] = new int[] {900, 600, 800,};
     for (int i = 0; i < cnts.length; i++) {
       list.add(new LongCentroid(i, "", cnts[i]));
     }
@@ -116,16 +113,13 @@ public class StripWeakCentroidsRunnerTest {
     }
 
     @Override
-    protected CentroidManager<Long> constructCentroidManager(
-        final Configuration config, final PropertyManagement runTimeProperties) throws IOException {
+    protected CentroidManager<Long> constructCentroidManager(final Configuration config,
+        final PropertyManagement runTimeProperties) throws IOException {
       return new CentroidManager<Long>() {
 
         @Override
-        public AnalyticItemWrapper<Long> createNextCentroid(
-            final Long feature,
-            final String groupID,
-            final Coordinate coordinate,
-            final String[] extraNames,
+        public AnalyticItemWrapper<Long> createNextCentroid(final Long feature,
+            final String groupID, final Coordinate coordinate, final String[] extraNames,
             final double[] extraValues) {
           return new LongCentroid(feature, groupID, 1);
         }
@@ -152,17 +146,15 @@ public class StripWeakCentroidsRunnerTest {
         }
 
         @Override
-        public List<AnalyticItemWrapper<Long>> getCentroidsForGroup(
-            final String batchID, final String groupID) throws IOException {
+        public List<AnalyticItemWrapper<Long>> getCentroidsForGroup(final String batchID,
+            final String groupID) throws IOException {
           Assert.assertEquals("1", groupID);
           return testSet;
         }
 
         @Override
         public int processForAllGroups(
-            final org.locationtech.geowave.analytic.clustering.CentroidManager.CentroidProcessingFn<
-                    Long>
-                fn)
+            final org.locationtech.geowave.analytic.clustering.CentroidManager.CentroidProcessingFn<Long> fn)
             throws IOException {
 
           return fn.processGroup("1", testSet);
@@ -181,8 +173,7 @@ public class StripWeakCentroidsRunnerTest {
 
         @Override
         public String getIndexName() {
-          return new SpatialDimensionalityTypeProvider()
-              .createIndex(new SpatialOptions())
+          return new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions())
               .getName();
         }
 
@@ -219,16 +210,13 @@ public class StripWeakCentroidsRunnerTest {
     }
 
     @Override
-    protected CentroidManager<Long> constructCentroidManager(
-        final Configuration config, final PropertyManagement runTimeProperties) throws IOException {
+    protected CentroidManager<Long> constructCentroidManager(final Configuration config,
+        final PropertyManagement runTimeProperties) throws IOException {
       return new CentroidManager<Long>() {
 
         @Override
-        public AnalyticItemWrapper<Long> createNextCentroid(
-            final Long feature,
-            final String groupID,
-            final Coordinate coordinate,
-            final String[] extraNames,
+        public AnalyticItemWrapper<Long> createNextCentroid(final Long feature,
+            final String groupID, final Coordinate coordinate, final String[] extraNames,
             final double[] extraValues) {
           return new LongCentroid(feature, groupID, 1);
         }
@@ -254,17 +242,15 @@ public class StripWeakCentroidsRunnerTest {
         }
 
         @Override
-        public List<AnalyticItemWrapper<Long>> getCentroidsForGroup(
-            final String batchID, final String groupID) throws IOException {
+        public List<AnalyticItemWrapper<Long>> getCentroidsForGroup(final String batchID,
+            final String groupID) throws IOException {
           Assert.assertEquals("1", groupID);
           return testSet;
         }
 
         @Override
         public int processForAllGroups(
-            final org.locationtech.geowave.analytic.clustering.CentroidManager.CentroidProcessingFn<
-                    Long>
-                fn)
+            final org.locationtech.geowave.analytic.clustering.CentroidManager.CentroidProcessingFn<Long> fn)
             throws IOException {
 
           return fn.processGroup("1", testSet);
@@ -283,8 +269,7 @@ public class StripWeakCentroidsRunnerTest {
 
         @Override
         public String getIndexName() {
-          return new SpatialDimensionalityTypeProvider()
-              .createIndex(new SpatialOptions())
+          return new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions())
               .getName();
         }
 

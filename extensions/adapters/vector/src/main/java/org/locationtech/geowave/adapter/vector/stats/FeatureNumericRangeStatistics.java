@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,9 +55,7 @@ public class FeatureNumericRangeStatistics extends NumericRangeDataStatistics<Si
   }
 
   @Override
-  public InternalDataStatistics<
-          SimpleFeature, Range<Double>, FieldStatisticsQueryBuilder<Range<Double>>>
-      duplicate() {
+  public InternalDataStatistics<SimpleFeature, Range<Double>, FieldStatisticsQueryBuilder<Range<Double>>> duplicate() {
     return new FeatureNumericRangeStatistics(adapterId, getFieldName());
   }
 
@@ -99,9 +98,8 @@ public class FeatureNumericRangeStatistics extends NumericRangeDataStatistics<Si
     private static final long serialVersionUID = 6309383518148391565L;
 
     @Override
-    public InternalDataStatistics<
-            SimpleFeature, Range<Double>, FieldStatisticsQueryBuilder<Range<Double>>>
-        create(final Short adapterId, final String fieldName) {
+    public InternalDataStatistics<SimpleFeature, Range<Double>, FieldStatisticsQueryBuilder<Range<Double>>> create(
+        final Short adapterId, final String fieldName) {
       return new FeatureNumericRangeStatistics(adapterId, fieldName);
     }
 

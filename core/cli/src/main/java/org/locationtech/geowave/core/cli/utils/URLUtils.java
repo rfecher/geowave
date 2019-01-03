@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,10 +38,7 @@ public class URLUtils {
       URL targetURL = uri.toURL();
       if (targetURL.getPort() == -1) {
         targetURL =
-            new URL(
-                targetURL.getProtocol(),
-                targetURL.getHost(),
-                targetURL.getDefaultPort(),
+            new URL(targetURL.getProtocol(), targetURL.getHost(), targetURL.getDefaultPort(),
                 // HP Fortify "Path Traversal" False Positive
                 // User input is not used at any point to determine the
                 // file path.
@@ -50,18 +48,14 @@ public class URLUtils {
                 targetURL.getFile());
       }
       if (String.valueOf(targetURL.getPort()).endsWith("443")) {
-        targetURL =
-            new URL(
-                HTTPS,
-                targetURL.getHost(),
-                targetURL.getPort(),
-                // HP Fortify "Path Traversal" False Positive
-                // User input is not used at any point to determine the
-                // file path.
-                // The information is hard code in a single location and
-                // accessible
-                // though this method.
-                targetURL.getFile());
+        targetURL = new URL(HTTPS, targetURL.getHost(), targetURL.getPort(),
+            // HP Fortify "Path Traversal" False Positive
+            // User input is not used at any point to determine the
+            // file path.
+            // The information is hard code in a single location and
+            // accessible
+            // though this method.
+            targetURL.getFile());
       }
       return targetURL.toString();
     }

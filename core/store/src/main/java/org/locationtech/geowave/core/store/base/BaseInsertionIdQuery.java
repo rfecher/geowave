@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,36 +24,19 @@ import org.locationtech.geowave.core.store.query.filter.DedupeFilter;
 class BaseInsertionIdQuery<T> extends BaseConstraintsQuery {
   private final QueryRanges ranges;
 
-  public BaseInsertionIdQuery(
-      final InternalDataAdapter<?> adapter,
-      final Index index,
-      final InsertionIdQuery query,
-      final ScanCallback<T, ?> scanCallback,
+  public BaseInsertionIdQuery(final InternalDataAdapter<?> adapter, final Index index,
+      final InsertionIdQuery query, final ScanCallback<T, ?> scanCallback,
       final DedupeFilter dedupeFilter,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
-      final FieldVisibilityCount visibilityCounts,
-      final String[] authorizations) {
-    super(
-        new short[] {adapter.getAdapterId()},
-        index,
-        query,
-        dedupeFilter,
-        scanCallback,
-        null,
-        null,
-        null,
-        null,
-        differingVisibilityCounts,
-        visibilityCounts,
-        authorizations);
-    this.ranges =
-        new InsertionIds(query.getPartitionKey(), Lists.newArrayList(query.getSortKey()))
-            .asQueryRanges();
+      final FieldVisibilityCount visibilityCounts, final String[] authorizations) {
+    super(new short[] {adapter.getAdapterId()}, index, query, dedupeFilter, scanCallback, null,
+        null, null, null, differingVisibilityCounts, visibilityCounts, authorizations);
+    this.ranges = new InsertionIds(query.getPartitionKey(), Lists.newArrayList(query.getSortKey()))
+        .asQueryRanges();
   }
 
   @Override
-  protected QueryRanges getRanges(
-      final int maxRangeDecomposition,
+  protected QueryRanges getRanges(final int maxRangeDecomposition,
       final double[] targetResolutionPerDimensionForHierarchicalIndex) {
     return ranges;
   }

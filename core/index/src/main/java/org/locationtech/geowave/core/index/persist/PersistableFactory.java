@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,20 +55,13 @@ public class PersistableFactory {
     }
   }
 
-  protected void addPersistableType(
-      final short persistableId, final Supplier<Persistable> constructor) {
+  protected void addPersistableType(final short persistableId,
+      final Supplier<Persistable> constructor) {
     final Class persistableClass = constructor.get().getClass();
     if (classRegistry.containsKey(persistableClass)) {
-      LOGGER.error(
-          "'"
-              + persistableClass.getCanonicalName()
-              + "' already registered with id '"
-              + classRegistry.get(persistableClass)
-              + "'.  Cannot register '"
-              + persistableClass
-              + "' with id '"
-              + persistableId
-              + "'");
+      LOGGER.error("'" + persistableClass.getCanonicalName() + "' already registered with id '"
+          + classRegistry.get(persistableClass) + "'.  Cannot register '" + persistableClass
+          + "' with id '" + persistableId + "'");
       return;
     }
     if (constructorRegistry.containsKey(persistableId)) {
@@ -79,16 +73,8 @@ public class PersistableFactory {
           break;
         }
       }
-      LOGGER.error(
-          "'"
-              + persistableId
-              + "' already registered for class '"
-              + (currentClass)
-              + "'.  Cannot register '"
-              + persistableClass
-              + "' with id '"
-              + persistableId
-              + "'");
+      LOGGER.error("'" + persistableId + "' already registered for class '" + (currentClass)
+          + "'.  Cannot register '" + persistableClass + "' with id '" + persistableId + "'");
       return;
     }
     classRegistry.put(persistableClass, persistableId);

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,7 +24,8 @@ import org.slf4j.LoggerFactory;
  * Simplifies Lock management from the more complex Geotools approach which is used in several
  * different scenarios (e.g. directory management, wfs-t, etc.)
  *
- * <p>Implementers implement three abstract methods. The Geotools still helps with management,
+ * <p>
+ * Implementers implement three abstract methods. The Geotools still helps with management,
  * providing a locking source.
  */
 public abstract class AbstractLockingManagement implements LockingManagement {
@@ -64,47 +66,46 @@ public abstract class AbstractLockingManagement implements LockingManagement {
 
   @Override
   public void lock(Transaction transaction, String featureID) {
-    lock(
-        transaction,
-        featureID,
+    lock(transaction, featureID,
         transaction == Transaction.AUTO_COMMIT ? EMPTY_SET : transaction.getAuthorizations(),
         1 /* minutes */);
   }
 
-  private void lock(
-      Transaction transaction, String featureID, Set<String> authorizations, long expiryInMinutes) {
+  private void lock(Transaction transaction, String featureID, Set<String> authorizations,
+      long expiryInMinutes) {
     AuthorizedLock lock =
         transaction == Transaction.AUTO_COMMIT ? null : (AuthorizedLock) transaction.getState(this);
     if (lock == null) {
       lock = new AuthorizedLock(this, authorizations, expiryInMinutes);
-      if (transaction != Transaction.AUTO_COMMIT) transaction.putState(this, lock);
+      if (transaction != Transaction.AUTO_COMMIT)
+        transaction.putState(this, lock);
     }
     lock(lock, featureID);
   }
 
-  private void unlock(
-      Transaction transaction, String featureID, Set<String> authorizations, long expiryInMinutes) {
+  private void unlock(Transaction transaction, String featureID, Set<String> authorizations,
+      long expiryInMinutes) {
     AuthorizedLock lock =
         transaction == Transaction.AUTO_COMMIT ? null : (AuthorizedLock) transaction.getState(this);
     if (lock == null) {
       lock = new AuthorizedLock(this, authorizations, expiryInMinutes);
-      if (transaction != Transaction.AUTO_COMMIT) transaction.putState(this, lock);
+      if (transaction != Transaction.AUTO_COMMIT)
+        transaction.putState(this, lock);
     }
     unlock(lock, featureID);
   }
 
   @Override
-  public void lockFeatureID(
-      String typeName, String featureID, Transaction transaction, FeatureLock featureLock) {
+  public void lockFeatureID(String typeName, String featureID, Transaction transaction,
+      FeatureLock featureLock) {
     Set<String> set = new LinkedHashSet<String>();
     set.add(featureLock.getAuthorization());
     this.lock(transaction, featureID, set, featureLock.getDuration());
   }
 
   @Override
-  public void unLockFeatureID(
-      String typeName, String featureID, Transaction transaction, FeatureLock featureLock)
-      throws IOException {
+  public void unLockFeatureID(String typeName, String featureID, Transaction transaction,
+      FeatureLock featureLock) throws IOException {
     Set<String> set = new LinkedHashSet<String>();
     set.add(featureLock.getAuthorization());
     this.unlock(transaction, featureID, set, featureLock.getDuration());
@@ -114,7 +115,8 @@ public abstract class AbstractLockingManagement implements LockingManagement {
   public boolean release(String authID, Transaction transaction) throws IOException {
     AuthorizedLock lock =
         transaction == Transaction.AUTO_COMMIT ? null : (AuthorizedLock) transaction.getState(this);
-    if (lock == null) lock = new AuthorizedLock(this, authID, 1 /* minutes */);
+    if (lock == null)
+      lock = new AuthorizedLock(this, authID, 1 /* minutes */);
     releaseAll(lock);
     return true;
   }
@@ -123,18 +125,20 @@ public abstract class AbstractLockingManagement implements LockingManagement {
   public boolean refresh(String authID, Transaction transaction) throws IOException {
     AuthorizedLock lock =
         transaction == Transaction.AUTO_COMMIT ? null : (AuthorizedLock) transaction.getState(this);
-    if (lock == null) lock = new AuthorizedLock(this, authID, 1 /* minutes */);
+    if (lock == null)
+      lock = new AuthorizedLock(this, authID, 1 /* minutes */);
     resetAll(lock);
     return true;
   }
 
   /**
-   * If already locked and request lock has proper authorization {@link
-   * AuthorizedLock#isAuthorized(AuthorizedLock)}, then return. If already locked and request does
-   * not have proper authorization, block until the lock is released or expired. If not already
+   * If already locked and request lock has proper authorization
+   * {@link AuthorizedLock#isAuthorized(AuthorizedLock)}, then return. If already locked and request
+   * does not have proper authorization, block until the lock is released or expired. If not already
    * locked, create the lock.
    *
-   * <p>Make sure there is some mechanism for expired locks to be discovered and released so that
+   * <p>
+   * Make sure there is some mechanism for expired locks to be discovered and released so that
    * clients are not blocked indefinitely.
    *
    * @param lock
@@ -161,8 +165,8 @@ public abstract class AbstractLockingManagement implements LockingManagement {
 
   /**
    * Reset all locks associated with a transaction. Occurs on commit and rollback. Basically, call
-   * {@link AuthorizedLock#resetExpireTime()} for all authorized locks {@link
-   * AuthorizedLock#isAuthorized(AuthorizedLock)}
+   * {@link AuthorizedLock#resetExpireTime()} for all authorized locks
+   * {@link AuthorizedLock#isAuthorized(AuthorizedLock)}
    *
    * @param lock
    */

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,10 +20,8 @@ import org.locationtech.geowave.core.cli.api.DefaultOperation;
 import org.locationtech.geowave.core.cli.api.OperationParams;
 
 @GeowaveOperation(name = "rmindex", parentOperation = RemoteSection.class)
-@Parameters(
-    hidden = true,
-    commandDescription =
-        "Remove an index from the remote store and all associated data for the index")
+@Parameters(hidden = true,
+    commandDescription = "Remove an index from the remote store and all associated data for the index")
 public class RemoveIndexCommand extends DefaultOperation implements Command {
 
   @Parameter(description = "<store name> <indexId>")

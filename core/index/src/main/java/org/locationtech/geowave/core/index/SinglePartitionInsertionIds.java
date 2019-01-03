@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,18 +31,15 @@ public class SinglePartitionInsertionIds implements Persistable {
     sortKeys = sortKey == null ? null : Arrays.asList(sortKey);
   }
 
-  public SinglePartitionInsertionIds(
-      final ByteArray partitionKey, final SinglePartitionInsertionIds insertionId2) {
+  public SinglePartitionInsertionIds(final ByteArray partitionKey,
+      final SinglePartitionInsertionIds insertionId2) {
     this(new SinglePartitionInsertionIds(partitionKey, (List<ByteArray>) null), insertionId2);
   }
 
-  public SinglePartitionInsertionIds(
-      final SinglePartitionInsertionIds insertionId1,
+  public SinglePartitionInsertionIds(final SinglePartitionInsertionIds insertionId1,
       final SinglePartitionInsertionIds insertionId2) {
-    partitionKey =
-        new ByteArray(
-            ByteArrayUtils.combineArrays(
-                insertionId1.partitionKey.getBytes(), insertionId2.partitionKey.getBytes()));
+    partitionKey = new ByteArray(ByteArrayUtils.combineArrays(insertionId1.partitionKey.getBytes(),
+        insertionId2.partitionKey.getBytes()));
     if ((insertionId1.sortKeys == null) || insertionId1.sortKeys.isEmpty()) {
       sortKeys = insertionId2.sortKeys;
     } else if ((insertionId2.sortKeys == null) || insertionId2.sortKeys.isEmpty()) {
@@ -52,9 +50,8 @@ public class SinglePartitionInsertionIds implements Persistable {
           new ArrayList<ByteArray>(insertionId1.sortKeys.size() * insertionId2.sortKeys.size());
       for (final ByteArray sortKey1 : insertionId1.sortKeys) {
         for (final ByteArray sortKey2 : insertionId2.sortKeys) {
-          sortKeys.add(
-              new ByteArray(
-                  ByteArrayUtils.combineArrays(sortKey1.getBytes(), sortKey2.getBytes())));
+          sortKeys.add(new ByteArray(
+              ByteArrayUtils.combineArrays(sortKey1.getBytes(), sortKey2.getBytes())));
         }
       }
     }

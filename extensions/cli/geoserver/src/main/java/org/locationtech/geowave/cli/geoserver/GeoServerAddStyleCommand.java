@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,10 +25,7 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 @GeowaveOperation(name = "addstyle", parentOperation = GeoServerSection.class)
 @Parameters(commandDescription = "Add a GeoServer style")
 public class GeoServerAddStyleCommand extends GeoServerCommand<String> {
-  @Parameter(
-      names = {"-sld", "--stylesld"},
-      required = true,
-      description = "style sld file")
+  @Parameter(names = {"-sld", "--stylesld"}, required = true, description = "style sld file")
   private String stylesld = null;
 
   @Parameter(description = "<GeoWave style name>")
@@ -60,14 +58,9 @@ public class GeoServerAddStyleCommand extends GeoServerCommand<String> {
           || (addStyleResponse.getStatus() == Status.CREATED.getStatusCode())) {
         return "Add style for '" + gwStyle + "' on GeoServer: OK";
       }
-      String errorMessage =
-          "Error adding style for '"
-              + gwStyle
-              + "' on GeoServer"
-              + ": "
-              + addStyleResponse.readEntity(String.class)
-              + "\nGeoServer Response Code = "
-              + addStyleResponse.getStatus();
+      String errorMessage = "Error adding style for '" + gwStyle + "' on GeoServer" + ": "
+          + addStyleResponse.readEntity(String.class) + "\nGeoServer Response Code = "
+          + addStyleResponse.getStatus();
       return handleError(addStyleResponse, errorMessage);
     }
   }

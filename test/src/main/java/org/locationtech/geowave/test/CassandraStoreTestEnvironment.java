@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -79,54 +80,33 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
 
         f.setAccessible(true);
         final DefaultArtifact a =
-            new DefaultArtifact(
-                "group",
-                "artifact",
-                VersionRange.createFromVersionSpec("version"),
-                null,
-                "type",
-                null,
-                new DefaultArtifactHandler());
+            new DefaultArtifact("group", "artifact", VersionRange.createFromVersionSpec("version"),
+                null, "type", null, new DefaultArtifactHandler());
         a.setFile(cassandraDir);
         f.set(this, a);
 
         f = AbstractCassandraMojo.class.getDeclaredField("pluginDependencies");
         f.setAccessible(true);
         f.set(this, new ArrayList<>());
-      } catch (NoSuchFieldException
-          | SecurityException
-          | IllegalArgumentException
-          | IllegalAccessException
-          | InvalidVersionSpecificationException e) {
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+          | IllegalAccessException | InvalidVersionSpecificationException e) {
         LOGGER.error("Unable to initialize start cassandra cluster", e);
       }
     }
 
     @Override
-    protected CommandLine newServiceCommandLine(
-        final File cassandraDir,
-        final String listenAddress,
-        final String rpcAddress,
-        final BigInteger initialToken,
-        final String[] seeds,
-        final boolean jmxRemoteEnabled,
-        final int jmxPort)
-        throws IOException {
-      return super.newServiceCommandLine(
-          cassandraDir,
-          listenAddress,
-          rpcAddress,
-          BigInteger.valueOf(initialToken.longValue()),
-          seeds,
-          false,
-          jmxPort);
+    protected CommandLine newServiceCommandLine(final File cassandraDir, final String listenAddress,
+        final String rpcAddress, final BigInteger initialToken, final String[] seeds,
+        final boolean jmxRemoteEnabled, final int jmxPort) throws IOException {
+      return super.newServiceCommandLine(cassandraDir, listenAddress, rpcAddress,
+          BigInteger.valueOf(initialToken.longValue()), seeds, false, jmxPort);
     }
 
     @Override
-    protected void createCassandraJar(
-        final File jarFile, final String mainClass, final File cassandraDir) throws IOException {
-      ClasspathUtils.setupPathingJarClassPath(
-          jarFile, mainClass, this.getClass(), new File(cassandraDir, "conf").toURI().toURL());
+    protected void createCassandraJar(final File jarFile, final String mainClass,
+        final File cassandraDir) throws IOException {
+      ClasspathUtils.setupPathingJarClassPath(jarFile, mainClass, this.getClass(),
+          new File(cassandraDir, "conf").toURI().toURL());
     }
 
     public void start() {
@@ -153,9 +133,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
 
         f.setAccessible(true);
         f.set(this, "127.0.0.1");
-      } catch (NoSuchFieldException
-          | SecurityException
-          | IllegalArgumentException
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
           | IllegalAccessException e) {
         LOGGER.error("Unable to initialize stop cassandra cluster", e);
       }
@@ -194,34 +172,25 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
 
         f.setAccessible(true);
         final DefaultArtifact a =
-            new DefaultArtifact(
-                "group",
-                "artifact",
-                VersionRange.createFromVersionSpec("version"),
-                null,
-                "type",
-                null,
-                new DefaultArtifactHandler());
+            new DefaultArtifact("group", "artifact", VersionRange.createFromVersionSpec("version"),
+                null, "type", null, new DefaultArtifactHandler());
         a.setFile(cassandraDir);
         f.set(this, a);
 
         f = AbstractCassandraMojo.class.getDeclaredField("pluginDependencies");
         f.setAccessible(true);
         f.set(this, new ArrayList<>());
-      } catch (NoSuchFieldException
-          | SecurityException
-          | IllegalArgumentException
-          | IllegalAccessException
-          | InvalidVersionSpecificationException e) {
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+          | IllegalAccessException | InvalidVersionSpecificationException e) {
         LOGGER.error("Unable to initialize start cassandra cluster", e);
       }
     }
 
     @Override
-    protected void createCassandraJar(
-        final File jarFile, final String mainClass, final File cassandraDir) throws IOException {
-      ClasspathUtils.setupPathingJarClassPath(
-          jarFile, mainClass, this.getClass(), new File(cassandraDir, "conf").toURI().toURL());
+    protected void createCassandraJar(final File jarFile, final String mainClass,
+        final File cassandraDir) throws IOException {
+      ClasspathUtils.setupPathingJarClassPath(jarFile, mainClass, this.getClass(),
+          new File(cassandraDir, "conf").toURI().toURL());
     }
 
     public void start() {
@@ -245,9 +214,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
 
         f.setAccessible(true);
         f.set(this, "127.0.0.1");
-      } catch (NoSuchFieldException
-          | SecurityException
-          | IllegalArgumentException
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
           | IllegalAccessException e) {
         LOGGER.error("Unable to initialize stop cassandra cluster", e);
       }

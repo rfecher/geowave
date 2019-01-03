@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -105,8 +106,8 @@ public class QueryFilterIterator extends Filter {
     findTopEnhanced(getSource(), this);
   }
 
-  protected static void findTopEnhanced(
-      final SortedKeyValueIterator<Key, Value> source, final Filter filter) {
+  protected static void findTopEnhanced(final SortedKeyValueIterator<Key, Value> source,
+      final Filter filter) {
     Key key;
     if (source.hasTop()) {
       key = source.getTopKey();
@@ -141,16 +142,13 @@ public class QueryFilterIterator extends Filter {
     return true;
   }
 
-  protected FlattenedUnreadData aggregateFieldData(
-      final Key key, final Value value, final PersistentDataset<CommonIndexValue> commonData) {
+  protected FlattenedUnreadData aggregateFieldData(final Key key, final Value value,
+      final PersistentDataset<CommonIndexValue> commonData) {
     final GeoWaveKey gwKey = new GeoWaveKeyImpl(key.getRow().copyBytes(), partitionKeyLength);
-    final GeoWaveValue gwValue =
-        new GeoWaveValueImpl(
-            key.getColumnQualifier().getBytes(),
-            key.getColumnVisibilityData().getBackingArray(),
-            value.get());
-    return DataStoreUtils.aggregateFieldData(
-        gwKey, gwValue, commonData, model, commonIndexFieldNames);
+    final GeoWaveValue gwValue = new GeoWaveValueImpl(key.getColumnQualifier().getBytes(),
+        key.getColumnVisibilityData().getBackingArray(), value.get());
+    return DataStoreUtils.aggregateFieldData(gwKey, gwValue, commonData, model,
+        commonIndexFieldNames);
   }
 
   @Override
@@ -163,27 +161,18 @@ public class QueryFilterIterator extends Filter {
     return iterator;
   }
 
-  protected boolean applyRowFilter(
-      final Text currentRow,
-      final PersistentDataset<CommonIndexValue> commonData,
-      final FlattenedUnreadData unreadData) {
+  protected boolean applyRowFilter(final Text currentRow,
+      final PersistentDataset<CommonIndexValue> commonData, final FlattenedUnreadData unreadData) {
     return applyRowFilter(getEncoding(currentRow, partitionKeyLength, commonData, unreadData));
   }
 
-  protected static CommonIndexedPersistenceEncoding getEncoding(
-      final Text currentRow,
-      final int partitionKeyLength,
-      final PersistentDataset<CommonIndexValue> commonData,
+  protected static CommonIndexedPersistenceEncoding getEncoding(final Text currentRow,
+      final int partitionKeyLength, final PersistentDataset<CommonIndexValue> commonData,
       final FlattenedUnreadData unreadData) {
     final GeoWaveKeyImpl rowId = new GeoWaveKeyImpl(currentRow.copyBytes(), partitionKeyLength);
-    return new DeferredReadCommonIndexedPersistenceEncoding(
-        rowId.getAdapterId(),
-        new ByteArray(rowId.getDataId()),
-        new ByteArray(rowId.getPartitionKey()),
-        new ByteArray(rowId.getSortKey()),
-        rowId.getNumberOfDuplicates(),
-        commonData,
-        unreadData);
+    return new DeferredReadCommonIndexedPersistenceEncoding(rowId.getAdapterId(),
+        new ByteArray(rowId.getDataId()), new ByteArray(rowId.getPartitionKey()),
+        new ByteArray(rowId.getSortKey()), rowId.getNumberOfDuplicates(), commonData, unreadData);
   }
 
   protected boolean applyRowFilter(final CommonIndexedPersistenceEncoding encoding) {
@@ -195,11 +184,8 @@ public class QueryFilterIterator extends Filter {
   }
 
   @Override
-  public void init(
-      final SortedKeyValueIterator<Key, Value> source,
-      final Map<String, String> options,
-      final IteratorEnvironment env)
-      throws IOException {
+  public void init(final SortedKeyValueIterator<Key, Value> source,
+      final Map<String, String> options, final IteratorEnvironment env) throws IOException {
     setOptions(options);
     super.init(source, options, env);
   }

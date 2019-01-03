@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -63,13 +64,10 @@ public class BatchedRangeRead<T> {
   // to control it
   private final Semaphore readSemaphore = new Semaphore(MAX_CONCURRENT_READ);
 
-  protected BatchedRangeRead(
-      final PreparedStatement preparedRead,
-      final CassandraOperations operations,
-      final short[] adapterIds,
+  protected BatchedRangeRead(final PreparedStatement preparedRead,
+      final CassandraOperations operations, final short[] adapterIds,
       final Collection<SinglePartitionQueryRanges> ranges,
-      final GeoWaveRowIteratorTransformer<T> rowTransformer,
-      final Predicate<GeoWaveRow> filter) {
+      final GeoWaveRowIteratorTransformer<T> rowTransformer, final Predicate<GeoWaveRow> filter) {
     this.preparedRead = preparedRead;
     this.operations = operations;
     this.adapterIds = adapterIds;
@@ -84,36 +82,19 @@ public class BatchedRangeRead<T> {
       for (final ByteArrayRange range : r.getSortKeyRanges()) {
         final BoundStatement boundRead = new BoundStatement(preparedRead);
         final byte[] start = range.getStart() != null ? range.getStart().getBytes() : new byte[0];
-        final byte[] end =
-            range.getEnd() != null
-                ? range.getEndAsNextPrefix().getBytes()
-                : new byte[] {
-                  (byte) 0xFF,
-                  (byte) 0xFF,
-                  (byte) 0xFF,
-                  (byte) 0xFF,
-                  (byte) 0xFF,
-                  (byte) 0xFF,
-                  (byte) 0xFF
-                };
-        boundRead.set(
-            CassandraField.GW_SORT_KEY.getLowerBoundBindMarkerName(),
-            ByteBuffer.wrap(start),
-            ByteBuffer.class);
+        final byte[] end = range.getEnd() != null ? range.getEndAsNextPrefix().getBytes()
+            : new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF};
+        boundRead.set(CassandraField.GW_SORT_KEY.getLowerBoundBindMarkerName(),
+            ByteBuffer.wrap(start), ByteBuffer.class);
 
-        boundRead.set(
-            CassandraField.GW_SORT_KEY.getUpperBoundBindMarkerName(),
-            ByteBuffer.wrap(end),
-            ByteBuffer.class);
-        boundRead.set(
-            CassandraField.GW_PARTITION_ID_KEY.getBindMarkerName(),
-            ByteBuffer.wrap(r.getPartitionKey().getBytes()),
-            ByteBuffer.class);
+        boundRead.set(CassandraField.GW_SORT_KEY.getUpperBoundBindMarkerName(),
+            ByteBuffer.wrap(end), ByteBuffer.class);
+        boundRead.set(CassandraField.GW_PARTITION_ID_KEY.getBindMarkerName(),
+            ByteBuffer.wrap(r.getPartitionKey().getBytes()), ByteBuffer.class);
 
-        boundRead.set(
-            CassandraField.GW_ADAPTER_ID_KEY.getBindMarkerName(),
-            Arrays.asList(ArrayUtils.toObject(adapterIds)),
-            TypeCodec.list(TypeCodec.smallInt()));
+        boundRead.set(CassandraField.GW_ADAPTER_ID_KEY.getBindMarkerName(),
+            Arrays.asList(ArrayUtils.toObject(adapterIds)), TypeCodec.list(TypeCodec.smallInt()));
         statements.add(boundRead);
       }
     }
@@ -124,55 +105,48 @@ public class BatchedRangeRead<T> {
     // first create a list of asynchronous query executions
     final List<ResultSetFuture> futures = Lists.newArrayListWithExpectedSize(statements.length);
     final BlockingQueue<Object> results = new LinkedBlockingQueue<>(MAX_BOUNDED_READS_ENQUEUED);
-    new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                // set it to 1 to make sure all queries are submitted in
-                // the loop
-                final AtomicInteger queryCount = new AtomicInteger(1);
-                for (final Statement s : statements) {
-                  try {
-                    readSemaphore.acquire();
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        // set it to 1 to make sure all queries are submitted in
+        // the loop
+        final AtomicInteger queryCount = new AtomicInteger(1);
+        for (final Statement s : statements) {
+          try {
+            readSemaphore.acquire();
 
-                    final ResultSetFuture f = operations.getSession().executeAsync(s);
-                    futures.add(f);
-                    Futures.addCallback(
-                        f,
-                        new QueryCallback(
-                            queryCount, results, rowTransformer, filter, readSemaphore),
-                        CassandraOperations.READ_RESPONSE_THREADS);
-                  } catch (final InterruptedException e) {
-                    LOGGER.warn("Exception while executing query", e);
-                    readSemaphore.release();
-                  }
-                }
-                // then decrement
-                if (queryCount.decrementAndGet() <= 0) {
-                  // and if there are no queries, there may not have
-                  // been any
-                  // statements submitted
-                  try {
-                    results.put(RowConsumer.POISON);
-                  } catch (final InterruptedException e) {
-                    LOGGER.error(
-                        "Interrupted while finishing blocking queue, this may result in deadlock!");
-                  }
-                }
-              }
-            },
-            "Cassandra Query Executor")
-        .start();
-    return new CloseableIteratorWrapper<T>(
-        new Closeable() {
-          @Override
-          public void close() throws IOException {
-            for (final ResultSetFuture f : futures) {
-              f.cancel(true);
-            }
+            final ResultSetFuture f = operations.getSession().executeAsync(s);
+            futures.add(f);
+            Futures.addCallback(f,
+                new QueryCallback(queryCount, results, rowTransformer, filter, readSemaphore),
+                CassandraOperations.READ_RESPONSE_THREADS);
+          } catch (final InterruptedException e) {
+            LOGGER.warn("Exception while executing query", e);
+            readSemaphore.release();
           }
-        },
-        new RowConsumer(results));
+        }
+        // then decrement
+        if (queryCount.decrementAndGet() <= 0) {
+          // and if there are no queries, there may not have
+          // been any
+          // statements submitted
+          try {
+            results.put(RowConsumer.POISON);
+          } catch (final InterruptedException e) {
+            LOGGER
+                .error("Interrupted while finishing blocking queue, this may result in deadlock!");
+          }
+        }
+      }
+    }, "Cassandra Query Executor").start();
+    return new CloseableIteratorWrapper<T>(new Closeable() {
+      @Override
+      public void close() throws IOException {
+        for (final ResultSetFuture f : futures) {
+          f.cancel(true);
+        }
+      }
+    }, new RowConsumer(results));
   }
 
   // callback class
@@ -184,11 +158,8 @@ public class BatchedRangeRead<T> {
     private final GeoWaveRowIteratorTransformer<T> rowTransform;
     Predicate<GeoWaveRow> filter;
 
-    public QueryCallback(
-        final AtomicInteger queryCount,
-        final BlockingQueue<Object> resultQueue,
-        final GeoWaveRowIteratorTransformer<T> rowTransform,
-        final Predicate<GeoWaveRow> filter,
+    public QueryCallback(final AtomicInteger queryCount, final BlockingQueue<Object> resultQueue,
+        final GeoWaveRowIteratorTransformer<T> rowTransform, final Predicate<GeoWaveRow> filter,
         final Semaphore semaphore) {
       this.queryCount = queryCount;
       this.queryCount.incrementAndGet();
@@ -201,30 +172,23 @@ public class BatchedRangeRead<T> {
     @Override
     public void onSuccess(final ResultSet result) {
       try {
-        rowTransform
-            .apply(
-                (Iterator<GeoWaveRow>)
-                    (Iterator<? extends GeoWaveRow>)
-                        new GeoWaveRowMergingIterator<>(
-                            Iterators.filter(
-                                Iterators.transform(
-                                    result.iterator(),
-                                    new Function<Row, CassandraRow>() {
+        rowTransform.apply(
+            (Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
+                Iterators.filter(
+                    Iterators.transform(result.iterator(), new Function<Row, CassandraRow>() {
 
-                                      @Override
-                                      public CassandraRow apply(final Row row) {
-                                        return new CassandraRow(row);
-                                      }
-                                    }),
-                                filter)))
-            .forEachRemaining(
-                row -> {
-                  try {
-                    resultQueue.put(row);
-                  } catch (final InterruptedException e) {
-                    LOGGER.warn("interrupted while waiting to enqueue a cassandra result", e);
-                  }
-                });
+                      @Override
+                      public CassandraRow apply(final Row row) {
+                        return new CassandraRow(row);
+                      }
+                    }), filter)))
+            .forEachRemaining(row -> {
+              try {
+                resultQueue.put(row);
+              } catch (final InterruptedException e) {
+                LOGGER.warn("interrupted while waiting to enqueue a cassandra result", e);
+              }
+            });
 
       } finally {
         checkFinalize();

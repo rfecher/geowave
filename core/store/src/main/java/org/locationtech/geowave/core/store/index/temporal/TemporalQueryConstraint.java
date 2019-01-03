@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,12 +36,8 @@ public class TemporalQueryConstraint implements FilterableConstraints {
     return fieldName;
   }
 
-  public TemporalQueryConstraint(
-      final String fieldName,
-      final Date start,
-      final Date end,
-      final boolean inclusiveLow,
-      final boolean inclusiveHigh) {
+  public TemporalQueryConstraint(final String fieldName, final Date start, final Date end,
+      final boolean inclusiveLow, final boolean inclusiveHigh) {
     super();
     this.fieldName = fieldName;
     this.start = start;
@@ -66,8 +63,7 @@ public class TemporalQueryConstraint implements FilterableConstraints {
 
   public QueryRanges getQueryRanges() {
     return new QueryRanges(
-        new ByteArrayRange(
-            new ByteArray(TemporalIndexStrategy.toIndexByte(start)),
+        new ByteArrayRange(new ByteArray(TemporalIndexStrategy.toIndexByte(start)),
             new ByteArray(TemporalIndexStrategy.toIndexByte(end))));
   }
 
@@ -75,7 +71,8 @@ public class TemporalQueryConstraint implements FilterableConstraints {
    * Returns an FilterableConstraints object that is the intersection of the start and end times of
    * this object and object passed in.
    *
-   * <p>This method returns an object with the latest start and earliest end of the two objects
+   * <p>
+   * This method returns an object with the latest start and earliest end of the two objects
    *
    * @param otherConstraint object whose constraints are 'intersected' with existing constraints
    * @return new {@link FilterableConstraints}
@@ -93,17 +90,13 @@ public class TemporalQueryConstraint implements FilterableConstraints {
         final boolean replaceMin = start.compareTo(filterConstraints.start) < 0;
         final boolean replaceMax = end.compareTo(filterConstraints.end) > 0;
 
-        boolean newInclusiveLow =
-            lowEquals
-                ? filterConstraints.inclusiveLow & inclusiveLow
-                : (replaceMin ? filterConstraints.inclusiveLow : inclusiveLow);
-        boolean newInclusiveHigh =
-            upperEquals
-                ? filterConstraints.inclusiveHigh & inclusiveHigh
-                : (replaceMax ? filterConstraints.inclusiveHigh : inclusiveHigh);
+        boolean newInclusiveLow = lowEquals ? filterConstraints.inclusiveLow & inclusiveLow
+            : (replaceMin ? filterConstraints.inclusiveLow : inclusiveLow);
+        boolean newInclusiveHigh = upperEquals ? filterConstraints.inclusiveHigh & inclusiveHigh
+            : (replaceMax ? filterConstraints.inclusiveHigh : inclusiveHigh);
 
-        return new TemporalQueryConstraint(
-            fieldName, newStart, newEnd, newInclusiveLow, newInclusiveHigh);
+        return new TemporalQueryConstraint(fieldName, newStart, newEnd, newInclusiveLow,
+            newInclusiveHigh);
       }
     }
     return this;
@@ -113,7 +106,8 @@ public class TemporalQueryConstraint implements FilterableConstraints {
    * Returns an FilterableConstraints object that is the union of the start and end times of this
    * object and object passed in.
    *
-   * <p>This method returns an object with the earliest start and latest end time of the two objects
+   * <p>
+   * This method returns an object with the earliest start and latest end time of the two objects
    *
    * @param otherConstraint object whose constraints are 'unioned' with existing constraints
    * @return new {@link FilterableConstraints}
@@ -131,17 +125,13 @@ public class TemporalQueryConstraint implements FilterableConstraints {
         final boolean replaceMin = start.compareTo(filterConstraints.start) > 0;
         final boolean replaceMax = end.compareTo(filterConstraints.end) < 0;
 
-        boolean newInclusiveLow =
-            lowEquals
-                ? filterConstraints.inclusiveLow | inclusiveLow
-                : (replaceMin ? filterConstraints.inclusiveLow : inclusiveLow);
-        boolean newInclusiveHigh =
-            upperEquals
-                ? filterConstraints.inclusiveHigh | inclusiveHigh
-                : (replaceMax ? filterConstraints.inclusiveHigh : inclusiveHigh);
+        boolean newInclusiveLow = lowEquals ? filterConstraints.inclusiveLow | inclusiveLow
+            : (replaceMin ? filterConstraints.inclusiveLow : inclusiveLow);
+        boolean newInclusiveHigh = upperEquals ? filterConstraints.inclusiveHigh | inclusiveHigh
+            : (replaceMax ? filterConstraints.inclusiveHigh : inclusiveHigh);
 
-        return new TemporalQueryConstraint(
-            fieldName, newStart, newEnd, newInclusiveLow, newInclusiveHigh);
+        return new TemporalQueryConstraint(fieldName, newStart, newEnd, newInclusiveLow,
+            newInclusiveHigh);
       }
     }
     return this;

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -81,10 +82,8 @@ public class AdapterWithObjectWritable implements Writable {
 
   public static void fillWritableWithAdapter(
       final HadoopWritableSerializationTool serializationTool,
-      final AdapterWithObjectWritable writableToFill,
-      final short internalAdapterId,
-      final ByteArray dataId,
-      final Object entry) {
+      final AdapterWithObjectWritable writableToFill, final short internalAdapterId,
+      final ByteArray dataId, final Object entry) {
     writableToFill.setInternalAdapterId(internalAdapterId);
     writableToFill.setDataId(dataId);
     writableToFill.setObject(serializationTool.toWritable(internalAdapterId, entry));
@@ -95,19 +94,14 @@ public class AdapterWithObjectWritable implements Writable {
       final AdapterWithObjectWritable writableToExtract) {
     final short internalAdapterId = writableToExtract.getInternalAdapterId();
     final Object innerObj = writableToExtract.objectWritable.get();
-    return (innerObj instanceof Writable)
-        ? serializationTool
-            .getHadoopWritableSerializerForAdapter(internalAdapterId)
-            .fromWritable((Writable) innerObj)
+    return (innerObj instanceof Writable) ? serializationTool
+        .getHadoopWritableSerializerForAdapter(internalAdapterId).fromWritable((Writable) innerObj)
         : innerObj;
   }
 
   @Override
   public String toString() {
-    return "AdapterWithObjectWritable [ internalAdapterId="
-        + internalAdapterId
-        + ", dataId="
-        + dataId.getString()
-        + "]";
+    return "AdapterWithObjectWritable [ internalAdapterId=" + internalAdapterId + ", dataId="
+        + dataId.getString() + "]";
   }
 }

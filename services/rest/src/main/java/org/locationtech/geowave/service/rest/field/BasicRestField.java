@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -15,8 +16,8 @@ public class BasicRestField<T> implements RestField<T> {
   private final String description;
   private final boolean required;
 
-  public BasicRestField(
-      final String name, final Class<T> type, final String description, final boolean required) {
+  public BasicRestField(final String name, final Class<T> type, final String description,
+      final boolean required) {
     this.name = name;
     this.type = type;
     this.description = description;

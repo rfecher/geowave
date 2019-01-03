@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,11 +34,8 @@ public class HilbertSFC implements SpaceFillingCurve {
     private final boolean overInclusiveOnEdge;
     private final int maxFilteredIndexedRanges;
 
-    public QueryCacheKey(
-        final double[] minsPerDimension,
-        final double[] maxesPerDimension,
-        final boolean overInclusiveOnEdge,
-        final int maxFilteredIndexedRanges) {
+    public QueryCacheKey(final double[] minsPerDimension, final double[] maxesPerDimension,
+        final boolean overInclusiveOnEdge, final int maxFilteredIndexedRanges) {
       this.minsPerDimension = minsPerDimension;
       this.maxesPerDimension = maxesPerDimension;
       this.overInclusiveOnEdge = overInclusiveOnEdge;
@@ -126,10 +124,8 @@ public class HilbertSFC implements SpaceFillingCurve {
     setOptimalOperations(totalPrecision, bitsPerDimension, dimensionDefs);
   }
 
-  protected void setOptimalOperations(
-      final int totalPrecision,
-      final List<Integer> bitsPerDimension,
-      final SFCDimensionDefinition[] dimensionDefs) {
+  protected void setOptimalOperations(final int totalPrecision,
+      final List<Integer> bitsPerDimension, final SFCDimensionDefinition[] dimensionDefs) {
     boolean primitiveForGetId = true;
     final boolean primitiveForQueryDecomposition = totalPrecision <= 62L;
     for (final Integer bits : bitsPerDimension) {
@@ -180,30 +176,18 @@ public class HilbertSFC implements SpaceFillingCurve {
   // TODO: improve this method - min/max not being calculated optimally
   /** * {@inheritDoc} */
   @Override
-  public RangeDecomposition decomposeRange(
-      final MultiDimensionalNumericData query,
-      final boolean overInclusiveOnEdge,
-      int maxFilteredIndexedRanges) {
+  public RangeDecomposition decomposeRange(final MultiDimensionalNumericData query,
+      final boolean overInclusiveOnEdge, int maxFilteredIndexedRanges) {
     if (maxFilteredIndexedRanges == -1) {
       maxFilteredIndexedRanges = Integer.MAX_VALUE;
     }
-    final QueryCacheKey key =
-        new QueryCacheKey(
-            query.getMinValuesPerDimension(),
-            query.getMaxValuesPerDimension(),
-            overInclusiveOnEdge,
-            maxFilteredIndexedRanges);
+    final QueryCacheKey key = new QueryCacheKey(query.getMinValuesPerDimension(),
+        query.getMaxValuesPerDimension(), overInclusiveOnEdge, maxFilteredIndexedRanges);
     RangeDecomposition rangeDecomp = queryDecompositionCache.get(key);
     if (rangeDecomp == null) {
-      rangeDecomp =
-          decomposeQueryOperations.decomposeRange(
-              query.getDataPerDimension(),
-              compactHilbertCurve,
-              dimensionDefinitions,
-              totalPrecision,
-              maxFilteredIndexedRanges,
-              REMOVE_VACUUM,
-              overInclusiveOnEdge);
+      rangeDecomp = decomposeQueryOperations.decomposeRange(query.getDataPerDimension(),
+          compactHilbertCurve, dimensionDefinitions, totalPrecision, maxFilteredIndexedRanges,
+          REMOVE_VACUUM, overInclusiveOnEdge);
       queryDecompositionCache.put(key, rangeDecomp);
     }
     return rangeDecomp;
@@ -234,9 +218,8 @@ public class HilbertSFC implements SpaceFillingCurve {
     int bufferLength = 0;
     for (final SFCDimensionDefinition sfcDimension : dimensionDefinitions) {
       final byte[] sfcDimensionBinary = PersistenceUtils.toBinary(sfcDimension);
-      bufferLength +=
-          (sfcDimensionBinary.length
-              + VarintUtils.unsignedIntByteLength(sfcDimensionBinary.length));
+      bufferLength += (sfcDimensionBinary.length
+          + VarintUtils.unsignedIntByteLength(sfcDimensionBinary.length));
       dimensionDefBinaries.add(sfcDimensionBinary);
     }
     bufferLength += VarintUtils.unsignedIntByteLength(dimensionDefinitions.length);
@@ -303,8 +286,8 @@ public class HilbertSFC implements SpaceFillingCurve {
 
   @Override
   public long[] normalizeRange(final double minValue, final double maxValue, final int dimension) {
-    return getIdOperations.normalizeRange(
-        minValue, maxValue, dimension, dimensionDefinitions[dimension]);
+    return getIdOperations.normalizeRange(minValue, maxValue, dimension,
+        dimensionDefinitions[dimension]);
   }
 
   @Override

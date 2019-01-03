@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,19 +41,15 @@ public class RasterTileResizeHelper {
     final Configuration conf = context.getConfiguration();
     final String newTypeName = conf.get(RasterTileResizeJobRunner.NEW_TYPE_NAME_KEY);
     oldAdapterId = (short) conf.getInt(RasterTileResizeJobRunner.OLD_ADAPTER_ID_KEY, -1);
-    newAdapterId =
-        (short)
-            conf.getInt(
-                RasterTileResizeJobRunner.NEW_ADAPTER_ID_KEY,
-                InternalAdapterStoreImpl.getLazyInitialAdapterId(newTypeName));
+    newAdapterId = (short) conf.getInt(RasterTileResizeJobRunner.NEW_ADAPTER_ID_KEY,
+        InternalAdapterStoreImpl.getLazyInitialAdapterId(newTypeName));
     for (final DataTypeAdapter adapter : adapters) {
       if (adapter.getTypeName().equals(newTypeName)) {
         if (((RasterDataAdapter) adapter).getTransform() == null) {
           // the new adapter doesn't have a merge strategy - resizing
           // will require merging, so default to NoDataMergeStrategy
-          newAdapter =
-              new RasterDataAdapter(
-                  (RasterDataAdapter) adapter, newTypeName, new NoDataMergeStrategy());
+          newAdapter = new RasterDataAdapter((RasterDataAdapter) adapter, newTypeName,
+              new NoDataMergeStrategy());
         } else {
           newAdapter = (RasterDataAdapter) adapter;
         }
@@ -94,12 +91,9 @@ public class RasterTileResizeHelper {
     }
     if (needsMerge) {
       final Pair<byte[], byte[]> pair = key.getPartitionAndSortKey(index);
-      mergedCoverage =
-          newAdapter.getCoverageFromRasterTile(
-              mergedTile,
-              pair == null ? null : new ByteArray(pair.getLeft()),
-              pair == null ? null : new ByteArray(pair.getRight()),
-              index);
+      mergedCoverage = newAdapter.getCoverageFromRasterTile(mergedTile,
+          pair == null ? null : new ByteArray(pair.getLeft()),
+          pair == null ? null : new ByteArray(pair.getRight()), index);
     }
     return mergedCoverage;
   }

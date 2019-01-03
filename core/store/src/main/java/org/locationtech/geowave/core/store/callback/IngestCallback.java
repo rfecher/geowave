@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,7 +23,7 @@ public interface IngestCallback<T> {
    *
    * @param entry the entry that was ingested
    * @param entryInfo information regarding what was written to include the insertion row IDs,
-   *     fields, and visibilities
+   *        fields, and visibilities
    * @param rows the rows inserted into the table for this entry
    */
   public void entryIngested(T entry, GeoWaveRow... rows);

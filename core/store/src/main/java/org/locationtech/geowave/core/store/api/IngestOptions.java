@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -152,14 +153,9 @@ public class IngestOptions<T> {
    * @param transform a function to transform entries prior to ingest
    * @param callback a callback to get entries ingested and their insertion ID(s) in GeoWave
    */
-  public IngestOptions(
-      final LocalFileIngestPlugin<T> format,
-      final IngestFormatOptions formatOptions,
-      final int threads,
-      final String globalVisibility,
-      final String[] fileExtensions,
-      final Predicate<T> filter,
-      final Function<T, T> transform,
+  public IngestOptions(final LocalFileIngestPlugin<T> format,
+      final IngestFormatOptions formatOptions, final int threads, final String globalVisibility,
+      final String[] fileExtensions, final Predicate<T> filter, final Function<T, T> transform,
       final IngestCallback<T> callback) {
     super();
     this.format = format;

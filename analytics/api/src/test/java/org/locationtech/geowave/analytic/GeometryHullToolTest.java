@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -11,7 +12,6 @@ package org.locationtech.geowave.analytic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,152 +41,98 @@ public class GeometryHullToolTest {
 
   @Test
   public void testDistance() {
-    final double distance1 =
-        GeometryHullTool.calcDistance(
-            new Coordinate(3, 3), new Coordinate(6, 6), new Coordinate(5, 5.5));
+    final double distance1 = GeometryHullTool.calcDistance(new Coordinate(3, 3),
+        new Coordinate(6, 6), new Coordinate(5, 5.5));
 
-    final double distance2 =
-        GeometryHullTool.calcDistance(
-            new Coordinate(3, 3), new Coordinate(6, 6), new Coordinate(5, 4.5));
+    final double distance2 = GeometryHullTool.calcDistance(new Coordinate(3, 3),
+        new Coordinate(6, 6), new Coordinate(5, 4.5));
 
     assertEquals(distance1, distance2, 0.0001);
 
-    final double distance3 =
-        GeometryHullTool.calcDistance(
-            new Coordinate(4, 6), new Coordinate(6, 12), new Coordinate(5, 8));
+    final double distance3 = GeometryHullTool.calcDistance(new Coordinate(4, 6),
+        new Coordinate(6, 12), new Coordinate(5, 8));
 
     assertTrue(distance3 > 0);
 
-    final double distance4 =
-        GeometryHullTool.calcDistance(
-            new Coordinate(4, 6), new Coordinate(6, 12), new Coordinate(5, 9));
+    final double distance4 = GeometryHullTool.calcDistance(new Coordinate(4, 6),
+        new Coordinate(6, 12), new Coordinate(5, 9));
 
     assertEquals(0.0, distance4, 0.001);
 
-    final double distance5 =
-        GeometryHullTool.calcDistance(
-            new Coordinate(5, 7), new Coordinate(11, 3), new Coordinate(6, 10));
+    final double distance5 = GeometryHullTool.calcDistance(new Coordinate(5, 7),
+        new Coordinate(11, 3), new Coordinate(6, 10));
 
     assertTrue(distance5 < 0);
 
-    final double distance6 =
-        GeometryHullTool.calcDistance(
-            new Coordinate(5, 7), new Coordinate(11, 3), new Coordinate(7, 6.5));
+    final double distance6 = GeometryHullTool.calcDistance(new Coordinate(5, 7),
+        new Coordinate(11, 3), new Coordinate(7, 6.5));
 
-    final double distance7 =
-        GeometryHullTool.calcDistance(
-            new Coordinate(5, 7), new Coordinate(11, 3), new Coordinate(7, 5.0));
+    final double distance7 = GeometryHullTool.calcDistance(new Coordinate(5, 7),
+        new Coordinate(11, 3), new Coordinate(7, 5.0));
 
     assertTrue(distance7 < distance6);
   }
 
   @Test
   public void testAngles() {
-    assertTrue(
-        GeometryHullTool.calcAngle(
-                new Coordinate(39, 41.5), new Coordinate(41, 41), new Coordinate(38, 41.2))
-            > 0);
+    assertTrue(GeometryHullTool.calcAngle(new Coordinate(39, 41.5), new Coordinate(41, 41),
+        new Coordinate(38, 41.2)) > 0);
 
-    assertTrue(
-        GeometryHullTool.calcAngle(
-                new Coordinate(39, 41.5), new Coordinate(41, 41), new Coordinate(38, 43))
-            < 0);
+    assertTrue(GeometryHullTool.calcAngle(new Coordinate(39, 41.5), new Coordinate(41, 41),
+        new Coordinate(38, 43)) < 0);
 
-    assertTrue(
-        GeometryHullTool.calcAngle(
-                new Coordinate(39, 41.5), new Coordinate(41, 41), new Coordinate(38, 41.2))
-            < GeometryHullTool.calcAngle(
-                new Coordinate(39, 41.5), new Coordinate(41, 41), new Coordinate(38, 41.1)));
+    assertTrue(GeometryHullTool.calcAngle(new Coordinate(39, 41.5), new Coordinate(41, 41),
+        new Coordinate(38, 41.2)) < GeometryHullTool.calcAngle(new Coordinate(39, 41.5),
+            new Coordinate(41, 41), new Coordinate(38, 41.1)));
 
-    assertTrue(
-        GeometryHullTool.calcAngle(
-                new Coordinate(39, 41.5), new Coordinate(41, 41), new Coordinate(38, 43))
-            > GeometryHullTool.calcAngle(
-                new Coordinate(39, 41.5), new Coordinate(41, 41), new Coordinate(38, 44)));
+    assertTrue(GeometryHullTool.calcAngle(new Coordinate(39, 41.5), new Coordinate(41, 41),
+        new Coordinate(38, 43)) > GeometryHullTool.calcAngle(new Coordinate(39, 41.5),
+            new Coordinate(41, 41), new Coordinate(38, 44)));
 
-    assertTrue(
-        GeometryHullTool.calcAngle(
-                new Coordinate(42, 42), new Coordinate(41, 41), new Coordinate(42.5, 44))
-            > 0);
+    assertTrue(GeometryHullTool.calcAngle(new Coordinate(42, 42), new Coordinate(41, 41),
+        new Coordinate(42.5, 44)) > 0);
 
-    assertTrue(
-        GeometryHullTool.calcAngle(
-                new Coordinate(42, 42), new Coordinate(41, 41), new Coordinate(42.5, 40.5))
-            < 0);
+    assertTrue(GeometryHullTool.calcAngle(new Coordinate(42, 42), new Coordinate(41, 41),
+        new Coordinate(42.5, 40.5)) < 0);
 
-    assertEquals(
-        -90.0,
-        GeometryHullTool.calcAngle(
-            new Coordinate(41, 42), new Coordinate(41, 41), new Coordinate(42, 41)),
-        0.001);
+    assertEquals(-90.0, GeometryHullTool.calcAngle(new Coordinate(41, 42), new Coordinate(41, 41),
+        new Coordinate(42, 41)), 0.001);
 
-    assertEquals(
-        90.0,
-        GeometryHullTool.calcAngle(
-            new Coordinate(42, 41), new Coordinate(41, 41), new Coordinate(41, 42)),
-        0.001);
+    assertEquals(90.0, GeometryHullTool.calcAngle(new Coordinate(42, 41), new Coordinate(41, 41),
+        new Coordinate(41, 42)), 0.001);
 
-    assertEquals(
-        -180,
-        GeometryHullTool.calcAngle(
-            new Coordinate(42, 42), new Coordinate(41, 41), new Coordinate(40, 40)),
-        0.001);
+    assertEquals(-180, GeometryHullTool.calcAngle(new Coordinate(42, 42), new Coordinate(41, 41),
+        new Coordinate(40, 40)), 0.001);
 
-    assertEquals(
-        0,
-        GeometryHullTool.calcAngle(
-            new Coordinate(42, 42), new Coordinate(41, 41), new Coordinate(42, 42)),
-        0.001);
+    assertEquals(0, GeometryHullTool.calcAngle(new Coordinate(42, 42), new Coordinate(41, 41),
+        new Coordinate(42, 42)), 0.001);
 
-    assertEquals(
-        -315,
-        GeometryHullTool.calcAngle(
-            new Coordinate(41, 41), new Coordinate(42, 41), new Coordinate(41, 40)),
-        0.001);
+    assertEquals(-315, GeometryHullTool.calcAngle(new Coordinate(41, 41), new Coordinate(42, 41),
+        new Coordinate(41, 40)), 0.001);
 
-    assertEquals(
-        -45,
-        GeometryHullTool.calcAngle(
-            new Coordinate(42, 41), new Coordinate(41, 41), new Coordinate(42, 40)),
-        0.001);
+    assertEquals(-45, GeometryHullTool.calcAngle(new Coordinate(42, 41), new Coordinate(41, 41),
+        new Coordinate(42, 40)), 0.001);
 
-    assertEquals(
-        -45,
-        GeometryHullTool.calcAngle(
-            new Coordinate(41, 42), new Coordinate(41, 41), new Coordinate(42, 42)),
-        0.001);
+    assertEquals(-45, GeometryHullTool.calcAngle(new Coordinate(41, 42), new Coordinate(41, 41),
+        new Coordinate(42, 42)), 0.001);
   }
 
   @Test
   public void testConcaveHullBulkTest() {
     long time = System.currentTimeMillis();
     for (int i = 0; i < 10; i++) {
-      assertTrue(
-          getHull(
-                      factory.createLineString(
-                          new Coordinate[] {
-                            new Coordinate(41.2, 40.8), new Coordinate(40.8, 40.6)
-                          }),
-                      "po1",
-                      false,
-                      true)
-                  .isSimple()
-              || true);
+      assertTrue(getHull(
+          factory.createLineString(
+              new Coordinate[] {new Coordinate(41.2, 40.8), new Coordinate(40.8, 40.6)}),
+          "po1", false, true).isSimple() || true);
     }
     System.out.println(System.currentTimeMillis() - time);
     time = System.currentTimeMillis();
     for (int i = 0; i < 10; i++) {
-      assertTrue(
-          getHull(
-                      factory.createLineString(
-                          new Coordinate[] {
-                            new Coordinate(41.2, 40.8), new Coordinate(40.8, 40.6)
-                          }),
-                      "er1",
-                      false,
-                      false)
-                  .isSimple()
-              || true);
+      assertTrue(getHull(
+          factory.createLineString(
+              new Coordinate[] {new Coordinate(41.2, 40.8), new Coordinate(40.8, 40.6)}),
+          "er1", false, false).isSimple() || true);
     }
     System.out.println(System.currentTimeMillis() - time);
   }
@@ -198,33 +144,21 @@ public class GeometryHullToolTest {
     return new Coordinate(select.x + r.nextGaussian(), select.y + r.nextGaussian(), select.z);
   }
 
-  final Coordinate[] poly1 =
-      new Coordinate[] {
-        new Coordinate(40, 40),
-        new Coordinate(40.1, 40.1),
-        new Coordinate(39.2, 41.2), // selected top (2)
-        new Coordinate(39, 40.7),
-        new Coordinate(38.7, 40.1),
-        new Coordinate(38.4, 39.5),
-        new Coordinate(
-            // selected bottom (6)
-            39.3, 39.2),
-        new Coordinate(40, 40)
-      };
+  final Coordinate[] poly1 = new Coordinate[] {new Coordinate(40, 40), new Coordinate(40.1, 40.1),
+      new Coordinate(39.2, 41.2), // selected top (2)
+      new Coordinate(39, 40.7), new Coordinate(38.7, 40.1), new Coordinate(38.4, 39.5),
+      new Coordinate(
+          // selected bottom (6)
+          39.3, 39.2),
+      new Coordinate(40, 40)};
 
-  final Coordinate[] poly2 =
-      new Coordinate[] {
-        new Coordinate(40.2, 40),
-        new Coordinate(40.5, 41), // selected
-        // top
-        // (1)
-        new Coordinate(41.2, 40.8),
-        new Coordinate(40.8, 40.6),
-        new Coordinate(40.6, 39.6),
-        new Coordinate(40.3, 39.8), // selected
-        // bottom(5)
-        new Coordinate(40.2, 40)
-      };
+  final Coordinate[] poly2 = new Coordinate[] {new Coordinate(40.2, 40), new Coordinate(40.5, 41), // selected
+      // top
+      // (1)
+      new Coordinate(41.2, 40.8), new Coordinate(40.8, 40.6), new Coordinate(40.6, 39.6),
+      new Coordinate(40.3, 39.8), // selected
+      // bottom(5)
+      new Coordinate(40.2, 40)};
 
   @Test
   public void testLRPolygons() {
@@ -261,33 +195,23 @@ public class GeometryHullToolTest {
     final GeometryHullTool cg = new GeometryHullTool();
     cg.setDistanceFnForCoordinate(new CoordinateCircleDistanceFn());
     final Iterator<Geometry> it1 =
-        GeometryGenerator.generate(
-            1000,
-            Arrays.asList(1.0),
-            new DistortationFn() {
-              final Random r = new Random(7777);
+        GeometryGenerator.generate(1000, Arrays.asList(1.0), new DistortationFn() {
+          final Random r = new Random(7777);
 
-              @Override
-              public double distort() {
-                return 0.5 + (0.5 * r.nextDouble());
-              }
-            },
-            5,
-            new Envelope(45, 55, 35, 45));
+          @Override
+          public double distort() {
+            return 0.5 + (0.5 * r.nextDouble());
+          }
+        }, 5, new Envelope(45, 55, 35, 45));
     final Iterator<Geometry> it2 =
-        GeometryGenerator.generate(
-            1000,
-            Arrays.asList(1.0),
-            new DistortationFn() {
-              final Random r = new Random(7777);
+        GeometryGenerator.generate(1000, Arrays.asList(1.0), new DistortationFn() {
+          final Random r = new Random(7777);
 
-              @Override
-              public double distort() {
-                return 0.5 + (0.5 * r.nextDouble());
-              }
-            },
-            5,
-            new Envelope(30, 47, 20, 37));
+          @Override
+          public double distort() {
+            return 0.5 + (0.5 * r.nextDouble());
+          }
+        }, 5, new Envelope(30, 47, 20, 37));
 
     while (it1.hasNext()) {
       Geometry rightShape = it1.next();
@@ -299,18 +223,18 @@ public class GeometryHullToolTest {
         leftShape = leftShape.difference(inter);
       }
 
-      ShapefileTool.writeShape(
-          "test_random", new File("./target/test_randoms"), new Geometry[] {leftShape, rightShape});
+      ShapefileTool.writeShape("test_random", new File("./target/test_randoms"),
+          new Geometry[] {leftShape, rightShape});
       Geometry geo = cg.connect(leftShape, rightShape);
 
-      ShapefileTool.writeShape(
-          "test_random", new File("./target/test_random"), new Geometry[] {geo});
+      ShapefileTool.writeShape("test_random", new File("./target/test_random"),
+          new Geometry[] {geo});
       if (!geo.isSimple()) {
 
         // assertTrue(false);
         geo = cg.connect(leftShape, rightShape);
-        ShapefileTool.writeShape(
-            "test_random2", new File("./target/test_random2"), new Geometry[] {geo});
+        ShapefileTool.writeShape("test_random2", new File("./target/test_random2"),
+            new Geometry[] {geo});
       }
     }
   }
@@ -355,27 +279,18 @@ public class GeometryHullToolTest {
   public void testPolygonConnection() {
 
     final boolean save = true;
-    final Geometry concave1 =
-        getHull(
-            factory.createLineString(
-                new Coordinate[] {new Coordinate(41.2, 40.8), new Coordinate(40.8, 40.6)}),
-            "p1",
-            save,
-            false);
-    final Geometry concave2 =
-        getHull(
-            factory.createLineString(
-                new Coordinate[] {new Coordinate(39.9, 40.6), new Coordinate(40.8, 40.6)}),
-            "p2",
-            save,
-            false);
-    final Geometry concave3 =
-        getHull(
-            factory.createLineString(
-                new Coordinate[] {new Coordinate(42.0, 42.0), new Coordinate(41.2, 40.8)}),
-            "p3",
-            save,
-            false);
+    final Geometry concave1 = getHull(
+        factory.createLineString(
+            new Coordinate[] {new Coordinate(41.2, 40.8), new Coordinate(40.8, 40.6)}),
+        "p1", save, false);
+    final Geometry concave2 = getHull(
+        factory.createLineString(
+            new Coordinate[] {new Coordinate(39.9, 40.6), new Coordinate(40.8, 40.6)}),
+        "p2", save, false);
+    final Geometry concave3 = getHull(
+        factory.createLineString(
+            new Coordinate[] {new Coordinate(42.0, 42.0), new Coordinate(41.2, 40.8)}),
+        "p3", save, false);
 
     final Geometry hull = concave1.union(concave2).union(concave3);
 
@@ -388,8 +303,8 @@ public class GeometryHullToolTest {
     coversPoints(hull, concave3);
   }
 
-  private Geometry getHull(
-      final LineString str, final String name, final boolean save, final boolean parkandOh) {
+  private Geometry getHull(final LineString str, final String name, final boolean save,
+      final boolean parkandOh) {
 
     final List<Point> points = CurvedDensityDataGeneratorTool.generatePoints(str, 0.4, 1000);
 
@@ -404,10 +319,9 @@ public class GeometryHullToolTest {
 
     final ConvexHull convexHull = new ConvexHull(coordinates, factory);
 
-    final Geometry concaveHull =
-        parkandOh
-            ? cg.concaveHullParkOhMethod(convexHull.getConvexHull(), Arrays.asList(coordinates))
-            : cg.concaveHull(convexHull.getConvexHull(), Arrays.asList(coordinates));
+    final Geometry concaveHull = parkandOh
+        ? cg.concaveHullParkOhMethod(convexHull.getConvexHull(), Arrays.asList(coordinates))
+        : cg.concaveHull(convexHull.getConvexHull(), Arrays.asList(coordinates));
     if (save || !concaveHull.isSimple()) {
       writeToShapeFile("setx_" + name, points.toArray(new Geometry[points.size()]));
       writeToShapeFile("chullx_" + name, concaveHull);
@@ -463,29 +377,23 @@ public class GeometryHullToolTest {
       final Geometry concaveHull1 =
           cg.createHullFromGeometry(lineString1, Arrays.asList(coords[0]), true);
 
-      assertEquals(
-          "straigh line size=" + i + " geo=" + lineString1.toText(),
-          2,
+      assertEquals("straigh line size=" + i + " geo=" + lineString1.toText(), 2,
           concaveHull1.getCoordinates().length);
     }
 
-    final Geometry lineString3 =
-        factory.createLineString(
-            new Coordinate[] {new Coordinate(1, 1), new Coordinate(2, 2), new Coordinate(3, 1)});
+    final Geometry lineString3 = factory.createLineString(
+        new Coordinate[] {new Coordinate(1, 1), new Coordinate(2, 2), new Coordinate(3, 1)});
 
-    final Geometry concaveHull3 =
-        cg.createHullFromGeometry(
-            lineString3, Arrays.asList(lineString3.getCoordinates()[0]), true);
+    final Geometry concaveHull3 = cg.createHullFromGeometry(lineString3,
+        Arrays.asList(lineString3.getCoordinates()[0]), true);
 
-    assertEquals(
-        "expecting a triangle " + concaveHull3.toText(), 4, concaveHull3.getCoordinates().length);
+    assertEquals("expecting a triangle " + concaveHull3.toText(), 4,
+        concaveHull3.getCoordinates().length);
 
     assertTrue("expecting a triangle " + concaveHull3.toText(), concaveHull3.getArea() > 0.0);
     assertTrue(concaveHull3.isSimple());
 
-    assertEquals(
-        "expecting identical result",
-        lineString3,
+    assertEquals("expecting identical result", lineString3,
         cg.createHullFromGeometry(lineString3, Collections.<Coordinate>emptyList(), true));
 
     final Geometry[] newPoints = new Geometry[900];

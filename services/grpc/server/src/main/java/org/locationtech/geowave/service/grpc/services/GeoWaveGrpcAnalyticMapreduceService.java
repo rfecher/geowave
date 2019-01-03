@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,8 +41,8 @@ public class GeoWaveGrpcAnalyticMapreduceService
   }
 
   @Override
-  public void kdeCommand(
-      KdeCommandParametersProtos request, StreamObserver<VoidResponseProtos> responseObserver) {
+  public void kdeCommand(KdeCommandParametersProtos request,
+      StreamObserver<VoidResponseProtos> responseObserver) {
     KdeCommand cmd = new KdeCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
@@ -69,8 +70,8 @@ public class GeoWaveGrpcAnalyticMapreduceService
   }
 
   @Override
-  public void dBScanCommand(
-      DBScanCommandParametersProtos request, StreamObserver<VoidResponseProtos> responseObserver) {
+  public void dBScanCommand(DBScanCommandParametersProtos request,
+      StreamObserver<VoidResponseProtos> responseObserver) {
     DBScanCommand cmd = new DBScanCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
@@ -93,8 +94,8 @@ public class GeoWaveGrpcAnalyticMapreduceService
   }
 
   @Override
-  public void nearestNeighborCommand(
-      NearestNeighborCommandParametersProtos request, StreamObserver<VoidResponseProtos> responseObserver) {
+  public void nearestNeighborCommand(NearestNeighborCommandParametersProtos request,
+      StreamObserver<VoidResponseProtos> responseObserver) {
     NearestNeighborCommand cmd = new NearestNeighborCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);

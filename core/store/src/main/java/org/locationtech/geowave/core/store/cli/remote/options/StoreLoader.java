@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -55,8 +56,8 @@ public class StoreLoader {
 
     String namespace = DataStorePluginOptions.getStoreNamespace(storeName);
 
-    return loadFromConfig(
-        ConfigOptions.loadProperties(configFile, "^" + namespace), namespace, configFile);
+    return loadFromConfig(ConfigOptions.loadProperties(configFile, "^" + namespace), namespace,
+        configFile);
   }
 
   /**
@@ -85,10 +86,9 @@ public class StoreLoader {
           if (annotation.annotationType() == Parameter.class) {
             Parameter parameter = (Parameter) annotation;
             if (JCommanderParameterUtils.isPassword(parameter)) {
-              String storeFieldName =
-                  (namespace != null && !"".equals(namespace.trim()))
-                      ? namespace + "." + DataStorePluginOptions.OPTS + "." + field.getName()
-                      : field.getName();
+              String storeFieldName = (namespace != null && !"".equals(namespace.trim()))
+                  ? namespace + "." + DataStorePluginOptions.OPTS + "." + field.getName()
+                  : field.getName();
               if (props.containsKey(storeFieldName)) {
                 String value = props.getProperty(storeFieldName);
                 String decryptedValue = value;
@@ -96,10 +96,8 @@ public class StoreLoader {
                   decryptedValue =
                       SecurityUtils.decryptHexEncodedValue(value, tokenFile.getAbsolutePath());
                 } catch (Exception e) {
-                  LOGGER.error(
-                      "An error occurred encrypting specified password value: "
-                          + e.getLocalizedMessage(),
-                      e);
+                  LOGGER.error("An error occurred encrypting specified password value: "
+                      + e.getLocalizedMessage(), e);
                 }
                 props.setProperty(storeFieldName, decryptedValue);
               }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -93,13 +94,9 @@ public class HBaseDistributableFilter extends FilterBase {
     final byte[] modelBinary = URLClassloaderUtils.toBinary(model);
     final byte[] filterListBinary = URLClassloaderUtils.toBinary(filterList);
 
-    final ByteBuffer buf =
-        ByteBuffer.allocate(
-            modelBinary.length
-                + filterListBinary.length
-                + 1
-                + VarintUtils.unsignedIntByteLength(partitionKeyLength)
-                + VarintUtils.unsignedIntByteLength(modelBinary.length));
+    final ByteBuffer buf = ByteBuffer.allocate(modelBinary.length + filterListBinary.length + 1
+        + VarintUtils.unsignedIntByteLength(partitionKeyLength)
+        + VarintUtils.unsignedIntByteLength(modelBinary.length));
 
     buf.put(wholeRowFilter ? (byte) 1 : (byte) 0);
     VarintUtils.writeUnsignedInt(partitionKeyLength, buf);
@@ -140,8 +137,8 @@ public class HBaseDistributableFilter extends FilterBase {
     return true;
   }
 
-  public boolean init(
-      final List<QueryFilter> filterList, final CommonIndexModel model, final String[] visList) {
+  public boolean init(final List<QueryFilter> filterList, final CommonIndexModel model,
+      final String[] visList) {
     this.filterList.clear();
     this.filterList.addAll(filterList);
 
@@ -179,9 +176,8 @@ public class HBaseDistributableFilter extends FilterBase {
 
         // Grab rowkey from first cell
         if (rowKey == null) {
-          rowKey =
-              new GeoWaveKeyImpl(
-                  cell.getRowArray(), partitionKeyLength, cell.getRowOffset(), cell.getRowLength());
+          rowKey = new GeoWaveKeyImpl(cell.getRowArray(), partitionKeyLength, cell.getRowOffset(),
+              cell.getRowLength());
         }
 
         unreadData = aggregateFieldData(cell, commonData);
@@ -211,9 +207,8 @@ public class HBaseDistributableFilter extends FilterBase {
   }
 
   protected ReturnCode applyFilter(final Cell cell) {
-    final GeoWaveKeyImpl rowKey =
-        new GeoWaveKeyImpl(
-            cell.getRowArray(), partitionKeyLength, cell.getRowOffset(), cell.getRowLength());
+    final GeoWaveKeyImpl rowKey = new GeoWaveKeyImpl(cell.getRowArray(), partitionKeyLength,
+        cell.getRowOffset(), cell.getRowLength());
 
     return applyFilter(rowKey);
   }
@@ -236,18 +231,12 @@ public class HBaseDistributableFilter extends FilterBase {
   }
 
   protected static CommonIndexedPersistenceEncoding getPersistenceEncoding(
-      final GeoWaveKeyImpl rowKey,
-      final PersistentDataset<CommonIndexValue> commonData,
+      final GeoWaveKeyImpl rowKey, final PersistentDataset<CommonIndexValue> commonData,
       final FlattenedUnreadData unreadData) {
 
-    return new DeferredReadCommonIndexedPersistenceEncoding(
-        rowKey.getAdapterId(),
-        new ByteArray(rowKey.getDataId()),
-        new ByteArray(rowKey.getPartitionKey()),
-        new ByteArray(rowKey.getSortKey()),
-        rowKey.getNumberOfDuplicates(),
-        commonData,
-        unreadData);
+    return new DeferredReadCommonIndexedPersistenceEncoding(rowKey.getAdapterId(),
+        new ByteArray(rowKey.getDataId()), new ByteArray(rowKey.getPartitionKey()),
+        new ByteArray(rowKey.getSortKey()), rowKey.getNumberOfDuplicates(), commonData, unreadData);
   }
 
   public CommonIndexedPersistenceEncoding getPersistenceEncoding() {
@@ -257,8 +246,8 @@ public class HBaseDistributableFilter extends FilterBase {
   public IndexedAdapterPersistenceEncoding getAdapterEncoding(final DataTypeAdapter dataAdapter) {
     final PersistentDataset<Object> adapterExtendedValues = new PersistentDataset<>();
     if (persistenceEncoding instanceof AbstractAdapterPersistenceEncoding) {
-      ((AbstractAdapterPersistenceEncoding) persistenceEncoding)
-          .convertUnknownValues(dataAdapter, model);
+      ((AbstractAdapterPersistenceEncoding) persistenceEncoding).convertUnknownValues(dataAdapter,
+          model);
       final PersistentDataset<Object> existingExtValues =
           ((AbstractAdapterPersistenceEncoding) persistenceEncoding).getAdapterExtendedData();
       if (existingExtValues != null) {
@@ -266,16 +255,11 @@ public class HBaseDistributableFilter extends FilterBase {
       }
     }
 
-    adapterEncoding =
-        new IndexedAdapterPersistenceEncoding(
-            persistenceEncoding.getInternalAdapterId(),
-            persistenceEncoding.getDataId(),
-            persistenceEncoding.getInsertionPartitionKey(),
-            persistenceEncoding.getInsertionSortKey(),
-            persistenceEncoding.getDuplicateCount(),
-            persistenceEncoding.getCommonData(),
-            new PersistentDataset<byte[]>(),
-            adapterExtendedValues);
+    adapterEncoding = new IndexedAdapterPersistenceEncoding(
+        persistenceEncoding.getInternalAdapterId(), persistenceEncoding.getDataId(),
+        persistenceEncoding.getInsertionPartitionKey(), persistenceEncoding.getInsertionSortKey(),
+        persistenceEncoding.getDuplicateCount(), persistenceEncoding.getCommonData(),
+        new PersistentDataset<byte[]>(), adapterExtendedValues);
 
     return adapterEncoding;
   }
@@ -310,14 +294,13 @@ public class HBaseDistributableFilter extends FilterBase {
     return true;
   }
 
-  protected FlattenedUnreadData aggregateFieldData(
-      final Cell cell, final PersistentDataset<CommonIndexValue> commonData) {
+  protected FlattenedUnreadData aggregateFieldData(final Cell cell,
+      final PersistentDataset<CommonIndexValue> commonData) {
     final byte[] qualBuf = CellUtil.cloneQualifier(cell);
     final byte[] valBuf = CellUtil.cloneValue(cell);
 
-    final FlattenedDataSet dataSet =
-        DataStoreUtils.decomposeFlattenedFields(
-            qualBuf, valBuf, null, commonIndexFieldIds.size() - 1);
+    final FlattenedDataSet dataSet = DataStoreUtils.decomposeFlattenedFields(qualBuf, valBuf, null,
+        commonIndexFieldIds.size() - 1);
 
     final List<FlattenedFieldInfo> fieldInfos = dataSet.getFieldsRead();
     for (final FlattenedFieldInfo fieldInfo : fieldInfos) {

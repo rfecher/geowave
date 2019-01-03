@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,7 +37,8 @@ public class NeighborIndex<NNTYPE> {
    * initialized. The neighbor list may already exist and have associated neighbors. This occurs
    * when those relationships are discovered through traversing the neighbor.
    *
-   * <p>This method is designed for neighbor lists do some optimizations just prior to the neighbor
+   * <p>
+   * This method is designed for neighbor lists do some optimizations just prior to the neighbor
    * discovery process.
    *
    * @param node
@@ -51,13 +53,8 @@ public class NeighborIndex<NNTYPE> {
     return neighbors;
   }
 
-  public void add(
-      final DistanceProfile<?> distanceProfile,
-      ByteArray centerId,
-      NNTYPE centerValue,
-      ByteArray neighborId,
-      NNTYPE neighborValue,
-      final boolean addReciprical) {
+  public void add(final DistanceProfile<?> distanceProfile, ByteArray centerId, NNTYPE centerValue,
+      ByteArray neighborId, NNTYPE neighborValue, final boolean addReciprical) {
     this.addToList(distanceProfile, centerId, centerValue, neighborId, neighborValue);
     if (addReciprical) {
       this.addToList(distanceProfile, neighborId, neighborValue, centerId, centerValue);
@@ -68,12 +65,8 @@ public class NeighborIndex<NNTYPE> {
     index.put(id, nullList);
   }
 
-  private void addToList(
-      final DistanceProfile<?> distanceProfile,
-      ByteArray centerId,
-      NNTYPE centerValue,
-      ByteArray neighborId,
-      NNTYPE neighborValue) {
+  private void addToList(final DistanceProfile<?> distanceProfile, ByteArray centerId,
+      NNTYPE centerValue, ByteArray neighborId, NNTYPE neighborValue) {
     NeighborList<NNTYPE> neighbors = index.get(centerId);
     if (neighbors == null) {
       neighbors = listFactory.buildNeighborList(centerId, centerValue);

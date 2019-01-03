@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,8 +20,8 @@ import org.locationtech.geowave.core.store.metadata.SecondaryIndexStoreImpl;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
 
 public class BaseDataStoreFactory extends BaseStoreFactory<DataStore> {
-  public BaseDataStoreFactory(
-      final String typeName, final String description, final StoreFactoryHelper helper) {
+  public BaseDataStoreFactory(final String typeName, final String description,
+      final StoreFactoryHelper helper) {
     super(typeName, description, helper);
   }
 
@@ -28,14 +29,9 @@ public class BaseDataStoreFactory extends BaseStoreFactory<DataStore> {
   public DataStore createStore(final StoreFactoryOptions factoryOptions) {
     final DataStoreOperations operations = helper.createOperations(factoryOptions);
     final DataStoreOptions options = factoryOptions.getStoreOptions();
-    return new BaseDataStore(
-        new IndexStoreImpl(operations, options),
-        new AdapterStoreImpl(operations, options),
-        new DataStatisticsStoreImpl(operations, options),
-        new AdapterIndexMappingStoreImpl(operations, options),
-        new SecondaryIndexStoreImpl(),
-        operations,
-        options,
-        new InternalAdapterStoreImpl(operations));
+    return new BaseDataStore(new IndexStoreImpl(operations, options),
+        new AdapterStoreImpl(operations, options), new DataStatisticsStoreImpl(operations, options),
+        new AdapterIndexMappingStoreImpl(operations, options), new SecondaryIndexStoreImpl(),
+        operations, options, new InternalAdapterStoreImpl(operations));
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -18,10 +19,8 @@ import org.slf4j.LoggerFactory;
 public class DateFieldOptionProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(DateFieldOptionProvider.class);
 
-  @Parameter(
-      names = "--data",
-      description =
-          "A map of date field names to the date format of the file. Use commas to separate each entry, then the first ':' character will separate the field name from the format. Use '\\,' to include a comma in the format. For example: \"time:MM:dd:YYYY,time2:YYYY/MM/dd hh:mm:ss\" configures fields 'time' and 'time2' as dates with different formats",
+  @Parameter(names = "--data",
+      description = "A map of date field names to the date format of the file. Use commas to separate each entry, then the first ':' character will separate the field name from the format. Use '\\,' to include a comma in the format. For example: \"time:MM:dd:YYYY,time2:YYYY/MM/dd hh:mm:ss\" configures fields 'time' and 'time2' as dates with different formats",
       converter = StringToDateFieldConverter.class)
   private Map<String, String> fieldToFormatMap = null;
 
@@ -46,10 +45,8 @@ public class DateFieldOptionProvider {
 
             final int firstSemiCol = entry.indexOf(':');
             if (firstSemiCol < 0) {
-              LOGGER.error(
-                  "Field entry: \""
-                      + entry
-                      + "\" requires semi-colon to separate field Name from field Format");
+              LOGGER.error("Field entry: \"" + entry
+                  + "\" requires semi-colon to separate field Name from field Format");
             } else {
               final String fieldName = entry.substring(0, firstSemiCol).trim();
               final String fieldValue = entry.substring(firstSemiCol + 1).trim();

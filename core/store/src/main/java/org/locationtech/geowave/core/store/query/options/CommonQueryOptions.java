@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -71,8 +72,8 @@ public class CommonQueryOptions implements Persistable {
     this(limit, new HashMap<>(), authorizations);
   }
 
-  public CommonQueryOptions(
-      final Integer limit, final Map<HintKey<?>, Object> hints, final String... authorizations) {
+  public CommonQueryOptions(final Integer limit, final Map<HintKey<?>, Object> hints,
+      final String... authorizations) {
     super();
     this.hints = hints;
     this.limit = limit;
@@ -108,11 +109,8 @@ public class CommonQueryOptions implements Persistable {
         ByteBuffer lengthBytes =
             ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(keyBinary.length));
         VarintUtils.writeUnsignedInt(keyBinary.length, lengthBytes);
-        hintsBinary[i] =
-            Bytes.concat(
-                lengthBytes.array(),
-                keyBinary,
-                ((Function<Object, byte[]>) e.getKey().writer).apply(e.getValue()));
+        hintsBinary[i] = Bytes.concat(lengthBytes.array(), keyBinary,
+            ((Function<Object, byte[]>) e.getKey().writer).apply(e.getValue()));
         hintsLength +=
             hintsBinary[i].length + VarintUtils.unsignedIntByteLength(hintsBinary[i].length);
         i++;
@@ -124,13 +122,9 @@ public class CommonQueryOptions implements Persistable {
     } else {
       authsBinary = StringUtils.stringsToBinary(authorizations);
     }
-    final ByteBuffer buf =
-        ByteBuffer.allocate(
-            VarintUtils.unsignedIntByteLength(limitForBinary)
-                + VarintUtils.unsignedIntByteLength(authsBinary.length)
-                + VarintUtils.unsignedIntByteLength(hintsBinary.length)
-                + authsBinary.length
-                + hintsLength);
+    final ByteBuffer buf = ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(limitForBinary)
+        + VarintUtils.unsignedIntByteLength(authsBinary.length)
+        + VarintUtils.unsignedIntByteLength(hintsBinary.length) + authsBinary.length + hintsLength);
     VarintUtils.writeUnsignedInt(limitForBinary, buf);
     VarintUtils.writeUnsignedInt(authsBinary.length, buf);
     buf.put(authsBinary);
@@ -190,17 +184,25 @@ public class CommonQueryOptions implements Persistable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     CommonQueryOptions other = (CommonQueryOptions) obj;
-    if (!Arrays.equals(authorizations, other.authorizations)) return false;
+    if (!Arrays.equals(authorizations, other.authorizations))
+      return false;
     if (hints == null) {
-      if (other.hints != null) return false;
-    } else if (!hints.equals(other.hints)) return false;
+      if (other.hints != null)
+        return false;
+    } else if (!hints.equals(other.hints))
+      return false;
     if (limit == null) {
-      if (other.limit != null) return false;
-    } else if (!limit.equals(other.limit)) return false;
+      if (other.limit != null)
+        return false;
+    } else if (!limit.equals(other.limit))
+      return false;
     return true;
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -64,13 +65,9 @@ public class GeoWaveGTRasterFormat extends AbstractGridFormat implements Format 
     mInfo = info;
 
     // reading parameters
-    readParameters =
-        new ParameterGroup(
-            new DefaultParameterDescriptorGroup(
-                mInfo,
-                new GeneralParameterDescriptor[] {
-                  READ_GRIDGEOMETRY2D, OUTPUT_TRANSPARENT_COLOR, BACKGROUND_COLOR
-                }));
+    readParameters = new ParameterGroup(
+        new DefaultParameterDescriptorGroup(mInfo, new GeneralParameterDescriptor[] {
+            READ_GRIDGEOMETRY2D, OUTPUT_TRANSPARENT_COLOR, BACKGROUND_COLOR}));
 
     // reading parameters
     writeParameters = null;
@@ -119,8 +116,7 @@ public class GeoWaveGTRasterFormat extends AbstractGridFormat implements Format 
   }
 
   public static boolean isParamList(final Object source) {
-    return ((source instanceof String)
-        && source.toString().contains("=")
+    return ((source instanceof String) && source.toString().contains("=")
         && source.toString().contains(";"));
   }
 

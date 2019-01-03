@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,11 +33,8 @@ import org.opengis.feature.simple.SimpleFeature;
 /**
  * Dynamic histogram provide very high accuracy for CDF and quantiles over the a numeric attribute.
  */
-public class FeatureNumericHistogramStatistics
-    extends AbstractDataStatistics<
-        SimpleFeature,
-        Pair<DoubleHistogram, DoubleHistogram>,
-        FieldStatisticsQueryBuilder<Pair<DoubleHistogram, DoubleHistogram>>>
+public class FeatureNumericHistogramStatistics extends
+    AbstractDataStatistics<SimpleFeature, Pair<DoubleHistogram, DoubleHistogram>, FieldStatisticsQueryBuilder<Pair<DoubleHistogram, DoubleHistogram>>>
     implements FieldNameStatistic {
   public static final FieldStatisticsType<Pair<DoubleHistogram, DoubleHistogram>> STATS_TYPE =
       new FieldStatisticsType<>("ATT_HISTOGRAM");
@@ -67,11 +65,7 @@ public class FeatureNumericHistogramStatistics
   }
 
   @Override
-  public InternalDataStatistics<
-          SimpleFeature,
-          Pair<DoubleHistogram, DoubleHistogram>,
-          FieldStatisticsQueryBuilder<Pair<DoubleHistogram, DoubleHistogram>>>
-      duplicate() {
+  public InternalDataStatistics<SimpleFeature, Pair<DoubleHistogram, DoubleHistogram>, FieldStatisticsQueryBuilder<Pair<DoubleHistogram, DoubleHistogram>>> duplicate() {
     return new FeatureNumericHistogramStatistics(adapterId, getFieldName());
   }
 
@@ -100,9 +94,8 @@ public class FeatureNumericHistogramStatistics
               * (1.0 - (negativeHistogram.getPercentileAtOrBelowValue(-val) / 100.0))
           : 0.0;
     } else {
-      return percentageNegative
-          + ((1.0 - percentageNegative)
-              * (positiveHistogram.getPercentileAtOrBelowValue(val) / 100.0));
+      return percentageNegative + ((1.0 - percentageNegative)
+          * (positiveHistogram.getPercentileAtOrBelowValue(val) / 100.0));
     }
   }
 
@@ -111,11 +104,11 @@ public class FeatureNumericHistogramStatistics
     if (percentage < percentageNegative) {
       // subtract one from percentage since negative is negated so
       // percentage is inverted
-      return -negativeHistogram.getValueAtPercentile(
-          (1.0 - (percentage / percentageNegative)) * 100.0);
+      return -negativeHistogram
+          .getValueAtPercentile((1.0 - (percentage / percentageNegative)) * 100.0);
     } else {
-      return positiveHistogram.getValueAtPercentile(
-          (percentage / (1.0 - percentageNegative)) * 100.0);
+      return positiveHistogram
+          .getValueAtPercentile((percentage / (1.0 - percentageNegative)) * 100.0);
     }
   }
 
@@ -131,10 +124,8 @@ public class FeatureNumericHistogramStatistics
   public long[] count(final int bins) {
     final long[] result = new long[bins];
     final double max = positiveHistogram.getMaxValue();
-    final double min =
-        negativeHistogram == null
-            ? positiveHistogram.getMinValue()
-            : -negativeHistogram.getMaxValue();
+    final double min = negativeHistogram == null ? positiveHistogram.getMinValue()
+        : -negativeHistogram.getMaxValue();
     final double binSize = (max - min) / (bins);
     long last = 0;
     final long tc = totalSampleSize();
@@ -164,9 +155,8 @@ public class FeatureNumericHistogramStatistics
   @Override
   public byte[] toBinary() {
     final int positiveBytes = positiveHistogram.getEstimatedFootprintInBytes();
-    final int bytesNeeded =
-        positiveBytes
-            + (negativeHistogram == null ? 0 : negativeHistogram.getEstimatedFootprintInBytes());
+    final int bytesNeeded = positiveBytes
+        + (negativeHistogram == null ? 0 : negativeHistogram.getEstimatedFootprintInBytes());
     final ByteBuffer buffer = super.binaryBuffer(bytesNeeded + 5);
     final int startPosition = buffer.position();
     buffer.putInt(startPosition); // buffer out an int
@@ -284,16 +274,14 @@ public class FeatureNumericHistogramStatistics
       super.setAutoResize(true);
     }
 
-    public LocalInternalHistogram(
-        final long highestTrackableValue, final int numberOfSignificantValueDigits) {
+    public LocalInternalHistogram(final long highestTrackableValue,
+        final int numberOfSignificantValueDigits) {
       super(highestTrackableValue, numberOfSignificantValueDigits);
       super.setAutoResize(true);
     }
 
-    public LocalInternalHistogram(
-        final long lowestDiscernibleValue,
-        final long highestTrackableValue,
-        final int numberOfSignificantValueDigits) {
+    public LocalInternalHistogram(final long lowestDiscernibleValue,
+        final long highestTrackableValue, final int numberOfSignificantValueDigits) {
       super(lowestDiscernibleValue, highestTrackableValue, numberOfSignificantValueDigits);
       super.setAutoResize(true);
     }
@@ -304,11 +292,8 @@ public class FeatureNumericHistogramStatistics
     private static final long serialVersionUID = 6309383518148391565L;
 
     @Override
-    public InternalDataStatistics<
-            SimpleFeature,
-            Pair<DoubleHistogram, DoubleHistogram>,
-            FieldStatisticsQueryBuilder<Pair<DoubleHistogram, DoubleHistogram>>>
-        create(final Short internalDataAdapterId, final String fieldName) {
+    public InternalDataStatistics<SimpleFeature, Pair<DoubleHistogram, DoubleHistogram>, FieldStatisticsQueryBuilder<Pair<DoubleHistogram, DoubleHistogram>>> create(
+        final Short internalDataAdapterId, final String fieldName) {
       return new FeatureNumericHistogramStatistics(internalDataAdapterId, fieldName);
     }
 

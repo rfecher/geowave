@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -53,11 +54,13 @@ import org.slf4j.LoggerFactory;
  * Find the max change in distortion between some k and k-1, picking the value k associated with
  * that change.
  *
- * <p>In a multi-group setting, each group may have a different optimal k. Thus, the optimal batch
- * may be different for each group. Each batch is associated with a different value k.
+ * <p>
+ * In a multi-group setting, each group may have a different optimal k. Thus, the optimal batch may
+ * be different for each group. Each batch is associated with a different value k.
  *
- * <p>Choose the appropriate batch for each group. Then change the batch identifier for group
- * centroids to a final provided single batch identifier ( parent batch ).
+ * <p>
+ * Choose the appropriate batch for each group. Then change the batch identifier for group centroids
+ * to a final provided single batch identifier ( parent batch ).
  */
 public class DistortionGroupManagement {
 
@@ -91,8 +94,7 @@ public class DistortionGroupManagement {
     }
 
     @Override
-    public boolean accept(
-        final CommonIndexModel indexModel,
+    public boolean accept(final CommonIndexModel indexModel,
         final IndexedPersistenceEncoding<?> persistenceEncoding) {
       return new DistortionEntry(persistenceEncoding.getDataId(), 0.0).batchId.equals(batchId);
     }
@@ -145,26 +147,17 @@ public class DistortionGroupManagement {
    * @param parentBatchId the batch id to associate with the centroids for each group
    * @return
    */
-  public <T> int retainBestGroups(
-      final AnalyticItemWrapperFactory<T> itemWrapperFactory,
-      final String dataTypeId,
-      final String indexId,
-      final String batchId,
-      final int level) {
+  public <T> int retainBestGroups(final AnalyticItemWrapperFactory<T> itemWrapperFactory,
+      final String dataTypeId, final String indexId, final String batchId, final int level) {
 
     try {
       final Map<String, DistortionGroup> groupDistortions = new HashMap<>();
 
       // row id is group id
       // colQual is cluster count
-      try (CloseableIterator<DistortionEntry> it =
-          (CloseableIterator)
-              dataStore.query(
-                  QueryBuilder.newBuilder()
-                      .addTypeName(DistortionDataAdapter.ADAPTER_TYPE_NAME)
-                      .indexName(DISTORTIONS_INDEX.getName())
-                      .constraints(new BatchIdQuery(batchId))
-                      .build())) {
+      try (CloseableIterator<DistortionEntry> it = (CloseableIterator) dataStore.query(QueryBuilder
+          .newBuilder().addTypeName(DistortionDataAdapter.ADAPTER_TYPE_NAME)
+          .indexName(DISTORTIONS_INDEX.getName()).constraints(new BatchIdQuery(batchId)).build())) {
         while (it.hasNext()) {
           final DistortionEntry entry = it.next();
           final String groupID = entry.getGroupId();
@@ -181,16 +174,8 @@ public class DistortionGroupManagement {
       }
 
       final CentroidManagerGeoWave<T> centroidManager =
-          new CentroidManagerGeoWave<>(
-              dataStore,
-              indexStore,
-              adapterStore,
-              itemWrapperFactory,
-              dataTypeId,
-              internalAdapterStore.getAdapterId(dataTypeId),
-              indexId,
-              batchId,
-              level);
+          new CentroidManagerGeoWave<>(dataStore, indexStore, adapterStore, itemWrapperFactory,
+              dataTypeId, internalAdapterStore.getAdapterId(dataTypeId), indexId, batchId, level);
 
       for (final DistortionGroup grp : groupDistortions.values()) {
         final int optimalK = grp.bestCount();
@@ -214,10 +199,7 @@ public class DistortionGroupManagement {
 
     public DistortionEntry() {}
 
-    public DistortionEntry(
-        final String groupId,
-        final String batchId,
-        final Integer clusterCount,
+    public DistortionEntry(final String groupId, final String batchId, final Integer clusterCount,
         final Double distortionValue) {
       this.groupId = groupId;
       this.batchId = batchId;
@@ -284,15 +266,13 @@ public class DistortionGroupManagement {
     }
 
     public int bestCount() {
-      Collections.sort(
-          clusterCountToDistortion,
-          new Comparator<Pair<Integer, Double>>() {
+      Collections.sort(clusterCountToDistortion, new Comparator<Pair<Integer, Double>>() {
 
-            @Override
-            public int compare(final Pair<Integer, Double> arg0, final Pair<Integer, Double> arg1) {
-              return arg0.getKey().compareTo(arg1.getKey());
-            }
-          });
+        @Override
+        public int compare(final Pair<Integer, Double> arg0, final Pair<Integer, Double> arg1) {
+          return arg0.getKey().compareTo(arg1.getKey());
+        }
+      });
       double maxJump = -1.0;
       Integer jumpIdx = -1;
       Double oldD = 0.0; // base case !?
@@ -334,19 +314,17 @@ public class DistortionGroupManagement {
 
     @Override
     public DistortionEntry decode(final IndexedAdapterPersistenceEncoding data, final Index index) {
-      return new DistortionEntry(
-          data.getDataId(), (Double) data.getAdapterExtendedData().getValue(DISTORTION_FIELD_NAME));
+      return new DistortionEntry(data.getDataId(),
+          (Double) data.getAdapterExtendedData().getValue(DISTORTION_FIELD_NAME));
     }
 
     @Override
-    public AdapterPersistenceEncoding encode(
-        final DistortionEntry entry, final CommonIndexModel indexModel) {
+    public AdapterPersistenceEncoding encode(final DistortionEntry entry,
+        final CommonIndexModel indexModel) {
       final Map<String, Object> fieldNameToValueMap = new HashMap<>();
       fieldNameToValueMap.put(DISTORTION_FIELD_NAME, entry.getDistortionValue());
-      return new AdapterPersistenceEncoding(
-          entry.getDataId(),
-          new PersistentDataset<CommonIndexValue>(),
-          new PersistentDataset<>(fieldNameToValueMap));
+      return new AdapterPersistenceEncoding(entry.getDataId(),
+          new PersistentDataset<CommonIndexValue>(), new PersistentDataset<>(fieldNameToValueMap));
     }
 
     @Override
@@ -369,8 +347,8 @@ public class DistortionGroupManagement {
     public FieldWriter<DistortionEntry, Object> getWriter(final String fieldId) {
       if (DISTORTION_FIELD_NAME.equals(fieldId)) {
         if (distortionVisibilityHandler != null) {
-          return (FieldWriter)
-              FieldUtils.getDefaultWriterForClass(Double.class, distortionVisibilityHandler);
+          return (FieldWriter) FieldUtils.getDefaultWriterForClass(Double.class,
+              distortionVisibilityHandler);
         } else {
           return (FieldWriter) FieldUtils.getDefaultWriterForClass(Double.class);
         }
@@ -381,8 +359,8 @@ public class DistortionGroupManagement {
     @Override
     public int getPositionOfOrderedField(final CommonIndexModel model, final String fieldName) {
       int i = 0;
-      for (final NumericDimensionField<? extends CommonIndexValue> dimensionField :
-          model.getDimensions()) {
+      for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model
+          .getDimensions()) {
         if (fieldName.equals(dimensionField.getFieldName())) {
           return i;
         }
@@ -398,8 +376,8 @@ public class DistortionGroupManagement {
     public String getFieldNameForPosition(final CommonIndexModel model, final int position) {
       if (position < model.getDimensions().length) {
         int i = 0;
-        for (final NumericDimensionField<? extends CommonIndexValue> dimensionField :
-            model.getDimensions()) {
+        for (final NumericDimensionField<? extends CommonIndexValue> dimensionField : model
+            .getDimensions()) {
           if (i == position) {
             return dimensionField.getFieldName();
           }

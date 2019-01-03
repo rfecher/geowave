@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,10 +38,8 @@ public class SecondaryIndexDataManager<T>
   private final CommonIndexModel primaryIndexModel;
   private final String primaryIndexName;
 
-  public SecondaryIndexDataManager(
-      final SecondaryIndexDataStore secondaryIndexStore,
-      final SecondaryIndexDataAdapter<T> adapter,
-      final Index primaryIndex) {
+  public SecondaryIndexDataManager(final SecondaryIndexDataStore secondaryIndexStore,
+      final SecondaryIndexDataAdapter<T> adapter, final Index primaryIndex) {
     this.adapter = adapter;
     this.secondaryIndexStore = secondaryIndexStore;
     this.primaryIndexModel = primaryIndex.getIndexModel();
@@ -80,33 +79,22 @@ public class SecondaryIndexDataManager<T>
             final Pair<ByteArray, ByteArray> firstPartitionAndSortKey =
                 primaryIndexInsertionIds.getFirstPartitionAndSortKeyPair();
             if (delete) {
-              secondaryIndexStore.storeJoinEntry(
-                  secondaryIndex.getName(),
-                  insertionId,
-                  adapter.getTypeName(),
-                  indexedAttributeFieldName,
-                  primaryIndexName,
-                  firstPartitionAndSortKey.getLeft(),
-                  firstPartitionAndSortKey.getRight(),
+              secondaryIndexStore.storeJoinEntry(secondaryIndex.getName(), insertionId,
+                  adapter.getTypeName(), indexedAttributeFieldName, primaryIndexName,
+                  firstPartitionAndSortKey.getLeft(), firstPartitionAndSortKey.getRight(),
                   new ByteArray(visibility));
             } else {
-              secondaryIndexStore.deleteJoinEntry(
-                  secondaryIndex.getName(),
-                  insertionId,
-                  adapter.getTypeName(),
-                  indexedAttributeFieldName,
-                  primaryIndexName,
-                  firstPartitionAndSortKey.getLeft(),
-                  firstPartitionAndSortKey.getRight(),
+              secondaryIndexStore.deleteJoinEntry(secondaryIndex.getName(), insertionId,
+                  adapter.getTypeName(), indexedAttributeFieldName, primaryIndexName,
+                  firstPartitionAndSortKey.getLeft(), firstPartitionAndSortKey.getRight(),
                   new ByteArray(visibility));
             }
             break;
           case PARTIAL:
             final List<String> attributesToStore = secondaryIndex.getPartialFieldNames();
 
-            final byte[] fieldSubsetBitmask =
-                BitmaskUtils.generateFieldSubsetBitmask(
-                    primaryIndexModel, attributesToStore.toArray(new String[0]), adapter);
+            final byte[] fieldSubsetBitmask = BitmaskUtils.generateFieldSubsetBitmask(
+                primaryIndexModel, attributesToStore.toArray(new String[0]), adapter);
             final List<GeoWaveValue> subsetValues = new ArrayList<>();
             for (final GeoWaveValue value : kvs[0].getFieldValues()) {
               byte[] byteValue = value.getValue();
@@ -123,24 +111,16 @@ public class SecondaryIndexDataManager<T>
               }
               subsetValues.add(new GeoWaveValueImpl(fieldMask, value.getVisibility(), byteValue));
             }
-            secondaryIndexStore.storeEntry(
-                secondaryIndex.getName(),
-                insertionId,
-                adapter.getTypeName(),
-                indexedAttributeFieldName,
-                dataId,
+            secondaryIndexStore.storeEntry(secondaryIndex.getName(), insertionId,
+                adapter.getTypeName(), indexedAttributeFieldName, dataId,
                 subsetValues.toArray(new GeoWaveValue[] {}));
             break;
           case FULL:
             // assume multiple rows are duplicates, so just take the
             // first one
 
-            secondaryIndexStore.storeEntry(
-                secondaryIndex.getName(),
-                insertionId,
-                adapter.getTypeName(),
-                indexedAttributeFieldName,
-                dataId,
+            secondaryIndexStore.storeEntry(secondaryIndex.getName(), insertionId,
+                adapter.getTypeName(), indexedAttributeFieldName, dataId,
                 // full simply sends over all of the
                 // attributes
                 // kvs is gauranteed to be at least one, or
@@ -153,8 +133,8 @@ public class SecondaryIndexDataManager<T>
       }
       if (delete) {
         // capture statistics
-        for (final InternalDataStatistics<T, ?, ?> associatedStatistic :
-            secondaryIndex.getAssociatedStatistics()) {
+        for (final InternalDataStatistics<T, ?, ?> associatedStatistic : secondaryIndex
+            .getAssociatedStatistics()) {
           associatedStatistic.entryIngested(entry, kvs);
         }
       }

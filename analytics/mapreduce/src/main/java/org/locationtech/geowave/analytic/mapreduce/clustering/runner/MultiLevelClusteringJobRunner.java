@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,14 +39,19 @@ import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
  * Runs a clustering at multiple levels. Lower levels cluster within each cluster of the higher
  * level.
  *
- * <p>Steps:
+ * <p>
+ * Steps:
  *
  * @formatter: off
- *     <p>(1) Extract and deduplicate items from geowave.
- *     <p>(2) Cluster item within their assigned groups. Initially, items are all part of the same
- *     group.
- *     <p>(3) Assign to each point the cluster (group id).
- *     <p>(4) Repeat steps 2 to 3 for each lower level.
+ *             <p>
+ *             (1) Extract and deduplicate items from geowave.
+ *             <p>
+ *             (2) Cluster item within their assigned groups. Initially, items are all part of the
+ *             same group.
+ *             <p>
+ *             (3) Assign to each point the cluster (group id).
+ *             <p>
+ *             (4) Repeat steps 2 to 3 for each lower level.
  * @formatter: on
  */
 public abstract class MultiLevelClusteringJobRunner extends MapReduceJobController
@@ -90,35 +96,31 @@ public abstract class MultiLevelClusteringJobRunner extends MapReduceJobControll
 
     jobExtractRunner.setConf(config);
 
-    final String dataTypeId =
-        propertyManagement.getPropertyAsString(
-            ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID, "centroid");
+    final String dataTypeId = propertyManagement
+        .getPropertyAsString(ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID, "centroid");
 
-    final String namespaceURI =
-        propertyManagement.getPropertyAsString(
-            ExtractParameters.Extract.DATA_NAMESPACE_URI, BasicFeatureTypes.DEFAULT_NAMESPACE);
+    final String namespaceURI = propertyManagement.getPropertyAsString(
+        ExtractParameters.Extract.DATA_NAMESPACE_URI, BasicFeatureTypes.DEFAULT_NAMESPACE);
 
     propertyManagement.storeIfEmpty(ExtractParameters.Extract.DATA_NAMESPACE_URI, namespaceURI);
 
     propertyManagement.storeIfEmpty(ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID, dataTypeId);
 
-    propertyManagement.storeIfEmpty(
-        CentroidParameters.Centroid.EXTRACTOR_CLASS, SimpleFeatureCentroidExtractor.class);
+    propertyManagement.storeIfEmpty(CentroidParameters.Centroid.EXTRACTOR_CLASS,
+        SimpleFeatureCentroidExtractor.class);
 
-    propertyManagement.storeIfEmpty(
-        CommonParameters.Common.DIMENSION_EXTRACT_CLASS, SimpleFeatureGeometryExtractor.class);
+    propertyManagement.storeIfEmpty(CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
+        SimpleFeatureGeometryExtractor.class);
 
     propertyManagement.store(CentroidParameters.Centroid.DATA_TYPE_ID, dataTypeId);
 
     propertyManagement.store(CentroidParameters.Centroid.DATA_NAMESPACE_URI, namespaceURI);
 
     // TODO: set out index type for extracts?
-    propertyManagement.storeIfEmpty(
-        CentroidParameters.Centroid.INDEX_NAME,
+    propertyManagement.storeIfEmpty(CentroidParameters.Centroid.INDEX_NAME,
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()).getName());
 
-    propertyManagement.storeIfEmpty(
-        HullParameters.Hull.INDEX_NAME,
+    propertyManagement.storeIfEmpty(HullParameters.Hull.INDEX_NAME,
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()).getName());
 
     // first. extract data
@@ -126,10 +128,10 @@ public abstract class MultiLevelClusteringJobRunner extends MapReduceJobControll
 
     final Path extractPath = jobExtractRunner.getHdfsOutputPath();
 
-    groupAssignmentRunner.setInputFormatConfiguration(
-        new SequenceFileInputFormatConfiguration(extractPath));
-    clusteringRunner.setInputFormatConfiguration(
-        new SequenceFileInputFormatConfiguration(extractPath));
+    groupAssignmentRunner
+        .setInputFormatConfiguration(new SequenceFileInputFormatConfiguration(extractPath));
+    clusteringRunner
+        .setInputFormatConfiguration(new SequenceFileInputFormatConfiguration(extractPath));
     hullRunner.setInputFormatConfiguration(new SequenceFileInputFormatConfiguration(extractPath));
 
     final boolean retainGroupAssigments =
@@ -156,8 +158,8 @@ public abstract class MultiLevelClusteringJobRunner extends MapReduceJobControll
             fs.delete(nextPath, true);
           }
 
-          groupAssignmentRunner.setOutputFormatConfiguration(
-              new SequenceFileOutputFormatConfiguration(nextPath));
+          groupAssignmentRunner
+              .setOutputFormatConfiguration(new SequenceFileOutputFormatConfiguration(nextPath));
           groupAssignmentRunner.setZoomLevel(zoomLevel);
 
           // HP Fortify "Command Injection" false positive
@@ -173,18 +175,19 @@ public abstract class MultiLevelClusteringJobRunner extends MapReduceJobControll
             status = hullRunner.run(config, propertyManagement);
           }
           if (retainGroupAssigments) {
-            clusteringRunner.setInputFormatConfiguration(
-                new SequenceFileInputFormatConfiguration(nextPath));
-            hullRunner.setInputFormatConfiguration(
-                new SequenceFileInputFormatConfiguration(nextPath));
-            groupAssignmentRunner.setInputFormatConfiguration(
-                new SequenceFileInputFormatConfiguration(nextPath));
+            clusteringRunner
+                .setInputFormatConfiguration(new SequenceFileInputFormatConfiguration(nextPath));
+            hullRunner
+                .setInputFormatConfiguration(new SequenceFileInputFormatConfiguration(nextPath));
+            groupAssignmentRunner
+                .setInputFormatConfiguration(new SequenceFileInputFormatConfiguration(nextPath));
           }
         }
       }
       return status;
     } finally {
-      if (fs != null) fs.close();
+      if (fs != null)
+        fs.close();
     }
   }
 }

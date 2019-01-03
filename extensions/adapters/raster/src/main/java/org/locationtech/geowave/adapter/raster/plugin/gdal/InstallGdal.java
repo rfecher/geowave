@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,10 +52,8 @@ public class InstallGdal {
       if (files != null && files.length > 1) {
         return;
       } else {
-        LOGGER.error(
-            "Directory "
-                + gdalDir.getAbsolutePath()
-                + " exists but does not contain GDAL, consider deleting directory or choosing a different one.");
+        LOGGER.error("Directory " + gdalDir.getAbsolutePath()
+            + " exists but does not contain GDAL, consider deleting directory or choosing a different one.");
       }
     }
 
@@ -83,8 +82,8 @@ public class InstallGdal {
     if (downloadFile.exists() && (downloadFile.length() < 1)) {
       // its corrupt, delete it
       if (!downloadFile.delete()) {
-        LOGGER.warn(
-            "File '" + downloadFile.getAbsolutePath() + "' is corrupt and cannot be deleted");
+        LOGGER
+            .warn("File '" + downloadFile.getAbsolutePath() + "' is corrupt and cannot be deleted");
       }
     }
     if (!downloadFile.exists()) {
@@ -104,30 +103,26 @@ public class InstallGdal {
       unarchiver.extract();
       // the symbolic links are not working, programmatically re-create
       // them
-      final File[] links =
-          gdalDir.listFiles(
-              new FileFilter() {
-                @Override
-                public boolean accept(final File pathname) {
-                  return pathname.length() <= 0;
-                }
-              });
+      final File[] links = gdalDir.listFiles(new FileFilter() {
+        @Override
+        public boolean accept(final File pathname) {
+          return pathname.length() <= 0;
+        }
+      });
       if (links != null) {
-        final File[] actualLibs =
-            gdalDir.listFiles(
-                new FileFilter() {
-                  @Override
-                  public boolean accept(final File pathname) {
-                    return pathname.length() > 0;
-                  }
-                });
+        final File[] actualLibs = gdalDir.listFiles(new FileFilter() {
+          @Override
+          public boolean accept(final File pathname) {
+            return pathname.length() > 0;
+          }
+        });
         for (final File link : links) {
           // find an actual lib that matches
           for (final File lib : actualLibs) {
             if (lib.getName().startsWith(link.getName())) {
               if (link.delete()) {
-                Files.createSymbolicLink(
-                    link.getAbsoluteFile().toPath(), lib.getAbsoluteFile().toPath());
+                Files.createSymbolicLink(link.getAbsoluteFile().toPath(),
+                    lib.getAbsoluteFile().toPath());
               }
               break;
             }

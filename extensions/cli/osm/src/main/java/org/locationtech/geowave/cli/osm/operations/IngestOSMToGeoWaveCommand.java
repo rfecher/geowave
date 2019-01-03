@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,7 +39,8 @@ public class IngestOSMToGeoWaveCommand extends DefaultOperation implements Comma
   @Parameter(description = "<path to base directory to read from> <store name>")
   private List<String> parameters = new ArrayList<String>();
 
-  @ParametersDelegate private OSMIngestCommandArgs ingestOptions = new OSMIngestCommandArgs();
+  @ParametersDelegate
+  private OSMIngestCommandArgs ingestOptions = new OSMIngestCommandArgs();
 
   private DataStorePluginOptions inputStoreOptions = null;
 

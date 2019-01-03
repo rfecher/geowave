@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.adapter.vector.plugin;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,8 +39,7 @@ public class GeoWavePluginConfigTest {
       } else if (param.getName().equals(GeoWavePluginConfig.TRANSACTION_BUFFER_SIZE)) {
         paramValues.put(param.getName(), 1000);
       } else if (!param.getName().equals(GeoWavePluginConfig.AUTH_URL_KEY)) {
-        paramValues.put(
-            param.getName(),
+        paramValues.put(param.getName(),
             (Serializable) (param.getDefaultValue() == null ? "" : param.getDefaultValue()));
       }
     }

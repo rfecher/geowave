@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,7 +41,8 @@ import javax.media.jai.registry.RenderedRegistryMode;
  * following code does not work if the source is significant lower resolution than the destination
  * and seems unnecessary in general:
  *
- * <p>roiTile = roi.intersect(new ROIShape(srcRectExpanded));
+ * <p>
+ * roiTile = roi.intersect(new ROIShape(srcRectExpanded));
  */
 @SuppressFBWarnings
 public class WarpRIF extends it.geosolutions.jaiext.warp.WarpRIF {
@@ -51,8 +53,8 @@ public class WarpRIF extends it.geosolutions.jaiext.warp.WarpRIF {
       final OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
 
       final RenderedImageFactory rif = new WarpRIF();
-      registry.registerFactory(
-          RenderedRegistryMode.MODE_NAME, "Warp", "it.geosolutions.jaiext", rif);
+      registry.registerFactory(RenderedRegistryMode.MODE_NAME, "Warp", "it.geosolutions.jaiext",
+          rif);
       registered = true;
     }
   }
@@ -86,8 +88,8 @@ public class WarpRIF extends it.geosolutions.jaiext.warp.WarpRIF {
       }
       Range noData = (Range) paramBlock.getObjectParameter(4);
       noData = RangeFactory.convert(noData, source.getSampleModel().getDataType());
-      return new WarpNearestOpImage(
-          source, renderHints, layout, warp, interp, roi, noData, backgroundValues);
+      return new WarpNearestOpImage(source, renderHints, layout, warp, interp, roi, noData,
+          backgroundValues);
     }
     return super.create(paramBlock, renderHints);
   }

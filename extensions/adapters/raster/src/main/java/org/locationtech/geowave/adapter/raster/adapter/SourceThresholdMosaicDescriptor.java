@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -20,23 +21,17 @@ public class SourceThresholdMosaicDescriptor extends MosaicDescriptor {
   /** */
   private static final long serialVersionUID = 1L;
   /** The parameter class list for this operation. */
-  private static final Class[] paramClasses = {
-    javax.media.jai.operator.MosaicType.class,
-    javax.media.jai.PlanarImage[].class,
-    javax.media.jai.ROI[].class,
-    double[][].class,
-    double[].class
-  };
+  private static final Class[] paramClasses =
+      {javax.media.jai.operator.MosaicType.class, javax.media.jai.PlanarImage[].class,
+          javax.media.jai.ROI[].class, double[][].class, double[].class};
 
   /** The parameter name list for this operation. */
-  private static final String[] paramNames = {
-    "mosaicType", "sourceAlpha", "sourceROI", "sourceThreshold", "backgroundValues"
-  };
+  private static final String[] paramNames =
+      {"mosaicType", "sourceAlpha", "sourceROI", "sourceThreshold", "backgroundValues"};
 
   /** The parameter default value list for this operation. */
-  private static final Object[] paramDefaults = {
-    MOSAIC_TYPE_OVERLAY, null, null, new double[][] {{Double.MIN_VALUE}}, new double[] {0.0}
-  };
+  private static final Object[] paramDefaults =
+      {MOSAIC_TYPE_OVERLAY, null, null, new double[][] {{Double.MIN_VALUE}}, new double[] {0.0}};
 
   public SourceThresholdMosaicDescriptor() {
     super();

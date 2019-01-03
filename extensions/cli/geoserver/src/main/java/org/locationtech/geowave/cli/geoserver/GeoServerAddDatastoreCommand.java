@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,16 +23,10 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 @GeowaveOperation(name = "addds", parentOperation = GeoServerSection.class)
 @Parameters(commandDescription = "Add a GeoServer datastore")
 public class GeoServerAddDatastoreCommand extends GeoServerCommand<String> {
-  @Parameter(
-      names = {"-ws", "--workspace"},
-      required = false,
-      description = "workspace name")
+  @Parameter(names = {"-ws", "--workspace"}, required = false, description = "workspace name")
   private String workspace = null;
 
-  @Parameter(
-      names = {"-ds", "--datastore"},
-      required = false,
-      description = "datastore name")
+  @Parameter(names = {"-ds", "--datastore"}, required = false, description = "datastore name")
   private String datastore = null;
 
   @Parameter(description = "<GeoWave store name>")
@@ -60,21 +55,12 @@ public class GeoServerAddDatastoreCommand extends GeoServerCommand<String> {
 
     if ((addStoreResponse.getStatus() == Status.OK.getStatusCode())
         || (addStoreResponse.getStatus() == Status.CREATED.getStatusCode())) {
-      return "Add datastore for '"
-          + gwStore
-          + "' to workspace '"
-          + workspace
+      return "Add datastore for '" + gwStore + "' to workspace '" + workspace
           + "' on GeoServer: OK";
     }
-    String errorMessage =
-        "Error adding datastore for '"
-            + gwStore
-            + "' to workspace '"
-            + workspace
-            + "' on GeoServer: "
-            + addStoreResponse.readEntity(String.class)
-            + "\nGeoServer Response Code = "
-            + addStoreResponse.getStatus();
+    String errorMessage = "Error adding datastore for '" + gwStore + "' to workspace '" + workspace
+        + "' on GeoServer: " + addStoreResponse.readEntity(String.class)
+        + "\nGeoServer Response Code = " + addStoreResponse.getStatus();
     return handleError(addStoreResponse, errorMessage);
   }
 }

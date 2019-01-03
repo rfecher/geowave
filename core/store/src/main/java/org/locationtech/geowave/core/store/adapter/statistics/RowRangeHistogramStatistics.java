@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,9 +25,8 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 /**
  * Dynamic histogram provide very high accuracy for CDF and quantiles over the a numeric attribute.
  */
-public class RowRangeHistogramStatistics<T>
-    extends AbstractDataStatistics<
-        T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>> {
+public class RowRangeHistogramStatistics<T> extends
+    AbstractDataStatistics<T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>> {
   public static final PartitionStatisticsType<NumericHistogram> STATS_TYPE =
       new PartitionStatisticsType<>("ROW_RANGE_HISTOGRAM");
   private NumericHistogram histogram;
@@ -39,11 +39,9 @@ public class RowRangeHistogramStatistics<T>
     this(null, indexName, partitionKey);
   }
 
-  public RowRangeHistogramStatistics(
-      final Short internalDataAdapterId, final String indexName, final ByteArray partitionKey) {
-    super(
-        internalDataAdapterId,
-        STATS_TYPE,
+  public RowRangeHistogramStatistics(final Short internalDataAdapterId, final String indexName,
+      final ByteArray partitionKey) {
+    super(internalDataAdapterId, STATS_TYPE,
         PartitionStatisticsQueryBuilder.composeId(indexName, partitionKey));
     histogram = createHistogram();
   }
@@ -53,20 +51,15 @@ public class RowRangeHistogramStatistics<T>
   }
 
   @Override
-  public InternalDataStatistics<
-          T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>>
-      duplicate() {
+  public InternalDataStatistics<T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>> duplicate() {
     final Pair<String, ByteArray> pair =
         PartitionStatisticsQueryBuilder.decomposeIndexAndPartitionFromId(extendedId);
-    return new RowRangeHistogramStatistics<>(
-        adapterId,
-        pair.getLeft(), // indexName
+    return new RowRangeHistogramStatistics<>(adapterId, pair.getLeft(), // indexName
         pair.getRight());
   }
 
   public double cardinality(final byte[] start, final byte[] end) {
-    return (end == null
-        ? histogram.getTotalCount()
+    return (end == null ? histogram.getTotalCount()
         : (histogram.sum(ByteUtils.toDouble(end), true)) // should be inclusive
             - (start == null ? 0 : histogram.sum(ByteUtils.toDouble(start), false))); // should be
     // exclusive
@@ -147,8 +140,7 @@ public class RowRangeHistogramStatistics<T>
     final Pair<String, ByteArray> indexAndPartition =
         PartitionStatisticsQueryBuilder.decomposeIndexAndPartitionFromId(extendedId);
     buffer.append("histogram[index=").append(indexAndPartition.getLeft());
-    if ((indexAndPartition.getRight() != null)
-        && (indexAndPartition.getRight().getBytes() != null)
+    if ((indexAndPartition.getRight() != null) && (indexAndPartition.getRight().getBytes() != null)
         && (indexAndPartition.getRight().getBytes().length > 0)) {
       buffer.append(", partitionAsHex=").append(indexAndPartition.getRight().getHexString());
     }

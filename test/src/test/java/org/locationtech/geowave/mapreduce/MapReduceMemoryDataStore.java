@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,45 +36,25 @@ public class MapReduceMemoryDataStore extends BaseMapReduceDataStore {
   }
 
   public MapReduceMemoryDataStore(final MapReduceDataStoreOperations operations) {
-    super(
-        new IndexStoreImpl(operations, new MemoryRequiredOptions().getStoreOptions()),
+    super(new IndexStoreImpl(operations, new MemoryRequiredOptions().getStoreOptions()),
         new AdapterStoreImpl(operations, new MemoryRequiredOptions().getStoreOptions()),
         new DataStatisticsStoreImpl(operations, new MemoryRequiredOptions().getStoreOptions()),
         new AdapterIndexMappingStoreImpl(operations, new MemoryRequiredOptions().getStoreOptions()),
-        null,
-        operations,
-        new MemoryRequiredOptions().getStoreOptions(),
+        null, operations, new MemoryRequiredOptions().getStoreOptions(),
         new InternalAdapterStoreImpl(operations));
   }
 
   @Override
-  public List<InputSplit> getSplits(
-      final CommonQueryOptions commonOptions,
-      final DataTypeQueryOptions<?> typeOptions,
-      final IndexQueryOptions indexOptions,
-      final QueryConstraints constraints,
-      final TransientAdapterStore adapterStore,
-      final AdapterIndexMappingStore aimStore,
-      final DataStatisticsStore statsStore,
-      final InternalAdapterStore internalAdapterStore,
-      final IndexStore indexStore,
-      final JobContext context,
-      final Integer minSplits,
-      final Integer maxSplits)
+  public List<InputSplit> getSplits(final CommonQueryOptions commonOptions,
+      final DataTypeQueryOptions<?> typeOptions, final IndexQueryOptions indexOptions,
+      final QueryConstraints constraints, final TransientAdapterStore adapterStore,
+      final AdapterIndexMappingStore aimStore, final DataStatisticsStore statsStore,
+      final InternalAdapterStore internalAdapterStore, final IndexStore indexStore,
+      final JobContext context, final Integer minSplits, final Integer maxSplits)
       throws IOException, InterruptedException {
-    return super.getSplits(
-        commonOptions,
-        typeOptions,
-        indexOptions,
-        constraints,
-        adapterStore,
-        indexMappingStore,
-        statisticsStore,
-        this.internalAdapterStore,
-        this.indexStore,
-        context,
-        minSplits,
-        maxSplits);
+    return super.getSplits(commonOptions, typeOptions, indexOptions, constraints, adapterStore,
+        indexMappingStore, statisticsStore, this.internalAdapterStore, this.indexStore, context,
+        minSplits, maxSplits);
   }
 
   public PersistentAdapterStore getAdapterStore() {

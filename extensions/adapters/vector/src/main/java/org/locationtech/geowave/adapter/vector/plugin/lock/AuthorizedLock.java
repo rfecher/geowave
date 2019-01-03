@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -20,7 +21,8 @@ import org.geotools.data.Transaction.State;
  * Instances of this class represent a the lock constraints associated with one or more feature
  * instances.
  *
- * <p>When serializing this object, note the reserialization requires setting the lockingManagement
+ * <p>
+ * When serializing this object, note the reserialization requires setting the lockingManagement
  * attribute.
  */
 @SuppressFBWarnings({"SE_TRANSIENT_FIELD_NOT_RESTORED"})
@@ -44,8 +46,8 @@ public class AuthorizedLock implements State, java.io.Serializable {
     this.lockingManagement = lockingManagement;
   }
 
-  public AuthorizedLock(
-      AbstractLockingManagement lockingManagement, String authorization, long expiryInMinutes) {
+  public AuthorizedLock(AbstractLockingManagement lockingManagement, String authorization,
+      long expiryInMinutes) {
     super();
     this.authorizations.add(authorization);
     expireTime = System.currentTimeMillis() + expiryInMinutes * 60000;
@@ -53,9 +55,7 @@ public class AuthorizedLock implements State, java.io.Serializable {
     this.lockingManagement = lockingManagement;
   }
 
-  public AuthorizedLock(
-      AbstractLockingManagement lockingManagement,
-      Set<String> authorizations,
+  public AuthorizedLock(AbstractLockingManagement lockingManagement, Set<String> authorizations,
       long expiryInMinutes) {
     super();
     this.authorizations.addAll(authorizations);
@@ -86,13 +86,18 @@ public class AuthorizedLock implements State, java.io.Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     AuthorizedLock other = (AuthorizedLock) obj;
     if (ID == null) {
-      if (other.ID != null) return false;
-    } else if (!ID.equals(other.ID)) return false;
+      if (other.ID != null)
+        return false;
+    } else if (!ID.equals(other.ID))
+      return false;
     return true;
   }
 

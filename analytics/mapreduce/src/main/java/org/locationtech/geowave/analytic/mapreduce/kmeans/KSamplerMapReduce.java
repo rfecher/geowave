@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -98,11 +99,8 @@ public class KSamplerMapReduce {
 
     // Override parent since there is not need to decode the value.
     @Override
-    protected void mapWritableValue(
-        final GeoWaveInputKey key,
-        final ObjectWritable value,
-        final Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context
-            context)
+    protected void mapWritableValue(final GeoWaveInputKey key, final ObjectWritable value,
+        final Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
         throws IOException, InterruptedException {
       // cached for efficiency since the output is the input object
       // the de-serialized input object is only used for sampling.
@@ -114,27 +112,19 @@ public class KSamplerMapReduce {
     }
 
     @Override
-    protected void mapNativeValue(
-        final GeoWaveInputKey key,
-        final Object value,
-        final org.apache.hadoop.mapreduce.Mapper<
-                    GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>
-                .Context
-            context)
+    protected void mapNativeValue(final GeoWaveInputKey key, final Object value,
+        final org.apache.hadoop.mapreduce.Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
         throws IOException, InterruptedException {
       @SuppressWarnings("unchecked")
       final double rank = samplingFunction.rank(sampleSize, (T) value);
       if (rank > 0.0000000001) {
         final AnalyticItemWrapper<Object> wrapper = itemWrapperFactory.create(value);
-        outputKey.setDataId(
-            new ByteArray(
-                keyManager.putData(
-                    nestedGroupCentroidAssigner.getGroupForLevel(wrapper),
-                    1.0 - rank, // sorts
-                    // in
-                    // ascending
-                    // order
-                    key.getDataId().getBytes())));
+        outputKey.setDataId(new ByteArray(
+            keyManager.putData(nestedGroupCentroidAssigner.getGroupForLevel(wrapper), 1.0 - rank, // sorts
+                // in
+                // ascending
+                // order
+                key.getDataId().getBytes())));
         outputKey.setInternalAdapterId(key.getInternalAdapterId());
         outputKey.setGeoWaveKey(key.getGeoWaveKey());
         context.write(outputKey, currentValue);
@@ -143,41 +133,32 @@ public class KSamplerMapReduce {
 
     @Override
     protected void setup(
-        final Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context
-            context)
+        final Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
         throws IOException, InterruptedException {
       super.setup(context);
 
-      final ScopedJobConfiguration config =
-          new ScopedJobConfiguration(
-              context.getConfiguration(), KSamplerMapReduce.class, KSamplerMapReduce.LOGGER);
+      final ScopedJobConfiguration config = new ScopedJobConfiguration(context.getConfiguration(),
+          KSamplerMapReduce.class, KSamplerMapReduce.LOGGER);
       sampleSize = config.getInt(SampleParameters.Sample.SAMPLE_SIZE, 1);
 
       try {
-        nestedGroupCentroidAssigner =
-            new NestedGroupCentroidAssignment<>(
-                context, KSamplerMapReduce.class, KSamplerMapReduce.LOGGER);
+        nestedGroupCentroidAssigner = new NestedGroupCentroidAssignment<>(context,
+            KSamplerMapReduce.class, KSamplerMapReduce.LOGGER);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
 
       try {
-        samplingFunction =
-            config.getInstance(
-                SampleParameters.Sample.SAMPLE_RANK_FUNCTION,
-                SamplingRankFunction.class,
-                RandomSamplingRankFunction.class);
+        samplingFunction = config.getInstance(SampleParameters.Sample.SAMPLE_RANK_FUNCTION,
+            SamplingRankFunction.class, RandomSamplingRankFunction.class);
 
         samplingFunction.initialize(context, KSamplerMapReduce.class, KSamplerMapReduce.LOGGER);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
       try {
-        itemWrapperFactory =
-            config.getInstance(
-                CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-                AnalyticItemWrapperFactory.class,
-                SimpleFeatureItemWrapperFactory.class);
+        itemWrapperFactory = config.getInstance(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+            AnalyticItemWrapperFactory.class, SimpleFeatureItemWrapperFactory.class);
 
         itemWrapperFactory.initialize(context, KSamplerMapReduce.class, KSamplerMapReduce.LOGGER);
       } catch (final Exception e1) {
@@ -198,9 +179,7 @@ public class KSamplerMapReduce {
     private final Map<String, Integer> outputCounts = new HashMap<>();
 
     @Override
-    protected void reduceNativeValues(
-        final GeoWaveInputKey key,
-        final Iterable<Object> values,
+    protected void reduceNativeValues(final GeoWaveInputKey key, final Iterable<Object> values,
         final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveOutputKey, T>.Context context)
         throws IOException, InterruptedException {
 
@@ -214,8 +193,8 @@ public class KSamplerMapReduce {
 
           final AnalyticItemWrapper<T> centroid = createCentroid(groupID, sampleItem);
           if (centroid != null) {
-            context.write(
-                new GeoWaveOutputKey(sampleDataTypeName, indexNames), centroid.getWrappedItem());
+            context.write(new GeoWaveOutputKey(sampleDataTypeName, indexNames),
+                centroid.getWrappedItem());
             outputCount++;
             outputCounts.put(groupID, outputCount);
           }
@@ -223,16 +202,12 @@ public class KSamplerMapReduce {
       }
     }
 
-    private AnalyticItemWrapper<T> createCentroid(
-        final String groupID, final AnalyticItemWrapper<T> item) {
+    private AnalyticItemWrapper<T> createCentroid(final String groupID,
+        final AnalyticItemWrapper<T> item) {
       final Point point = centroidExtractor.getCentroid(item.getWrappedItem());
       final AnalyticItemWrapper<T> nextCentroid =
-          itemWrapperFactory.createNextItem(
-              item.getWrappedItem(),
-              groupID,
-              point.getCoordinate(),
-              item.getExtraDimensions(),
-              item.getDimensionValues());
+          itemWrapperFactory.createNextItem(item.getWrappedItem(), groupID, point.getCoordinate(),
+              item.getExtraDimensions(), item.getDimensionValues());
 
       nextCentroid.setBatchID(batchID);
       nextCentroid.setGroupID(groupID);
@@ -247,9 +222,8 @@ public class KSamplerMapReduce {
         throws IOException, InterruptedException {
       super.setup(context);
 
-      final ScopedJobConfiguration config =
-          new ScopedJobConfiguration(
-              context.getConfiguration(), KSamplerMapReduce.class, KSamplerMapReduce.LOGGER);
+      final ScopedJobConfiguration config = new ScopedJobConfiguration(context.getConfiguration(),
+          KSamplerMapReduce.class, KSamplerMapReduce.LOGGER);
 
       maxCount = config.getInt(SampleParameters.Sample.SAMPLE_SIZE, 1);
 
@@ -259,27 +233,19 @@ public class KSamplerMapReduce {
 
       batchID = config.getString(GlobalParameters.Global.BATCH_ID, UUID.randomUUID().toString());
 
-      final String indexName =
-          config.getString(
-              SampleParameters.Sample.INDEX_NAME,
-              new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()).getName());
+      final String indexName = config.getString(SampleParameters.Sample.INDEX_NAME,
+          new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()).getName());
       indexNames = new String[] {indexName};
       try {
-        centroidExtractor =
-            config.getInstance(
-                CentroidParameters.Centroid.EXTRACTOR_CLASS,
-                CentroidExtractor.class,
-                SimpleFeatureCentroidExtractor.class);
+        centroidExtractor = config.getInstance(CentroidParameters.Centroid.EXTRACTOR_CLASS,
+            CentroidExtractor.class, SimpleFeatureCentroidExtractor.class);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
 
       try {
-        itemWrapperFactory =
-            config.getInstance(
-                CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-                AnalyticItemWrapperFactory.class,
-                SimpleFeatureItemWrapperFactory.class);
+        itemWrapperFactory = config.getInstance(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+            AnalyticItemWrapperFactory.class, SimpleFeatureItemWrapperFactory.class);
 
         itemWrapperFactory.initialize(context, KSamplerMapReduce.class, KSamplerMapReduce.LOGGER);
       } catch (final Exception e1) {
@@ -291,8 +257,8 @@ public class KSamplerMapReduce {
 
   public static class SampleKeyPartitioner extends Partitioner<GeoWaveInputKey, ObjectWritable> {
     @Override
-    public int getPartition(
-        final GeoWaveInputKey key, final ObjectWritable val, final int numPartitions) {
+    public int getPartition(final GeoWaveInputKey key, final ObjectWritable val,
+        final int numPartitions) {
       final byte[] grpIDInBytes = KeyManager.getGroup(key.getDataId().getBytes());
       final int partition = hash(grpIDInBytes) % numPartitions;
       return partition;

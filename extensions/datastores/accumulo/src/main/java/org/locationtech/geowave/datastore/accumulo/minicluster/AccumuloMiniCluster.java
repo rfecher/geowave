@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -11,7 +12,8 @@ package org.locationtech.geowave.datastore.accumulo.minicluster;
 /**
  * Copyright (c) 2013-2017 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -39,26 +41,21 @@ public class AccumuloMiniCluster {
   public static void main(final String[] args) throws Exception {
     org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.WARN);
 
-    final boolean interactive =
-        (System.getProperty("interactive") != null)
-            ? Boolean.parseBoolean(System.getProperty("interactive"))
-            : true;
+    final boolean interactive = (System.getProperty("interactive") != null)
+        ? Boolean.parseBoolean(System.getProperty("interactive"))
+        : true;
 
     final String password = System.getProperty("password", "secret");
 
     final File tempDir = Files.createTempDir();
     final String instanceName = System.getProperty("instanceName", "accumulo");
-    final MiniAccumuloConfigImpl miniAccumuloConfig =
-        new MiniAccumuloConfigImpl(tempDir, password)
-            .setNumTservers(2)
-            .setInstanceName(instanceName)
-            .setZooKeeperPort(2181);
+    final MiniAccumuloConfigImpl miniAccumuloConfig = new MiniAccumuloConfigImpl(tempDir, password)
+        .setNumTservers(2).setInstanceName(instanceName).setZooKeeperPort(2181);
 
     miniAccumuloConfig.setProperty(Property.MONITOR_PORT, "50095");
 
-    final MiniAccumuloClusterImpl accumulo =
-        MiniAccumuloClusterFactory.newAccumuloCluster(
-            miniAccumuloConfig, AccumuloMiniCluster.class);
+    final MiniAccumuloClusterImpl accumulo = MiniAccumuloClusterFactory
+        .newAccumuloCluster(miniAccumuloConfig, AccumuloMiniCluster.class);
     accumulo.start();
 
     accumulo.exec(Monitor.class);
@@ -66,11 +63,8 @@ public class AccumuloMiniCluster {
     System.out.println("starting up ...");
     Thread.sleep(3000);
 
-    System.out.println(
-        "cluster running with instance name "
-            + accumulo.getInstanceName()
-            + " and zookeepers "
-            + accumulo.getZooKeepers());
+    System.out.println("cluster running with instance name " + accumulo.getInstanceName()
+        + " and zookeepers " + accumulo.getZooKeepers());
 
     if (interactive) {
       System.out.println("hit Enter to shutdown ..");
@@ -78,20 +72,18 @@ public class AccumuloMiniCluster {
       System.out.println("Shutting down!");
       accumulo.stop();
     } else {
-      Runtime.getRuntime()
-          .addShutdownHook(
-              new Thread() {
-                @Override
-                public void run() {
-                  try {
-                    accumulo.stop();
-                  } catch (final Exception e) {
-                    LOGGER.warn("Unable to shutdown accumulo", e);
-                    System.out.println("Error shutting down accumulo.");
-                  }
-                  System.out.println("Shutting down!");
-                }
-              });
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+        @Override
+        public void run() {
+          try {
+            accumulo.stop();
+          } catch (final Exception e) {
+            LOGGER.warn("Unable to shutdown accumulo", e);
+            System.out.println("Error shutting down accumulo.");
+          }
+          System.out.println("Shutting down!");
+        }
+      });
 
       while (true) {
         Thread.sleep(TimeUnit.MILLISECONDS.convert(Long.MAX_VALUE, TimeUnit.DAYS));

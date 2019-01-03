@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -79,7 +80,7 @@ public interface DataStore {
    *
    * @param query data constraints for the query and additional options for processing the query
    * @return An iterator on all results that match the query. The iterator implements Closeable and
-   *     it is best practice to close the iterator after it is no longer needed.
+   *         it is best practice to close the iterator after it is no longer needed.
    */
   <T> CloseableIterator<T> query(final Query<T> query);
 
@@ -106,7 +107,7 @@ public interface DataStore {
    * Get data statistics that match the given query criteria
    *
    * @param query the query criteria, use StatisticsQueryBuilder or its extensions and if you're
-   *     interested in a particular common statistics type use StatisticsQueryBuilder.factory()
+   *        interested in a particular common statistics type use StatisticsQueryBuilder.factory()
    * @return An array of statistics that result from the query
    */
   <R> Statistics<R>[] queryStatistics(StatisticsQuery<R> query);
@@ -115,10 +116,10 @@ public interface DataStore {
    * Get a single statistical result that matches the given query criteria
    *
    * @param query the query criteria, use StatisticsQueryBuilder or its extensions and if you're
-   *     interested in a particular common statistics type use StatisticsQueryBuilder.factory()
+   *        interested in a particular common statistics type use StatisticsQueryBuilder.factory()
    * @return If the query does not define that statistics type it will return null as aggregation
-   *     only makes sense within a single type, otherwise aggregates the results of the query into a
-   *     single result that is returned
+   *         only makes sense within a single type, otherwise aggregates the results of the query
+   *         into a single result that is returned
    */
   <R> R aggregateStatistics(StatisticsQuery<R> query);
 
@@ -193,7 +194,8 @@ public interface DataStore {
   /**
    * Delete all data in this data store that matches the query parameter.
    *
-   * <p>Statistics are updated as required.
+   * <p>
+   * Statistics are updated as required.
    *
    * @param query the query criteria to use for deletion
    * @return true on success
@@ -210,9 +212,9 @@ public interface DataStore {
    * Add this type to the data store. This only needs to be called one time ever per type.
    *
    * @param dataTypeAdapter the data type adapter for this type that is used to read and write
-   *     GeoWave entries
+   *        GeoWave entries
    * @param initialIndices the initial indexing for this type, in the future additional indices can
-   *     be added
+   *        be added
    */
   <T> void addType(DataTypeAdapter<T> dataTypeAdapter, Index... initialIndices);
 

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -15,12 +16,14 @@ package org.locationtech.geowave.core.store.adapter.statistics.histogram;
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  *
- * <p>http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * <p>Unless required by applicable law or agreed to in writing, software distributed under the
- * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing permissions and
- * limitations under the License.
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 import java.nio.ByteBuffer;
 import org.locationtech.geowave.core.index.FloatCompareUtils;
@@ -32,10 +35,11 @@ import org.slf4j.LoggerFactory;
  * * Fixed number of bins for a histogram. Unless configured, the range will expand dynamically,
  * redistributing the data as necessary into the wider bins.
  *
- * <p>The advantage of constraining the range of the statistic is to ignore values outside the
- * range, such as erroneous values. Erroneous values force extremes in the histogram. For example,
- * if the expected range of values falls between 0 and 1 and a value of 10000 occurs, then a single
- * bin contains the entire population between 0 and 1, a single bin represents the single value of
+ * <p>
+ * The advantage of constraining the range of the statistic is to ignore values outside the range,
+ * such as erroneous values. Erroneous values force extremes in the histogram. For example, if the
+ * expected range of values falls between 0 and 1 and a value of 10000 occurs, then a single bin
+ * contains the entire population between 0 and 1, a single bin represents the single value of
  * 10000.
  */
 public class FixedBinNumericHistogram implements NumericHistogram {
@@ -128,9 +132,8 @@ public class FixedBinNumericHistogram implements NumericHistogram {
     }
     final double perBinSize = binSize();
     final double countUptoLastBin = countThisFar - count[bin - 1];
-    return minValue
-        + ((perBinSize * bin)
-            + (perBinSize * ((fractionOfTotal - countUptoLastBin) / count[bin - 1])));
+    return minValue + ((perBinSize * bin)
+        + (perBinSize * ((fractionOfTotal - countUptoLastBin) / count[bin - 1])));
   }
 
   public double percentPopulationOverRange(final double start, final double stop) {
@@ -178,10 +181,8 @@ public class FixedBinNumericHistogram implements NumericHistogram {
   }
 
   public int bufferSize() {
-    int bufferSize =
-        VarintUtils.unsignedLongByteLength(totalCount)
-            + VarintUtils.unsignedIntByteLength(count.length)
-            + 16;
+    int bufferSize = VarintUtils.unsignedLongByteLength(totalCount)
+        + VarintUtils.unsignedIntByteLength(count.length) + 16;
     for (int i = 0; i < count.length; i++) {
       bufferSize += VarintUtils.unsignedLongByteLength(count[i]);
     }
@@ -278,8 +279,8 @@ public class FixedBinNumericHistogram implements NumericHistogram {
     redistribute(new long[count.length], newMinValue, newMaxValue);
   }
 
-  private void redistribute(
-      final long[] newCount, final double newMinValue, final double newMaxValue) {
+  private void redistribute(final long[] newCount, final double newMinValue,
+      final double newMaxValue) {
 
     if (Double.isInfinite(minValue) || Double.isInfinite(maxValue)) {
       throw new IllegalArgumentException(
@@ -298,10 +299,9 @@ public class FixedBinNumericHistogram implements NumericHistogram {
     double currentWindowStop = minValue + perBinSize;
     for (int bin = 0; bin < count.length; bin++) {
       long distributionCount = 0;
-      int destinationBin =
-          Math.min(
-              (int) Math.floor((((currentWindowStart - newMinValue) / newRange) * count.length)),
-              count.length - 1);
+      int destinationBin = Math.min(
+          (int) Math.floor((((currentWindowStart - newMinValue) / newRange) * count.length)),
+          count.length - 1);
       double destinationWindowStart = newMinValue + (destinationBin * newPerBinsSize);
       double destinationWindowStop = destinationWindowStart + newPerBinsSize;
       while (count[bin] > 0) {

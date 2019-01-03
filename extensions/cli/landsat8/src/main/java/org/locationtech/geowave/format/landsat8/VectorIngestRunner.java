@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,8 +39,8 @@ public class VectorIngestRunner extends AnalyzeRunner {
 
   private SimpleFeatureType sceneType;
 
-  public VectorIngestRunner(
-      final Landsat8BasicCommandLineOptions analyzeOptions, final List<String> parameters) {
+  public VectorIngestRunner(final Landsat8BasicCommandLineOptions analyzeOptions,
+      final List<String> parameters) {
     super(analyzeOptions);
     this.parameters = parameters;
   }
@@ -114,10 +115,8 @@ public class VectorIngestRunner extends AnalyzeRunner {
     super.nextScene(firstBandOfScene, analysisInfo);
   }
 
-  public static void writeScene(
-      final SimpleFeatureType sceneType,
-      final SimpleFeature firstBandOfScene,
-      final Writer sceneWriter) {
+  public static void writeScene(final SimpleFeatureType sceneType,
+      final SimpleFeature firstBandOfScene, final Writer sceneWriter) {
     final SimpleFeatureBuilder bldr = new SimpleFeatureBuilder(sceneType);
     String fid = null;
     for (int i = 0; i < sceneType.getAttributeCount(); i++) {

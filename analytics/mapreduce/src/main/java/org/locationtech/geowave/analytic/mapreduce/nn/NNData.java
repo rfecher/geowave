@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -49,15 +50,21 @@ public class NNData<T> implements Comparable<NNData<T>> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     @SuppressWarnings("unchecked")
     NNData<T> other = (NNData<T>) obj;
-    if (Double.doubleToLongBits(distance) != Double.doubleToLongBits(other.distance)) return false;
+    if (Double.doubleToLongBits(distance) != Double.doubleToLongBits(other.distance))
+      return false;
     if (neighbor == null) {
-      if (other.neighbor != null) return false;
-    } else if (!neighbor.equals(other.neighbor)) return false;
+      if (other.neighbor != null)
+        return false;
+    } else if (!neighbor.equals(other.neighbor))
+      return false;
     return true;
   }
 

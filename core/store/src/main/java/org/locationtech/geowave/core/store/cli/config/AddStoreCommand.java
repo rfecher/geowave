@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,20 +37,18 @@ public class AddStoreCommand extends ServiceEnabledCommand<String> {
   @Parameter(description = "<name>")
   private List<String> parameters = new ArrayList<String>();
 
-  @Parameter(
-      names = {"-d", "--default"},
+  @Parameter(names = {"-d", "--default"},
       description = "Make this the default store in all operations")
   private Boolean makeDefault;
 
-  @Parameter(
-      names = {"-t", "--type"},
-      required = true,
+  @Parameter(names = {"-t", "--type"}, required = true,
       description = "The type of store, such as accumulo, hbase, etc")
   private String storeType;
 
   private DataStorePluginOptions pluginOptions = new DataStorePluginOptions();
 
-  @ParametersDelegate private StoreFactoryOptions requiredOptions;
+  @ParametersDelegate
+  private StoreFactoryOptions requiredOptions;
 
   @Override
   public boolean prepare(OperationParams params) {
@@ -69,8 +68,8 @@ public class AddStoreCommand extends ServiceEnabledCommand<String> {
       // Load the default index.
       if (defaultStore != null) {
         try {
-          if (pluginOptions.load(
-              existingProps, DataStorePluginOptions.getStoreNamespace(defaultStore))) {
+          if (pluginOptions.load(existingProps,
+              DataStorePluginOptions.getStoreNamespace(defaultStore))) {
             // Set the required type option.
             this.storeType = pluginOptions.getType();
             requiredOptions = pluginOptions.getFactoryOptions();
@@ -120,9 +119,7 @@ public class AddStoreCommand extends ServiceEnabledCommand<String> {
     }
 
     // Write properties file
-    ConfigOptions.writeProperties(
-        getGeoWaveConfigFile(),
-        existingProps,
+    ConfigOptions.writeProperties(getGeoWaveConfigFile(), existingProps,
         pluginOptions.getFactoryOptions().getClass(),
         getNamespace() + "." + DataStorePluginOptions.OPTS);
 

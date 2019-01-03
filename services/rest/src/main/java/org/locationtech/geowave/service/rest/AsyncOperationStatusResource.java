@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,9 +31,8 @@ public class AsyncOperationStatusResource extends ServerResource {
     String id = getQueryValue("id");
     try {
       // look up the operation status
-      opStatuses =
-          (ConcurrentHashMap<String, Future<?>>)
-              this.getApplication().getContext().getAttributes().get("asyncOperationStatuses");
+      opStatuses = (ConcurrentHashMap<String, Future<?>>) this.getApplication().getContext()
+          .getAttributes().get("asyncOperationStatuses");
       if (opStatuses.get(id) != null) {
         Future<?> future = opStatuses.get(id);
 
@@ -51,7 +51,8 @@ public class AsyncOperationStatusResource extends ServerResource {
       status.status = RestOperationStatusMessage.StatusType.ERROR;
       status.message = "exception occurred";
       status.data = e;
-      if (opStatuses != null) opStatuses.remove(id);
+      if (opStatuses != null)
+        opStatuses.remove(id);
       return new JacksonRepresentation<RestOperationStatusMessage>(status);
     }
     status.status = RestOperationStatusMessage.StatusType.ERROR;

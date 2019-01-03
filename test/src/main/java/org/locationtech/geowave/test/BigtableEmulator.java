@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -61,8 +62,8 @@ public class BigtableEmulator {
   private final File sdkDir;
   private ExecuteWatchdog watchdog;
 
-  public BigtableEmulator(
-      final String sdkDir, final String sdkDownloadUrl, final String sdkFileName) {
+  public BigtableEmulator(final String sdkDir, final String sdkDownloadUrl,
+      final String sdkFileName) {
     if (TestUtils.isSet(sdkDir)) {
       this.sdkDir = new File(sdkDir);
     } else {
@@ -221,111 +222,109 @@ public class BigtableEmulator {
     watchdog = new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT);
     final Executor executor = new DefaultExecutor();
     executor.setWatchdog(watchdog);
-    executor.setStreamHandler(
-        new PumpStreamHandler(
-            ByteStreams.nullOutputStream(), ByteStreams.nullOutputStream(), null) {
-          @Override
-          protected Thread createPump(
-              final InputStream is, final OutputStream os, final boolean closeWhenExhausted) {
-            final FilterInputStream fis =
-                new FilterInputStream(is) {
-                  byte[] startupBytes =
-                      ("running on " + emulatorHostPort).getBytes(StringUtils.UTF8_CHARSET);
-                  Queue<Integer> queue = new LinkedList<>();
+    executor.setStreamHandler(new PumpStreamHandler(ByteStreams.nullOutputStream(),
+        ByteStreams.nullOutputStream(), null) {
+      @Override
+      protected Thread createPump(final InputStream is, final OutputStream os,
+          final boolean closeWhenExhausted) {
+        final FilterInputStream fis = new FilterInputStream(is) {
+          byte[] startupBytes =
+              ("running on " + emulatorHostPort).getBytes(StringUtils.UTF8_CHARSET);
+          Queue<Integer> queue = new LinkedList<>();
 
-                  private boolean isStartupFound() {
-                    final Integer[] array = queue.toArray(new Integer[] {});
-                    final byte[] ba = new byte[array.length];
-                    for (int i = 0; i < ba.length; i++) {
-                      ba[i] = array[i].byteValue();
-                    }
-                    final Iterator<Integer> iterator = queue.iterator();
+          private boolean isStartupFound() {
+            final Integer[] array = queue.toArray(new Integer[] {});
+            final byte[] ba = new byte[array.length];
+            for (int i = 0; i < ba.length; i++) {
+              ba[i] = array[i].byteValue();
+            }
+            final Iterator<Integer> iterator = queue.iterator();
 
-                    for (final byte b : startupBytes) {
-                      if (!iterator.hasNext() || (b != iterator.next())) {
-                        return false;
-                      }
-                    }
-                    return true;
-                  }
-
-                  private void readAhead() throws IOException {
-                    // Work up some look-ahead.
-                    while (queue.size() < startupBytes.length) {
-                      final int next = super.read();
-                      queue.offer(next);
-
-                      if (next == -1) {
-                        break;
-                      }
-                    }
-                  }
-
-                  @Override
-                  public int read() throws IOException {
-                    if (matchFound) {
-                      super.read();
-                    }
-
-                    readAhead();
-
-                    if (isStartupFound()) {
-                      synchronized (STARTUP_LOCK) {
-                        STARTUP_LOCK.notifyAll();
-                      }
-                      matchFound = true;
-                    }
-
-                    return queue.remove();
-                  }
-
-                  @Override
-                  public int read(final byte b[]) throws IOException {
-                    if (matchFound) {
-                      super.read(b);
-                    }
-                    return read(b, 0, b.length);
-                  }
-
-                  // copied straight from InputStream implementation,
-                  // just need to use `read()`
-                  // from this class
-                  @Override
-                  public int read(final byte b[], final int off, final int len) throws IOException {
-                    if (matchFound) {
-                      super.read(b, off, len);
-                    }
-                    if (b == null) {
-                      throw new NullPointerException();
-                    } else if ((off < 0) || (len < 0) || (len > (b.length - off))) {
-                      throw new IndexOutOfBoundsException();
-                    } else if (len == 0) {
-                      return 0;
-                    }
-
-                    int c = read();
-                    if (c == -1) {
-                      return -1;
-                    }
-                    b[off] = (byte) c;
-
-                    int i = 1;
-                    try {
-                      for (; i < len; i++) {
-                        c = read();
-                        if (c == -1) {
-                          break;
-                        }
-                        b[off + i] = (byte) c;
-                      }
-                    } catch (final IOException ee) {
-                    }
-                    return i;
-                  }
-                };
-            return super.createPump(fis, os, closeWhenExhausted);
+            for (final byte b : startupBytes) {
+              if (!iterator.hasNext() || (b != iterator.next())) {
+                return false;
+              }
+            }
+            return true;
           }
-        });
+
+          private void readAhead() throws IOException {
+            // Work up some look-ahead.
+            while (queue.size() < startupBytes.length) {
+              final int next = super.read();
+              queue.offer(next);
+
+              if (next == -1) {
+                break;
+              }
+            }
+          }
+
+          @Override
+          public int read() throws IOException {
+            if (matchFound) {
+              super.read();
+            }
+
+            readAhead();
+
+            if (isStartupFound()) {
+              synchronized (STARTUP_LOCK) {
+                STARTUP_LOCK.notifyAll();
+              }
+              matchFound = true;
+            }
+
+            return queue.remove();
+          }
+
+          @Override
+          public int read(final byte b[]) throws IOException {
+            if (matchFound) {
+              super.read(b);
+            }
+            return read(b, 0, b.length);
+          }
+
+          // copied straight from InputStream implementation,
+          // just need to use `read()`
+          // from this class
+          @Override
+          public int read(final byte b[], final int off, final int len) throws IOException {
+            if (matchFound) {
+              super.read(b, off, len);
+            }
+            if (b == null) {
+              throw new NullPointerException();
+            } else if ((off < 0) || (len < 0) || (len > (b.length - off))) {
+              throw new IndexOutOfBoundsException();
+            } else if (len == 0) {
+              return 0;
+            }
+
+            int c = read();
+            if (c == -1) {
+              return -1;
+            }
+            b[off] = (byte) c;
+
+            int i = 1;
+            try {
+              for (; i < len; i++) {
+                c = read();
+                if (c == -1) {
+                  break;
+                }
+                b[off + i] = (byte) c;
+              }
+            } catch (final IOException ee) {
+            }
+            return i;
+          }
+        };
+        return super.createPump(fis, os, closeWhenExhausted);
+      }
+    });
 
     LOGGER.warn("Starting BigTable Emulator: " + cmdLine.toString());
     synchronized (STARTUP_LOCK) {

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,8 +33,8 @@ public class DataStoreStatisticsProvider<T> implements StatisticsProvider<T> {
   final boolean includeAdapterStats;
   final Index index;
 
-  public DataStoreStatisticsProvider(
-      final InternalDataAdapter<T> adapter, final Index index, final boolean includeAdapterStats) {
+  public DataStoreStatisticsProvider(final InternalDataAdapter<T> adapter, final Index index,
+      final boolean includeAdapterStats) {
     super();
     this.adapter = adapter;
     this.index = index;
@@ -50,20 +51,12 @@ public class DataStoreStatisticsProvider<T> implements StatisticsProvider<T> {
     }
 
     final StatisticsId[] newSet = Arrays.copyOf(idsFromAdapter, idsFromAdapter.length + 6);
-    newSet[idsFromAdapter.length] =
-        RowRangeHistogramStatisticsSet.STATS_TYPE
-            .newBuilder()
-            .indexName(index.getName())
-            .build()
-            .getId();
+    newSet[idsFromAdapter.length] = RowRangeHistogramStatisticsSet.STATS_TYPE.newBuilder()
+        .indexName(index.getName()).build().getId();
     newSet[idsFromAdapter.length + 1] =
         IndexMetaDataSet.STATS_TYPE.newBuilder().indexName(index.getName()).build().getId();
-    newSet[idsFromAdapter.length + 2] =
-        DifferingFieldVisibilityEntryCount.STATS_TYPE
-            .newBuilder()
-            .indexName(index.getName())
-            .build()
-            .getId();
+    newSet[idsFromAdapter.length + 2] = DifferingFieldVisibilityEntryCount.STATS_TYPE.newBuilder()
+        .indexName(index.getName()).build().getId();
     newSet[idsFromAdapter.length + 3] =
         FieldVisibilityCount.STATS_TYPE.newBuilder().indexName(index.getName()).build().getId();
     newSet[idsFromAdapter.length + 4] =
@@ -74,8 +67,8 @@ public class DataStoreStatisticsProvider<T> implements StatisticsProvider<T> {
   }
 
   @Override
-  public <R, B extends StatisticsQueryBuilder<R, B>>
-      InternalDataStatistics<T, R, B> createDataStatistics(final StatisticsId statisticsId) {
+  public <R, B extends StatisticsQueryBuilder<R, B>> InternalDataStatistics<T, R, B> createDataStatistics(
+      final StatisticsId statisticsId) {
     final StatisticsType<?, ?> statisticsType = statisticsId.getType();
     if (statisticsType.equals(RowRangeHistogramStatistics.STATS_TYPE)) {
       return new RowRangeHistogramStatisticsSet(adapter.getAdapterId(), index.getName());
@@ -84,8 +77,8 @@ public class DataStoreStatisticsProvider<T> implements StatisticsProvider<T> {
       return new PartitionStatistics(adapter.getAdapterId(), index.getName());
     }
     if (statisticsType.equals(IndexMetaDataSet.STATS_TYPE)) {
-      return new IndexMetaDataSet(
-          adapter.getAdapterId(), index.getName(), index.getIndexStrategy());
+      return new IndexMetaDataSet(adapter.getAdapterId(), index.getName(),
+          index.getIndexStrategy());
     }
     if (statisticsType.equals(DifferingFieldVisibilityEntryCount.STATS_TYPE)) {
       return new DifferingFieldVisibilityEntryCount(adapter.getAdapterId(), index.getName());
@@ -108,13 +101,11 @@ public class DataStoreStatisticsProvider<T> implements StatisticsProvider<T> {
   }
 
   @Override
-  public EntryVisibilityHandler<T> getVisibilityHandler(
-      final CommonIndexModel indexModel,
-      final DataTypeAdapter<T> adapter,
-      final StatisticsId statisticsId) {
+  public EntryVisibilityHandler<T> getVisibilityHandler(final CommonIndexModel indexModel,
+      final DataTypeAdapter<T> adapter, final StatisticsId statisticsId) {
     return (adapter instanceof StatisticsProvider)
-        ? ((StatisticsProvider) adapter)
-            .getVisibilityHandler(index.getIndexModel(), adapter, statisticsId)
+        ? ((StatisticsProvider) adapter).getVisibilityHandler(index.getIndexModel(), adapter,
+            statisticsId)
         : new EmptyStatisticVisibility<>();
   }
 }

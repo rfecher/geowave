@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -39,8 +40,8 @@ public class BatchedWrite extends BatchHandler implements AutoCloseable {
   // to control it
   private final Semaphore writeSemaphore = new Semaphore(MAX_CONCURRENT_WRITE);
 
-  public BatchedWrite(
-      final Session session, final PreparedStatement preparedInsert, final int batchSize) {
+  public BatchedWrite(final Session session, final PreparedStatement preparedInsert,
+      final int batchSize) {
     super(session);
     this.preparedInsert = preparedInsert;
     this.batchSize = batchSize;
@@ -89,8 +90,8 @@ public class BatchedWrite extends BatchHandler implements AutoCloseable {
   private void executeAsync(Statement statement) throws InterruptedException {
     writeSemaphore.acquire();
     final ResultSetFuture future = session.executeAsync(statement);
-    Futures.addCallback(
-        future, new IngestCallback(writeSemaphore), CassandraOperations.WRITE_RESPONSE_THREADS);
+    Futures.addCallback(future, new IngestCallback(writeSemaphore),
+        CassandraOperations.WRITE_RESPONSE_THREADS);
   }
 
   @Override

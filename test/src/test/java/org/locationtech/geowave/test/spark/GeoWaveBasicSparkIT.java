@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -56,16 +57,10 @@ public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {
   private static final String HAIL_TIME_FIELD = "DATE";
 
   @GeoWaveTestStore(
-      value = {
-        GeoWaveStoreType.ACCUMULO,
-        GeoWaveStoreType.HBASE,
-        GeoWaveStoreType.BIGTABLE,
-        // TODO: Dynamo test takes too long to finish on Travis (>5 minutes)
-        // GeoWaveStoreType.DYNAMODB,
-        GeoWaveStoreType.CASSANDRA,
-        GeoWaveStoreType.REDIS,
-        GeoWaveStoreType.ROCKSDB
-      })
+      value = {GeoWaveStoreType.ACCUMULO, GeoWaveStoreType.HBASE, GeoWaveStoreType.BIGTABLE,
+          // TODO: Dynamo test takes too long to finish on Travis (>5 minutes)
+          // GeoWaveStoreType.DYNAMODB,
+          GeoWaveStoreType.CASSANDRA, GeoWaveStoreType.REDIS, GeoWaveStoreType.ROCKSDB})
   protected DataStorePluginOptions dataStore;
 
   private static Stopwatch stopwatch = new Stopwatch();
@@ -100,110 +95,58 @@ public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {
 
     TestUtils.deleteAll(dataStore);
     // test spatial temporal queries with spatial index for tornado tracks
-    TestUtils.testLocalIngest(
-        dataStore, DimensionalityType.SPATIAL, TORNADO_TRACKS_SHAPEFILE_FILE, 1);
-    verifyQuery(
-        context,
-        TEST_BOX_TEMPORAL_FILTER_FILE,
+    TestUtils.testLocalIngest(dataStore, DimensionalityType.SPATIAL, TORNADO_TRACKS_SHAPEFILE_FILE,
+        1);
+    verifyQuery(context, TEST_BOX_TEMPORAL_FILTER_FILE,
         TORNADO_TRACKS_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE,
-        "bounding box tornado tracks spatial-temporal query with spatial only index",
-        true);
-    verifyQuery(
-        context,
-        TEST_POLYGON_TEMPORAL_FILTER_FILE,
+        "bounding box tornado tracks spatial-temporal query with spatial only index", true);
+    verifyQuery(context, TEST_POLYGON_TEMPORAL_FILTER_FILE,
         TORNADO_TRACKS_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE,
-        "polygon tornado tracks spatial-temporal query with spatial only index",
-        false);
+        "polygon tornado tracks spatial-temporal query with spatial only index", false);
     TestUtils.deleteAll(dataStore);
 
     // test spatial queries with spatial temporal index for tornado tracks
-    TestUtils.testLocalIngest(
-        dataStore, DimensionalityType.SPATIAL_TEMPORAL, TORNADO_TRACKS_SHAPEFILE_FILE, 1);
-    verifyQuery(
-        context,
-        TEST_BOX_FILTER_FILE,
-        TORNADO_TRACKS_EXPECTED_BOX_FILTER_RESULTS_FILE,
-        "bounding box tornado tracks spatial query with spatial temporal index only",
-        true);
-    verifyQuery(
-        context,
-        TEST_POLYGON_FILTER_FILE,
+    TestUtils.testLocalIngest(dataStore, DimensionalityType.SPATIAL_TEMPORAL,
+        TORNADO_TRACKS_SHAPEFILE_FILE, 1);
+    verifyQuery(context, TEST_BOX_FILTER_FILE, TORNADO_TRACKS_EXPECTED_BOX_FILTER_RESULTS_FILE,
+        "bounding box tornado tracks spatial query with spatial temporal index only", true);
+    verifyQuery(context, TEST_POLYGON_FILTER_FILE,
         TORNADO_TRACKS_EXPECTED_POLYGON_FILTER_RESULTS_FILE,
-        "polygon tornado tracks spatial query with spatial temporal index only",
-        true);
+        "polygon tornado tracks spatial query with spatial temporal index only", true);
     TestUtils.deleteAll(dataStore);
     // ingest test points
     TestUtils.testLocalIngest(dataStore, DimensionalityType.ALL, HAIL_SHAPEFILE_FILE, 1);
-    verifyQuery(
-        context,
-        TEST_BOX_FILTER_FILE,
-        HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE,
-        "bounding box hail spatial query",
-        true);
-    verifyQuery(
-        context,
-        TEST_POLYGON_FILTER_FILE,
-        HAIL_EXPECTED_POLYGON_FILTER_RESULTS_FILE,
-        "polygon hail spatial query",
-        true);
-    verifyQuery(
-        context,
-        TEST_BOX_TEMPORAL_FILTER_FILE,
-        HAIL_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE,
-        "bounding box hail spatial-temporal query",
+    verifyQuery(context, TEST_BOX_FILTER_FILE, HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE,
+        "bounding box hail spatial query", true);
+    verifyQuery(context, TEST_POLYGON_FILTER_FILE, HAIL_EXPECTED_POLYGON_FILTER_RESULTS_FILE,
+        "polygon hail spatial query", true);
+    verifyQuery(context, TEST_BOX_TEMPORAL_FILTER_FILE,
+        HAIL_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE, "bounding box hail spatial-temporal query",
         false);
-    verifyQuery(
-        context,
-        TEST_POLYGON_TEMPORAL_FILTER_FILE,
-        HAIL_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE,
-        "polygon hail spatial-temporal query",
+    verifyQuery(context, TEST_POLYGON_TEMPORAL_FILTER_FILE,
+        HAIL_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE, "polygon hail spatial-temporal query",
         true);
     // test configurable CRS for hail points
-    verifyQuery(
-        context,
-        TEST_BOX_FILTER_FILE,
-        HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE,
-        "bounding box hail spatial query with other CRS",
-        TestUtils.CUSTOM_CRS,
-        true);
-    verifyQuery(
-        context,
-        TEST_POLYGON_FILTER_FILE,
-        HAIL_EXPECTED_POLYGON_FILTER_RESULTS_FILE,
-        "polygon hail spatial query with other CRS",
-        TestUtils.CUSTOM_CRS,
-        true);
-    verifyQuery(
-        context,
-        TEST_BOX_TEMPORAL_FILTER_FILE,
+    verifyQuery(context, TEST_BOX_FILTER_FILE, HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE,
+        "bounding box hail spatial query with other CRS", TestUtils.CUSTOM_CRS, true);
+    verifyQuery(context, TEST_POLYGON_FILTER_FILE, HAIL_EXPECTED_POLYGON_FILTER_RESULTS_FILE,
+        "polygon hail spatial query with other CRS", TestUtils.CUSTOM_CRS, true);
+    verifyQuery(context, TEST_BOX_TEMPORAL_FILTER_FILE,
         HAIL_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE,
-        "bounding box hail spatial-temporal query with other CRS",
-        TestUtils.CUSTOM_CRS,
-        true);
-    verifyQuery(
-        context,
-        TEST_POLYGON_TEMPORAL_FILTER_FILE,
+        "bounding box hail spatial-temporal query with other CRS", TestUtils.CUSTOM_CRS, true);
+    verifyQuery(context, TEST_POLYGON_TEMPORAL_FILTER_FILE,
         HAIL_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE,
-        "polygon hail spatial-temporal query with other CRS",
-        TestUtils.CUSTOM_CRS,
-        false);
+        "polygon hail spatial-temporal query with other CRS", TestUtils.CUSTOM_CRS, false);
 
     TestUtils.deleteAll(dataStore);
 
     // test lines only
     TestUtils.testLocalIngest(dataStore, DimensionalityType.ALL, TORNADO_TRACKS_SHAPEFILE_FILE, 1);
 
-    verifyQuery(
-        context,
-        TEST_BOX_FILTER_FILE,
-        TORNADO_TRACKS_EXPECTED_BOX_FILTER_RESULTS_FILE,
-        "bounding box tornado tracks spatial query",
-        true);
-    verifyQuery(
-        context,
-        TEST_POLYGON_FILTER_FILE,
-        TORNADO_TRACKS_EXPECTED_POLYGON_FILTER_RESULTS_FILE,
-        "polygon tornado tracks spatial query",
+    verifyQuery(context, TEST_BOX_FILTER_FILE, TORNADO_TRACKS_EXPECTED_BOX_FILTER_RESULTS_FILE,
+        "bounding box tornado tracks spatial query", true);
+    verifyQuery(context, TEST_POLYGON_FILTER_FILE,
+        TORNADO_TRACKS_EXPECTED_POLYGON_FILTER_RESULTS_FILE, "polygon tornado tracks spatial query",
         true);
     // TODO understand why the spatial-temporal queries on tornado tracks
     // are running into memory issues
@@ -219,20 +162,11 @@ public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {
     // "polygon tornado tracks spatial-temporal query");
 
     // test configurable CRS for tornado tracks
-    verifyQuery(
-        context,
-        TEST_BOX_FILTER_FILE,
-        TORNADO_TRACKS_EXPECTED_BOX_FILTER_RESULTS_FILE,
-        "bounding box tornado tracks spatial query with other CRS",
-        TestUtils.CUSTOM_CRS,
-        true);
-    verifyQuery(
-        context,
-        TEST_POLYGON_FILTER_FILE,
+    verifyQuery(context, TEST_BOX_FILTER_FILE, TORNADO_TRACKS_EXPECTED_BOX_FILTER_RESULTS_FILE,
+        "bounding box tornado tracks spatial query with other CRS", TestUtils.CUSTOM_CRS, true);
+    verifyQuery(context, TEST_POLYGON_FILTER_FILE,
         TORNADO_TRACKS_EXPECTED_POLYGON_FILTER_RESULTS_FILE,
-        "polygon tornado tracks spatial query with other CRS",
-        TestUtils.CUSTOM_CRS,
-        true);
+        "polygon tornado tracks spatial query with other CRS", TestUtils.CUSTOM_CRS, true);
     // TODO understand why the spatial-temporal queries on tornado tracks
     // are running into memory issues
     // verifyQuery(
@@ -282,61 +216,47 @@ public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {
 
       Assert.assertEquals(HAIL_COUNT, count);
 
-      LOGGER.warn(
-          "DataStore loaded into RDD with "
-              + count
-              + " features for adapter "
-              + hailAdapter.getTypeName());
+      LOGGER.warn("DataStore loaded into RDD with " + count + " features for adapter "
+          + hailAdapter.getTypeName());
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail(
-          "Error occurred while loading RDD with adapter: '" + e.getLocalizedMessage() + "'");
+      Assert
+          .fail("Error occurred while loading RDD with adapter: '" + e.getLocalizedMessage() + "'");
     }
 
     // Load RDD using tornado adapter
     try {
       final RDDOptions queryOpts = new RDDOptions();
-      queryOpts.setQuery(
-          QueryBuilder.newBuilder().addTypeName(tornadoAdapter.getTypeName()).build());
+      queryOpts
+          .setQuery(QueryBuilder.newBuilder().addTypeName(tornadoAdapter.getTypeName()).build());
       final GeoWaveRDD newRDD = GeoWaveRDDLoader.loadRDD(context, dataStore, queryOpts);
       final JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd = newRDD.getRawRDD();
 
       final long count = getCount(javaRdd, dataStore.getType());
-      LOGGER.warn(
-          "DataStore loaded into RDD with "
-              + count
-              + " features for adapter "
-              + tornadoAdapter.getTypeName());
+      LOGGER.warn("DataStore loaded into RDD with " + count + " features for adapter "
+          + tornadoAdapter.getTypeName());
 
       Assert.assertEquals(TORNADO_COUNT, count);
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail(
-          "Error occurred while loading RDD with adapter: '" + e.getLocalizedMessage() + "'");
+      Assert
+          .fail("Error occurred while loading RDD with adapter: '" + e.getLocalizedMessage() + "'");
     }
 
     // Clean up
     TestUtils.deleteAll(dataStore);
   }
 
-  protected void verifyQuery(
-      final SparkContext context,
-      final String filterFile,
-      final String expectedResultsFile,
-      final String name,
-      final boolean useDuring) {
+  protected void verifyQuery(final SparkContext context, final String filterFile,
+      final String expectedResultsFile, final String name, final boolean useDuring) {
     verifyQuery(context, filterFile, expectedResultsFile, name, null, useDuring);
   }
 
-  protected void verifyQuery(
-      final SparkContext context,
-      final String filterFile,
-      final String expectedResultsFile,
-      final String name,
-      final CoordinateReferenceSystem crsTransform,
-      final boolean useDuring) {
+  protected void verifyQuery(final SparkContext context, final String filterFile,
+      final String expectedResultsFile, final String name,
+      final CoordinateReferenceSystem crsTransform, final boolean useDuring) {
     try {
       // get expected results
       final ExpectedResults expectedResults =
@@ -346,22 +266,15 @@ public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {
       if (crsTransform != null) {
         final SimpleFeature feature =
             TestUtils.resourceToFeature(new File(filterFile).toURI().toURL());
-        query =
-            TestUtils.featureToQuery(
-                GeometryUtils.crsTransform(
-                    feature,
-                    SimpleFeatureTypeBuilder.retype(feature.getFeatureType(), crsTransform),
-                    CRS.findMathTransform(GeometryUtils.getDefaultCRS(), crsTransform, true)),
-                null,
-                GeometryUtils.getCrsCode(crsTransform),
-                useDuring);
+        query = TestUtils.featureToQuery(
+            GeometryUtils.crsTransform(feature,
+                SimpleFeatureTypeBuilder.retype(feature.getFeatureType(), crsTransform),
+                CRS.findMathTransform(GeometryUtils.getDefaultCRS(), crsTransform, true)),
+            null, GeometryUtils.getCrsCode(crsTransform), useDuring);
 
       } else {
-        query =
-            TestUtils.resourceToQuery(
-                new File(filterFile).toURI().toURL(),
-                Pair.of(HAIL_GEOM_FIELD, HAIL_TIME_FIELD),
-                useDuring);
+        query = TestUtils.resourceToQuery(new File(filterFile).toURI().toURL(),
+            Pair.of(HAIL_GEOM_FIELD, HAIL_TIME_FIELD), useDuring);
       }
       // Load RDD using spatial query (bbox)
       final RDDOptions queryOpts = new RDDOptions();
@@ -381,8 +294,8 @@ public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {
     }
   }
 
-  private static long getCount(
-      JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd, String dataStoreType) {
+  private static long getCount(JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd,
+      String dataStoreType) {
     // TODO this seems like it could only occur if the RecordReaders
     // resulting from the splits had overlapping ranges, which seems to
     // occur for HBase

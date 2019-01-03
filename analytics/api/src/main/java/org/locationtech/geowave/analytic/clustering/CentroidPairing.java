@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -17,8 +18,8 @@ public class CentroidPairing<T> {
 
   public CentroidPairing() {}
 
-  public CentroidPairing(
-      AnalyticItemWrapper<T> centroid, AnalyticItemWrapper<T> pairedItem, double distance) {
+  public CentroidPairing(AnalyticItemWrapper<T> centroid, AnalyticItemWrapper<T> pairedItem,
+      double distance) {
     super();
     this.centroid = centroid;
     this.pairedItem = pairedItem;
@@ -63,17 +64,25 @@ public class CentroidPairing<T> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     CentroidPairing other = (CentroidPairing) obj;
     if (centroid == null) {
-      if (other.centroid != null) return false;
-    } else if (!centroid.equals(other.centroid)) return false;
-    if (Double.doubleToLongBits(distance) != Double.doubleToLongBits(other.distance)) return false;
+      if (other.centroid != null)
+        return false;
+    } else if (!centroid.equals(other.centroid))
+      return false;
+    if (Double.doubleToLongBits(distance) != Double.doubleToLongBits(other.distance))
+      return false;
     if (pairedItem == null) {
-      if (other.pairedItem != null) return false;
-    } else if (!pairedItem.equals(other.pairedItem)) return false;
+      if (other.pairedItem != null)
+        return false;
+    } else if (!pairedItem.equals(other.pairedItem))
+      return false;
     return true;
   }
 }

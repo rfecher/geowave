@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,8 +44,8 @@ public abstract class BaseOptimalVectorAggregation<P extends Persistable, R, T>
   }
 
   @Override
-  public Aggregation<P, R, T> createAggregation(
-      final DataTypeAdapter<T> adapter, final Index index) {
+  public Aggregation<P, R, T> createAggregation(final DataTypeAdapter<T> adapter,
+      final Index index) {
     GeotoolsFeatureDataAdapter gtAdapter;
     if (adapter instanceof GeotoolsFeatureDataAdapter) {
       gtAdapter = (GeotoolsFeatureDataAdapter) adapter;
@@ -52,10 +53,8 @@ public abstract class BaseOptimalVectorAggregation<P extends Persistable, R, T>
         && (((InternalDataAdapter) adapter).getAdapter() instanceof GeotoolsFeatureDataAdapter)) {
       gtAdapter = (GeotoolsFeatureDataAdapter) ((InternalDataAdapter) adapter).getAdapter();
     } else {
-      LOGGER.error(
-          "Unable to perform aggregation on non-geotools feature adapter '"
-              + adapter.getTypeName()
-              + "'");
+      LOGGER.error("Unable to perform aggregation on non-geotools feature adapter '"
+          + adapter.getTypeName() + "'");
       return null;
     }
     if ((fieldNameParam == null) || isCommonIndex(index, gtAdapter)) {

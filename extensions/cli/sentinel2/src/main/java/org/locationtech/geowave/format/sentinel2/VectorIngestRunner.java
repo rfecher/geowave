@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,8 +38,8 @@ public class VectorIngestRunner extends AnalyzeRunner {
   private Writer<SimpleFeature> sceneWriter;
   private SimpleFeatureType sceneType;
 
-  public VectorIngestRunner(
-      final Sentinel2BasicCommandLineOptions analyzeOptions, final List<String> parameters) {
+  public VectorIngestRunner(final Sentinel2BasicCommandLineOptions analyzeOptions,
+      final List<String> parameters) {
     super(analyzeOptions);
     this.parameters = parameters;
   }
@@ -125,10 +126,8 @@ public class VectorIngestRunner extends AnalyzeRunner {
     super.nextScene(firstBandOfScene, analysisInfo);
   }
 
-  public static void writeScene(
-      final SimpleFeatureType sceneType,
-      final SimpleFeature firstBandOfScene,
-      final Writer<SimpleFeature> sceneWriter) {
+  public static void writeScene(final SimpleFeatureType sceneType,
+      final SimpleFeature firstBandOfScene, final Writer<SimpleFeature> sceneWriter) {
     final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(sceneType);
     String fid = null;
 

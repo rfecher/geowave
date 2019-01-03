@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,10 +38,11 @@ import org.locationtech.geowave.mapreduce.output.GeoWaveOutputKey;
 /**
  * Samples 'K' number of data items by evaluating a {@link SamplingRankFunction}
  *
- * <p>For KMeans Parallel, the initial step requires seeding the centroids with a single point. In
- * this case, K=1 and the rank function is random. This means the top selected geometry is random.
- * In addition, each subsequent iteration samples based on probability function and K is some
- * provided sample size.
+ * <p>
+ * For KMeans Parallel, the initial step requires seeding the centroids with a single point. In this
+ * case, K=1 and the rank function is random. This means the top selected geometry is random. In
+ * addition, each subsequent iteration samples based on probability function and K is some provided
+ * sample size.
  */
 public class KSamplerJobRunner extends GeoWaveAnalyticJobRunner implements MapReduceJobRunner {
   protected int zoomLevel = 1;
@@ -82,10 +84,8 @@ public class KSamplerJobRunner extends GeoWaveAnalyticJobRunner implements MapRe
     final PersistentAdapterStore adapterStore = super.getAdapterStore(runTimeProperties);
 
     final InternalAdapterStore internalAdapterStore = getInternalAdapterStore(runTimeProperties);
-    Short sampleInternalAdapterId =
-        internalAdapterStore.getAdapterId(
-            runTimeProperties.getPropertyAsString(
-                SampleParameters.Sample.DATA_TYPE_NAME, "sample"));
+    Short sampleInternalAdapterId = internalAdapterStore.getAdapterId(
+        runTimeProperties.getPropertyAsString(SampleParameters.Sample.DATA_TYPE_NAME, "sample"));
     if (sampleInternalAdapterId == null) {
       return null;
     }
@@ -95,9 +95,8 @@ public class KSamplerJobRunner extends GeoWaveAnalyticJobRunner implements MapRe
   private Index getIndex(final PropertyManagement runTimeProperties) throws Exception {
     final IndexStore indexStore = super.getIndexStore(runTimeProperties);
 
-    return (Index)
-        indexStore.getIndex(
-            runTimeProperties.getPropertyAsString(SampleParameters.Sample.INDEX_NAME, "index"));
+    return (Index) indexStore.getIndex(
+        runTimeProperties.getPropertyAsString(SampleParameters.Sample.INDEX_NAME, "index"));
   }
 
   @Override
@@ -110,26 +109,16 @@ public class KSamplerJobRunner extends GeoWaveAnalyticJobRunner implements MapRe
 
     runTimeProperties.store(CentroidParameters.Centroid.ZOOM_LEVEL, zoomLevel);
 
-    runTimeProperties.storeIfEmpty(
-        SampleParameters.Sample.INDEX_NAME,
-        new SpatialTemporalDimensionalityTypeProvider()
-            .createIndex(new SpatialTemporalOptions())
+    runTimeProperties.storeIfEmpty(SampleParameters.Sample.INDEX_NAME,
+        new SpatialTemporalDimensionalityTypeProvider().createIndex(new SpatialTemporalOptions())
             .getName());
-    runTimeProperties.setConfig(
-        new ParameterEnum[] {
-          GlobalParameters.Global.BATCH_ID,
-          SampleParameters.Sample.INDEX_NAME,
-          SampleParameters.Sample.SAMPLE_SIZE,
-          SampleParameters.Sample.DATA_TYPE_NAME,
-          CentroidParameters.Centroid.EXTRACTOR_CLASS,
-          CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-          CentroidParameters.Centroid.ZOOM_LEVEL
-        },
-        config,
-        getScope());
+    runTimeProperties.setConfig(new ParameterEnum[] {GlobalParameters.Global.BATCH_ID,
+        SampleParameters.Sample.INDEX_NAME, SampleParameters.Sample.SAMPLE_SIZE,
+        SampleParameters.Sample.DATA_TYPE_NAME, CentroidParameters.Centroid.EXTRACTOR_CLASS,
+        CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS, CentroidParameters.Centroid.ZOOM_LEVEL},
+        config, getScope());
 
-    ((ParameterEnum<Class<?>>) SampleParameters.Sample.SAMPLE_RANK_FUNCTION)
-        .getHelper()
+    ((ParameterEnum<Class<?>>) SampleParameters.Sample.SAMPLE_RANK_FUNCTION).getHelper()
         .setValue(config, getScope(), samplingRankFunctionClass);
 
     NestedGroupCentroidAssignment.setParameters(config, getScope(), runTimeProperties);

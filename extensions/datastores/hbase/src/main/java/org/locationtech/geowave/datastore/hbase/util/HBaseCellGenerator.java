@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,9 +31,7 @@ public class HBaseCellGenerator<T> {
   private final Index index;
   private final VisibilityWriter<T> visibilityWriter;
 
-  public HBaseCellGenerator(
-      final InternalDataAdapter<T> adapter,
-      final Index index,
+  public HBaseCellGenerator(final InternalDataAdapter<T> adapter, final Index index,
       final VisibilityWriter<T> visibilityWriter) {
     super();
     this.adapter = adapter;
@@ -50,13 +49,8 @@ public class HBaseCellGenerator<T> {
       for (final GeoWaveRow row : rows) {
         for (final GeoWaveValue value : row.getFieldValues()) {
           Cell cell =
-              CellUtil.createCell(
-                  GeoWaveKey.getCompositeId(row),
-                  adapterId,
-                  row.getDataId(),
-                  System.currentTimeMillis(),
-                  KeyValue.Type.Put.getCode(),
-                  value.getValue());
+              CellUtil.createCell(GeoWaveKey.getCompositeId(row), adapterId, row.getDataId(),
+                  System.currentTimeMillis(), KeyValue.Type.Put.getCode(), value.getValue());
 
           keyValuePairs.add(cell);
         }

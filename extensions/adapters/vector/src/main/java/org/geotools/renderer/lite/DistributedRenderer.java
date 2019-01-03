@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,8 +52,7 @@ public class DistributedRenderer extends StreamingRenderer {
       // employed and strip all transformations
       if (transformLfts.transformation instanceof ProcessFunction) {
         if ((((ProcessFunction) transformLfts.transformation).getName() != null)
-            && ((ProcessFunction) transformLfts.transformation)
-                .getName()
+            && ((ProcessFunction) transformLfts.transformation).getName()
                 .equals(DistributedRenderProcess.PROCESS_NAME)) {
           transformLfts.transformation = null;
         }
@@ -81,8 +81,8 @@ public class DistributedRenderer extends StreamingRenderer {
 
   public class DistributedRenderingBlockingQueue extends RenderingBlockingQueue {
     private static final long serialVersionUID = -1014302908773318665L;
-    private final Map<Graphics2D, List<Pair<BufferedImage, Composite>>>
-        compositeGroupGraphicsToStyleGraphicsMapping = new LinkedHashMap<>();
+    private final Map<Graphics2D, List<Pair<BufferedImage, Composite>>> compositeGroupGraphicsToStyleGraphicsMapping =
+        new LinkedHashMap<>();
     private final Map<Graphics2D, Composite> compositeGroupGraphicsToCompositeMapping =
         new HashMap<>();
 
@@ -123,15 +123,12 @@ public class DistributedRenderer extends StreamingRenderer {
 
     public DistributedRenderResult getResult(final BufferedImage parentImage) {
       final List<CompositeGroupResult> compositeGroups = new ArrayList<>();
-      for (final Entry<Graphics2D, List<Pair<BufferedImage, Composite>>> e :
-          compositeGroupGraphicsToStyleGraphicsMapping.entrySet()) {
+      for (final Entry<Graphics2D, List<Pair<BufferedImage, Composite>>> e : compositeGroupGraphicsToStyleGraphicsMapping
+          .entrySet()) {
         final Graphics2D compositeGroupGraphic = e.getKey();
         final List<Pair<PersistableRenderedImage, PersistableComposite>> orderedStyles =
-            Lists.transform(
-                e.getValue(),
-                new Function<
-                    Pair<BufferedImage, Composite>,
-                    Pair<PersistableRenderedImage, PersistableComposite>>() {
+            Lists.transform(e.getValue(),
+                new Function<Pair<BufferedImage, Composite>, Pair<PersistableRenderedImage, PersistableComposite>>() {
 
                   @Override
                   public Pair<PersistableRenderedImage, PersistableComposite> apply(
@@ -139,10 +136,8 @@ public class DistributedRenderer extends StreamingRenderer {
                     if (input == null) {
                       return null;
                     }
-                    return Pair.of(
-                        new PersistableRenderedImage(input.getKey()),
-                        input.getValue() == null
-                            ? null
+                    return Pair.of(new PersistableRenderedImage(input.getKey()),
+                        input.getValue() == null ? null
                             : new PersistableComposite(input.getValue()));
                   }
                 });
@@ -151,10 +146,8 @@ public class DistributedRenderer extends StreamingRenderer {
               compositeGroupGraphicsToCompositeMapping.get(compositeGroupGraphic);
           // because mergelayers wasn't writing to the composite
           // image, their won't be an image to persist
-          final PersistableComposite persistableCGC =
-              compositeGroupComposite == null
-                  ? null
-                  : new PersistableComposite(compositeGroupComposite);
+          final PersistableComposite persistableCGC = compositeGroupComposite == null ? null
+              : new PersistableComposite(compositeGroupComposite);
           compositeGroups.add(new CompositeGroupResult(persistableCGC, orderedStyles));
         } else {
           // it must be the parent image
@@ -162,8 +155,8 @@ public class DistributedRenderer extends StreamingRenderer {
         }
       }
 
-      return new DistributedRenderResult(
-          new PersistableRenderedImage(parentImage), compositeGroups);
+      return new DistributedRenderResult(new PersistableRenderedImage(parentImage),
+          compositeGroups);
     }
   }
 }

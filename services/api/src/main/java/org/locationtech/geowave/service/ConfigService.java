@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,10 +32,8 @@ public interface ConfigService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addstore/hbase")
-  public Response addHBaseStore(
-      @QueryParam("name") String name,
-      @QueryParam("zookeeper") String zookeeper,
-      @QueryParam("makeDefault") Boolean makeDefault,
+  public Response addHBaseStore(@QueryParam("name") String name,
+      @QueryParam("zookeeper") String zookeeper, @QueryParam("makeDefault") Boolean makeDefault,
       @QueryParam("geowaveNamespace") String geowaveNamespace,
       @QueryParam("disableServiceSide") Boolean disableServiceSide,
       @QueryParam("coprocessorjar") String coprocessorjar,
@@ -48,12 +47,9 @@ public interface ConfigService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addstore/accumulo")
-  public Response addAccumuloStore(
-      @QueryParam("name") String name,
-      @QueryParam("zookeeper") String zookeeper,
-      @QueryParam("instance") String instance,
-      @QueryParam("user") String user,
-      @QueryParam("password") String password,
+  public Response addAccumuloStore(@QueryParam("name") String name,
+      @QueryParam("zookeeper") String zookeeper, @QueryParam("instance") String instance,
+      @QueryParam("user") String user, @QueryParam("password") String password,
       @QueryParam("makeDefault") Boolean makeDefault,
       @QueryParam("geowaveNamespace") String geowaveNamespace,
       @QueryParam("useLocalityGroups") Boolean useLocalityGroups,
@@ -67,11 +63,9 @@ public interface ConfigService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addstore/bigtable")
-  public Response addBigTableStore(
-      @QueryParam("name") String name,
+  public Response addBigTableStore(@QueryParam("name") String name,
       @QueryParam("makeDefault") Boolean makeDefault,
-      @QueryParam("scanCacheSize") Integer scanCacheSize,
-      @QueryParam("projectId") String projectId,
+      @QueryParam("scanCacheSize") Integer scanCacheSize, @QueryParam("projectId") String projectId,
       @QueryParam("instanceId") String instanceId,
       @QueryParam("geowaveNamespace") String geowaveNamespace,
       @QueryParam("useLocalityGroups") Boolean useLocalityGroups,
@@ -85,15 +79,11 @@ public interface ConfigService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addstore/dynamodb")
-  public Response addDynamoDBStore(
-      @QueryParam("name") String name,
-      @QueryParam("makeDefault") Boolean makeDefault,
-      @QueryParam("endpoint") String endpoint,
-      @QueryParam("region") String region,
-      @QueryParam("writeCapacity") Long writeCapacity,
+  public Response addDynamoDBStore(@QueryParam("name") String name,
+      @QueryParam("makeDefault") Boolean makeDefault, @QueryParam("endpoint") String endpoint,
+      @QueryParam("region") String region, @QueryParam("writeCapacity") Long writeCapacity,
       @QueryParam("readCapacity") Long readCapacity,
-      @QueryParam("maxConnections") Integer maxConnections,
-      @QueryParam("protocol") String protocol,
+      @QueryParam("maxConnections") Integer maxConnections, @QueryParam("protocol") String protocol,
       @QueryParam("enableCacheResponseMetadata") Boolean enableCacheResponseMetadata,
       @QueryParam("geowaveNamespace") String geowaveNamespace,
       @QueryParam("persistAdapter") Boolean persistAdapter,
@@ -107,8 +97,7 @@ public interface ConfigService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addstore/cassandra")
-  public Response addCassandraStore(
-      @QueryParam("name") String name,
+  public Response addCassandraStore(@QueryParam("name") String name,
       @QueryParam("makeDefault") Boolean makeDefault,
       @QueryParam("contactPoint") String contactPoint,
       @QueryParam("batchWriteSize") Integer batchWriteSize,
@@ -126,67 +115,54 @@ public interface ConfigService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addstore/{type}")
-  public Response addStoreReRoute(
-      @QueryParam("name") String name,
-      @PathParam("type") String type,
+  public Response addStoreReRoute(@QueryParam("name") String name, @PathParam("type") String type,
       @QueryParam("geowaveNamespace") @DefaultValue("") String geowaveNamespace,
       Map<String, String> additionalQueryParams);
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addindex/spatial")
-  public Response addSpatialIndex(
-      @QueryParam("name") String name,
+  public Response addSpatialIndex(@QueryParam("name") String name,
       @QueryParam("makeDefault") Boolean makeDefault,
       @QueryParam("nameOverride") String nameOverride,
       @QueryParam("numPartitions") Integer numPartitions,
       @QueryParam("partitionStrategy") String partitionStrategy,
-      @QueryParam("storeTime") Boolean storeTime,
-      @QueryParam("crs") String crs);
+      @QueryParam("storeTime") Boolean storeTime, @QueryParam("crs") String crs);
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addindex/spatial_temporal")
-  public Response addSpatialTemporalIndex(
-      @QueryParam("name") String name,
+  public Response addSpatialTemporalIndex(@QueryParam("name") String name,
       @QueryParam("makeDefault") Boolean makeDefault,
       @QueryParam("nameOverride") String nameOverride,
       @QueryParam("numPartitions") Integer numPartitions,
       @QueryParam("partitionStrategy") String partitionStrategy,
-      @QueryParam("periodicity") String periodicity,
-      @QueryParam("bias") String bias,
-      @QueryParam("maxDuplicates") Long maxDuplicates,
-      @QueryParam("crs") String crs);
+      @QueryParam("periodicity") String periodicity, @QueryParam("bias") String bias,
+      @QueryParam("maxDuplicates") Long maxDuplicates, @QueryParam("crs") String crs);
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addindex")
-  public Response addIndex(
-      @QueryParam("name") String name,
-      @QueryParam("type") String type,
+  public Response addIndex(@QueryParam("name") String name, @QueryParam("type") String type,
       @QueryParam("makeDefault") Boolean makeDefault,
       @QueryParam("nameOverride") String nameOverride,
       @QueryParam("numPartitions") Integer numPartitions,
       @QueryParam("partitionStrategy") String partitionStrategy,
-      @QueryParam("storeTime") Boolean storeTime,
-      @QueryParam("periodicity") String periodicity,
-      @QueryParam("bias") String bias,
-      @QueryParam("maxDuplicates") Long maxDuplicates,
+      @QueryParam("storeTime") Boolean storeTime, @QueryParam("periodicity") String periodicity,
+      @QueryParam("bias") String bias, @QueryParam("maxDuplicates") Long maxDuplicates,
       @QueryParam("crs") String crs);
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/addindexgrp")
-  public Response addIndexGroup(
-      @QueryParam("name") String name, @QueryParam("indexes") String indexes);
+  public Response addIndexGroup(@QueryParam("name") String name,
+      @QueryParam("indexes") String indexes);
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/geoserver")
-  public Response configGeoServer(
-      @QueryParam("GeoServer_URL") String GeoServer_URL,
-      @QueryParam("username") String username,
-      @QueryParam("pass") String pass,
+  public Response configGeoServer(@QueryParam("GeoServer_URL") String GeoServer_URL,
+      @QueryParam("username") String username, @QueryParam("pass") String pass,
       @QueryParam("workspace") String workspace,
       @QueryParam("sslSecurityProtocol") String sslSecurityProtocol,
       @QueryParam("sslTrustStorePath") String sslTrustStorePath,
@@ -226,8 +202,6 @@ public interface ConfigService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/set")
-  public Response set(
-      @QueryParam("name") String name,
-      @QueryParam("value") String value,
+  public Response set(@QueryParam("name") String name, @QueryParam("value") String value,
       @QueryParam("password") Boolean password);
 }

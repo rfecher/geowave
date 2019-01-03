@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,10 +28,8 @@ public class NoDataMergeStrategy implements RasterTileMergeStrategy<NoDataMetada
   private static final Logger LOGGER = LoggerFactory.getLogger(NoDataMergeStrategy.class);
 
   @Override
-  public void merge(
-      final RasterTile<NoDataMetadata> thisTile,
-      final RasterTile<NoDataMetadata> nextTile,
-      final SampleModel sampleModel) {
+  public void merge(final RasterTile<NoDataMetadata> thisTile,
+      final RasterTile<NoDataMetadata> nextTile, final SampleModel sampleModel) {
 
     // this strategy aims for latest tile with data values, but where there
     // is no data in the latest and there is data in the earlier tile, it
@@ -52,8 +51,8 @@ public class NoDataMergeStrategy implements RasterTileMergeStrategy<NoDataMetada
       for (int b = 0; b < thisRaster.getNumBands(); b++) {
         for (int x = thisRaster.getMinX(); x < maxX; x++) {
           for (int y = thisRaster.getMinY(); y < maxY; y++) {
-            if (thisTileMetadata.isNoData(
-                new SampleIndex(x, y, b), thisRaster.getSampleDouble(x, y, b))) {
+            if (thisTileMetadata.isNoData(new SampleIndex(x, y, b),
+                thisRaster.getSampleDouble(x, y, b))) {
               final double sample = nextRaster.getSampleDouble(x, y, b);
               if ((nextTileMetadata == null)
                   || !nextTileMetadata.isNoData(new SampleIndex(x, y, b), sample)) {
@@ -69,9 +68,8 @@ public class NoDataMergeStrategy implements RasterTileMergeStrategy<NoDataMetada
         }
       }
       if (recalculateMetadata) {
-        thisTile.setMetadata(
-            NoDataMetadataFactory.mergeMetadata(
-                thisTileMetadata, thisRaster, nextTileMetadata, nextRaster));
+        thisTile.setMetadata(NoDataMetadataFactory.mergeMetadata(thisTileMetadata, thisRaster,
+            nextTileMetadata, nextRaster));
       }
     }
   }
@@ -106,15 +104,14 @@ public class NoDataMergeStrategy implements RasterTileMergeStrategy<NoDataMetada
   public void fromBinary(final byte[] bytes) {}
 
   @Override
-  public NoDataMetadata getMetadata(
-      final GridCoverage tileGridCoverage, final RasterDataAdapter dataAdapter) {
+  public NoDataMetadata getMetadata(final GridCoverage tileGridCoverage,
+      final RasterDataAdapter dataAdapter) {
     if (tileGridCoverage instanceof FitToIndexGridCoverage) {
-      return NoDataMetadataFactory.createMetadata(
-          dataAdapter.getNoDataValuesPerBand(),
+      return NoDataMetadataFactory.createMetadata(dataAdapter.getNoDataValuesPerBand(),
           ((FitToIndexGridCoverage) tileGridCoverage).getFootprintScreenGeometry(),
           tileGridCoverage.getRenderedImage().getData());
     }
-    return NoDataMetadataFactory.createMetadata(
-        dataAdapter.getNoDataValuesPerBand(), null, tileGridCoverage.getRenderedImage().getData());
+    return NoDataMetadataFactory.createMetadata(dataAdapter.getNoDataValuesPerBand(), null,
+        tileGridCoverage.getRenderedImage().getData());
   }
 }

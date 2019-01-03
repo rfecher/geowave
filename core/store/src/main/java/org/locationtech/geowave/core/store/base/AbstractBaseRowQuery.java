@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,44 +31,25 @@ import org.locationtech.geowave.core.store.util.NativeEntryTransformer;
 abstract class AbstractBaseRowQuery<T> extends BaseQuery {
   private static final Logger LOGGER = Logger.getLogger(AbstractBaseRowQuery.class);
 
-  public AbstractBaseRowQuery(
-      final Index index,
-      final String[] authorizations,
+  public AbstractBaseRowQuery(final Index index, final String[] authorizations,
       final ScanCallback<T, ?> scanCallback,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
       final FieldVisibilityCount visibilityCounts) {
     super(index, scanCallback, differingVisibilityCounts, visibilityCounts, authorizations);
   }
 
-  public CloseableIterator<T> query(
-      final DataStoreOperations operations,
-      final DataStoreOptions options,
-      final double[] maxResolutionSubsamplingPerDimension,
+  public CloseableIterator<T> query(final DataStoreOperations operations,
+      final DataStoreOptions options, final double[] maxResolutionSubsamplingPerDimension,
       final double[] targetResolutionPerDimensionForHierarchicalIndex,
-      final PersistentAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore,
-      final Integer limit,
-      final Integer queryMaxRangeDecomposition,
-      final boolean delete) {
-    final RowReader<T> reader =
-        getReader(
-            operations,
-            options,
-            adapterStore,
-            internalAdapterStore,
-            maxResolutionSubsamplingPerDimension,
-            targetResolutionPerDimensionForHierarchicalIndex,
-            limit,
-            queryMaxRangeDecomposition,
-            new NativeEntryTransformer<>(
-                adapterStore,
-                index,
-                getClientFilter(options),
-                (ScanCallback<T, ?>) scanCallback,
-                getFieldBitmask(),
-                maxResolutionSubsamplingPerDimension,
-                !isCommonIndexAggregation()),
-            delete);
+      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
+      final Integer limit, final Integer queryMaxRangeDecomposition, final boolean delete) {
+    final RowReader<T> reader = getReader(operations, options, adapterStore, internalAdapterStore,
+        maxResolutionSubsamplingPerDimension, targetResolutionPerDimensionForHierarchicalIndex,
+        limit, queryMaxRangeDecomposition,
+        new NativeEntryTransformer<>(adapterStore, index, getClientFilter(options),
+            (ScanCallback<T, ?>) scanCallback, getFieldBitmask(),
+            maxResolutionSubsamplingPerDimension, !isCommonIndexAggregation()),
+        delete);
     return new CloseableIteratorWrapper<>(new ReaderClosableWrapper(reader), reader);
   }
 }

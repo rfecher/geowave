@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -56,8 +57,8 @@ public class BatchedRangeRead<T> {
     double startScore;
     double endScore;
 
-    public RangeReadInfo(
-        final byte[] partitionKey, final double startScore, final double endScore) {
+    public RangeReadInfo(final byte[] partitionKey, final double startScore,
+        final double endScore) {
       this.partitionKey = partitionKey;
       this.startScore = startScore;
       this.endScore = endScore;
@@ -105,16 +106,11 @@ public class BatchedRangeRead<T> {
   private final boolean isSortFinalResultsBySortKey;
   private final Compression compression;
 
-  protected BatchedRangeRead(
-      final RedissonClient client,
-      final Compression compression,
-      final String setNamePrefix,
-      final short adapterId,
+  protected BatchedRangeRead(final RedissonClient client, final Compression compression,
+      final String setNamePrefix, final short adapterId,
       final Collection<SinglePartitionQueryRanges> ranges,
-      final GeoWaveRowIteratorTransformer<T> rowTransformer,
-      final Predicate<GeoWaveRow> filter,
-      final boolean async,
-      final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
+      final GeoWaveRowIteratorTransformer<T> rowTransformer, final Predicate<GeoWaveRow> filter,
+      final boolean async, final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
       final boolean isSortFinalResultsBySortKey) {
     this.client = client;
     this.compression = compression;
@@ -130,8 +126,8 @@ public class BatchedRangeRead<T> {
   }
 
   private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(final byte[] partitionKey) {
-    return RedisUtils.getRowSet(
-        client, compression, setNamePrefix, partitionKey, groupByRowAndSortByTimePair.getRight());
+    return RedisUtils.getRowSet(client, compression, setNamePrefix, partitionKey,
+        groupByRowAndSortByTimePair.getRight());
   }
 
   public CloseableIterator<T> results() {
@@ -139,12 +135,10 @@ public class BatchedRangeRead<T> {
     for (final SinglePartitionQueryRanges r : ranges) {
       for (final ByteArrayRange range : r.getSortKeyRanges()) {
         final double start =
-            range.getStart() != null
-                ? RedisUtils.getScore(range.getStart().getBytes())
+            range.getStart() != null ? RedisUtils.getScore(range.getStart().getBytes())
                 : Double.NEGATIVE_INFINITY;
         final double end =
-            range.getEnd() != null
-                ? RedisUtils.getScore(range.getEndAsNextPrefix().getBytes())
+            range.getEnd() != null ? RedisUtils.getScore(range.getEndAsNextPrefix().getBytes())
                 : Double.POSITIVE_INFINITY;
         reads.add(new RangeReadInfo(r.getPartitionKey().getBytes(), start, end));
       }
@@ -161,29 +155,19 @@ public class BatchedRangeRead<T> {
       // order the reads by sort keys
       reads.sort(ScoreOrderComparator.SINGLETON);
     }
-    return new CloseableIterator.Wrapper<>(
-        Iterators.concat(
-            reads
-                .stream()
-                .map(
-                    r -> {
-                      ByteArray partitionKey;
-                      if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
-                        partitionKey = EMPTY_PARTITION_KEY;
-                      } else {
-                        partitionKey = new ByteArray(r.partitionKey);
-                      }
-                      // if we don't have enough
-                      // precision we need to make
-                      // sure the end is inclusive
-                      return transformAndFilter(
-                          setCache
-                              .get(partitionKey)
-                              .entryRange(
-                                  r.startScore, true, r.endScore, r.endScore <= r.startScore),
-                          r.partitionKey);
-                    })
-                .iterator()));
+    return new CloseableIterator.Wrapper<>(Iterators.concat(reads.stream().map(r -> {
+      ByteArray partitionKey;
+      if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
+        partitionKey = EMPTY_PARTITION_KEY;
+      } else {
+        partitionKey = new ByteArray(r.partitionKey);
+      }
+      // if we don't have enough
+      // precision we need to make
+      // sure the end is inclusive
+      return transformAndFilter(setCache.get(partitionKey).entryRange(r.startScore, true,
+          r.endScore, r.endScore <= r.startScore), r.partitionKey);
+    }).iterator()));
   }
 
   public CloseableIterator<T> executeQueryAsync(final List<RangeReadInfo> reads) {
@@ -191,147 +175,124 @@ public class BatchedRangeRead<T> {
     final List<RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>>> futures =
         Lists.newArrayListWithExpectedSize(reads.size());
     final BlockingQueue<Object> results = new LinkedBlockingQueue<>(MAX_BOUNDED_READS_ENQUEUED);
-    new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                // set it to 1 to make sure all queries are submitted in
-                // the loop
-                final AtomicInteger queryCount = new AtomicInteger(1);
-                for (final RangeReadInfo r : reads) {
-                  try {
-                    ByteArray partitionKey;
-                    if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
-                      partitionKey = EMPTY_PARTITION_KEY;
-                    } else {
-                      partitionKey = new ByteArray(r.partitionKey);
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        // set it to 1 to make sure all queries are submitted in
+        // the loop
+        final AtomicInteger queryCount = new AtomicInteger(1);
+        for (final RangeReadInfo r : reads) {
+          try {
+            ByteArray partitionKey;
+            if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
+              partitionKey = EMPTY_PARTITION_KEY;
+            } else {
+              partitionKey = new ByteArray(r.partitionKey);
+            }
+            readSemaphore.acquire();
+            final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f =
+                setCache.get(partitionKey).entryRangeAsync(r.startScore, true, r.endScore,
+                    // if we don't have enough
+                    // precision we need to make
+                    // sure the end is inclusive
+                    r.endScore <= r.startScore);
+            queryCount.incrementAndGet();
+            f.handle((result, throwable) -> {
+              if (!f.isSuccess()) {
+                if (!f.isCancelled()) {
+                  LOGGER.warn("Async Redis query failed", throwable);
+                }
+                checkFinalize(readSemaphore, results, queryCount);
+                return result;
+              } else {
+                try {
+                  transformAndFilter(result.iterator(), r.partitionKey).forEachRemaining(row -> {
+                    try {
+                      results.put(row);
+                    } catch (final InterruptedException e) {
+                      LOGGER.warn("interrupted while waiting to enqueue a redis result", e);
                     }
-                    readSemaphore.acquire();
-                    final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f =
-                        setCache
-                            .get(partitionKey)
-                            .entryRangeAsync(
-                                r.startScore,
-                                true,
-                                r.endScore,
-                                // if we don't have enough
-                                // precision we need to make
-                                // sure the end is inclusive
-                                r.endScore <= r.startScore);
-                    queryCount.incrementAndGet();
-                    f.handle(
-                        (result, throwable) -> {
-                          if (!f.isSuccess()) {
-                            if (!f.isCancelled()) {
-                              LOGGER.warn("Async Redis query failed", throwable);
-                            }
-                            checkFinalize(readSemaphore, results, queryCount);
-                            return result;
-                          } else {
-                            try {
-                              transformAndFilter(result.iterator(), r.partitionKey)
-                                  .forEachRemaining(
-                                      row -> {
-                                        try {
-                                          results.put(row);
-                                        } catch (final InterruptedException e) {
-                                          LOGGER.warn(
-                                              "interrupted while waiting to enqueue a redis result",
-                                              e);
-                                        }
-                                      });
+                  });
 
-                            } finally {
-                              checkFinalize(readSemaphore, results, queryCount);
-                            }
-                            return result;
-                          }
-                        });
-                    synchronized (futures) {
-                      futures.add(f);
-                    }
-                  } catch (final InterruptedException e) {
-                    LOGGER.warn("Exception while executing query", e);
-                    readSemaphore.release();
-                  }
+                } finally {
+                  checkFinalize(readSemaphore, results, queryCount);
                 }
-                // then decrement
-                if (queryCount.decrementAndGet() <= 0) {
-                  // and if there are no queries, there may not have
-                  // been any
-                  // statements submitted
-                  try {
-                    results.put(RowConsumer.POISON);
-                  } catch (final InterruptedException e) {
-                    LOGGER.error(
-                        "Interrupted while finishing blocking queue, this may result in deadlock!");
-                  }
-                }
+                return result;
               }
-            },
-            "Redis Query Executor")
-        .start();
-    return new CloseableIteratorWrapper<>(
-        new Closeable() {
-          @Override
-          public void close() throws IOException {
-            List<RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>>> newFutures;
+            });
             synchronized (futures) {
-              newFutures = new ArrayList<>(futures);
+              futures.add(f);
             }
-            for (final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f : newFutures) {
-              f.cancel(true);
-            }
+          } catch (final InterruptedException e) {
+            LOGGER.warn("Exception while executing query", e);
+            readSemaphore.release();
           }
-        },
-        new RowConsumer<>(results));
+        }
+        // then decrement
+        if (queryCount.decrementAndGet() <= 0) {
+          // and if there are no queries, there may not have
+          // been any
+          // statements submitted
+          try {
+            results.put(RowConsumer.POISON);
+          } catch (final InterruptedException e) {
+            LOGGER
+                .error("Interrupted while finishing blocking queue, this may result in deadlock!");
+          }
+        }
+      }
+    }, "Redis Query Executor").start();
+    return new CloseableIteratorWrapper<>(new Closeable() {
+      @Override
+      public void close() throws IOException {
+        List<RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>>> newFutures;
+        synchronized (futures) {
+          newFutures = new ArrayList<>(futures);
+        }
+        for (final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f : newFutures) {
+          f.cancel(true);
+        }
+      }
+    }, new RowConsumer<>(results));
   }
 
   private Iterator<T> transformAndFilter(
       final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result, final byte[] partitionKey) {
-    return rowTransformer.apply(
-        sortByKeyIfRequired(
-            isSortFinalResultsBySortKey,
-            (Iterator<GeoWaveRow>)
-                (Iterator<? extends GeoWaveRow>)
-                    new GeoWaveRowMergingIterator<>(
-                        Iterators.filter(
-                            Iterators.transform(
-                                groupByRowAndSortByTimePair.getLeft()
-                                    ? RedisUtils.groupByRow(
-                                        result, groupByRowAndSortByTimePair.getRight())
-                                    : result,
-                                new Function<
-                                    ScoredEntry<GeoWaveRedisPersistedRow>, GeoWaveRedisRow>() {
+    return rowTransformer
+        .apply(sortByKeyIfRequired(isSortFinalResultsBySortKey,
+            (Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
+                Iterators
+                    .filter(
+                        Iterators.transform(
+                            groupByRowAndSortByTimePair.getLeft()
+                                ? RedisUtils.groupByRow(result,
+                                    groupByRowAndSortByTimePair.getRight())
+                                : result,
+                            new Function<ScoredEntry<GeoWaveRedisPersistedRow>, GeoWaveRedisRow>() {
 
-                                  @Override
-                                  public GeoWaveRedisRow apply(
-                                      final ScoredEntry<GeoWaveRedisPersistedRow> entry) {
-                                    // @formatter:off
+                              @Override
+                              public GeoWaveRedisRow apply(
+                                  final ScoredEntry<GeoWaveRedisPersistedRow> entry) {
+                            // @formatter:off
                                     // wrap the persisted row with additional metadata
                                     // @formatter:on
-                                    return new GeoWaveRedisRow(
-                                        entry.getValue(),
-                                        adapterId,
-                                        partitionKey,
-                                        RedisUtils.getSortKey(entry.getScore()));
-                                  }
-                                }),
-                            filter))));
+                                return new GeoWaveRedisRow(entry.getValue(), adapterId,
+                                    partitionKey, RedisUtils.getSortKey(entry.getScore()));
+                              }
+                            }),
+                        filter))));
   }
 
-  private static Iterator<GeoWaveRow> sortByKeyIfRequired(
-      final boolean isRequired, final Iterator<GeoWaveRow> it) {
+  private static Iterator<GeoWaveRow> sortByKeyIfRequired(final boolean isRequired,
+      final Iterator<GeoWaveRow> it) {
     if (isRequired) {
       return RedisUtils.sortBySortKey(it);
     }
     return it;
   }
 
-  private static void checkFinalize(
-      final Semaphore semaphore,
-      final BlockingQueue<Object> resultQueue,
-      final AtomicInteger queryCount) {
+  private static void checkFinalize(final Semaphore semaphore,
+      final BlockingQueue<Object> resultQueue, final AtomicInteger queryCount) {
     semaphore.release();
     if (queryCount.decrementAndGet() <= 0) {
       try {

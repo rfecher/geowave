@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -16,14 +17,11 @@ public class BasicNumericDatasetTest {
   private double DELTA = 1e-15;
 
   private BasicNumericDataset basicNumericDatasetRanges =
-      new BasicNumericDataset(
-          new NumericData[] {
-            new NumericRange(10, 50), new NumericRange(25, 95), new NumericRange(-50, 50)
-          });
+      new BasicNumericDataset(new NumericData[] {new NumericRange(10, 50), new NumericRange(25, 95),
+          new NumericRange(-50, 50)});
 
-  private BasicNumericDataset basicNumericDatasetValues =
-      new BasicNumericDataset(
-          new NumericData[] {new NumericValue(25), new NumericValue(60), new NumericValue(0)});
+  private BasicNumericDataset basicNumericDatasetValues = new BasicNumericDataset(
+      new NumericData[] {new NumericValue(25), new NumericValue(60), new NumericValue(0)});
 
   @Test
   public void testNumericRangesMinValues() {

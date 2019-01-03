@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,16 +32,14 @@ public class URLClassloaderUtils {
   private static Set<ClassLoader> initializedClassLoaders = new HashSet<>();
 
   public static enum URLTYPE {
-    S3,
-    HDFS
+    S3, HDFS
   }
 
   private static boolean hasS3Handler = false;
   private static boolean hasHdfsHandler = false;
 
-  public static void setURLStreamHandlerFactory(final URLTYPE urlType)
-      throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-          IllegalAccessException {
+  public static void setURLStreamHandlerFactory(final URLTYPE urlType) throws NoSuchFieldException,
+      SecurityException, IllegalArgumentException, IllegalAccessException {
     // One-time init for each type
     if ((urlType == URLTYPE.S3) && hasS3Handler) {
       return;
@@ -106,9 +105,7 @@ public class URLClassloaderUtils {
         setURLStreamHandlerFactory(URLTYPE.S3);
 
         return true;
-      } catch (NoSuchFieldException
-          | SecurityException
-          | IllegalArgumentException
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
           | IllegalAccessException e1) {
         LOGGER.error("Error in setting up S3URLStreamHandler Factory", e1);
 
@@ -119,9 +116,7 @@ public class URLClassloaderUtils {
         setURLStreamHandlerFactory(URLTYPE.HDFS);
 
         return true;
-      } catch (NoSuchFieldException
-          | SecurityException
-          | IllegalArgumentException
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
           | IllegalAccessException e1) {
         LOGGER.error("Error in setting up HdfsUrlStreamHandler Factory", e1);
 

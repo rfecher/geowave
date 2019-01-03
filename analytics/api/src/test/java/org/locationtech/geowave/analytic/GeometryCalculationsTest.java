@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.analytic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
@@ -31,9 +31,8 @@ public class GeometryCalculationsTest {
     CoordinateReferenceSystem crs = CRS.decode("EPSG:4326", true);
 
     GeometryCalculations calculator = new GeometryCalculations(crs);
-    List<Geometry> geos =
-        calculator.buildSurroundingGeometries(
-            new double[] {50000, 50000}, SI.METRE, new Coordinate(30, 30));
+    List<Geometry> geos = calculator.buildSurroundingGeometries(new double[] {50000, 50000},
+        SI.METRE, new Coordinate(30, 30));
     assertEquals(1, geos.size());
     Geometry geo = geos.get(0);
     double lastDist = Double.NaN;
@@ -58,9 +57,8 @@ public class GeometryCalculationsTest {
     assertTrue(envelope.getMaxY() > 30);
     assertTrue(envelope.getMinX() < 30);
 
-    geos =
-        calculator.buildSurroundingGeometries(
-            new double[] {100000, 100000}, SI.METRE, new Coordinate(179.9999999996, 0));
+    geos = calculator.buildSurroundingGeometries(new double[] {100000, 100000}, SI.METRE,
+        new Coordinate(179.9999999996, 0));
     assertEquals(2, geos.size());
     geo = geos.get(0);
     envelope = geo.getEnvelopeInternal();

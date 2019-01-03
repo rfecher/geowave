@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -15,14 +16,16 @@ public class TrackManagement extends TrackItem {
   /**
    * A track production area assigned to a tracker by a track data coordinator.
    *
-   * <p>see AdatP-33 for TDL track management.
+   * <p>
+   * see AdatP-33 for TDL track management.
    */
   public Area area;
 
   /**
    * Information about the modality from which a track is computed.
    *
-   * <p>See {@ModalityType}
+   * <p>
+   * See {@ModalityType}
    */
   public ModalityType sourceModality;
 
@@ -30,14 +33,16 @@ public class TrackManagement extends TrackItem {
    * Information related to the environment in which a track is computed (i.e. land, air, space,
    * etc). Compatible with Link 16 J3.5C1, environment field
    *
-   * <p>See {@link TrackEnvironment}
+   * <p>
+   * See {@link TrackEnvironment}
    */
   public TrackEnvironment environment;
 
   /**
    * Quality of the track.
    *
-   * <p>Allowed values from 0-15 in accordance of Link 16 J3.5, field Track Quality. Element can be
+   * <p>
+   * Allowed values from 0-15 in accordance of Link 16 J3.5, field Track Quality. Element can be
    * used to support distributed track management.
    */
   public int quality;

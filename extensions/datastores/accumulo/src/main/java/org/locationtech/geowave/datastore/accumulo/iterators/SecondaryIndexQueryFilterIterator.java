@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,11 +33,8 @@ public class SecondaryIndexQueryFilterIterator extends RowFilter {
   private String primaryIndexId;
 
   @Override
-  public void init(
-      final SortedKeyValueIterator<Key, Value> source,
-      final Map<String, String> options,
-      final IteratorEnvironment env)
-      throws IOException {
+  public void init(final SortedKeyValueIterator<Key, Value> source,
+      final Map<String, String> options, final IteratorEnvironment env) throws IOException {
     super.init(source, options, env);
     if ((options == null) || (!options.containsKey(PRIMARY_INDEX_ID))) {
       throw new IllegalArgumentException(
@@ -61,8 +59,7 @@ public class SecondaryIndexQueryFilterIterator extends RowFilter {
             StringUtils.stringFromBinary(key.getColumnQualifierData().getBackingArray());
         if (!cq.equals(primaryIndexId)) {
           final IndexedPersistenceEncoding<ByteArray> persistenceEncoding =
-              new IndexedPersistenceEncoding<ByteArray>(
-                  null, // not needed
+              new IndexedPersistenceEncoding<ByteArray>(null, // not needed
                   null, // not needed
                   null, // not needed
                   null, // not needed

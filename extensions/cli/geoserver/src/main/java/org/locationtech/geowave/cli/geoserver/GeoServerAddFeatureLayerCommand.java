@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,16 +24,10 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 @GeowaveOperation(name = "addfl", parentOperation = GeoServerSection.class)
 @Parameters(commandDescription = "Add a GeoServer feature layer")
 public class GeoServerAddFeatureLayerCommand extends GeoServerCommand<String> {
-  @Parameter(
-      names = {"-ws", "--workspace"},
-      required = false,
-      description = "workspace name")
+  @Parameter(names = {"-ws", "--workspace"}, required = false, description = "workspace name")
   private String workspace = null;
 
-  @Parameter(
-      names = {"-ds", "--datastore"},
-      required = true,
-      description = "datastore name")
+  @Parameter(names = {"-ds", "--datastore"}, required = true, description = "datastore name")
   private String datastore = null;
 
   @Parameter(description = "<layer name>")
@@ -64,13 +59,9 @@ public class GeoServerAddFeatureLayerCommand extends GeoServerCommand<String> {
       final JSONObject listObj = JSONObject.fromObject(addLayerResponse.getEntity());
       return "\nGeoServer add layer response " + layerName + ":" + listObj.toString(2);
     }
-    String errorMessage =
-        "Error adding GeoServer layer "
-            + layerName
-            + ": "
-            + addLayerResponse.readEntity(String.class)
-            + "\nGeoServer Response Code = "
-            + addLayerResponse.getStatus();
+    String errorMessage = "Error adding GeoServer layer " + layerName + ": "
+        + addLayerResponse.readEntity(String.class) + "\nGeoServer Response Code = "
+        + addLayerResponse.getStatus();
     return handleError(addLayerResponse, errorMessage);
   }
 }

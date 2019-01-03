@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -56,9 +57,7 @@ public class MemoryStoreUtils {
   }
 
   public static enum NodeType {
-    TERM,
-    OR,
-    AND,
+    TERM, OR, AND,
   }
 
   private static class VisibilityExpressionParser {
@@ -81,8 +80,8 @@ public class MemoryStoreUtils {
       return null;
     }
 
-    VisibilityExpression processTerm(
-        final int start, final int end, final VisibilityExpression expr, final byte[] expression)
+    VisibilityExpression processTerm(final int start, final int end,
+        final VisibilityExpression expr, final byte[] expression)
         throws UnsupportedEncodingException {
       if (start != end) {
         if (expr != null) {
@@ -102,60 +101,55 @@ public class MemoryStoreUtils {
       int termStart = index;
       while (index < expression.length) {
         switch (expression[index++]) {
-          case '&':
-            {
-              expr = processTerm(termStart, index - 1, expr, expression);
-              if (result != null) {
-                if (!(result instanceof AndExpression)) {
-                  badArgumentException("cannot mix & and |", expression, index - 1);
-                }
-              } else {
-                result = new AndExpression();
+          case '&': {
+            expr = processTerm(termStart, index - 1, expr, expression);
+            if (result != null) {
+              if (!(result instanceof AndExpression)) {
+                badArgumentException("cannot mix & and |", expression, index - 1);
               }
-              result.add(expr);
-              expr = null;
-              termStart = index;
-              break;
+            } else {
+              result = new AndExpression();
             }
-          case '|':
-            {
-              expr = processTerm(termStart, index - 1, expr, expression);
-              if (result != null) {
-                if (!(result instanceof OrExpression)) {
-                  badArgumentException("cannot mix | and &", expression, index - 1);
-                }
-              } else {
-                result = new OrExpression();
+            result.add(expr);
+            expr = null;
+            termStart = index;
+            break;
+          }
+          case '|': {
+            expr = processTerm(termStart, index - 1, expr, expression);
+            if (result != null) {
+              if (!(result instanceof OrExpression)) {
+                badArgumentException("cannot mix | and &", expression, index - 1);
               }
-              result.add(expr);
-              expr = null;
-              termStart = index;
-              break;
+            } else {
+              result = new OrExpression();
             }
-          case '(':
-            {
-              parens++;
-              if ((termStart != (index - 1)) || (expr != null)) {
-                badArgumentException("expression needs & or |", expression, index - 1);
-              }
-              expr = parse_(expression);
-              termStart = index;
-              break;
+            result.add(expr);
+            expr = null;
+            termStart = index;
+            break;
+          }
+          case '(': {
+            parens++;
+            if ((termStart != (index - 1)) || (expr != null)) {
+              badArgumentException("expression needs & or |", expression, index - 1);
             }
-          case ')':
-            {
-              parens--;
-              final VisibilityExpression child =
-                  processTerm(termStart, index - 1, expr, expression);
-              if ((child == null) && (result == null)) {
-                badArgumentException("empty expression not allowed", expression, index);
-              }
-              if (result == null) {
-                return child;
-              }
-              result.add(child);
-              return result;
+            expr = parse_(expression);
+            termStart = index;
+            break;
+          }
+          case ')': {
+            parens--;
+            final VisibilityExpression child = processTerm(termStart, index - 1, expr, expression);
+            if ((child == null) && (result == null)) {
+              badArgumentException("empty expression not allowed", expression, index);
             }
+            if (result == null) {
+              return child;
+            }
+            result.add(child);
+            return result;
+          }
         }
       }
       final VisibilityExpression child = processTerm(termStart, index, expr, expression);
@@ -264,8 +258,8 @@ public class MemoryStoreUtils {
     }
   }
 
-  private static final void badArgumentException(
-      final String msg, final byte[] expression, final int place) {
+  private static final void badArgumentException(final String msg, final byte[] expression,
+      final int place) {
     throw new IllegalArgumentException(
         msg + " for " + Arrays.toString(expression) + " at " + place);
   }

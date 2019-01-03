@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,12 +31,8 @@ public class GeoObjectDimensionValues implements Persistable {
 
   public GeoObjectDimensionValues() {}
 
-  public GeoObjectDimensionValues(
-      final double x,
-      final double y,
-      final double z,
-      final double[] extraDimensions,
-      final double distance) {
+  public GeoObjectDimensionValues(final double x, final double y, final double z,
+      final double[] extraDimensions, final double distance) {
     super();
     this.x = x;
     this.y = y;
@@ -56,11 +53,7 @@ public class GeoObjectDimensionValues implements Persistable {
     count += association.count;
   }
 
-  public void set(
-      final double x,
-      final double y,
-      final double z,
-      final double[] extraDimensions,
+  public void set(final double x, final double y, final double z, final double[] extraDimensions,
       final double distance) {
     this.x = x;
     this.y = y;
@@ -112,11 +105,9 @@ public class GeoObjectDimensionValues implements Persistable {
 
   @Override
   public byte[] toBinary() {
-    final ByteBuffer b =
-        ByteBuffer.allocate(
-            ((4 + values.length) * 8)
-                + VarintUtils.unsignedIntByteLength(values.length)
-                + VarintUtils.unsignedLongByteLength(count));
+    final ByteBuffer b = ByteBuffer
+        .allocate(((4 + values.length) * 8) + VarintUtils.unsignedIntByteLength(values.length)
+            + VarintUtils.unsignedLongByteLength(count));
     VarintUtils.writeUnsignedLong(count, b);
     b.putDouble(x);
     b.putDouble(y);

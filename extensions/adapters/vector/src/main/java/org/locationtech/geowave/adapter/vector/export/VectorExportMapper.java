@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,9 +26,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VectorExportMapper
-    extends Mapper<
-        GeoWaveInputKey, SimpleFeature, AvroKey<AvroSimpleFeatureCollection>, NullWritable> {
+public class VectorExportMapper extends
+    Mapper<GeoWaveInputKey, SimpleFeature, AvroKey<AvroSimpleFeatureCollection>, NullWritable> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Logger.class);
   private int batchSize;
   private final Map<Short, AvroSFCWriter> adapterIdToAvroWriterMap =
@@ -37,16 +37,8 @@ public class VectorExportMapper
       new AvroKey<AvroSimpleFeatureCollection>();
 
   @Override
-  protected void map(
-      final GeoWaveInputKey key,
-      final SimpleFeature value,
-      final Mapper<
-                  GeoWaveInputKey,
-                  SimpleFeature,
-                  AvroKey<AvroSimpleFeatureCollection>,
-                  NullWritable>
-              .Context
-          context)
+  protected void map(final GeoWaveInputKey key, final SimpleFeature value,
+      final Mapper<GeoWaveInputKey, SimpleFeature, AvroKey<AvroSimpleFeatureCollection>, NullWritable>.Context context)
       throws IOException, InterruptedException {
     AvroSFCWriter avroWriter = adapterIdToAvroWriterMap.get(key.getInternalAdapterId());
     if (avroWriter == null) {
@@ -62,43 +54,23 @@ public class VectorExportMapper
 
   @Override
   protected void setup(
-      final Mapper<
-                  GeoWaveInputKey,
-                  SimpleFeature,
-                  AvroKey<AvroSimpleFeatureCollection>,
-                  NullWritable>
-              .Context
-          context)
+      final Mapper<GeoWaveInputKey, SimpleFeature, AvroKey<AvroSimpleFeatureCollection>, NullWritable>.Context context)
       throws IOException, InterruptedException {
     super.setup(context);
-    batchSize =
-        context
-            .getConfiguration()
-            .getInt(VectorMRExportJobRunner.BATCH_SIZE_KEY, VectorExportOptions.DEFAULT_BATCH_SIZE);
+    batchSize = context.getConfiguration().getInt(VectorMRExportJobRunner.BATCH_SIZE_KEY,
+        VectorExportOptions.DEFAULT_BATCH_SIZE);
   }
 
   @Override
   protected void cleanup(
-      final Mapper<
-                  GeoWaveInputKey,
-                  SimpleFeature,
-                  AvroKey<AvroSimpleFeatureCollection>,
-                  NullWritable>
-              .Context
-          context)
+      final Mapper<GeoWaveInputKey, SimpleFeature, AvroKey<AvroSimpleFeatureCollection>, NullWritable>.Context context)
       throws IOException, InterruptedException {
     super.cleanup(context);
     writeRemainingAvroBatches(context);
   }
 
   private void writeRemainingAvroBatches(
-      final Mapper<
-                  GeoWaveInputKey,
-                  SimpleFeature,
-                  AvroKey<AvroSimpleFeatureCollection>,
-                  NullWritable>
-              .Context
-          context)
+      final Mapper<GeoWaveInputKey, SimpleFeature, AvroKey<AvroSimpleFeatureCollection>, NullWritable>.Context context)
       throws IOException, InterruptedException {
     for (final AvroSFCWriter writer : adapterIdToAvroWriterMap.values()) {
       if (writer.avList.size() > 0) {
@@ -139,8 +111,8 @@ public class VectorExportMapper
     private void newFeatureCollection() {
       simpleFeatureCollection = new AvroSimpleFeatureCollection();
       try {
-        simpleFeatureCollection.setFeatureType(
-            AvroFeatureUtils.buildFeatureDefinition(null, sft, null, ""));
+        simpleFeatureCollection
+            .setFeatureType(AvroFeatureUtils.buildFeatureDefinition(null, sft, null, ""));
       } catch (final IOException e) {
         // this should never actually happen, deault classification is
         // passed in

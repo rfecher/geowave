@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,19 +28,14 @@ import org.threeten.extra.Interval;
 public class SpatialTemporalQuery extends SpatialQuery {
   public SpatialTemporalQuery() {}
 
-  public SpatialTemporalQuery(
-      final Date startTime, final Date endTime, final Geometry queryGeometry) {
+  public SpatialTemporalQuery(final Date startTime, final Date endTime,
+      final Geometry queryGeometry) {
     super(createSpatialTemporalConstraints(startTime, endTime, queryGeometry), queryGeometry);
   }
 
-  public SpatialTemporalQuery(
-      final Date startTime,
-      final Date endTime,
-      final Geometry queryGeometry,
-      final String crsCode) {
-    super(
-        createSpatialTemporalConstraints(startTime, endTime, queryGeometry),
-        queryGeometry,
+  public SpatialTemporalQuery(final Date startTime, final Date endTime,
+      final Geometry queryGeometry, final String crsCode) {
+    super(createSpatialTemporalConstraints(startTime, endTime, queryGeometry), queryGeometry,
         crsCode);
   }
 
@@ -47,8 +43,8 @@ public class SpatialTemporalQuery extends SpatialQuery {
     super(createSpatialTemporalConstraints(constraints, queryGeometry), queryGeometry);
   }
 
-  public SpatialTemporalQuery(
-      final TemporalConstraints constraints, final Geometry queryGeometry, final String crsCode) {
+  public SpatialTemporalQuery(final TemporalConstraints constraints, final Geometry queryGeometry,
+      final String crsCode) {
     super(createSpatialTemporalConstraints(constraints, queryGeometry), queryGeometry, crsCode);
   }
 
@@ -62,27 +58,15 @@ public class SpatialTemporalQuery extends SpatialQuery {
    * @param queryGeometry
    * @param compareOp
    */
-  public SpatialTemporalQuery(
-      final Date startTime,
-      final Date endTime,
-      final Geometry queryGeometry,
-      final CompareOperation compareOp) {
-    super(
-        createSpatialTemporalConstraints(startTime, endTime, queryGeometry),
-        queryGeometry,
-        compareOp,
-        compareOp.getBaseCompareOp());
+  public SpatialTemporalQuery(final Date startTime, final Date endTime,
+      final Geometry queryGeometry, final CompareOperation compareOp) {
+    super(createSpatialTemporalConstraints(startTime, endTime, queryGeometry), queryGeometry,
+        compareOp, compareOp.getBaseCompareOp());
   }
 
-  public SpatialTemporalQuery(
-      final Interval[] intervals,
-      final Geometry queryGeometry,
-      final String crsCode,
-      final CompareOperation compareOp) {
-    super(
-        createSpatialTemporalConstraints(intervals, queryGeometry),
-        queryGeometry,
-        crsCode,
+  public SpatialTemporalQuery(final Interval[] intervals, final Geometry queryGeometry,
+      final String crsCode, final CompareOperation compareOp) {
+    super(createSpatialTemporalConstraints(intervals, queryGeometry), queryGeometry, crsCode,
         compareOp,
         // it seems like temporal should always use intersection and not
         // inherit from the spatial compare op
@@ -98,33 +82,26 @@ public class SpatialTemporalQuery extends SpatialQuery {
    * @param queryGeometry
    * @param compareOp
    */
-  public SpatialTemporalQuery(
-      final TemporalConstraints constraints,
-      final Geometry queryGeometry,
+  public SpatialTemporalQuery(final TemporalConstraints constraints, final Geometry queryGeometry,
       final CompareOperation compareOp) {
     super(createSpatialTemporalConstraints(constraints, queryGeometry), queryGeometry, compareOp);
   }
 
-  public static ConstraintSet createConstraints(
-      final TemporalRange temporalRange, final boolean isDefault) {
-    return new ConstraintSet(
-        TimeDefinition.class,
-        new ConstraintData(
-            new NumericRange(
-                temporalRange.getStartTime().getTime(), temporalRange.getEndTime().getTime()),
-            isDefault));
+  public static ConstraintSet createConstraints(final TemporalRange temporalRange,
+      final boolean isDefault) {
+    return new ConstraintSet(TimeDefinition.class,
+        new ConstraintData(new NumericRange(temporalRange.getStartTime().getTime(),
+            temporalRange.getEndTime().getTime()), isDefault));
   }
 
-  public static Constraints createConstraints(
-      final TemporalConstraints temporalConstraints, final boolean isDefault) {
+  public static Constraints createConstraints(final TemporalConstraints temporalConstraints,
+      final boolean isDefault) {
     final List<ConstraintSet> constraints = new ArrayList<>();
     for (final TemporalRange range : temporalConstraints.getRanges()) {
-      constraints.add(
-          new ConstraintSet(
-              TimeDefinition.class,
-              new ConstraintData(
-                  new NumericRange(range.getStartTime().getTime(), range.getEndTime().getTime()),
-                  isDefault)));
+      constraints.add(new ConstraintSet(TimeDefinition.class,
+          new ConstraintData(
+              new NumericRange(range.getStartTime().getTime(), range.getEndTime().getTime()),
+              isDefault)));
     }
     return new Constraints(constraints);
   }
@@ -132,12 +109,10 @@ public class SpatialTemporalQuery extends SpatialQuery {
   public static Constraints createConstraints(final Interval[] intervals, final boolean isDefault) {
     final List<ConstraintSet> constraints = new ArrayList<>();
     for (final Interval range : intervals) {
-      constraints.add(
-          new ConstraintSet(
-              TimeDefinition.class,
-              new ConstraintData(
-                  new NumericRange(range.getStart().toEpochMilli(), range.getEnd().toEpochMilli()),
-                  isDefault)));
+      constraints.add(new ConstraintSet(TimeDefinition.class,
+          new ConstraintData(
+              new NumericRange(range.getStart().toEpochMilli(), range.getEnd().toEpochMilli()),
+              isDefault)));
     }
     return new Constraints(constraints);
   }
@@ -167,8 +142,8 @@ public class SpatialTemporalQuery extends SpatialQuery {
    * @param queryGeometry
    * @return
    */
-  private static Constraints createSpatialTemporalConstraints(
-      final Interval[] intervals, final Geometry queryGeometry) {
+  private static Constraints createSpatialTemporalConstraints(final Interval[] intervals,
+      final Geometry queryGeometry) {
     final Constraints geoConstraints = GeometryUtils.basicConstraintsFromGeometry(queryGeometry);
     final Constraints timeConstraints = createConstraints(intervals, false);
     return geoConstraints.merge(timeConstraints);
@@ -182,14 +157,10 @@ public class SpatialTemporalQuery extends SpatialQuery {
    * @param queryGeometry
    * @return
    */
-  private static Constraints createSpatialTemporalConstraints(
-      final Date startTime, final Date endTime, final Geometry queryGeometry) {
+  private static Constraints createSpatialTemporalConstraints(final Date startTime,
+      final Date endTime, final Geometry queryGeometry) {
     final Constraints geoConstraints = GeometryUtils.basicConstraintsFromGeometry(queryGeometry);
-    return geoConstraints.merge(
-        new Constraints(
-            new ConstraintSet(
-                TimeDefinition.class,
-                new ConstraintData(
-                    new NumericRange(startTime.getTime(), endTime.getTime()), false))));
+    return geoConstraints.merge(new Constraints(new ConstraintSet(TimeDefinition.class,
+        new ConstraintData(new NumericRange(startTime.getTime(), endTime.getTime()), false))));
   }
 }

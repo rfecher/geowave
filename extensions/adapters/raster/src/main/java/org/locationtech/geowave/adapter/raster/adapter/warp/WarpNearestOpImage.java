@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -39,16 +40,19 @@ import javax.media.jai.iterator.RandomIter;
  * following code does not work if the source is significant lower resolution than the destination
  * and seems unnecessary in general:
  *
- * <p>roiTile = roi.intersect(new ROIShape(srcRectExpanded));
+ * <p>
+ * roiTile = roi.intersect(new ROIShape(srcRectExpanded));
  *
- * <p>An <code>OpImage</code> implementing the general "Warp" operation as described in <code>
+ * <p>
+ * An <code>OpImage</code> implementing the general "Warp" operation as described in <code>
  * javax.media.jai.operator.WarpDescriptor</code>. It supports the nearest-neighbor interpolation.
  *
- * <p>The layout for the destination image may be specified via the <code>ImageLayout</code>
- * parameter. However, only those settings suitable for this operation will be used. The unsuitable
- * settings will be replaced by default suitable values. An optional ROI object and a NoData Range
- * can be used. If a backward mapped pixel lies outside ROI or it is a NoData, then the destination
- * pixel value is a background value.
+ * <p>
+ * The layout for the destination image may be specified via the <code>ImageLayout</code> parameter.
+ * However, only those settings suitable for this operation will be used. The unsuitable settings
+ * will be replaced by default suitable values. An optional ROI object and a NoData Range can be
+ * used. If a backward mapped pixel lies outside ROI or it is a NoData, then the destination pixel
+ * value is a background value.
  *
  * @since EA2
  * @see javax.media.jai.Warp
@@ -73,28 +77,13 @@ final class WarpNearestOpImage extends WarpOpImage {
    * @param roi input ROI object used.
    * @param noData NoData Range object used for checking if NoData are present.
    */
-  public WarpNearestOpImage(
-      final RenderedImage source,
-      final Map<?, ?> config,
-      final ImageLayout layout,
-      final Warp warp,
-      final Interpolation interp,
-      final ROI sourceROI,
-      Range noData,
-      double[] bkg) {
-    super(
-        source,
-        layout,
-        config,
-        false,
-        null, // extender not needed in
+  public WarpNearestOpImage(final RenderedImage source, final Map<?, ?> config,
+      final ImageLayout layout, final Warp warp, final Interpolation interp, final ROI sourceROI,
+      Range noData, double[] bkg) {
+    super(source, layout, config, false, null, // extender not needed in
         // nearest-neighbor
         // interpolation
-        interp,
-        warp,
-        bkg,
-        sourceROI,
-        noData);
+        interp, warp, bkg, sourceROI, noData);
 
     /*
      * If the source has IndexColorModel, override the default setting in OpImage. The dest shall
@@ -131,11 +120,8 @@ final class WarpNearestOpImage extends WarpOpImage {
     }
   }
 
-  protected void computeRectByte(
-      final PlanarImage src,
-      final RasterAccessor dst,
-      final RandomIter roiIter,
-      boolean roiContainsTile) {
+  protected void computeRectByte(final PlanarImage src, final RasterAccessor dst,
+      final RandomIter roiIter, boolean roiContainsTile) {
     // Random Iterator on the source image bounds
     final RandomIter iter = RandomIterFactory.create(src, src.getBounds(), TILE_CACHED, ARRAY_CALC);
     // Initial settings
@@ -294,8 +280,7 @@ final class WarpNearestOpImage extends WarpOpImage {
           } else {
             // SG if we falls outside the roi we use the background
             // value
-            if (!(roiBounds.contains(sx, sy)
-                && roiBounds.contains(sx, sy)
+            if (!(roiBounds.contains(sx, sy) && roiBounds.contains(sx, sy)
                 && roiIter.getSample(sx, sy, 0) > 0)) {
               /* Fill with a background color. */
               if (setBackground) {
@@ -319,11 +304,8 @@ final class WarpNearestOpImage extends WarpOpImage {
     iter.done();
   }
 
-  protected void computeRectUShort(
-      final PlanarImage src,
-      final RasterAccessor dst,
-      final RandomIter roiIter,
-      boolean roiContainsTile) {
+  protected void computeRectUShort(final PlanarImage src, final RasterAccessor dst,
+      final RandomIter roiIter, boolean roiContainsTile) {
     // Random Iterator on the source image bounds
     final RandomIter iter = RandomIterFactory.create(src, src.getBounds(), TILE_CACHED, ARRAY_CALC);
     // Initial settings
@@ -405,8 +387,7 @@ final class WarpNearestOpImage extends WarpOpImage {
           } else {
             // SG if we falls outside the roi we use the background
             // value
-            if (!(roiBounds.contains(sx, sy)
-                && roiBounds.contains(sx, sy)
+            if (!(roiBounds.contains(sx, sy) && roiBounds.contains(sx, sy)
                 && roiIter.getSample(sx, sy, 0) > 0)) {
               /* Fill with a background color. */
               if (setBackground) {
@@ -521,11 +502,8 @@ final class WarpNearestOpImage extends WarpOpImage {
     iter.done();
   }
 
-  protected void computeRectShort(
-      final PlanarImage src,
-      final RasterAccessor dst,
-      final RandomIter roiIter,
-      boolean roiContainsTile) {
+  protected void computeRectShort(final PlanarImage src, final RasterAccessor dst,
+      final RandomIter roiIter, boolean roiContainsTile) {
     // Random Iterator on the source image bounds
     final RandomIter iter = RandomIterFactory.create(src, src.getBounds(), TILE_CACHED, ARRAY_CALC);
     // Initial settings
@@ -720,11 +698,8 @@ final class WarpNearestOpImage extends WarpOpImage {
     iter.done();
   }
 
-  protected void computeRectInt(
-      final PlanarImage src,
-      final RasterAccessor dst,
-      final RandomIter roiIter,
-      boolean roiContainsTile) {
+  protected void computeRectInt(final PlanarImage src, final RasterAccessor dst,
+      final RandomIter roiIter, boolean roiContainsTile) {
     // Random Iterator on the source image bounds
     final RandomIter iter = RandomIterFactory.create(src, src.getBounds(), TILE_CACHED, ARRAY_CALC);
     // Initial settings
@@ -919,11 +894,8 @@ final class WarpNearestOpImage extends WarpOpImage {
     iter.done();
   }
 
-  protected void computeRectFloat(
-      final PlanarImage src,
-      final RasterAccessor dst,
-      final RandomIter roiIter,
-      boolean roiContainsTile) {
+  protected void computeRectFloat(final PlanarImage src, final RasterAccessor dst,
+      final RandomIter roiIter, boolean roiContainsTile) {
     // Random Iterator on the source image bounds
     final RandomIter iter = RandomIterFactory.create(src, src.getBounds(), TILE_CACHED, ARRAY_CALC);
     // Initial settings
@@ -1118,11 +1090,8 @@ final class WarpNearestOpImage extends WarpOpImage {
     iter.done();
   }
 
-  protected void computeRectDouble(
-      final PlanarImage src,
-      final RasterAccessor dst,
-      final RandomIter roiIter,
-      boolean roiContainsTile) {
+  protected void computeRectDouble(final PlanarImage src, final RasterAccessor dst,
+      final RandomIter roiIter, boolean roiContainsTile) {
     // Random Iterator on the source image bounds
     final RandomIter iter = RandomIterFactory.create(src, src.getBounds(), TILE_CACHED, ARRAY_CALC);
     // Initial settings

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -75,12 +76,9 @@ public class OrthodromicDistancePartitioner<T> extends AbstractPartitioner<T>
 
   public OrthodromicDistancePartitioner() {}
 
-  public OrthodromicDistancePartitioner(
-      final CoordinateReferenceSystem crs,
-      final CommonIndexModel indexModel,
-      final DimensionExtractor<T> dimensionExtractor,
-      final double[] distancePerDimension,
-      final Unit<Length> geometricDistanceUnit) {
+  public OrthodromicDistancePartitioner(final CoordinateReferenceSystem crs,
+      final CommonIndexModel indexModel, final DimensionExtractor<T> dimensionExtractor,
+      final double[] distancePerDimension, final Unit<Length> geometricDistanceUnit) {
     super(distancePerDimension);
     this.crs = crs;
     this.crsName = crs.getIdentifiers().iterator().next().toString();
@@ -107,8 +105,8 @@ public class OrthodromicDistancePartitioner<T> extends AbstractPartitioner<T>
     return numericDataHolder;
   }
 
-  private MultiDimensionalNumericData getNumericData(
-      final Geometry geometry, final double[] otherDimensionData) {
+  private MultiDimensionalNumericData getNumericData(final Geometry geometry,
+      final double[] otherDimensionData) {
     final NumericDimensionField<?>[] dimensionFields = getIndex().getIndexModel().getDimensions();
     final NumericData[] numericData = new NumericData[dimensionFields.length];
     final double[] distancePerDimension = getDistancePerDimension();
@@ -116,16 +114,12 @@ public class OrthodromicDistancePartitioner<T> extends AbstractPartitioner<T>
 
     for (int i = 0; i < dimensionFields.length; i++) {
       final double minValue =
-          (i == this.longDimensionPosition)
-              ? geometry.getEnvelopeInternal().getMinX()
-              : (i == this.latDimensionPosition
-                  ? geometry.getEnvelopeInternal().getMinY()
+          (i == this.longDimensionPosition) ? geometry.getEnvelopeInternal().getMinX()
+              : (i == this.latDimensionPosition ? geometry.getEnvelopeInternal().getMinY()
                   : otherDimensionData[otherIndex] - distancePerDimension[i]);
       final double maxValue =
-          (i == this.longDimensionPosition)
-              ? geometry.getEnvelopeInternal().getMaxX()
-              : (i == this.latDimensionPosition
-                  ? geometry.getEnvelopeInternal().getMaxY()
+          (i == this.longDimensionPosition) ? geometry.getEnvelopeInternal().getMaxX()
+              : (i == this.latDimensionPosition ? geometry.getEnvelopeInternal().getMaxY()
                   : otherDimensionData[otherIndex] + distancePerDimension[i]);
       if ((i != this.longDimensionPosition) && (i != latDimensionPosition)) {
         otherIndex++;
@@ -143,8 +137,7 @@ public class OrthodromicDistancePartitioner<T> extends AbstractPartitioner<T>
     return indexOf(indexModel.getDimensions(), LatitudeDefinition.class);
   }
 
-  private static int indexOf(
-      final NumericDimensionField<?> fields[],
+  private static int indexOf(final NumericDimensionField<?> fields[],
       final Class<? extends NumericDimensionDefinition> clazz) {
 
     for (int i = 0; i < fields.length; i++) {
@@ -155,16 +148,12 @@ public class OrthodromicDistancePartitioner<T> extends AbstractPartitioner<T>
     return -1;
   }
 
-  private List<Geometry> getGeometries(
-      final Coordinate coordinate, final double[] distancePerDimension) {
-    return getCalculator()
-        .buildSurroundingGeometries(
-            new double[] {
-              distancePerDimension[longDimensionPosition],
-              distancePerDimension[latDimensionPosition]
-            },
-            geometricDistanceUnit == null ? SI.METRE : geometricDistanceUnit,
-            coordinate);
+  private List<Geometry> getGeometries(final Coordinate coordinate,
+      final double[] distancePerDimension) {
+    return getCalculator().buildSurroundingGeometries(
+        new double[] {distancePerDimension[longDimensionPosition],
+            distancePerDimension[latDimensionPosition]},
+        geometricDistanceUnit == null ? SI.METRE : geometricDistanceUnit, coordinate);
   }
 
   private GeometryCalculations getCalculator() {
@@ -197,10 +186,8 @@ public class OrthodromicDistancePartitioner<T> extends AbstractPartitioner<T>
     // set up the distances based on geometry (orthodromic distance)
     final double[] distancePerDimensionForIndex = new double[distancePerDimension.length];
     for (int i = 0; i < distancePerDimension.length; i++) {
-      distancePerDimensionForIndex[i] =
-          (i == longDimensionPosition)
-              ? envelope.getWidth() / 2.0
-              : (i == latDimensionPosition ? envelope.getHeight() / 2.0 : distancePerDimension[i]);
+      distancePerDimensionForIndex[i] = (i == longDimensionPosition) ? envelope.getWidth() / 2.0
+          : (i == latDimensionPosition ? envelope.getHeight() / 2.0 : distancePerDimension[i]);
       LOGGER.info("Dimension size {} is {} ", i, distancePerDimensionForIndex[i]);
     }
 
@@ -228,11 +215,8 @@ public class OrthodromicDistancePartitioner<T> extends AbstractPartitioner<T>
     }
 
     try {
-      dimensionExtractor =
-          config.getInstance(
-              ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-              DimensionExtractor.class,
-              SimpleFeatureGeometryExtractor.class);
+      dimensionExtractor = config.getInstance(ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
+          DimensionExtractor.class, SimpleFeatureGeometryExtractor.class);
     } catch (final Exception ex) {
       throw new IOException(
           "Cannot find class for  " + ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS.toString(),
@@ -252,26 +236,18 @@ public class OrthodromicDistancePartitioner<T> extends AbstractPartitioner<T>
     final Set<ParameterEnum<?>> params = new HashSet<ParameterEnum<?>>();
     params.addAll(super.getParameters());
     params.addAll(
-        Arrays.asList(
-            new ParameterEnum<?>[] {
-              PartitionParameters.Partition.GEOMETRIC_DISTANCE_UNIT,
-              ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS
-            }));
+        Arrays.asList(new ParameterEnum<?>[] {PartitionParameters.Partition.GEOMETRIC_DISTANCE_UNIT,
+            ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS}));
     return params;
   }
 
   @Override
-  public void setup(
-      final PropertyManagement runTimeProperties,
-      final Class<?> scope,
+  public void setup(final PropertyManagement runTimeProperties, final Class<?> scope,
       final Configuration configuration) {
     super.setup(runTimeProperties, scope, configuration);
-    final ParameterEnum[] params =
-        new ParameterEnum[] {
-          GlobalParameters.Global.CRS_ID,
-          ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-          PartitionParameters.Partition.GEOMETRIC_DISTANCE_UNIT
-        };
+    final ParameterEnum[] params = new ParameterEnum[] {GlobalParameters.Global.CRS_ID,
+        ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
+        PartitionParameters.Partition.GEOMETRIC_DISTANCE_UNIT};
     runTimeProperties.setConfig(params, configuration, scope);
   }
 }

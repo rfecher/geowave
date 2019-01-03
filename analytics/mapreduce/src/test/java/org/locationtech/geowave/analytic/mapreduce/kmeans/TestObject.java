@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -76,16 +77,23 @@ public class TestObject implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     TestObject other = (TestObject) obj;
     if (geo == null) {
-      if (other.geo != null) return false;
-    } else if (!geo.equals(other.geo)) return false;
+      if (other.geo != null)
+        return false;
+    } else if (!geo.equals(other.geo))
+      return false;
     if (id == null) {
-      if (other.id != null) return false;
-    } else if (!id.equals(other.id)) return false;
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
     return true;
   }
 }

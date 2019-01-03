@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,7 +42,7 @@ public interface IngestFormatPluginProviderSpi<I, O> {
    *
    * @return The plugin for ingesting data from a local file system directly into GeoWave
    * @throws UnsupportedOperationException If ingesting data directly from a local file system is
-   *     not supported
+   *         not supported
    */
   public LocalFileIngestPlugin<O> createLocalFileIngestPlugin(IngestFormatOptions options)
       throws UnsupportedOperationException;
@@ -79,7 +80,7 @@ public interface IngestFormatPluginProviderSpi<I, O> {
    *
    * @return The plugin for staging to avro if it is supported
    * @throws UnsupportedOperationException If staging data is not supported (generally this implies
-   *     that ingesting using map-reduce or kafka will not be supported)
+   *         that ingesting using map-reduce or kafka will not be supported)
    */
   public AvroFormatPlugin<I, O> createAvroFormatPlugin(IngestFormatOptions options)
       throws UnsupportedOperationException;

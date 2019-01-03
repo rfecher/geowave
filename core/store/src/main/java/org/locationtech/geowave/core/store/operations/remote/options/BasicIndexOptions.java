@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -13,19 +14,15 @@ import org.locationtech.geowave.core.store.cli.remote.options.IndexPluginOptions
 
 public class BasicIndexOptions {
 
-  @Parameter(
-      names = {"--indexName"},
-      description =
-          "A custom name can be given to this index. Default name will be the based on configuration parameters.")
+  @Parameter(names = {"--indexName"},
+      description = "A custom name can be given to this index. Default name will be the based on configuration parameters.")
   protected String nameOverride = null;
 
-  @Parameter(
-      names = {"-np", "--numPartitions"},
+  @Parameter(names = {"-np", "--numPartitions"},
       description = "The number of partitions.  Default partitions will be 1.")
   protected int numPartitions = 1;
 
-  @Parameter(
-      names = {"-ps", "--partitionStrategy"},
+  @Parameter(names = {"-ps", "--partitionStrategy"},
       description = "The partition strategy to use.  Default will be none.")
   protected PartitionStrategy partitionStrategy = PartitionStrategy.NONE;
 

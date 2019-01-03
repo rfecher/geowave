@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,12 +27,8 @@ public class Sentinel2ImageryProvidersCommand extends DefaultOperation implement
     StringBuilder sb = new StringBuilder();
 
     for (Sentinel2ImageryProvider provider : Sentinel2ImageryProvider.getProviders()) {
-      sb.append("\n - ")
-          .append(provider.providerName())
-          .append(":")
-          .append("\n   - Description: ")
-          .append(provider.description())
-          .append("\n   - Collections: ");
+      sb.append("\n - ").append(provider.providerName()).append(":").append("\n   - Description: ")
+          .append(provider.description()).append("\n   - Collections: ");
 
       for (String collection : provider.collections()) {
         sb.append(collection).append(", ");

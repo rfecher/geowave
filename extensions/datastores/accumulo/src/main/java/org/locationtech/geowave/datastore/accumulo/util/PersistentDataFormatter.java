@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -81,17 +82,16 @@ public class PersistentDataFormatter implements Formatter {
   /* end[accumulo.api=1.7] */
 
   @Override
-  public void initialize(
-      Iterable<Entry<Key, Value>> scanner,
+  public void initialize(Iterable<Entry<Key, Value>> scanner,
 
-      // @formatter:off
+  // @formatter:off
       /*if[accumulo.api=1.7]
       boolean printTimestamps
       else[accumulo.api=1.7]*/
       // @formatter:on
       FormatterConfig config
-      /* end[accumulo.api=1.7] */
-      ) {
+  /* end[accumulo.api=1.7] */
+  ) {
     checkState(false);
     si = scanner.iterator();
 
@@ -150,13 +150,12 @@ public class PersistentDataFormatter implements Formatter {
   /*
    * so a new date object doesn't get created for every record in the scan result
    */
-  private static ThreadLocal<Date> tmpDate =
-      new ThreadLocal<Date>() {
-        @Override
-        protected Date initialValue() {
-          return new Date();
-        }
-      };
+  private static ThreadLocal<Date> tmpDate = new ThreadLocal<Date>() {
+    @Override
+    protected Date initialValue() {
+      return new Date();
+    }
+  };
 
   public String formatEntry(final Entry<Key, Value> entry, final DateFormat timestampFormat) {
     final StringBuilder sb = new StringBuilder();
@@ -231,8 +230,8 @@ public class PersistentDataFormatter implements Formatter {
     }
   }
 
-  private static void appendBytes(
-      final StringBuilder sb, final byte ba[], final int offset, final int len) {
+  private static void appendBytes(final StringBuilder sb, final byte ba[], final int offset,
+      final int len) {
     for (int i = 0; i < len; i++) {
       final int c = 0xff & ba[offset + i];
       if (c == '\\') {

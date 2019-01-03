@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,17 +27,13 @@ public class AccumuloDeleter<T> extends AccumuloReader<T> implements Deleter<T> 
 
   private boolean closed = false;
 
-  public AccumuloDeleter(
-      final BatchDeleter scanner,
-      final GeoWaveRowIteratorTransformer<T> transformer,
-      final int partitionKeyLength,
-      final boolean wholeRowEncoding,
-      final boolean clientSideRowMerging,
-      final boolean parallel) {
+  public AccumuloDeleter(final BatchDeleter scanner,
+      final GeoWaveRowIteratorTransformer<T> transformer, final int partitionKeyLength,
+      final boolean wholeRowEncoding, final boolean clientSideRowMerging, final boolean parallel) {
     // AccumuloOperations operations,
     // ReaderParams<T> readerParams ) {
-    super(
-        scanner, transformer, partitionKeyLength, wholeRowEncoding, clientSideRowMerging, parallel);
+    super(scanner, transformer, partitionKeyLength, wholeRowEncoding, clientSideRowMerging,
+        parallel);
     // idMap = new HashMap<>();
     // dupCountMap = new HashMap<>();
     // this.operations = operations;

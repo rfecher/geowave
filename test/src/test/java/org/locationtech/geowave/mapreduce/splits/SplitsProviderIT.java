@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -9,7 +10,6 @@
 package org.locationtech.geowave.mapreduce.splits;
 
 import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -65,16 +65,9 @@ import org.slf4j.LoggerFactory;
 @Environments({Environment.MAP_REDUCE})
 public class SplitsProviderIT extends AbstractGeoWaveIT {
 
-  @GeoWaveTestStore(
-      value = {
-        GeoWaveStoreType.ACCUMULO,
-        GeoWaveStoreType.BIGTABLE,
-        GeoWaveStoreType.HBASE,
-        GeoWaveStoreType.DYNAMODB,
-        GeoWaveStoreType.CASSANDRA,
-        GeoWaveStoreType.REDIS,
-        GeoWaveStoreType.ROCKSDB
-      })
+  @GeoWaveTestStore(value = {GeoWaveStoreType.ACCUMULO, GeoWaveStoreType.BIGTABLE,
+      GeoWaveStoreType.HBASE, GeoWaveStoreType.DYNAMODB, GeoWaveStoreType.CASSANDRA,
+      GeoWaveStoreType.REDIS, GeoWaveStoreType.ROCKSDB})
   protected DataStorePluginOptions dataStorePluginOptions;
 
   private static final Logger LOGGER =
@@ -87,9 +80,7 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
   private static final GeotoolsFeatureDataAdapter fda = SimpleIngest.createDataAdapter(sft);
 
   enum Distribution {
-    UNIFORM,
-    BIMODAL,
-    SKEWED
+    UNIFORM, BIMODAL, SKEWED
   }
 
   @BeforeClass
@@ -164,8 +155,8 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
     assertTrue(getSplitsMSE(query, 12, 12) < 0.1);
   }
 
-  private double getSplitsMSE(
-      final QueryConstraints query, final int minSplits, final int maxSplits) {
+  private double getSplitsMSE(final QueryConstraints query, final int minSplits,
+      final int maxSplits) {
 
     // get splits and create reader for each RangeLocationPair, then summing
     // up the rows for each split
@@ -184,20 +175,10 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
     final MemoryAdapterStore mas = new MemoryAdapterStore();
     mas.addAdapter(fda);
     try {
-      splits =
-          dataStore.getSplits(
-              new CommonQueryOptions(),
-              new FilterByTypeQueryOptions<>(new String[] {fda.getTypeName()}),
-              new QuerySingleIndex(idx.getName()),
-              new EverythingQuery(),
-              mas,
-              aim,
-              stats,
-              ias,
-              is,
-              new JobContextImpl(new Configuration(), new JobID()),
-              minSplits,
-              maxSplits);
+      splits = dataStore.getSplits(new CommonQueryOptions(),
+          new FilterByTypeQueryOptions<>(new String[] {fda.getTypeName()}),
+          new QuerySingleIndex(idx.getName()), new EverythingQuery(), mas, aim, stats, ias, is,
+          new JobContextImpl(new Configuration(), new JobID()), minSplits, maxSplits);
     } catch (final IOException e) {
       LOGGER.error("IOException thrown when calling getSplits", e);
     } catch (final InterruptedException e) {
@@ -217,20 +198,10 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
           final SplitInfo splitInfo = gwSplit.getInfo(indexName);
           for (final RangeLocationPair p : splitInfo.getRangeLocationPairs()) {
             final RecordReaderParams<?> readerParams =
-                new RecordReaderParams<>(
-                    splitInfo.getIndex(),
-                    as,
-                    ias,
-                    new short[] {ias.getAdapterId(fda.getTypeName())},
-                    null,
-                    null,
-                    null,
-                    splitInfo.isMixedVisibility(),
-                    splitInfo.isAuthorizationsLimiting(),
-                    p.getRange(),
-                    null,
-                    null,
-                    GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER);
+                new RecordReaderParams<>(splitInfo.getIndex(), as, ias,
+                    new short[] {ias.getAdapterId(fda.getTypeName())}, null, null, null,
+                    splitInfo.isMixedVisibility(), splitInfo.isAuthorizationsLimiting(),
+                    p.getRange(), null, null, GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER);
             try (RowReader<?> reader = ops.createReader(readerParams)) {
               while (reader.hasNext()) {
                 reader.next();
@@ -258,16 +229,13 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
     return sum / splits.size();
   }
 
-  public static void createUniformFeatures(
-      final SimpleFeatureBuilder pointBuilder,
-      final Writer<SimpleFeature> writer,
-      final int firstFeatureId) {
+  public static void createUniformFeatures(final SimpleFeatureBuilder pointBuilder,
+      final Writer<SimpleFeature> writer, final int firstFeatureId) {
 
     int featureId = firstFeatureId;
     for (int longitude = -180; longitude <= 180; longitude += 1) {
       for (int latitude = -90; latitude <= 90; latitude += 1) {
-        pointBuilder.set(
-            "geometry",
+        pointBuilder.set("geometry",
             GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(longitude, latitude)));
         pointBuilder.set("TimeStamp", new Date());
         pointBuilder.set("Latitude", latitude);
@@ -282,21 +250,17 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
     }
   }
 
-  public static void createBimodalFeatures(
-      final SimpleFeatureBuilder pointBuilder,
-      final Writer<SimpleFeature> writer,
-      final int firstFeatureId) {
+  public static void createBimodalFeatures(final SimpleFeatureBuilder pointBuilder,
+      final Writer<SimpleFeature> writer, final int firstFeatureId) {
 
     int featureId = firstFeatureId;
     for (double longitude = -180.0; longitude <= 0.0; longitude += 1.0) {
       if (longitude == -90) {
         continue;
       }
-      for (double latitude = -180.0;
-          latitude <= 0.0;
-          latitude += (Math.abs(-90.0 - longitude) / 10.0)) {
-        pointBuilder.set(
-            "geometry",
+      for (double latitude = -180.0; latitude <= 0.0; latitude +=
+          (Math.abs(-90.0 - longitude) / 10.0)) {
+        pointBuilder.set("geometry",
             GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(longitude, latitude)));
         pointBuilder.set("TimeStamp", new Date());
         pointBuilder.set("Latitude", latitude);
@@ -314,11 +278,9 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
       if (longitude == 90) {
         continue;
       }
-      for (double latitude = 0.0;
-          latitude <= 180.0;
-          latitude += (Math.abs(90.0 - longitude) / 10.0)) {
-        pointBuilder.set(
-            "geometry",
+      for (double latitude = 0.0; latitude <= 180.0; latitude +=
+          (Math.abs(90.0 - longitude) / 10.0)) {
+        pointBuilder.set("geometry",
             GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(longitude, latitude)));
         pointBuilder.set("TimeStamp", new Date());
         pointBuilder.set("Latitude", latitude);
@@ -333,16 +295,13 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
     }
   }
 
-  public static void createSkewedFeatures(
-      final SimpleFeatureBuilder pointBuilder,
-      final Writer<SimpleFeature> writer,
-      final int firstFeatureId) {
+  public static void createSkewedFeatures(final SimpleFeatureBuilder pointBuilder,
+      final Writer<SimpleFeature> writer, final int firstFeatureId) {
 
     int featureId = firstFeatureId;
     for (double longitude = -180.0; longitude <= 180.0; longitude += 1.0) {
       for (double latitude = -90.0; latitude <= 90.0; latitude += ((longitude + 181.0) / 10.0)) {
-        pointBuilder.set(
-            "geometry",
+        pointBuilder.set("geometry",
             GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(longitude, latitude)));
         pointBuilder.set("TimeStamp", new Date());
         pointBuilder.set("Latitude", latitude);

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,20 +20,18 @@ public class GeoWaveOperationFinder extends Finder {
   private final ServiceEnabledCommand<?> operation;
   private final String defaultConfigFile;
 
-  public GeoWaveOperationFinder(
-      final ServiceEnabledCommand<?> operation, String defaultConfigFile) {
+  public GeoWaveOperationFinder(final ServiceEnabledCommand<?> operation,
+      String defaultConfigFile) {
     this.operation = operation;
     this.defaultConfigFile = defaultConfigFile;
   }
 
   @Override
-  public ServerResource create(
-      final Class<? extends ServerResource> targetClass,
-      final Request request,
-      final Response response) {
+  public ServerResource create(final Class<? extends ServerResource> targetClass,
+      final Request request, final Response response) {
     try {
-      return new GeoWaveOperationServiceWrapper<>(
-          operation.getClass().newInstance(), defaultConfigFile);
+      return new GeoWaveOperationServiceWrapper<>(operation.getClass().newInstance(),
+          defaultConfigFile);
     } catch (InstantiationException | IllegalAccessException e) {
       getLogger().log(Level.SEVERE, "Unable to instantiate Service Resource", e);
       return null;

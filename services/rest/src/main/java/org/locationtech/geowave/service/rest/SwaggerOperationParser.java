@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -39,8 +40,8 @@ public class SwaggerOperationParser<T> {
     this.json_obj = parseParameters();
   }
 
-  public JsonObject[] processField(
-      final String name, final Class<?> type, final String description, final boolean required) {
+  public JsonObject[] processField(final String name, final Class<?> type, final String description,
+      final boolean required) {
     final JsonObject param_json = new JsonObject();
     // set the "in" type (all query in this case)
     // and also set the type based on the field
@@ -103,9 +104,8 @@ public class SwaggerOperationParser<T> {
     final JsonArray fields_obj = new JsonArray();
     final List<RestField<?>> fields = RestFieldFactory.createRestFields(operation.getClass());
     for (final RestField<?> field : fields) {
-      final JsonObject[] field_obj_array =
-          processField(
-              field.getName(), field.getType(), field.getDescription(), field.isRequired());
+      final JsonObject[] field_obj_array = processField(field.getName(), field.getType(),
+          field.getDescription(), field.isRequired());
       if (field_obj_array != null) {
         for (final JsonObject field_obj : field_obj_array) {
           fields_obj.add(field_obj);

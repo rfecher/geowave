@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -21,11 +22,8 @@ public class ClusterNeighborList implements NeighborList<ClusterItem> {
   final Map<ByteArray, Cluster> index;
   final NeighborListFactory<ClusterItem> factory;
 
-  public ClusterNeighborList(
-      final ByteArray centerId,
-      final ClusterItem center,
-      final NeighborListFactory<ClusterItem> factory,
-      final Map<ByteArray, Cluster> index) {
+  public ClusterNeighborList(final ByteArray centerId, final ClusterItem center,
+      final NeighborListFactory<ClusterItem> factory, final Map<ByteArray, Cluster> index) {
     super();
     this.index = index;
     this.id = centerId;
@@ -47,8 +45,8 @@ public class ClusterNeighborList implements NeighborList<ClusterItem> {
   }
 
   @Override
-  public boolean add(
-      DistanceProfile<?> distanceProfile, final ByteArray id, final ClusterItem value) {
+  public boolean add(DistanceProfile<?> distanceProfile, final ByteArray id,
+      final ClusterItem value) {
     Cluster cluster = index.get(id);
     if (cluster == null) {
       cluster = (Cluster) factory.buildNeighborList(id, value);
@@ -81,8 +79,8 @@ public class ClusterNeighborList implements NeighborList<ClusterItem> {
     final Map<ByteArray, Cluster> index;
     final NeighborListFactory<ClusterItem> factory;
 
-    public ClusterNeighborListFactory(
-        NeighborListFactory<ClusterItem> factory, Map<ByteArray, Cluster> index) {
+    public ClusterNeighborListFactory(NeighborListFactory<ClusterItem> factory,
+        Map<ByteArray, Cluster> index) {
       super();
       this.index = index;
       this.factory = factory;

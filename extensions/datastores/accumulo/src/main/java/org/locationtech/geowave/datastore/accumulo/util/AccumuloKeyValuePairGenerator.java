@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,9 +28,10 @@ import org.locationtech.geowave.datastore.accumulo.operations.AccumuloWriter;
  * Given a {@link DataTypeAdapter} and an {@link Index}, this class handles the creation of
  * Geowave-formatted [Key,Value] pairs.
  *
- * <p>The intent is that this class will be used within the Mapper of a MapReduce job to generate
- * Keys and Values to be sorted during the shuffle-and-sort phase in preparation for bulk ingest
- * into Accumulo via {@link AccumuloFileOutputFormat}.
+ * <p>
+ * The intent is that this class will be used within the Mapper of a MapReduce job to generate Keys
+ * and Values to be sorted during the shuffle-and-sort phase in preparation for bulk ingest into
+ * Accumulo via {@link AccumuloFileOutputFormat}.
  *
  * @param <T> the type of entries to index within Geowave
  */
@@ -39,9 +41,7 @@ public class AccumuloKeyValuePairGenerator<T> {
   private final Index index;
   private final VisibilityWriter<T> visibilityWriter;
 
-  public AccumuloKeyValuePairGenerator(
-      final InternalDataAdapter<T> adapter,
-      final Index index,
+  public AccumuloKeyValuePairGenerator(final InternalDataAdapter<T> adapter, final Index index,
       final VisibilityWriter<T> visibilityWriter) {
     super();
     this.adapter = adapter;
@@ -57,15 +57,9 @@ public class AccumuloKeyValuePairGenerator<T> {
       for (final GeoWaveRow row : rows) {
         final Mutation m = AccumuloWriter.rowToMutation(row);
         for (final ColumnUpdate cu : m.getUpdates()) {
-          keyValuePairs.add(
-              new KeyValue(
-                  new Key(
-                      m.getRow(),
-                      cu.getColumnFamily(),
-                      cu.getColumnQualifier(),
-                      cu.getColumnVisibility(),
-                      cu.getTimestamp()),
-                  cu.getValue()));
+          keyValuePairs
+              .add(new KeyValue(new Key(m.getRow(), cu.getColumnFamily(), cu.getColumnQualifier(),
+                  cu.getColumnVisibility(), cu.getTimestamp()), cu.getValue()));
         }
       }
     }

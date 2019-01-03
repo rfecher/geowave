@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,7 +39,8 @@ import org.opengis.feature.type.AttributeDescriptor;
  * attribute types of the feature must be understood before the feature can be deserialized so
  * therefore each SimpleFeature serializes its type.
  *
- * <p>NOTE: This class caches feature type information. If the feature type changes, then the cache
+ * <p>
+ * NOTE: This class caches feature type information. If the feature type changes, then the cache
  * should be emptied using the clearCache() method.
  */
 public class FeatureWritable implements Writable, java.io.Serializable {
@@ -73,9 +75,8 @@ public class FeatureWritable implements Writable, java.io.Serializable {
   public void readFields(final DataInput input) throws IOException {
     try {
       String ns = input.readUTF();
-      featureType =
-          FeatureDataUtils.decodeType(
-              "-".equals(ns) ? "" : ns, input.readUTF(), input.readUTF(), input.readUTF());
+      featureType = FeatureDataUtils.decodeType("-".equals(ns) ? "" : ns, input.readUTF(),
+          input.readUTF(), input.readUTF());
     } catch (final SchemaException e) {
       throw new IOException("Failed to parse the encoded feature type", e);
     }
@@ -94,10 +95,8 @@ public class FeatureWritable implements Writable, java.io.Serializable {
 
   @Override
   public void write(final DataOutput output) throws IOException {
-    output.writeUTF(
-        featureType.getName().getNamespaceURI() == null
-            ? "-"
-            : featureType.getName().getNamespaceURI());
+    output.writeUTF(featureType.getName().getNamespaceURI() == null ? "-"
+        : featureType.getName().getNamespaceURI());
     output.writeUTF(featureType.getTypeName());
     output.writeUTF(DataUtilities.encodeType(featureType));
     output.writeUTF(FeatureDataUtils.getAxis(featureType.getCoordinateReferenceSystem()));
@@ -111,9 +110,8 @@ public class FeatureWritable implements Writable, java.io.Serializable {
     }
   }
 
-  static void writeAttribute(
-      final DataOutput output, final AttributeDescriptor ad, final Object value)
-      throws IOException {
+  static void writeAttribute(final DataOutput output, final AttributeDescriptor ad,
+      final Object value) throws IOException {
     if (value == null) {
       // null marker
       output.writeBoolean(true);
@@ -144,10 +142,8 @@ public class FeatureWritable implements Writable, java.io.Serializable {
         output.writeDouble((Double) value);
       } else if (binding == String.class) {
         output.writeUTF((String) value);
-      } else if ((binding == java.sql.Date.class)
-          || (binding == java.sql.Time.class)
-          || (binding == java.sql.Timestamp.class)
-          || (binding == java.util.Date.class)) {
+      } else if ((binding == java.sql.Date.class) || (binding == java.sql.Time.class)
+          || (binding == java.sql.Timestamp.class) || (binding == java.util.Date.class)) {
         Varint.writeUnsignedVarLong(((Date) value).getTime(), output);
       } else if (Geometry.class.isAssignableFrom(binding)) {
         final TWKBWriter writer = new TWKBWriter();
@@ -243,12 +239,8 @@ public class FeatureWritable implements Writable, java.io.Serializable {
   }
 
   public static final void cache(SimpleFeatureType featureType) {
-    final Pair<String, String> id =
-        Pair.of(
-            featureType.getName().getNamespaceURI() == null
-                ? ""
-                : featureType.getName().getNamespaceURI(),
-            featureType.getTypeName());
+    final Pair<String, String> id = Pair.of(featureType.getName().getNamespaceURI() == null ? ""
+        : featureType.getName().getNamespaceURI(), featureType.getTypeName());
     FeatureTypeCache.put(id, featureType);
   }
 }

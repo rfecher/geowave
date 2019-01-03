@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -55,17 +56,13 @@ public class KafkaTestUtils {
     localToKafka.getKafkaOptions().setRequestRequiredAcks("1");
     localToKafka.getKafkaOptions().setProducerType("sync");
     localToKafka.getKafkaOptions().setRetryBackoffMs("1000");
-    localToKafka
-        .getKafkaOptions()
+    localToKafka.getKafkaOptions()
         .setSerializerClass("org.locationtech.geowave.core.ingest.kafka.AvroKafkaEncoder");
     localToKafka.execute(new ManualOperationParams());
   }
 
-  public static void testKafkaIngest(
-      final DataStorePluginOptions options,
-      final boolean spatialTemporal,
-      final String ingestFilePath)
-      throws Exception {
+  public static void testKafkaIngest(final DataStorePluginOptions options,
+      final boolean spatialTemporal, final String ingestFilePath) throws Exception {
     LOGGER.warn("Ingesting '" + ingestFilePath + "' - this may take several minutes...");
 
     // // FIXME
@@ -107,8 +104,7 @@ public class KafkaTestUtils {
     kafkaToGeowave.getKafkaOptions().setGroupId("testGroup");
     kafkaToGeowave.getKafkaOptions().setAutoOffsetReset("smallest");
     kafkaToGeowave.getKafkaOptions().setFetchMessageMaxBytes(MAX_MESSAGE_BYTES);
-    kafkaToGeowave
-        .getKafkaOptions()
+    kafkaToGeowave.getKafkaOptions()
         .setZookeeperConnect(ZookeeperTestEnvironment.getInstance().getZookeeper());
     kafkaToGeowave.setParameters("test-store", "test-index");
 

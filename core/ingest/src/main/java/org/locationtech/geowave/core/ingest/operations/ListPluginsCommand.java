@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,38 +37,33 @@ public class ListPluginsCommand extends ServiceEnabledCommand<String> {
     StringBuilder builder = new StringBuilder();
 
     builder.append("Available index types currently registered as plugins:\n");
-    for (final Entry<String, DimensionalityTypeProviderSpi> pluginProviderEntry :
-        DimensionalityTypeRegistry.getRegisteredDimensionalityTypes().entrySet()) {
+    for (final Entry<String, DimensionalityTypeProviderSpi> pluginProviderEntry : DimensionalityTypeRegistry
+        .getRegisteredDimensionalityTypes().entrySet()) {
       final DimensionalityTypeProviderSpi pluginProvider = pluginProviderEntry.getValue();
       final String desc =
-          pluginProvider.getDimensionalityTypeDescription() == null
-              ? "no description"
+          pluginProvider.getDimensionalityTypeDescription() == null ? "no description"
               : pluginProvider.getDimensionalityTypeDescription();
 
       builder.append(String.format("%n  %s:%n    %s%n", pluginProviderEntry.getKey(), desc));
     }
 
     builder.append("\nAvailable ingest formats currently registered as plugins:\n");
-    for (final Entry<String, IngestFormatPluginProviderSpi<?, ?>> pluginProviderEntry :
-        IngestFormatPluginRegistry.getPluginProviderRegistry().entrySet()) {
+    for (final Entry<String, IngestFormatPluginProviderSpi<?, ?>> pluginProviderEntry : IngestFormatPluginRegistry
+        .getPluginProviderRegistry().entrySet()) {
       final IngestFormatPluginProviderSpi<?, ?> pluginProvider = pluginProviderEntry.getValue();
-      final String desc =
-          pluginProvider.getIngestFormatDescription() == null
-              ? "no description"
-              : pluginProvider.getIngestFormatDescription();
+      final String desc = pluginProvider.getIngestFormatDescription() == null ? "no description"
+          : pluginProvider.getIngestFormatDescription();
       builder.append(String.format("%n  %s:%n    %s%n", pluginProviderEntry.getKey(), desc));
     }
 
     builder.append("\nAvailable datastores currently registered:\n");
     final Map<String, StoreFactoryFamilySpi> dataStoreFactories =
         GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies();
-    for (final Entry<String, StoreFactoryFamilySpi> dataStoreFactoryEntry :
-        dataStoreFactories.entrySet()) {
+    for (final Entry<String, StoreFactoryFamilySpi> dataStoreFactoryEntry : dataStoreFactories
+        .entrySet()) {
       final StoreFactoryFamilySpi dataStoreFactory = dataStoreFactoryEntry.getValue();
-      final String desc =
-          dataStoreFactory.getDescription() == null
-              ? "no description"
-              : dataStoreFactory.getDescription();
+      final String desc = dataStoreFactory.getDescription() == null ? "no description"
+          : dataStoreFactory.getDescription();
       builder.append(String.format("%n  %s:%n    %s%n", dataStoreFactory.getType(), desc));
     }
 

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -99,17 +100,9 @@ public class TheiaImageryProvider extends Sentinel2ImageryProvider {
   }
 
   @Override
-  public Iterator<SimpleFeature> searchScenes(
-      final File scenesDir,
-      final String collection,
-      final String platform,
-      final String location,
-      final Envelope envelope,
-      final Date startDate,
-      final Date endDate,
-      final int orbitNumber,
-      final int relativeOrbitNumber)
-      throws IOException {
+  public Iterator<SimpleFeature> searchScenes(final File scenesDir, final String collection,
+      final String platform, final String location, final Envelope envelope, final Date startDate,
+      final Date endDate, final int orbitNumber, final int relativeOrbitNumber) throws IOException {
 
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -122,14 +115,8 @@ public class TheiaImageryProvider extends Sentinel2ImageryProvider {
       searchUrl += "location=" + location + "&";
     }
     if ((envelope != null) && (envelope.isNull() == false)) {
-      searchUrl +=
-          String.format(
-              Locale.ENGLISH,
-              "box=%.6f,%.6f,%.6f,%.6f&",
-              envelope.getMinX(),
-              envelope.getMinY(),
-              envelope.getMaxX(),
-              envelope.getMaxY());
+      searchUrl += String.format(Locale.ENGLISH, "box=%.6f,%.6f,%.6f,%.6f&", envelope.getMinX(),
+          envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY());
     }
     if (startDate != null) {
       searchUrl += "startDate=" + dateFormat.format(startDate) + "&";
@@ -178,10 +165,8 @@ public class TheiaImageryProvider extends Sentinel2ImageryProvider {
       SimpleFeatureType type = typeBuilder.buildFeatureType();
 
       class TheiaJSONFeatureIterator extends JSONFeatureIterator {
-        public TheiaJSONFeatureIterator(
-            Sentinel2ImageryProvider provider,
-            SimpleFeatureType featureType,
-            Iterator<?> iterator) {
+        public TheiaJSONFeatureIterator(Sentinel2ImageryProvider provider,
+            SimpleFeatureType featureType, Iterator<?> iterator) {
           super(provider, featureType, iterator);
         }
 
@@ -219,12 +204,8 @@ public class TheiaImageryProvider extends Sentinel2ImageryProvider {
   }
 
   @Override
-  public boolean downloadScene(
-      final SimpleFeature scene,
-      final String workspaceDir,
-      final String userIdent,
-      final String password)
-      throws IOException {
+  public boolean downloadScene(final SimpleFeature scene, final String workspaceDir,
+      final String userIdent, final String password) throws IOException {
     final String tokenUrl = AUNTHENTICATION_URL;
     String authentication;
     String tokenId;
@@ -237,19 +218,14 @@ public class TheiaImageryProvider extends Sentinel2ImageryProvider {
         (String) scene.getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME);
 
     // Check authentication parameters
-    if ((userIdent == null)
-        || (userIdent.length() == 0)
-        || (password == null)
+    if ((userIdent == null) || (userIdent.length() == 0) || (password == null)
         || (password.length() == 0)) {
       LOGGER.error("Invalid or empty authentication parameters (email and password)");
       return false;
     }
     try {
-      authentication =
-          "ident="
-              + URLEncoder.encode(userIdent, "UTF-8")
-              + "&pass="
-              + URLEncoder.encode(password, "UTF-8");
+      authentication = "ident=" + URLEncoder.encode(userIdent, "UTF-8") + "&pass="
+          + URLEncoder.encode(password, "UTF-8");
     } catch (final UnsupportedEncodingException e) {
       LOGGER.error(
           "Invalid or empty authentication parameters (email and password)" + e.getMessage());
@@ -270,10 +246,10 @@ public class TheiaImageryProvider extends Sentinel2ImageryProvider {
       connection.setRequestMethod("POST");
 
       connection.setDoOutput(true);
-      connection.setRequestProperty(
-          HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED);
-      connection.setRequestProperty(
-          HttpHeaders.CONTENT_LENGTH, String.valueOf(authentication.length()));
+      connection.setRequestProperty(HttpHeaders.CONTENT_TYPE,
+          MediaType.APPLICATION_FORM_URLENCODED);
+      connection.setRequestProperty(HttpHeaders.CONTENT_LENGTH,
+          String.valueOf(authentication.length()));
 
       // allow for custom trust store to anchor acceptable certs, use an
       // expected file in the workspace directory
@@ -315,14 +291,8 @@ public class TheiaImageryProvider extends Sentinel2ImageryProvider {
     }
 
     // First steps to download the gzipped file
-    final File compressedFile =
-        new File(
-            workspaceDir
-                + File.separator
-                + DOWNLOAD_DIRECTORY
-                + File.separator
-                + productId
-                + ".zip");
+    final File compressedFile = new File(
+        workspaceDir + File.separator + DOWNLOAD_DIRECTORY + File.separator + productId + ".zip");
     final File productDir = DownloadRunner.getSceneDirectory(scene, workspaceDir);
 
     // Download the gzipped file
@@ -335,13 +305,10 @@ public class TheiaImageryProvider extends Sentinel2ImageryProvider {
 
         final Client client = Client.create(clientConfig);
 
-        final ClientResponse response =
-            client
-                .resource(downloadUrl)
-                .accept("application/zip")
-                .header(javax.ws.rs.core.HttpHeaders.USER_AGENT, "Mozilla/5.0")
-                .header(javax.ws.rs.core.HttpHeaders.AUTHORIZATION, "Bearer " + tokenId)
-                .get(ClientResponse.class);
+        final ClientResponse response = client.resource(downloadUrl).accept("application/zip")
+            .header(javax.ws.rs.core.HttpHeaders.USER_AGENT, "Mozilla/5.0")
+            .header(javax.ws.rs.core.HttpHeaders.AUTHORIZATION, "Bearer " + tokenId)
+            .get(ClientResponse.class);
 
         String displaySize = FileUtils.byteCountToDisplaySize(response.getLength());
         System.out.println("\nDownloading file '" + productId + "' (" + displaySize + ")");
@@ -412,16 +379,8 @@ public class TheiaImageryProvider extends Sentinel2ImageryProvider {
           // A more succinct one is also available here:
           // 'http://www.cesbio.ups-tlse.fr/multitemp/?page_id=8352'
           //
-          File geotiffFile =
-              new File(
-                  file.getAbsolutePath()
-                      + File.separatorChar
-                      + name
-                      + File.separatorChar
-                      + name
-                      + "_FRE_"
-                      + bandName
-                      + ".tif");
+          File geotiffFile = new File(file.getAbsolutePath() + File.separatorChar + name
+              + File.separatorChar + name + "_FRE_" + bandName + ".tif");
           if (geotiffFile.exists()) {
             final GDALGeoTiffReader reader = new GDALGeoTiffReader(geotiffFile);
             final GridCoverage2D coverage = reader.read(null);

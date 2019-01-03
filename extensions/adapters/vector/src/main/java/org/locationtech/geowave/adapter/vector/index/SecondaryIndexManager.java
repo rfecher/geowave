@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -68,19 +69,16 @@ public class SecondaryIndexManager implements Persistable {
 
       if (userData.containsKey(NumericSecondaryIndexConfiguration.INDEX_KEY)) {
         secondaryIndex = NumericSecondaryIndexConfiguration.INDEX_KEY;
-        secondaryIndexType =
-            SecondaryIndexType.valueOf(
-                (String) userData.get(NumericSecondaryIndexConfiguration.INDEX_KEY));
+        secondaryIndexType = SecondaryIndexType
+            .valueOf((String) userData.get(NumericSecondaryIndexConfiguration.INDEX_KEY));
       } else if (userData.containsKey(TextSecondaryIndexConfiguration.INDEX_KEY)) {
         secondaryIndex = TextSecondaryIndexConfiguration.INDEX_KEY;
-        secondaryIndexType =
-            SecondaryIndexType.valueOf(
-                (String) userData.get(TextSecondaryIndexConfiguration.INDEX_KEY));
+        secondaryIndexType = SecondaryIndexType
+            .valueOf((String) userData.get(TextSecondaryIndexConfiguration.INDEX_KEY));
       } else if (userData.containsKey(TemporalSecondaryIndexConfiguration.INDEX_KEY)) {
         secondaryIndex = TemporalSecondaryIndexConfiguration.INDEX_KEY;
-        secondaryIndexType =
-            SecondaryIndexType.valueOf(
-                (String) userData.get(TemporalSecondaryIndexConfiguration.INDEX_KEY));
+        secondaryIndexType = SecondaryIndexType
+            .valueOf((String) userData.get(TemporalSecondaryIndexConfiguration.INDEX_KEY));
       }
 
       // If a valid secondary index type is provided, and the type is
@@ -113,11 +111,8 @@ public class SecondaryIndexManager implements Persistable {
    * @param secondaryIndexType
    * @param fieldsForPartial
    */
-  private void addIndex(
-      final String secondaryIndexKey,
-      final String fieldName,
-      final SecondaryIndexType secondaryIndexType,
-      final List<String> fieldsForPartial) {
+  private void addIndex(final String secondaryIndexKey, final String fieldName,
+      final SecondaryIndexType secondaryIndexType, final List<String> fieldsForPartial) {
 
     final List<InternalDataStatistics<SimpleFeature, ?, ?>> statistics = new ArrayList<>();
     InternalDataStatistics<SimpleFeature, ?, ?> stat = null;
@@ -125,37 +120,22 @@ public class SecondaryIndexManager implements Persistable {
       case NumericSecondaryIndexConfiguration.INDEX_KEY:
         stat = new FeatureNumericHistogramStatistics(fieldName);
         statistics.add(stat);
-        supportedSecondaryIndices.add(
-            new SecondaryIndexImpl<>(
-                new NumericFieldIndexStrategy(),
-                fieldName,
-                statistics,
-                secondaryIndexType,
-                fieldsForPartial));
+        supportedSecondaryIndices.add(new SecondaryIndexImpl<>(new NumericFieldIndexStrategy(),
+            fieldName, statistics, secondaryIndexType, fieldsForPartial));
         break;
 
       case TextSecondaryIndexConfiguration.INDEX_KEY:
         stat = new FeatureHyperLogLogStatistics(fieldName, 16);
         statistics.add(stat);
-        supportedSecondaryIndices.add(
-            new SecondaryIndexImpl<>(
-                new TextIndexStrategy(),
-                fieldName,
-                statistics,
-                secondaryIndexType,
-                fieldsForPartial));
+        supportedSecondaryIndices.add(new SecondaryIndexImpl<>(new TextIndexStrategy(), fieldName,
+            statistics, secondaryIndexType, fieldsForPartial));
         break;
 
       case TemporalSecondaryIndexConfiguration.INDEX_KEY:
         stat = new FeatureNumericHistogramStatistics(fieldName);
         statistics.add(stat);
-        supportedSecondaryIndices.add(
-            new SecondaryIndexImpl<>(
-                new TemporalIndexStrategy(),
-                fieldName,
-                statistics,
-                secondaryIndexType,
-                fieldsForPartial));
+        supportedSecondaryIndices.add(new SecondaryIndexImpl<>(new TemporalIndexStrategy(),
+            fieldName, statistics, secondaryIndexType, fieldsForPartial));
         break;
 
       default:
@@ -169,7 +149,8 @@ public class SecondaryIndexManager implements Persistable {
   /**
    * {@inheritDoc}
    *
-   * <p>This consists of converting supported secondary indices.
+   * <p>
+   * This consists of converting supported secondary indices.
    */
   @Override
   public byte[] toBinary() {
@@ -183,7 +164,8 @@ public class SecondaryIndexManager implements Persistable {
   /**
    * {@inheritDoc}
    *
-   * <p>This extracts the supported secondary indices from the binary stream and adds them in this
+   * <p>
+   * This extracts the supported secondary indices from the binary stream and adds them in this
    * object.
    */
   @SuppressWarnings("unchecked")

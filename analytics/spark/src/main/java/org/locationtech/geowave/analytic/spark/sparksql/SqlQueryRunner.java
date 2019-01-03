@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -67,13 +68,8 @@ public class SqlQueryRunner {
     if (session == null) {
       String jar = "";
       try {
-        jar =
-            SqlQueryRunner.class
-                .getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .toURI()
-                .getPath();
+        jar = SqlQueryRunner.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+            .getPath();
       } catch (final URISyntaxException e) {
         LOGGER.error("Unable to set jar location in spark configuration", e);
       }
@@ -136,8 +132,8 @@ public class SqlQueryRunner {
                   if (childCond.isJsonObject()) {
                     final JsonObject condObj = childCond.getAsJsonObject();
                     final String condClass = condObj.get("class").getAsString();
-                    if (Objects.equals(
-                        condClass, "org.apache.spark.sql.catalyst.analysis.UnresolvedFunction")) {
+                    if (Objects.equals(condClass,
+                        "org.apache.spark.sql.catalyst.analysis.UnresolvedFunction")) {
                       final String udfName =
                           condObj.get("name").getAsJsonObject().get("funcName").getAsString();
                       final UDFNameAndConstructor geomUDF =
@@ -252,19 +248,14 @@ public class SqlQueryRunner {
       joinRunner.setNegativeTest(negativePredicate);
 
       // Setup store info for runner
-      final Index[] leftIndices =
-          leftStore
-              .getOrCreateAdapterIndexMappingStore()
-              .getIndicesForAdapter(
-                  leftStore.getOrCreateInternalAdapterStore().getAdapterId(leftStore.typeName))
-              .getIndices(leftStore.getOrCreateIndexStore());
-      final Index[] rightIndices =
-          rightStore
-              .getOrCreateAdapterIndexMappingStore()
-              .getIndicesForAdapter(
-                  rightStore.getOrCreateInternalAdapterStore().getAdapterId(rightStore.typeName))
-              .getIndices(rightStore.getOrCreateIndexStore());
-      ;
+      final Index[] leftIndices = leftStore.getOrCreateAdapterIndexMappingStore()
+          .getIndicesForAdapter(
+              leftStore.getOrCreateInternalAdapterStore().getAdapterId(leftStore.typeName))
+          .getIndices(leftStore.getOrCreateIndexStore());
+      final Index[] rightIndices = rightStore.getOrCreateAdapterIndexMappingStore()
+          .getIndicesForAdapter(
+              rightStore.getOrCreateInternalAdapterStore().getAdapterId(rightStore.typeName))
+          .getIndices(rightStore.getOrCreateIndexStore());;
       NumericIndexStrategy leftStrat = null;
       if (leftIndices.length > 0) {
         leftStrat = leftIndices[0].getIndexStrategy();
@@ -327,9 +318,8 @@ public class SqlQueryRunner {
   }
 
   private String[] getTableRelations(final String[] predicateArgs) {
-    final String[] outputRelations = {
-      getTableNameFromArg(predicateArgs[0].trim()), getTableNameFromArg(predicateArgs[1].trim())
-    };
+    final String[] outputRelations = {getTableNameFromArg(predicateArgs[0].trim()),
+        getTableNameFromArg(predicateArgs[1].trim())};
     return outputRelations;
   }
 
@@ -369,8 +359,8 @@ public class SqlQueryRunner {
     }
   }
 
-  public String addInputStore(
-      final DataStorePluginOptions storeOptions, final String typeName, final String viewName) {
+  public String addInputStore(final DataStorePluginOptions storeOptions, final String typeName,
+      final String viewName) {
     if (storeOptions == null) {
       LOGGER.error("Must supply datastore plugin options.");
       return null;
@@ -431,8 +421,8 @@ public class SqlQueryRunner {
   }
 
   private class InputStoreInfo {
-    public InputStoreInfo(
-        final DataStorePluginOptions storeOptions, final String typeName, final String viewName) {
+    public InputStoreInfo(final DataStorePluginOptions storeOptions, final String typeName,
+        final String viewName) {
       this.storeOptions = storeOptions;
       this.typeName = typeName;
       this.viewName = viewName;

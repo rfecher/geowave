@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,23 +35,13 @@ public class MergingEntryIterator<T> extends NativeEntryIteratorWrapper<T> {
   private final Map<Short, RowMergingDataAdapter> mergingAdapters;
   private final Map<Short, RowTransform> transforms;
 
-  public MergingEntryIterator(
-      final PersistentAdapterStore adapterStore,
-      final Index index,
-      final Iterator<GeoWaveRow> scannerIt,
-      final QueryFilter clientFilter,
+  public MergingEntryIterator(final PersistentAdapterStore adapterStore, final Index index,
+      final Iterator<GeoWaveRow> scannerIt, final QueryFilter clientFilter,
       final ScanCallback<T, GeoWaveRow> scanCallback,
       final Map<Short, RowMergingDataAdapter> mergingAdapters,
       final double[] maxResolutionSubsamplingPerDimension) {
-    super(
-        adapterStore,
-        index,
-        scannerIt,
-        clientFilter,
-        scanCallback,
-        null,
-        maxResolutionSubsamplingPerDimension,
-        true);
+    super(adapterStore, index, scannerIt, clientFilter, scanCallback, null,
+        maxResolutionSubsamplingPerDimension, true);
     this.mergingAdapters = mergingAdapters;
     transforms = new HashMap<Short, RowTransform>();
   }
@@ -73,8 +64,8 @@ public class MergingEntryIterator<T> extends NativeEntryIteratorWrapper<T> {
     return nextResult;
   }
 
-  private RowTransform getRowTransform(
-      short internalAdapterId, RowMergingDataAdapter mergingAdapter) {
+  private RowTransform getRowTransform(short internalAdapterId,
+      RowMergingDataAdapter mergingAdapter) {
     RowTransform transform = transforms.get(internalAdapterId);
     if (transform == null) {
       transform = mergingAdapter.getTransform();
@@ -91,8 +82,8 @@ public class MergingEntryIterator<T> extends NativeEntryIteratorWrapper<T> {
     return transform;
   }
 
-  protected GeoWaveRow mergeSingleRowValues(
-      final GeoWaveRow singleRow, final RowTransform rowTransform) {
+  protected GeoWaveRow mergeSingleRowValues(final GeoWaveRow singleRow,
+      final RowTransform rowTransform) {
     if (singleRow.getFieldValues().length < 2) {
       return singleRow;
     }
@@ -101,11 +92,8 @@ public class MergingEntryIterator<T> extends NativeEntryIteratorWrapper<T> {
     Mergeable merged = null;
 
     for (GeoWaveValue fieldValue : singleRow.getFieldValues()) {
-      final Mergeable mergeable =
-          rowTransform.getRowAsMergeableObject(
-              singleRow.getAdapterId(),
-              new ByteArray(fieldValue.getFieldMask()),
-              fieldValue.getValue());
+      final Mergeable mergeable = rowTransform.getRowAsMergeableObject(singleRow.getAdapterId(),
+          new ByteArray(fieldValue.getFieldMask()), fieldValue.getValue());
 
       if (merged == null) {
         merged = mergeable;
@@ -115,20 +103,13 @@ public class MergingEntryIterator<T> extends NativeEntryIteratorWrapper<T> {
     }
 
     GeoWaveValue[] mergedFieldValues =
-        new GeoWaveValue[] {
-          new GeoWaveValueImpl(
-              singleRow.getFieldValues()[0].getFieldMask(),
-              singleRow.getFieldValues()[0].getVisibility(),
-              rowTransform.getBinaryFromMergedObject(merged))
-        };
+        new GeoWaveValue[] {new GeoWaveValueImpl(singleRow.getFieldValues()[0].getFieldMask(),
+            singleRow.getFieldValues()[0].getVisibility(),
+            rowTransform.getBinaryFromMergedObject(merged))};
 
     return new GeoWaveRowImpl(
-        new GeoWaveKeyImpl(
-            singleRow.getDataId(),
-            singleRow.getAdapterId(),
-            singleRow.getPartitionKey(),
-            singleRow.getSortKey(),
-            singleRow.getNumberOfDuplicates()),
+        new GeoWaveKeyImpl(singleRow.getDataId(), singleRow.getAdapterId(),
+            singleRow.getPartitionKey(), singleRow.getSortKey(), singleRow.getNumberOfDuplicates()),
         mergedFieldValues);
   }
 

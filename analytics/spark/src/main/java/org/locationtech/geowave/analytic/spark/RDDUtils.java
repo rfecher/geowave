@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,12 +52,8 @@ public class RDDUtils {
    *
    * @throws IOException
    */
-  public static void writeRDDToGeoWave(
-      SparkContext sc,
-      Index index,
-      DataStorePluginOptions outputStoreOptions,
-      FeatureDataAdapter adapter,
-      GeoWaveRDD inputRDD)
+  public static void writeRDDToGeoWave(SparkContext sc, Index index,
+      DataStorePluginOptions outputStoreOptions, FeatureDataAdapter adapter, GeoWaveRDD inputRDD)
       throws IOException {
     if (!inputRDD.isLoaded()) {
       LOGGER.error("Must provide a loaded RDD.");
@@ -66,12 +63,8 @@ public class RDDUtils {
     writeToGeoWave(sc, index, outputStoreOptions, adapter, inputRDD.getRawRDD().values());
   }
 
-  public static void writeRDDToGeoWave(
-      SparkContext sc,
-      Index[] indices,
-      DataStorePluginOptions outputStoreOptions,
-      FeatureDataAdapter adapter,
-      GeoWaveRDD inputRDD)
+  public static void writeRDDToGeoWave(SparkContext sc, Index[] indices,
+      DataStorePluginOptions outputStoreOptions, FeatureDataAdapter adapter, GeoWaveRDD inputRDD)
       throws IOException {
     if (!inputRDD.isLoaded()) {
       LOGGER.error("Must provide a loaded RDD.");
@@ -79,8 +72,8 @@ public class RDDUtils {
     }
 
     for (int iStrategy = 0; iStrategy < indices.length; iStrategy += 1) {
-      writeToGeoWave(
-          sc, indices[iStrategy], outputStoreOptions, adapter, inputRDD.getRawRDD().values());
+      writeToGeoWave(sc, indices[iStrategy], outputStoreOptions, adapter,
+          inputRDD.getRawRDD().values());
     }
   }
 
@@ -89,15 +82,10 @@ public class RDDUtils {
       LOGGER.error("Must provide a loaded RDD.");
       return null;
     }
-    JavaRDD<Point> centroids =
-        inputRDD
-            .getRawRDD()
-            .values()
-            .map(
-                feature -> {
-                  Geometry geom = (Geometry) feature.getDefaultGeometry();
-                  return geom.getCentroid();
-                });
+    JavaRDD<Point> centroids = inputRDD.getRawRDD().values().map(feature -> {
+      Geometry geom = (Geometry) feature.getDefaultGeometry();
+      return geom.getCentroid();
+    });
 
     return centroids;
   }
@@ -107,62 +95,57 @@ public class RDDUtils {
     return rddFeatureVectors(inputRDD, null, null);
   }
 
-  public static JavaRDD<Vector> rddFeatureVectors(
-      final GeoWaveRDD inputRDD, final String timeField, final ScaledTemporalRange scaledRange) {
+  public static JavaRDD<Vector> rddFeatureVectors(final GeoWaveRDD inputRDD, final String timeField,
+      final ScaledTemporalRange scaledRange) {
     if (!inputRDD.isLoaded()) {
       LOGGER.error("Must provide a loaded RDD.");
       return null;
     }
-    JavaRDD<Vector> vectorRDD =
-        inputRDD
-            .getRawRDD()
-            .values()
-            .map(
-                feature -> {
-                  Point centroid = ((Geometry) feature.getDefaultGeometry()).getCentroid();
+    JavaRDD<Vector> vectorRDD = inputRDD.getRawRDD().values().map(feature -> {
+      Point centroid = ((Geometry) feature.getDefaultGeometry()).getCentroid();
 
-                  int numValues = 2;
-                  Date time = null;
+      int numValues = 2;
+      Date time = null;
 
-                  if (timeField != null) {
-                    // if this is a ranged schema, we have to take the
-                    // midpoint
-                    if (timeField.contains("|")) {
-                      int pipeIndex = timeField.indexOf("|");
-                      String startField = timeField.substring(0, pipeIndex);
-                      String endField = timeField.substring(pipeIndex + 1);
+      if (timeField != null) {
+        // if this is a ranged schema, we have to take the
+        // midpoint
+        if (timeField.contains("|")) {
+          int pipeIndex = timeField.indexOf("|");
+          String startField = timeField.substring(0, pipeIndex);
+          String endField = timeField.substring(pipeIndex + 1);
 
-                      Date start = (Date) feature.getAttribute(startField);
-                      Date end = (Date) feature.getAttribute(endField);
+          Date start = (Date) feature.getAttribute(startField);
+          Date end = (Date) feature.getAttribute(endField);
 
-                      long halfDur = (end.getTime() - start.getTime()) / 2;
+          long halfDur = (end.getTime() - start.getTime()) / 2;
 
-                      time = new Date(start.getTime() + halfDur);
-                    } else {
-                      time = (Date) feature.getAttribute(timeField);
-                    }
+          time = new Date(start.getTime() + halfDur);
+        } else {
+          time = (Date) feature.getAttribute(timeField);
+        }
 
-                    if (time != null) {
-                      numValues++;
-                    }
-                  }
+        if (time != null) {
+          numValues++;
+        }
+      }
 
-                  double[] values = new double[numValues];
-                  values[0] = centroid.getX();
-                  values[1] = centroid.getY();
+      double[] values = new double[numValues];
+      values[0] = centroid.getX();
+      values[1] = centroid.getY();
 
-                  if (time != null) {
-                    values[2] = scaledRange.timeToValue(time);
-                  }
+      if (time != null) {
+        values[2] = scaledRange.timeToValue(time);
+      }
 
-                  return Vectors.dense(values);
-                });
+      return Vectors.dense(values);
+    });
 
     return vectorRDD;
   }
 
-  public static InsertionIds trimIndexIds(
-      InsertionIds rawIds, Geometry geom, NumericIndexStrategy index) {
+  public static InsertionIds trimIndexIds(InsertionIds rawIds, Geometry geom,
+      NumericIndexStrategy index) {
     for (final SinglePartitionInsertionIds insertionId : rawIds.getPartitionKeys()) {
       final ByteArray partitionKey = insertionId.getPartitionKey();
       final int size = insertionId.getSortKeys().size();
@@ -172,11 +155,8 @@ public class RDDUtils {
           final ByteArray sortKey = it.next();
           MultiDimensionalNumericData keyTile = index.getRangeForId(partitionKey, sortKey);
           Envelope other = new Envelope();
-          other.init(
-              keyTile.getMinValuesPerDimension()[0],
-              keyTile.getMaxValuesPerDimension()[0],
-              keyTile.getMinValuesPerDimension()[1],
-              keyTile.getMaxValuesPerDimension()[1]);
+          other.init(keyTile.getMinValuesPerDimension()[0], keyTile.getMaxValuesPerDimension()[0],
+              keyTile.getMinValuesPerDimension()[1], keyTile.getMaxValuesPerDimension()[1]);
           Polygon rect = JTS.toGeometry(other);
           if (!RectangleIntersects.intersects(rect, geom)) {
             it.remove();
@@ -192,13 +172,9 @@ public class RDDUtils {
    *
    * @throws IOException
    */
-  private static void writeToGeoWave(
-      SparkContext sc,
-      Index index,
-      DataStorePluginOptions outputStoreOptions,
-      DataTypeAdapter adapter,
-      JavaRDD<SimpleFeature> inputRDD)
-      throws IOException {
+  private static void writeToGeoWave(SparkContext sc, Index index,
+      DataStorePluginOptions outputStoreOptions, DataTypeAdapter adapter,
+      JavaRDD<SimpleFeature> inputRDD) throws IOException {
 
     // setup the configuration and the output format
     Configuration conf = new org.apache.hadoop.conf.Configuration(sc.hadoopConfiguration());
@@ -220,15 +196,13 @@ public class RDDUtils {
 
     // map to a pair containing the output key and the output value
     inputRDD
-        .mapToPair(
-            feat ->
-                new Tuple2<GeoWaveOutputKey, SimpleFeature>(
-                    new GeoWaveOutputKey(typeName.value(), indexName.value()), feat))
+        .mapToPair(feat -> new Tuple2<GeoWaveOutputKey, SimpleFeature>(
+            new GeoWaveOutputKey(typeName.value(), indexName.value()), feat))
         .saveAsNewAPIHadoopDataset(job.getConfiguration());
   }
 
-  public static Broadcast<? extends NumericIndexStrategy> broadcastIndexStrategy(
-      SparkContext sc, NumericIndexStrategy indexStrategy) {
+  public static Broadcast<? extends NumericIndexStrategy> broadcastIndexStrategy(SparkContext sc,
+      NumericIndexStrategy indexStrategy) {
     ClassTag<NumericIndexStrategy> indexClassTag =
         scala.reflect.ClassTag$.MODULE$.apply(indexStrategy.getClass());
     Broadcast<NumericIndexStrategy> broadcastStrategy = sc.broadcast(indexStrategy, indexClassTag);

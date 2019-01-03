@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -76,10 +77,7 @@ public class RedisOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public boolean deleteAll(
-      final String indexName,
-      final String typeName,
-      final Short adapterId,
+  public boolean deleteAll(final String indexName, final String typeName, final Short adapterId,
       final String... additionalAuthorizations) {
     deleteByPattern(RedisUtils.getRowSetPrefix(gwNamespace, typeName, indexName) + "*");
     return true;
@@ -92,13 +90,8 @@ public class RedisOperations implements MapReduceDataStoreOperations {
 
   @Override
   public RowWriter createWriter(final Index index, final InternalDataAdapter<?> adapter) {
-    return new RedisWriter(
-        client,
-        options.getCompression(),
-        gwNamespace,
-        adapter.getTypeName(),
-        index.getName(),
-        RedisUtils.isSortByTime(adapter));
+    return new RedisWriter(client, options.getCompression(), gwNamespace, adapter.getTypeName(),
+        index.getName(), RedisUtils.isSortByTime(adapter));
   }
 
   @Override
@@ -124,41 +117,31 @@ public class RedisOperations implements MapReduceDataStoreOperations {
 
   @Override
   public <T> RowReader<T> createReader(final ReaderParams<T> readerParams) {
-    return new RedisReader<>(
-        client, options.getCompression(), readerParams, gwNamespace, READER_ASYNC);
+    return new RedisReader<>(client, options.getCompression(), readerParams, gwNamespace,
+        READER_ASYNC);
   }
 
   @Override
   public <T> Deleter<T> createDeleter(final ReaderParams<T> readerParams) {
     return new QueryAndDeleteByRow<>(
-        createRowDeleter(
-            readerParams.getIndex().getName(),
-            readerParams.getAdapterStore(),
-            readerParams.getInternalAdapterStore(),
-            readerParams.getAdditionalAuthorizations()),
+        createRowDeleter(readerParams.getIndex().getName(), readerParams.getAdapterStore(),
+            readerParams.getInternalAdapterStore(), readerParams.getAdditionalAuthorizations()),
         // intentionally don't run this reader as async because it does
         // not work well while simultaneously deleting rows
         new RedisReader<>(client, options.getCompression(), readerParams, gwNamespace, false));
   }
 
   @Override
-  public boolean mergeData(
-      final Index index,
-      final PersistentAdapterStore adapterStore,
+  public boolean mergeData(final Index index, final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final AdapterIndexMappingStore adapterIndexMappingStore) {
-    return DataStoreUtils.mergeData(
-        this,
-        options.getStoreOptions(),
-        index,
-        adapterStore,
-        internalAdapterStore,
-        adapterIndexMappingStore);
+    return DataStoreUtils.mergeData(this, options.getStoreOptions(), index, adapterStore,
+        internalAdapterStore, adapterIndexMappingStore);
   }
 
   @Override
-  public boolean mergeStats(
-      final DataStatisticsStore statsStore, final InternalAdapterStore internalAdapterStore) {
+  public boolean mergeStats(final DataStatisticsStore statsStore,
+      final InternalAdapterStore internalAdapterStore) {
     return DataStoreUtils.mergeStats(statsStore, internalAdapterStore);
   }
 
@@ -168,17 +151,10 @@ public class RedisOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public RowDeleter createRowDeleter(
-      final String indexName,
-      final PersistentAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore,
+  public RowDeleter createRowDeleter(final String indexName,
+      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
       final String... authorizations) {
-    return new RedisRowDeleter(
-        client,
-        options.getCompression(),
-        adapterStore,
-        internalAdapterStore,
-        indexName,
-        gwNamespace);
+    return new RedisRowDeleter(client, options.getCompression(), adapterStore, internalAdapterStore,
+        indexName, gwNamespace);
   }
 }

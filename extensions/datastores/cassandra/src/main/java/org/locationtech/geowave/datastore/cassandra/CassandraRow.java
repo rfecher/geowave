@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,14 +23,12 @@ public class CassandraRow extends MergeableGeoWaveRow {
   private static final Logger LOGGER = Logger.getLogger(CassandraRow.class);
 
   private static enum ColumnType {
-    PARTITION_KEY(
-        (final Create c, final Pair<String, DataType> f) ->
-            c.addPartitionKey(f.getLeft(), f.getRight())),
-    CLUSTER_COLUMN(
-        (final Create c, final Pair<String, DataType> f) ->
-            c.addClusteringColumn(f.getLeft(), f.getRight())),
-    OTHER_COLUMN(
-        (final Create c, final Pair<String, DataType> f) -> c.addColumn(f.getLeft(), f.getRight()));
+    PARTITION_KEY((final Create c, final Pair<String, DataType> f) -> c.addPartitionKey(f.getLeft(),
+        f.getRight())), CLUSTER_COLUMN(
+            (final Create c, final Pair<String, DataType> f) -> c.addClusteringColumn(f.getLeft(),
+                f.getRight())), OTHER_COLUMN(
+                    (final Create c, final Pair<String, DataType> f) -> c.addColumn(f.getLeft(),
+                        f.getRight()));
 
     private BiConsumer<Create, Pair<String, DataType>> createFunction;
 
@@ -39,22 +38,22 @@ public class CassandraRow extends MergeableGeoWaveRow {
   }
 
   public static enum CassandraField {
-    GW_PARTITION_ID_KEY("partition", DataType.blob(), ColumnType.PARTITION_KEY),
-    GW_ADAPTER_ID_KEY("adapter_id", DataType.smallint(), ColumnType.CLUSTER_COLUMN),
-    GW_SORT_KEY("sort", DataType.blob(), ColumnType.CLUSTER_COLUMN),
-    GW_DATA_ID_KEY("data_id", DataType.blob(), ColumnType.CLUSTER_COLUMN),
-    GW_FIELD_VISIBILITY_KEY("vis", DataType.blob(), ColumnType.CLUSTER_COLUMN),
-    GW_NANO_TIME_KEY("nano_time", DataType.blob(), ColumnType.CLUSTER_COLUMN),
-    GW_FIELD_MASK_KEY("field_mask", DataType.blob(), ColumnType.OTHER_COLUMN),
-    GW_VALUE_KEY("value", DataType.blob(), ColumnType.OTHER_COLUMN),
-    GW_NUM_DUPLICATES_KEY("num_duplicates", DataType.tinyint(), ColumnType.OTHER_COLUMN);
+    GW_PARTITION_ID_KEY("partition", DataType.blob(), ColumnType.PARTITION_KEY), GW_ADAPTER_ID_KEY(
+        "adapter_id", DataType.smallint(), ColumnType.CLUSTER_COLUMN), GW_SORT_KEY("sort",
+            DataType.blob(), ColumnType.CLUSTER_COLUMN), GW_DATA_ID_KEY("data_id", DataType.blob(),
+                ColumnType.CLUSTER_COLUMN), GW_FIELD_VISIBILITY_KEY("vis", DataType.blob(),
+                    ColumnType.CLUSTER_COLUMN), GW_NANO_TIME_KEY("nano_time", DataType.blob(),
+                        ColumnType.CLUSTER_COLUMN), GW_FIELD_MASK_KEY("field_mask", DataType.blob(),
+                            ColumnType.OTHER_COLUMN), GW_VALUE_KEY("value", DataType.blob(),
+                                ColumnType.OTHER_COLUMN), GW_NUM_DUPLICATES_KEY("num_duplicates",
+                                    DataType.tinyint(), ColumnType.OTHER_COLUMN);
 
     private final String fieldName;
     private final DataType dataType;
     private ColumnType columnType;
 
-    private CassandraField(
-        final String fieldName, final DataType dataType, final ColumnType columnType) {
+    private CassandraField(final String fieldName, final DataType dataType,
+        final ColumnType columnType) {
       this.fieldName = fieldName;
       this.dataType = dataType;
       this.columnType = columnType;

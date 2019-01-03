@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,33 +32,19 @@ import org.slf4j.LoggerFactory;
 public class BBOXQuery extends AbstractGeoWaveQuery {
   private static Logger LOGGER = LoggerFactory.getLogger(BBOXQuery.class);
 
-  @Parameter(
-      names = {"-e", "--east"},
-      required = true,
-      description = "Max Longitude of BBOX")
+  @Parameter(names = {"-e", "--east"}, required = true, description = "Max Longitude of BBOX")
   private Double east;
 
-  @Parameter(
-      names = {"-w", "--west"},
-      required = true,
-      description = "Min Longitude of BBOX")
+  @Parameter(names = {"-w", "--west"}, required = true, description = "Min Longitude of BBOX")
   private Double west;
 
-  @Parameter(
-      names = {"-n", "--north"},
-      required = true,
-      description = "Max Latitude of BBOX")
+  @Parameter(names = {"-n", "--north"}, required = true, description = "Max Latitude of BBOX")
   private Double north;
 
-  @Parameter(
-      names = {"-s", "--south"},
-      required = true,
-      description = "Min Latitude of BBOX")
+  @Parameter(names = {"-s", "--south"}, required = true, description = "Min Latitude of BBOX")
   private Double south;
 
-  @Parameter(
-      names = {"--useAggregation", "-agg"},
-      description = "Compute count on the server side")
+  @Parameter(names = {"--useAggregation", "-agg"}, description = "Compute count on the server side")
   private final Boolean useAggregation = Boolean.FALSE;
 
   private Geometry geom;
@@ -67,12 +54,8 @@ public class BBOXQuery extends AbstractGeoWaveQuery {
   }
 
   @Override
-  protected long runQuery(
-      final GeotoolsFeatureDataAdapter adapter,
-      final String typeName,
-      final String indexName,
-      final DataStore dataStore,
-      final boolean debug,
+  protected long runQuery(final GeotoolsFeatureDataAdapter adapter, final String typeName,
+      final String indexName, final DataStore dataStore, final boolean debug,
       DataStorePluginOptions pluginOptions) {
     final StopWatch stopWatch = new StopWatch();
 
@@ -82,16 +65,11 @@ public class BBOXQuery extends AbstractGeoWaveQuery {
     if (useAggregation) {
 
       final VectorAggregationQueryBuilder<Persistable, Long> bldr =
-          (VectorAggregationQueryBuilder)
-              VectorAggregationQueryBuilder.newBuilder().count(typeName).indexName(indexName);
-      final Long countResult =
-          dataStore.aggregate(
-              bldr.constraints(
-                      bldr.constraintsFactory()
-                          .spatialTemporalConstraints()
-                          .spatialConstraints(geom)
-                          .build())
-                  .build());
+          (VectorAggregationQueryBuilder) VectorAggregationQueryBuilder.newBuilder().count(typeName)
+              .indexName(indexName);
+      final Long countResult = dataStore.aggregate(bldr.constraints(
+          bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(geom).build())
+          .build());
 
       if (countResult != null) {
         count += countResult;
@@ -102,14 +80,9 @@ public class BBOXQuery extends AbstractGeoWaveQuery {
           VectorQueryBuilder.newBuilder().addTypeName(typeName).indexName(indexName);
       stopWatch.start();
 
-      try (final CloseableIterator<SimpleFeature> it =
-          dataStore.query(
-              bldr.constraints(
-                      bldr.constraintsFactory()
-                          .spatialTemporalConstraints()
-                          .spatialConstraints(geom)
-                          .build())
-                  .build())) {
+      try (final CloseableIterator<SimpleFeature> it = dataStore.query(bldr.constraints(
+          bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(geom).build())
+          .build())) {
 
         stopWatch.stop();
         System.out.println("Ran BBOX query in " + stopWatch.toString());

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -61,10 +62,8 @@ public class ConfigCacheIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*      FINISHED ConfigCacheIT           *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -74,8 +73,8 @@ public class ConfigCacheIT {
     configFile = File.createTempFile("test_config", null);
     operationParams = new ManualOperationParams();
     operationParams.getContext().put(ConfigOptions.PROPERTIES_FILE_CONTEXT, configFile);
-    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies()
-        .put("memory", new MemoryStoreFactoryFamily());
+    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put("memory",
+        new MemoryStoreFactoryFamily());
   }
 
   @After
@@ -107,11 +106,10 @@ public class ConfigCacheIT {
 
     final Properties props = ConfigOptions.loadProperties(configFile);
 
-    Assert.assertEquals(
-        "namespace",
+    Assert.assertEquals("namespace",
         props.getProperty("store.abc.opts." + StoreFactoryOptions.GEOWAVE_NAMESPACE_OPTION));
-    Assert.assertEquals(
-        "abc", props.getProperty(DataStorePluginOptions.DEFAULT_PROPERTY_NAMESPACE));
+    Assert.assertEquals("abc",
+        props.getProperty(DataStorePluginOptions.DEFAULT_PROPERTY_NAMESPACE));
   }
 
   @Test
@@ -135,8 +133,7 @@ public class ConfigCacheIT {
 
     final Properties props = ConfigOptions.loadProperties(configFile);
 
-    Assert.assertEquals(
-        "namespace2",
+    Assert.assertEquals("namespace2",
         props.getProperty("store.abc2.opts." + StoreFactoryOptions.GEOWAVE_NAMESPACE_OPTION));
   }
 
@@ -154,8 +151,7 @@ public class ConfigCacheIT {
 
     final Properties props = ConfigOptions.loadProperties(configFile);
 
-    Assert.assertEquals(
-        "namespace",
+    Assert.assertEquals("namespace",
         props.getProperty("store.abc2.opts." + StoreFactoryOptions.GEOWAVE_NAMESPACE_OPTION));
   }
 

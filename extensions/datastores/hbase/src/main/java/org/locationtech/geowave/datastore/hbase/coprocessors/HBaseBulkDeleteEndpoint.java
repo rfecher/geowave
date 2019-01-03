@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -60,9 +61,7 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService
   }
 
   @Override
-  public void delete(
-      final RpcController controller,
-      final BulkDeleteRequest request,
+  public void delete(final RpcController controller, final BulkDeleteRequest request,
       final RpcCallback<BulkDeleteResponse> done) {
     long totalRowsDeleted = 0L;
     long totalVersionsDeleted = 0L;
@@ -203,8 +202,7 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService
         try {
           scanner.close();
         } catch (final IOException ioe) {
-          LOGGER.error("Error during bulk delete in HBase.", ioe);
-          ;
+          LOGGER.error("Error during bulk delete in HBase.", ioe);;
         }
       }
     }
@@ -220,8 +218,8 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService
     done.run(response);
   }
 
-  private Delete createDeleteMutation(
-      final List<Cell> deleteRow, final BulkDeleteType deleteType, final Long timestamp) {
+  private Delete createDeleteMutation(final List<Cell> deleteRow, final BulkDeleteType deleteType,
+      final Long timestamp) {
     long ts;
     if (timestamp == null) {
       ts = HConstants.LATEST_TIMESTAMP;
@@ -262,8 +260,8 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService
       int noOfVersionsToDelete = 0;
       if (timestamp == null) {
         for (final Cell kv : deleteRow) {
-          delete.addColumn(
-              CellUtil.cloneFamily(kv), CellUtil.cloneQualifier(kv), kv.getTimestamp());
+          delete.addColumn(CellUtil.cloneFamily(kv), CellUtil.cloneQualifier(kv),
+              kv.getTimestamp());
           noOfVersionsToDelete++;
         }
       } else {

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,9 +20,8 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.operation.distance.DistanceOp;
 
 /** Calculate distance between two cluster items. */
-public class ClusterItemDistanceFn
-    implements DistanceFn<ClusterItem>,
-        DistanceProfileGenerateFn<ClusterProfileContext, ClusterItem> {
+public class ClusterItemDistanceFn implements DistanceFn<ClusterItem>,
+    DistanceProfileGenerateFn<ClusterProfileContext, ClusterItem> {
 
   /** */
   private static final long serialVersionUID = 3824608959408031752L;
@@ -67,8 +67,8 @@ public class ClusterItemDistanceFn
   }
 
   @Override
-  public DistanceProfile<ClusterProfileContext> computeProfile(
-      ClusterItem item1, ClusterItem item2) {
+  public DistanceProfile<ClusterProfileContext> computeProfile(ClusterItem item1,
+      ClusterItem item2) {
     DistanceProfile<ClusterProfileContext> localProfile = profile.get();
     ClusterProfileContext context = localProfile.getContext();
     final Geometry gx = item1.getGeometry();
@@ -84,8 +84,8 @@ public class ClusterItemDistanceFn
       context.setPoint1(points[0]);
       context.setPoint2(points[1]);
     }
-    localProfile.setDistance(
-        coordinateDistanceFunction.measure(context.getPoint1(), context.getPoint2()));
+    localProfile
+        .setDistance(coordinateDistanceFunction.measure(context.getPoint1(), context.getPoint2()));
     return localProfile;
   }
 

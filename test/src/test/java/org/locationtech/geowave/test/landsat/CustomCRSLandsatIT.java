@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -58,12 +59,10 @@ public class CustomCRSLandsatIT extends AbstractGeoWaveIT {
   private static class RasterIngestTester extends RasterIngestRunner {
     DataStorePluginOptions dataStoreOptions;
 
-    public RasterIngestTester(
-        final DataStorePluginOptions dataStoreOptions,
+    public RasterIngestTester(final DataStorePluginOptions dataStoreOptions,
         final Landsat8BasicCommandLineOptions analyzeOptions,
         final Landsat8DownloadCommandLineOptions downloadOptions,
-        final Landsat8RasterIngestCommandLineOptions ingestOptions,
-        final List<String> parameters) {
+        final Landsat8RasterIngestCommandLineOptions ingestOptions, final List<String> parameters) {
       super(analyzeOptions, downloadOptions, ingestOptions, parameters);
       this.dataStoreOptions = dataStoreOptions;
     }
@@ -79,21 +78,14 @@ public class CustomCRSLandsatIT extends AbstractGeoWaveIT {
       store = dataStoreOptions.createDataStore();
       dataStorePluginOptions = dataStoreOptions;
       indices = new Index[] {new SpatialIndexBuilder().setCrs("EPSG:3857").createIndex()};
-      coverageNameTemplate =
-          new Template(
-              "name", new StringReader(ingestOptions.getCoverageName()), new Configuration());
+      coverageNameTemplate = new Template("name", new StringReader(ingestOptions.getCoverageName()),
+          new Configuration());
     }
   }
 
   @GeoWaveTestStore(
-      value = {
-        GeoWaveStoreType.ACCUMULO,
-        GeoWaveStoreType.BIGTABLE,
-        GeoWaveStoreType.CASSANDRA,
-        GeoWaveStoreType.HBASE,
-        GeoWaveStoreType.REDIS,
-        GeoWaveStoreType.ROCKSDB
-      },
+      value = {GeoWaveStoreType.ACCUMULO, GeoWaveStoreType.BIGTABLE, GeoWaveStoreType.CASSANDRA,
+          GeoWaveStoreType.HBASE, GeoWaveStoreType.REDIS, GeoWaveStoreType.ROCKSDB},
       namespace = "customcrs")
   protected DataStorePluginOptions dataStoreOptions;
 
@@ -126,10 +118,8 @@ public class CustomCRSLandsatIT extends AbstractGeoWaveIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*      FINISHED CustomCRSLandsatIT               *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -150,23 +140,13 @@ public class CustomCRSLandsatIT extends AbstractGeoWaveIT {
     // just use the QA band as QA is the smallest, get the best cloud cover,
     // but ensure it is before now so no recent collection affects the test
     final Landsat8BasicCommandLineOptions analyzeOptions = new Landsat8BasicCommandLineOptions();
-    analyzeOptions.setCqlFilter(
-        String.format(
-            "BBOX(%s,%f,%f,%f,%f) AND (%s='B2' OR %s='B3' OR %s='B4' ) AND %s <= '%s' AND path >= %d AND path <= %d AND row >= %d AND row <= %d",
-            SceneFeatureIterator.SHAPE_ATTRIBUTE_NAME,
-            WEST,
-            SOUTH,
-            EAST,
-            NORTH,
-            BandFeatureIterator.BAND_ATTRIBUTE_NAME,
-            BandFeatureIterator.BAND_ATTRIBUTE_NAME,
-            BandFeatureIterator.BAND_ATTRIBUTE_NAME,
-            SceneFeatureIterator.ACQUISITION_DATE_ATTRIBUTE_NAME,
-            "2016-06-01T00:00:00Z",
-            MIN_PATH,
-            MAX_PATH,
-            MIN_ROW,
-            MAX_ROW));
+    analyzeOptions.setCqlFilter(String.format(
+        "BBOX(%s,%f,%f,%f,%f) AND (%s='B2' OR %s='B3' OR %s='B4' ) AND %s <= '%s' AND path >= %d AND path <= %d AND row >= %d AND row <= %d",
+        SceneFeatureIterator.SHAPE_ATTRIBUTE_NAME, WEST, SOUTH, EAST, NORTH,
+        BandFeatureIterator.BAND_ATTRIBUTE_NAME, BandFeatureIterator.BAND_ATTRIBUTE_NAME,
+        BandFeatureIterator.BAND_ATTRIBUTE_NAME,
+        SceneFeatureIterator.ACQUISITION_DATE_ATTRIBUTE_NAME, "2016-06-01T00:00:00Z", MIN_PATH,
+        MAX_PATH, MIN_ROW, MAX_ROW));
     analyzeOptions.setNBestPerSpatial(true);
     analyzeOptions.setNBestScenes(1);
     analyzeOptions.setUseCachedScenes(true);
@@ -181,21 +161,16 @@ public class CustomCRSLandsatIT extends AbstractGeoWaveIT {
     ingestOptions.setTileSize(128);
     // crop to the specified bbox
     ingestOptions.setCropToSpatialConstraint(true);
-    final RasterIngestTester runner =
-        new RasterIngestTester(
-            dataStoreOptions, analyzeOptions, downloadOptions, ingestOptions, null);
+    final RasterIngestTester runner = new RasterIngestTester(dataStoreOptions, analyzeOptions,
+        downloadOptions, ingestOptions, null);
     runner.runInternal(null);
 
-    final StringBuilder str =
-        new StringBuilder(StoreFactoryOptions.GEOWAVE_NAMESPACE_OPTION)
-            .append("=")
-            .append(dataStoreOptions.getGeoWaveNamespace())
-            .append(";equalizeHistogramOverride=false;interpolationOverride=")
-            .append(Interpolation.INTERP_NEAREST);
+    final StringBuilder str = new StringBuilder(StoreFactoryOptions.GEOWAVE_NAMESPACE_OPTION)
+        .append("=").append(dataStoreOptions.getGeoWaveNamespace())
+        .append(";equalizeHistogramOverride=false;interpolationOverride=")
+        .append(Interpolation.INTERP_NEAREST);
 
-    str.append(";")
-        .append(GeoWaveStoreFinder.STORE_HINT_KEY)
-        .append("=")
+    str.append(";").append(GeoWaveStoreFinder.STORE_HINT_KEY).append("=")
         .append(dataStoreOptions.getType());
 
     final Map<String, String> options = dataStoreOptions.getOptionsAsMap();
@@ -211,9 +186,8 @@ public class CustomCRSLandsatIT extends AbstractGeoWaveIT {
 
     final GeoWaveRasterReader reader =
         new GeoWaveRasterReader(GeoWaveRasterConfig.readFromConfigParams(str.toString()));
-    final GridCoverage2D gridCoverage =
-        reader.renderGridCoverage(
-            "test", new Rectangle(0, 0, 1024, 1024), queryEnvelope, null, null, null);
+    final GridCoverage2D gridCoverage = reader.renderGridCoverage("test",
+        new Rectangle(0, 0, 1024, 1024), queryEnvelope, null, null, null);
     final RenderedImage result = gridCoverage.getRenderedImage();
 
     final BufferedImage img = PlanarImage.wrapRenderedImage(result).getAsBufferedImage();
@@ -227,17 +201,14 @@ public class CustomCRSLandsatIT extends AbstractGeoWaveIT {
       for (int x = 0; x < img.getWidth(); x++) {
         final int rgb = img.getRGB(x, y);
         // this will swap the red and blue channel/band
-        swappedRedBlueImg.setRGB(
-            x, y, ((rgb & 0xff00ff00) | ((rgb & 0xff0000) >> 16) | ((rgb & 0xff) << 16)));
+        swappedRedBlueImg.setRGB(x, y,
+            ((rgb & 0xff00ff00) | ((rgb & 0xff0000) >> 16) | ((rgb & 0xff) << 16)));
       }
     }
 
     // test the result with expected, allowing for minimal error
     final BufferedImage reference = ImageIO.read(new File(CUSTOM_REFERENCE_LANDSAT_IMAGE_PATH));
-    TestUtils.testTileAgainstReference(
-        swappedRedBlueImg,
-        reference,
-        0,
+    TestUtils.testTileAgainstReference(swappedRedBlueImg, reference, 0,
         // TODO investigate lowering this and being less lenient
         0.005);
     MapProjection.SKIP_SANITY_CHECKS = false;

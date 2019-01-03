@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -68,29 +69,25 @@ public class KMeansParallelInitialize<T> {
 
     final List<CentroidPairing<T>> pairingSet = new ArrayList<CentroidPairing<T>>();
 
-    final AssociationNotification<T> assocFn =
-        new AssociationNotification<T>() {
-          @Override
-          public void notify(final CentroidPairing<T> pairing) {
-            pairingSet.add(pairing);
-            pairing.getCentroid().incrementAssociationCount(1);
-          }
-        };
+    final AssociationNotification<T> assocFn = new AssociationNotification<T>() {
+      @Override
+      public void notify(final CentroidPairing<T> pairing) {
+        pairingSet.add(pairing);
+        pairing.getCentroid().incrementAssociationCount(1);
+      }
+    };
     // combine to get pairing?
     double normalizingConstant = centroidAssociationFn.compute(pointSet, sampleSet, assocFn);
     stats.notify(AnalyticStats.StatValue.COST, normalizingConstant);
 
     final int logPsi = Math.max(1, (int) (Math.log(psi) / Math.log(2)));
     for (int i = 0; i < logPsi; i++) {
-      sampler.sample(
-          pairingSet,
-          new SampleNotification<T>() {
-            @Override
-            public void notify(final T item, final boolean partial) {
-              sampleSet.add(centroidFactory.create(item));
-            }
-          },
-          normalizingConstant);
+      sampler.sample(pairingSet, new SampleNotification<T>() {
+        @Override
+        public void notify(final T item, final boolean partial) {
+          sampleSet.add(centroidFactory.create(item));
+        }
+      }, normalizingConstant);
       pairingSet.clear();
       for (final AnalyticItemWrapper<T> centroid : sampleSet) {
         centroid.resetAssociatonCount();

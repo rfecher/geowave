@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,51 +44,37 @@ import org.slf4j.LoggerFactory;
 public class OptimalCQLQuery implements AdapterAndIndexBasedQueryConstraints, QueryConstraints {
   private static final Logger LOGGER = LoggerFactory.getLogger(OptimalCQLQuery.class);
 
-  public static QueryConstraints createOptimalQuery(
-      final String cql, final GeotoolsFeatureDataAdapter adapter, final Index index)
-      throws CQLException {
+  public static QueryConstraints createOptimalQuery(final String cql,
+      final GeotoolsFeatureDataAdapter adapter, final Index index) throws CQLException {
     return createOptimalQuery(cql, adapter, index, null);
   }
 
-  public static QueryConstraints createOptimalQuery(
-      final String cql,
-      final GeotoolsFeatureDataAdapter adapter,
-      final Index index,
-      final BasicQuery baseQuery)
+  public static QueryConstraints createOptimalQuery(final String cql,
+      final GeotoolsFeatureDataAdapter adapter, final Index index, final BasicQuery baseQuery)
       throws CQLException {
     return createOptimalQuery(cql, adapter, CompareOperation.INTERSECTS, index, baseQuery);
   }
 
-  public static QueryConstraints createOptimalQuery(
-      final String cql,
-      final GeotoolsFeatureDataAdapter adapter,
-      final CompareOperation geoCompareOp,
-      final Index index,
-      final BasicQuery baseQuery)
-      throws CQLException {
+  public static QueryConstraints createOptimalQuery(final String cql,
+      final GeotoolsFeatureDataAdapter adapter, final CompareOperation geoCompareOp,
+      final Index index, final BasicQuery baseQuery) throws CQLException {
     final Filter cqlFilter = CQL.toFilter(cql);
     return createOptimalQuery(cqlFilter, adapter, geoCompareOp, index, baseQuery);
   }
 
-  public static QueryConstraints createOptimalQuery(
-      final Filter cqlFilter, final GeotoolsFeatureDataAdapter adapter, final Index index) {
+  public static QueryConstraints createOptimalQuery(final Filter cqlFilter,
+      final GeotoolsFeatureDataAdapter adapter, final Index index) {
     return createOptimalQuery(cqlFilter, adapter, index, null);
   }
 
-  public static QueryConstraints createOptimalQuery(
-      final Filter cqlFilter,
-      final GeotoolsFeatureDataAdapter adapter,
-      final Index index,
-      final BasicQuery baseQuery) {
+  public static QueryConstraints createOptimalQuery(final Filter cqlFilter,
+      final GeotoolsFeatureDataAdapter adapter, final Index index, final BasicQuery baseQuery) {
     return createOptimalQuery(cqlFilter, adapter, CompareOperation.INTERSECTS, index, baseQuery);
   }
 
-  public static QueryConstraints createOptimalQuery(
-      final Filter cqlFilter,
-      final GeotoolsFeatureDataAdapter adapter,
-      final CompareOperation geoCompareOp,
-      final Index index,
-      BasicQuery baseQuery) {
+  public static QueryConstraints createOptimalQuery(final Filter cqlFilter,
+      final GeotoolsFeatureDataAdapter adapter, final CompareOperation geoCompareOp,
+      final Index index, BasicQuery baseQuery) {
     final ExtractAttributesFilter attributesVisitor = new ExtractAttributesFilter();
 
     final Object obj = cqlFilter.accept(attributesVisitor, null);
@@ -125,10 +112,8 @@ public class OptimalCQLQuery implements AdapterAndIndexBasedQueryConstraints, Qu
     }
     if (baseQuery == null) {
       // there is only space and time
-      final ExtractGeometryFilterVisitorResult geometryAndCompareOp =
-          ExtractGeometryFilterVisitor.getConstraints(
-              cqlFilter,
-              adapter.getFeatureType().getCoordinateReferenceSystem(),
+      final ExtractGeometryFilterVisitorResult geometryAndCompareOp = ExtractGeometryFilterVisitor
+          .getConstraints(cqlFilter, adapter.getFeatureType().getCoordinateReferenceSystem(),
               adapter.getFeatureType().getGeometryDescriptor().getLocalName());
       final TemporalConstraintsSet timeConstraintSet =
           new ExtractTimeFilterVisitor(adapter.getTimeDescriptors()).getConstraints(cqlFilter);
@@ -145,8 +130,8 @@ public class OptimalCQLQuery implements AdapterAndIndexBasedQueryConstraints, Qu
           // indexable
           // field
           final TemporalConstraints temporalConstraints =
-              TimeUtils.getTemporalConstraintsForDescriptors(
-                  adapter.getTimeDescriptors(), timeConstraintSet);
+              TimeUtils.getTemporalConstraintsForDescriptors(adapter.getTimeDescriptors(),
+                  timeConstraintSet);
           // convert to constraints
           final Constraints timeConstraints =
               SpatialTemporalQuery.createConstraints(temporalConstraints, false);
@@ -174,13 +159,9 @@ public class OptimalCQLQuery implements AdapterAndIndexBasedQueryConstraints, Qu
             .equals(adapter.getFeatureType().getCoordinateReferenceSystem())) {
           baseQuery = new SpatialQuery(constraints, geometry, extractedCompareOp);
         } else {
-          baseQuery =
-              new SpatialQuery(
-                  constraints,
-                  geometry,
-                  GeometryUtils.getCrsCode(adapter.getFeatureType().getCoordinateReferenceSystem()),
-                  extractedCompareOp,
-                  BasicQueryCompareOperation.INTERSECTS);
+          baseQuery = new SpatialQuery(constraints, geometry,
+              GeometryUtils.getCrsCode(adapter.getFeatureType().getCoordinateReferenceSystem()),
+              extractedCompareOp, BasicQueryCompareOperation.INTERSECTS);
         }
 
         // ExtractGeometryFilterVisitor sets predicate to NULL when CQL
@@ -200,9 +181,8 @@ public class OptimalCQLQuery implements AdapterAndIndexBasedQueryConstraints, Qu
         // determine which time constraints are associated with an
         // indexable
         // field
-        final TemporalConstraints temporalConstraints =
-            TimeUtils.getTemporalConstraintsForDescriptors(
-                adapter.getTimeDescriptors(), timeConstraintSet);
+        final TemporalConstraints temporalConstraints = TimeUtils
+            .getTemporalConstraintsForDescriptors(adapter.getTimeDescriptors(), timeConstraintSet);
         baseQuery = new TemporalQuery(temporalConstraints);
       }
     }
@@ -225,15 +205,15 @@ public class OptimalCQLQuery implements AdapterAndIndexBasedQueryConstraints, Qu
   }
 
   @Override
-  public QueryConstraints createQueryConstraints(
-      final DataTypeAdapter<?> adapter, final Index index) {
+  public QueryConstraints createQueryConstraints(final DataTypeAdapter<?> adapter,
+      final Index index) {
     if (adapter instanceof GeotoolsFeatureDataAdapter) {
       return createOptimalQuery(filter, (GeotoolsFeatureDataAdapter) adapter, index);
     }
     if ((adapter instanceof InternalDataAdapter)
         && (((InternalDataAdapter) adapter).getAdapter() instanceof GeotoolsFeatureDataAdapter)) {
-      return createOptimalQuery(
-          filter, (GeotoolsFeatureDataAdapter) ((InternalDataAdapter) adapter).getAdapter(), index);
+      return createOptimalQuery(filter,
+          (GeotoolsFeatureDataAdapter) ((InternalDataAdapter) adapter).getAdapter(), index);
     }
     LOGGER.error("Adapter is not a geotools feature adapter.  Cannot apply CQL filter.");
     return null;

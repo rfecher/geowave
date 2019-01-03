@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,43 +27,32 @@ import org.locationtech.geowave.core.store.api.QueryBuilder;
 
 public class CommonOptions {
   @MapReduceParameter(MapReduceParameters.MRConfig.CONFIG_FILE)
-  @Parameter(
-      names = {"-conf", "--mapReduceConfigFile"},
-      description = "MapReduce Configuration")
+  @Parameter(names = {"-conf", "--mapReduceConfigFile"}, description = "MapReduce Configuration")
   private String mapReduceConfigFile;
 
   @MapReduceParameter(MapReduceParameters.MRConfig.HDFS_BASE_DIR)
-  @Parameter(
-      names = {"-hdfsbase", "--mapReduceHdfsBaseDir"},
-      required = true,
+  @Parameter(names = {"-hdfsbase", "--mapReduceHdfsBaseDir"}, required = true,
       description = "Fully qualified path to the base directory in hdfs")
   private String mapReduceHdfsBaseDir;
 
   @MapReduceParameter(MapReduceParameters.MRConfig.HDFS_HOST_PORT)
-  @Parameter(
-      names = {"-hdfs", "--mapReduceHdfsHostPort"},
+  @Parameter(names = {"-hdfs", "--mapReduceHdfsHostPort"},
       description = "HDFS hostname and port in the format hostname:port")
   private String mapReduceHdfsHostPort;
 
   @MapReduceParameter(MapReduceParameters.MRConfig.JOBTRACKER_HOST_PORT)
-  @Parameter(
-      names = {"-jobtracker", "--mapReduceJobtrackerHostPort"},
-      description =
-          "[REQUIRED (or resourceman)] Hadoop job tracker hostname and port in the format hostname:port")
+  @Parameter(names = {"-jobtracker", "--mapReduceJobtrackerHostPort"},
+      description = "[REQUIRED (or resourceman)] Hadoop job tracker hostname and port in the format hostname:port")
   private String mapReduceJobtrackerHostPort;
 
   @MapReduceParameter(MapReduceParameters.MRConfig.YARN_RESOURCE_MANAGER)
-  @Parameter(
-      names = {"-resourceman", "--mapReduceYarnResourceManager"},
-      description =
-          "[REQUIRED (or jobtracker)] Yarn resource manager hostname and port in the format hostname:port")
+  @Parameter(names = {"-resourceman", "--mapReduceYarnResourceManager"},
+      description = "[REQUIRED (or jobtracker)] Yarn resource manager hostname and port in the format hostname:port")
   private String mapReduceYarnResourceManager;
 
   @CommonParameter(CommonParameters.Common.DISTANCE_FUNCTION_CLASS)
-  @Parameter(
-      names = {"-cdf", "--commonDistanceFunctionClass"},
-      description =
-          "Distance Function Class implements org.locationtech.geowave.analytics.distance.DistanceFn")
+  @Parameter(names = {"-cdf", "--commonDistanceFunctionClass"},
+      description = "Distance Function Class implements org.locationtech.geowave.analytics.distance.DistanceFn")
   private String commonDistanceFunctionClass;
 
   @ParametersDelegate
@@ -70,47 +60,33 @@ public class CommonOptions {
   private QueryOptionsCommand queryOptions = new QueryOptionsCommand();
 
   @ExtractParameter(ExtractParameters.Extract.MAX_INPUT_SPLIT)
-  @Parameter(
-      names = {"-emx", "--extractMaxInputSplit"},
-      required = true,
+  @Parameter(names = {"-emx", "--extractMaxInputSplit"}, required = true,
       description = "Maximum hdfs input split size")
   private String extractMaxInputSplit;
 
   @ExtractParameter(ExtractParameters.Extract.MIN_INPUT_SPLIT)
-  @Parameter(
-      names = {"-emn", "--extractMinInputSplit"},
-      required = true,
+  @Parameter(names = {"-emn", "--extractMinInputSplit"}, required = true,
       description = "Minimum hdfs input split size")
   private String extractMinInputSplit;
 
   @ExtractParameter(ExtractParameters.Extract.QUERY)
-  @Parameter(
-      names = {"-eq", "--extractQuery"},
-      description = "Query")
+  @Parameter(names = {"-eq", "--extractQuery"}, description = "Query")
   private String extractQuery;
 
   @OutputParameter(OutputParameters.Output.OUTPUT_FORMAT)
-  @Parameter(
-      names = {"-ofc", "--outputOutputFormat"},
-      description = "Output Format Class")
+  @Parameter(names = {"-ofc", "--outputOutputFormat"}, description = "Output Format Class")
   private String outputOutputFormat;
 
   @InputParameter(InputParameters.Input.INPUT_FORMAT)
-  @Parameter(
-      names = {"-ifc", "--inputFormatClass"},
-      description = "Input Format Class")
+  @Parameter(names = {"-ifc", "--inputFormatClass"}, description = "Input Format Class")
   private String inputFormatClass;
 
   @InputParameter(InputParameters.Input.HDFS_INPUT_PATH)
-  @Parameter(
-      names = {"-iip", "--inputHdfsPath"},
-      hidden = true,
-      description = "Input Path")
+  @Parameter(names = {"-iip", "--inputHdfsPath"}, hidden = true, description = "Input Path")
   private String inputHdfsPath;
 
   @OutputParameter(OutputParameters.Output.REDUCER_COUNT)
-  @Parameter(
-      names = {"-orc", "--outputReducerCount"},
+  @Parameter(names = {"-orc", "--outputReducerCount"},
       description = "Number of Reducers For Output")
   private String outputReducerCount;
 

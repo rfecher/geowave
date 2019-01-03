@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,17 +45,15 @@ public class FacebookTokenServices extends RemoteTokenServices {
 
   public FacebookTokenServices() {
     restTemplate = new RestTemplate();
-    ((RestTemplate) restTemplate)
-        .setErrorHandler(
-            new DefaultResponseErrorHandler() {
-              @Override
-              // Ignore 400
-              public void handleError(ClientHttpResponse response) throws IOException {
-                if (response.getRawStatusCode() != 400) {
-                  super.handleError(response);
-                }
-              }
-            });
+    ((RestTemplate) restTemplate).setErrorHandler(new DefaultResponseErrorHandler() {
+      @Override
+      // Ignore 400
+      public void handleError(ClientHttpResponse response) throws IOException {
+        if (response.getRawStatusCode() != 400) {
+          super.handleError(response);
+        }
+      }
+    });
   }
 
   public void setRestTemplate(RestOperations restTemplate) {
@@ -103,19 +102,16 @@ public class FacebookTokenServices extends RemoteTokenServices {
     throw new UnsupportedOperationException("Not supported: read access token");
   }
 
-  private Map<String, Object> getForMap(
-      String path, MultiValueMap<String, String> formData, HttpHeaders headers) {
+  private Map<String, Object> getForMap(String path, MultiValueMap<String, String> formData,
+      HttpHeaders headers) {
     if (headers.getContentType() == null) {
       headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     }
     @SuppressWarnings("rawtypes")
     Map map =
         restTemplate
-            .exchange(
-                path,
-                HttpMethod.GET,
-                new HttpEntity<MultiValueMap<String, String>>(formData, headers),
-                Map.class)
+            .exchange(path, HttpMethod.GET,
+                new HttpEntity<MultiValueMap<String, String>>(formData, headers), Map.class)
             .getBody();
     @SuppressWarnings("unchecked")
     Map<String, Object> result = map;

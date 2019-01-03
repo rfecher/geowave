@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,13 +27,12 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 public class TwitterUtils {
 
-  private static final ThreadLocal<DateFormat> dateFormat =
-      new ThreadLocal<DateFormat>() {
-        @Override
-        protected DateFormat initialValue() {
-          return new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
-        }
-      };
+  private static final ThreadLocal<DateFormat> dateFormat = new ThreadLocal<DateFormat>() {
+    @Override
+    protected DateFormat initialValue() {
+      return new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
+    }
+  };
 
   public static Date parseDate(final String source) throws ParseException {
     return dateFormat.get().parse(source);
@@ -58,58 +58,30 @@ public class TwitterUtils {
 
     final AttributeTypeBuilder attributeTypeBuilder = new AttributeTypeBuilder();
 
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(String.class)
-            .nillable(true)
-            .buildDescriptor(TWITTER_USERID_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(String.class)
-            .nillable(true)
-            .buildDescriptor(TWITTER_USERNAME_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(String.class)
-            .nillable(true)
-            .buildDescriptor(TWITTER_TEXT_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(String.class)
-            .nillable(true)
-            .buildDescriptor(TWITTER_INREPLYTOUSER_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(String.class)
-            .nillable(true)
-            .buildDescriptor(TWITTER_INREPLYTOSTATUS_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(Integer.class)
-            .nillable(true)
-            .buildDescriptor(TWITTER_RETWEETCOUNT_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(String.class)
-            .nillable(true)
-            .buildDescriptor(TWITTER_LANG_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(Date.class)
-            .nillable(false)
-            .buildDescriptor(TWITTER_DTG_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(Point.class)
-            .nillable(false)
-            .buildDescriptor(TWITTER_GEOMETRY_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
+        .buildDescriptor(TWITTER_USERID_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
+        .buildDescriptor(TWITTER_USERNAME_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
+        .buildDescriptor(TWITTER_TEXT_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
+        .buildDescriptor(TWITTER_INREPLYTOUSER_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
+        .buildDescriptor(TWITTER_INREPLYTOSTATUS_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Integer.class).nillable(true)
+        .buildDescriptor(TWITTER_RETWEETCOUNT_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
+        .buildDescriptor(TWITTER_LANG_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Date.class).nillable(false)
+        .buildDescriptor(TWITTER_DTG_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Point.class).nillable(false)
+        .buildDescriptor(TWITTER_GEOMETRY_ATTRIBUTE));
 
     return simpleFeatureTypeBuilder.buildFeatureType();
   }
 
   public static boolean validate(final URL file) {
-    return FilenameUtils.getName(file.getPath())
-        .toLowerCase(Locale.ENGLISH)
+    return FilenameUtils.getName(file.getPath()).toLowerCase(Locale.ENGLISH)
         .matches("\\d{8}-\\d{6}\\.txt\\.gz");
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -12,7 +13,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,29 +70,20 @@ public class FeatureDataAdapterTest {
     time1 = DateUtilities.parseISO("2005-05-19T18:33:55Z");
     time2 = DateUtilities.parseISO("2005-05-19T19:33:55Z");
 
-    schema =
-        DataUtilities.createType(
-            "sp.geostuff",
-            "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,whennot:Date,pid:String");
+    schema = DataUtilities.createType("sp.geostuff",
+        "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,whennot:Date,pid:String");
 
-    newFeature =
-        FeatureDataUtils.buildFeature(
-            schema,
-            new Pair[] {
-              Pair.of("geometry", factory.createPoint(new Coordinate(27.25, 41.25))),
-              Pair.of("pop", Long.valueOf(100)),
-              Pair.of("when", time1),
-              Pair.of("whennot", time2)
-            });
+    newFeature = FeatureDataUtils.buildFeature(schema,
+        new Pair[] {Pair.of("geometry", factory.createPoint(new Coordinate(27.25, 41.25))),
+            Pair.of("pop", Long.valueOf(100)), Pair.of("when", time1), Pair.of("whennot", time2)});
   }
 
   @Test
   public void testDifferentProjection() throws SchemaException {
     final SimpleFeatureType schema =
         DataUtilities.createType("sp.geostuff", "geometry:Geometry:srid=3005,pop:java.lang.Long");
-    final FeatureDataAdapter dataAdapter =
-        new FeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final FeatureDataAdapter dataAdapter = new FeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index spatialIndex =
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     dataAdapter.init(spatialIndex);
@@ -101,19 +92,11 @@ public class FeatureDataAdapterTest {
     assertTrue(crs.getIdentifiers().toString().contains("EPSG:4326"));
 
     @SuppressWarnings("unchecked")
-    final SimpleFeature newFeature =
-        FeatureDataUtils.buildFeature(
-            schema,
-            new Pair[] {
-              Pair.of("geometry", factory.createPoint(new Coordinate(27.25, 41.25))),
-              Pair.of("pop", Long.valueOf(100))
-            });
-    final AdapterPersistenceEncoding persistenceEncoding =
-        dataAdapter.encode(
-            newFeature,
-            new SpatialDimensionalityTypeProvider()
-                .createIndex(new SpatialOptions())
-                .getIndexModel());
+    final SimpleFeature newFeature = FeatureDataUtils.buildFeature(schema,
+        new Pair[] {Pair.of("geometry", factory.createPoint(new Coordinate(27.25, 41.25))),
+            Pair.of("pop", Long.valueOf(100))});
+    final AdapterPersistenceEncoding persistenceEncoding = dataAdapter.encode(newFeature,
+        new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()).getIndexModel());
 
     GeometryWrapper wrapper = null;
     for (final Entry<String, ?> pv : persistenceEncoding.getCommonData().getValues().entrySet()) {
@@ -131,9 +114,8 @@ public class FeatureDataAdapterTest {
     schema.getDescriptor("when").getUserData().clear();
     schema.getDescriptor("whennot").getUserData().put("time", Boolean.TRUE);
 
-    final FeatureDataAdapter dataAdapter =
-        new FeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final FeatureDataAdapter dataAdapter = new FeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index spatialIndex =
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     dataAdapter.init(spatialIndex);
@@ -144,23 +126,16 @@ public class FeatureDataAdapterTest {
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("whennot").getUserData().get("time"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapterCopy.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
-      found |=
-          ((handler instanceof FeatureTimestampHandler)
-              && ((((FeatureTimestampHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMin()
-                      - time2.getTime())
-                  < 0.001));
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
+      found |= ((handler instanceof FeatureTimestampHandler)
+          && ((((FeatureTimestampHandler) handler).toIndexValue(newFeature).toNumericData().getMin()
+              - time2.getTime()) < 0.001));
     }
 
     assertTrue(found);
@@ -171,9 +146,8 @@ public class FeatureDataAdapterTest {
     schema.getDescriptor("pid").getUserData().clear();
     schema.getDescriptor("pid").getUserData().put("visibility", Boolean.TRUE);
 
-    final FeatureDataAdapter dataAdapter =
-        new FeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final FeatureDataAdapter dataAdapter = new FeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index spatialIndex =
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     dataAdapter.init(spatialIndex);
@@ -184,8 +158,7 @@ public class FeatureDataAdapterTest {
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("pid").getUserData().get("visibility"));
   }
 
@@ -196,15 +169,13 @@ public class FeatureDataAdapterTest {
     schema.getDescriptor("when").getUserData().put("time", Boolean.FALSE);
     schema.getDescriptor("whennot").getUserData().put("time", Boolean.FALSE);
 
-    final FeatureDataAdapter dataAdapter =
-        new FeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final FeatureDataAdapter dataAdapter = new FeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapter.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
       found |= (handler instanceof FeatureTimestampHandler);
     }
 
@@ -217,9 +188,8 @@ public class FeatureDataAdapterTest {
     schema.getDescriptor("when").getUserData().clear();
     schema.getDescriptor("whennot").getUserData().clear();
 
-    final FeatureDataAdapter dataAdapter =
-        new FeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final FeatureDataAdapter dataAdapter = new FeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index spatialIndex =
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     dataAdapter.init(spatialIndex);
@@ -230,23 +200,16 @@ public class FeatureDataAdapterTest {
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("when").getUserData().get("time"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapterCopy.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
-      found |=
-          ((handler instanceof FeatureTimestampHandler)
-              && ((((FeatureTimestampHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMin()
-                      - time1.getTime())
-                  < 0.001));
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
+      found |= ((handler instanceof FeatureTimestampHandler)
+          && ((((FeatureTimestampHandler) handler).toIndexValue(newFeature).toNumericData().getMin()
+              - time1.getTime()) < 0.001));
     }
 
     assertTrue(found);
@@ -261,9 +224,8 @@ public class FeatureDataAdapterTest {
     schema.getDescriptor("when").getUserData().put("start", Boolean.TRUE);
     schema.getDescriptor("whennot").getUserData().put("end", Boolean.TRUE);
 
-    final FeatureDataAdapter dataAdapter =
-        new FeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final FeatureDataAdapter dataAdapter = new FeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index spatialIndex =
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     dataAdapter.init(spatialIndex);
@@ -274,32 +236,20 @@ public class FeatureDataAdapterTest {
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("whennot").getUserData().get("end"));
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("when").getUserData().get("start"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapterCopy.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
-      found |=
-          ((handler instanceof FeatureTimeRangeHandler)
-              && ((((FeatureTimeRangeHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMin()
-                      - time1.getTime())
-                  < 0.001)
-              && ((((FeatureTimeRangeHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMax()
-                      - time2.getTime())
-                  < 0.001));
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
+      found |= ((handler instanceof FeatureTimeRangeHandler)
+          && ((((FeatureTimeRangeHandler) handler).toIndexValue(newFeature).toNumericData().getMin()
+              - time1.getTime()) < 0.001)
+          && ((((FeatureTimeRangeHandler) handler).toIndexValue(newFeature).toNumericData().getMax()
+              - time2.getTime()) < 0.001));
     }
 
     assertTrue(found);
@@ -308,11 +258,8 @@ public class FeatureDataAdapterTest {
   @Test
   public void testInferredRange() throws SchemaException {
 
-    final SimpleFeatureType schema =
-        DataUtilities.createType(
-            "http://foo",
-            "sp.geostuff",
-            "geometry:Geometry:srid=4326,pop:java.lang.Long,start:Date,end:Date,pid:String");
+    final SimpleFeatureType schema = DataUtilities.createType("http://foo", "sp.geostuff",
+        "geometry:Geometry:srid=4326,pop:java.lang.Long,start:Date,end:Date,pid:String");
 
     final List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
     final Object[] defaults = new Object[descriptors.size()];
@@ -330,9 +277,8 @@ public class FeatureDataAdapterTest {
     newFeature.setAttribute("end", time2);
     newFeature.setAttribute("geometry", factory.createPoint(new Coordinate(27.25, 41.25)));
 
-    final FeatureDataAdapter dataAdapter =
-        new FeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final FeatureDataAdapter dataAdapter = new FeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index spatialIndex =
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     dataAdapter.init(spatialIndex);
@@ -345,32 +291,20 @@ public class FeatureDataAdapterTest {
 
     assertEquals(dataAdapterCopy.getTypeName(), dataAdapter.getTypeName());
     assertEquals(dataAdapterCopy.getFeatureType(), dataAdapter.getFeatureType());
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("end").getUserData().get("end"));
-    assertEquals(
-        Boolean.TRUE,
+    assertEquals(Boolean.TRUE,
         dataAdapterCopy.getFeatureType().getDescriptor("start").getUserData().get("start"));
 
     final List<IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> handlers =
         dataAdapterCopy.getDefaultTypeMatchingHandlers(schema);
     boolean found = false;
-    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler :
-        handlers) {
-      found |=
-          ((handler instanceof FeatureTimeRangeHandler)
-              && ((((FeatureTimeRangeHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMin()
-                      - time1.getTime())
-                  < 0.001)
-              && ((((FeatureTimeRangeHandler) handler)
-                          .toIndexValue(newFeature)
-                          .toNumericData()
-                          .getMax()
-                      - time2.getTime())
-                  < 0.001));
+    for (final IndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object> handler : handlers) {
+      found |= ((handler instanceof FeatureTimeRangeHandler)
+          && ((((FeatureTimeRangeHandler) handler).toIndexValue(newFeature).toNumericData().getMin()
+              - time1.getTime()) < 0.001)
+          && ((((FeatureTimeRangeHandler) handler).toIndexValue(newFeature).toNumericData().getMax()
+              - time2.getTime()) < 0.001));
     }
 
     assertTrue(found);
@@ -391,10 +325,8 @@ public class FeatureDataAdapterTest {
     // build the type
     final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(typeBuilder.buildFeatureType());
 
-    final FeatureDataAdapter dataAdapter =
-        new FeatureDataAdapter(
-            builder.getFeatureType(),
-            new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    final FeatureDataAdapter dataAdapter = new FeatureDataAdapter(builder.getFeatureType(),
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
     final Index spatialIndex =
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     dataAdapter.init(spatialIndex);
@@ -410,23 +342,16 @@ public class FeatureDataAdapterTest {
 
   @Test
   public void testSecondaryIndicies() throws SchemaException {
-    final SimpleFeatureType sfType =
-        DataUtilities.createType(
-            "stateCapitalData",
-            "location:Geometry,"
-                + "city:String,"
-                + "state:String,"
-                + "since:Date,"
-                + "landArea:Double,"
-                + "munincipalPop:Integer,"
-                + "notes:String");
+    final SimpleFeatureType sfType = DataUtilities.createType("stateCapitalData",
+        "location:Geometry," + "city:String," + "state:String," + "since:Date," + "landArea:Double,"
+            + "munincipalPop:Integer," + "notes:String");
     final List<SimpleFeatureUserDataConfiguration> secondaryIndexConfigs = new ArrayList<>();
-    secondaryIndexConfigs.add(
-        new NumericSecondaryIndexConfiguration("landArea", SecondaryIndexType.JOIN));
-    secondaryIndexConfigs.add(
-        new TextSecondaryIndexConfiguration("notes", SecondaryIndexType.JOIN));
-    secondaryIndexConfigs.add(
-        new TemporalSecondaryIndexConfiguration("since", SecondaryIndexType.JOIN));
+    secondaryIndexConfigs
+        .add(new NumericSecondaryIndexConfiguration("landArea", SecondaryIndexType.JOIN));
+    secondaryIndexConfigs
+        .add(new TextSecondaryIndexConfiguration("notes", SecondaryIndexType.JOIN));
+    secondaryIndexConfigs
+        .add(new TemporalSecondaryIndexConfiguration("since", SecondaryIndexType.JOIN));
     final SimpleFeatureUserDataConfigurationSet config =
         new SimpleFeatureUserDataConfigurationSet(sfType, secondaryIndexConfigs);
     config.updateType(sfType);

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,13 +29,12 @@ import org.opengis.feature.simple.SimpleFeatureType;
 public class TdriveUtils {
   public static final String TDRIVE_POINT_FEATURE = "tdrivepoint";
 
-  private static final ThreadLocal<DateFormat> dateFormat =
-      new ThreadLocal<DateFormat>() {
-        @Override
-        protected DateFormat initialValue() {
-          return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        }
-      };
+  private static final ThreadLocal<DateFormat> dateFormat = new ThreadLocal<DateFormat>() {
+    @Override
+    protected DateFormat initialValue() {
+      return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    }
+  };
 
   public static Date parseDate(String source) throws ParseException {
     return dateFormat.get().parse(source);
@@ -49,14 +49,14 @@ public class TdriveUtils {
 
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Geometry.class).nillable(false).buildDescriptor("geometry"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Double.class).nillable(false).buildDescriptor("taxiid"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Double.class).nillable(false).buildDescriptor("taxiid"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("pointinstance"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Date.class).nillable(true).buildDescriptor("Timestamp"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Latitude"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Date.class).nillable(true).buildDescriptor("Timestamp"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Latitude"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Longitude"));
 

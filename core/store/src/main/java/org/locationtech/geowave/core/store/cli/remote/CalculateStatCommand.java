@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,8 +37,7 @@ import org.slf4j.LoggerFactory;
 
 @GeowaveOperation(name = "calcstat", parentOperation = RemoteSection.class)
 @Parameters(
-    commandDescription =
-        "Calculate a specific statistic in the remote store, given adapter ID and statistic ID")
+    commandDescription = "Calculate a specific statistic in the remote store, given adapter ID and statistic ID")
 /** This class calculates the statistic(s) in the given store and replaces the existing value. */
 public class CalculateStatCommand extends AbstractStatsCommand<Void> {
 
@@ -50,8 +50,7 @@ public class CalculateStatCommand extends AbstractStatsCommand<Void> {
   // calculateStatistics()
   private String statType;
 
-  @Parameter(
-      names = {"--fieldName"},
+  @Parameter(names = {"--fieldName"},
       description = "If the statistic is maintained per field, optionally provide a field name")
   private String fieldName = "";
 
@@ -61,27 +60,23 @@ public class CalculateStatCommand extends AbstractStatsCommand<Void> {
   }
 
   @Override
-  protected boolean performStatsCommand(
-      final DataStorePluginOptions storeOptions,
-      final InternalDataAdapter<?> adapter,
-      final StatsCommandLineOptions statsOptions)
+  protected boolean performStatsCommand(final DataStorePluginOptions storeOptions,
+      final InternalDataAdapter<?> adapter, final StatsCommandLineOptions statsOptions)
       throws IOException {
 
     try {
       final DataStore dataStore = storeOptions.createDataStore();
       if (!(dataStore instanceof BaseDataStore)) {
-        LOGGER.warn(
-            "Datastore type '"
-                + dataStore.getClass().getName()
-                + "' must be instance of BaseDataStore to recalculate stats");
+        LOGGER.warn("Datastore type '" + dataStore.getClass().getName()
+            + "' must be instance of BaseDataStore to recalculate stats");
         return false;
       }
       final AdapterIndexMappingStore mappingStore = storeOptions.createAdapterIndexMappingStore();
       final IndexStore indexStore = storeOptions.createIndexStore();
 
       boolean isFirstTime = true;
-      for (final Index index :
-          mappingStore.getIndicesForAdapter(adapter.getAdapterId()).getIndices(indexStore)) {
+      for (final Index index : mappingStore.getIndicesForAdapter(adapter.getAdapterId())
+          .getIndices(indexStore)) {
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         final String[] authorizations = getAuthorizations(statsOptions.getAuthorizations());
@@ -90,24 +85,17 @@ public class CalculateStatCommand extends AbstractStatsCommand<Void> {
               @Override
               public StatisticsId[] getSupportedStatistics() {
                 return new StatisticsId[] {
-                  new StatisticsId(new BaseStatisticsType<>(statType), fieldName)
-                };
+                    new StatisticsId(new BaseStatisticsType<>(statType), fieldName)};
               }
             };
 
-        try (StatsCompositionTool<?> statsTool =
-            new StatsCompositionTool(
-                provider, storeOptions.createDataStatisticsStore(), index, adapter)) {
+        try (StatsCompositionTool<?> statsTool = new StatsCompositionTool(provider,
+            storeOptions.createDataStatisticsStore(), index, adapter)) {
 
-          try (CloseableIterator<?> entryIt =
-              ((BaseDataStore) dataStore)
-                  .query(
-                      QueryBuilder.newBuilder()
-                          .addTypeName(adapter.getTypeName())
-                          .indexName(index.getName())
-                          .setAuthorizations(authorizations)
-                          .build(),
-                      (ScanCallback) statsTool)) {
+          try (CloseableIterator<?> entryIt = ((BaseDataStore) dataStore).query(
+              QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+                  .indexName(index.getName()).setAuthorizations(authorizations).build(),
+              (ScanCallback) statsTool)) {
             while (entryIt.hasNext()) {
               entryIt.next();
             }
@@ -128,8 +116,8 @@ public class CalculateStatCommand extends AbstractStatsCommand<Void> {
     return parameters;
   }
 
-  public void setParameters(
-      final String storeName, final String dataTypeName, final String statType) {
+  public void setParameters(final String storeName, final String dataTypeName,
+      final String statType) {
     parameters = new ArrayList<>();
     parameters.add(storeName);
     parameters.add(dataTypeName);

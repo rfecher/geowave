@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,13 +26,7 @@ import org.locationtech.geowave.mapreduce.GeoWaveConfiguratorBase;
  */
 public class GeoWaveInputConfigurator extends GeoWaveConfiguratorBase {
   protected static enum InputConfig {
-    QUERY_CONSTRAINTS,
-    INDEX_QUERY_OPTIONS,
-    DATA_TYPE_QUERY_OPTIONS,
-    COMMON_QUERY_OPTIONS,
-    MIN_SPLITS,
-    MAX_SPLITS,
-    OUTPUT_WRITABLE, // used
+    QUERY_CONSTRAINTS, INDEX_QUERY_OPTIONS, DATA_TYPE_QUERY_OPTIONS, COMMON_QUERY_OPTIONS, MIN_SPLITS, MAX_SPLITS, OUTPUT_WRITABLE, // used
     // to
     // inform
     // the
@@ -45,8 +40,8 @@ public class GeoWaveInputConfigurator extends GeoWaveConfiguratorBase {
     AUTHORIZATION
   }
 
-  private static QueryConstraints getQueryConstraintsInternal(
-      final Class<?> implementingClass, final Configuration configuration) {
+  private static QueryConstraints getQueryConstraintsInternal(final Class<?> implementingClass,
+      final Configuration configuration) {
     final String queryStr =
         configuration.get(enumToConfKey(implementingClass, InputConfig.QUERY_CONSTRAINTS), "");
     if ((queryStr != null) && !queryStr.isEmpty()) {
@@ -56,8 +51,8 @@ public class GeoWaveInputConfigurator extends GeoWaveConfiguratorBase {
     return null;
   }
 
-  private static IndexQueryOptions getIndexQueryOptionsInternal(
-      final Class<?> implementingClass, final Configuration configuration) {
+  private static IndexQueryOptions getIndexQueryOptionsInternal(final Class<?> implementingClass,
+      final Configuration configuration) {
     final String queryStr =
         configuration.get(enumToConfKey(implementingClass, InputConfig.INDEX_QUERY_OPTIONS), "");
     if ((queryStr != null) && !queryStr.isEmpty()) {
@@ -69,9 +64,8 @@ public class GeoWaveInputConfigurator extends GeoWaveConfiguratorBase {
 
   private static DataTypeQueryOptions<?> getDataTypeQueryOptionsInternal(
       final Class<?> implementingClass, final Configuration configuration) {
-    final String queryStr =
-        configuration.get(
-            enumToConfKey(implementingClass, InputConfig.DATA_TYPE_QUERY_OPTIONS), "");
+    final String queryStr = configuration
+        .get(enumToConfKey(implementingClass, InputConfig.DATA_TYPE_QUERY_OPTIONS), "");
     if ((queryStr != null) && !queryStr.isEmpty()) {
       final byte[] queryBytes = ByteArrayUtils.byteArrayFromString(queryStr);
       return (DataTypeQueryOptions<?>) PersistenceUtils.fromBinary(queryBytes);
@@ -79,8 +73,8 @@ public class GeoWaveInputConfigurator extends GeoWaveConfiguratorBase {
     return null;
   }
 
-  private static CommonQueryOptions getCommonQueryOptionsInternal(
-      final Class<?> implementingClass, final Configuration configuration) {
+  private static CommonQueryOptions getCommonQueryOptionsInternal(final Class<?> implementingClass,
+      final Configuration configuration) {
     final String queryStr =
         configuration.get(enumToConfKey(implementingClass, InputConfig.COMMON_QUERY_OPTIONS), "");
     if ((queryStr != null) && !queryStr.isEmpty()) {
@@ -90,20 +84,18 @@ public class GeoWaveInputConfigurator extends GeoWaveConfiguratorBase {
     return null;
   }
 
-  private static Integer getMinimumSplitCountInternal(
-      final Class<?> implementingClass, final Configuration configuration) {
+  private static Integer getMinimumSplitCountInternal(final Class<?> implementingClass,
+      final Configuration configuration) {
     return getIntegerConfigInternal(implementingClass, configuration, InputConfig.MIN_SPLITS);
   }
 
-  private static Integer getMaximumSplitCountInternal(
-      final Class<?> implementingClass, final Configuration configuration) {
+  private static Integer getMaximumSplitCountInternal(final Class<?> implementingClass,
+      final Configuration configuration) {
     return getIntegerConfigInternal(implementingClass, configuration, InputConfig.MAX_SPLITS);
   }
 
-  private static Integer getIntegerConfigInternal(
-      final Class<?> implementingClass,
-      final Configuration configuration,
-      final InputConfig inputConfig) {
+  private static Integer getIntegerConfigInternal(final Class<?> implementingClass,
+      final Configuration configuration, final InputConfig inputConfig) {
     final String str = configuration.get(enumToConfKey(implementingClass, inputConfig), "");
     if ((str != null) && !str.isEmpty()) {
       final Integer retVal = Integer.parseInt(str);
@@ -121,83 +113,73 @@ public class GeoWaveInputConfigurator extends GeoWaveConfiguratorBase {
     return null;
   }
 
-  public static QueryConstraints getQueryConstraints(
-      final Class<?> implementingClass, final JobContext context) {
+  public static QueryConstraints getQueryConstraints(final Class<?> implementingClass,
+      final JobContext context) {
     return getQueryConstraintsInternal(implementingClass, getConfiguration(context));
   }
 
-  public static void setQueryConstraints(
-      final Class<?> implementingClass, final Configuration config, final QueryConstraints query) {
+  public static void setQueryConstraints(final Class<?> implementingClass,
+      final Configuration config, final QueryConstraints query) {
     if (query != null) {
-      config.set(
-          enumToConfKey(implementingClass, InputConfig.QUERY_CONSTRAINTS),
+      config.set(enumToConfKey(implementingClass, InputConfig.QUERY_CONSTRAINTS),
           ByteArrayUtils.byteArrayToString(PersistenceUtils.toBinary(query)));
     } else {
       config.unset(enumToConfKey(implementingClass, InputConfig.QUERY_CONSTRAINTS));
     }
   }
 
-  public static IndexQueryOptions getIndexQueryOptions(
-      final Class<?> implementingClass, final JobContext context) {
+  public static IndexQueryOptions getIndexQueryOptions(final Class<?> implementingClass,
+      final JobContext context) {
     return getIndexQueryOptionsInternal(implementingClass, getConfiguration(context));
   }
 
-  public static void setIndexQueryOptions(
-      final Class<?> implementingClass,
-      final Configuration config,
-      final IndexQueryOptions queryOptions) {
+  public static void setIndexQueryOptions(final Class<?> implementingClass,
+      final Configuration config, final IndexQueryOptions queryOptions) {
     if (queryOptions != null) {
-      config.set(
-          enumToConfKey(implementingClass, InputConfig.INDEX_QUERY_OPTIONS),
+      config.set(enumToConfKey(implementingClass, InputConfig.INDEX_QUERY_OPTIONS),
           ByteArrayUtils.byteArrayToString(PersistenceUtils.toBinary(queryOptions)));
     } else {
       config.unset(enumToConfKey(implementingClass, InputConfig.INDEX_QUERY_OPTIONS));
     }
   }
 
-  public static DataTypeQueryOptions<?> getDataTypeQueryOptions(
-      final Class<?> implementingClass, final JobContext context) {
+  public static DataTypeQueryOptions<?> getDataTypeQueryOptions(final Class<?> implementingClass,
+      final JobContext context) {
     return getDataTypeQueryOptionsInternal(implementingClass, getConfiguration(context));
   }
 
-  public static void setDataTypeQueryOptions(
-      final Class<?> implementingClass,
-      final Configuration config,
-      final DataTypeQueryOptions<?> queryOptions) {
+  public static void setDataTypeQueryOptions(final Class<?> implementingClass,
+      final Configuration config, final DataTypeQueryOptions<?> queryOptions) {
     if (queryOptions != null) {
-      config.set(
-          enumToConfKey(implementingClass, InputConfig.DATA_TYPE_QUERY_OPTIONS),
+      config.set(enumToConfKey(implementingClass, InputConfig.DATA_TYPE_QUERY_OPTIONS),
           ByteArrayUtils.byteArrayToString(PersistenceUtils.toBinary(queryOptions)));
     } else {
       config.unset(enumToConfKey(implementingClass, InputConfig.DATA_TYPE_QUERY_OPTIONS));
     }
   }
 
-  public static CommonQueryOptions getCommonQueryOptions(
-      final Class<?> implementingClass, final JobContext context) {
+  public static CommonQueryOptions getCommonQueryOptions(final Class<?> implementingClass,
+      final JobContext context) {
     return getCommonQueryOptionsInternal(implementingClass, getConfiguration(context));
   }
 
-  public static void setCommonQueryOptions(
-      final Class<?> implementingClass,
-      final Configuration config,
-      final CommonQueryOptions queryOptions) {
+  public static void setCommonQueryOptions(final Class<?> implementingClass,
+      final Configuration config, final CommonQueryOptions queryOptions) {
     if (queryOptions != null) {
-      config.set(
-          enumToConfKey(implementingClass, InputConfig.COMMON_QUERY_OPTIONS),
+      config.set(enumToConfKey(implementingClass, InputConfig.COMMON_QUERY_OPTIONS),
           ByteArrayUtils.byteArrayToString(PersistenceUtils.toBinary(queryOptions)));
     } else {
       config.unset(enumToConfKey(implementingClass, InputConfig.COMMON_QUERY_OPTIONS));
     }
   }
 
-  public static Integer getMinimumSplitCount(
-      final Class<?> implementingClass, final JobContext context) {
+  public static Integer getMinimumSplitCount(final Class<?> implementingClass,
+      final JobContext context) {
     return getMinimumSplitCountInternal(implementingClass, getConfiguration(context));
   }
 
-  public static void setMinimumSplitCount(
-      final Class<?> implementingClass, final Configuration config, final Integer minSplits) {
+  public static void setMinimumSplitCount(final Class<?> implementingClass,
+      final Configuration config, final Integer minSplits) {
     if (minSplits != null) {
       config.set(enumToConfKey(implementingClass, InputConfig.MIN_SPLITS), minSplits.toString());
     } else {
@@ -205,13 +187,13 @@ public class GeoWaveInputConfigurator extends GeoWaveConfiguratorBase {
     }
   }
 
-  public static Integer getMaximumSplitCount(
-      final Class<?> implementingClass, final JobContext context) {
+  public static Integer getMaximumSplitCount(final Class<?> implementingClass,
+      final JobContext context) {
     return getMaximumSplitCountInternal(implementingClass, getConfiguration(context));
   }
 
-  public static void setMaximumSplitCount(
-      final Class<?> implementingClass, final Configuration config, final Integer maxSplits) {
+  public static void setMaximumSplitCount(final Class<?> implementingClass,
+      final Configuration config, final Integer maxSplits) {
     if (maxSplits != null) {
       config.set(enumToConfKey(implementingClass, InputConfig.MAX_SPLITS), maxSplits.toString());
     } else {

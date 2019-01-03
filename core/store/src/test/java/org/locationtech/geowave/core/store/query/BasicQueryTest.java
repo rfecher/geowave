@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -11,7 +12,6 @@ package org.locationtech.geowave.core.store.query;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,35 +56,30 @@ public class BasicQueryTest {
 
   @Test
   public void testIntersectCasesWithPersistence() {
-    final Index index =
-        new CustomNameIndex(
-            new ExampleNumericIndexStrategy(),
-            new BasicIndexModel(
-                new NumericDimensionField[] {new ExampleDimensionOne(), new ExampleDimensionTwo()}),
-            "22");
+    final Index index = new CustomNameIndex(new ExampleNumericIndexStrategy(),
+        new BasicIndexModel(
+            new NumericDimensionField[] {new ExampleDimensionOne(), new ExampleDimensionTwo()}),
+        "22");
     final List<MultiDimensionalNumericData> expectedResults = new ArrayList<>();
-    expectedResults.add(
-        new BasicNumericDataset(
-            new NumericData[] {
-              new ConstrainedIndexValue(0.3, 0.5), new ConstrainedIndexValue(0.1, 0.7)
-            }));
+    expectedResults.add(new BasicNumericDataset(new NumericData[] {
+        new ConstrainedIndexValue(0.3, 0.5), new ConstrainedIndexValue(0.1, 0.7)}));
 
     final ConstraintSet cs1 = new ConstraintSet();
-    cs1.addConstraint(
-        ExampleDimensionOne.class, new ConstraintData(new ConstrainedIndexValue(0.3, 0.5), true));
+    cs1.addConstraint(ExampleDimensionOne.class,
+        new ConstraintData(new ConstrainedIndexValue(0.3, 0.5), true));
 
-    cs1.addConstraint(
-        ExampleDimensionTwo.class, new ConstraintData(new ConstrainedIndexValue(0.4, 0.7), true));
+    cs1.addConstraint(ExampleDimensionTwo.class,
+        new ConstraintData(new ConstrainedIndexValue(0.4, 0.7), true));
 
     final ConstraintSet cs2a = new ConstraintSet();
-    cs2a.addConstraint(
-        ExampleDimensionTwo.class, new ConstraintData(new ConstrainedIndexValue(0.1, 0.2), true));
+    cs2a.addConstraint(ExampleDimensionTwo.class,
+        new ConstraintData(new ConstrainedIndexValue(0.1, 0.2), true));
 
     final Constraints constraints =
         new Constraints(Arrays.asList(cs2a)).merge(Collections.singletonList(cs1));
 
-    assertEquals(
-        expectedResults, constraints.getIndexConstraints(new ExampleNumericIndexStrategy()));
+    assertEquals(expectedResults,
+        constraints.getIndexConstraints(new ExampleNumericIndexStrategy()));
 
     final byte[] image = new BasicQuery(constraints).toBinary();
     final BasicQuery query = new BasicQuery();
@@ -97,50 +92,42 @@ public class BasicQueryTest {
   public void testDisjointCasesWithPersistence() {
 
     final List<MultiDimensionalNumericData> expectedResults = new ArrayList<>();
-    expectedResults.add(
-        new BasicNumericDataset(
-            new NumericData[] {
-              new ConstrainedIndexValue(0.3, 0.7), new ConstrainedIndexValue(0.1, 2.3)
-            }));
-    expectedResults.add(
-        new BasicNumericDataset(
-            new NumericData[] {
-              new ConstrainedIndexValue(0.3, 0.7), new ConstrainedIndexValue(3.4, 3.7)
-            }));
+    expectedResults.add(new BasicNumericDataset(new NumericData[] {
+        new ConstrainedIndexValue(0.3, 0.7), new ConstrainedIndexValue(0.1, 2.3)}));
+    expectedResults.add(new BasicNumericDataset(new NumericData[] {
+        new ConstrainedIndexValue(0.3, 0.7), new ConstrainedIndexValue(3.4, 3.7)}));
 
     final ConstraintSet cs1 = new ConstraintSet();
-    cs1.addConstraint(
-        ExampleDimensionOne.class, new ConstraintData(new ConstrainedIndexValue(0.3, 0.5), true));
+    cs1.addConstraint(ExampleDimensionOne.class,
+        new ConstraintData(new ConstrainedIndexValue(0.3, 0.5), true));
 
-    cs1.addConstraint(
-        ExampleDimensionOne.class, new ConstraintData(new ConstrainedIndexValue(0.4, 0.7), true));
+    cs1.addConstraint(ExampleDimensionOne.class,
+        new ConstraintData(new ConstrainedIndexValue(0.4, 0.7), true));
 
     final ConstraintSet cs2a = new ConstraintSet();
-    cs2a.addConstraint(
-        ExampleDimensionTwo.class, new ConstraintData(new ConstrainedIndexValue(0.1, 0.2), true));
+    cs2a.addConstraint(ExampleDimensionTwo.class,
+        new ConstraintData(new ConstrainedIndexValue(0.1, 0.2), true));
 
-    cs2a.addConstraint(
-        ExampleDimensionTwo.class, new ConstraintData(new ConstrainedIndexValue(2.1, 2.3), true));
+    cs2a.addConstraint(ExampleDimensionTwo.class,
+        new ConstraintData(new ConstrainedIndexValue(2.1, 2.3), true));
 
     final ConstraintSet cs2b = new ConstraintSet();
-    cs2b.addConstraint(
-        ExampleDimensionTwo.class, new ConstraintData(new ConstrainedIndexValue(3.4, 3.7), true));
+    cs2b.addConstraint(ExampleDimensionTwo.class,
+        new ConstraintData(new ConstrainedIndexValue(3.4, 3.7), true));
 
     final Constraints constraints =
         new Constraints(Arrays.asList(cs2a, cs2b)).merge(Collections.singletonList(cs1));
 
-    assertEquals(
-        expectedResults, constraints.getIndexConstraints(new ExampleNumericIndexStrategy()));
+    assertEquals(expectedResults,
+        constraints.getIndexConstraints(new ExampleNumericIndexStrategy()));
 
     final byte[] image = new BasicQuery(constraints).toBinary();
     final BasicQuery query = new BasicQuery();
     query.fromBinary(image);
-    final Index index =
-        new CustomNameIndex(
-            new ExampleNumericIndexStrategy(),
-            new BasicIndexModel(
-                new NumericDimensionField[] {new ExampleDimensionOne(), new ExampleDimensionTwo()}),
-            "22");
+    final Index index = new CustomNameIndex(new ExampleNumericIndexStrategy(),
+        new BasicIndexModel(
+            new NumericDimensionField[] {new ExampleDimensionOne(), new ExampleDimensionTwo()}),
+        "22");
     assertEquals(expectedResults, query.getIndexConstraints(index));
 
     final List<QueryFilter> filters = query.createFilters(index);
@@ -152,65 +139,29 @@ public class BasicQueryTest {
     fieldIdToValueMap.put("two", new ConstrainedIndexValue(0.5, 0.5));
 
     final CommonIndexModel model = null;
-    assertTrue(
-        filters
-            .get(0)
-            .accept(
-                model,
-                new CommonIndexedPersistenceEncoding(
-                    (short) 1,
-                    new ByteArray("data"),
-                    new ByteArray("partition"),
-                    new ByteArray("sort"),
-                    1, // duplicate count
-                    new PersistentDataset(fieldIdToValueMap),
-                    null)));
+    assertTrue(filters.get(0).accept(model,
+        new CommonIndexedPersistenceEncoding((short) 1, new ByteArray("data"),
+            new ByteArray("partition"), new ByteArray("sort"), 1, // duplicate count
+            new PersistentDataset(fieldIdToValueMap), null)));
     fieldIdToValueMap.put("one", new ConstrainedIndexValue(0.1, 0.1));
-    assertFalse(
-        filters
-            .get(0)
-            .accept(
-                model,
-                new CommonIndexedPersistenceEncoding(
-                    (short) 1,
-                    new ByteArray("data"),
-                    new ByteArray("partition"),
-                    new ByteArray("sort"),
-                    1, // duplicate count
-                    new PersistentDataset(fieldIdToValueMap),
-                    null)));
+    assertFalse(filters.get(0).accept(model,
+        new CommonIndexedPersistenceEncoding((short) 1, new ByteArray("data"),
+            new ByteArray("partition"), new ByteArray("sort"), 1, // duplicate count
+            new PersistentDataset(fieldIdToValueMap), null)));
 
     fieldIdToValueMap.put("one", new ConstrainedIndexValue(0.4, 0.4));
     fieldIdToValueMap.put("two", new ConstrainedIndexValue(5.0, 5.0));
-    assertFalse(
-        filters
-            .get(0)
-            .accept(
-                model,
-                new CommonIndexedPersistenceEncoding(
-                    (short) 1,
-                    new ByteArray("data"),
-                    new ByteArray("partition"),
-                    new ByteArray("sort"),
-                    1, // duplicate count
-                    new PersistentDataset(fieldIdToValueMap),
-                    null)));
+    assertFalse(filters.get(0).accept(model,
+        new CommonIndexedPersistenceEncoding((short) 1, new ByteArray("data"),
+            new ByteArray("partition"), new ByteArray("sort"), 1, // duplicate count
+            new PersistentDataset(fieldIdToValueMap), null)));
 
     /** Tests the 'OR' Case */
     fieldIdToValueMap.put("two", new ConstrainedIndexValue(3.5, 3.5));
-    assertTrue(
-        filters
-            .get(0)
-            .accept(
-                model,
-                new CommonIndexedPersistenceEncoding(
-                    (short) 1,
-                    new ByteArray("data"),
-                    new ByteArray("partition"),
-                    new ByteArray("sort"),
-                    1, // duplicate count
-                    new PersistentDataset(fieldIdToValueMap),
-                    null)));
+    assertTrue(filters.get(0).accept(model,
+        new CommonIndexedPersistenceEncoding((short) 1, new ByteArray("data"),
+            new ByteArray("partition"), new ByteArray("sort"), 1, // duplicate count
+            new PersistentDataset(fieldIdToValueMap), null)));
   }
 
   public static class ExampleNumericIndexStrategy implements NumericIndexStrategy {
@@ -225,9 +176,8 @@ public class BasicQueryTest {
 
     @Override
     public NumericDimensionDefinition[] getOrderedDimensionDefinitions() {
-      return new NumericDimensionDefinition[] {
-        new ExampleDimensionOne(), new ExampleDimensionTwo()
-      };
+      return new NumericDimensionDefinition[] {new ExampleDimensionOne(),
+          new ExampleDimensionTwo()};
     }
 
     @Override
@@ -252,16 +202,14 @@ public class BasicQueryTest {
     }
 
     @Override
-    public QueryRanges getQueryRanges(
-        final MultiDimensionalNumericData indexedRange, final IndexMetaData... hints) {
+    public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+        final IndexMetaData... hints) {
       return null;
     }
 
     @Override
-    public QueryRanges getQueryRanges(
-        final MultiDimensionalNumericData indexedRange,
-        final int maxEstimatedRangeDecomposition,
-        final IndexMetaData... hints) {
+    public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+        final int maxEstimatedRangeDecomposition, final IndexMetaData... hints) {
       return null;
     }
 
@@ -271,14 +219,14 @@ public class BasicQueryTest {
     }
 
     @Override
-    public InsertionIds getInsertionIds(
-        final MultiDimensionalNumericData indexedData, final int maxEstimatedDuplicateIds) {
+    public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+        final int maxEstimatedDuplicateIds) {
       return null;
     }
 
     @Override
-    public MultiDimensionalNumericData getRangeForId(
-        final ByteArray partitionKey, final ByteArray sortKey) {
+    public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+        final ByteArray sortKey) {
       return null;
     }
 
@@ -289,14 +237,14 @@ public class BasicQueryTest {
     }
 
     @Override
-    public Set<ByteArray> getQueryPartitionKeys(
-        final MultiDimensionalNumericData queryData, final IndexMetaData... hints) {
+    public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+        final IndexMetaData... hints) {
       return null;
     }
 
     @Override
-    public MultiDimensionalCoordinates getCoordinatesPerDimension(
-        final ByteArray partitionKey, final ByteArray sortKey) {
+    public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+        final ByteArray sortKey) {
       return null;
     }
 

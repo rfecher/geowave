@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -61,8 +62,7 @@ public class CentroidItemWrapperFactory<T> implements AnalyticItemWrapperFactory
     public CentroidItemWrapper(final T item) {
       wrappedItem = itemFactory.create(item);
       try {
-        nestedGroupCentroidAssignment.findCentroidForLevel(
-            wrappedItem,
+        nestedGroupCentroidAssignment.findCentroidForLevel(wrappedItem,
             new AssociationNotification<T>() {
               @Override
               public void notify(final CentroidPairing<T> pairing) {
@@ -161,12 +161,8 @@ public class CentroidItemWrapperFactory<T> implements AnalyticItemWrapperFactory
    */
 
   @Override
-  public AnalyticItemWrapper<T> createNextItem(
-      final T feature,
-      final String groupID,
-      final Coordinate coordinate,
-      final String[] extraNames,
-      final double[] extraValues) {
+  public AnalyticItemWrapper<T> createNextItem(final T feature, final String groupID,
+      final Coordinate coordinate, final String[] extraNames, final double[] extraValues) {
     return this.itemFactory.createNextItem(feature, groupID, coordinate, extraNames, extraValues);
   }
 }

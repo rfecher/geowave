@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <P> The type of the plugin this driver supports.
  * @param <R> The type for intermediate data that can be used throughout the life of the process and
- *     is passed along for each call to process a file.
+ *        is passed along for each call to process a file.
  */
 public abstract class AbstractLocalFileDriver<P extends LocalPluginBase, R> {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLocalFileDriver.class);
@@ -43,12 +44,8 @@ public abstract class AbstractLocalFileDriver<P extends LocalPluginBase, R> {
     localInput = input;
   }
 
-  protected void processInput(
-      final String inputPath,
-      final File configFile,
-      final Map<String, P> localPlugins,
-      final R runData)
-      throws IOException {
+  protected void processInput(final String inputPath, final File configFile,
+      final Map<String, P> localPlugins, final R runData) throws IOException {
     if (inputPath == null) {
       LOGGER.error("Unable to ingest data, base directory or file input not specified");
       return;
@@ -65,9 +62,7 @@ public abstract class AbstractLocalFileDriver<P extends LocalPluginBase, R> {
     if (inputPath.startsWith("s3://")) {
       try {
         IngestUtils.setURLStreamHandlerFactory(URLTYPE.S3);
-      } catch (NoSuchFieldException
-          | SecurityException
-          | IllegalArgumentException
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
           | IllegalAccessException e1) {
         LOGGER.error("Error in setting up S3URLStreamHandler Factory", e1);
         return;
@@ -96,10 +91,7 @@ public abstract class AbstractLocalFileDriver<P extends LocalPluginBase, R> {
     else if (inputPath.startsWith("hdfs://")) {
       try {
         IngestUtils.setURLStreamHandlerFactory(URLTYPE.HDFS);
-      } catch (final Error
-          | NoSuchFieldException
-          | SecurityException
-          | IllegalArgumentException
+      } catch (final Error | NoSuchFieldException | SecurityException | IllegalArgumentException
           | IllegalAccessException e) {
         LOGGER.error("Error in setStreamHandlerFactory for HDFS", e);
         return;
@@ -137,8 +129,7 @@ public abstract class AbstractLocalFileDriver<P extends LocalPluginBase, R> {
       localPlugin.init(path.toUri().toURL());
     }
 
-    Files.walkFileTree(
-        path,
+    Files.walkFileTree(path,
         new LocalPluginFileVisitor<P, R>(localPlugins, this, runData, localInput.getExtensions()));
   }
 

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,9 +38,7 @@ public class ChooseLocalityPreservingQueryStrategy implements IndexQueryStrategy
   @Override
   public CloseableIterator<Index> getIndices(
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats,
-      final BasicQuery query,
-      final Index[] indices,
-      final Map<QueryHint, Object> hints) {
+      final BasicQuery query, final Index[] indices, final Map<QueryHint, Object> hints) {
     return new CloseableIterator<Index>() {
       Index nextIdx = null;
       boolean done = false;
@@ -69,9 +68,8 @@ public class ChooseLocalityPreservingQueryStrategy implements IndexQueryStrategy
                 dataRangePerDimension[d] =
                     qr.getMaxValuesPerDimension()[d] - qr.getMinValuesPerDimension()[d];
               }
-              totalMax +=
-                  IndexUtils.getDimensionalBitsUsed(
-                      nextIdx.getIndexStrategy(), dataRangePerDimension);
+              totalMax += IndexUtils.getDimensionalBitsUsed(nextIdx.getIndexStrategy(),
+                  dataRangePerDimension);
             }
             if (totalMax > indexMax) {
               indexMax = totalMax;

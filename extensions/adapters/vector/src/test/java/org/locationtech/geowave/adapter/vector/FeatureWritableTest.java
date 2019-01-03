@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -9,7 +10,6 @@
 package org.locationtech.geowave.adapter.vector;
 
 import static org.junit.Assert.assertEquals;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -49,13 +49,9 @@ public class FeatureWritableTest {
     final SimpleFeatureType featureType = builder.getFeatureType();
 
     @SuppressWarnings("unchecked")
-    final SimpleFeature newFeature =
-        FeatureDataUtils.buildFeature(
-            featureType,
-            new Pair[] {
-              Pair.of("geom", factory.createPoint(new Coordinate(27.25, 41.25))),
-              Pair.of("count", Long.valueOf(100))
-            });
+    final SimpleFeature newFeature = FeatureDataUtils.buildFeature(featureType,
+        new Pair[] {Pair.of("geom", factory.createPoint(new Coordinate(27.25, 41.25))),
+            Pair.of("count", Long.valueOf(100))});
 
     final FeatureWritable writable = new FeatureWritable(featureType, newFeature);
 
@@ -71,12 +67,7 @@ public class FeatureWritableTest {
     }
 
     assertEquals(newFeature.getDefaultGeometry(), writable.getFeature().getDefaultGeometry());
-    assertEquals(
-        featureType.getCoordinateReferenceSystem().getCoordinateSystem(),
-        writable
-            .getFeature()
-            .getFeatureType()
-            .getCoordinateReferenceSystem()
-            .getCoordinateSystem());
+    assertEquals(featureType.getCoordinateReferenceSystem().getCoordinateSystem(), writable
+        .getFeature().getFeatureType().getCoordinateReferenceSystem().getCoordinateSystem());
   }
 }

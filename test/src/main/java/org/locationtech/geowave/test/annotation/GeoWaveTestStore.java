@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,18 +38,18 @@ public @interface GeoWaveTestStore {
 
   /**
    * @return a "key=value" pair that will override default options for the client-side configuration
-   *     of this datastore
+   *         of this datastore
    */
   public String[] options() default "";
 
   public static enum GeoWaveStoreType {
-    DYNAMODB(DynamoDBStoreTestEnvironment.getInstance()),
-    ACCUMULO(AccumuloStoreTestEnvironment.getInstance()),
-    BIGTABLE(BigtableStoreTestEnvironment.getInstance()),
-    CASSANDRA(CassandraStoreTestEnvironment.getInstance()),
-    HBASE(HBaseStoreTestEnvironment.getInstance()),
-    REDIS(RedisStoreTestEnvironment.getInstance()),
-    ROCKSDB(RocksDBStoreTestEnvironment.getInstance());
+    DYNAMODB(DynamoDBStoreTestEnvironment.getInstance()), ACCUMULO(
+        AccumuloStoreTestEnvironment.getInstance()), BIGTABLE(
+            BigtableStoreTestEnvironment.getInstance()), CASSANDRA(
+                CassandraStoreTestEnvironment.getInstance()), HBASE(
+                    HBaseStoreTestEnvironment.getInstance()), REDIS(
+                        RedisStoreTestEnvironment.getInstance()), ROCKSDB(
+                            RocksDBStoreTestEnvironment.getInstance());
     private final StoreTestEnvironment testEnvironment;
 
     private GeoWaveStoreType(final StoreTestEnvironment testEnvironment) {

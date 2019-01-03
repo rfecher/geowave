@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,8 +27,7 @@ import org.slf4j.LoggerFactory;
 
 @GeowaveOperation(name = "newcryptokey", parentOperation = ConfigSection.class)
 @Parameters(
-    commandDescription =
-        "Generate a new security cryptography key for use with configuration properties")
+    commandDescription = "Generate a new security cryptography key for use with configuration properties")
 public class NewTokenCommand extends DefaultOperation implements Command {
   private static final Logger sLog = LoggerFactory.getLogger(NewTokenCommand.class);
 
@@ -42,9 +42,8 @@ public class NewTokenCommand extends DefaultOperation implements Command {
       // re-encrypt any encrypted values against the new token
       if (tokenFile != null && tokenFile.exists()) {
         try {
-          sLog.info(
-              "Existing encryption token file exists already at path ["
-                  + tokenFile.getCanonicalPath());
+          sLog.info("Existing encryption token file exists already at path ["
+              + tokenFile.getCanonicalPath());
           sLog.info(
               "Creating new encryption token and migrating all passwords in [{}] to be encrypted with new token",
               ConfigOptions.getDefaultPropertyFile().getCanonicalPath());
@@ -71,19 +70,16 @@ public class NewTokenCommand extends DefaultOperation implements Command {
                 while (keyIter.hasNext()) {
                   configKey = (String) keyIter.next();
                   String configValue = configProps.getProperty(configKey);
-                  if (configValue != null
-                      && !"".equals(configValue.trim())
+                  if (configValue != null && !"".equals(configValue.trim())
                       && BaseEncryption.isProperlyWrapped(configValue)) {
                     // HP Fortify "NULL Pointer Dereference"
                     // false positive
                     // Exception handling will catch if
                     // backupFile is null
-                    String decryptedValue =
-                        SecurityUtils.decryptHexEncodedValue(
-                            configValue, backupFile.getCanonicalPath());
-                    String encryptedValue =
-                        SecurityUtils.encryptAndHexEncodeValue(
-                            decryptedValue, tokenFile.getCanonicalPath());
+                    String decryptedValue = SecurityUtils.decryptHexEncodedValue(configValue,
+                        backupFile.getCanonicalPath());
+                    String encryptedValue = SecurityUtils.encryptAndHexEncodeValue(decryptedValue,
+                        tokenFile.getCanonicalPath());
                     configProps.put(configKey, encryptedValue);
                     updated = true;
                   }

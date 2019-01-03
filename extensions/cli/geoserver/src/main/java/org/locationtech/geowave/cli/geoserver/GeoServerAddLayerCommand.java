@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,31 +28,21 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 @Parameters(commandDescription = "Add a GeoServer layer from the given GeoWave store")
 public class GeoServerAddLayerCommand extends GeoServerCommand<String> {
   public static enum AddOption {
-    ALL,
-    RASTER,
-    VECTOR;
+    ALL, RASTER, VECTOR;
   }
 
-  @Parameter(
-      names = {"-ws", "--workspace"},
-      required = false,
-      description = "workspace name")
+  @Parameter(names = {"-ws", "--workspace"}, required = false, description = "workspace name")
   private String workspace = null;
 
-  @Parameter(
-      names = {"-a", "--add"},
-      converter = AddOptionConverter.class,
+  @Parameter(names = {"-a", "--add"}, converter = AddOptionConverter.class,
       description = "For multiple layers, add (all | raster | vector)")
   private AddOption addOption = null;
 
-  @Parameter(
-      names = {"-id", "--adapterId"},
+  @Parameter(names = {"-id", "--adapterId"},
       description = "select just <adapter id> from the store")
   private String adapterId = null;
 
-  @Parameter(
-      names = {"-sld", "--setStyle"},
-      description = "default style sld")
+  @Parameter(names = {"-sld", "--setStyle"}, description = "default style sld")
   private String style = null;
 
   @Parameter(description = "<GeoWave store name>")
@@ -69,14 +60,10 @@ public class GeoServerAddLayerCommand extends GeoServerCommand<String> {
     public AddOption convert(final String value) {
       final AddOption convertedValue = AddOption.valueOf(value.toUpperCase());
 
-      if ((convertedValue != AddOption.ALL)
-          && (convertedValue != AddOption.RASTER)
+      if ((convertedValue != AddOption.ALL) && (convertedValue != AddOption.RASTER)
           && (convertedValue != AddOption.VECTOR)) {
         throw new ParameterException(
-            "Value "
-                + value
-                + "can not be converted to an add option. "
-                + "Available values are: "
+            "Value " + value + "can not be converted to an add option. " + "Available values are: "
                 + StringUtils.join(AddOption.values(), ", ").toLowerCase(Locale.ENGLISH));
       }
       return convertedValue;
@@ -108,12 +95,8 @@ public class GeoServerAddLayerCommand extends GeoServerCommand<String> {
       return "Add GeoServer layer for '" + gwStore + ": OK : " + jsonResponse.toString(2);
     }
     String errorMessage =
-        "Error adding GeoServer layer for store '"
-            + gwStore
-            + "': "
-            + addLayerResponse.getEntity()
-            + "\nGeoServer Response Code = "
-            + addLayerResponse.getStatus();
+        "Error adding GeoServer layer for store '" + gwStore + "': " + addLayerResponse.getEntity()
+            + "\nGeoServer Response Code = " + addLayerResponse.getStatus();
     return handleError(addLayerResponse, errorMessage);
   }
 }

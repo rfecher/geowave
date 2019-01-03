@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,8 +32,7 @@ public class FeatureTimestampHandler implements IndexFieldHandler<SimpleFeature,
     this(timestampAttrDesc, null);
   }
 
-  public FeatureTimestampHandler(
-      final AttributeDescriptor timestampAttrDesc,
+  public FeatureTimestampHandler(final AttributeDescriptor timestampAttrDesc,
       final FieldVisibilityHandler<SimpleFeature, Object> visibilityHandler) {
     nativeTimestampHandler = new FeatureAttributeHandler(timestampAttrDesc);
     this.visibilityHandler = visibilityHandler;
@@ -64,7 +64,6 @@ public class FeatureTimestampHandler implements IndexFieldHandler<SimpleFeature,
     final Object obj =
         TimeUtils.getTimeValue(bindingClass, (long) indexValue.toNumericData().getCentroid());
     return new PersistentValue[] {
-      new PersistentValue<>(nativeTimestampHandler.getFieldName(), obj)
-    };
+        new PersistentValue<>(nativeTimestampHandler.getFieldName(), obj)};
   }
 }

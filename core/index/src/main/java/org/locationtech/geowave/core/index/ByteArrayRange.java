@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -111,14 +112,12 @@ public class ByteArrayRange implements Comparable<ByteArrayRange> {
   }
 
   public ByteArrayRange intersection(final ByteArrayRange other) {
-    return new ByteArrayRange(
-        start.compareTo(other.start) <= 0 ? other.start : start,
+    return new ByteArrayRange(start.compareTo(other.start) <= 0 ? other.start : start,
         getEndAsNextPrefix().compareTo(other.getEndAsNextPrefix()) >= 0 ? other.end : end);
   }
 
   public ByteArrayRange union(final ByteArrayRange other) {
-    return new ByteArrayRange(
-        start.compareTo(other.start) <= 0 ? start : other.start,
+    return new ByteArrayRange(start.compareTo(other.start) <= 0 ? start : other.start,
         getEndAsNextPrefix().compareTo(other.getEndAsNextPrefix()) >= 0 ? end : other.end);
   }
 
@@ -129,8 +128,7 @@ public class ByteArrayRange implements Comparable<ByteArrayRange> {
   }
 
   public static enum MergeOperation {
-    UNION,
-    INTERSECTION
+    UNION, INTERSECTION
   }
 
   public static final Collection<ByteArrayRange> mergeIntersections(
@@ -139,7 +137,7 @@ public class ByteArrayRange implements Comparable<ByteArrayRange> {
     // sort order so the first range can consume following ranges
     Collections.<ByteArrayRange>sort(rangeList);
     final List<ByteArrayRange> result = new ArrayList<ByteArrayRange>();
-    for (int i = 0; i < rangeList.size(); ) {
+    for (int i = 0; i < rangeList.size();) {
       ByteArrayRange r1 = rangeList.get(i);
       int j = i + 1;
       for (; j < rangeList.size(); j++) {

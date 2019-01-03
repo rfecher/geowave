@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -47,10 +48,8 @@ import scala.Tuple2;
 public class KMeansUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(KMeansUtils.class);
 
-  public static DataTypeAdapter writeClusterCentroids(
-      final KMeansModel clusterModel,
-      final DataStorePluginOptions outputDataStore,
-      final String centroidAdapterName,
+  public static DataTypeAdapter writeClusterCentroids(final KMeansModel clusterModel,
+      final DataStorePluginOptions outputDataStore, final String centroidAdapterName,
       final ScaledTemporalRange scaledRange) {
     final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
     typeBuilder.setName(centroidAdapterName);
@@ -64,18 +63,15 @@ public class KMeansUtils {
 
     final AttributeTypeBuilder attrBuilder = new AttributeTypeBuilder();
 
-    typeBuilder.add(
-        attrBuilder
-            .binding(Geometry.class)
-            .nillable(false)
-            .buildDescriptor(Geometry.class.getName().toString()));
+    typeBuilder.add(attrBuilder.binding(Geometry.class).nillable(false)
+        .buildDescriptor(Geometry.class.getName().toString()));
 
     if (scaledRange != null) {
       typeBuilder.add(attrBuilder.binding(Date.class).nillable(false).buildDescriptor("Time"));
     }
 
-    typeBuilder.add(
-        attrBuilder.binding(Integer.class).nillable(false).buildDescriptor("ClusterIndex"));
+    typeBuilder
+        .add(attrBuilder.binding(Integer.class).nillable(false).buildDescriptor("ClusterIndex"));
 
     final SimpleFeatureType sfType = typeBuilder.buildFeatureType();
     final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(sfType);
@@ -93,8 +89,7 @@ public class KMeansUtils {
         final double lon = center.apply(0);
         final double lat = center.apply(1);
 
-        sfBuilder.set(
-            Geometry.class.getName(),
+        sfBuilder.set(Geometry.class.getName(),
             GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(lon, lat)));
 
         if ((scaledRange != null) && (center.size() > 2)) {
@@ -118,12 +113,9 @@ public class KMeansUtils {
     return featureAdapter;
   }
 
-  public static DataTypeAdapter writeClusterHulls(
-      final JavaRDD<Vector> inputCentroids,
-      final KMeansModel clusterModel,
-      final DataStorePluginOptions outputDataStore,
-      final String hullAdapterName,
-      final boolean computeMetadata) {
+  public static DataTypeAdapter writeClusterHulls(final JavaRDD<Vector> inputCentroids,
+      final KMeansModel clusterModel, final DataStorePluginOptions outputDataStore,
+      final String hullAdapterName, final boolean computeMetadata) {
     final JavaPairRDD<Integer, Iterable<Vector>> groupByRdd =
         KMeansHullGenerator.groupByIndex(inputCentroids, clusterModel);
 
@@ -140,14 +132,11 @@ public class KMeansUtils {
 
     final AttributeTypeBuilder attrBuilder = new AttributeTypeBuilder();
 
-    typeBuilder.add(
-        attrBuilder
-            .binding(Geometry.class)
-            .nillable(false)
-            .buildDescriptor(Geometry.class.getName().toString()));
+    typeBuilder.add(attrBuilder.binding(Geometry.class).nillable(false)
+        .buildDescriptor(Geometry.class.getName().toString()));
 
-    typeBuilder.add(
-        attrBuilder.binding(Integer.class).nillable(false).buildDescriptor("ClusterIndex"));
+    typeBuilder
+        .add(attrBuilder.binding(Integer.class).nillable(false).buildDescriptor("ClusterIndex"));
 
     typeBuilder.add(attrBuilder.binding(Integer.class).nillable(false).buildDescriptor("Count"));
 
@@ -212,8 +201,8 @@ public class KMeansUtils {
     return featureAdapter;
   }
 
-  public static ScaledTemporalRange setRunnerTimeParams(
-      final KMeansRunner runner, final DataStorePluginOptions inputDataStore, String typeName) {
+  public static ScaledTemporalRange setRunnerTimeParams(final KMeansRunner runner,
+      final DataStorePluginOptions inputDataStore, String typeName) {
     if (typeName == null) { // if no id provided, locate a single
       // featureadapter
       final List<String> typeNameList = FeatureDataUtils.getFeatureTypeNames(inputDataStore);
@@ -224,8 +213,8 @@ public class KMeansUtils {
 
         return null;
       } else {
-        LOGGER.error(
-            "Multiple feature adapters found for use with time param. Please specify one.");
+        LOGGER
+            .error("Multiple feature adapters found for use with time param. Please specify one.");
 
         return null;
       }
@@ -245,9 +234,8 @@ public class KMeansUtils {
 
       final String geomField = FeatureDataUtils.getGeomField(inputDataStore, typeName);
 
-      final Envelope bbox =
-          org.locationtech.geowave.adapter.vector.util.FeatureGeometryUtils.getGeoBounds(
-              inputDataStore, typeName, geomField);
+      final Envelope bbox = org.locationtech.geowave.adapter.vector.util.FeatureGeometryUtils
+          .getGeoBounds(inputDataStore, typeName, geomField);
 
       if (bbox != null) {
         final double xRange = bbox.getMaxX() - bbox.getMinX();

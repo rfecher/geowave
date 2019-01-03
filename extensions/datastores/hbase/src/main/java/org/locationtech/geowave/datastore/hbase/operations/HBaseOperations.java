@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -147,20 +148,17 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   private final HBaseOptions options;
 
   public static final Pair<GeoWaveColumnFamily, Boolean>[] METADATA_CFS_VERSIONING =
-      new Pair[] {
-        ImmutablePair.of(new StringColumnFamily(MetadataType.AIM.name()), true),
-        ImmutablePair.of(new StringColumnFamily(MetadataType.ADAPTER.name()), true),
-        ImmutablePair.of(new StringColumnFamily(MetadataType.STATS.name()), false),
-        ImmutablePair.of(new StringColumnFamily(MetadataType.INDEX.name()), true),
-        ImmutablePair.of(new StringColumnFamily(MetadataType.INTERNAL_ADAPTER.name()), true),
-      };
+      new Pair[] {ImmutablePair.of(new StringColumnFamily(MetadataType.AIM.name()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.ADAPTER.name()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.STATS.name()), false),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.INDEX.name()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.INTERNAL_ADAPTER.name()), true),};
 
   public static final int MERGING_MAX_VERSIONS = HConstants.ALL_VERSIONS;
   public static final int DEFAULT_MAX_VERSIONS = 1;
 
-  public HBaseOperations(
-      final String zookeeperInstances, final String geowaveNamespace, final HBaseOptions options)
-      throws IOException {
+  public HBaseOperations(final String zookeeperInstances, final String geowaveNamespace,
+      final HBaseOptions options) throws IOException {
     conn = ConnectionPool.getInstance().getConnection(zookeeperInstances);
     tableNamespace = geowaveNamespace;
 
@@ -170,8 +168,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     this.options = options;
   }
 
-  public HBaseOperations(
-      final Connection connection, final String geowaveNamespace, final HBaseOptions options) {
+  public HBaseOperations(final Connection connection, final String geowaveNamespace,
+      final HBaseOptions options) {
     conn = connection;
 
     tableNamespace = geowaveNamespace;
@@ -184,9 +182,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
   public static HBaseOperations createOperations(final HBaseRequiredOptions options)
       throws IOException {
-    return new HBaseOperations(
-        options.getZookeeper(),
-        options.getGeoWaveNamespace(),
+    return new HBaseOperations(options.getZookeeper(), options.getGeoWaveNamespace(),
         (HBaseOptions) options.getStoreOptions());
   }
 
@@ -229,11 +225,9 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     return TableName.valueOf(getQualifiedTableName(tableName));
   }
 
-  protected void createTable(
-      final Set<ByteArray> preSplits,
+  protected void createTable(final Set<ByteArray> preSplits,
       final Pair<GeoWaveColumnFamily, Boolean>[] columnFamiliesAndVersioningPairs,
-      final GeoWaveColumnFamilyFactory columnFamilyFactory,
-      final TableName tableName)
+      final GeoWaveColumnFamilyFactory columnFamilyFactory, final TableName tableName)
       throws IOException {
     synchronized (ADMIN_MUTEX) {
       try (Admin admin = conn.getAdmin()) {
@@ -242,8 +236,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
           final HashSet<GeoWaveColumnFamily> cfSet = new HashSet<>();
 
-          for (final Pair<GeoWaveColumnFamily, Boolean> columnFamilyAndVersioning :
-              columnFamiliesAndVersioningPairs) {
+          for (final Pair<GeoWaveColumnFamily, Boolean> columnFamilyAndVersioning : columnFamiliesAndVersioningPairs) {
             final HColumnDescriptor column =
                 columnFamilyAndVersioning.getLeft().toColumnDescriptor();
             if (!columnFamilyAndVersioning.getRight()) {
@@ -258,8 +251,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
           try {
             if (!preSplits.isEmpty()) {
-              admin.createTable(
-                  desc, preSplits.stream().map(id -> id.getBytes()).toArray(i -> new byte[i][]));
+              admin.createTable(desc,
+                  preSplits.stream().map(id -> id.getBytes()).toArray(i -> new byte[i][]));
             } else {
               admin.createTable(desc);
             }
@@ -274,54 +267,36 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     }
   }
 
-  protected void createTable(
-      final Set<ByteArray> preSplits,
+  protected void createTable(final Set<ByteArray> preSplits,
       final GeoWaveColumnFamily[] columnFamilies,
-      final GeoWaveColumnFamilyFactory columnFamilyFactory,
-      final boolean enableVersioning,
-      final TableName tableName)
-      throws IOException {
-    createTable(
-        preSplits,
-        Arrays.stream(columnFamilies)
-            .map(cf -> ImmutablePair.of(cf, enableVersioning))
-            .toArray(Pair[]::new),
-        columnFamilyFactory,
-        tableName);
+      final GeoWaveColumnFamilyFactory columnFamilyFactory, final boolean enableVersioning,
+      final TableName tableName) throws IOException {
+    createTable(preSplits, Arrays.stream(columnFamilies)
+        .map(cf -> ImmutablePair.of(cf, enableVersioning)).toArray(Pair[]::new),
+        columnFamilyFactory, tableName);
   }
 
-  public boolean verifyColumnFamily(
-      final short columnFamily,
-      final boolean enableVersioning,
-      final String tableNameStr,
-      final boolean addIfNotExist) {
+  public boolean verifyColumnFamily(final short columnFamily, final boolean enableVersioning,
+      final String tableNameStr, final boolean addIfNotExist) {
     final TableName tableName = getTableName(tableNameStr);
 
     final GeoWaveColumnFamily[] columnFamilies = new GeoWaveColumnFamily[1];
     columnFamilies[0] = new StringColumnFamily(ByteArrayUtils.shortToString(columnFamily));
 
     try {
-      return verifyColumnFamilies(
-          columnFamilies,
-          StringColumnFamilyFactory.getSingletonInstance(),
-          enableVersioning,
-          tableName,
-          addIfNotExist);
+      return verifyColumnFamilies(columnFamilies, StringColumnFamilyFactory.getSingletonInstance(),
+          enableVersioning, tableName, addIfNotExist);
     } catch (final IOException e) {
-      LOGGER.error(
-          "Error verifying column family " + columnFamily + " on table " + tableNameStr, e);
+      LOGGER.error("Error verifying column family " + columnFamily + " on table " + tableNameStr,
+          e);
     }
 
     return false;
   }
 
-  protected boolean verifyColumnFamilies(
-      final GeoWaveColumnFamily[] columnFamilies,
-      final GeoWaveColumnFamilyFactory columnFamilyFactory,
-      final boolean enableVersioning,
-      final TableName tableName,
-      final boolean addIfNotExist)
-      throws IOException {
+  protected boolean verifyColumnFamilies(final GeoWaveColumnFamily[] columnFamilies,
+      final GeoWaveColumnFamilyFactory columnFamilyFactory, final boolean enableVersioning,
+      final TableName tableName, final boolean addIfNotExist) throws IOException {
     // Check the cache first and create the update list
     Set<GeoWaveColumnFamily> cfCacheSet = cfCache.get(tableName);
 
@@ -441,9 +416,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       cfCache.clear();
       partitionCache.clear();
       coprocessorCache.clear();
-      DataAdapterAndIndexCache.getInstance(
-              RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID,
-              tableNamespace,
+      DataAdapterAndIndexCache
+          .getInstance(RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID, tableNamespace,
               HBaseStoreFactoryFamily.TYPE)
           .deleteAll();
     }
@@ -458,35 +432,25 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   public boolean isRowMergingEnabled(final short internalAdapterId, final String indexId) {
-    return DataAdapterAndIndexCache.getInstance(
-            RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID,
-            tableNamespace,
+    return DataAdapterAndIndexCache
+        .getInstance(RowMergingAdapterOptionProvider.ROW_MERGING_ADAPTER_CACHE_ID, tableNamespace,
             HBaseStoreFactoryFamily.TYPE)
         .add(internalAdapterId, indexId);
   }
 
   @Override
-  public boolean deleteAll(
-      final String indexName,
-      final String typeName,
-      final Short adapterId,
+  public boolean deleteAll(final String indexName, final String typeName, final Short adapterId,
       final String... additionalAuthorizations) {
     RowDeleter deleter = null;
     Iterable<Result> scanner = null;
     try {
-      deleter =
-          createRowDeleter(
-              indexName,
-              // these params aren't needed for hbase
-              null,
-              null,
-              additionalAuthorizations);
+      deleter = createRowDeleter(indexName,
+          // these params aren't needed for hbase
+          null, null, additionalAuthorizations);
       Index index = null;
       try (final CloseableIterator<GeoWaveMetadata> it =
-          createMetadataReader(MetadataType.INDEX)
-              .query(
-                  new MetadataQuery(
-                      StringUtils.stringToBinary(indexName), null, additionalAuthorizations))) {
+          createMetadataReader(MetadataType.INDEX).query(new MetadataQuery(
+              StringUtils.stringToBinary(indexName), null, additionalAuthorizations))) {
         if (!it.hasNext()) {
           LOGGER.warn("Unable to find index to delete");
           return false;
@@ -551,8 +515,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     return conn.getTable(getTableName(tableName));
   }
 
-  public boolean verifyCoprocessor(
-      final String tableNameStr, final String coprocessorName, final String coprocessorJar) {
+  public boolean verifyCoprocessor(final String tableNameStr, final String coprocessorName,
+      final String coprocessorJar) {
     try {
       // Check the cache first
       final List<String> checkList = coprocessorCache.get(tableNameStr);
@@ -687,9 +651,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   @Override
-  public boolean mergeData(
-      final Index index,
-      final PersistentAdapterStore adapterStore,
+  public boolean mergeData(final Index index, final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final AdapterIndexMappingStore adapterIndexMappingStore) {
     if (options.isServerSideLibraryEnabled()) {
@@ -705,15 +667,15 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
         return false;
       }
     } else {
-      return DataStoreUtils.mergeData(
-          this, options, index, adapterStore, internalAdapterStore, adapterIndexMappingStore);
+      return DataStoreUtils.mergeData(this, options, index, adapterStore, internalAdapterStore,
+          adapterIndexMappingStore);
     }
     return true;
   }
 
   @Override
-  public boolean mergeStats(
-      final DataStatisticsStore store, final InternalAdapterStore internalAdapterStore) {
+  public boolean mergeStats(final DataStatisticsStore store,
+      final InternalAdapterStore internalAdapterStore) {
     if (options.isServerSideLibraryEnabled()) {
       try (Admin admin = conn.getAdmin()) {
         admin.compact(getTableName(AbstractGeoWavePersistence.METADATA_TABLE));
@@ -734,28 +696,20 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
   public void ensureServerSideOperationsObserverAttached(final String indexName) {
     // Use the server-side operations observer
-    verifyCoprocessor(
-        indexName,
+    verifyCoprocessor(indexName,
         "org.locationtech.geowave.datastore.hbase.coprocessors.ServerSideOperationsObserver",
         options.getCoprocessorJar());
   }
 
-  public void createTable(
-      final Set<ByteArray> preSplits,
-      final String indexName,
-      final boolean enableVersioning,
-      final short internalAdapterId) {
+  public void createTable(final Set<ByteArray> preSplits, final String indexName,
+      final boolean enableVersioning, final short internalAdapterId) {
     final TableName tableName = getTableName(indexName);
 
     final GeoWaveColumnFamily[] columnFamilies = new GeoWaveColumnFamily[1];
     columnFamilies[0] = new StringColumnFamily(ByteArrayUtils.shortToString(internalAdapterId));
     try {
-      createTable(
-          preSplits,
-          columnFamilies,
-          StringColumnFamilyFactory.getSingletonInstance(),
-          enableVersioning,
-          tableName);
+      createTable(preSplits, columnFamilies, StringColumnFamilyFactory.getSingletonInstance(),
+          enableVersioning, tableName);
     } catch (final IOException e) {
       LOGGER.error("Error creating table: " + indexName, e);
     }
@@ -773,15 +727,12 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       columnFamilies[0] =
           new StringColumnFamily(ByteArrayUtils.shortToString(adapter.getAdapterId()));
 
-      createTable(
-          index.getIndexStrategy().getPredefinedSplits(),
-          columnFamilies,
-          StringColumnFamilyFactory.getSingletonInstance(),
-          options.isServerSideLibraryEnabled(),
+      createTable(index.getIndexStrategy().getPredefinedSplits(), columnFamilies,
+          StringColumnFamilyFactory.getSingletonInstance(), options.isServerSideLibraryEnabled(),
           tableName);
 
-      verifyColumnFamilies(
-          columnFamilies, StringColumnFamilyFactory.getSingletonInstance(), true, tableName, true);
+      verifyColumnFamilies(columnFamilies, StringColumnFamilyFactory.getSingletonInstance(), true,
+          tableName, true);
 
       return new HBaseWriter(getBufferedMutator(tableName));
     } catch (final TableNotFoundException e) {
@@ -797,11 +748,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   public MetadataWriter createMetadataWriter(final MetadataType metadataType) {
     final TableName tableName = getTableName(getMetadataTableName(metadataType));
     try {
-      createTable(
-          Collections.EMPTY_SET,
-          METADATA_CFS_VERSIONING,
-          StringColumnFamilyFactory.getSingletonInstance(),
-          tableName);
+      createTable(Collections.EMPTY_SET, METADATA_CFS_VERSIONING,
+          StringColumnFamilyFactory.getSingletonInstance(), tableName);
       if (MetadataType.STATS.equals(metadataType) && options.isServerSideLibraryEnabled()) {
         synchronized (this) {
           if (!iteratorsAttached) {
@@ -809,13 +757,10 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
             final BasicOptionProvider optionProvider = new BasicOptionProvider(new HashMap<>());
             ensureServerSideOperationsObserverAttached(getMetadataTableName(metadataType));
-            ServerOpHelper.addServerSideMerging(
-                this,
+            ServerOpHelper.addServerSideMerging(this,
                 DataStatisticsStoreImpl.STATISTICS_COMBINER_NAME,
-                DataStatisticsStoreImpl.STATS_COMBINER_PRIORITY,
-                MergingServerOp.class.getName(),
-                MergingVisibilityServerOp.class.getName(),
-                optionProvider,
+                DataStatisticsStoreImpl.STATS_COMBINER_PRIORITY, MergingServerOp.class.getName(),
+                MergingVisibilityServerOp.class.getName(), optionProvider,
                 getMetadataTableName(metadataType));
           }
         }
@@ -851,10 +796,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   @Override
-  public RowDeleter createRowDeleter(
-      final String indexName,
-      final PersistentAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore,
+  public RowDeleter createRowDeleter(final String indexName,
+      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
       final String... authorizations) {
     try {
       final TableName tableName = getTableName(indexName);
@@ -875,8 +818,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     // create the multi-row filter
     final List<RowRange> rowRanges = new ArrayList<>();
     if ((ranges == null) || ranges.isEmpty()) {
-      rowRanges.add(
-          new RowRange(HConstants.EMPTY_BYTE_ARRAY, true, HConstants.EMPTY_BYTE_ARRAY, false));
+      rowRanges
+          .add(new RowRange(HConstants.EMPTY_BYTE_ARRAY, true, HConstants.EMPTY_BYTE_ARRAY, false));
     } else {
       for (final ByteArrayRange range : ranges) {
         if (range.getStart() != null) {
@@ -910,8 +853,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     try {
       // Use the row count coprocessor
       if (options.isVerifyCoprocessors()) {
-        verifyCoprocessor(
-            tableName,
+        verifyCoprocessor(tableName,
             "org.locationtech.geowave.datastore.hbase.coprocessors.AggregationEndpoint",
             options.getCoprocessorJar());
       }
@@ -920,8 +862,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
       final AggregationProtosClient.AggregationType.Builder aggregationBuilder =
           AggregationProtosClient.AggregationType.newBuilder();
-      aggregationBuilder.setClassId(
-          ByteString.copyFrom(URLClassloaderUtils.toClassId(aggregation)));
+      aggregationBuilder
+          .setClassId(ByteString.copyFrom(URLClassloaderUtils.toClassId(aggregation)));
 
       if (aggregation.getParameters() != null) {
         final byte[] paramBytes = URLClassloaderUtils.toBinary(aggregation.getParameters());
@@ -943,53 +885,41 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
             readerParams.getCoordinateRanges();
         if (!coords.isEmpty()) {
           final byte[] filterBytes =
-              new HBaseNumericIndexStrategyFilter(
-                      readerParams.getIndex().getIndexStrategy(),
-                      coords.toArray(new MultiDimensionalCoordinateRangesArray[] {}))
-                  .toByteArray();
+              new HBaseNumericIndexStrategyFilter(readerParams.getIndex().getIndexStrategy(),
+                  coords.toArray(new MultiDimensionalCoordinateRangesArray[] {})).toByteArray();
           final ByteString filterByteString =
               ByteString.copyFrom(new byte[] {0}).concat(ByteString.copyFrom(filterBytes));
 
           requestBuilder.setNumericIndexStrategyFilter(filterByteString);
         }
       }
-      requestBuilder.setModel(
-          ByteString.copyFrom(
-              URLClassloaderUtils.toBinary(readerParams.getIndex().getIndexModel())));
+      requestBuilder.setModel(ByteString
+          .copyFrom(URLClassloaderUtils.toBinary(readerParams.getIndex().getIndexModel())));
 
-      final int maxRangeDecomposition =
-          readerParams.getMaxRangeDecomposition() == null
-              ? options.getAggregationMaxRangeDecomposition()
-              : readerParams.getMaxRangeDecomposition();
-      final MultiRowRangeFilter multiFilter =
-          getMultiRowRangeFilter(
-              DataStoreUtils.constraintsToQueryRanges(
-                      readerParams.getConstraints(),
-                      readerParams.getIndex().getIndexStrategy(),
-                      null,
-                      maxRangeDecomposition)
-                  .getCompositeQueryRanges());
+      final int maxRangeDecomposition = readerParams.getMaxRangeDecomposition() == null
+          ? options.getAggregationMaxRangeDecomposition()
+          : readerParams.getMaxRangeDecomposition();
+      final MultiRowRangeFilter multiFilter = getMultiRowRangeFilter(DataStoreUtils
+          .constraintsToQueryRanges(readerParams.getConstraints(),
+              readerParams.getIndex().getIndexStrategy(), null, maxRangeDecomposition)
+          .getCompositeQueryRanges());
       if (multiFilter != null) {
         requestBuilder.setRangeFilter(ByteString.copyFrom(multiFilter.toByteArray()));
       }
       if (readerParams.getAggregation().getLeft() != null) {
         if (readerParams.getAggregation().getRight() instanceof CommonIndexAggregation) {
-          requestBuilder.setInternalAdapterId(
-              ByteString.copyFrom(
-                  ByteArrayUtils.shortToByteArray(
-                      readerParams.getAggregation().getLeft().getAdapterId())));
+          requestBuilder.setInternalAdapterId(ByteString.copyFrom(ByteArrayUtils
+              .shortToByteArray(readerParams.getAggregation().getLeft().getAdapterId())));
         } else {
-          requestBuilder.setAdapter(
-              ByteString.copyFrom(
-                  URLClassloaderUtils.toBinary(readerParams.getAggregation().getLeft())));
+          requestBuilder.setAdapter(ByteString
+              .copyFrom(URLClassloaderUtils.toBinary(readerParams.getAggregation().getLeft())));
         }
       }
 
       if ((readerParams.getAdditionalAuthorizations() != null)
           && (readerParams.getAdditionalAuthorizations().length > 0)) {
-        requestBuilder.setVisLabels(
-            ByteString.copyFrom(
-                StringUtils.stringsToBinary(readerParams.getAdditionalAuthorizations())));
+        requestBuilder.setVisLabels(ByteString
+            .copyFrom(StringUtils.stringsToBinary(readerParams.getAdditionalAuthorizations())));
       }
 
       if (readerParams.isMixedVisibility()) {
@@ -1019,16 +949,13 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
         try (final Table table = getTable(tableName)) {
           results =
-              table.coprocessorService(
-                  AggregationProtosClient.AggregationService.class,
-                  startRow,
-                  endRow,
-                  new Batch.Call<AggregationProtosClient.AggregationService, ByteString>() {
+              table.coprocessorService(AggregationProtosClient.AggregationService.class, startRow,
+                  endRow, new Batch.Call<AggregationProtosClient.AggregationService, ByteString>() {
                     @Override
                     public ByteString call(final AggregationProtosClient.AggregationService counter)
                         throws IOException {
-                      final BlockingRpcCallback<AggregationProtosClient.AggregationResponse>
-                          rpcCallback = new BlockingRpcCallback<>();
+                      final BlockingRpcCallback<AggregationProtosClient.AggregationResponse> rpcCallback =
+                          new BlockingRpcCallback<>();
                       counter.aggregate(null, request, rpcCallback);
                       final AggregationProtosClient.AggregationResponse response =
                           rpcCallback.get();
@@ -1043,12 +970,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
         } catch (final RegionException e) {
           retries++;
           if (retries <= MAX_AGGREGATE_RETRIES) {
-            LOGGER.warn(
-                "Aggregate timed out due to unavailable region. Retrying ("
-                    + retries
-                    + " of "
-                    + MAX_AGGREGATE_RETRIES
-                    + ")");
+            LOGGER.warn("Aggregate timed out due to unavailable region. Retrying (" + retries
+                + " of " + MAX_AGGREGATE_RETRIES + ")");
             shouldRetry = true;
           }
         }
@@ -1059,11 +982,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
         return null;
       }
 
-      return Iterators.transform(
-          results.values().iterator(),
-          b ->
-              new GeoWaveRowImpl(
-                  null, new GeoWaveValue[] {new GeoWaveValueImpl(null, null, b.toByteArray())}));
+      return Iterators.transform(results.values().iterator(), b -> new GeoWaveRowImpl(null,
+          new GeoWaveValue[] {new GeoWaveValueImpl(null, null, b.toByteArray())}));
     } catch (final Exception e) {
       LOGGER.error("Error during aggregation.", e);
     } catch (final Throwable e) {
@@ -1081,8 +1001,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     try {
       // Use the row count coprocessor
       if (options.isVerifyCoprocessors()) {
-        verifyCoprocessor(
-            tableName,
+        verifyCoprocessor(tableName,
             "org.locationtech.geowave.datastore.hbase.coprocessors.HBaseBulkDeleteEndpoint",
             options.getCoprocessorJar());
       }
@@ -1105,10 +1024,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
             readerParams.getCoordinateRanges();
         if (!coords.isEmpty()) {
           final byte[] filterBytes =
-              new HBaseNumericIndexStrategyFilter(
-                      readerParams.getIndex().getIndexStrategy(),
-                      coords.toArray(new MultiDimensionalCoordinateRangesArray[] {}))
-                  .toByteArray();
+              new HBaseNumericIndexStrategyFilter(readerParams.getIndex().getIndexStrategy(),
+                  coords.toArray(new MultiDimensionalCoordinateRangesArray[] {})).toByteArray();
           final ByteString filterByteString =
               ByteString.copyFrom(new byte[] {0}).concat(ByteString.copyFrom(filterBytes));
 
@@ -1144,16 +1061,13 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
         endRow = aggRange.getEnd().getBytes();
       }
       final Map<byte[], Long> results =
-          table.coprocessorService(
-              HBaseBulkDeleteProtosClient.BulkDeleteService.class,
-              startRow,
-              endRow,
-              new Batch.Call<HBaseBulkDeleteProtosClient.BulkDeleteService, Long>() {
+          table.coprocessorService(HBaseBulkDeleteProtosClient.BulkDeleteService.class, startRow,
+              endRow, new Batch.Call<HBaseBulkDeleteProtosClient.BulkDeleteService, Long>() {
                 @Override
                 public Long call(final HBaseBulkDeleteProtosClient.BulkDeleteService counter)
                     throws IOException {
-                  final BlockingRpcCallback<HBaseBulkDeleteProtosClient.BulkDeleteResponse>
-                      rpcCallback = new BlockingRpcCallback<>();
+                  final BlockingRpcCallback<HBaseBulkDeleteProtosClient.BulkDeleteResponse> rpcCallback =
+                      new BlockingRpcCallback<>();
                   counter.delete(null, request, rpcCallback);
                   final BulkDeleteResponse response = rpcCallback.get();
                   return response.hasRowsDeleted() ? response.getRowsDeleted() : null;
@@ -1223,9 +1137,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       for (final Entry<String, String> e : config.entrySet()) {
         if (e.getKey().startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
           final String[] parts = e.getKey().split(SPLIT_STRING);
-          if ((parts.length == 5)
-              && parts[1].equals(namespace)
-              && parts[2].equals(qualifier)
+          if ((parts.length == 5) && parts[1].equals(namespace) && parts[2].equals(qualifier)
               && parts[4].equals(ServerSideOperationUtils.SERVER_OP_SCOPES_KEY)) {
             map.put(parts[3], HBaseUtils.stringToScopes(e.getValue()));
           }
@@ -1238,8 +1150,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   @Override
-  public Map<String, String> getServerOpOptions(
-      final String index, final String serverOpName, final ServerOpScope scope) {
+  public Map<String, String> getServerOpOptions(final String index, final String serverOpName,
+      final ServerOpScope scope) {
     final Map<String, String> map = new HashMap<>();
     try (Admin admin = conn.getAdmin()) {
       final TableName tableName = getTableName(index);
@@ -1253,9 +1165,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       for (final Entry<String, String> e : config.entrySet()) {
         if (e.getKey().startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
           final String[] parts = e.getKey().split(SPLIT_STRING);
-          if ((parts.length == 6)
-              && parts[1].equals(namespace)
-              && parts[2].equals(qualifier)
+          if ((parts.length == 6) && parts[1].equals(namespace) && parts[2].equals(qualifier)
               && parts[3].equals(serverOpName)
               && parts[4].equals(ServerSideOperationUtils.SERVER_OP_OPTIONS_PREFIX)) {
             map.put(parts[5], e.getValue());
@@ -1269,17 +1179,14 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   @Override
-  public void removeServerOp(
-      final String index, final String serverOpName, final ImmutableSet<ServerOpScope> scopes) {
+  public void removeServerOp(final String index, final String serverOpName,
+      final ImmutableSet<ServerOpScope> scopes) {
     final TableName table = getTableName(index);
     try (Admin admin = conn.getAdmin()) {
       final HTableDescriptor desc = admin.getTableDescriptor(table);
 
-      if (removeConfig(
-          desc,
-          HBaseUtils.writeTableNameAsConfigSafe(table.getNamespaceAsString()),
-          HBaseUtils.writeTableNameAsConfigSafe(table.getQualifierAsString()),
-          serverOpName)) {
+      if (removeConfig(desc, HBaseUtils.writeTableNameAsConfigSafe(table.getNamespaceAsString()),
+          HBaseUtils.writeTableNameAsConfigSafe(table.getQualifierAsString()), serverOpName)) {
         admin.modifyTable(table, desc);
         waitForUpdate(admin, table, SLEEP_INTERVAL);
       }
@@ -1288,19 +1195,14 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     }
   }
 
-  private static boolean removeConfig(
-      final HTableDescriptor desc,
-      final String namespace,
-      final String qualifier,
-      final String serverOpName) {
+  private static boolean removeConfig(final HTableDescriptor desc, final String namespace,
+      final String qualifier, final String serverOpName) {
     final Map<String, String> config = new HashMap<>(desc.getConfiguration());
     boolean changed = false;
     for (final Entry<String, String> e : config.entrySet()) {
       if (e.getKey().startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
         final String[] parts = e.getKey().split(SPLIT_STRING);
-        if ((parts.length >= 5)
-            && parts[1].equals(namespace)
-            && parts[2].equals(qualifier)
+        if ((parts.length >= 5) && parts[1].equals(namespace) && parts[2].equals(qualifier)
             && parts[3].equals(serverOpName)) {
           changed = true;
           desc.removeConfiguration(e.getKey());
@@ -1310,34 +1212,21 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     return changed;
   }
 
-  private static void addConfig(
-      final HTableDescriptor desc,
-      final String namespace,
-      final String qualifier,
-      final int priority,
-      final String serverOpName,
-      final String operationClassName,
-      final ImmutableSet<ServerOpScope> scopes,
+  private static void addConfig(final HTableDescriptor desc, final String namespace,
+      final String qualifier, final int priority, final String serverOpName,
+      final String operationClassName, final ImmutableSet<ServerOpScope> scopes,
       final Map<String, String> properties) {
-    final String basePrefix =
-        new StringBuilder(ServerSideOperationUtils.SERVER_OP_PREFIX)
-            .append(".")
-            .append(HBaseUtils.writeTableNameAsConfigSafe(namespace))
-            .append(".")
-            .append(HBaseUtils.writeTableNameAsConfigSafe(qualifier))
-            .append(".")
-            .append(serverOpName)
-            .append(".")
-            .toString();
+    final String basePrefix = new StringBuilder(ServerSideOperationUtils.SERVER_OP_PREFIX)
+        .append(".").append(HBaseUtils.writeTableNameAsConfigSafe(namespace)).append(".")
+        .append(HBaseUtils.writeTableNameAsConfigSafe(qualifier)).append(".").append(serverOpName)
+        .append(".").toString();
 
-    desc.setConfiguration(
-        basePrefix + ServerSideOperationUtils.SERVER_OP_CLASS_KEY,
+    desc.setConfiguration(basePrefix + ServerSideOperationUtils.SERVER_OP_CLASS_KEY,
         ByteArrayUtils.byteArrayToString(URLClassloaderUtils.toClassId(operationClassName)));
-    desc.setConfiguration(
-        basePrefix + ServerSideOperationUtils.SERVER_OP_PRIORITY_KEY, Integer.toString(priority));
+    desc.setConfiguration(basePrefix + ServerSideOperationUtils.SERVER_OP_PRIORITY_KEY,
+        Integer.toString(priority));
 
-    desc.setConfiguration(
-        basePrefix + ServerSideOperationUtils.SERVER_OP_SCOPES_KEY,
+    desc.setConfiguration(basePrefix + ServerSideOperationUtils.SERVER_OP_SCOPES_KEY,
         scopes.stream().map(ServerOpScope::name).collect(Collectors.joining(",")));
     final String optionsPrefix =
         String.format(basePrefix + ServerSideOperationUtils.SERVER_OP_OPTIONS_PREFIX + ".");
@@ -1347,26 +1236,15 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   @Override
-  public void addServerOp(
-      final String index,
-      final int priority,
-      final String name,
-      final String operationClass,
-      final Map<String, String> properties,
+  public void addServerOp(final String index, final int priority, final String name,
+      final String operationClass, final Map<String, String> properties,
       final ImmutableSet<ServerOpScope> configuredScopes) {
     final TableName table = getTableName(index);
     try (Admin admin = conn.getAdmin()) {
       final HTableDescriptor desc = admin.getTableDescriptor(table);
 
-      addConfig(
-          desc,
-          table.getNamespaceAsString(),
-          table.getQualifierAsString(),
-          priority,
-          name,
-          operationClass,
-          configuredScopes,
-          properties);
+      addConfig(desc, table.getNamespaceAsString(), table.getQualifierAsString(), priority, name,
+          operationClass, configuredScopes, properties);
       admin.modifyTable(table, desc);
       waitForUpdate(admin, table, SLEEP_INTERVAL);
     } catch (final IOException e) {
@@ -1375,12 +1253,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   @Override
-  public void updateServerOp(
-      final String index,
-      final int priority,
-      final String name,
-      final String operationClass,
-      final Map<String, String> properties,
+  public void updateServerOp(final String index, final int priority, final String name,
+      final String operationClass, final Map<String, String> properties,
       final ImmutableSet<ServerOpScope> currentScopes,
       final ImmutableSet<ServerOpScope> newScopes) {
     final TableName table = getTableName(index);
@@ -1421,26 +1295,20 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       final MetadataType type = MetadataType.INDEX;
       final String tableName = getMetadataTableName(type);
       if (!indexExists(tableName)) {
-        createTable(
-            Collections.EMPTY_SET,
-            HBaseOperations.METADATA_CFS_VERSIONING,
+        createTable(Collections.EMPTY_SET, HBaseOperations.METADATA_CFS_VERSIONING,
             StringColumnFamilyFactory.getSingletonInstance(),
             getTableName(getQualifiedTableName(tableName)));
       }
 
       // Use the row count coprocessor
       if (options.isVerifyCoprocessors()) {
-        verifyCoprocessor(
-            tableName,
+        verifyCoprocessor(tableName,
             "org.locationtech.geowave.datastore.hbase.coprocessors.VersionEndpoint",
             options.getCoprocessorJar());
       }
       final Table table = getTable(tableName);
       final Map<byte[], List<String>> versionInfoResponse =
-          table.coprocessorService(
-              VersionProtosClient.VersionService.class,
-              null,
-              null,
+          table.coprocessorService(VersionProtosClient.VersionService.class, null, null,
               new Batch.Call<VersionProtosClient.VersionService, List<String>>() {
                 @Override
                 public List<String> call(final VersionProtosClient.VersionService versionService)
@@ -1462,12 +1330,9 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
         while (values.hasNext()) {
           final List<String> newValue = values.next();
           if (!value.equals(newValue)) {
-            LOGGER.error(
-                "Version Info '"
-                    + Arrays.toString(value.toArray())
-                    + "' and '"
-                    + Arrays.toString(newValue.toArray())
-                    + "' differ.  This may mean that different regions are using different versions of GeoWave.");
+            LOGGER.error("Version Info '" + Arrays.toString(value.toArray()) + "' and '"
+                + Arrays.toString(newValue.toArray())
+                + "' differ.  This may mean that different regions are using different versions of GeoWave.");
           }
         }
         version = VersionUtils.asLineDelimitedString(value);
@@ -1479,11 +1344,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   public boolean createIndex(final Index index) throws IOException {
-    createTable(
-        index.getIndexStrategy().getPredefinedSplits(),
-        new GeoWaveColumnFamily[0],
-        StringColumnFamilyFactory.getSingletonInstance(),
-        options.isServerSideLibraryEnabled(),
+    createTable(index.getIndexStrategy().getPredefinedSplits(), new GeoWaveColumnFamily[0],
+        StringColumnFamilyFactory.getSingletonInstance(), options.isServerSideLibraryEnabled(),
         getTableName(index.getName()));
     return true;
   }
@@ -1503,11 +1365,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       return new HBaseDeleter(readerParams, this);
     } else {
       final RowDeleter rowDeleter =
-          createRowDeleter(
-              readerParams.getIndex().getName(),
-              readerParams.getAdapterStore(),
-              readerParams.getInternalAdapterStore(),
-              readerParams.getAdditionalAuthorizations());
+          createRowDeleter(readerParams.getIndex().getName(), readerParams.getAdapterStore(),
+              readerParams.getInternalAdapterStore(), readerParams.getAdditionalAuthorizations());
       if (rowDeleter != null) {
         return new QueryAndDeleteByRow<>(rowDeleter, createReader(readerParams));
       }

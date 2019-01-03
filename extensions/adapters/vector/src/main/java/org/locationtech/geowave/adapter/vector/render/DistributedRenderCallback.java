@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,8 +42,7 @@ public class DistributedRenderCallback extends GetMapCallbackAdapter {
   @Override
   public Layer beforeLayer(final WMSMapContent mapContent, final Layer layer) {
     // sanity check the style
-    if ((layer instanceof FeatureLayer)
-        && (layer.getStyle() != null)
+    if ((layer instanceof FeatureLayer) && (layer.getStyle() != null)
         && (layer.getStyle().featureTypeStyles() != null)
         && !layer.getStyle().featureTypeStyles().isEmpty()) {
 
@@ -50,22 +50,16 @@ public class DistributedRenderCallback extends GetMapCallbackAdapter {
       final FeatureTypeStyle style = layerStyle.featureTypeStyles().get(0);
       // check if their is a DistributedRender rendering
       // transformation
-      if (style instanceof ProcessFunction
-          && style.getTransformation() != null
+      if (style instanceof ProcessFunction && style.getTransformation() != null
           && (((ProcessFunction) style.getTransformation()).getName() != null)
-          && ((ProcessFunction) style.getTransformation())
-              .getName()
+          && ((ProcessFunction) style.getTransformation()).getName()
               .equals(DistributedRenderProcess.PROCESS_NAME)) {
         // if their is a DistributedRender transformation, we need
         // to provide more information that can only be found
         final DuplicatingStyleVisitor cloner = new DuplicatingStyleVisitor();
         layerStyle.accept(cloner);
-        layer
-            .getQuery()
-            .getHints()
-            .put(
-                DistributedRenderProcess.OPTIONS,
-                new DistributedRenderOptions(wms, mapContent, layerStyle));
+        layer.getQuery().getHints().put(DistributedRenderProcess.OPTIONS,
+            new DistributedRenderOptions(wms, mapContent, layerStyle));
         // now that the options with the distributed render style
         // have been set the original style will be used with
         // distributed rendering
@@ -78,20 +72,18 @@ public class DistributedRenderCallback extends GetMapCallbackAdapter {
         final Style directRasterStyle = (Style) cloner.getCopy();
         directRasterStyle.featureTypeStyles().clear();
         Processors.addProcessFactory(new InternalProcessFactory());
-        directRasterStyle
-            .featureTypeStyles()
-            .add(
-                getDirectRasterStyle(
-                    layer.getFeatureSource().getSchema().getGeometryDescriptor().getLocalName(),
-                    DistributedRenderProcessUtils.getRenderingProcess()));
+        directRasterStyle.featureTypeStyles()
+            .add(getDirectRasterStyle(
+                layer.getFeatureSource().getSchema().getGeometryDescriptor().getLocalName(),
+                DistributedRenderProcessUtils.getRenderingProcess()));
         ((FeatureLayer) layer).setStyle(directRasterStyle);
       }
     }
     return layer;
   }
 
-  private static FeatureTypeStyle getDirectRasterStyle(
-      final String geometryPropertyName, final Expression transformation) {
+  private static FeatureTypeStyle getDirectRasterStyle(final String geometryPropertyName,
+      final Expression transformation) {
     final StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
     final FeatureTypeStyle style = styleFactory.createFeatureTypeStyle();
     final Rule rule = styleFactory.createRule();

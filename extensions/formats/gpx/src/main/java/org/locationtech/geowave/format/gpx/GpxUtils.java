@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -64,21 +65,19 @@ public class GpxUtils {
   public static final String GPX_TRACK_FEATURE = "gpxtrack";
   public static final String GPX_WAYPOINT_FEATURE = "gpxwaypoint";
 
-  private static final ThreadLocal<DateFormat> dateFormatSeconds =
-      new ThreadLocal<DateFormat>() {
-        @Override
-        protected DateFormat initialValue() {
-          return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        }
-      };
+  private static final ThreadLocal<DateFormat> dateFormatSeconds = new ThreadLocal<DateFormat>() {
+    @Override
+    protected DateFormat initialValue() {
+      return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    }
+  };
 
-  private static final ThreadLocal<DateFormat> dateFormatMillis =
-      new ThreadLocal<DateFormat>() {
-        @Override
-        protected DateFormat initialValue() {
-          return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        }
-      };
+  private static final ThreadLocal<DateFormat> dateFormatMillis = new ThreadLocal<DateFormat>() {
+    @Override
+    protected DateFormat initialValue() {
+      return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    }
+  };
 
   public static Date parseDateSeconds(final String source) throws ParseException {
     return dateFormatSeconds.get().parse(source);
@@ -104,95 +103,86 @@ public class GpxUtils {
         if (event.isStartElement()) {
           StartElement node = event.asStartElement();
           switch (node.getName().getLocalPart()) {
-            case "gpxFile":
-              {
-                final AvroGpxTrack gt = new AvroGpxTrack();
-                node = event.asStartElement();
-                @SuppressWarnings("unchecked")
-                final Iterator<Attribute> attributes = node.getAttributes();
-                while (attributes.hasNext()) {
-                  final Attribute a = attributes.next();
-                  switch (a.getName().getLocalPart()) {
-                    case "id":
-                      {
-                        gt.setTrackid(Long.parseLong(a.getValue()));
-                        break;
-                      }
-                    case "timestamp":
-                      {
-                        try {
-                          gt.setTimestamp(parseDateSeconds(a.getValue()).getTime());
+            case "gpxFile": {
+              final AvroGpxTrack gt = new AvroGpxTrack();
+              node = event.asStartElement();
+              @SuppressWarnings("unchecked")
+              final Iterator<Attribute> attributes = node.getAttributes();
+              while (attributes.hasNext()) {
+                final Attribute a = attributes.next();
+                switch (a.getName().getLocalPart()) {
+                  case "id": {
+                    gt.setTrackid(Long.parseLong(a.getValue()));
+                    break;
+                  }
+                  case "timestamp": {
+                    try {
+                      gt.setTimestamp(parseDateSeconds(a.getValue()).getTime());
 
-                        } catch (final Exception t) {
-                          try {
-                            gt.setTimestamp(parseDateMillis(a.getValue()).getTime());
-                          } catch (final Exception t2) {
-                            LOGGER.warn("Unable to format time: " + a.getValue(), t2);
-                          }
-                        }
-                        break;
+                    } catch (final Exception t) {
+                      try {
+                        gt.setTimestamp(parseDateMillis(a.getValue()).getTime());
+                      } catch (final Exception t2) {
+                        LOGGER.warn("Unable to format time: " + a.getValue(), t2);
                       }
-                    case "points":
-                      {
-                        gt.setPoints(Long.parseLong(a.getValue()));
-                        break;
-                      }
-                    case "visibility":
-                      {
-                        gt.setVisibility(a.getValue());
-                        break;
-                      }
-                    case "uid":
-                      {
-                        gt.setUserid(Long.parseLong(a.getValue()));
-                        break;
-                      }
-                    case "user":
-                      {
-                        gt.setUser(a.getValue());
-                        break;
-                      }
+                    }
+                    break;
+                  }
+                  case "points": {
+                    gt.setPoints(Long.parseLong(a.getValue()));
+                    break;
+                  }
+                  case "visibility": {
+                    gt.setVisibility(a.getValue());
+                    break;
+                  }
+                  case "uid": {
+                    gt.setUserid(Long.parseLong(a.getValue()));
+                    break;
+                  }
+                  case "user": {
+                    gt.setUser(a.getValue());
+                    break;
                   }
                 }
-                while (!(event.isEndElement()
-                    && event.asEndElement().getName().getLocalPart().equals("gpxFile"))) {
-                  if (event.isStartElement()) {
-                    node = event.asStartElement();
-                    switch (node.getName().getLocalPart()) {
-                      case "description":
-                        {
-                          event = eventReader.nextEvent();
-                          if (event.isCharacters()) {
-                            gt.setDescription(event.asCharacters().getData());
-                          }
-                          break;
-                        }
-                      case "tags":
-                        {
-                          final List<String> tags = new ArrayList<>();
-                          while (!(event.isEndElement()
-                              && event.asEndElement().getName().getLocalPart().equals("tags"))) {
-                            if (event.isStartElement()) {
-                              node = event.asStartElement();
-                              if (node.getName().getLocalPart().equals("tag")) {
-                                event = eventReader.nextEvent();
-                                if (event.isCharacters()) {
-                                  tags.add(event.asCharacters().getData());
-                                }
-                              }
-                            }
+              }
+              while (!(event.isEndElement()
+                  && event.asEndElement().getName().getLocalPart().equals("gpxFile"))) {
+                if (event.isStartElement()) {
+                  node = event.asStartElement();
+                  switch (node.getName().getLocalPart()) {
+                    case "description": {
+                      event = eventReader.nextEvent();
+                      if (event.isCharacters()) {
+                        gt.setDescription(event.asCharacters().getData());
+                      }
+                      break;
+                    }
+                    case "tags": {
+                      final List<String> tags = new ArrayList<>();
+                      while (!(event.isEndElement()
+                          && event.asEndElement().getName().getLocalPart().equals("tags"))) {
+                        if (event.isStartElement()) {
+                          node = event.asStartElement();
+                          if (node.getName().getLocalPart().equals("tag")) {
                             event = eventReader.nextEvent();
+                            if (event.isCharacters()) {
+                              tags.add(event.asCharacters().getData());
+                            }
                           }
-                          gt.setTags(tags);
-                          break;
                         }
+                        event = eventReader.nextEvent();
+                      }
+                      gt.setTags(tags);
+                      break;
                     }
                   }
-                  event = eventReader.nextEvent();
                 }
-                metadata.put(gt.getTrackid(), gt);
-                break;
+                event = eventReader.nextEvent();
               }
+              metadata.put(gt.getTrackid(), gt);
+              break;
+            }
           }
         }
       }
@@ -212,30 +202,30 @@ public class GpxUtils {
 
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Geometry.class).nillable(true).buildDescriptor("geometry"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Name"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Name"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Date.class).nillable(true).buildDescriptor("StartTimeStamp"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Date.class).nillable(true).buildDescriptor("EndTimeStamp"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Long.class).nillable(true).buildDescriptor("Duration"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Long.class).nillable(true).buildDescriptor("Duration"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Long.class).nillable(true).buildDescriptor("NumberPoints"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("TrackId"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Long.class).nillable(true).buildDescriptor("UserId"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("User"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("TrackId"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Long.class).nillable(true).buildDescriptor("UserId"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("User"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Description"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Tags"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Source"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Comment"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Tags"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Source"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Comment"));
 
     return simpleFeatureTypeBuilder.buildFeatureType();
   }
@@ -249,22 +239,22 @@ public class GpxUtils {
 
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Geometry.class).nillable(true).buildDescriptor("geometry"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Name"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Name"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Long.class).nillable(true).buildDescriptor("NumberPoints"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("TrackId"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Symbol"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("User"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("TrackId"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Symbol"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("User"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Description"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Source"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Comment"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Source"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Comment"));
 
     return simpleFeatureTypeBuilder.buildFeatureType();
   }
@@ -278,48 +268,42 @@ public class GpxUtils {
 
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Geometry.class).nillable(true).buildDescriptor("geometry"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Latitude"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Latitude"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Longitude"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Elevation"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Date.class).nillable(true).buildDescriptor("Timestamp"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Comment"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Date.class).nillable(true).buildDescriptor("Timestamp"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Comment"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Integer.class).nillable(true).buildDescriptor("Satellites"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("VDOP"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("HDOP"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("PDOP"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Symbol"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(String.class)
-            .nillable(true)
-            .buildDescriptor("Classification"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("VDOP"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("HDOP"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("PDOP"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Symbol"));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
+        .buildDescriptor("Classification"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("GeoHeight"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Course"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(Double.class)
-            .nillable(true)
-            .buildDescriptor("MagneticVariation"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Source"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Link"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Fix"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Integer.class).nillable(true).buildDescriptor("Station"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Course"));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Double.class).nillable(true)
+        .buildDescriptor("MagneticVariation"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Source"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Link"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Fix"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Integer.class).nillable(true).buildDescriptor("Station"));
 
     return simpleFeatureTypeBuilder.buildFeatureType();
   }
@@ -333,37 +317,34 @@ public class GpxUtils {
 
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Geometry.class).nillable(true).buildDescriptor("geometry"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Latitude"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Latitude"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Longitude"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Elevation"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Name"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Comment"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Name"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Comment"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Description"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Symbol"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Link"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Source"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(Integer.class).nillable(true).buildDescriptor("Station"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("URL"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("URLName"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Fix"));
-    simpleFeatureTypeBuilder.add(
-        attributeTypeBuilder
-            .binding(Double.class)
-            .nillable(true)
-            .buildDescriptor("MagneticVariation"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Symbol"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Link"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Source"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(Integer.class).nillable(true).buildDescriptor("Station"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("URL"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("URLName"));
+    simpleFeatureTypeBuilder
+        .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Fix"));
+    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Double.class).nillable(true)
+        .buildDescriptor("MagneticVariation"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("GeoHeight"));
     simpleFeatureTypeBuilder.add(

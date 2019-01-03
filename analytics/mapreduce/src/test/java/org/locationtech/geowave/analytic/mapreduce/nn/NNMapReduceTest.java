@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -11,7 +12,6 @@ package org.locationtech.geowave.analytic.mapreduce.nn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +63,8 @@ public class NNMapReduceTest {
 
   @Before
   public void setUp() throws IOException {
-    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies()
-        .put("memory", new MemoryStoreFactoryFamily());
+    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put("memory",
+        new MemoryStoreFactoryFamily());
     final NNMapReduce.NNMapper<SimpleFeature> nnMapper = new NNMapReduce.NNMapper<>();
     final NNMapReduce.NNReducer<SimpleFeature, Text, Text, Boolean> nnReducer =
         new NNMapReduce.NNSimpleFeatureIDOutputReducer();
@@ -72,33 +72,20 @@ public class NNMapReduceTest {
     mapDriver = MapDriver.newMapDriver(nnMapper);
     reduceDriver = ReduceDriver.newReduceDriver(nnReducer);
 
-    mapDriver
-        .getConfiguration()
-        .set(
-            GeoWaveConfiguratorBase.enumToConfKey(
-                NNMapReduce.class, PartitionParameters.Partition.DISTANCE_THRESHOLDS),
-            "0.0002,0.0002");
+    mapDriver.getConfiguration().set(GeoWaveConfiguratorBase.enumToConfKey(NNMapReduce.class,
+        PartitionParameters.Partition.DISTANCE_THRESHOLDS), "0.0002,0.0002");
 
-    reduceDriver
-        .getConfiguration()
-        .setClass(
-            GeoWaveConfiguratorBase.enumToConfKey(
-                NNMapReduce.class, CommonParameters.Common.DISTANCE_FUNCTION_CLASS),
-            FeatureCentroidOrthodromicDistanceFn.class,
-            DistanceFn.class);
-    reduceDriver
-        .getConfiguration()
-        .setDouble(
-            GeoWaveConfiguratorBase.enumToConfKey(
-                NNMapReduce.class, PartitionParameters.Partition.MAX_DISTANCE),
-            0.001);
+    reduceDriver.getConfiguration().setClass(
+        GeoWaveConfiguratorBase.enumToConfKey(NNMapReduce.class,
+            CommonParameters.Common.DISTANCE_FUNCTION_CLASS),
+        FeatureCentroidOrthodromicDistanceFn.class, DistanceFn.class);
+    reduceDriver.getConfiguration().setDouble(GeoWaveConfiguratorBase
+        .enumToConfKey(NNMapReduce.class, PartitionParameters.Partition.MAX_DISTANCE), 0.001);
 
     ftype =
-        AnalyticFeature.createGeometryFeatureAdapter(
-                "centroid",
-                new String[] {"extra1"},
-                BasicFeatureTypes.DEFAULT_NAMESPACE,
-                ClusteringUtils.CLUSTERING_CRS)
+        AnalyticFeature
+            .createGeometryFeatureAdapter("centroid", new String[] {"extra1"},
+                BasicFeatureTypes.DEFAULT_NAMESPACE, ClusteringUtils.CLUSTERING_CRS)
             .getFeatureType();
 
     final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
@@ -108,28 +95,18 @@ public class NNMapReduceTest {
     JobContextAdapterStore.addDataAdapter(mapDriver.getConfiguration(), adapter);
     internalAdapterId = InternalAdapterStoreImpl.getLazyInitialAdapterId(adapter.getTypeName());
     JobContextAdapterStore.addDataAdapter(reduceDriver.getConfiguration(), adapter);
-    JobContextInternalAdapterStore.addTypeName(
-        mapDriver.getConfiguration(), adapter.getTypeName(), internalAdapterId);
-    JobContextInternalAdapterStore.addTypeName(
-        reduceDriver.getConfiguration(), adapter.getTypeName(), internalAdapterId);
+    JobContextInternalAdapterStore.addTypeName(mapDriver.getConfiguration(), adapter.getTypeName(),
+        internalAdapterId);
+    JobContextInternalAdapterStore.addTypeName(reduceDriver.getConfiguration(),
+        adapter.getTypeName(), internalAdapterId);
 
     serializations();
   }
 
   private SimpleFeature createTestFeature(final Coordinate coord) {
-    return AnalyticFeature.createGeometryFeature(
-        ftype,
-        "b1",
-        UUID.randomUUID().toString(),
-        "fred",
-        "NA",
-        20.30203,
-        factory.createPoint(coord),
-        new String[] {"extra1"},
-        new double[] {0.022},
-        1,
-        1,
-        0);
+    return AnalyticFeature.createGeometryFeature(ftype, "b1", UUID.randomUUID().toString(), "fred",
+        "NA", 20.30203, factory.createPoint(coord), new String[] {"extra1"}, new double[] {0.022},
+        1, 1, 0);
   }
 
   private void serializations() {
@@ -172,23 +149,18 @@ public class NNMapReduceTest {
     mapDriver.addInput(inputKey4, feature4);
     final List<Pair<PartitionDataWritable, AdapterWithObjectWritable>> mapperResults =
         mapDriver.run();
-    assertEquals(
-        10, // includes overlap
+    assertEquals(10, // includes overlap
         mapperResults.size());
     assertFalse(getPartitionDataFor(mapperResults, feature1.getID(), true).isEmpty());
     assertFalse(getPartitionDataFor(mapperResults, feature2.getID(), true).isEmpty());
     assertFalse(getPartitionDataFor(mapperResults, feature2.getID(), false).isEmpty());
     assertFalse(getPartitionDataFor(mapperResults, feature3.getID(), true).isEmpty());
 
-    assertTrue(
-        intersects(
-            getPartitionDataFor(mapperResults, feature1.getID(), true),
-            getPartitionDataFor(mapperResults, feature3.getID(), true)));
+    assertTrue(intersects(getPartitionDataFor(mapperResults, feature1.getID(), true),
+        getPartitionDataFor(mapperResults, feature3.getID(), true)));
 
-    assertTrue(
-        intersects(
-            getPartitionDataFor(mapperResults, feature2.getID(), false),
-            getPartitionDataFor(mapperResults, feature4.getID(), false)));
+    assertTrue(intersects(getPartitionDataFor(mapperResults, feature2.getID(), false),
+        getPartitionDataFor(mapperResults, feature4.getID(), false)));
 
     final List<Pair<PartitionDataWritable, List<AdapterWithObjectWritable>>> partitions =
         getReducerDataFromMapperInput(mapperResults);
@@ -247,9 +219,8 @@ public class NNMapReduceTest {
     return null;
   }
 
-  private List<Pair<PartitionDataWritable, List<AdapterWithObjectWritable>>>
-      getReducerDataFromMapperInput(
-          final List<Pair<PartitionDataWritable, AdapterWithObjectWritable>> mapperResults) {
+  private List<Pair<PartitionDataWritable, List<AdapterWithObjectWritable>>> getReducerDataFromMapperInput(
+      final List<Pair<PartitionDataWritable, AdapterWithObjectWritable>> mapperResults) {
     final List<Pair<PartitionDataWritable, List<AdapterWithObjectWritable>>> reducerInputSet =
         new ArrayList<>();
     for (final Pair<PartitionDataWritable, AdapterWithObjectWritable> pair : mapperResults) {
@@ -258,11 +229,9 @@ public class NNMapReduceTest {
     return reducerInputSet;
   }
 
-  private List<AdapterWithObjectWritable> getListFor(
-      final PartitionDataWritable pd,
+  private List<AdapterWithObjectWritable> getListFor(final PartitionDataWritable pd,
       final List<Pair<PartitionDataWritable, List<AdapterWithObjectWritable>>> reducerInputSet) {
-    for (final Pair<PartitionDataWritable, List<AdapterWithObjectWritable>> pair :
-        reducerInputSet) {
+    for (final Pair<PartitionDataWritable, List<AdapterWithObjectWritable>> pair : reducerInputSet) {
       if (pair.getFirst().compareTo(pd) == 0) {
         return pair.getSecond();
       }
@@ -285,15 +254,11 @@ public class NNMapReduceTest {
 
   private List<PartitionData> getPartitionDataFor(
       final List<Pair<PartitionDataWritable, AdapterWithObjectWritable>> mapperResults,
-      final String id,
-      final boolean primary) {
+      final String id, final boolean primary) {
     final ArrayList<PartitionData> results = new ArrayList<>();
     for (final Pair<PartitionDataWritable, AdapterWithObjectWritable> pair : mapperResults) {
-      if (((FeatureWritable) pair.getSecond().getObjectWritable().get())
-              .getFeature()
-              .getID()
-              .equals(id)
-          && (pair.getFirst().partitionData.isPrimary() == primary)) {
+      if (((FeatureWritable) pair.getSecond().getObjectWritable().get()).getFeature().getID()
+          .equals(id) && (pair.getFirst().partitionData.isPrimary() == primary)) {
         results.add(pair.getFirst().partitionData);
       }
     }

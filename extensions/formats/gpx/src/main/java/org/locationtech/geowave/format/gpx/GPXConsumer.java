@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,13 +42,15 @@ import org.slf4j.LoggerFactory;
  * Consumes a GPX file. The consumer is an iterator, parsing the input stream and returning results
  * as the stream is parsed. Data is emitted for each element at the 'end' tag.
  *
- * <p>Caution: Developers should maintain the cohesiveness of attribute names associated with each
+ * <p>
+ * Caution: Developers should maintain the cohesiveness of attribute names associated with each
  * feature type defined in {@link GpxUtils}.
  *
- * <p>Route way points and way points are treated similarly except way points do not include the
- * parent ID information in their ID. The assumption is that the name, lat and lon attributes are
- * globally unique. In contrast, Route way points include the file name and parent route name as
- * part of their ID. Routes are not assumed to be global.
+ * <p>
+ * Route way points and way points are treated similarly except way points do not include the parent
+ * ID information in their ID. The assumption is that the name, lat and lon attributes are globally
+ * unique. In contrast, Route way points include the file name and parent route name as part of
+ * their ID. Routes are not assumed to be global.
  */
 public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>> {
 
@@ -86,19 +89,14 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
    * @param primaryIndexId
    * @param inputID prefix to all IDs except waypoints (see uniqueWayPoints)
    * @param additionalData additional attributes to add the over-ride attributes in the GPX data
-   *     file. The attribute are grouped by path. "gpx.trk", "gpx.rte" and "gpx.wpt"
+   *        file. The attribute are grouped by path. "gpx.trk", "gpx.rte" and "gpx.wpt"
    * @param globalWayPoints if true, waypoints are globally unique, otherwise are unique to this
-   *     file and should have inputID and other components added to the identifier
+   *        file and should have inputID and other components added to the identifier
    * @param globalVisibility
    */
-  public GPXConsumer(
-      final InputStream fileStream,
-      final String[] indexNames,
-      final String inputID,
-      final Map<String, Map<String, String>> additionalData,
-      final boolean uniqueWayPoints,
-      final String globalVisibility,
-      final double maxLength) {
+  public GPXConsumer(final InputStream fileStream, final String[] indexNames, final String inputID,
+      final Map<String, Map<String, String>> additionalData, final boolean uniqueWayPoints,
+      final String globalVisibility, final double maxLength) {
     super();
     this.fileStream = fileStream;
     this.indexNames = indexNames;
@@ -234,128 +232,106 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
   private boolean processElementValues(final StartElement node, final GPXDataElement element)
       throws Exception {
     switch (node.getName().getLocalPart()) {
-      case "ele":
-        {
-          element.elevation = Double.parseDouble(getChildCharacters(eventReader, "ele"));
-          break;
-        }
-      case "magvar":
-        {
-          element.magvar = Double.parseDouble(getChildCharacters(eventReader, "magvar"));
-          break;
-        }
-      case "geoidheight":
-        {
-          element.geoidheight = Double.parseDouble(getChildCharacters(eventReader, "geoidheight"));
-          break;
-        }
-      case "name":
-        {
-          element.name = getChildCharacters(eventReader, "name");
-          break;
-        }
-      case "cmt":
-        {
-          element.cmt = getChildCharacters(eventReader, "cmt");
-          break;
-        }
-      case "desc":
-        {
-          element.desc = getChildCharacters(eventReader, "desc");
-          break;
-        }
-      case "src":
-        {
-          element.src = getChildCharacters(eventReader, "src");
-          break;
-        }
-      case "link":
-        {
-          element.link = getChildCharacters(eventReader, "link");
-          break;
-        }
-      case "sym":
-        {
-          element.sym = getChildCharacters(eventReader, "sym");
-          break;
-        }
-      case "type":
-        {
-          element.type = getChildCharacters(eventReader, "type");
-          break;
-        }
-      case "sat":
-        {
-          element.sat = Integer.parseInt(getChildCharacters(eventReader, "sat"));
-          break;
-        }
-      case "dgpsid":
-        {
-          element.dgpsid = Integer.parseInt(getChildCharacters(eventReader, "dgpsid"));
-          break;
-        }
-      case "vdop":
-        {
-          element.vdop = Double.parseDouble(getChildCharacters(eventReader, "vdop"));
-          break;
-        }
-      case "fix":
-        {
-          element.fix = getChildCharacters(eventReader, "fix");
-          break;
-        }
-      case "course":
-        {
-          element.course = Double.parseDouble(getChildCharacters(eventReader, "course"));
-          break;
-        }
-      case "speed":
-        {
-          element.speed = Double.parseDouble(getChildCharacters(eventReader, "speed"));
-          break;
-        }
-      case "hdop":
-        {
-          element.hdop = Double.parseDouble(getChildCharacters(eventReader, "hdop"));
-          break;
-        }
-      case "pdop":
-        {
-          element.pdop = Double.parseDouble(getChildCharacters(eventReader, "pdop"));
-          break;
-        }
-      case "url":
-        {
-          element.url = getChildCharacters(eventReader, "url");
-          break;
-        }
-      case "number":
-        {
-          element.number = getChildCharacters(eventReader, "number");
-          break;
-        }
-      case "urlname":
-        {
-          element.urlname = getChildCharacters(eventReader, "urlname");
-          break;
-        }
-      case "time":
-        {
+      case "ele": {
+        element.elevation = Double.parseDouble(getChildCharacters(eventReader, "ele"));
+        break;
+      }
+      case "magvar": {
+        element.magvar = Double.parseDouble(getChildCharacters(eventReader, "magvar"));
+        break;
+      }
+      case "geoidheight": {
+        element.geoidheight = Double.parseDouble(getChildCharacters(eventReader, "geoidheight"));
+        break;
+      }
+      case "name": {
+        element.name = getChildCharacters(eventReader, "name");
+        break;
+      }
+      case "cmt": {
+        element.cmt = getChildCharacters(eventReader, "cmt");
+        break;
+      }
+      case "desc": {
+        element.desc = getChildCharacters(eventReader, "desc");
+        break;
+      }
+      case "src": {
+        element.src = getChildCharacters(eventReader, "src");
+        break;
+      }
+      case "link": {
+        element.link = getChildCharacters(eventReader, "link");
+        break;
+      }
+      case "sym": {
+        element.sym = getChildCharacters(eventReader, "sym");
+        break;
+      }
+      case "type": {
+        element.type = getChildCharacters(eventReader, "type");
+        break;
+      }
+      case "sat": {
+        element.sat = Integer.parseInt(getChildCharacters(eventReader, "sat"));
+        break;
+      }
+      case "dgpsid": {
+        element.dgpsid = Integer.parseInt(getChildCharacters(eventReader, "dgpsid"));
+        break;
+      }
+      case "vdop": {
+        element.vdop = Double.parseDouble(getChildCharacters(eventReader, "vdop"));
+        break;
+      }
+      case "fix": {
+        element.fix = getChildCharacters(eventReader, "fix");
+        break;
+      }
+      case "course": {
+        element.course = Double.parseDouble(getChildCharacters(eventReader, "course"));
+        break;
+      }
+      case "speed": {
+        element.speed = Double.parseDouble(getChildCharacters(eventReader, "speed"));
+        break;
+      }
+      case "hdop": {
+        element.hdop = Double.parseDouble(getChildCharacters(eventReader, "hdop"));
+        break;
+      }
+      case "pdop": {
+        element.pdop = Double.parseDouble(getChildCharacters(eventReader, "pdop"));
+        break;
+      }
+      case "url": {
+        element.url = getChildCharacters(eventReader, "url");
+        break;
+      }
+      case "number": {
+        element.number = getChildCharacters(eventReader, "number");
+        break;
+      }
+      case "urlname": {
+        element.urlname = getChildCharacters(eventReader, "urlname");
+        break;
+      }
+      case "time": {
+        try {
+          element.timestamp =
+              GpxUtils.parseDateSeconds(getChildCharacters(eventReader, "time")).getTime();
+
+        } catch (final ParseException e) {
+          LOGGER.warn("Unable to parse date in seconds", e);
           try {
             element.timestamp =
-                GpxUtils.parseDateSeconds(getChildCharacters(eventReader, "time")).getTime();
-
-          } catch (final ParseException e) {
-            LOGGER.warn("Unable to parse date in seconds", e);
-            try {
-              element.timestamp =
-                  GpxUtils.parseDateMillis(getChildCharacters(eventReader, "time")).getTime();
-            } catch (final ParseException e2) {
-              LOGGER.warn("Unable to parse date in millis", e2);
-            }
+                GpxUtils.parseDateMillis(getChildCharacters(eventReader, "time")).getTime();
+          } catch (final ParseException e2) {
+            LOGGER.warn("Unable to parse date in millis", e2);
           }
-          break;
         }
+        break;
+      }
       default:
         return false;
     }
@@ -435,8 +411,8 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
       child.id = ++childIdCounter;
     }
 
-    public String composeID(
-        final String prefix, final boolean includeLatLong, final boolean includeParent) {
+    public String composeID(final String prefix, final boolean includeLatLong,
+        final boolean includeParent) {
       // /top?
       if (parent == null) {
         if ((prefix != null) && (prefix.length() > 0)) {
@@ -567,9 +543,8 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
           return false;
         }
 
-        final LineString geom =
-            GeometryUtils.GEOMETRY_FACTORY.createLineString(
-                childSequence.toArray(new Coordinate[childSequence.size()]));
+        final LineString geom = GeometryUtils.GEOMETRY_FACTORY
+            .createLineString(childSequence.toArray(new Coordinate[childSequence.size()]));
 
         // Filter gpx track based on maxExtent
         if (geom.isEmpty() || (geom.getEnvelopeInternal().maxExtent() > maxLineLength)) {
@@ -603,93 +578,67 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
   private GeoWaveData<SimpleFeature> postProcess(final GPXDataElement element) {
 
     switch (element.elementType) {
-      case "trk":
-        {
-          if ((element.children != null) && element.build(trackBuilder)) {
-            trackBuilder.set(
-                "TrackId", inputID.length() > 0 ? inputID : element.composeID("", false, true));
-            return buildGeoWaveDataInstance(
-                element.composeID(inputID, false, true),
-                indexNames,
-                GpxUtils.GPX_TRACK_FEATURE,
-                trackBuilder,
-                additionalData.get(element.getPath()));
+      case "trk": {
+        if ((element.children != null) && element.build(trackBuilder)) {
+          trackBuilder.set("TrackId",
+              inputID.length() > 0 ? inputID : element.composeID("", false, true));
+          return buildGeoWaveDataInstance(element.composeID(inputID, false, true), indexNames,
+              GpxUtils.GPX_TRACK_FEATURE, trackBuilder, additionalData.get(element.getPath()));
+        }
+        break;
+      }
+      case "rte": {
+        if ((element.children != null) && element.build(routeBuilder)) {
+          trackBuilder.set("TrackId",
+              inputID.length() > 0 ? inputID : element.composeID("", false, true));
+          return buildGeoWaveDataInstance(element.composeID(inputID, false, true), indexNames,
+              GpxUtils.GPX_ROUTE_FEATURE, routeBuilder, additionalData.get(element.getPath()));
+        }
+        break;
+      }
+      case "wpt": {
+        if (element.build(waypointBuilder)) {
+          return buildGeoWaveDataInstance(
+              element.composeID(uniqueWayPoints ? "" : inputID, true, !uniqueWayPoints), indexNames,
+              GpxUtils.GPX_WAYPOINT_FEATURE, waypointBuilder,
+              additionalData.get(element.getPath()));
+        }
+        break;
+      }
+      case "rtept": {
+        if (element.build(waypointBuilder)) {
+          return buildGeoWaveDataInstance(element.composeID(inputID, true, true), indexNames,
+              GpxUtils.GPX_WAYPOINT_FEATURE, waypointBuilder,
+              additionalData.get(element.getPath()));
+        }
+        break;
+      }
+      case "trkseg": {
+        break;
+      }
+      case "trkpt": {
+        if (element.build(pointBuilder)) {
+          if (element.timestamp == null) {
+            pointBuilder.set("Timestamp", null);
           }
-          break;
+          return buildGeoWaveDataInstance(element.composeID(inputID, false, true), indexNames,
+              GpxUtils.GPX_POINT_FEATURE, pointBuilder, additionalData.get(element.getPath()));
         }
-      case "rte":
-        {
-          if ((element.children != null) && element.build(routeBuilder)) {
-            trackBuilder.set(
-                "TrackId", inputID.length() > 0 ? inputID : element.composeID("", false, true));
-            return buildGeoWaveDataInstance(
-                element.composeID(inputID, false, true),
-                indexNames,
-                GpxUtils.GPX_ROUTE_FEATURE,
-                routeBuilder,
-                additionalData.get(element.getPath()));
-          }
-          break;
-        }
-      case "wpt":
-        {
-          if (element.build(waypointBuilder)) {
-            return buildGeoWaveDataInstance(
-                element.composeID(uniqueWayPoints ? "" : inputID, true, !uniqueWayPoints),
-                indexNames,
-                GpxUtils.GPX_WAYPOINT_FEATURE,
-                waypointBuilder,
-                additionalData.get(element.getPath()));
-          }
-          break;
-        }
-      case "rtept":
-        {
-          if (element.build(waypointBuilder)) {
-            return buildGeoWaveDataInstance(
-                element.composeID(inputID, true, true),
-                indexNames,
-                GpxUtils.GPX_WAYPOINT_FEATURE,
-                waypointBuilder,
-                additionalData.get(element.getPath()));
-          }
-          break;
-        }
-      case "trkseg":
-        {
-          break;
-        }
-      case "trkpt":
-        {
-          if (element.build(pointBuilder)) {
-            if (element.timestamp == null) {
-              pointBuilder.set("Timestamp", null);
-            }
-            return buildGeoWaveDataInstance(
-                element.composeID(inputID, false, true),
-                indexNames,
-                GpxUtils.GPX_POINT_FEATURE,
-                pointBuilder,
-                additionalData.get(element.getPath()));
-          }
-          break;
-        }
+        break;
+      }
     }
     return null;
   }
 
-  private static void setAttribute(
-      final SimpleFeatureBuilder builder, final String name, final Object obj) {
+  private static void setAttribute(final SimpleFeatureBuilder builder, final String name,
+      final Object obj) {
     if ((builder.getFeatureType().getDescriptor(name) != null) && (obj != null)) {
       builder.set(name, obj);
     }
   }
 
-  private static GeoWaveData<SimpleFeature> buildGeoWaveDataInstance(
-      final String id,
-      final String[] indexNames,
-      final String key,
-      final SimpleFeatureBuilder builder,
+  private static GeoWaveData<SimpleFeature> buildGeoWaveDataInstance(final String id,
+      final String[] indexNames, final String key, final SimpleFeatureBuilder builder,
       final Map<String, String> additionalDataSet) {
 
     if (additionalDataSet != null) {

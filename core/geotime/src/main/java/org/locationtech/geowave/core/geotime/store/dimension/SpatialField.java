@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,8 +41,8 @@ public abstract class SpatialField implements NumericDimensionField<GeometryWrap
     this.geometryPrecision = geometryPrecision;
   }
 
-  public SpatialField(
-      final NumericDimensionDefinition baseDefinition, final @Nullable Integer geometryPrecision) {
+  public SpatialField(final NumericDimensionDefinition baseDefinition,
+      final @Nullable Integer geometryPrecision) {
     this(baseDefinition, geometryPrecision, GeometryWrapper.DEFAULT_GEOMETRY_FIELD_NAME);
   }
 
@@ -50,10 +51,8 @@ public abstract class SpatialField implements NumericDimensionField<GeometryWrap
     return baseDefinition.getFullRange();
   }
 
-  public SpatialField(
-      final NumericDimensionDefinition baseDefinition,
-      final @Nullable Integer geometryPrecision,
-      final String fieldName) {
+  public SpatialField(final NumericDimensionDefinition baseDefinition,
+      final @Nullable Integer geometryPrecision, final String fieldName) {
     this.baseDefinition = baseDefinition;
     this.fieldName = fieldName;
     this.geometryPrecision = geometryPrecision;
@@ -120,12 +119,8 @@ public abstract class SpatialField implements NumericDimensionField<GeometryWrap
   public byte[] toBinary() {
     final byte[] dimensionBinary = PersistenceUtils.toBinary(baseDefinition);
     final byte[] fieldNameBytes = StringUtils.stringToBinary(fieldName);
-    final ByteBuffer buf =
-        ByteBuffer.allocate(
-            dimensionBinary.length
-                + fieldNameBytes.length
-                + VarintUtils.unsignedIntByteLength(fieldNameBytes.length)
-                + 1);
+    final ByteBuffer buf = ByteBuffer.allocate(dimensionBinary.length + fieldNameBytes.length
+        + VarintUtils.unsignedIntByteLength(fieldNameBytes.length) + 1);
     VarintUtils.writeUnsignedInt(fieldNameBytes.length, buf);
     buf.put(fieldNameBytes);
     buf.put(dimensionBinary);

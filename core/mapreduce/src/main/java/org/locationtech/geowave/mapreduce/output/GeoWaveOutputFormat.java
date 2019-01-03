@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -91,15 +92,15 @@ public class GeoWaveOutputFormat extends OutputFormat<GeoWaveOutputKey<Object>, 
       final IndexStore jobContextIndexStore =
           new JobContextIndexStore(context, persistentIndexStore);
       final DataStore dataStore = GeoWaveStoreFinder.createDataStore(configOptions);
-      return new GeoWaveRecordWriter(
-          context, dataStore, jobContextIndexStore, jobContextAdapterStore);
+      return new GeoWaveRecordWriter(context, dataStore, jobContextIndexStore,
+          jobContextAdapterStore);
     } catch (final Exception e) {
       throw new IOException(e);
     }
   }
 
-  public static void setStoreOptions(
-      final Configuration config, final DataStorePluginOptions storeOptions) {
+  public static void setStoreOptions(final Configuration config,
+      final DataStorePluginOptions storeOptions) {
     if (storeOptions != null) {
       GeoWaveConfiguratorBase.setStoreOptionsMap(CLASS, config, storeOptions.getOptionsAsMap());
       final DataStore dataStore = storeOptions.createDataStore();
@@ -111,8 +112,8 @@ public class GeoWaveOutputFormat extends OutputFormat<GeoWaveOutputKey<Object>, 
     }
   }
 
-  public static void setStoreOptionsMap(
-      final Configuration config, final Map<String, String> storeConfigOptions) {
+  public static void setStoreOptionsMap(final Configuration config,
+      final Map<String, String> storeConfigOptions) {
     GeoWaveConfiguratorBase.setStoreOptionsMap(CLASS, config, storeConfigOptions);
   }
 
@@ -193,11 +194,8 @@ public class GeoWaveOutputFormat extends OutputFormat<GeoWaveOutputKey<Object>, 
     private final IndexStore indexStore;
     private final DataStore dataStore;
 
-    public GeoWaveRecordWriter(
-        final TaskAttemptContext context,
-        final DataStore dataStore,
-        final IndexStore indexStore,
-        final TransientAdapterStore adapterStore) {
+    public GeoWaveRecordWriter(final TaskAttemptContext context, final DataStore dataStore,
+        final IndexStore indexStore, final TransientAdapterStore adapterStore) {
       this.dataStore = dataStore;
       this.adapterStore = adapterStore;
       this.indexStore = indexStore;
@@ -242,9 +240,8 @@ public class GeoWaveOutputFormat extends OutputFormat<GeoWaveOutputKey<Object>, 
       }
     }
 
-    private synchronized Writer<?> getIndexWriter(
-        final DataTypeAdapter<?> adapter, final String[] indexNames)
-        throws MismatchedIndexToAdapterMapping {
+    private synchronized Writer<?> getIndexWriter(final DataTypeAdapter<?> adapter,
+        final String[] indexNames) throws MismatchedIndexToAdapterMapping {
       Writer<?> writer = adapterTypeNameToIndexWriterCache.get(adapter.getTypeName());
       if (writer == null) {
         final Index[] indices = new Index[indexNames.length];

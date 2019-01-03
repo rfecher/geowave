@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,14 +34,14 @@ public class AddBigTableStoreCommand extends ServiceEnabledCommand<String> {
   @Parameter(description = "<name>")
   private List<String> parameters = new ArrayList<String>();
 
-  @Parameter(
-      names = {"-d", "--default"},
+  @Parameter(names = {"-d", "--default"},
       description = "Make this the default store in all operations")
   private Boolean makeDefault;
 
   private DataStorePluginOptions pluginOptions = new DataStorePluginOptions();
 
-  @ParametersDelegate private BigTableOptions opts;
+  @ParametersDelegate
+  private BigTableOptions opts;
 
   @Override
   public boolean prepare(final OperationParams params) {

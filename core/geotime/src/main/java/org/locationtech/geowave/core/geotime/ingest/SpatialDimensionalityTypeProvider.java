@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,28 +55,25 @@ public class SpatialDimensionalityTypeProvider
 
   public static final NumericDimensionDefinition[] SPATIAL_DIMENSIONS =
       new NumericDimensionDefinition[] {new LongitudeDefinition(), new LatitudeDefinition(true)
-        // just use the same range for latitude to make square sfc values in
-        // decimal degrees (EPSG:4326)
+      // just use the same range for latitude to make square sfc values in
+      // decimal degrees (EPSG:4326)
       };
 
   @SuppressWarnings("rawtypes")
   public static NumericDimensionField[] getSpatialFields(
       final @Nullable Integer geometryPrecision) {
-    return new NumericDimensionField[] {
-      new LongitudeField(geometryPrecision), new LatitudeField(geometryPrecision, true)
-      // just use the same range for latitude to make square sfc values in
-      // decimal degrees (EPSG:4326)
+    return new NumericDimensionField[] {new LongitudeField(geometryPrecision),
+        new LatitudeField(geometryPrecision, true)
+        // just use the same range for latitude to make square sfc values in
+        // decimal degrees (EPSG:4326)
     };
   }
 
   @SuppressWarnings("rawtypes")
   public static NumericDimensionField[] getSpatialTemporalFields(
       final @Nullable Integer geometryPrecision) {
-    return new NumericDimensionField[] {
-      new LongitudeField(geometryPrecision),
-      new LatitudeField(geometryPrecision, true),
-      new TimeField(Unit.YEAR)
-    };
+    return new NumericDimensionField[] {new LongitudeField(geometryPrecision),
+        new LatitudeField(geometryPrecision, true), new TimeField(Unit.YEAR)};
   }
 
   public SpatialDimensionalityTypeProvider() {}
@@ -115,8 +113,7 @@ public class SpatialDimensionalityTypeProvider
     NumericDimensionField<?>[] fields_temporal = null;
     Integer geometryPrecision = options.getGeometryPrecision();
 
-    if ((options.crs == null)
-        || options.crs.isEmpty()
+    if ((options.crs == null) || options.crs.isEmpty()
         || options.crs.equalsIgnoreCase(GeometryUtils.DEFAULT_CRS_STR)) {
       dimensions = SPATIAL_DIMENSIONS;
       fields = getSpatialFields(geometryPrecision);
@@ -133,18 +130,15 @@ public class SpatialDimensionalityTypeProvider
         for (int d = 0; d < dimensions.length; d++) {
           final CoordinateSystemAxis csa = cs.getAxis(d);
           if (!isUnbounded(csa)) {
-            dimensions[d] =
-                new CustomCRSBoundedSpatialDimension(
-                    (byte) d, csa.getMinimumValue(), csa.getMaximumValue());
-            fields_temporal[d] =
-                new CustomCRSSpatialField(
-                    (CustomCRSBoundedSpatialDimension) dimensions[d], geometryPrecision);
+            dimensions[d] = new CustomCRSBoundedSpatialDimension((byte) d, csa.getMinimumValue(),
+                csa.getMaximumValue());
+            fields_temporal[d] = new CustomCRSSpatialField(
+                (CustomCRSBoundedSpatialDimension) dimensions[d], geometryPrecision);
           } else {
             dimensions[d] =
                 new CustomCRSUnboundedSpatialDimension(DEFAULT_UNBOUNDED_CRS_INTERVAL, (byte) d);
-            fields_temporal[d] =
-                new CustomCRSSpatialField(
-                    (CustomCRSUnboundedSpatialDimension) dimensions[d], geometryPrecision);
+            fields_temporal[d] = new CustomCRSSpatialField(
+                (CustomCRSUnboundedSpatialDimension) dimensions[d], geometryPrecision);
           }
         }
         fields_temporal[dimensions.length] = new TimeField(Unit.YEAR);
@@ -153,26 +147,22 @@ public class SpatialDimensionalityTypeProvider
         for (int d = 0; d < dimensions.length; d++) {
           final CoordinateSystemAxis csa = cs.getAxis(d);
           if (!isUnbounded(csa)) {
-            dimensions[d] =
-                new CustomCRSBoundedSpatialDimension(
-                    (byte) d, csa.getMinimumValue(), csa.getMaximumValue());
-            fields[d] =
-                new CustomCRSSpatialField(
-                    (CustomCRSBoundedSpatialDimension) dimensions[d], geometryPrecision);
+            dimensions[d] = new CustomCRSBoundedSpatialDimension((byte) d, csa.getMinimumValue(),
+                csa.getMaximumValue());
+            fields[d] = new CustomCRSSpatialField((CustomCRSBoundedSpatialDimension) dimensions[d],
+                geometryPrecision);
           } else {
             if (d == 0) {
               dimensions[d] =
                   new CustomCRSUnboundedSpatialDimensionX(DEFAULT_UNBOUNDED_CRS_INTERVAL, (byte) d);
-              fields[d] =
-                  new CustomCRSSpatialField(
-                      (CustomCRSUnboundedSpatialDimensionX) dimensions[d], geometryPrecision);
+              fields[d] = new CustomCRSSpatialField(
+                  (CustomCRSUnboundedSpatialDimensionX) dimensions[d], geometryPrecision);
             }
             if (d == 1) {
               dimensions[d] =
                   new CustomCRSUnboundedSpatialDimensionY(DEFAULT_UNBOUNDED_CRS_INTERVAL, (byte) d);
-              fields[d] =
-                  new CustomCRSSpatialField(
-                      (CustomCRSUnboundedSpatialDimensionY) dimensions[d], geometryPrecision);
+              fields[d] = new CustomCRSSpatialField(
+                  (CustomCRSUnboundedSpatialDimensionY) dimensions[d], geometryPrecision);
             }
           }
         }
@@ -182,32 +172,24 @@ public class SpatialDimensionalityTypeProvider
     BasicIndexModel indexModel = null;
     if (isDefaultCRS) {
       indexModel =
-          new BasicIndexModel(
-              options.storeTime
-                  ? getSpatialTemporalFields(geometryPrecision)
-                  : getSpatialFields(geometryPrecision));
+          new BasicIndexModel(options.storeTime ? getSpatialTemporalFields(geometryPrecision)
+              : getSpatialFields(geometryPrecision));
     } else {
 
       indexModel = new CustomCrsIndexModel(options.storeTime ? fields_temporal : fields, crsCode);
     }
 
     return new CustomNameIndex(
-        XZHierarchicalIndexFactory.createFullIncrementalTieredStrategy(
-            dimensions,
-            new int[] {
-              // TODO this is only valid for 2D coordinate
-              // systems, again consider the possibility
-              // of being
-              // flexible enough to handle n-dimensions
-              LONGITUDE_BITS, LATITUDE_BITS
-            },
-            SFCType.HILBERT),
+        XZHierarchicalIndexFactory.createFullIncrementalTieredStrategy(dimensions, new int[] {
+            // TODO this is only valid for 2D coordinate
+            // systems, again consider the possibility
+            // of being
+            // flexible enough to handle n-dimensions
+            LONGITUDE_BITS, LATITUDE_BITS}, SFCType.HILBERT),
         indexModel,
         // TODO append CRS code to ID if its overridden
-        isDefaultCRS
-            ? (options.storeTime ? DEFAULT_SPATIAL_ID + "_TIME" : DEFAULT_SPATIAL_ID)
-            : (options.storeTime ? DEFAULT_SPATIAL_ID + "_TIME" : DEFAULT_SPATIAL_ID)
-                + "_"
+        isDefaultCRS ? (options.storeTime ? DEFAULT_SPATIAL_ID + "_TIME" : DEFAULT_SPATIAL_ID)
+            : (options.storeTime ? DEFAULT_SPATIAL_ID + "_TIME" : DEFAULT_SPATIAL_ID) + "_"
                 + crsCode.substring(crsCode.indexOf(":") + 1));
   }
 

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -46,14 +47,10 @@ public class IngestFromHdfsDriver {
 
   private static ExecutorService singletonExecutor;
 
-  public IngestFromHdfsDriver(
-      DataStorePluginOptions storeOptions,
-      List<IndexPluginOptions> indexOptions,
-      VisibilityOptions ingestOptions,
+  public IngestFromHdfsDriver(DataStorePluginOptions storeOptions,
+      List<IndexPluginOptions> indexOptions, VisibilityOptions ingestOptions,
       MapReduceCommandLineOptions mapReduceOptions,
-      Map<String, IngestFromHdfsPlugin<?, ?>> ingestPlugins,
-      String hdfsHostPort,
-      String basePath) {
+      Map<String, IngestFromHdfsPlugin<?, ?>> ingestPlugins, String hdfsHostPort, String basePath) {
     this.storeOptions = storeOptions;
     this.indexOptions = indexOptions;
     this.ingestOptions = ingestOptions;
@@ -70,20 +67,16 @@ public class IngestFromHdfsDriver {
     return singletonExecutor;
   }
 
-  private boolean checkIndexesAgainstProvider(
-      String providerName, DataAdapterProvider<?> adapterProvider) {
+  private boolean checkIndexesAgainstProvider(String providerName,
+      DataAdapterProvider<?> adapterProvider) {
     boolean valid = true;
     for (IndexPluginOptions option : indexOptions) {
       if (!IngestUtils.isCompatible(adapterProvider, option)) {
         // HP Fortify "Log Forging" false positive
         // What Fortify considers "user input" comes only
         // from users with OS-level access anyway
-        LOGGER.warn(
-            "HDFS file ingest plugin for ingest type '"
-                + providerName
-                + "' does not support dimensionality '"
-                + option.getType()
-                + "'");
+        LOGGER.warn("HDFS file ingest plugin for ingest type '" + providerName
+            + "' does not support dimensionality '" + option.getType() + "'");
         valid = false;
       }
     }
@@ -95,8 +88,8 @@ public class IngestFromHdfsDriver {
     final Path hdfsBaseDirectory = new Path(basePath);
     try {
       final Configuration conf = new Configuration(false);
-      GeoWaveConfiguratorBase.setRemoteInvocationParams(
-          hdfsHostPort, mapReduceOptions.getJobTrackerOrResourceManagerHostPort(), conf);
+      GeoWaveConfiguratorBase.setRemoteInvocationParams(hdfsHostPort,
+          mapReduceOptions.getJobTrackerOrResourceManagerHostPort(), conf);
       mapReduceOptions.applyConfigurationProperties(conf);
       try (FileSystem fs = FileSystem.get(conf)) {
         if (!fs.exists(hdfsBaseDirectory)) {
@@ -110,12 +103,8 @@ public class IngestFromHdfsDriver {
           // it HDFS path safe in case there are invalid characters
           final Path inputFile = new Path(hdfsBaseDirectory, pluginProvider.getKey());
           if (!fs.exists(inputFile)) {
-            LOGGER.warn(
-                "HDFS file '"
-                    + inputFile
-                    + "' does not exist for ingest type '"
-                    + pluginProvider.getKey()
-                    + "'");
+            LOGGER.warn("HDFS file '" + inputFile + "' does not exist for ingest type '"
+                + pluginProvider.getKey() + "'");
             continue;
           }
 
@@ -128,10 +117,8 @@ public class IngestFromHdfsDriver {
           if (ingestFromHdfsPlugin.isUseReducerPreferred()) {
             ingestWithReducer = ingestFromHdfsPlugin.ingestWithReducer();
             if (ingestWithReducer == null) {
-              LOGGER.warn(
-                  "Plugin provider '"
-                      + pluginProvider.getKey()
-                      + "' prefers ingest with reducer but it is unimplemented");
+              LOGGER.warn("Plugin provider '" + pluginProvider.getKey()
+                  + "' prefers ingest with reducer but it is unimplemented");
             }
           }
           if (ingestWithReducer == null) {
@@ -141,16 +128,12 @@ public class IngestFromHdfsDriver {
 
               ingestWithReducer = ingestFromHdfsPlugin.ingestWithReducer();
               if (ingestWithReducer == null) {
-                LOGGER.warn(
-                    "Plugin provider '"
-                        + pluginProvider.getKey()
-                        + "' does not does not support ingest from HDFS");
+                LOGGER.warn("Plugin provider '" + pluginProvider.getKey()
+                    + "' does not does not support ingest from HDFS");
                 continue;
               } else {
-                LOGGER.warn(
-                    "Plugin provider '"
-                        + pluginProvider.getKey()
-                        + "' prefers ingest with mapper but it is unimplemented");
+                LOGGER.warn("Plugin provider '" + pluginProvider.getKey()
+                    + "' prefers ingest with mapper but it is unimplemented");
               }
             }
           }
@@ -160,29 +143,15 @@ public class IngestFromHdfsDriver {
             if (!checkIndexesAgainstProvider(pluginProvider.getKey(), ingestWithReducer)) {
               continue;
             }
-            jobRunner =
-                new IngestWithReducerJobRunner(
-                    storeOptions,
-                    indexOptions,
-                    ingestOptions,
-                    inputFile,
-                    pluginProvider.getKey(),
-                    ingestFromHdfsPlugin,
-                    ingestWithReducer);
+            jobRunner = new IngestWithReducerJobRunner(storeOptions, indexOptions, ingestOptions,
+                inputFile, pluginProvider.getKey(), ingestFromHdfsPlugin, ingestWithReducer);
 
           } else if (ingestWithMapper != null) {
             if (!checkIndexesAgainstProvider(pluginProvider.getKey(), ingestWithMapper)) {
               continue;
             }
-            jobRunner =
-                new IngestWithMapperJobRunner(
-                    storeOptions,
-                    indexOptions,
-                    ingestOptions,
-                    inputFile,
-                    pluginProvider.getKey(),
-                    ingestFromHdfsPlugin,
-                    ingestWithMapper);
+            jobRunner = new IngestWithMapperJobRunner(storeOptions, indexOptions, ingestOptions,
+                inputFile, pluginProvider.getKey(), ingestFromHdfsPlugin, ingestWithMapper);
           }
           if (jobRunner != null) {
             try {
@@ -217,24 +186,20 @@ public class IngestFromHdfsDriver {
   private void runJob(final Configuration conf, final AbstractMapReduceIngest jobRunner)
       throws Exception {
     final ExecutorService executorService = getSingletonExecutorService();
-    executorService.execute(
-        new Runnable() {
+    executorService.execute(new Runnable() {
 
-          @Override
-          public void run() {
-            try {
-              final int res = ToolRunner.run(conf, jobRunner, new String[0]);
-              if (res != 0) {
-                LOGGER.error(
-                    "Mapper ingest job '"
-                        + jobRunner.getJobName()
-                        + "' exited with error code: "
-                        + res);
-              }
-            } catch (final Exception e) {
-              LOGGER.error("Error running mapper ingest job: " + jobRunner.getJobName(), e);
-            }
+      @Override
+      public void run() {
+        try {
+          final int res = ToolRunner.run(conf, jobRunner, new String[0]);
+          if (res != 0) {
+            LOGGER.error("Mapper ingest job '" + jobRunner.getJobName()
+                + "' exited with error code: " + res);
           }
-        });
+        } catch (final Exception e) {
+          LOGGER.error("Error running mapper ingest job: " + jobRunner.getJobName(), e);
+        }
+      }
+    });
   }
 }

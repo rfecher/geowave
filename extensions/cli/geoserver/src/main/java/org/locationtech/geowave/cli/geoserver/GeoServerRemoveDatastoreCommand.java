@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,10 +23,7 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 @GeowaveOperation(name = "rmds", parentOperation = GeoServerSection.class)
 @Parameters(commandDescription = "Remove GeoServer DataStore")
 public class GeoServerRemoveDatastoreCommand extends GeoServerRemoveCommand<String> {
-  @Parameter(
-      names = {"-ws", "--workspace"},
-      required = false,
-      description = "Workspace Name")
+  @Parameter(names = {"-ws", "--workspace"}, required = false, description = "Workspace Name")
   private String workspace;
 
   @Parameter(description = "<datastore name>")
@@ -53,21 +51,12 @@ public class GeoServerRemoveDatastoreCommand extends GeoServerRemoveCommand<Stri
     final Response deleteStoreResponse = geoserverClient.deleteDatastore(workspace, datastoreName);
 
     if (deleteStoreResponse.getStatus() == Status.OK.getStatusCode()) {
-      return "Delete store '"
-          + datastoreName
-          + "' from workspace '"
-          + workspace
+      return "Delete store '" + datastoreName + "' from workspace '" + workspace
           + "' on GeoServer: OK";
     }
-    String errorMessage =
-        "Error deleting store '"
-            + datastoreName
-            + "' from workspace '"
-            + workspace
-            + "' on GeoServer: "
-            + deleteStoreResponse.readEntity(String.class)
-            + "\nGeoServer Response Code = "
-            + deleteStoreResponse.getStatus();
+    String errorMessage = "Error deleting store '" + datastoreName + "' from workspace '"
+        + workspace + "' on GeoServer: " + deleteStoreResponse.readEntity(String.class)
+        + "\nGeoServer Response Code = " + deleteStoreResponse.getStatus();
     return handleError(deleteStoreResponse, errorMessage);
   }
 }

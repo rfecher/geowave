@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,8 +38,8 @@ public class RedisScoredSetWrapper<V> implements AutoCloseable {
   private static final int MAX_CONCURRENT_WRITE = 100;
   private final Semaphore writeSemaphore = new Semaphore(MAX_CONCURRENT_WRITE);
 
-  public RedisScoredSetWrapper(
-      final RedissonClient client, final String setName, final Codec codec) {
+  public RedisScoredSetWrapper(final RedissonClient client, final String setName,
+      final Codec codec) {
     this.setName = setName;
     this.client = client;
     this.codec = codec;
@@ -79,23 +80,14 @@ public class RedisScoredSetWrapper<V> implements AutoCloseable {
     return currentSetBatch;
   }
 
-  public Iterator<ScoredEntry<V>> entryRange(
-      final double startScore,
-      final boolean startScoreInclusive,
-      final double endScore,
-      final boolean endScoreInclusive) {
+  public Iterator<ScoredEntry<V>> entryRange(final double startScore,
+      final boolean startScoreInclusive, final double endScore, final boolean endScoreInclusive) {
     final RScoredSortedSet<V> currentSet = getCurrentSet();
-    final Collection<ScoredEntry<V>> currentResult =
-        currentSet.entryRange(
-            startScore,
-            startScoreInclusive,
-            endScore,
-            endScoreInclusive,
-            0,
-            RedisUtils.MAX_ROWS_FOR_PAGINATION);
+    final Collection<ScoredEntry<V>> currentResult = currentSet.entryRange(startScore,
+        startScoreInclusive, endScore, endScoreInclusive, 0, RedisUtils.MAX_ROWS_FOR_PAGINATION);
     if (currentResult.size() >= RedisUtils.MAX_ROWS_FOR_PAGINATION) {
-      return new LazyPaginatedEntryRange<>(
-          startScore, startScoreInclusive, endScore, endScoreInclusive, currentSet, currentResult);
+      return new LazyPaginatedEntryRange<>(startScore, startScoreInclusive, endScore,
+          endScoreInclusive, currentSet, currentResult);
     }
     return currentResult.iterator();
   }
@@ -119,16 +111,13 @@ public class RedisScoredSetWrapper<V> implements AutoCloseable {
     currentBatch = null;
     try {
       writeSemaphore.acquire();
-      flushBatch
-          .executeAsync()
-          .handle(
-              (r, t) -> {
-                writeSemaphore.release();
-                if ((t != null) && !(t instanceof CancellationException)) {
-                  LOGGER.error("Exception in batched write", t);
-                }
-                return r;
-              });
+      flushBatch.executeAsync().handle((r, t) -> {
+        writeSemaphore.release();
+        if ((t != null) && !(t instanceof CancellationException)) {
+          LOGGER.error("Exception in batched write", t);
+        }
+        return r;
+      });
     } catch (final InterruptedException e) {
       LOGGER.warn("async batch write semaphore interrupted", e);
       writeSemaphore.release();
@@ -144,12 +133,9 @@ public class RedisScoredSetWrapper<V> implements AutoCloseable {
     writeSemaphore.release(MAX_CONCURRENT_WRITE);
   }
 
-  public RFuture<Collection<ScoredEntry<V>>> entryRangeAsync(
-      final double startScore,
-      final boolean startScoreInclusive,
-      final double endScore,
-      final boolean endScoreInclusive) {
-    return getCurrentSet()
-        .entryRangeAsync(startScore, startScoreInclusive, endScore, endScoreInclusive);
+  public RFuture<Collection<ScoredEntry<V>>> entryRangeAsync(final double startScore,
+      final boolean startScoreInclusive, final double endScore, final boolean endScoreInclusive) {
+    return getCurrentSet().entryRangeAsync(startScore, startScoreInclusive, endScore,
+        endScoreInclusive);
   }
 }

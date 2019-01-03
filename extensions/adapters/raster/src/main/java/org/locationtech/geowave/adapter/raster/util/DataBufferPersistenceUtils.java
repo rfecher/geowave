@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,24 +45,22 @@ public class DataBufferPersistenceUtils {
       case DataBuffer.TYPE_BYTE:
         final ByteDataBuffer.Builder byteBldr = ByteDataBuffer.newBuilder();
         final byte[][] byteBank = ((DataBufferByte) dataBuffer).getBankData();
-        final Iterable<ByteString> byteIt =
-            () ->
-                new Iterator<ByteString>() {
-                  private int index = 0;
+        final Iterable<ByteString> byteIt = () -> new Iterator<ByteString>() {
+          private int index = 0;
 
-                  @Override
-                  public boolean hasNext() {
-                    return byteBank.length > index;
-                  }
+          @Override
+          public boolean hasNext() {
+            return byteBank.length > index;
+          }
 
-                  @Override
-                  public ByteString next() {
-                    if (!hasNext()) {
-                      throw new NoSuchElementException();
-                    }
-                    return ByteString.copyFrom(byteBank[index++]);
-                  }
-                };
+          @Override
+          public ByteString next() {
+            if (!hasNext()) {
+              throw new NoSuchElementException();
+            }
+            return ByteString.copyFrom(byteBank[index++]);
+          }
+        };
         byteBldr.addAllBanks(byteIt);
         bldr.setByteDb(byteBldr.build());
         break;
@@ -77,46 +76,38 @@ public class DataBufferPersistenceUtils {
       case DataBuffer.TYPE_FLOAT:
         final FloatDataBuffer.Builder fltBldr = FloatDataBuffer.newBuilder();
         final float[][] fltBank = ((DataBufferFloat) dataBuffer).getBankData();
-        final Iterable<FloatArray> floatIt =
-            () ->
-                new Iterator<FloatArray>() {
-                  private int index = 0;
+        final Iterable<FloatArray> floatIt = () -> new Iterator<FloatArray>() {
+          private int index = 0;
 
-                  @Override
-                  public boolean hasNext() {
-                    return fltBank.length > index;
-                  }
+          @Override
+          public boolean hasNext() {
+            return fltBank.length > index;
+          }
 
-                  @Override
-                  public FloatArray next() {
-                    return FloatArray.newBuilder()
-                        .addAllSamples(Floats.asList(fltBank[index++]))
-                        .build();
-                  }
-                };
+          @Override
+          public FloatArray next() {
+            return FloatArray.newBuilder().addAllSamples(Floats.asList(fltBank[index++])).build();
+          }
+        };
         fltBldr.addAllBanks(floatIt);
         bldr.setFlt(fltBldr);
         break;
       case DataBuffer.TYPE_DOUBLE:
         final DoubleDataBuffer.Builder dblBldr = DoubleDataBuffer.newBuilder();
         final double[][] dblBank = ((DataBufferDouble) dataBuffer).getBankData();
-        final Iterable<DoubleArray> dblIt =
-            () ->
-                new Iterator<DoubleArray>() {
-                  private int index = 0;
+        final Iterable<DoubleArray> dblIt = () -> new Iterator<DoubleArray>() {
+          private int index = 0;
 
-                  @Override
-                  public boolean hasNext() {
-                    return dblBank.length > index;
-                  }
+          @Override
+          public boolean hasNext() {
+            return dblBank.length > index;
+          }
 
-                  @Override
-                  public DoubleArray next() {
-                    return DoubleArray.newBuilder()
-                        .addAllSamples(Doubles.asList(dblBank[index++]))
-                        .build();
-                  }
-                };
+          @Override
+          public DoubleArray next() {
+            return DoubleArray.newBuilder().addAllSamples(Doubles.asList(dblBank[index++])).build();
+          }
+        };
         dblBldr.addAllBanks(dblIt);
         bldr.setDbl(dblBldr);
         break;
@@ -130,23 +121,21 @@ public class DataBufferPersistenceUtils {
   private static void setBuilder(int[][] intBank, DataBufferProtos.DataBuffer.Builder bldr) {
     IntegratedIntCompressor iic = new IntegratedIntCompressor();
     final SignedIntDataBuffer.Builder intBldr = SignedIntDataBuffer.newBuilder();
-    final Iterable<SignedIntArray> intIt =
-        () ->
-            new Iterator<SignedIntArray>() {
-              private int index = 0;
+    final Iterable<SignedIntArray> intIt = () -> new Iterator<SignedIntArray>() {
+      private int index = 0;
 
-              @Override
-              public boolean hasNext() {
-                return intBank.length > index;
-              }
+      @Override
+      public boolean hasNext() {
+        return intBank.length > index;
+      }
 
-              @Override
-              public SignedIntArray next() {
-                final int[] internalArray = intBank[index++];
-                int[] compressed = iic.compress(internalArray);
-                return SignedIntArray.newBuilder().addAllSamples(Ints.asList(compressed)).build();
-              }
-            };
+      @Override
+      public SignedIntArray next() {
+        final int[] internalArray = intBank[index++];
+        int[] compressed = iic.compress(internalArray);
+        return SignedIntArray.newBuilder().addAllSamples(Ints.asList(compressed)).build();
+      }
+    };
     intBldr.addAllBanks(intIt);
     bldr.setSint(intBldr);
   }
@@ -160,23 +149,23 @@ public class DataBufferPersistenceUtils {
     // Restore the transient DataBuffer.
     switch (buffer.getType()) {
       case DataBuffer.TYPE_BYTE:
-        return new DataBufferByte(
-            (byte[][]) listToByte(buffer.getByteDb().getBanksList()), buffer.getSize(), offsets);
+        return new DataBufferByte((byte[][]) listToByte(buffer.getByteDb().getBanksList()),
+            buffer.getSize(), offsets);
       case DataBuffer.TYPE_SHORT:
-        return new DataBufferShort(
-            intToShort(listToInt(buffer.getSint().getBanksList())), buffer.getSize(), offsets);
+        return new DataBufferShort(intToShort(listToInt(buffer.getSint().getBanksList())),
+            buffer.getSize(), offsets);
       case DataBuffer.TYPE_USHORT:
-        return new DataBufferUShort(
-            intToShort(listToInt(buffer.getSint().getBanksList())), buffer.getSize(), offsets);
+        return new DataBufferUShort(intToShort(listToInt(buffer.getSint().getBanksList())),
+            buffer.getSize(), offsets);
       case DataBuffer.TYPE_INT:
-        return new DataBufferInt(
-            listToInt(buffer.getSint().getBanksList()), buffer.getSize(), offsets);
+        return new DataBufferInt(listToInt(buffer.getSint().getBanksList()), buffer.getSize(),
+            offsets);
       case DataBuffer.TYPE_FLOAT:
-        return new DataBufferFloat(
-            listToFloat(buffer.getFlt().getBanksList()), buffer.getSize(), offsets);
+        return new DataBufferFloat(listToFloat(buffer.getFlt().getBanksList()), buffer.getSize(),
+            offsets);
       case DataBuffer.TYPE_DOUBLE:
-        return new DataBufferDouble(
-            listToDouble(buffer.getDbl().getBanksList()), buffer.getSize(), offsets);
+        return new DataBufferDouble(listToDouble(buffer.getDbl().getBanksList()), buffer.getSize(),
+            offsets);
       default:
         throw new RuntimeException(
             "Unsupported data buffer type for deserialization" + buffer.getType());

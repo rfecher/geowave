@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -114,22 +115,19 @@ public class BasicQueryFilter implements QueryFilter {
 
   public BasicQueryFilter() {}
 
-  public BasicQueryFilter(
-      final MultiDimensionalNumericData constraints,
+  public BasicQueryFilter(final MultiDimensionalNumericData constraints,
       final NumericDimensionField<?>[] dimensionFields) {
     init(constraints, dimensionFields);
   }
 
-  public BasicQueryFilter(
-      final MultiDimensionalNumericData constraints,
+  public BasicQueryFilter(final MultiDimensionalNumericData constraints,
       final NumericDimensionField<?>[] dimensionFields,
       final BasicQueryCompareOperation compareOp) {
     init(constraints, dimensionFields);
     this.compareOp = compareOp;
   }
 
-  private void init(
-      final MultiDimensionalNumericData constraints,
+  private void init(final MultiDimensionalNumericData constraints,
       final NumericDimensionField<?>[] dimensionFields) {
     this.dimensionFields = dimensionFields;
 
@@ -148,34 +146,27 @@ public class BasicQueryFilter implements QueryFilter {
     }
   }
 
-  protected boolean validateConstraints(
-      final BasicQueryCompareOp op,
-      final MultiDimensionalNumericData queryRange,
-      final MultiDimensionalNumericData dataRange) {
+  protected boolean validateConstraints(final BasicQueryCompareOp op,
+      final MultiDimensionalNumericData queryRange, final MultiDimensionalNumericData dataRange) {
     final NumericData[] queryRangePerDimension = queryRange.getDataPerDimension();
     final double[] minPerDimension = dataRange.getMinValuesPerDimension();
     final double[] maxPerDimension = dataRange.getMaxValuesPerDimension();
     boolean ok = true;
     for (int d = 0; d < dimensionFields.length && ok; d++) {
-      ok &=
-          op.compare(
-              minPerDimension[d],
-              maxPerDimension[d],
-              queryRangePerDimension[d].getMin(),
-              queryRangePerDimension[d].getMax());
+      ok &= op.compare(minPerDimension[d], maxPerDimension[d], queryRangePerDimension[d].getMin(),
+          queryRangePerDimension[d].getMax());
     }
     return ok;
   }
 
   @Override
-  public boolean accept(
-      final CommonIndexModel indexModel, final IndexedPersistenceEncoding<?> persistenceEncoding) {
-    if (!(persistenceEncoding instanceof CommonIndexedPersistenceEncoding)) return false;
-    final List<BinnedNumericDataset> dataRanges =
-        BinnedNumericDataset.applyBins(
-            ((CommonIndexedPersistenceEncoding) persistenceEncoding)
-                .getNumericData(dimensionFields),
-            dimensionFields);
+  public boolean accept(final CommonIndexModel indexModel,
+      final IndexedPersistenceEncoding<?> persistenceEncoding) {
+    if (!(persistenceEncoding instanceof CommonIndexedPersistenceEncoding))
+      return false;
+    final List<BinnedNumericDataset> dataRanges = BinnedNumericDataset.applyBins(
+        ((CommonIndexedPersistenceEncoding) persistenceEncoding).getNumericData(dimensionFields),
+        dimensionFields);
     // check that at least one data range overlaps at least one query range
     for (final BinnedNumericDataset dataRange : dataRanges) {
       final List<MultiDimensionalNumericData> queries =

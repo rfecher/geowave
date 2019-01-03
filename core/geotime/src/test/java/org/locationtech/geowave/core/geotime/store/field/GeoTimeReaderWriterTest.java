@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,12 +34,10 @@ public class GeoTimeReaderWriterTest {
   public void init() {
     geometryExpected = new GeometryFactory().createPoint(new Coordinate(25, 32));
     geometryArrayExpected =
-        new Geometry[] {
-          new GeometryFactory().createPoint(new Coordinate(25, 32)),
-          new GeometryFactory().createPoint(new Coordinate(26, 33)),
-          new GeometryFactory().createPoint(new Coordinate(27, 34)),
-          new GeometryFactory().createPoint(new Coordinate(28, 35))
-        };
+        new Geometry[] {new GeometryFactory().createPoint(new Coordinate(25, 32)),
+            new GeometryFactory().createPoint(new Coordinate(26, 33)),
+            new GeometryFactory().createPoint(new Coordinate(27, 34)),
+            new GeometryFactory().createPoint(new Coordinate(28, 35))};
     dateExpected = new Date();
     dateArrayExpected = new Date[] {new Date(), null, new Date(0), null};
     calendarExpected = new GregorianCalendar();
@@ -64,8 +63,7 @@ public class GeoTimeReaderWriterTest {
     value = FieldUtils.getDefaultWriterForClass(Geometry[].class).writeField(geometryArrayExpected);
     final Geometry[] geometryArrayActual =
         FieldUtils.getDefaultReaderForClass(Geometry[].class).readField(value);
-    Assert.assertTrue(
-        "FAILED test of String Array reader/writer",
+    Assert.assertTrue("FAILED test of String Array reader/writer",
         Arrays.deepEquals(geometryArrayExpected, geometryArrayActual));
 
     // test Date reader/writer
@@ -77,8 +75,7 @@ public class GeoTimeReaderWriterTest {
     value = FieldUtils.getDefaultWriterForClass(Date[].class).writeField(dateArrayExpected);
     final Date[] dateArrayActual =
         FieldUtils.getDefaultReaderForClass(Date[].class).readField(value);
-    Assert.assertTrue(
-        "FAILED test of Date Array reader/writer",
+    Assert.assertTrue("FAILED test of Date Array reader/writer",
         Arrays.deepEquals(dateArrayExpected, dateArrayActual));
 
     // test Calendar reader/writer
@@ -91,8 +88,7 @@ public class GeoTimeReaderWriterTest {
     value = FieldUtils.getDefaultWriterForClass(Calendar[].class).writeField(calendarArrayExpected);
     final Calendar[] calendarArrayActual =
         FieldUtils.getDefaultReaderForClass(Calendar[].class).readField(value);
-    Assert.assertTrue(
-        "FAILED test of Calendar Array reader/writer",
+    Assert.assertTrue("FAILED test of Calendar Array reader/writer",
         Arrays.deepEquals(calendarArrayExpected, calendarArrayActual));
   }
 }

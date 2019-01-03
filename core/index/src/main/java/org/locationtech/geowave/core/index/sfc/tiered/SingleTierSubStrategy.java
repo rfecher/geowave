@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -49,26 +50,22 @@ public class SingleTierSubStrategy implements NumericIndexStrategy {
 
   public SingleTierSubStrategy() {}
 
-  public SingleTierSubStrategy(
-      final SpaceFillingCurve sfc,
-      final NumericDimensionDefinition[] baseDefinitions,
-      final byte tier) {
+  public SingleTierSubStrategy(final SpaceFillingCurve sfc,
+      final NumericDimensionDefinition[] baseDefinitions, final byte tier) {
     this.sfc = sfc;
     this.baseDefinitions = baseDefinitions;
     this.tier = tier;
   }
 
   @Override
-  public QueryRanges getQueryRanges(
-      final MultiDimensionalNumericData indexedRange, final IndexMetaData... hints) {
+  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+      final IndexMetaData... hints) {
     return getQueryRanges(indexedRange, TieredSFCIndexStrategy.DEFAULT_MAX_RANGES);
   }
 
   @Override
-  public QueryRanges getQueryRanges(
-      final MultiDimensionalNumericData indexedRange,
-      final int maxRangeDecomposition,
-      final IndexMetaData... hints) {
+  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+      final int maxRangeDecomposition, final IndexMetaData... hints) {
     final List<BinnedNumericDataset> binnedQueries =
         BinnedNumericDataset.applyBins(indexedRange, baseDefinitions);
     return new QueryRanges(
@@ -76,8 +73,8 @@ public class SingleTierSubStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public MultiDimensionalNumericData getRangeForId(
-      final ByteArray partitionKey, final ByteArray sortKey) {
+  public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+      final ByteArray sortKey) {
     final List<ByteArray> insertionIds =
         new SinglePartitionInsertionIds(partitionKey, sortKey).getCompositeInsertionIds();
     if (insertionIds.isEmpty()) {
@@ -89,14 +86,13 @@ public class SingleTierSubStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public MultiDimensionalCoordinates getCoordinatesPerDimension(
-      final ByteArray partitionKey, final ByteArray sortKey) {
+  public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+      final ByteArray sortKey) {
     final byte[] rowId =
-        ByteArrayUtils.combineArrays(
-            partitionKey == null ? null : partitionKey.getBytes(),
+        ByteArrayUtils.combineArrays(partitionKey == null ? null : partitionKey.getBytes(),
             sortKey == null ? null : sortKey.getBytes());
-    return new MultiDimensionalCoordinates(
-        new byte[] {tier}, BinnedSFCUtils.getCoordinatesForId(rowId, baseDefinitions, sfc));
+    return new MultiDimensionalCoordinates(new byte[] {tier},
+        BinnedSFCUtils.getCoordinatesForId(rowId, baseDefinitions, sfc));
   }
 
   @Override
@@ -105,8 +101,8 @@ public class SingleTierSubStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public InsertionIds getInsertionIds(
-      final MultiDimensionalNumericData indexedData, final int maxDuplicateInsertionIds) {
+  public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+      final int maxDuplicateInsertionIds) {
     // we need to duplicate per bin so we can't adhere to max duplication
     // anyways
     final List<BinnedNumericDataset> ranges =
@@ -238,9 +234,8 @@ public class SingleTierSubStrategy implements NumericIndexStrategy {
       final MultiDimensionalNumericData dataRange, final IndexMetaData... hints) {
     final BinRange[][] binRangesPerDimension =
         BinnedNumericDataset.getBinnedRangesPerDimension(dataRange, baseDefinitions);
-    return new MultiDimensionalCoordinateRanges[] {
-      BinnedSFCUtils.getCoordinateRanges(binRangesPerDimension, sfc, baseDefinitions.length, tier)
-    };
+    return new MultiDimensionalCoordinateRanges[] {BinnedSFCUtils
+        .getCoordinateRanges(binRangesPerDimension, sfc, baseDefinitions.length, tier)};
   }
 
   @Override
@@ -249,8 +244,8 @@ public class SingleTierSubStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public Set<ByteArray> getQueryPartitionKeys(
-      final MultiDimensionalNumericData queryData, final IndexMetaData... hints) {
+  public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+      final IndexMetaData... hints) {
     return IndexUtils.getQueryPartitionKeys(this, queryData, hints);
   }
 

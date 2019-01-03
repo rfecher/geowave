@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,8 +39,8 @@ public interface DataStatisticsStore {
    * @param adapterId the data adapter ID
    * @return the list of statistics for the given adapter, empty if it doesn't exist
    */
-  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
-      short adapterId, String... authorizations);
+  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(short adapterId,
+      String... authorizations);
 
   /**
    * Get all data statistics from the store by statistics type
@@ -72,8 +73,8 @@ public interface DataStatisticsStore {
    * @param statisticsId the statistics ID for the requested statistics
    * @return the persisted statistics value
    */
-  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
-      short adapterId, StatisticsType<?, ?> statisticsType, String... authorizations);
+  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(short adapterId,
+      StatisticsType<?, ?> statisticsType, String... authorizations);
 
   /**
    * Get statistics by adapter ID and the statistics ID (which will define a unique statistic)
@@ -82,10 +83,18 @@ public interface DataStatisticsStore {
    * @param statisticsId the statistics ID for the requested statistics
    * @return the persisted statistics value
    */
-  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
-      short adapterId,
-      String extendedIdPrefix,
-      StatisticsType<?, ?> statisticsType,
+  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(short adapterId,
+      String extendedIdPrefix, StatisticsType<?, ?> statisticsType, String... authorizations);
+
+  /**
+   * Remove a statistic from the store
+   *
+   * @param adapterId
+   * @param statisticsId
+   * @return a flag indicating whether a statistic had existed with the given IDs and was
+   *         successfully deleted.
+   */
+  public boolean removeStatistics(short adapterId, StatisticsType<?, ?> statisticsType,
       String... authorizations);
 
   /**
@@ -94,24 +103,10 @@ public interface DataStatisticsStore {
    * @param adapterId
    * @param statisticsId
    * @return a flag indicating whether a statistic had existed with the given IDs and was
-   *     successfully deleted.
+   *         successfully deleted.
    */
-  public boolean removeStatistics(
-      short adapterId, StatisticsType<?, ?> statisticsType, String... authorizations);
-
-  /**
-   * Remove a statistic from the store
-   *
-   * @param adapterId
-   * @param statisticsId
-   * @return a flag indicating whether a statistic had existed with the given IDs and was
-   *     successfully deleted.
-   */
-  public boolean removeStatistics(
-      short adapterId,
-      String extendedIdPrefix,
-      StatisticsType<?, ?> statisticsType,
-      String... authorizations);
+  public boolean removeStatistics(short adapterId, String extendedIdPrefix,
+      StatisticsType<?, ?> statisticsType, String... authorizations);
 
   /**
    * Remove all statistics with a given adapter ID from the store

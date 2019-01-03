@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,10 +23,7 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 @GeowaveOperation(name = "rmcs", parentOperation = GeoServerSection.class)
 @Parameters(commandDescription = "Remove GeoServer Coverage Store")
 public class GeoServerRemoveCoverageStoreCommand extends GeoServerRemoveCommand<String> {
-  @Parameter(
-      names = {"-ws", "--workspace"},
-      required = false,
-      description = "Workspace Name")
+  @Parameter(names = {"-ws", "--workspace"}, required = false, description = "Workspace Name")
   private String workspace;
 
   @Parameter(description = "<coverage store name>")
@@ -54,21 +52,12 @@ public class GeoServerRemoveCoverageStoreCommand extends GeoServerRemoveCommand<
         geoserverClient.deleteCoverageStore(workspace, cvgstoreName);
 
     if (deleteCvgStoreResponse.getStatus() == Status.OK.getStatusCode()) {
-      return "Delete store '"
-          + cvgstoreName
-          + "' from workspace '"
-          + workspace
+      return "Delete store '" + cvgstoreName + "' from workspace '" + workspace
           + "' on GeoServer: OK";
     }
-    String errorMessage =
-        "Error deleting store '"
-            + cvgstoreName
-            + "' from workspace '"
-            + workspace
-            + "' on GeoServer: "
-            + deleteCvgStoreResponse.readEntity(String.class)
-            + "\nGeoServer Response Code = "
-            + deleteCvgStoreResponse.getStatus();
+    String errorMessage = "Error deleting store '" + cvgstoreName + "' from workspace '" + workspace
+        + "' on GeoServer: " + deleteCvgStoreResponse.readEntity(String.class)
+        + "\nGeoServer Response Code = " + deleteCvgStoreResponse.getStatus();
     return handleError(deleteCvgStoreResponse, errorMessage);
   }
 }

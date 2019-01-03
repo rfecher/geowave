@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -57,11 +58,8 @@ public class GeoWaveEmptyTransaction extends AbstractTransactionManagement
     ReferencedEnvelope bounds = new ReferencedEnvelope();
     bounds.include(updated.getBounds());
     bounds.include(original.getBounds());
-    this.components
-        .getGTstore()
-        .getListenerManager()
-        .fireFeaturesChanged(
-            updated.getFeatureType().getTypeName(), Transaction.AUTO_COMMIT, bounds, true);
+    this.components.getGTstore().getListenerManager().fireFeaturesChanged(
+        updated.getFeatureType().getTypeName(), Transaction.AUTO_COMMIT, bounds, true);
   }
 
   public void add(String fid, SimpleFeature feature) throws IOException {
@@ -74,34 +72,24 @@ public class GeoWaveEmptyTransaction extends AbstractTransactionManagement
     }
     this.components.writeCommit(feature, this);
 
-    components
-        .getGTstore()
-        .getListenerManager()
-        .fireFeaturesAdded(
-            components.getAdapter().getFeatureType().getTypeName(),
-            Transaction.AUTO_COMMIT,
-            ReferencedEnvelope.reference(feature.getBounds()),
-            true);
+    components.getGTstore().getListenerManager().fireFeaturesAdded(
+        components.getAdapter().getFeatureType().getTypeName(), Transaction.AUTO_COMMIT,
+        ReferencedEnvelope.reference(feature.getBounds()), true);
   }
 
   public void remove(String fid, SimpleFeature feature) throws IOException {
     this.components.remove(feature, this);
-    this.components
-        .getGTstore()
-        .getListenerManager()
-        .fireFeaturesRemoved(
-            feature.getFeatureType().getTypeName(),
-            Transaction.AUTO_COMMIT,
-            ReferencedEnvelope.reference(feature.getBounds()),
-            true);
+    this.components.getGTstore().getListenerManager().fireFeaturesRemoved(
+        feature.getFeatureType().getTypeName(), Transaction.AUTO_COMMIT,
+        ReferencedEnvelope.reference(feature.getBounds()), true);
   }
 
   public String getID() {
     return "";
   }
 
-  public CloseableIterator<SimpleFeature> interweaveTransaction(
-      final Integer limit, final Filter filter, final CloseableIterator<SimpleFeature> it) {
+  public CloseableIterator<SimpleFeature> interweaveTransaction(final Integer limit,
+      final Filter filter, final CloseableIterator<SimpleFeature> it) {
     return it;
   }
 

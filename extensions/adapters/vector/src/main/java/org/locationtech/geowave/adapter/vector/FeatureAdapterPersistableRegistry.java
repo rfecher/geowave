@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -50,43 +51,43 @@ public class FeatureAdapterPersistableRegistry implements PersistableRegistrySpi
   @Override
   public PersistableIdAndConstructor[] getSupportedPersistables() {
     return new PersistableIdAndConstructor[] {
-      new PersistableIdAndConstructor((short) 500, AvroFeatureDataAdapter::new),
-      new PersistableIdAndConstructor((short) 501, FeatureDataAdapter::new),
-      new PersistableIdAndConstructor((short) 502, SecondaryIndexManager::new),
-      new PersistableIdAndConstructor((short) 503, CQLFilterOptionProvider::new),
-      new PersistableIdAndConstructor((short) 504, DataSchemaOptionProvider::new),
-      new PersistableIdAndConstructor((short) 505, FeatureSerializationOptionProvider::new),
-      new PersistableIdAndConstructor((short) 506, TypeNameOptionProvider::new),
-      new PersistableIdAndConstructor((short) 507, ExplicitCQLQuery::new),
-      new PersistableIdAndConstructor((short) 508, CQLQueryFilter::new),
-      new PersistableIdAndConstructor((short) 509, DistributedRenderOptions::new),
-      new PersistableIdAndConstructor((short) 510, CompositeGroupResult::new),
-      new PersistableIdAndConstructor((short) 511, DistributedRenderResult::new),
-      new PersistableIdAndConstructor((short) 512, PersistableComposite::new),
-      new PersistableIdAndConstructor((short) 513, PersistableRenderedImage::new),
-      new PersistableIdAndConstructor((short) 514, FeatureBoundingBoxStatistics::new),
-      new PersistableIdAndConstructor((short) 515, FeatureCountMinSketchStatistics::new),
-      new PersistableIdAndConstructor((short) 516, FeatureFixedBinNumericStatistics::new),
-      new PersistableIdAndConstructor((short) 517, FeatureHyperLogLogStatistics::new),
-      new PersistableIdAndConstructor((short) 518, FeatureNumericHistogramStatistics::new),
-      new PersistableIdAndConstructor((short) 519, FeatureNumericRangeStatistics::new),
-      new PersistableIdAndConstructor((short) 520, FeatureTimeRangeStatistics::new),
-      new PersistableIdAndConstructor((short) 521, DistributedRenderAggregation::new),
-      new PersistableIdAndConstructor((short) 522, SimpleFeatureUserDataConfigurationSet::new),
-      new PersistableIdAndConstructor((short) 523, TimeDescriptorConfiguration::new),
-      new PersistableIdAndConstructor((short) 524, VisibilityConfiguration::new),
-      new PersistableIdAndConstructor((short) 525, SimpleFeatureStatsConfigurationCollection::new),
-      new PersistableIdAndConstructor((short) 526, StatsConfigurationCollection::new),
-      new PersistableIdAndConstructor((short) 527, FeatureCountMinSketchConfig::new),
-      new PersistableIdAndConstructor((short) 528, FeatureFixedBinConfig::new),
-      new PersistableIdAndConstructor((short) 529, FeatureHyperLogLogConfig::new),
-      new PersistableIdAndConstructor((short) 530, FeatureNumericHistogramConfig::new),
-      new PersistableIdAndConstructor((short) 531, FeatureNumericRangeConfig::new),
-      new PersistableIdAndConstructor((short) 532, NumericSecondaryIndexConfiguration::new),
-      new PersistableIdAndConstructor((short) 533, SimpleFeaturePrimaryIndexConfiguration::new),
-      new PersistableIdAndConstructor((short) 534, TemporalSecondaryIndexConfiguration::new),
-      new PersistableIdAndConstructor((short) 535, TextSecondaryIndexConfiguration::new),
-      new PersistableIdAndConstructor((short) 536, GeometrySimpOptionProvider::new)
-    };
+        new PersistableIdAndConstructor((short) 500, AvroFeatureDataAdapter::new),
+        new PersistableIdAndConstructor((short) 501, FeatureDataAdapter::new),
+        new PersistableIdAndConstructor((short) 502, SecondaryIndexManager::new),
+        new PersistableIdAndConstructor((short) 503, CQLFilterOptionProvider::new),
+        new PersistableIdAndConstructor((short) 504, DataSchemaOptionProvider::new),
+        new PersistableIdAndConstructor((short) 505, FeatureSerializationOptionProvider::new),
+        new PersistableIdAndConstructor((short) 506, TypeNameOptionProvider::new),
+        new PersistableIdAndConstructor((short) 507, ExplicitCQLQuery::new),
+        new PersistableIdAndConstructor((short) 508, CQLQueryFilter::new),
+        new PersistableIdAndConstructor((short) 509, DistributedRenderOptions::new),
+        new PersistableIdAndConstructor((short) 510, CompositeGroupResult::new),
+        new PersistableIdAndConstructor((short) 511, DistributedRenderResult::new),
+        new PersistableIdAndConstructor((short) 512, PersistableComposite::new),
+        new PersistableIdAndConstructor((short) 513, PersistableRenderedImage::new),
+        new PersistableIdAndConstructor((short) 514, FeatureBoundingBoxStatistics::new),
+        new PersistableIdAndConstructor((short) 515, FeatureCountMinSketchStatistics::new),
+        new PersistableIdAndConstructor((short) 516, FeatureFixedBinNumericStatistics::new),
+        new PersistableIdAndConstructor((short) 517, FeatureHyperLogLogStatistics::new),
+        new PersistableIdAndConstructor((short) 518, FeatureNumericHistogramStatistics::new),
+        new PersistableIdAndConstructor((short) 519, FeatureNumericRangeStatistics::new),
+        new PersistableIdAndConstructor((short) 520, FeatureTimeRangeStatistics::new),
+        new PersistableIdAndConstructor((short) 521, DistributedRenderAggregation::new),
+        new PersistableIdAndConstructor((short) 522, SimpleFeatureUserDataConfigurationSet::new),
+        new PersistableIdAndConstructor((short) 523, TimeDescriptorConfiguration::new),
+        new PersistableIdAndConstructor((short) 524, VisibilityConfiguration::new),
+        new PersistableIdAndConstructor((short) 525,
+            SimpleFeatureStatsConfigurationCollection::new),
+        new PersistableIdAndConstructor((short) 526, StatsConfigurationCollection::new),
+        new PersistableIdAndConstructor((short) 527, FeatureCountMinSketchConfig::new),
+        new PersistableIdAndConstructor((short) 528, FeatureFixedBinConfig::new),
+        new PersistableIdAndConstructor((short) 529, FeatureHyperLogLogConfig::new),
+        new PersistableIdAndConstructor((short) 530, FeatureNumericHistogramConfig::new),
+        new PersistableIdAndConstructor((short) 531, FeatureNumericRangeConfig::new),
+        new PersistableIdAndConstructor((short) 532, NumericSecondaryIndexConfiguration::new),
+        new PersistableIdAndConstructor((short) 533, SimpleFeaturePrimaryIndexConfiguration::new),
+        new PersistableIdAndConstructor((short) 534, TemporalSecondaryIndexConfiguration::new),
+        new PersistableIdAndConstructor((short) 535, TextSecondaryIndexConfiguration::new),
+        new PersistableIdAndConstructor((short) 536, GeometrySimpOptionProvider::new)};
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -257,8 +258,8 @@ public class JDOMUtils {
     }
   }
 
-  public static String getProp(
-      final Element e, final String childName, final Logger logger, final String errorMessage) {
+  public static String getProp(final Element e, final String childName, final Logger logger,
+      final String errorMessage) {
     final Element childEl = e.getChild(childName);
     if (childEl == null) {
       logger.error(errorMessage);
@@ -285,8 +286,8 @@ public class JDOMUtils {
     return el;
   }
 
-  public static Element writeElementList(
-      final String tag, final Collection<?> c, final Namespace ns) {
+  public static Element writeElementList(final String tag, final Collection<?> c,
+      final Namespace ns) {
     final Element e = new Element(tag, ns);
     e.addContent(c);
     return e;
@@ -397,8 +398,8 @@ public class JDOMUtils {
     }
   }
 
-  public static Double getDoubleVal(
-      final Element e, final String childText, final double defaultValue) {
+  public static Double getDoubleVal(final Element e, final String childText,
+      final double defaultValue) {
     final Double value = getDoubleVal(e, childText);
     if (value == null) {
       return defaultValue;
@@ -478,8 +479,8 @@ public class JDOMUtils {
     }
   }
 
-  public static Short getShortVal(
-      final Element e, final String childText, final short defaultValue) {
+  public static Short getShortVal(final Element e, final String childText,
+      final short defaultValue) {
     final Short value = getShortVal(e, childText);
     if (value == null) {
       return defaultValue;
@@ -549,8 +550,8 @@ public class JDOMUtils {
     }
   }
 
-  public static Integer getIntegerVal(
-      final Element e, final String childText, final int defaultValue) {
+  public static Integer getIntegerVal(final Element e, final String childText,
+      final int defaultValue) {
     final Integer value = getIntegerVal(e, childText);
     if (value == null) {
       return defaultValue;
@@ -626,8 +627,8 @@ public class JDOMUtils {
     return writeStringVal(tag, Boolean.toString(b));
   }
 
-  public static boolean getBooleanVal(
-      final Element e, final String childTag, final boolean defaultValue) {
+  public static boolean getBooleanVal(final Element e, final String childTag,
+      final boolean defaultValue) {
     if ((e == null) || (e.getChildText(childTag) == null)) {
       return defaultValue;
     }
@@ -639,8 +640,7 @@ public class JDOMUtils {
     return value;
   }
 
-  @SuppressFBWarnings(
-      value = "NP_BOOLEAN_RETURN_NULL",
+  @SuppressFBWarnings(value = "NP_BOOLEAN_RETURN_NULL",
       justification = "its private and only used by methods that check for null")
   private static Boolean getBooleanVal(final Element e, final String childTag) {
     final String text = e.getChildText(childTag);
@@ -664,8 +664,7 @@ public class JDOMUtils {
     return value;
   }
 
-  @SuppressFBWarnings(
-      value = "NP_BOOLEAN_RETURN_NULL",
+  @SuppressFBWarnings(value = "NP_BOOLEAN_RETURN_NULL",
       justification = "its private and only used by methods that check for null")
   private static Boolean getBooleanVal(final Element e) {
     final String text = e.getText();
@@ -943,8 +942,8 @@ public class JDOMUtils {
     return doubleList;
   }
 
-  public static ArrayList<Element> writeDoubleList(
-      final String tagName, final List<Double> doubleList) {
+  public static ArrayList<Element> writeDoubleList(final String tagName,
+      final List<Double> doubleList) {
     final ArrayList<Element> doubleElementList = new ArrayList<Element>();
 
     for (final Double doubleVal : doubleList) {
@@ -965,8 +964,8 @@ public class JDOMUtils {
     return colorList;
   }
 
-  public static ArrayList<Element> writeColorList(
-      final String tagName, final List<Color> colorList) {
+  public static ArrayList<Element> writeColorList(final String tagName,
+      final List<Color> colorList) {
     final ArrayList<Element> colorElementList = new ArrayList<Element>();
 
     for (final Color color : colorList) {
@@ -1034,8 +1033,7 @@ public class JDOMUtils {
    * @param el
    * @return Boolean
    */
-  @SuppressFBWarnings(
-      value = "NP_BOOLEAN_RETURN_NULL",
+  @SuppressFBWarnings(value = "NP_BOOLEAN_RETURN_NULL",
       justification = "its known that it can return null")
   public static Boolean readBooleanVal(final String tag, final Element el) {
     if (el == null) {
@@ -1083,11 +1081,8 @@ public class JDOMUtils {
     return null;
   }
 
-  public static Element getChildIgnoreNamespace(
-      final Element parentEl,
-      final String childName,
-      final Namespace[] namespaces,
-      final boolean tryLowerCase) {
+  public static Element getChildIgnoreNamespace(final Element parentEl, final String childName,
+      final Namespace[] namespaces, final boolean tryLowerCase) {
     Element el = parentEl.getChild(childName);
 
     if (el == null) {
@@ -1101,19 +1096,15 @@ public class JDOMUtils {
     }
 
     if ((el == null) && tryLowerCase) {
-      el =
-          getChildIgnoreNamespace(
-              parentEl, childName.toLowerCase(Locale.ENGLISH), namespaces, false);
+      el = getChildIgnoreNamespace(parentEl, childName.toLowerCase(Locale.ENGLISH), namespaces,
+          false);
     }
 
     return el;
   }
 
-  public static List<Element> getChildrenIgnoreNamespace(
-      final Element parentEl,
-      final String childName,
-      final Namespace[] namespaces,
-      final boolean tryLowerCase) {
+  public static List<Element> getChildrenIgnoreNamespace(final Element parentEl,
+      final String childName, final Namespace[] namespaces, final boolean tryLowerCase) {
     List<?> el = parentEl.getChildren(childName);
 
     if ((el == null) || el.isEmpty()) {
@@ -1127,9 +1118,8 @@ public class JDOMUtils {
     }
 
     if ((el == null) && tryLowerCase) {
-      el =
-          getChildrenIgnoreNamespace(
-              parentEl, childName.toLowerCase(Locale.ENGLISH), namespaces, false);
+      el = getChildrenIgnoreNamespace(parentEl, childName.toLowerCase(Locale.ENGLISH), namespaces,
+          false);
     }
 
     if (el == null) {
@@ -1143,11 +1133,8 @@ public class JDOMUtils {
     return elementList;
   }
 
-  public static String getStringValIgnoreNamespace(
-      final Element parentEl,
-      final String childName,
-      final Namespace[] namespaces,
-      final boolean tryLowerCase) {
+  public static String getStringValIgnoreNamespace(final Element parentEl, final String childName,
+      final Namespace[] namespaces, final boolean tryLowerCase) {
     final Element el = getChildIgnoreNamespace(parentEl, childName, namespaces, tryLowerCase);
 
     if (el != null) {
@@ -1157,11 +1144,8 @@ public class JDOMUtils {
     }
   }
 
-  public static Double getDoubleValIgnoreNamespace(
-      final Element rootEl,
-      final String tagName,
-      final Namespace[] namespaces,
-      final boolean tryLowerCase) {
+  public static Double getDoubleValIgnoreNamespace(final Element rootEl, final String tagName,
+      final Namespace[] namespaces, final boolean tryLowerCase) {
     final String str = getStringValIgnoreNamespace(rootEl, tagName, namespaces, tryLowerCase);
 
     Double val = null;
@@ -1177,11 +1161,8 @@ public class JDOMUtils {
     return val;
   }
 
-  public static Float getFloatValIgnoreNamespace(
-      final Element rootEl,
-      final String tagName,
-      final Namespace[] namespaces,
-      final boolean tryLowerCase) {
+  public static Float getFloatValIgnoreNamespace(final Element rootEl, final String tagName,
+      final Namespace[] namespaces, final boolean tryLowerCase) {
     final String str = getStringValIgnoreNamespace(rootEl, tagName, namespaces, tryLowerCase);
 
     Float val = null;
@@ -1197,14 +1178,10 @@ public class JDOMUtils {
     return val;
   }
 
-  @SuppressFBWarnings(
-      value = "NP_BOOLEAN_RETURN_NULL",
+  @SuppressFBWarnings(value = "NP_BOOLEAN_RETURN_NULL",
       justification = "its known that it can return null")
-  public static Boolean getBoolValIgnoreNamespace(
-      final Element rootEl,
-      final String tagName,
-      final Namespace[] namespaces,
-      final boolean tryLowerCase) {
+  public static Boolean getBoolValIgnoreNamespace(final Element rootEl, final String tagName,
+      final Namespace[] namespaces, final boolean tryLowerCase) {
     final String str = getStringValIgnoreNamespace(rootEl, tagName, namespaces, tryLowerCase);
 
     if (str != null) {
@@ -1228,8 +1205,8 @@ public class JDOMUtils {
     return null;
   }
 
-  public static String getAttrStringValIgnoreNamespace(
-      final Element resourceEl, final String attrName) {
+  public static String getAttrStringValIgnoreNamespace(final Element resourceEl,
+      final String attrName) {
     final List<?> resourceAttr = resourceEl.getAttributes();
 
     if (resourceAttr != null) {

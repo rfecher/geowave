@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -12,15 +13,11 @@ import com.beust.jcommander.Parameter;
 import org.locationtech.geowave.mapreduce.operations.HdfsHostPortConverter;
 
 public class RasterTileResizeCommandLineOptions {
-  @Parameter(
-      names = "--inputCoverageName",
-      description = "The name of the input raster coverage",
+  @Parameter(names = "--inputCoverageName", description = "The name of the input raster coverage",
       required = true)
   private String inputCoverageName;
 
-  @Parameter(
-      names = "--outputCoverageName",
-      description = "The out output raster coverage name",
+  @Parameter(names = "--outputCoverageName", description = "The out output raster coverage name",
       required = true)
   private String outputCoverageName;
 
@@ -30,15 +27,11 @@ public class RasterTileResizeCommandLineOptions {
   @Parameter(names = "--maxSplits", description = "The max partitions for the input data")
   private Integer maxSplits;
 
-  @Parameter(
-      names = "--hdfsHostPort",
-      description = "he hdfs host port",
+  @Parameter(names = "--hdfsHostPort", description = "he hdfs host port",
       converter = HdfsHostPortConverter.class)
   private String hdfsHostPort;
 
-  @Parameter(
-      names = "--jobSubmissionHostPort",
-      description = "The job submission tracker",
+  @Parameter(names = "--jobSubmissionHostPort", description = "The job submission tracker",
       required = true)
   private String jobTrackerOrResourceManHostPort;
 
@@ -51,15 +44,10 @@ public class RasterTileResizeCommandLineOptions {
   // Default constructor
   public RasterTileResizeCommandLineOptions() {}
 
-  public RasterTileResizeCommandLineOptions(
-      final String inputCoverageName,
-      final String outputCoverageName,
-      final Integer minSplits,
-      final Integer maxSplits,
-      final String hdfsHostPort,
-      final String jobTrackerOrResourceManHostPort,
-      final Integer outputTileSize,
-      final String indexName) {
+  public RasterTileResizeCommandLineOptions(final String inputCoverageName,
+      final String outputCoverageName, final Integer minSplits, final Integer maxSplits,
+      final String hdfsHostPort, final String jobTrackerOrResourceManHostPort,
+      final Integer outputTileSize, final String indexName) {
     this.inputCoverageName = inputCoverageName;
     this.outputCoverageName = outputCoverageName;
     this.minSplits = minSplits;

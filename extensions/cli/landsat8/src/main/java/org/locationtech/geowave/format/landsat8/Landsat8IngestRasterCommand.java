@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -21,8 +22,7 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 
 @GeowaveOperation(name = "ingestraster", parentOperation = Landsat8Section.class)
 @Parameters(
-    commandDescription =
-        "Ingest routine for locally downloading Landsat 8 imagery and ingesting it into GeoWave")
+    commandDescription = "Ingest routine for locally downloading Landsat 8 imagery and ingesting it into GeoWave")
 public class Landsat8IngestRasterCommand extends DefaultOperation implements Command {
 
   @Parameter(description = "<storename> <comma delimited index/group list>")

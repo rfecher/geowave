@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.adapter.vector.stats;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
@@ -50,9 +50,8 @@ public class FeatureCountMinSketchStaticticsTest {
   @Before
   public void setup() throws SchemaException, CQLException, ParseException {
     schema = DataUtilities.createType("sp.geostuff", "geometry:Geometry:srid=4326,pid:String");
-    dataAdapter =
-        new FeatureDataAdapter(
-            schema, new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
+    dataAdapter = new FeatureDataAdapter(schema,
+        new GlobalVisibilityHandler<SimpleFeature, Object>("default"));
   }
 
   final Random rnd = new Random(7733);

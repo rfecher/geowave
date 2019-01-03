@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,16 +32,17 @@ public class AddSpatialTemporalIndexCommand extends ServiceEnabledCommand<String
   @Parameter(description = "<name>", required = true)
   private List<String> parameters = new ArrayList<String>();
 
-  @Parameter(
-      names = {"-d", "--default"},
+  @Parameter(names = {"-d", "--default"},
       description = "Make this the default index creating stores")
   private Boolean makeDefault;
 
-  @ParametersDelegate private final BasicIndexOptions basicIndexOptions = new BasicIndexOptions();
+  @ParametersDelegate
+  private final BasicIndexOptions basicIndexOptions = new BasicIndexOptions();
 
   private IndexPluginOptions pluginOptions = new IndexPluginOptions();
 
-  @ParametersDelegate SpatialTemporalOptions opts = new SpatialTemporalOptions();
+  @ParametersDelegate
+  SpatialTemporalOptions opts = new SpatialTemporalOptions();
 
   @Override
   public boolean prepare(final OperationParams params) {

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,17 +35,14 @@ public class SingleAdapterServerMergeStrategy<T extends Persistable>
 
   public SingleAdapterServerMergeStrategy() {}
 
-  public SingleAdapterServerMergeStrategy(
-      final short internalAdapterId,
-      final SampleModel sampleModel,
-      final RasterTileMergeStrategy<T> mergeStrategy) {
+  public SingleAdapterServerMergeStrategy(final short internalAdapterId,
+      final SampleModel sampleModel, final RasterTileMergeStrategy<T> mergeStrategy) {
     this.internalAdapterId = internalAdapterId;
     this.sampleModel = sampleModel;
     this.mergeStrategy = mergeStrategy;
   }
 
-  @SuppressFBWarnings(
-      value = {"DLS_DEAD_LOCAL_STORE"},
+  @SuppressFBWarnings(value = {"DLS_DEAD_LOCAL_STORE"},
       justification = "Incorrect warning, sampleModelBinary used")
   @Override
   public byte[] toBinary() {
@@ -53,10 +51,8 @@ public class SingleAdapterServerMergeStrategy<T extends Persistable>
     final byte[] mergeStrategyBinary = PersistenceUtils.toBinary(mergeStrategy);
 
     final int byteCount =
-        sampleModelBinary.length
-            + VarintUtils.unsignedIntByteLength(sampleModelBinary.length)
-            + VarintUtils.unsignedShortByteLength(internalAdapterId)
-            + mergeStrategyBinary.length
+        sampleModelBinary.length + VarintUtils.unsignedIntByteLength(sampleModelBinary.length)
+            + VarintUtils.unsignedShortByteLength(internalAdapterId) + mergeStrategyBinary.length
             + VarintUtils.unsignedIntByteLength(mergeStrategyBinary.length);
     final ByteBuffer buf = ByteBuffer.allocate(byteCount);
     VarintUtils.writeUnsignedInt(sampleModelBinary.length, buf);
@@ -100,16 +96,14 @@ public class SingleAdapterServerMergeStrategy<T extends Persistable>
   }
 
   @Override
-  public void merge(
-      final RasterTile thisTile, final RasterTile nextTile, final short internalAdapterId) {
+  public void merge(final RasterTile thisTile, final RasterTile nextTile,
+      final short internalAdapterId) {
     if (mergeStrategy != null) {
       mergeStrategy.merge(thisTile, nextTile, sampleModel);
     }
   }
 
-  public T getMetadata(
-      final GridCoverage tileGridCoverage,
-      final Map originalCoverageProperties,
+  public T getMetadata(final GridCoverage tileGridCoverage, final Map originalCoverageProperties,
       final RasterDataAdapter dataAdapter) {
     if (mergeStrategy != null) {
       return mergeStrategy.getMetadata(tileGridCoverage, dataAdapter);

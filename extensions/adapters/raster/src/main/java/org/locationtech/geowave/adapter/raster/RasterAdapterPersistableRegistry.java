@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,23 +32,22 @@ public class RasterAdapterPersistableRegistry implements PersistableRegistrySpi 
   @Override
   public PersistableIdAndConstructor[] getSupportedPersistables() {
     return new PersistableIdAndConstructor[] {
-      new PersistableIdAndConstructor((short) 600, Resolution::new),
-      new PersistableIdAndConstructor((short) 601, CompoundHierarchicalIndexStrategyWrapper::new),
-      new PersistableIdAndConstructor((short) 602, RasterDataAdapter::new),
-      new PersistableIdAndConstructor((short) 603, RasterTile::new),
-      new PersistableIdAndConstructor((short) 604, RasterTileRowTransform::new),
-      new PersistableIdAndConstructor((short) 605, MultiAdapterServerMergeStrategy::new),
-      new PersistableIdAndConstructor((short) 606, NoDataByFilter::new),
-      new PersistableIdAndConstructor((short) 607, NoDataBySampleIndex::new),
-      new PersistableIdAndConstructor((short) 608, NoDataMergeStrategy::new),
-      new PersistableIdAndConstructor((short) 609, HistogramConfig::new),
-      new PersistableIdAndConstructor((short) 610, HistogramStatistics::new),
-      new PersistableIdAndConstructor((short) 611, OverviewStatistics::new),
-      new PersistableIdAndConstructor((short) 612, RasterBoundingBoxStatistics::new),
-      new PersistableIdAndConstructor((short) 613, RasterFootprintStatistics::new),
-      new PersistableIdAndConstructor((short) 614, ServerMergeableRasterTile::new),
-      new PersistableIdAndConstructor((short) 615, SingleAdapterServerMergeStrategy::new),
-      new PersistableIdAndConstructor((short) 616, ClientMergeableRasterTile::new),
-    };
+        new PersistableIdAndConstructor((short) 600, Resolution::new),
+        new PersistableIdAndConstructor((short) 601, CompoundHierarchicalIndexStrategyWrapper::new),
+        new PersistableIdAndConstructor((short) 602, RasterDataAdapter::new),
+        new PersistableIdAndConstructor((short) 603, RasterTile::new),
+        new PersistableIdAndConstructor((short) 604, RasterTileRowTransform::new),
+        new PersistableIdAndConstructor((short) 605, MultiAdapterServerMergeStrategy::new),
+        new PersistableIdAndConstructor((short) 606, NoDataByFilter::new),
+        new PersistableIdAndConstructor((short) 607, NoDataBySampleIndex::new),
+        new PersistableIdAndConstructor((short) 608, NoDataMergeStrategy::new),
+        new PersistableIdAndConstructor((short) 609, HistogramConfig::new),
+        new PersistableIdAndConstructor((short) 610, HistogramStatistics::new),
+        new PersistableIdAndConstructor((short) 611, OverviewStatistics::new),
+        new PersistableIdAndConstructor((short) 612, RasterBoundingBoxStatistics::new),
+        new PersistableIdAndConstructor((short) 613, RasterFootprintStatistics::new),
+        new PersistableIdAndConstructor((short) 614, ServerMergeableRasterTile::new),
+        new PersistableIdAndConstructor((short) 615, SingleAdapterServerMergeStrategy::new),
+        new PersistableIdAndConstructor((short) 616, ClientMergeableRasterTile::new),};
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,8 +41,9 @@ import org.slf4j.LoggerFactory;
  * This class is a derivative from hte Spring Framework library. Helper class for resolving generic
  * types against type variables.
  *
- * <p>Mainly intended for usage within the framework, resolving method parameter types even when
- * they are declared generically.
+ * <p>
+ * Mainly intended for usage within the framework, resolving method parameter types even when they
+ * are declared generically.
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
@@ -54,8 +56,8 @@ public abstract class GenericTypeResolver {
 
   /** Cache from Class to TypeVariable Map */
   private static final Map<Class<?>, Reference<Map<TypeVariable<?>, Type>>> typeVariableCache =
-      Collections.synchronizedMap(
-          new WeakHashMap<Class<?>, Reference<Map<TypeVariable<?>, Type>>>());
+      Collections
+          .synchronizedMap(new WeakHashMap<Class<?>, Reference<Map<TypeVariable<?>, Type>>>());
 
   /**
    * Resolve the single type argument of the given generic interface against the given target class
@@ -72,11 +74,8 @@ public abstract class GenericTypeResolver {
       return null;
     }
     if (typeArgs.length != 1) {
-      throw new IllegalArgumentException(
-          "Expected 1 type argument on generic interface ["
-              + genericIfc.getName()
-              + "] but found "
-              + typeArgs.length);
+      throw new IllegalArgumentException("Expected 1 type argument on generic interface ["
+          + genericIfc.getName() + "] but found " + typeArgs.length);
     }
     return typeArgs[0];
   }
@@ -89,14 +88,14 @@ public abstract class GenericTypeResolver {
    * @param clazz the target class to check against
    * @param genericIfc the generic interface or superclass to resolve the type argument from
    * @return the resolved type of each argument, with the array size matching the number of actual
-   *     type arguments, or <code>null</code> if not resolvable
+   *         type arguments, or <code>null</code> if not resolvable
    */
   public static Class<?>[] resolveTypeArguments(Class<?> clazz, Class<?> genericIfc) {
     return doResolveTypeArguments(clazz, clazz, genericIfc);
   }
 
-  private static Class<?>[] doResolveTypeArguments(
-      Class<?> ownerClass, Class<?> classToIntrospect, Class<?> genericIfc) {
+  private static Class<?>[] doResolveTypeArguments(Class<?> ownerClass, Class<?> classToIntrospect,
+      Class<?> genericIfc) {
     while (classToIntrospect != null) {
       if (genericIfc.isInterface()) {
         Type[] ifcs = classToIntrospect.getGenericInterfaces();
@@ -107,9 +106,8 @@ public abstract class GenericTypeResolver {
           }
         }
       } else {
-        Class<?>[] result =
-            doResolveTypeArguments(
-                ownerClass, classToIntrospect.getGenericSuperclass(), genericIfc);
+        Class<?>[] result = doResolveTypeArguments(ownerClass,
+            classToIntrospect.getGenericSuperclass(), genericIfc);
         if (result != null) {
           return result;
         }
@@ -119,8 +117,8 @@ public abstract class GenericTypeResolver {
     return null;
   }
 
-  private static Class<?>[] doResolveTypeArguments(
-      Class<?> ownerClass, Type ifc, Class<?> genericIfc) {
+  private static Class<?>[] doResolveTypeArguments(Class<?> ownerClass, Type ifc,
+      Class<?> genericIfc) {
     if (ifc instanceof ParameterizedType) {
       ParameterizedType paramIfc = (ParameterizedType) ifc;
       Type rawType = paramIfc.getRawType();
@@ -262,8 +260,8 @@ public abstract class GenericTypeResolver {
     return bound;
   }
 
-  private static void extractTypeVariablesFromGenericInterfaces(
-      Type[] genericInterfaces, Map<TypeVariable<?>, Type> typeVariableMap) {
+  private static void extractTypeVariablesFromGenericInterfaces(Type[] genericInterfaces,
+      Map<TypeVariable<?>, Type> typeVariableMap) {
     for (Type genericInterface : genericInterfaces) {
       if (genericInterface instanceof ParameterizedType) {
         ParameterizedType pt = (ParameterizedType) genericInterface;
@@ -284,7 +282,8 @@ public abstract class GenericTypeResolver {
    * mappings corresponding to the {@link TypeVariable#getName TypeVariable name} -> concrete type
    * to the supplied {@link Map}.
    *
-   * <p>Consider this case:
+   * <p>
+   * Consider this case:
    *
    * <pre class="code> public interface Foo<S, T> { .. }
    *
@@ -294,8 +293,8 @@ public abstract class GenericTypeResolver {
    * For '<code>FooImpl</code>' the following mappings would be added to the {@link Map}:
    * {S=java.lang.String, T=java.lang.Integer}.
    */
-  private static void populateTypeMapFromParameterizedType(
-      ParameterizedType type, Map<TypeVariable<?>, Type> typeVariableMap) {
+  private static void populateTypeMapFromParameterizedType(ParameterizedType type,
+      Map<TypeVariable<?>, Type> typeVariableMap) {
     if (type.getRawType() instanceof Class) {
       Type[] actualTypeArguments = type.getActualTypeArguments();
       TypeVariable<?>[] typeVariables = ((Class<?>) type.getRawType()).getTypeParameters();

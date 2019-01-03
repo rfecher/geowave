@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -80,12 +81,11 @@ public class BinnedNumericDataset implements MultiDimensionalNumericData {
    * portion, each normalized to millis from the beginning of the year.
    *
    * @param numericData the incoming query into the index implementation, to be translated into
-   *     normalized, binned queries
+   *        normalized, binned queries
    * @param dimensionDefinitions the definition for the dimensions
    * @return normalized indexes
    */
-  public static List<BinnedNumericDataset> applyBins(
-      final MultiDimensionalNumericData numericData,
+  public static List<BinnedNumericDataset> applyBins(final MultiDimensionalNumericData numericData,
       final NumericDimensionDefinition[] dimensionDefinitions) {
     if (dimensionDefinitions.length == 0) {
       return Collections.EMPTY_LIST;
@@ -100,11 +100,8 @@ public class BinnedNumericDataset implements MultiDimensionalNumericData {
     return binnedQueries;
   }
 
-  private static void generatePermutations(
-      BinRange[][] binRangesPerDimension,
-      List<BinnedNumericDataset> result,
-      int dimension,
-      BinnedNumericDataset current) {
+  private static void generatePermutations(BinRange[][] binRangesPerDimension,
+      List<BinnedNumericDataset> result, int dimension, BinnedNumericDataset current) {
     if (dimension == binRangesPerDimension.length) {
       result.add(current);
       return;
@@ -115,10 +112,8 @@ public class BinnedNumericDataset implements MultiDimensionalNumericData {
       final NumericData[] rangePerDimension;
       if (current == null) {
         rangePerDimension = new NumericRange[binRangesPerDimension.length];
-        next =
-            new BinnedNumericDataset(
-                binRangesPerDimension[dimension][i].getBinId(),
-                new BasicNumericDataset(rangePerDimension));
+        next = new BinnedNumericDataset(binRangesPerDimension[dimension][i].getBinId(),
+            new BasicNumericDataset(rangePerDimension));
 
       } else {
         // because binned queries were intended to be immutable,
@@ -127,15 +122,13 @@ public class BinnedNumericDataset implements MultiDimensionalNumericData {
         for (int d = 0; d < dimension; d++) {
           rangePerDimension[d] = current.getDataPerDimension()[d];
         }
-        final byte[] combinedBinId =
-            ByteArrayUtils.combineArrays(
-                current.getBinId(), binRangesPerDimension[dimension][i].getBinId());
+        final byte[] combinedBinId = ByteArrayUtils.combineArrays(current.getBinId(),
+            binRangesPerDimension[dimension][i].getBinId());
         next = new BinnedNumericDataset(combinedBinId, new BasicNumericDataset(rangePerDimension));
       }
 
       rangePerDimension[dimension] =
-          new NumericRange(
-              binRangesPerDimension[dimension][i].getNormalizedMin(),
+          new NumericRange(binRangesPerDimension[dimension][i].getNormalizedMin(),
               binRangesPerDimension[dimension][i].getNormalizedMax());
       generatePermutations(binRangesPerDimension, result, dimension + 1, next);
     }
@@ -163,11 +156,8 @@ public class BinnedNumericDataset implements MultiDimensionalNumericData {
   @Override
   public byte[] toBinary() {
     final byte[] indexRangesBinary = PersistenceUtils.toBinary(indexRanges);
-    final ByteBuffer buf =
-        ByteBuffer.allocate(
-            VarintUtils.unsignedIntByteLength(binId.length)
-                + indexRangesBinary.length
-                + binId.length);
+    final ByteBuffer buf = ByteBuffer.allocate(
+        VarintUtils.unsignedIntByteLength(binId.length) + indexRangesBinary.length + binId.length);
     VarintUtils.writeUnsignedInt(binId.length, buf);
     buf.put(binId);
     buf.put(indexRangesBinary);

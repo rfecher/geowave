@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,12 +41,8 @@ public class GeoWaveSQLiteApiKeyDB extends GeoWaveBaseApiKeyDB {
 
     try (Connection conn = DriverManager.getConnection(url)) {
       // SQL statement for creating a new table
-      String sql =
-          "CREATE TABLE IF NOT EXISTS api_keys (\n"
-              + "	id integer PRIMARY KEY,\n"
-              + "	apiKey blob NOT NULL,\n"
-              + "	username text NOT NULL\n"
-              + ");";
+      String sql = "CREATE TABLE IF NOT EXISTS api_keys (\n" + "	id integer PRIMARY KEY,\n"
+          + "	apiKey blob NOT NULL,\n" + "	username text NOT NULL\n" + ");";
 
       try (Statement stmnt = conn.createStatement()) {
         stmnt.execute(sql);

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -60,23 +61,14 @@ public class VersionCommand extends ServiceEnabledCommand<String> {
       DataStoreOperations ops = inputStoreOptions.createDataStoreOperations();
       if (ops instanceof ServerSideOperations
           && inputStoreOptions.getFactoryOptions().getStoreOptions().isServerSideLibraryEnabled()) {
-        JCommander.getConsole()
-            .println(
-                "Looking up remote datastore version for type ["
-                    + inputStoreOptions.getType()
-                    + "] and name ["
-                    + inputStoreName
-                    + "]");
+        JCommander.getConsole().println("Looking up remote datastore version for type ["
+            + inputStoreOptions.getType() + "] and name [" + inputStoreName + "]");
         final String version = "Version: " + ((ServerSideOperations) ops).getVersion();
         JCommander.getConsole().println(version);
         return version;
       } else {
-        String ret1 =
-            "Datastore for type ["
-                + inputStoreOptions.getType()
-                + "] and name ["
-                + inputStoreName
-                + "] does not have a serverside library enabled.";
+        String ret1 = "Datastore for type [" + inputStoreOptions.getType() + "] and name ["
+            + inputStoreName + "] does not have a serverside library enabled.";
         JCommander.getConsole().println(ret1);
         String ret2 = "Commandline Version: " + VersionUtils.getVersion();
         JCommander.getConsole().println(ret2);

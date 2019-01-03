@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -131,11 +132,7 @@ public class JCommanderTranslationMap {
    * @param param
    * @param names - the arguments values for this item.
    */
-  protected void addEntry(
-      String newFieldName,
-      Object item,
-      Parameterized param,
-      String prefix,
+  protected void addEntry(String newFieldName, Object item, Parameterized param, String prefix,
       AnnotatedElement member) {
 
     translations.put(newFieldName, new TranslationEntry(param, item, prefix, member));
@@ -267,12 +264,8 @@ public class JCommanderTranslationMap {
         Object instance = toClass.newInstance();
         translatedObjects.add(instance);
       }
-    } catch (InstantiationException
-        | IllegalAccessException
-        | NotFoundException
-        | IllegalStateException
-        | NullPointerException
-        | CannotCompileException e) {
+    } catch (InstantiationException | IllegalAccessException | NotFoundException
+        | IllegalStateException | NullPointerException | CannotCompileException e) {
       LOGGER.error("Unable to create classes", e);
       throw new RuntimeException();
     }

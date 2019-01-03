@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,12 +35,8 @@ import org.locationtech.geowave.test.basic.AbstractGeoWaveBasicVectorIT;
 
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.MAP_REDUCE})
-@GeoWaveTestStore({
-  GeoWaveStoreType.ACCUMULO,
-  GeoWaveStoreType.HBASE,
-  GeoWaveStoreType.REDIS,
-  GeoWaveStoreType.ROCKSDB
-})
+@GeoWaveTestStore({GeoWaveStoreType.ACCUMULO, GeoWaveStoreType.HBASE, GeoWaveStoreType.REDIS,
+    GeoWaveStoreType.ROCKSDB})
 public class StoreCopyIT extends AbstractGeoWaveBasicVectorIT {
   private static final String HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE =
       HAIL_TEST_CASE_PACKAGE + "hail-box-filter.shp";
@@ -69,10 +66,8 @@ public class StoreCopyIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*      FINISHED StoreCopyIT             *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -81,24 +76,20 @@ public class StoreCopyIT extends AbstractGeoWaveBasicVectorIT {
   public void testStoreCopy() throws Exception {
     // Load some test data
     LOGGER.warn("Loading input data...");
-    TestUtils.testLocalIngest(
-        inputDataStorePluginOptions, DimensionalityType.SPATIAL, HAIL_SHAPEFILE_FILE, 1);
+    TestUtils.testLocalIngest(inputDataStorePluginOptions, DimensionalityType.SPATIAL,
+        HAIL_SHAPEFILE_FILE, 1);
 
     LOGGER.warn("Querying input data...");
     // Query the input store
     try {
-      testQuery(
-          new File(TEST_BOX_FILTER_FILE).toURI().toURL(),
-          new URL[] {
-            new File(HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE).toURI().toURL(),
-          },
-          TestUtils.DEFAULT_SPATIAL_INDEX,
-          "bounding box constraint only");
+      testQuery(new File(TEST_BOX_FILTER_FILE).toURI().toURL(),
+          new URL[] {new File(HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE).toURI().toURL(),},
+          TestUtils.DEFAULT_SPATIAL_INDEX, "bounding box constraint only");
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(inputDataStorePluginOptions);
-      Assert.fail(
-          "Error occurred while querying the input store: '" + e.getLocalizedMessage() + "'");
+      Assert
+          .fail("Error occurred while querying the input store: '" + e.getLocalizedMessage() + "'");
     }
 
     LOGGER.warn("Execute storecopy job...");
@@ -142,13 +133,9 @@ public class StoreCopyIT extends AbstractGeoWaveBasicVectorIT {
     testOutput = true;
 
     try {
-      testQuery(
-          new File(TEST_BOX_FILTER_FILE).toURI().toURL(),
-          new URL[] {
-            new File(HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE).toURI().toURL(),
-          },
-          TestUtils.DEFAULT_SPATIAL_INDEX,
-          "bounding box constraint only");
+      testQuery(new File(TEST_BOX_FILTER_FILE).toURI().toURL(),
+          new URL[] {new File(HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE).toURI().toURL(),},
+          TestUtils.DEFAULT_SPATIAL_INDEX, "bounding box constraint only");
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(outputDataStorePluginOptions);

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,16 +32,13 @@ public class GeoWaveKeyImpl implements GeoWaveKey {
     this(compositeInsertionId, partitionKeyLength, compositeInsertionId.length);
   }
 
-  public GeoWaveKeyImpl(
-      final byte[] compositeInsertionId, final int partitionKeyLength, final int length) {
+  public GeoWaveKeyImpl(final byte[] compositeInsertionId, final int partitionKeyLength,
+      final int length) {
     this(compositeInsertionId, partitionKeyLength, 0, length);
   }
 
-  public GeoWaveKeyImpl(
-      final byte[] compositeInsertionId,
-      final int partitionKeyLength,
-      final int offset,
-      final int length) {
+  public GeoWaveKeyImpl(final byte[] compositeInsertionId, final int partitionKeyLength,
+      final int offset, final int length) {
     this.compositeInsertionId = compositeInsertionId;
     final ByteBuffer buf = ByteBuffer.wrap(compositeInsertionId, offset, length);
     buf.position(buf.limit() - 1);
@@ -65,12 +63,8 @@ public class GeoWaveKeyImpl implements GeoWaveKey {
     this.numberOfDuplicates = numberOfDuplicates;
   }
 
-  public GeoWaveKeyImpl(
-      final byte[] dataId,
-      final short internalAdapterId,
-      final byte[] partitionKey,
-      final byte[] sortKey,
-      final int numberOfDuplicates) {
+  public GeoWaveKeyImpl(final byte[] dataId, final short internalAdapterId,
+      final byte[] partitionKey, final byte[] sortKey, final int numberOfDuplicates) {
     this.dataId = dataId;
     this.internalAdapterId = internalAdapterId;
     this.partitionKey = partitionKey;
@@ -115,8 +109,8 @@ public class GeoWaveKeyImpl implements GeoWaveKey {
     return numberOfDuplicates >= 0;
   }
 
-  public static GeoWaveKey[] createKeys(
-      final InsertionIds insertionIds, final byte[] dataId, final short internalAdapterId) {
+  public static GeoWaveKey[] createKeys(final InsertionIds insertionIds, final byte[] dataId,
+      final short internalAdapterId) {
     final GeoWaveKey[] keys = new GeoWaveKey[insertionIds.getSize()];
     final Collection<SinglePartitionInsertionIds> partitionKeys = insertionIds.getPartitionKeys();
     final Iterator<SinglePartitionInsertionIds> it = partitionKeys.iterator();
@@ -125,13 +119,8 @@ public class GeoWaveKeyImpl implements GeoWaveKey {
     while (it.hasNext()) {
       final SinglePartitionInsertionIds partitionKey = it.next();
       if ((partitionKey.getSortKeys() == null) || partitionKey.getSortKeys().isEmpty()) {
-        keys[i++] =
-            new GeoWaveKeyImpl(
-                dataId,
-                internalAdapterId,
-                partitionKey.getPartitionKey().getBytes(),
-                new byte[] {},
-                numDuplicates);
+        keys[i++] = new GeoWaveKeyImpl(dataId, internalAdapterId,
+            partitionKey.getPartitionKey().getBytes(), new byte[] {}, numDuplicates);
       } else {
         byte[] partitionKeyBytes;
         if (partitionKey.getPartitionKey() == null) {
@@ -141,9 +130,8 @@ public class GeoWaveKeyImpl implements GeoWaveKey {
         }
         final List<ByteArray> sortKeys = partitionKey.getSortKeys();
         for (final ByteArray sortKey : sortKeys) {
-          keys[i++] =
-              new GeoWaveKeyImpl(
-                  dataId, internalAdapterId, partitionKeyBytes, sortKey.getBytes(), numDuplicates);
+          keys[i++] = new GeoWaveKeyImpl(dataId, internalAdapterId, partitionKeyBytes,
+              sortKey.getBytes(), numDuplicates);
         }
       }
     }

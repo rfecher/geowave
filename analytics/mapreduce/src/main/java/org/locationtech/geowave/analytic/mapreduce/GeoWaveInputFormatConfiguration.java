@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -45,8 +46,8 @@ public class GeoWaveInputFormatConfiguration implements FormatConfiguration {
 
     if (query != null) {
       if (query.getQueryConstraints() != null) {
-        GeoWaveInputFormat.setQueryConstraints(
-            configuration, (QueryConstraints) query.getQueryConstraints());
+        GeoWaveInputFormat.setQueryConstraints(configuration,
+            (QueryConstraints) query.getQueryConstraints());
       }
 
       if (query.getCommonQueryOptions() != null) {
@@ -54,16 +55,13 @@ public class GeoWaveInputFormatConfiguration implements FormatConfiguration {
       }
 
       if (query.getDataTypeQueryOptions() != null) {
-        GeoWaveInputFormat.setDataTypeQueryOptions(
-            configuration,
-            query.getDataTypeQueryOptions(),
-            dataStoreOptions.createAdapterStore(),
-            dataStoreOptions.createInternalAdapterStore());
+        GeoWaveInputFormat.setDataTypeQueryOptions(configuration, query.getDataTypeQueryOptions(),
+            dataStoreOptions.createAdapterStore(), dataStoreOptions.createInternalAdapterStore());
       }
 
       if (query.getIndexQueryOptions() != null) {
-        GeoWaveInputFormat.setIndexQueryOptions(
-            configuration, query.getIndexQueryOptions(), dataStoreOptions.createIndexStore());
+        GeoWaveInputFormat.setIndexQueryOptions(configuration, query.getIndexQueryOptions(),
+            dataStoreOptions.createIndexStore());
       }
     }
 
@@ -106,12 +104,8 @@ public class GeoWaveInputFormatConfiguration implements FormatConfiguration {
 
   @Override
   public List<ParameterEnum<?>> getParameters() {
-    return Arrays.asList(
-        new ParameterEnum<?>[] {
-          ExtractParameters.Extract.QUERY,
-          ExtractParameters.Extract.MAX_INPUT_SPLIT,
-          ExtractParameters.Extract.MIN_INPUT_SPLIT,
-          StoreParam.INPUT_STORE
-        });
+    return Arrays.asList(new ParameterEnum<?>[] {ExtractParameters.Extract.QUERY,
+        ExtractParameters.Extract.MAX_INPUT_SPLIT, ExtractParameters.Extract.MIN_INPUT_SPLIT,
+        StoreParam.INPUT_STORE});
   }
 }

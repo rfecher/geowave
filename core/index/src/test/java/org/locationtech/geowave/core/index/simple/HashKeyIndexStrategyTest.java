@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.core.index.simple;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,13 +41,11 @@ import org.locationtech.geowave.core.index.sfc.tiered.TieredSFCIndexFactory;
 public class HashKeyIndexStrategyTest {
 
   private static final NumericDimensionDefinition[] SPATIAL_DIMENSIONS =
-      new NumericDimensionDefinition[] {
-        new BasicDimensionDefinition(-180, 180), new BasicDimensionDefinition(-90, 90)
-      };
+      new NumericDimensionDefinition[] {new BasicDimensionDefinition(-180, 180),
+          new BasicDimensionDefinition(-90, 90)};
 
-  private static final NumericIndexStrategy sfcIndexStrategy =
-      TieredSFCIndexFactory.createSingleTierStrategy(
-          SPATIAL_DIMENSIONS, new int[] {16, 16}, SFCType.HILBERT);
+  private static final NumericIndexStrategy sfcIndexStrategy = TieredSFCIndexFactory
+      .createSingleTierStrategy(SPATIAL_DIMENSIONS, new int[] {16, 16}, SFCType.HILBERT);
 
   private static final HashKeyIndexStrategy hashIdexStrategy = new HashKeyIndexStrategy(3);
   private static final CompoundIndexStrategy compoundIndexStrategy =
@@ -111,9 +109,8 @@ public class HashKeyIndexStrategyTest {
     final InsertionIds id = compoundIndexStrategy.getInsertionIds(sfcIndexedRange);
     for (final SinglePartitionInsertionIds partitionKey : id.getPartitionKeys()) {
       for (final ByteArray sortKey : partitionKey.getSortKeys()) {
-        final MultiDimensionalCoordinates coords =
-            compoundIndexStrategy.getCoordinatesPerDimension(
-                partitionKey.getPartitionKey(), sortKey);
+        final MultiDimensionalCoordinates coords = compoundIndexStrategy
+            .getCoordinatesPerDimension(partitionKey.getPartitionKey(), sortKey);
         assertTrue(coords.getCoordinate(0).getCoordinate() > 0);
         assertTrue(coords.getCoordinate(1).getCoordinate() > 0);
       }
@@ -139,19 +136,16 @@ public class HashKeyIndexStrategyTest {
     final List<ByteArrayRange> ranges = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
       for (final ByteArrayRange r2 : sfcIndexRanges) {
-        final ByteArray start =
-            new ByteArray(
-                ByteArrayUtils.combineArrays(new byte[] {(byte) i}, r2.getStart().getBytes()));
-        final ByteArray end =
-            new ByteArray(
-                ByteArrayUtils.combineArrays(new byte[] {(byte) i}, r2.getEnd().getBytes()));
+        final ByteArray start = new ByteArray(
+            ByteArrayUtils.combineArrays(new byte[] {(byte) i}, r2.getStart().getBytes()));
+        final ByteArray end = new ByteArray(
+            ByteArrayUtils.combineArrays(new byte[] {(byte) i}, r2.getEnd().getBytes()));
         ranges.add(new ByteArrayRange(start, end));
       }
     }
     final Set<ByteArrayRange> testRanges = new HashSet<>(ranges);
-    final Set<ByteArrayRange> compoundIndexRanges =
-        new HashSet<>(
-            compoundIndexStrategy.getQueryRanges(sfcIndexedRange).getCompositeQueryRanges());
+    final Set<ByteArrayRange> compoundIndexRanges = new HashSet<>(
+        compoundIndexStrategy.getQueryRanges(sfcIndexedRange).getCompositeQueryRanges());
     Assert.assertTrue(testRanges.containsAll(compoundIndexRanges));
     Assert.assertTrue(compoundIndexRanges.containsAll(testRanges));
   }

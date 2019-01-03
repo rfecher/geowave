@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -47,9 +48,7 @@ public class WholeRowQueryFilterIterator extends WholeRowIterator {
         final Value value = values.get(i);
         unreadData.add(queryFilterIterator.aggregateFieldData(key, value, commonData));
       }
-      return queryFilterIterator.applyRowFilter(
-          currentRow,
-          commonData,
+      return queryFilterIterator.applyRowFilter(currentRow, commonData,
           unreadData.isEmpty() ? null : new UnreadFieldDataList(unreadData));
     }
     // if the query filter or index model did not get sent to this iterator,
@@ -58,11 +57,8 @@ public class WholeRowQueryFilterIterator extends WholeRowIterator {
   }
 
   @Override
-  public void init(
-      final SortedKeyValueIterator<Key, Value> source,
-      final Map<String, String> options,
-      final IteratorEnvironment env)
-      throws IOException {
+  public void init(final SortedKeyValueIterator<Key, Value> source,
+      final Map<String, String> options, final IteratorEnvironment env) throws IOException {
     queryFilterIterator = new QueryFilterIterator();
     queryFilterIterator.setOptions(options);
     super.init(source, options, env);

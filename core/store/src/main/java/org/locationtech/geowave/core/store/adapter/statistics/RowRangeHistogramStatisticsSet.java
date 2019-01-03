@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,19 +26,12 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
  *
  * @param <T> The type of the row to keep statistics on
  */
-public class RowRangeHistogramStatisticsSet<T>
-    extends AbstractDataStatistics<
-        T,
-        Map<ByteArray, RowRangeHistogramStatistics<T>>,
-        IndexStatisticsQueryBuilder<Map<ByteArray, RowRangeHistogramStatistics<T>>>>
-    implements DataStatisticsSet<
-        T,
-        Map<ByteArray, RowRangeHistogramStatistics<T>>,
-        NumericHistogram,
-        PartitionStatisticsQueryBuilder<NumericHistogram>,
-        IndexStatisticsQueryBuilder<Map<ByteArray, RowRangeHistogramStatistics<T>>>> {
-  public static final IndexStatisticsType<Map<ByteArray, RowRangeHistogramStatistics<?>>>
-      STATS_TYPE = new IndexStatisticsType<>(RowRangeHistogramStatistics.STATS_TYPE.getString());
+public class RowRangeHistogramStatisticsSet<T> extends
+    AbstractDataStatistics<T, Map<ByteArray, RowRangeHistogramStatistics<T>>, IndexStatisticsQueryBuilder<Map<ByteArray, RowRangeHistogramStatistics<T>>>>
+    implements
+    DataStatisticsSet<T, Map<ByteArray, RowRangeHistogramStatistics<T>>, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>, IndexStatisticsQueryBuilder<Map<ByteArray, RowRangeHistogramStatistics<T>>>> {
+  public static final IndexStatisticsType<Map<ByteArray, RowRangeHistogramStatistics<?>>> STATS_TYPE =
+      new IndexStatisticsType<>(RowRangeHistogramStatistics.STATS_TYPE.getString());
   private final Map<ByteArray, RowRangeHistogramStatistics<T>> histogramPerPartition =
       new HashMap<>();
 
@@ -85,17 +79,13 @@ public class RowRangeHistogramStatisticsSet<T>
   }
 
   @Override
-  public InternalDataStatistics<
-          T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>>
-      [] getStatisticsSet() {
-    return histogramPerPartition
-        .values()
+  public InternalDataStatistics<T, NumericHistogram, PartitionStatisticsQueryBuilder<NumericHistogram>>[] getStatisticsSet() {
+    return histogramPerPartition.values()
         .toArray(new InternalDataStatistics[histogramPerPartition.size()]);
   }
 
   protected static ByteArray getPartitionKey(final byte[] partitionBytes) {
-    return ((partitionBytes == null) || (partitionBytes.length == 0))
-        ? null
+    return ((partitionBytes == null) || (partitionBytes.length == 0)) ? null
         : new ByteArray(partitionBytes);
   }
 

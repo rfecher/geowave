@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -46,10 +47,9 @@ public class SimpleFeatureToAccumuloKeyValueMapper extends Mapper<LongWritable, 
       new AccumuloKeyValuePairGenerator<SimpleFeature>(
           // this is not the most robust way to assign an internal adapter ID
           // but is simple and will work in a majority of cases
-          new InternalDataAdapterWrapper<>(
-              adapter, InternalAdapterStoreImpl.getLazyInitialAdapterId(adapter.getTypeName())),
-          index,
-          visibilityWriter);
+          new InternalDataAdapterWrapper<>(adapter,
+              InternalAdapterStoreImpl.getLazyInitialAdapterId(adapter.getTypeName())),
+          index, visibilityWriter);
   private SimpleFeature simpleFeature;
   private List<KeyValue> keyValuePairs;
   private final SimpleFeatureBuilder builder =
@@ -90,14 +90,10 @@ public class SimpleFeatureToAccumuloKeyValueMapper extends Mapper<LongWritable, 
     return buildSimpleFeature(geonameId, longitude, latitude, location);
   }
 
-  private SimpleFeature buildSimpleFeature(
-      final String featureId,
-      final double longitude,
-      final double latitude,
-      final String location) {
+  private SimpleFeature buildSimpleFeature(final String featureId, final double longitude,
+      final double latitude, final String location) {
 
-    builder.set(
-        "geometry",
+    builder.set("geometry",
         GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(longitude, latitude)));
     builder.set("Latitude", latitude);
     builder.set("Longitude", longitude);

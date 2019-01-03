@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -18,8 +19,8 @@ public class DefaultNeighborList<NNTYPE> implements NeighborList<NNTYPE> {
   private final Map<ByteArray, NNTYPE> list = new HashMap<ByteArray, NNTYPE>();
 
   @Override
-  public boolean add(
-      final DistanceProfile<?> distanceProfile, final ByteArray id, final NNTYPE value) {
+  public boolean add(final DistanceProfile<?> distanceProfile, final ByteArray id,
+      final NNTYPE value) {
     if (infer(id, value) == InferType.NONE) {
       list.put(id, value);
       return true;

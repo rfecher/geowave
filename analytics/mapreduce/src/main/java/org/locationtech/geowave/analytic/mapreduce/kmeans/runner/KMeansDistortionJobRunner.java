@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,9 +32,10 @@ import org.locationtech.geowave.mapreduce.output.GeoWaveOutputKey;
 /**
  * Calculate the distortation.
  *
- * <p>See Catherine A. Sugar and Gareth M. James (2003). "Finding the number of clusters in a data
- * set: An information theoretic approach" Journal of the American Statistical Association 98
- * (January): 750–763
+ * <p>
+ * See Catherine A. Sugar and Gareth M. James (2003). "Finding the number of clusters in a data set:
+ * An information theoretic approach" Journal of the American Statistical Association 98 (January):
+ * 750–763
  */
 public class KMeansDistortionJobRunner extends GeoWaveAnalyticJobRunner {
   private int k = 1;
@@ -66,9 +68,8 @@ public class KMeansDistortionJobRunner extends GeoWaveAnalyticJobRunner {
     final long milliSeconds = 1000L * 60L * 15L;
     final Configuration conf = job.getConfiguration();
     conf.setLong("mapred.task.timeout", milliSeconds);
-    ((ParameterEnum<Integer>) JumpParameters.Jump.COUNT_OF_CENTROIDS)
-        .getHelper()
-        .setValue(conf, KMeansDistortionMapReduce.class, Integer.valueOf(k));
+    ((ParameterEnum<Integer>) JumpParameters.Jump.COUNT_OF_CENTROIDS).getHelper().setValue(conf,
+        KMeansDistortionMapReduce.class, Integer.valueOf(k));
 
     // Required since the Mapper uses the input format parameters to lookup
     // the adapter
@@ -85,17 +86,11 @@ public class KMeansDistortionJobRunner extends GeoWaveAnalyticJobRunner {
   @Override
   public int run(final Configuration config, final PropertyManagement runTimeProperties)
       throws Exception {
-    setReducerCount(
-        runTimeProperties.getPropertyAsInt(
-            ClusteringParameters.Clustering.MAX_REDUCER_COUNT, super.getReducerCount()));
-    runTimeProperties.setConfig(
-        new ParameterEnum[] {
-          CentroidParameters.Centroid.EXTRACTOR_CLASS,
-          CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-          GlobalParameters.Global.PARENT_BATCH_ID
-        },
-        config,
-        getScope());
+    setReducerCount(runTimeProperties.getPropertyAsInt(
+        ClusteringParameters.Clustering.MAX_REDUCER_COUNT, super.getReducerCount()));
+    runTimeProperties.setConfig(new ParameterEnum[] {CentroidParameters.Centroid.EXTRACTOR_CLASS,
+        CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS, GlobalParameters.Global.PARENT_BATCH_ID},
+        config, getScope());
 
     NestedGroupCentroidAssignment.setParameters(config, getScope(), runTimeProperties);
 

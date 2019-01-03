@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,49 +37,17 @@ public class SwaggerApiParser {
   private final String swaggerHeader;
   private final String fileUpload;
 
-  public SwaggerApiParser(
-      final String host,
-      final String path,
-      final String apiVersion,
-      final String apiTitle,
-      final String apiDescription) {
+  public SwaggerApiParser(final String host, final String path, final String apiVersion,
+      final String apiTitle, final String apiDescription) {
     routesJson = new JsonObject();
-    swaggerHeader =
-        "{\"swagger\": \"2.0\","
-            + "\"info\": {"
-            + "\"version\": \""
-            + apiVersion
-            + "\","
-            + "\"title\": \""
-            + apiTitle
-            + "\","
-            + "\"description\": \""
-            + apiDescription
-            + "\","
-            + "\"termsOfService\": \"https://github.com/locationtech/geowave\","
-            + "\"contact\": {"
-            + "\"name\": \"GeoWave Team\""
-            + "},"
-            + "\"license\": {"
-            + "\"name\": \"Apache2\""
-            + "}"
-            + "},"
-            + "\"host\": \""
-            + host
-            + "\","
-            + "\"basePath\": \""
-            + path
-            + "\","
-            + "\"schemes\": ["
-            + "\"http\""
-            + "],"
-            + "\"consumes\": ["
-            + "\"application/json\",\"multipart/form-data\""
-            + "],"
-            + "\"produces\": ["
-            + "\"application/json\""
-            + "],"
-            + "\"paths\":";
+    swaggerHeader = "{\"swagger\": \"2.0\"," + "\"info\": {" + "\"version\": \"" + apiVersion
+        + "\"," + "\"title\": \"" + apiTitle + "\"," + "\"description\": \"" + apiDescription
+        + "\"," + "\"termsOfService\": \"https://github.com/locationtech/geowave\","
+        + "\"contact\": {" + "\"name\": \"GeoWave Team\"" + "}," + "\"license\": {"
+        + "\"name\": \"Apache2\"" + "}" + "}," + "\"host\": \"" + host + "\"," + "\"basePath\": \""
+        + path + "\"," + "\"schemes\": [" + "\"http\"" + "]," + "\"consumes\": ["
+        + "\"application/json\",\"multipart/form-data\"" + "]," + "\"produces\": ["
+        + "\"application/json\"" + "]," + "\"paths\":";
 
     fileUpload =
         ",\"/v0/fileupload\": {\"post\":{\"operationId\": \"fileupload\",\"consumes\": [\"multipart/form-data\""

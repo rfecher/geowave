@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,9 +38,8 @@ public final class OperationEntry {
     this.operationClass = operationClass;
     GeowaveOperation operation = this.operationClass.getAnnotation(GeowaveOperation.class);
     if (operation == null) {
-      throw new RuntimeException(
-          "Expected Operation class to use GeowaveOperation annotation: "
-              + this.operationClass.getCanonicalName());
+      throw new RuntimeException("Expected Operation class to use GeowaveOperation annotation: "
+          + this.operationClass.getCanonicalName());
     }
     this.operationName = operation.name();
     this.parentOperationClass = operation.parentOperation();
@@ -66,11 +66,8 @@ public final class OperationEntry {
 
   public void addChild(OperationEntry child) {
     if (children.containsKey(child.getOperationName().toLowerCase(Locale.ENGLISH))) {
-      throw new RuntimeException(
-          "Duplicate operation name: "
-              + child.getOperationName()
-              + " for "
-              + this.getOperationClass().getName());
+      throw new RuntimeException("Duplicate operation name: " + child.getOperationName() + " for "
+          + this.getOperationClass().getName());
     }
     children.put(child.getOperationName().toLowerCase(Locale.ENGLISH), child);
   }

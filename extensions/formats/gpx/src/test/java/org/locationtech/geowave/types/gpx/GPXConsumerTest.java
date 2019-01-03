@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.types.gpx;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -34,111 +34,92 @@ public class GPXConsumerTest {
   @Before
   public void setup() {
 
-    expectedResults.put(
-        "123_6_A_track_1_1",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Elevation").toString().equals("4.46")
-                && (feature.getAttribute("Timestamp") != null)
-                && (feature.getAttribute("Latitude") != null)
-                && (feature.getAttribute("Longitude") != null);
-          }
-        });
-    expectedResults.put(
-        "123_6_A_track_1_2",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Elevation").toString().equals("4.634")
-                && (feature.getAttribute("Timestamp") != null)
-                && (feature.getAttribute("Latitude") != null)
-                && (feature.getAttribute("Longitude") != null);
-          }
-        });
-    expectedResults.put(
-        "123_2_B_track_1_1",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Elevation").toString().equals("10.46")
-                && (feature.getAttribute("Timestamp") != null)
-                && (feature.getAttribute("Latitude") != null)
-                && (feature.getAttribute("Longitude") != null);
-          }
-        });
-    expectedResults.put(
-        "123_2_B_track_1_2",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Elevation").toString().equals("11.634")
-                && feature.getAttribute("Fix").toString().equals("2d")
-                && feature.getAttribute("Satellites").toString().equals("8")
-                && feature.getAttribute("HDOP").toString().equals("2.0")
-                && feature.getAttribute("VDOP").toString().equals("2.1")
-                && feature.getAttribute("PDOP").toString().equals("2.2")
-                && (feature.getAttribute("Timestamp") != null)
-                && (feature.getAttribute("Latitude") != null)
-                && (feature.getAttribute("Longitude") != null);
-          }
-        });
-    expectedResults.put(
-        "123_6_A_track",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Name").toString().equals("A track")
-                && feature.getAttribute("Duration").toString().equals("60000")
-                && (feature.getAttribute("StartTimeStamp") != null)
-                && feature.getAttribute("NumberPoints").toString().equals("2")
-                && (feature.getAttribute("EndTimeStamp") != null);
-          }
-        });
-    expectedResults.put(
-        "123_2_B_track",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Duration").toString().equals("60000")
-                && (feature.getAttribute("StartTimeStamp") != null)
-                && feature.getAttribute("NumberPoints").toString().equals("2")
-                && (feature.getAttribute("EndTimeStamp") != null);
-          }
-        });
-    expectedResults.put(
-        "AQUADUCT_0422469500_-0714618070",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Description").toString().equals("Aquaduct")
-                && (feature.getAttribute("Longitude") != null)
-                && feature.getAttribute("Symbol").toString().equals("Dam")
-                && (feature.getAttribute("Latitude") != null);
-          }
-        });
-    expectedResults.put(
-        "TRANSITION_0422446460_-0714685390",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Name").toString().equals("TRANSITION")
-                && feature.getAttribute("Elevation").toString().equals("92.6592");
-          }
-        });
-    expectedResults.put(
-        "123_12_ROUT135ASP",
-        new ValidateObject<SimpleFeature>() {
-          @Override
-          public boolean validate(final SimpleFeature feature) {
-            return feature.getAttribute("Name").toString().equals("ROUT135ASP")
-                && feature.getAttribute("NumberPoints").toString().equals("2")
-                && feature.getAttribute("Description").toString().equals("Route 135 ASP");
-          }
-        });
+    expectedResults.put("123_6_A_track_1_1", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Elevation").toString().equals("4.46")
+            && (feature.getAttribute("Timestamp") != null)
+            && (feature.getAttribute("Latitude") != null)
+            && (feature.getAttribute("Longitude") != null);
+      }
+    });
+    expectedResults.put("123_6_A_track_1_2", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Elevation").toString().equals("4.634")
+            && (feature.getAttribute("Timestamp") != null)
+            && (feature.getAttribute("Latitude") != null)
+            && (feature.getAttribute("Longitude") != null);
+      }
+    });
+    expectedResults.put("123_2_B_track_1_1", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Elevation").toString().equals("10.46")
+            && (feature.getAttribute("Timestamp") != null)
+            && (feature.getAttribute("Latitude") != null)
+            && (feature.getAttribute("Longitude") != null);
+      }
+    });
+    expectedResults.put("123_2_B_track_1_2", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Elevation").toString().equals("11.634")
+            && feature.getAttribute("Fix").toString().equals("2d")
+            && feature.getAttribute("Satellites").toString().equals("8")
+            && feature.getAttribute("HDOP").toString().equals("2.0")
+            && feature.getAttribute("VDOP").toString().equals("2.1")
+            && feature.getAttribute("PDOP").toString().equals("2.2")
+            && (feature.getAttribute("Timestamp") != null)
+            && (feature.getAttribute("Latitude") != null)
+            && (feature.getAttribute("Longitude") != null);
+      }
+    });
+    expectedResults.put("123_6_A_track", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Name").toString().equals("A track")
+            && feature.getAttribute("Duration").toString().equals("60000")
+            && (feature.getAttribute("StartTimeStamp") != null)
+            && feature.getAttribute("NumberPoints").toString().equals("2")
+            && (feature.getAttribute("EndTimeStamp") != null);
+      }
+    });
+    expectedResults.put("123_2_B_track", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Duration").toString().equals("60000")
+            && (feature.getAttribute("StartTimeStamp") != null)
+            && feature.getAttribute("NumberPoints").toString().equals("2")
+            && (feature.getAttribute("EndTimeStamp") != null);
+      }
+    });
+    expectedResults.put("AQUADUCT_0422469500_-0714618070", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Description").toString().equals("Aquaduct")
+            && (feature.getAttribute("Longitude") != null)
+            && feature.getAttribute("Symbol").toString().equals("Dam")
+            && (feature.getAttribute("Latitude") != null);
+      }
+    });
+    expectedResults.put("TRANSITION_0422446460_-0714685390", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Name").toString().equals("TRANSITION")
+            && feature.getAttribute("Elevation").toString().equals("92.6592");
+      }
+    });
+    expectedResults.put("123_12_ROUT135ASP", new ValidateObject<SimpleFeature>() {
+      @Override
+      public boolean validate(final SimpleFeature feature) {
+        return feature.getAttribute("Name").toString().equals("ROUT135ASP")
+            && feature.getAttribute("NumberPoints").toString().equals("2")
+            && feature.getAttribute("Description").toString().equals("Route 135 ASP");
+      }
+    });
 
-    expectedResults.put(
-        "123_12_ROUT135ASP_2_rtename2_0422446460_-0714685390",
+    expectedResults.put("123_12_ROUT135ASP_2_rtename2_0422446460_-0714685390",
         new ValidateObject<SimpleFeature>() {
           @Override
           public boolean validate(final SimpleFeature feature) {
@@ -153,17 +134,10 @@ public class GPXConsumerTest {
     final Set<String> expectedSet = HelperClass.buildSet(expectedResults);
 
     try (final InputStream is =
-        this.getClass().getClassLoader().getResourceAsStream("sample_gpx.xml"); ) {
+        this.getClass().getClassLoader().getResourceAsStream("sample_gpx.xml");) {
 
-      final GPXConsumer consumer =
-          new GPXConsumer(
-              is,
-              new String[] {"123"},
-              "123",
-              new HashMap<String, Map<String, String>>(),
-              true,
-              "",
-              Double.MAX_VALUE);
+      final GPXConsumer consumer = new GPXConsumer(is, new String[] {"123"}, "123",
+          new HashMap<String, Map<String, String>>(), true, "", Double.MAX_VALUE);
       int totalCount = 0;
 
       while (consumer.hasNext()) {
@@ -185,9 +159,7 @@ public class GPXConsumerTest {
       System.out.println("Failed matches:");
       System.out.println(expectedSet);
     }
-    assertEquals(
-        "All expected data set should be matched; zero unmatched data expected",
-        0,
+    assertEquals("All expected data set should be matched; zero unmatched data expected", 0,
         expectedSet.size());
   }
 
@@ -216,16 +188,9 @@ public class GPXConsumerTest {
       }
 
     } else if (dir.getName().endsWith("gpx")) {
-      try (final InputStream is = new FileInputStream(dir); ) {
-        try (final GPXConsumer consumer =
-            new GPXConsumer(
-                is,
-                new String[] {"123"},
-                "",
-                new HashMap<String, Map<String, String>>(),
-                false,
-                "",
-                Double.MAX_VALUE)) {
+      try (final InputStream is = new FileInputStream(dir);) {
+        try (final GPXConsumer consumer = new GPXConsumer(is, new String[] {"123"}, "",
+            new HashMap<String, Map<String, String>>(), false, "", Double.MAX_VALUE)) {
           final Set<String> ids = new HashSet<>();
           while (consumer.hasNext()) {
             final String id = consumer.next().getValue().getID();

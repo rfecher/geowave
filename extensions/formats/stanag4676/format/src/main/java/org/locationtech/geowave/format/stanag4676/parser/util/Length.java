@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,16 +24,7 @@ public class Length implements Serializable {
   public static final double YDperKM = FTperKM / 3.0;
 
   public enum LengthUnits {
-    Kilometers,
-    Meters,
-    Decimeters,
-    Centimeters,
-    Millimeters,
-    NauticalMiles,
-    StatuteMiles,
-    Yards,
-    Feet,
-    Inches
+    Kilometers, Meters, Decimeters, Centimeters, Millimeters, NauticalMiles, StatuteMiles, Yards, Feet, Inches
   }
 
   private double lengthKM;

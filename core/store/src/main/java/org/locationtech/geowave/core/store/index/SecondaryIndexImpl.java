@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,25 +45,16 @@ public class SecondaryIndexImpl<T>
 
   public SecondaryIndexImpl() {}
 
-  public SecondaryIndexImpl(
-      final FieldIndexStrategy<?, ?> indexStrategy,
-      final String fieldName,
+  public SecondaryIndexImpl(final FieldIndexStrategy<?, ?> indexStrategy, final String fieldName,
       final List<InternalDataStatistics<T, ?, ?>> associatedStatistics,
       final SecondaryIndexType secondaryIndexType) {
-    this(
-        indexStrategy,
-        fieldName,
-        associatedStatistics,
-        secondaryIndexType,
+    this(indexStrategy, fieldName, associatedStatistics, secondaryIndexType,
         Collections.<String>emptyList());
   }
 
-  public SecondaryIndexImpl(
-      final FieldIndexStrategy<?, ?> indexStrategy,
-      final String fieldName,
+  public SecondaryIndexImpl(final FieldIndexStrategy<?, ?> indexStrategy, final String fieldName,
       final List<InternalDataStatistics<T, ?, ?>> associatedStatistics,
-      final SecondaryIndexType secondaryIndexType,
-      final List<String> partialFieldNames) {
+      final SecondaryIndexType secondaryIndexType, final List<String> partialFieldNames) {
     super();
     this.indexStrategy = indexStrategy;
     this.fieldName = fieldName;
@@ -154,19 +146,14 @@ public class SecondaryIndexImpl<T>
       partialsLength = allPartials.array().length;
       partialsBinary = allPartials.array();
     }
-    final ByteBuffer buf =
-        ByteBuffer.allocate(
-            indexStrategyBinary.length
-                + fieldIdBinary.length
-                + secondaryIndexTypeBinary.length
-                + persistablesBinary.length
-                + partialsLength
-                + (partialsLength > 0 ? VarintUtils.unsignedIntByteLength(partialsLength) : 0)
-                + VarintUtils.unsignedIntByteLength(indexStrategyBinary.length)
-                + VarintUtils.unsignedIntByteLength(fieldIdBinary.length)
-                + VarintUtils.unsignedIntByteLength(secondaryIndexTypeBinary.length)
-                + VarintUtils.unsignedIntByteLength(persistablesBinary.length)
-                + VarintUtils.unsignedIntByteLength(handlePartials ? partialFieldNames.size() : 0));
+    final ByteBuffer buf = ByteBuffer.allocate(indexStrategyBinary.length + fieldIdBinary.length
+        + secondaryIndexTypeBinary.length + persistablesBinary.length + partialsLength
+        + (partialsLength > 0 ? VarintUtils.unsignedIntByteLength(partialsLength) : 0)
+        + VarintUtils.unsignedIntByteLength(indexStrategyBinary.length)
+        + VarintUtils.unsignedIntByteLength(fieldIdBinary.length)
+        + VarintUtils.unsignedIntByteLength(secondaryIndexTypeBinary.length)
+        + VarintUtils.unsignedIntByteLength(persistablesBinary.length)
+        + VarintUtils.unsignedIntByteLength(handlePartials ? partialFieldNames.size() : 0));
     VarintUtils.writeUnsignedInt(indexStrategyBinary.length, buf);
     VarintUtils.writeUnsignedInt(fieldIdBinary.length, buf);
     VarintUtils.writeUnsignedInt(secondaryIndexTypeBinary.length, buf);

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,9 +42,7 @@ public class GeoWaveGrpcCoreCliService extends CoreCliImplBase implements GeoWav
   @Override
   public void setCommand(
       org.locationtech.geowave.service.grpc.protobuf.SetCommandParametersProtos request,
-      StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.StringResponseProtos> responseObserver) {
 
     SetCommand cmd = new SetCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -59,8 +58,10 @@ public class GeoWaveGrpcCoreCliService extends CoreCliImplBase implements GeoWav
     try {
       final Object result = cmd.computeResults(params);
       String strResponseProtos = "";
-      if (result != null) strResponseProtos = result.toString();
-      final StringResponseProtos resp = StringResponseProtos.newBuilder().setResponseValue(strResponseProtos).build();
+      if (result != null)
+        strResponseProtos = result.toString();
+      final StringResponseProtos resp =
+          StringResponseProtos.newBuilder().setResponseValue(strResponseProtos).build();
       responseObserver.onNext(resp);
       responseObserver.onCompleted();
 
@@ -72,10 +73,7 @@ public class GeoWaveGrpcCoreCliService extends CoreCliImplBase implements GeoWav
   @Override
   public void listCommand(
       org.locationtech.geowave.service.grpc.protobuf.ListCommandParametersProtos request,
-      StreamObserver<
-              org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos
-                  .MapStringStringResponseProtos>
-          responseObserver) {
+      StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.MapStringStringResponseProtos> responseObserver) {
 
     ListCommand cmd = new ListCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();

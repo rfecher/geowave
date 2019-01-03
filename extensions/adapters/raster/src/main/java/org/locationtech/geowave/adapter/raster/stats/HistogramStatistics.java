@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -45,11 +46,8 @@ import org.opengis.parameter.ParameterValueGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HistogramStatistics
-    extends AbstractDataStatistics<
-        GridCoverage,
-        Map<Resolution, javax.media.jai.Histogram>,
-        BaseStatisticsQueryBuilder<Map<Resolution, javax.media.jai.Histogram>>> {
+public class HistogramStatistics extends
+    AbstractDataStatistics<GridCoverage, Map<Resolution, javax.media.jai.Histogram>, BaseStatisticsQueryBuilder<Map<Resolution, javax.media.jai.Histogram>>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(HistogramStatistics.class);
   public static final BaseStatisticsType<Map<Resolution, javax.media.jai.Histogram>> STATS_TYPE =
       new BaseStatisticsType<>("HISTOGRAM_STATS");
@@ -97,11 +95,9 @@ public class HistogramStatistics
       }
       // 8 for key and value lengths as ints
 
-      final int entryBytes =
-          VarintUtils.unsignedIntByteLength(keyBytes.length)
-              + VarintUtils.unsignedIntByteLength(valueBytes.length)
-              + keyBytes.length
-              + valueBytes.length;
+      final int entryBytes = VarintUtils.unsignedIntByteLength(keyBytes.length)
+          + VarintUtils.unsignedIntByteLength(valueBytes.length) + keyBytes.length
+          + valueBytes.length;
       final ByteBuffer buf = ByteBuffer.allocate(entryBytes);
       VarintUtils.writeUnsignedInt(keyBytes.length, buf);
       buf.put(keyBytes);
@@ -194,8 +190,8 @@ public class HistogramStatistics
     }
   }
 
-  private void mergePoly(
-      final GridCoverage originalCoverage, final Polygon poly, final Resolution resolution) {
+  private void mergePoly(final GridCoverage originalCoverage, final Polygon poly,
+      final Resolution resolution) {
     final CoverageProcessor processor = CoverageProcessor.getInstance();
     final AbstractOperation op = (AbstractOperation) processor.getOperation("Histogram");
     final ParameterValueGroup params = op.getParameters();
@@ -207,9 +203,8 @@ public class HistogramStatistics
     try {
 
       final GridCoverage2D coverage = (GridCoverage2D) op.doOperation(params, null);
-      final javax.media.jai.Histogram histogram =
-          (javax.media.jai.Histogram)
-              coverage.getProperty(Histogram.GT_SYNTHETIC_PROPERTY_HISTOGRAM);
+      final javax.media.jai.Histogram histogram = (javax.media.jai.Histogram) coverage
+          .getProperty(Histogram.GT_SYNTHETIC_PROPERTY_HISTOGRAM);
 
       javax.media.jai.Histogram mergedHistogram;
       final javax.media.jai.Histogram resolutionHistogram = histograms.get(resolution);

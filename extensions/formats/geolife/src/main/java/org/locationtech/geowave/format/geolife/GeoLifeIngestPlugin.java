@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,7 +32,7 @@ import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.dimension.Time;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.StringUtils;
-import org.locationtech.geowave.core.ingest.avro.WholeFile;
+import org.locationtech.geowave.core.ingest.avro.AvroWholeFile;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithMapper;
 import org.locationtech.geowave.core.ingest.hdfs.mapreduce.IngestWithReducer;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -50,7 +51,7 @@ import org.slf4j.LoggerFactory;
 
 /*
  */
-public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<WholeFile> {
+public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<AvroWholeFile> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoLifeIngestPlugin.class);
 
@@ -83,9 +84,8 @@ public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
   @Override
   protected SimpleFeatureType[] getTypes() {
     return new SimpleFeatureType[] {
-      SimpleFeatureUserDataConfigurationSet.configureType(geolifePointType),
-      SimpleFeatureUserDataConfigurationSet.configureType(geolifeTrackType)
-    };
+        SimpleFeatureUserDataConfigurationSet.configureType(geolifePointType),
+        SimpleFeatureUserDataConfigurationSet.configureType(geolifeTrackType)};
   }
 
   @Override
@@ -103,12 +103,12 @@ public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
 
   @Override
   public Schema getAvroSchema() {
-    return WholeFile.getClassSchema();
+    return AvroWholeFile.getClassSchema();
   }
 
   @Override
-  public CloseableIterator<WholeFile> toAvroObjects(final URL input) {
-    final WholeFile avroFile = new WholeFile();
+  public CloseableIterator<AvroWholeFile> toAvroObjects(final URL input) {
+    final AvroWholeFile avroFile = new AvroWholeFile();
     avroFile.setOriginalFilePath(input.getPath());
     try {
       avroFile.setOriginalFile(ByteBuffer.wrap(IOUtils.toByteArray(input)));
@@ -126,19 +126,19 @@ public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
   }
 
   @Override
-  public IngestWithMapper<WholeFile, SimpleFeature> ingestWithMapper() {
+  public IngestWithMapper<AvroWholeFile, SimpleFeature> ingestWithMapper() {
     return new IngestGeoLifeFromHdfs(this);
   }
 
   @Override
-  public IngestWithReducer<WholeFile, ?, ?, SimpleFeature> ingestWithReducer() {
+  public IngestWithReducer<AvroWholeFile, ?, ?, SimpleFeature> ingestWithReducer() {
     // unsupported right now
     throw new UnsupportedOperationException("GeoLife tracks cannot be ingested with a reducer");
   }
 
   @Override
   protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-      final WholeFile hfile, final String[] indexNames, final String globalVisibility) {
+      final AvroWholeFile hfile, final String[] indexNames, final String globalVisibility) {
 
     final List<GeoWaveData<SimpleFeature>> featureData = new ArrayList<>();
 
@@ -190,15 +190,12 @@ public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
           elevation = null;
         }
         geolifePointBuilder.set("Elevation", elevation);
-        featureData.add(
-            new GeoWaveData<>(
-                pointKey,
-                indexNames,
-                geolifePointBuilder.buildFeature(trackId + "_" + pointInstance)));
+        featureData.add(new GeoWaveData<>(pointKey, indexNames,
+            geolifePointBuilder.buildFeature(trackId + "_" + pointInstance)));
       }
 
-      geolifeTrackBuilder.set(
-          "geometry", geometryFactory.createLineString(pts.toArray(new Coordinate[pts.size()])));
+      geolifeTrackBuilder.set("geometry",
+          geometryFactory.createLineString(pts.toArray(new Coordinate[pts.size()])));
 
       geolifeTrackBuilder.set("StartTimeStamp", startTimeStamp);
       geolifeTrackBuilder.set("EndTimeStamp", endTimeStamp);
@@ -207,8 +204,8 @@ public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
       }
       geolifeTrackBuilder.set("NumberPoints", pointInstance);
       geolifeTrackBuilder.set("TrackId", trackId);
-      featureData.add(
-          new GeoWaveData<>(trackKey, indexNames, geolifeTrackBuilder.buildFeature(trackId)));
+      featureData
+          .add(new GeoWaveData<>(trackKey, indexNames, geolifeTrackBuilder.buildFeature(trackId)));
 
     } catch (final IOException e) {
       LOGGER.warn("Error reading line from file: " + hfile.getOriginalFilePath(), e);
@@ -229,12 +226,12 @@ public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<Whole
   }
 
   @Override
-  public IngestPluginBase<WholeFile, SimpleFeature> getIngestWithAvroPlugin() {
+  public IngestPluginBase<AvroWholeFile, SimpleFeature> getIngestWithAvroPlugin() {
     return new IngestGeoLifeFromHdfs(this);
   }
 
   public static class IngestGeoLifeFromHdfs
-      extends AbstractIngestSimpleFeatureWithMapper<WholeFile> {
+      extends AbstractIngestSimpleFeatureWithMapper<AvroWholeFile> {
     public IngestGeoLifeFromHdfs() {
       this(new GeoLifeIngestPlugin());
     }

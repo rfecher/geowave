@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -42,10 +43,8 @@ public class SimpleFeatureGeoWaveWrapper implements CloseableIterator<GeoWaveDat
     private SimpleFeatureBuilder builder = null;
     private GeoWaveData<SimpleFeature> currentData = null;
 
-    public InternalIterator(
-        final SimpleFeatureCollection featureCollection,
-        final String visibility,
-        final Filter filter) {
+    public InternalIterator(final SimpleFeatureCollection featureCollection,
+        final String visibility, final Filter filter) {
       this.filter = filter;
       featureIterator = featureCollection.features();
       final SimpleFeatureType originalSchema = featureCollection.getSchema();
@@ -61,9 +60,8 @@ public class SimpleFeatureGeoWaveWrapper implements CloseableIterator<GeoWaveDat
       if ((visibility == null) || visibility.isEmpty()) {
         dataAdapter = new FeatureDataAdapter(retypedSchema);
       } else {
-        dataAdapter =
-            new FeatureDataAdapter(
-                retypedSchema, new GlobalVisibilityHandler<SimpleFeature, Object>(visibility));
+        dataAdapter = new FeatureDataAdapter(retypedSchema,
+            new GlobalVisibilityHandler<SimpleFeature, Object>(visibility));
       }
     }
 
@@ -121,13 +119,9 @@ public class SimpleFeatureGeoWaveWrapper implements CloseableIterator<GeoWaveDat
   private final RetypingVectorDataPlugin retypingPlugin;
   private final Filter filter;
 
-  public SimpleFeatureGeoWaveWrapper(
-      final List<SimpleFeatureCollection> featureCollections,
-      final String[] indexNames,
-      final String visibility,
-      final DataStore dataStore,
-      final RetypingVectorDataPlugin retypingPlugin,
-      final Filter filter) {
+  public SimpleFeatureGeoWaveWrapper(final List<SimpleFeatureCollection> featureCollections,
+      final String[] indexNames, final String visibility, final DataStore dataStore,
+      final RetypingVectorDataPlugin retypingPlugin, final Filter filter) {
     this.featureCollections = featureCollections;
     this.visibility = visibility;
     this.indexNames = indexNames;

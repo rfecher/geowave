@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,10 +34,8 @@ public class AccumuloWriter implements RowWriter {
   private final AccumuloOperations operations;
   private final String tableName;
 
-  public AccumuloWriter(
-      final org.apache.accumulo.core.client.BatchWriter batchWriter,
-      final AccumuloOperations operations,
-      final String tableName) {
+  public AccumuloWriter(final org.apache.accumulo.core.client.BatchWriter batchWriter,
+      final AccumuloOperations operations, final String tableName) {
     this.batchWriter = batchWriter;
     this.operations = operations;
     this.tableName = tableName;
@@ -104,16 +103,12 @@ public class AccumuloWriter implements RowWriter {
     final Mutation mutation = new Mutation(GeoWaveKey.getCompositeId(row));
     for (final GeoWaveValue value : row.getFieldValues()) {
       if ((value.getVisibility() != null) && (value.getVisibility().length > 0)) {
-        mutation.put(
-            new Text(ByteArrayUtils.shortToString(row.getAdapterId())),
-            new Text(value.getFieldMask()),
-            new ColumnVisibility(value.getVisibility()),
+        mutation.put(new Text(ByteArrayUtils.shortToString(row.getAdapterId())),
+            new Text(value.getFieldMask()), new ColumnVisibility(value.getVisibility()),
             new Value(value.getValue()));
       } else {
-        mutation.put(
-            new Text(ByteArrayUtils.shortToString(row.getAdapterId())),
-            new Text(value.getFieldMask()),
-            new Value(value.getValue()));
+        mutation.put(new Text(ByteArrayUtils.shortToString(row.getAdapterId())),
+            new Text(value.getFieldMask()), new Value(value.getValue()));
       }
     }
     return mutation;

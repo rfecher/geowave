@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -42,10 +43,8 @@ public class TimeDefinitionTest {
 
     Assert.assertEquals(expectedMin, bin.getBinMin(), DELTA);
     Assert.assertEquals(expectedMax, bin.getBinMax(), DELTA);
-    Assert.assertEquals(
-        bin.getBinMax(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMax(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
   }
 
   @Test
@@ -67,10 +66,8 @@ public class TimeDefinitionTest {
 
     Assert.assertEquals(expectedMin, bin.getBinMin(), DELTA);
     Assert.assertEquals(expectedMax, bin.getBinMax(), DELTA);
-    Assert.assertEquals(
-        bin.getBinMax(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMax(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
   }
 
   @Test
@@ -92,10 +89,8 @@ public class TimeDefinitionTest {
 
     Assert.assertEquals(expectedMin, bin.getBinMin(), DELTA);
     Assert.assertEquals(expectedMax, bin.getBinMax(), DELTA);
-    Assert.assertEquals(
-        bin.getBinMin(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMin(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
   }
 
   @Test
@@ -118,10 +113,8 @@ public class TimeDefinitionTest {
 
     Assert.assertEquals(expectedMin, bin.getBinMin(), DELTA);
     Assert.assertEquals(expectedMax, bin.getBinMax(), DELTA);
-    Assert.assertEquals(
-        bin.getBinMax(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMax(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
   }
 
   @Test
@@ -140,19 +133,15 @@ public class TimeDefinitionTest {
 
     Assert.assertEquals(expectedMin, bin.getBinMin(), DELTA);
     Assert.assertEquals(expectedMax, bin.getBinMax(), DELTA);
-    Assert.assertEquals(
-        bin.getBinMax(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMax(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
 
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);
     calendar.set(Calendar.MILLISECOND, 0);
 
-    Assert.assertEquals(
-        bin.getBinMin(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMin(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
   }
 
   @Test
@@ -170,18 +159,14 @@ public class TimeDefinitionTest {
 
     Assert.assertEquals(expectedMin, bin.getBinMin(), DELTA);
     Assert.assertEquals(expectedMax, bin.getBinMax(), DELTA);
-    Assert.assertEquals(
-        bin.getBinMax(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMax(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
 
     calendar.set(Calendar.SECOND, 0);
     calendar.set(Calendar.MILLISECOND, 0);
 
-    Assert.assertEquals(
-        bin.getBinMin(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMin(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
   }
 
   @Test
@@ -204,10 +189,8 @@ public class TimeDefinitionTest {
 
     Assert.assertEquals(expectedMin, bin.getBinMin(), DELTA);
     Assert.assertEquals(expectedMax, bin.getBinMax(), DELTA);
-    Assert.assertEquals(
-        bin.getBinMax(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMax(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
   }
 
   @Test
@@ -228,10 +211,8 @@ public class TimeDefinitionTest {
 
     Assert.assertEquals(expectedMin, bin.getBinMin(), DELTA);
     Assert.assertEquals(expectedMax, bin.getBinMax(), DELTA);
-    Assert.assertEquals(
-        bin.getBinMax(),
-        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(),
-        DELTA);
+    Assert.assertEquals(bin.getBinMax(),
+        bin.getBinnedValue(calendar.getTimeInMillis()).getNormalizedValue(), DELTA);
   }
 
   private BinningStrategy getStrategyByUnit(Unit unit) {

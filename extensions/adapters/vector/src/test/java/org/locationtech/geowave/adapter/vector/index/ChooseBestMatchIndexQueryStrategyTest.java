@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -11,7 +12,6 @@ package org.locationtech.geowave.adapter.vector.index;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import com.beust.jcommander.internal.Maps;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,35 +67,23 @@ public class ChooseBestMatchIndexQueryStrategyTest {
         new RowRangeHistogramStatistics<>(null, spatialIndex.getName(), null);
 
     final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap = new HashMap<>();
-    statsMap.put(
-        VectorStatisticsQueryBuilder.newBuilder()
-            .factory()
-            .rowHistogram()
-            .indexName(spatialIndex.getName())
-            .build()
-            .getId(),
-        rangeStats);
-    statsMap.put(
-        VectorStatisticsQueryBuilder.newBuilder()
-            .factory()
-            .rowHistogram()
-            .indexName(temporalindex.getName())
-            .build()
-            .getId(),
-        rangeTempStats);
+    statsMap.put(VectorStatisticsQueryBuilder.newBuilder().factory().rowHistogram()
+        .indexName(spatialIndex.getName()).build().getId(), rangeStats);
+    statsMap.put(VectorStatisticsQueryBuilder.newBuilder().factory().rowHistogram()
+        .indexName(temporalindex.getName()).build().getId(), rangeTempStats);
 
     final ChooseBestMatchIndexQueryStrategy strategy = new ChooseBestMatchIndexQueryStrategy();
 
     final ConstraintSet cs1 = new ConstraintSet();
-    cs1.addConstraint(
-        LatitudeDefinition.class, new ConstraintData(new ConstrainedIndexValue(0.3, 0.5), true));
+    cs1.addConstraint(LatitudeDefinition.class,
+        new ConstraintData(new ConstrainedIndexValue(0.3, 0.5), true));
 
-    cs1.addConstraint(
-        LongitudeDefinition.class, new ConstraintData(new ConstrainedIndexValue(0.4, 0.7), true));
+    cs1.addConstraint(LongitudeDefinition.class,
+        new ConstraintData(new ConstrainedIndexValue(0.4, 0.7), true));
 
     final ConstraintSet cs2a = new ConstraintSet();
-    cs2a.addConstraint(
-        TimeDefinition.class, new ConstraintData(new ConstrainedIndexValue(0.1, 0.2), true));
+    cs2a.addConstraint(TimeDefinition.class,
+        new ConstraintData(new ConstrainedIndexValue(0.1, 0.2), true));
 
     final Constraints constraints =
         new Constraints(Arrays.asList(cs2a)).merge(Collections.singletonList(cs1));
@@ -109,22 +97,12 @@ public class ChooseBestMatchIndexQueryStrategyTest {
       final double x = r.nextDouble();
       final double y = r.nextDouble();
       final double t = r.nextDouble();
-      final InsertionIds id =
-          temporalIndexStrategy.getInsertionIds(
-              new BasicNumericDataset(
-                  new NumericData[] {
-                    new NumericValue(x), new NumericValue(y), new NumericValue(t)
-                  }));
+      final InsertionIds id = temporalIndexStrategy.getInsertionIds(new BasicNumericDataset(
+          new NumericData[] {new NumericValue(x), new NumericValue(y), new NumericValue(t)}));
       for (final SinglePartitionInsertionIds range : id.getPartitionKeys()) {
-        rangeTempStats.entryIngested(
-            null,
-            new GeoWaveRowImpl(
-                new GeoWaveKeyImpl(
-                    new byte[] {1},
-                    (short) 1,
-                    range.getPartitionKey().getBytes(),
-                    range.getSortKeys().get(0).getBytes(),
-                    0),
+        rangeTempStats.entryIngested(null,
+            new GeoWaveRowImpl(new GeoWaveKeyImpl(new byte[] {1}, (short) 1,
+                range.getPartitionKey().getBytes(), range.getSortKeys().get(0).getBytes(), 0),
                 new GeoWaveValue[] {}));
       }
     }
@@ -135,22 +113,12 @@ public class ChooseBestMatchIndexQueryStrategyTest {
       final double x = r.nextDouble();
       final double y = r.nextDouble();
       final double t = r.nextDouble();
-      final InsertionIds id =
-          indexStrategy.getInsertionIds(
-              new BasicNumericDataset(
-                  new NumericData[] {
-                    new NumericValue(x), new NumericValue(y), new NumericValue(t)
-                  }));
+      final InsertionIds id = indexStrategy.getInsertionIds(new BasicNumericDataset(
+          new NumericData[] {new NumericValue(x), new NumericValue(y), new NumericValue(t)}));
       for (final SinglePartitionInsertionIds range : id.getPartitionKeys()) {
-        rangeStats.entryIngested(
-            null,
-            new GeoWaveRowImpl(
-                new GeoWaveKeyImpl(
-                    new byte[] {1},
-                    (short) 1,
-                    range.getPartitionKey().getBytes(),
-                    range.getSortKeys().get(0).getBytes(),
-                    0),
+        rangeStats.entryIngested(null,
+            new GeoWaveRowImpl(new GeoWaveKeyImpl(new byte[] {1}, (short) 1,
+                range.getPartitionKey().getBytes(), range.getSortKeys().get(0).getBytes(), 0),
                 new GeoWaveValue[] {}));
       }
     }
@@ -163,17 +131,10 @@ public class ChooseBestMatchIndexQueryStrategyTest {
 
   public Iterator<Index> getIndices(
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats,
-      final BasicQuery query,
-      final ChooseBestMatchIndexQueryStrategy strategy) {
-    return strategy.getIndices(
-        stats,
-        query,
-        new Index[] {
-          IMAGE_CHIP_INDEX1,
-          new SpatialTemporalIndexBuilder().createIndex(),
-          new SpatialIndexBuilder().createIndex(),
-          IMAGE_CHIP_INDEX2
-        },
+      final BasicQuery query, final ChooseBestMatchIndexQueryStrategy strategy) {
+    return strategy.getIndices(stats, query,
+        new Index[] {IMAGE_CHIP_INDEX1, new SpatialTemporalIndexBuilder().createIndex(),
+            new SpatialIndexBuilder().createIndex(), IMAGE_CHIP_INDEX2},
         Maps.newHashMap());
   }
 

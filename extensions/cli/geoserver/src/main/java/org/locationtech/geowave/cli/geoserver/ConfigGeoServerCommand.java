@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -13,7 +14,6 @@ import static org.locationtech.geowave.cli.geoserver.constants.GeoServerConstant
 import static org.locationtech.geowave.cli.geoserver.constants.GeoServerConstants.GEOSERVER_URL;
 import static org.locationtech.geowave.cli.geoserver.constants.GeoServerConstants.GEOSERVER_USER;
 import static org.locationtech.geowave.cli.geoserver.constants.GeoServerConstants.GEOSERVER_WORKSPACE;
-
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -46,22 +46,17 @@ public class ConfigGeoServerCommand extends ServiceEnabledCommand<String> {
     return true;
   }
 
-  @Parameter(
-      names = {"-u", "--username"},
-      description = "GeoServer User")
+  @Parameter(names = {"-u", "--username"}, description = "GeoServer User")
   private String username;
 
   // GEOWAVE-811 - adding additional password options for added protection
-  @Parameter(
-      names = {"-p", "--password"},
-      description =
-          "GeoServer Password - " + OptionalPasswordConverter.DEFAULT_PASSWORD_DESCRIPTION,
+  @Parameter(names = {"-p", "--password"},
+      description = "GeoServer Password - "
+          + OptionalPasswordConverter.DEFAULT_PASSWORD_DESCRIPTION,
       converter = OptionalPasswordConverter.class)
   private String pass;
 
-  @Parameter(
-      names = {"-ws", "--workspace"},
-      description = "GeoServer Default Workspace")
+  @Parameter(names = {"-ws", "--workspace"}, description = "GeoServer Default Workspace")
   private String workspace;
 
   @Parameter(description = "<GeoServer URL>")
@@ -85,16 +80,14 @@ public class ConfigGeoServerCommand extends ServiceEnabledCommand<String> {
     final boolean passwordSpecified = (password != null) && !"".equals(password.trim());
     if (usernameSpecified || passwordSpecified) {
       if (usernameSpecified && !passwordSpecified) {
-        setPass(
-            GeoWaveBaseConverter.promptAndReadPassword(
-                "Please enter a password for username [" + username + "]: "));
+        setPass(GeoWaveBaseConverter
+            .promptAndReadPassword("Please enter a password for username [" + username + "]: "));
         if ((getPass() == null) || "".equals(getPass().trim())) {
           throw new ParameterException("Password cannot be null or empty if username is specified");
         }
       } else if (passwordSpecified && !usernameSpecified) {
-        setName(
-            GeoWaveBaseConverter.promptAndReadValue(
-                "Please enter a username associated with specified password: "));
+        setName(GeoWaveBaseConverter
+            .promptAndReadValue("Please enter a username associated with specified password: "));
         if ((getName() == null) || "".equals(getName().trim())) {
           throw new ParameterException("Username cannot be null or empty if password is specified");
         }
@@ -236,8 +229,8 @@ public class ConfigGeoServerCommand extends ServiceEnabledCommand<String> {
     sslConfigOptions.saveProperties(existingProps);
 
     // Write properties file
-    ConfigOptions.writeProperties(
-        getGeoWaveConfigFile(params), existingProps, this.getClass(), GEOSERVER_NAMESPACE_PREFIX);
+    ConfigOptions.writeProperties(getGeoWaveConfigFile(params), existingProps, this.getClass(),
+        GEOSERVER_NAMESPACE_PREFIX);
     GeoServerRestClient.invalidateInstance();
 
     // generate a return for rest calls

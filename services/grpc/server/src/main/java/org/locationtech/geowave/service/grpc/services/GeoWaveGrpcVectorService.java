@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -74,8 +75,8 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
   }
 
   @Override
-  public void vectorQuery(
-      final VectorQueryParametersProtos request, final StreamObserver<FeatureProtos> responseObserver) {
+  public void vectorQuery(final VectorQueryParametersProtos request,
+      final StreamObserver<FeatureProtos> responseObserver) {
     final String storeName = request.getStoreName();
     final StoreLoader storeLoader = new StoreLoader(storeName);
     // first check to make sure the data store exists
@@ -170,43 +171,36 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
           if (typeBuilder == null) {
             typeBuilder = new SimpleFeatureTypeBuilder();
 
-            for (final Map.Entry<String, FeatureAttributeProtos> mapEntry :
-                f.getFeatureMap().entrySet()) {
+            for (final Map.Entry<String, FeatureAttributeProtos> mapEntry : f.getFeatureMap()
+                .entrySet()) {
               switch (mapEntry.getValue().getValueCase()) {
-                case VALSTRING:
-                  {
-                    typeBuilder.add(mapEntry.getKey(), String.class);
-                    break;
-                  }
-                case VALINT32:
-                  {
-                    typeBuilder.add(mapEntry.getKey(), Integer.class);
-                    break;
-                  }
-                case VALINT64:
-                  {
-                    typeBuilder.add(mapEntry.getKey(), Long.class);
-                    break;
-                  }
-                case VALFLOAT:
-                  {
-                    typeBuilder.add(mapEntry.getKey(), Float.class);
-                    break;
-                  }
-                case VALDOUBLE:
-                  {
-                    typeBuilder.add(mapEntry.getKey(), Double.class);
-                    break;
-                  }
-                case VALGEOMETRY:
-                  {
-                    typeBuilder.add(mapEntry.getKey(), Geometry.class);
-                    break;
-                  }
+                case VALSTRING: {
+                  typeBuilder.add(mapEntry.getKey(), String.class);
+                  break;
+                }
+                case VALINT32: {
+                  typeBuilder.add(mapEntry.getKey(), Integer.class);
+                  break;
+                }
+                case VALINT64: {
+                  typeBuilder.add(mapEntry.getKey(), Long.class);
+                  break;
+                }
+                case VALFLOAT: {
+                  typeBuilder.add(mapEntry.getKey(), Float.class);
+                  break;
+                }
+                case VALDOUBLE: {
+                  typeBuilder.add(mapEntry.getKey(), Double.class);
+                  break;
+                }
+                case VALGEOMETRY: {
+                  typeBuilder.add(mapEntry.getKey(), Geometry.class);
+                  break;
+                }
                 default:
                   break;
-              }
-              ;
+              };
             }
           }
           // This a factory class that builds simple feature objects
@@ -256,53 +250,46 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
         } // end first-time initialization
 
         // Set the values for all the attributes in the feature
-        for (final Map.Entry<String, FeatureAttributeProtos> attribute : f.getFeatureMap().entrySet()) {
+        for (final Map.Entry<String, FeatureAttributeProtos> attribute : f.getFeatureMap()
+            .entrySet()) {
           switch (attribute.getValue().getValueCase()) {
-            case VALSTRING:
-              {
-                featureBuilder.set(attribute.getKey(), attribute.getValue().getValString());
-                break;
+            case VALSTRING: {
+              featureBuilder.set(attribute.getKey(), attribute.getValue().getValString());
+              break;
+            }
+            case VALINT32: {
+              featureBuilder.set(attribute.getKey(), attribute.getValue().getValInt32());
+              break;
+            }
+            case VALINT64: {
+              featureBuilder.set(attribute.getKey(), attribute.getValue().getValInt64());
+              break;
+            }
+            case VALFLOAT: {
+              featureBuilder.set(attribute.getKey(), attribute.getValue().getValFloat());
+              break;
+            }
+            case VALDOUBLE: {
+              featureBuilder.set(attribute.getKey(), attribute.getValue().getValDouble());
+              break;
+            }
+            case VALGEOMETRY: {
+              Geometry geom = null;
+              try {
+                geom = new WKBReader(JTSFactoryFinder.getGeometryFactory())
+                    .read(attribute.getValue().getValGeometry().toByteArray());
+              } catch (FactoryRegistryException | org.locationtech.jts.io.ParseException e) {
+                LOGGER.error("Failed to parse string for geometry", e);
               }
-            case VALINT32:
-              {
-                featureBuilder.set(attribute.getKey(), attribute.getValue().getValInt32());
-                break;
-              }
-            case VALINT64:
-              {
-                featureBuilder.set(attribute.getKey(), attribute.getValue().getValInt64());
-                break;
-              }
-            case VALFLOAT:
-              {
-                featureBuilder.set(attribute.getKey(), attribute.getValue().getValFloat());
-                break;
-              }
-            case VALDOUBLE:
-              {
-                featureBuilder.set(attribute.getKey(), attribute.getValue().getValDouble());
-                break;
-              }
-            case VALGEOMETRY:
-              {
-                Geometry geom = null;
-                try {
-                  geom =
-                      new WKBReader(JTSFactoryFinder.getGeometryFactory())
-                          .read(attribute.getValue().getValGeometry().toByteArray());
-                } catch (FactoryRegistryException | org.locationtech.jts.io.ParseException e) {
-                  LOGGER.error("Failed to parse string for geometry", e);
-                }
 
-                if (geom != null) {
-                  featureBuilder.set(attribute.getKey(), geom);
-                }
-                break;
+              if (geom != null) {
+                featureBuilder.set(attribute.getKey(), geom);
               }
+              break;
+            }
             default:
               break;
-          }
-          ;
+          };
         }
         final SimpleFeature sf = featureBuilder.buildFeature(String.valueOf(totalCount));
         final InsertionIds ids = writer.write(sf);
@@ -314,8 +301,8 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
           batchCount = 0;
         }
 
-        final StringResponseProtos resp =
-            StringResponseProtos.newBuilder().setResponseValue(String.valueOf(++totalCount)).build();
+        final StringResponseProtos resp = StringResponseProtos.newBuilder()
+            .setResponseValue(String.valueOf(++totalCount)).build();
         responseObserver.onNext(resp);
       }
 
@@ -335,8 +322,8 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
       public void onCompleted() {
         writer.flush();
         writer.close();
-        final StringResponseProtos resp =
-            StringResponseProtos.newBuilder().setResponseValue("Ingest completed successfully").build();
+        final StringResponseProtos resp = StringResponseProtos.newBuilder()
+            .setResponseValue("Ingest completed successfully").build();
         responseObserver.onNext(resp);
         responseObserver.onCompleted();
       }
@@ -344,8 +331,8 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
   }
 
   @Override
-  public void cqlQuery(
-      final CQLQueryParametersProtos request, final StreamObserver<FeatureProtos> responseObserver) {
+  public void cqlQuery(final CQLQueryParametersProtos request,
+      final StreamObserver<FeatureProtos> responseObserver) {
 
     final String cql = request.getCql();
     final String storeName = request.getBaseParams().getStoreName();
@@ -398,8 +385,8 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
   }
 
   @Override
-  public void spatialQuery(
-      final SpatialQueryParametersProtos request, final StreamObserver<FeatureProtos> responseObserver) {
+  public void spatialQuery(final SpatialQueryParametersProtos request,
+      final StreamObserver<FeatureProtos> responseObserver) {
 
     final String storeName = request.getBaseParams().getStoreName();
     final StoreLoader storeLoader = new StoreLoader(storeName);
@@ -428,21 +415,15 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
     Geometry queryGeom = null;
 
     try {
-      queryGeom =
-          new WKBReader(JTSFactoryFinder.getGeometryFactory())
-              .read(request.getGeometry().toByteArray());
+      queryGeom = new WKBReader(JTSFactoryFinder.getGeometryFactory())
+          .read(request.getGeometry().toByteArray());
     } catch (final FactoryRegistryException | org.locationtech.jts.io.ParseException e) {
       LOGGER.error("Exception encountered creating query geometry", e);
     }
 
     try (final CloseableIterator<SimpleFeature> iterator =
-        dataStore.query(
-            bldr.constraints(
-                    bldr.constraintsFactory()
-                        .spatialTemporalConstraints()
-                        .spatialConstraints(queryGeom)
-                        .build())
-                .build())) {
+        dataStore.query(bldr.constraints(bldr.constraintsFactory().spatialTemporalConstraints()
+            .spatialConstraints(queryGeom).build()).build())) {
       while (iterator.hasNext()) {
         final SimpleFeature simpleFeature = iterator.next();
         final SimpleFeatureType type = simpleFeature.getType();
@@ -461,8 +442,7 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
   }
 
   @Override
-  public void spatialTemporalQuery(
-      final SpatialTemporalQueryParametersProtos request,
+  public void spatialTemporalQuery(final SpatialTemporalQueryParametersProtos request,
       final StreamObserver<FeatureProtos> responseObserver) {
 
     final String storeName = request.getSpatialParams().getBaseParams().getStoreName();
@@ -495,23 +475,19 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
         bldr.constraintsFactory().spatialTemporalConstraints();
     for (int i = 0; i < constraintCount; i++) {
       final TemporalConstraintsProtos t = request.getTemporalConstraints(i);
-      stBldr.addTimeRange(
-          Interval.of(
-              Instant.ofEpochMilli(Timestamps.toMillis(t.getStartTime())),
-              Instant.ofEpochMilli(Timestamps.toMillis(t.getEndTime()))));
+      stBldr.addTimeRange(Interval.of(Instant.ofEpochMilli(Timestamps.toMillis(t.getStartTime())),
+          Instant.ofEpochMilli(Timestamps.toMillis(t.getEndTime()))));
     }
 
     Geometry queryGeom = null;
 
     try {
-      queryGeom =
-          new WKBReader(JTSFactoryFinder.getGeometryFactory())
-              .read(request.getSpatialParams().getGeometry().toByteArray());
+      queryGeom = new WKBReader(JTSFactoryFinder.getGeometryFactory())
+          .read(request.getSpatialParams().getGeometry().toByteArray());
       stBldr = stBldr.spatialConstraints(queryGeom);
 
-      stBldr =
-          stBldr.spatialConstraintsCompareOperation(
-              CompareOperation.valueOf(request.getCompareOperation()));
+      stBldr = stBldr.spatialConstraintsCompareOperation(
+          CompareOperation.valueOf(request.getCompareOperation()));
     } catch (final FactoryRegistryException | org.locationtech.jts.io.ParseException e) {
       LOGGER.error("Exception encountered creating query geometry", e);
     }
@@ -535,43 +511,36 @@ public class GeoWaveGrpcVectorService extends VectorGrpc.VectorImplBase
     }
   }
 
-  private void SetAttributeBuilderValue(
-      final Object simpleFeatureAttribute, final FeatureAttributeProtos.Builder attBuilder) {
+  private void SetAttributeBuilderValue(final Object simpleFeatureAttribute,
+      final FeatureAttributeProtos.Builder attBuilder) {
     if (simpleFeatureAttribute != null) {
       switch (simpleFeatureAttribute.getClass().getSimpleName()) {
-        case "String":
-          {
-            attBuilder.setValString((String) simpleFeatureAttribute);
-            break;
-          }
-        case "Integer":
-          {
-            attBuilder.setValInt32((Integer) simpleFeatureAttribute);
-            break;
-          }
-        case "Long":
-          {
-            attBuilder.setValInt64((Long) simpleFeatureAttribute);
-            break;
-          }
-        case "Float":
-          {
-            attBuilder.setValFloat((Float) simpleFeatureAttribute);
-            break;
-          }
-        case "Double":
-          {
-            attBuilder.setValDouble((Double) simpleFeatureAttribute);
-            break;
-          }
-        case "Geoemetry":
-          {
-            break;
-          }
+        case "String": {
+          attBuilder.setValString((String) simpleFeatureAttribute);
+          break;
+        }
+        case "Integer": {
+          attBuilder.setValInt32((Integer) simpleFeatureAttribute);
+          break;
+        }
+        case "Long": {
+          attBuilder.setValInt64((Long) simpleFeatureAttribute);
+          break;
+        }
+        case "Float": {
+          attBuilder.setValFloat((Float) simpleFeatureAttribute);
+          break;
+        }
+        case "Double": {
+          attBuilder.setValDouble((Double) simpleFeatureAttribute);
+          break;
+        }
+        case "Geoemetry": {
+          break;
+        }
         default:
           break;
-      }
-      ;
+      };
     }
   }
 }

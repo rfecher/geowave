@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,8 +27,8 @@ public class TextExactMatchFilter implements QueryFilter {
     super();
   }
 
-  public TextExactMatchFilter(
-      final String fieldName, final String matchValue, final boolean caseSensitive) {
+  public TextExactMatchFilter(final String fieldName, final String matchValue,
+      final boolean caseSensitive) {
     super();
     this.fieldName = fieldName;
     this.matchValue = matchValue;
@@ -47,8 +48,8 @@ public class TextExactMatchFilter implements QueryFilter {
   }
 
   @Override
-  public boolean accept(
-      final CommonIndexModel indexModel, final IndexedPersistenceEncoding<?> persistenceEncoding) {
+  public boolean accept(final CommonIndexModel indexModel,
+      final IndexedPersistenceEncoding<?> persistenceEncoding) {
     final ByteArray stringBytes =
         (ByteArray) persistenceEncoding.getCommonData().getValue(fieldName);
     if (stringBytes != null) {
@@ -63,11 +64,8 @@ public class TextExactMatchFilter implements QueryFilter {
     final byte[] fieldNameBytes = StringUtils.stringToBinary(fieldName);
     final byte[] matchValueBytes = StringUtils.stringToBinary(matchValue);
     final ByteBuffer bb =
-        ByteBuffer.allocate(
-            1
-                + VarintUtils.unsignedIntByteLength(fieldNameBytes.length)
-                + fieldNameBytes.length
-                + matchValueBytes.length);
+        ByteBuffer.allocate(1 + VarintUtils.unsignedIntByteLength(fieldNameBytes.length)
+            + fieldNameBytes.length + matchValueBytes.length);
     bb.put((byte) (caseSensitive ? 1 : 0));
     VarintUtils.writeUnsignedInt(fieldNameBytes.length, bb);
     bb.put(fieldNameBytes);

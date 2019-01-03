@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,14 +42,16 @@ public class FeatureCentroidDistanceFn implements DistanceFn<SimpleFeature> {
   }
 
   private Geometry getGeometry(SimpleFeature x) {
-    for (Object attr : x.getAttributes()) if (attr instanceof Geometry) return (Geometry) attr;
+    for (Object attr : x.getAttributes())
+      if (attr instanceof Geometry)
+        return (Geometry) attr;
     return (Geometry) x.getDefaultGeometry();
   }
 
   @Override
   public double measure(final SimpleFeature x, final SimpleFeature y) {
 
-    return coordinateDistanceFunction.measure(
-        getGeometry(x).getCentroid().getCoordinate(), getGeometry(y).getCentroid().getCoordinate());
+    return coordinateDistanceFunction.measure(getGeometry(x).getCentroid().getCoordinate(),
+        getGeometry(y).getCentroid().getCoordinate());
   }
 }

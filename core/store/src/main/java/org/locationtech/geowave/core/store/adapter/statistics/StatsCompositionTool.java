@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,13 +31,8 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> Entry type
  */
-public class StatsCompositionTool<T>
-    implements IngestCallback<T>,
-        ScanCallback<T, GeoWaveRow>,
-        DeleteCallback<T, GeoWaveRow>,
-        AutoCloseable,
-        Closeable,
-        Flushable {
+public class StatsCompositionTool<T> implements IngestCallback<T>, ScanCallback<T, GeoWaveRow>,
+    DeleteCallback<T, GeoWaveRow>, AutoCloseable, Closeable, Flushable {
   private static final Logger LOGGER = LoggerFactory.getLogger(StatsCompositionTool.class);
   public static final int FLUSH_STATS_THRESHOLD = 1000000;
 
@@ -48,29 +44,22 @@ public class StatsCompositionTool<T>
   private boolean overwrite;
   private short adapterId;
 
-  public StatsCompositionTool(
-      final DataStoreStatisticsProvider<T> statisticsProvider,
-      final DataStatisticsStore statisticsStore,
-      final Index index,
+  public StatsCompositionTool(final DataStoreStatisticsProvider<T> statisticsProvider,
+      final DataStatisticsStore statisticsStore, final Index index,
       final InternalDataAdapter<T> adapter) {
     this(statisticsProvider, statisticsStore, index, adapter, false);
   }
 
-  public StatsCompositionTool(
-      final DataStoreStatisticsProvider<T> statisticsProvider,
-      final DataStatisticsStore statisticsStore,
-      final Index index,
-      final InternalDataAdapter<T> adapter,
-      final boolean overwrite) {
+  public StatsCompositionTool(final DataStoreStatisticsProvider<T> statisticsProvider,
+      final DataStatisticsStore statisticsStore, final Index index,
+      final InternalDataAdapter<T> adapter, final boolean overwrite) {
     this.statisticsStore = statisticsStore;
     this.overwrite = overwrite;
     this.adapterId = adapter.getAdapterId();
     this.init(index, adapter.getAdapter(), statisticsProvider);
   }
 
-  private void init(
-      final Index index,
-      final DataTypeAdapter<T> adapter,
+  private void init(final Index index, final DataTypeAdapter<T> adapter,
       final DataStoreStatisticsProvider<T> statisticsProvider) {
     final StatisticsId[] statisticsIds = statisticsProvider.getSupportedStatistics();
     statisticsBuilders = new ArrayList<>(statisticsIds.length);
@@ -142,8 +131,8 @@ public class StatsCompositionTool<T>
           // which is used by the stats manager within a feature data
           // adapter etc.
           if (s instanceof DataStatisticsSet) {
-            for (final InternalDataStatistics<T, ?, ?> statInSet :
-                ((DataStatisticsSet) s).getStatisticsSet()) {
+            for (final InternalDataStatistics<T, ?, ?> statInSet : ((DataStatisticsSet) s)
+                .getStatisticsSet()) {
               statisticsStore.incorporateStatistics(statInSet);
             }
           } else {

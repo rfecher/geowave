@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -9,7 +10,6 @@
 package org.locationtech.geowave.core.geotime.store.query;
 
 import static org.junit.Assert.assertEquals;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,68 +40,54 @@ public class BasicQueryTest {
     final PersistentDataset<CommonIndexValue> commonData =
         new PersistentDataset<CommonIndexValue>();
 
-    commonData.addValue(
-        new TimeField(Unit.YEAR).getFieldName(),
+    commonData.addValue(new TimeField(Unit.YEAR).getFieldName(),
         new TimeRange(start.getTime(), end.getTime(), new byte[0]));
 
-    return new CommonIndexedPersistenceEncoding(
-        (short) 1,
-        new ByteArray("1"),
-        new ByteArray("1"),
-        new ByteArray("1"),
-        1,
-        commonData,
-        new PersistentDataset<byte[]>());
+    return new CommonIndexedPersistenceEncoding((short) 1, new ByteArray("1"), new ByteArray("1"),
+        new ByteArray("1"), 1, commonData, new PersistentDataset<byte[]>());
   }
 
   public void performOp(final BasicQueryCompareOperation op, final boolean[] expectedResults)
       throws ParseException {
     // query time range
     ConstraintData constrainData =
-        new ConstraintData(
-            new NumericRange(
-                df.parse("2017-02-22T12:00:00GMT-00:00").getTime(),
-                df.parse("2017-02-22T13:00:00GMT-00:00").getTime()),
-            true);
+        new ConstraintData(new NumericRange(df.parse("2017-02-22T12:00:00GMT-00:00").getTime(),
+            df.parse("2017-02-22T13:00:00GMT-00:00").getTime()), true);
     Constraints constaints =
         new Constraints(new ConstraintSet(TimeDefinition.class, constrainData));
     final BasicQuery query = new BasicQuery(constaints, op);
 
-    final CommonIndexedPersistenceEncoding[] data =
-        new CommonIndexedPersistenceEncoding[] {
+    final CommonIndexedPersistenceEncoding[] data = new CommonIndexedPersistenceEncoding[] {
 
-          // same exact time range as the query
-          createData(
-              df.parse("2017-02-22T12:00:00GMT-00:00"), df.parse("2017-02-22T13:00:00GMT-00:00")),
+        // same exact time range as the query
+        createData(df.parse("2017-02-22T12:00:00GMT-00:00"),
+            df.parse("2017-02-22T13:00:00GMT-00:00")),
 
-          // partial overlap
-          createData(
-              df.parse("2017-02-22T11:00:00GMT-00:00"), df.parse("2017-02-22T12:30:00GMT-00:00")),
+        // partial overlap
+        createData(df.parse("2017-02-22T11:00:00GMT-00:00"),
+            df.parse("2017-02-22T12:30:00GMT-00:00")),
 
-          // time range completely within the query
-          createData(
-              df.parse("2017-02-22T12:30:00GMT-00:00"), df.parse("2017-02-22T12:50:00GMT-00:00")),
+        // time range completely within the query
+        createData(df.parse("2017-02-22T12:30:00GMT-00:00"),
+            df.parse("2017-02-22T12:50:00GMT-00:00")),
 
-          // time range touching each other
-          createData(
-              df.parse("2017-02-22T11:00:00GMT-00:00"), df.parse("2017-02-22T12:00:00GMT-00:00")),
+        // time range touching each other
+        createData(df.parse("2017-02-22T11:00:00GMT-00:00"),
+            df.parse("2017-02-22T12:00:00GMT-00:00")),
 
-          // no intersection between ranges
-          createData(
-              df.parse("2017-02-22T11:00:00GMT-00:00"), df.parse("2017-02-22T11:59:00GMT-00:00")),
+        // no intersection between ranges
+        createData(df.parse("2017-02-22T11:00:00GMT-00:00"),
+            df.parse("2017-02-22T11:59:00GMT-00:00")),
 
-          // time range contains complete query range
-          createData(
-              df.parse("2017-02-22T11:00:00GMT-00:00"), df.parse("2017-02-22T14:00:00GMT-00:00"))
-        };
+        // time range contains complete query range
+        createData(df.parse("2017-02-22T11:00:00GMT-00:00"),
+            df.parse("2017-02-22T14:00:00GMT-00:00"))};
     final Index index =
         new SpatialTemporalDimensionalityTypeProvider().createIndex(new SpatialTemporalOptions());
     int pos = 0;
     for (final CommonIndexedPersistenceEncoding dataItem : data) {
       for (final QueryFilter filter : query.createFilters(index)) {
-        assertEquals(
-            "result: " + pos,
-            expectedResults[pos++],
+        assertEquals("result: " + pos, expectedResults[pos++],
             filter.accept(index.getIndexModel(), dataItem));
       }
     }
@@ -109,54 +95,49 @@ public class BasicQueryTest {
 
   @Test
   public void testContains() throws ParseException {
-    performOp(
-        BasicQueryCompareOperation.CONTAINS,
+    performOp(BasicQueryCompareOperation.CONTAINS,
         new boolean[] {true, false, true, false, false, false});
   }
 
   @Test
   public void testOverlaps() throws ParseException {
-    performOp(
-        BasicQueryCompareOperation.OVERLAPS,
+    performOp(BasicQueryCompareOperation.OVERLAPS,
         new boolean[] {false, true, false, false, false, false});
   }
 
   @Test
   public void testIntersects() throws ParseException {
-    performOp(
-        BasicQueryCompareOperation.INTERSECTS, new boolean[] {true, true, true, true, false, true});
+    performOp(BasicQueryCompareOperation.INTERSECTS,
+        new boolean[] {true, true, true, true, false, true});
   }
 
   @Test
   public void testEquals() throws ParseException {
-    performOp(
-        BasicQueryCompareOperation.EQUALS, new boolean[] {true, false, false, false, false, false});
+    performOp(BasicQueryCompareOperation.EQUALS,
+        new boolean[] {true, false, false, false, false, false});
   }
 
   @Test
   public void testDisjoint() throws ParseException {
-    performOp(
-        BasicQueryCompareOperation.DISJOINT,
+    performOp(BasicQueryCompareOperation.DISJOINT,
         new boolean[] {false, false, false, false, true, false});
   }
 
   @Test
   public void testWithin() throws ParseException {
-    performOp(
-        BasicQueryCompareOperation.WITHIN, new boolean[] {true, false, false, false, false, true});
+    performOp(BasicQueryCompareOperation.WITHIN,
+        new boolean[] {true, false, false, false, false, true});
   }
 
   @Test
   public void testCrosses() throws ParseException {
-    performOp(
-        BasicQueryCompareOperation.CROSSES,
+    performOp(BasicQueryCompareOperation.CROSSES,
         new boolean[] {false, false, false, false, false, false});
   }
 
   @Test
   public void testTouches() throws ParseException {
-    performOp(
-        BasicQueryCompareOperation.TOUCHES,
+    performOp(BasicQueryCompareOperation.TOUCHES,
         new boolean[] {false, false, false, true, false, false});
   }
 }

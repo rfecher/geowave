@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -70,15 +71,9 @@ public class SparkIngestDriver implements Serializable {
 
   public SparkIngestDriver() {}
 
-  public boolean runOperation(
-      File configFile,
-      LocalInputCommandLineOptions localInput,
-      String inputStoreName,
-      String indexList,
-      VisibilityOptions ingestOptions,
-      SparkCommandLineOptions sparkOptions,
-      String basePath)
-      throws IOException {
+  public boolean runOperation(File configFile, LocalInputCommandLineOptions localInput,
+      String inputStoreName, String indexList, VisibilityOptions ingestOptions,
+      SparkCommandLineOptions sparkOptions, String basePath) throws IOException {
 
     final Properties configProperties = ConfigOptions.loadProperties(configFile);
 
@@ -115,17 +110,14 @@ public class SparkIngestDriver implements Serializable {
     }
 
     List<Path> inputFileList = new ArrayList<Path>();
-    Files.walkFileTree(
-        inputPath,
-        new SimpleFileVisitor<Path>() {
+    Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
 
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-              throws IOException {
-            inputFileList.add(file);
-            return FileVisitResult.CONTINUE;
-          }
-        });
+      @Override
+      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        inputFileList.add(file);
+        return FileVisitResult.CONTINUE;
+      }
+    });
 
     int numInputFiles = inputFileList.size();
 
@@ -145,99 +137,64 @@ public class SparkIngestDriver implements Serializable {
     if (session == null) {
       String jar = "";
       try {
-        jar =
-            SparkIngestDriver.class
-                .getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .toURI()
-                .getPath();
+        jar = SparkIngestDriver.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+            .getPath();
       } catch (final URISyntaxException e) {
         LOGGER.error("Unable to set jar location in spark configuration", e);
       }
 
       session =
-          SparkSession.builder()
-              .appName(sparkOptions.getAppName())
-              .master(sparkOptions.getMaster())
-              .config("spark.driver.host", sparkOptions.getHost())
-              .config("spark.jars", jar)
+          SparkSession.builder().appName(sparkOptions.getAppName()).master(sparkOptions.getMaster())
+              .config("spark.driver.host", sparkOptions.getHost()).config("spark.jars", jar)
               .config("spark.executor.instances", Integer.toString(numExecutors))
-              .config("spark.executor.cores", Integer.toString(numCores))
-              .getOrCreate();
+              .config("spark.executor.cores", Integer.toString(numCores)).getOrCreate();
 
       jsc = JavaSparkContext.fromSparkContext(session.sparkContext());
     }
 
     JavaRDD<URI> fileRDD =
-        jsc.parallelize(
-            Lists.transform(
-                inputFileList,
-                new Function<Path, URI>() {
+        jsc.parallelize(Lists.transform(inputFileList, new Function<Path, URI>() {
 
-                  @Override
-                  public URI apply(Path arg0) {
-                    return arg0.toUri();
-                  }
-                }),
-            numPartitions);
+          @Override
+          public URI apply(Path arg0) {
+            return arg0.toUri();
+          }
+        }), numPartitions);
     if (isS3) {
       final String s3FinalEndpointUrl = s3EndpointUrl;
-      fileRDD.foreachPartition(
-          uri -> {
-            S3FileSystem fs = initializeS3FS(s3FinalEndpointUrl);
-            List<URI> inputFiles = new ArrayList<URI>();
-            while (uri.hasNext()) {
-              Path inputFile =
-                  (S3Path) fs.getPath(uri.next().toString().replaceFirst(s3FinalEndpointUrl, ""));
-              inputFiles.add(inputFile.toUri());
-            }
+      fileRDD.foreachPartition(uri -> {
+        S3FileSystem fs = initializeS3FS(s3FinalEndpointUrl);
+        List<URI> inputFiles = new ArrayList<URI>();
+        while (uri.hasNext()) {
+          Path inputFile =
+              (S3Path) fs.getPath(uri.next().toString().replaceFirst(s3FinalEndpointUrl, ""));
+          inputFiles.add(inputFile.toUri());
+        }
 
-            processInput(
-                configFile,
-                localInput,
-                inputStoreName,
-                indexList,
-                ingestOptions,
-                configProperties,
-                inputFiles.iterator());
-          });
+        processInput(configFile, localInput, inputStoreName, indexList, ingestOptions,
+            configProperties, inputFiles.iterator());
+      });
     } else if (isHDFS) {
       try {
         setHdfsURLStreamHandlerFactory();
-      } catch (NoSuchFieldException
-          | SecurityException
-          | IllegalArgumentException
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
           | IllegalAccessException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      fileRDD.foreachPartition(
-          uri -> {
-            processInput(
-                configFile,
-                localInput,
-                inputStoreName,
-                indexList,
-                ingestOptions,
-                configProperties,
-                uri);
-          });
+      fileRDD.foreachPartition(uri -> {
+        processInput(configFile, localInput, inputStoreName, indexList, ingestOptions,
+            configProperties, uri);
+      });
     }
 
     close(session);
     return true;
   }
 
-  public void processInput(
-      File configFile,
-      LocalInputCommandLineOptions localInput,
-      String inputStoreName,
-      String indexList,
-      VisibilityOptions ingestOptions,
-      Properties configProperties,
-      Iterator<URI> inputFiles)
-      throws IOException {
+  public void processInput(File configFile, LocalInputCommandLineOptions localInput,
+      String inputStoreName, String indexList, VisibilityOptions ingestOptions,
+      Properties configProperties, Iterator<URI> inputFiles) throws IOException {
 
     // Based on the selected formats, select the format plugins
     IngestFormatPluginOptions pluginFormats = new IngestFormatPluginOptions();
@@ -251,8 +208,8 @@ public class SparkIngestDriver implements Serializable {
         pluginFormats.createLocalIngestPlugins();
 
     final StoreLoader inputStoreLoader = new StoreLoader(inputStoreName);
-    if (!inputStoreLoader.loadFromConfig(
-        configProperties, DataStorePluginOptions.getStoreNamespace(inputStoreName), configFile)) {
+    if (!inputStoreLoader.loadFromConfig(configProperties,
+        DataStorePluginOptions.getStoreNamespace(inputStoreName), configFile)) {
       throw new ParameterException("Cannot find store name: " + inputStoreLoader.getStoreName());
     }
     inputStoreOptions = inputStoreLoader.getDataStorePlugin();
@@ -269,8 +226,8 @@ public class SparkIngestDriver implements Serializable {
     final List<DataTypeAdapter<?>> adapters = new ArrayList<DataTypeAdapter<?>>();
     for (Entry<String, LocalFileIngestPlugin<?>> pluginEntry : ingestPlugins.entrySet()) {
 
-      if (!IngestUtils.checkIndexesAgainstProvider(
-          pluginEntry.getKey(), pluginEntry.getValue(), indexOptions)) {
+      if (!IngestUtils.checkIndexesAgainstProvider(pluginEntry.getKey(), pluginEntry.getValue(),
+          indexOptions)) {
         continue;
       }
 
@@ -280,9 +237,8 @@ public class SparkIngestDriver implements Serializable {
           Arrays.asList(pluginEntry.getValue().getDataAdapters(ingestOptions.getVisibility())));
     }
 
-    LocalFileIngestDriver localIngestDriver =
-        new LocalFileIngestDriver(
-            inputStoreOptions, indexOptions, localFileIngestPlugins, ingestOptions, localInput, 1);
+    LocalFileIngestDriver localIngestDriver = new LocalFileIngestDriver(inputStoreOptions,
+        indexOptions, localFileIngestPlugins, ingestOptions, localInput, 1);
 
     localIngestDriver.startExecutor();
 
@@ -291,19 +247,18 @@ public class SparkIngestDriver implements Serializable {
 
       List<PluginVisitor<LocalFileIngestPlugin<?>>> pluginVisitors =
           new ArrayList<>(localFileIngestPlugins.size());
-      for (final Entry<String, LocalFileIngestPlugin<?>> localPlugin :
-          localFileIngestPlugins.entrySet()) {
-        pluginVisitors.add(
-            new PluginVisitor<LocalFileIngestPlugin<?>>(
-                localPlugin.getValue(), localPlugin.getKey(), localInput.getExtensions()));
+      for (final Entry<String, LocalFileIngestPlugin<?>> localPlugin : localFileIngestPlugins
+          .entrySet()) {
+        pluginVisitors.add(new PluginVisitor<LocalFileIngestPlugin<?>>(localPlugin.getValue(),
+            localPlugin.getKey(), localInput.getExtensions()));
       }
 
       while (inputFiles.hasNext()) {
         final URL file = inputFiles.next().toURL();
         for (final PluginVisitor<LocalFileIngestPlugin<?>> visitor : pluginVisitors) {
           if (visitor.supportsFile(file)) {
-            localIngestDriver.processFile(
-                file, visitor.getTypeName(), visitor.getLocalPluginBase(), runData);
+            localIngestDriver.processFile(file, visitor.getTypeName(), visitor.getLocalPluginBase(),
+                runData);
           }
         }
       }
@@ -356,26 +311,19 @@ public class SparkIngestDriver implements Serializable {
 
     try {
       IngestUtils.setURLStreamHandlerFactory(URLTYPE.S3);
-    } catch (NoSuchFieldException
-        | SecurityException
-        | IllegalArgumentException
+    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
         | IllegalAccessException e1) {
       LOGGER.error("Error in setting up S3URLStreamHandler Factory", e1);
       throw new RuntimeException("Error in setting up S3URLStreamHandler Factory", e1);
     }
 
-    return (S3FileSystem)
-        new S3FileSystemProvider()
-            .getFileSystem(
-                new URI(s3EndpointUrl),
-                Collections.singletonMap(
-                    S3FileSystemProvider.AMAZON_S3_FACTORY_CLASS,
-                    GeoWaveAmazonS3Factory.class.getName()));
+    return (S3FileSystem) new S3FileSystemProvider().getFileSystem(new URI(s3EndpointUrl),
+        Collections.singletonMap(S3FileSystemProvider.AMAZON_S3_FACTORY_CLASS,
+            GeoWaveAmazonS3Factory.class.getName()));
   }
 
-  public static void setHdfsURLStreamHandlerFactory()
-      throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-          IllegalAccessException {
+  public static void setHdfsURLStreamHandlerFactory() throws NoSuchFieldException,
+      SecurityException, IllegalArgumentException, IllegalAccessException {
     Field factoryField = URL.class.getDeclaredField("factory");
     factoryField.setAccessible(true);
     // HP Fortify "Access Control" false positive

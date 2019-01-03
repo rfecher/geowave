@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,39 +30,32 @@ public abstract class GeoWaveWritableInputReducer<KEYOUT, VALUEOUT>
   protected HadoopWritableSerializationTool serializationTool;
 
   @Override
-  protected void reduce(
-      final GeoWaveInputKey key,
-      final Iterable<ObjectWritable> values,
+  protected void reduce(final GeoWaveInputKey key, final Iterable<ObjectWritable> values,
       final Reducer<GeoWaveInputKey, ObjectWritable, KEYOUT, VALUEOUT>.Context context)
       throws IOException, InterruptedException {
     reduceWritableValues(key, values, context);
   }
 
-  protected void reduceWritableValues(
-      final GeoWaveInputKey key,
+  protected void reduceWritableValues(final GeoWaveInputKey key,
       final Iterable<ObjectWritable> values,
       final Reducer<GeoWaveInputKey, ObjectWritable, KEYOUT, VALUEOUT>.Context context)
       throws IOException, InterruptedException {
     final HadoopWritableSerializer<?, Writable> serializer =
         serializationTool.getHadoopWritableSerializerForAdapter(key.getInternalAdapterId());
     final Iterable<Object> transformedValues =
-        Iterables.transform(
-            values,
-            new Function<ObjectWritable, Object>() {
-              @Override
-              public Object apply(final ObjectWritable writable) {
-                final Object innerObj = writable.get();
-                return (innerObj instanceof Writable)
-                    ? serializer.fromWritable((Writable) innerObj)
-                    : innerObj;
-              }
-            });
+        Iterables.transform(values, new Function<ObjectWritable, Object>() {
+          @Override
+          public Object apply(final ObjectWritable writable) {
+            final Object innerObj = writable.get();
+            return (innerObj instanceof Writable) ? serializer.fromWritable((Writable) innerObj)
+                : innerObj;
+          }
+        });
 
     reduceNativeValues(key, transformedValues, context);
   }
 
-  protected abstract void reduceNativeValues(
-      final GeoWaveInputKey key,
+  protected abstract void reduceNativeValues(final GeoWaveInputKey key,
       final Iterable<Object> values,
       final Reducer<GeoWaveInputKey, ObjectWritable, KEYOUT, VALUEOUT>.Context context)
       throws IOException, InterruptedException;

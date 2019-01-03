@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -11,7 +12,6 @@ package org.locationtech.geowave.core.store.memory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,9 +50,8 @@ public class MemoryDataStoreTest {
 
   @Test
   public void test() throws IOException, MismatchedIndexToAdapterMapping {
-    final Index index =
-        new PrimaryIndex(
-            new MockComponents.MockIndexStrategy(), new MockComponents.TestIndexModel());
+    final Index index = new PrimaryIndex(new MockComponents.MockIndexStrategy(),
+        new MockComponents.TestIndexModel());
     final String namespace = "test_" + getClass().getName();
     final StoreFactoryFamilySpi storeFamily = new MemoryStoreFactoryFamily();
     final MemoryRequiredOptions reqOptions = new MemoryRequiredOptions();
@@ -62,14 +61,13 @@ public class MemoryDataStoreTest {
         storeFamily.getDataStatisticsStoreFactory().createStore(reqOptions);
     final DataTypeAdapter<Integer> adapter = new MockComponents.MockAbstractDataAdapter();
 
-    final VisibilityWriter<Integer> visWriter =
-        new VisibilityWriter<Integer>() {
-          @Override
-          public FieldVisibilityHandler<Integer, Object> getFieldVisibilityHandler(
-              final String fieldId) {
-            return new GlobalVisibilityHandler("aaa&bbb");
-          }
-        };
+    final VisibilityWriter<Integer> visWriter = new VisibilityWriter<Integer>() {
+      @Override
+      public FieldVisibilityHandler<Integer, Object> getFieldVisibilityHandler(
+          final String fieldId) {
+        return new GlobalVisibilityHandler("aaa&bbb");
+      }
+    };
     dataStore.addType(adapter, index);
     try (final Writer indexWriter = dataStore.createWriter(adapter.getTypeName())) {
 
@@ -81,39 +79,22 @@ public class MemoryDataStoreTest {
     }
 
     // authorization check
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index.getName())
-                .addAuthorization("aaa")
-                .constraints(new TestQuery(23, 26))
-                .build())) {
+    try (CloseableIterator<?> itemIt = dataStore.query(
+        QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index.getName())
+            .addAuthorization("aaa").constraints(new TestQuery(23, 26)).build())) {
       assertFalse(itemIt.hasNext());
     }
 
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 26))
-                .build())) {
+    try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder()
+        .addTypeName(adapter.getTypeName()).indexName(index.getName()).addAuthorization("aaa")
+        .addAuthorization("bbb").constraints(new TestQuery(23, 26)).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(25), itemIt.next());
       assertFalse(itemIt.hasNext());
     }
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 36))
-                .build())) {
+    try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder()
+        .addTypeName(adapter.getTypeName()).indexName(index.getName()).addAuthorization("aaa")
+        .addAuthorization("bbb").constraints(new TestQuery(23, 36)).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(25), itemIt.next());
       assertTrue(itemIt.hasNext());
@@ -124,47 +105,25 @@ public class MemoryDataStoreTest {
     final Iterator<InternalDataStatistics<?, ?, ?>> statsIt = statsStore.getAllDataStatistics();
     assertTrue(checkStats(statsIt, 2, new NumericRange(25, 35)));
 
-    dataStore.delete(
-        QueryBuilder.newBuilder()
-            .addTypeName(adapter.getTypeName())
-            .indexName(index.getName())
-            .addAuthorization("aaa")
-            .addAuthorization("bbb")
-            .constraints(new TestQuery(23, 26))
-            .build());
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 36))
-                .build())) {
+    dataStore.delete(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+        .indexName(index.getName()).addAuthorization("aaa").addAuthorization("bbb")
+        .constraints(new TestQuery(23, 26)).build());
+    try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder()
+        .addTypeName(adapter.getTypeName()).indexName(index.getName()).addAuthorization("aaa")
+        .addAuthorization("bbb").constraints(new TestQuery(23, 36)).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(35), itemIt.next());
       assertFalse(itemIt.hasNext());
     }
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 26))
-                .build())) {
+    try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder()
+        .addTypeName(adapter.getTypeName()).indexName(index.getName()).addAuthorization("aaa")
+        .addAuthorization("bbb").constraints(new TestQuery(23, 26)).build())) {
       assertFalse(itemIt.hasNext());
     }
     try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new DataIdQuery(adapter.getDataId(new Integer(35))))
-                .build())) {
+        dataStore.query(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+            .indexName(index.getName()).addAuthorization("aaa").addAuthorization("bbb")
+            .constraints(new DataIdQuery(adapter.getDataId(new Integer(35)))).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(35), itemIt.next());
     }
@@ -172,12 +131,10 @@ public class MemoryDataStoreTest {
 
   @Test
   public void testMultipleIndices() throws IOException, MismatchedIndexToAdapterMapping {
-    final Index index1 =
-        new PrimaryIndex(
-            new MockComponents.MockIndexStrategy(), new MockComponents.TestIndexModel("tm1"));
-    final Index index2 =
-        new PrimaryIndex(
-            new MockComponents.MockIndexStrategy(), new MockComponents.TestIndexModel("tm2"));
+    final Index index1 = new PrimaryIndex(new MockComponents.MockIndexStrategy(),
+        new MockComponents.TestIndexModel("tm1"));
+    final Index index2 = new PrimaryIndex(new MockComponents.MockIndexStrategy(),
+        new MockComponents.TestIndexModel("tm2"));
     final String namespace = "test2_" + getClass().getName();
     final StoreFactoryFamilySpi storeFamily = new MemoryStoreFactoryFamily();
     final MemoryRequiredOptions opts = new MemoryRequiredOptions();
@@ -187,14 +144,13 @@ public class MemoryDataStoreTest {
         storeFamily.getDataStatisticsStoreFactory().createStore(opts);
     final DataTypeAdapter<Integer> adapter = new MockComponents.MockAbstractDataAdapter();
 
-    final VisibilityWriter<Integer> visWriter =
-        new VisibilityWriter<Integer>() {
-          @Override
-          public FieldVisibilityHandler<Integer, Object> getFieldVisibilityHandler(
-              final String fieldId) {
-            return new GlobalVisibilityHandler("aaa&bbb");
-          }
-        };
+    final VisibilityWriter<Integer> visWriter = new VisibilityWriter<Integer>() {
+      @Override
+      public FieldVisibilityHandler<Integer, Object> getFieldVisibilityHandler(
+          final String fieldId) {
+        return new GlobalVisibilityHandler("aaa&bbb");
+      }
+    };
 
     dataStore.addType(adapter, index1, index2);
     try (final Writer indexWriter = dataStore.createWriter(adapter.getTypeName())) {
@@ -207,39 +163,23 @@ public class MemoryDataStoreTest {
     }
 
     // authorization check
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index2.getName())
-                .addAuthorization("aaa")
-                .constraints(new TestQuery(23, 26))
-                .build())) {
+    try (CloseableIterator<?> itemIt = dataStore.query(
+        QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(index2.getName())
+            .addAuthorization("aaa").constraints(new TestQuery(23, 26)).build())) {
       assertFalse(itemIt.hasNext());
     }
 
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index1.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 26))
-                .build())) {
+    try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder()
+        .addTypeName(adapter.getTypeName()).indexName(index1.getName()).addAuthorization("aaa")
+        .addAuthorization("bbb").constraints(new TestQuery(23, 26)).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(25), itemIt.next());
       assertFalse(itemIt.hasNext());
     }
     // pick an index
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 36))
-                .build())) {
+    try (CloseableIterator<?> itemIt = dataStore
+        .query(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).addAuthorization("aaa")
+            .addAuthorization("bbb").constraints(new TestQuery(23, 36)).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(25), itemIt.next());
       assertTrue(itemIt.hasNext());
@@ -250,91 +190,51 @@ public class MemoryDataStoreTest {
     final Iterator<InternalDataStatistics<?, ?, ?>> statsIt = statsStore.getAllDataStatistics();
     assertTrue(checkStats(statsIt, 2, new NumericRange(25, 35)));
 
-    dataStore.delete(
-        QueryBuilder.newBuilder()
-            .addTypeName(adapter.getTypeName())
-            .addAuthorization("aaa")
-            .addAuthorization("bbb")
-            .constraints(new TestQuery(23, 26))
-            .build());
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index1.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 36))
-                .build())) {
+    dataStore
+        .delete(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).addAuthorization("aaa")
+            .addAuthorization("bbb").constraints(new TestQuery(23, 26)).build());
+    try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder()
+        .addTypeName(adapter.getTypeName()).indexName(index1.getName()).addAuthorization("aaa")
+        .addAuthorization("bbb").constraints(new TestQuery(23, 36)).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(35), itemIt.next());
       assertFalse(itemIt.hasNext());
     }
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index2.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 36))
-                .build())) {
+    try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder()
+        .addTypeName(adapter.getTypeName()).indexName(index2.getName()).addAuthorization("aaa")
+        .addAuthorization("bbb").constraints(new TestQuery(23, 36)).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(35), itemIt.next());
       assertFalse(itemIt.hasNext());
     }
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index1.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 26))
-                .build())) {
+    try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder()
+        .addTypeName(adapter.getTypeName()).indexName(index1.getName()).addAuthorization("aaa")
+        .addAuthorization("bbb").constraints(new TestQuery(23, 26)).build())) {
+      assertFalse(itemIt.hasNext());
+    }
+    try (CloseableIterator<?> itemIt = dataStore.query(QueryBuilder.newBuilder()
+        .addTypeName(adapter.getTypeName()).indexName(index2.getName()).addAuthorization("aaa")
+        .addAuthorization("bbb").constraints(new TestQuery(23, 26)).build())) {
       assertFalse(itemIt.hasNext());
     }
     try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index2.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new TestQuery(23, 26))
-                .build())) {
-      assertFalse(itemIt.hasNext());
-    }
-    try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index1.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new DataIdQuery(adapter.getDataId(new Integer(35))))
-                .build())) {
+        dataStore.query(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+            .indexName(index1.getName()).addAuthorization("aaa").addAuthorization("bbb")
+            .constraints(new DataIdQuery(adapter.getDataId(new Integer(35)))).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(35), itemIt.next());
     }
     try (CloseableIterator<?> itemIt =
-        dataStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(index2.getName())
-                .addAuthorization("aaa")
-                .addAuthorization("bbb")
-                .constraints(new DataIdQuery(adapter.getDataId(new Integer(35))))
-                .build())) {
+        dataStore.query(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+            .indexName(index2.getName()).addAuthorization("aaa").addAuthorization("bbb")
+            .constraints(new DataIdQuery(adapter.getDataId(new Integer(35)))).build())) {
       assertTrue(itemIt.hasNext());
       assertEquals(new Integer(35), itemIt.next());
     }
   }
 
-  private boolean checkStats(
-      final Iterator<InternalDataStatistics<?, ?, ?>> statIt,
-      final int count,
-      final NumericRange range) {
+  private boolean checkStats(final Iterator<InternalDataStatistics<?, ?, ?>> statIt,
+      final int count, final NumericRange range) {
     while (statIt.hasNext()) {
       final InternalDataStatistics<Integer, ?, ?> stat =
           (InternalDataStatistics<Integer, ?, ?>) statIt.next();
@@ -362,19 +262,12 @@ public class MemoryDataStoreTest {
     }
 
     @Override
-    public boolean accept(
-        final CommonIndexModel indexModel,
+    public boolean accept(final CommonIndexModel indexModel,
         final IndexedPersistenceEncoding<?> persistenceEncoding) {
-      final double min =
-          ((CommonIndexedPersistenceEncoding) persistenceEncoding)
-              .getNumericData(indexModel.getDimensions())
-              .getDataPerDimension()[0]
-              .getMin();
-      final double max =
-          ((CommonIndexedPersistenceEncoding) persistenceEncoding)
-              .getNumericData(indexModel.getDimensions())
-              .getDataPerDimension()[0]
-              .getMax();
+      final double min = ((CommonIndexedPersistenceEncoding) persistenceEncoding)
+          .getNumericData(indexModel.getDimensions()).getDataPerDimension()[0].getMin();
+      final double max = ((CommonIndexedPersistenceEncoding) persistenceEncoding)
+          .getNumericData(indexModel.getDimensions()).getDataPerDimension()[0].getMax();
       return !((this.max <= min) || (this.min > max));
     }
 

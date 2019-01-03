@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,13 +38,8 @@ public class RestFieldFactory {
 
   @FunctionalInterface
   private interface MainParamInitializer<T extends RestField<?>> {
-    public T apply(
-        String name,
-        boolean isList,
-        Field mainParamField,
-        int subfieldOrdinal,
-        int totalSize,
-        Object instance);
+    public T apply(String name, boolean isList, Field mainParamField, int subfieldOrdinal,
+        int totalSize, Object instance);
   }
 
   public static List<RestField<?>> createRestFields(final Class<?> instanceType) {
@@ -51,66 +47,38 @@ public class RestFieldFactory {
         // for just getting the fields we don't need to waste time on
         // using reflection to get an instance, that is only necessary
         // for setting values
-        null,
-        instanceType,
-        (ParameterInitializer<RestField<?>>)
-            (final Field field, final Parameter parameter, final Object instance) ->
-                new ParameterRestField(field, parameter),
-        (final String name,
-            final boolean isList,
-            final Field mainParamField,
-            final int subfieldOrdinal,
-            final int totalSize,
-            final Object instance) ->
-            new BasicRestField(name, isList ? List.class : String.class, "main parameter", true));
+        null, instanceType,
+        (ParameterInitializer<RestField<?>>) (final Field field, final Parameter parameter,
+            final Object instance) -> new ParameterRestField(field, parameter),
+        (final String name, final boolean isList, final Field mainParamField,
+            final int subfieldOrdinal, final int totalSize,
+            final Object instance) -> new BasicRestField(name, isList ? List.class : String.class,
+                "main parameter", true));
   }
 
   public static List<RestFieldValue<?>> createRestFieldValues(final Object instance) {
-    return internalCreateRestFields(
-        instance,
-        instance.getClass(),
-        (ParameterInitializer<RestFieldValue<?>>)
-            (final Field field, final Parameter parameter, final Object i) ->
-                new ParameterRestFieldValue(field, parameter, i),
-        (final String name,
-            final boolean isList,
-            final Field mainParamField,
-            final int subfieldOrdinal,
-            final int totalSize,
-            final Object i) ->
-            isList
-                ? new ListMainParam(
-                    subfieldOrdinal,
-                    totalSize,
-                    mainParamField,
-                    new BasicRestField<List>(name, List.class, "main parameter", true),
-                    instance)
-                : new StringMainParam(
-                    subfieldOrdinal,
-                    totalSize,
-                    mainParamField,
-                    new BasicRestField<>(name, String.class, "main parameter", true),
-                    instance));
+    return internalCreateRestFields(instance, instance.getClass(),
+        (ParameterInitializer<RestFieldValue<?>>) (final Field field, final Parameter parameter,
+            final Object i) -> new ParameterRestFieldValue(field, parameter, i),
+        (final String name, final boolean isList, final Field mainParamField,
+            final int subfieldOrdinal, final int totalSize, final Object i) -> isList
+                ? new ListMainParam(subfieldOrdinal, totalSize, mainParamField,
+                    new BasicRestField<List>(name, List.class, "main parameter", true), instance)
+                : new StringMainParam(subfieldOrdinal, totalSize, mainParamField,
+                    new BasicRestField<>(name, String.class, "main parameter", true), instance));
   }
 
-  private static <T extends RestField<?>> List<T> internalCreateRestFields(
-      final Object instance,
-      final Class<?> instanceType,
-      final ParameterInitializer<T> parameterInitializer,
+  private static <T extends RestField<?>> List<T> internalCreateRestFields(final Object instance,
+      final Class<?> instanceType, final ParameterInitializer<T> parameterInitializer,
       final MainParamInitializer<T> mainParamInitializer) {
     final List<T> retVal = new ArrayList<>();
     for (final Field field : FieldUtils.getFieldsWithAnnotation(instanceType, Parameter.class)) {
-      retVal.addAll(
-          internalCreateRestFields(
-              field,
-              field.getAnnotation(Parameter.class),
-              instance,
-              parameterInitializer,
-              mainParamInitializer));
+      retVal.addAll(internalCreateRestFields(field, field.getAnnotation(Parameter.class), instance,
+          parameterInitializer, mainParamInitializer));
     }
 
-    for (final Field field :
-        FieldUtils.getFieldsWithAnnotation(instanceType, ParametersDelegate.class)) {
+    for (final Field field : FieldUtils.getFieldsWithAnnotation(instanceType,
+        ParametersDelegate.class)) {
       try {
         final Class<?> delegateInstanceType;
         Object delegateInstance;
@@ -129,12 +97,8 @@ public class RestFieldFactory {
             if (delegateInstance instanceof Map) {
               for (Object mapValueInstance : ((Map) delegateInstance).values()) {
                 final Class<?> mapValueInstanceType = mapValueInstance.getClass();
-                retVal.addAll(
-                    internalCreateRestFields(
-                        mapValueInstance,
-                        mapValueInstanceType,
-                        parameterInitializer,
-                        mainParamInitializer));
+                retVal.addAll(internalCreateRestFields(mapValueInstance, mapValueInstanceType,
+                    parameterInitializer, mainParamInitializer));
               }
             }
           }
@@ -146,12 +110,8 @@ public class RestFieldFactory {
           // time on reflection to make delegate instance
           delegateInstance = null;
         }
-        retVal.addAll(
-            internalCreateRestFields(
-                delegateInstance,
-                delegateInstanceType,
-                parameterInitializer,
-                mainParamInitializer));
+        retVal.addAll(internalCreateRestFields(delegateInstance, delegateInstanceType,
+            parameterInitializer, mainParamInitializer));
 
       } catch (InstantiationException | IllegalAccessException e) {
         LOGGER.error("Unable to instantiate field", e);
@@ -160,10 +120,8 @@ public class RestFieldFactory {
     return retVal;
   }
 
-  private static <T extends RestField<?>> List<T> internalCreateRestFields(
-      final Field field,
-      final Parameter parameter,
-      final Object instance,
+  private static <T extends RestField<?>> List<T> internalCreateRestFields(final Field field,
+      final Parameter parameter, final Object instance,
       final ParameterInitializer<T> parameterInitializer,
       final MainParamInitializer<T> mainParamInitializer) {
     // handle case for core/main params for a command
@@ -173,8 +131,7 @@ public class RestFieldFactory {
     final String desc = parameter.description();
     // this is intended to match one or more "<" + at least one alphanumeric
     // or some select special character + ">"
-    if (List.class.isAssignableFrom(field.getType())
-        && !desc.isEmpty()
+    if (List.class.isAssignableFrom(field.getType()) && !desc.isEmpty()
         && desc.matches("(<[a-zA-Z0-9:/\\s]+>\\s*)+")) {
       int currentEndParamIndex = 0;
       // this simply is collecting names and a flag to indicate if its a
@@ -199,26 +156,19 @@ public class RestFieldFactory {
         }
       } while ((currentEndParamIndex > 0) && (currentEndParamIndex < desc.length()));
       final int totalSize = individualParams.size();
-      return Lists.transform(
-          individualParams,
-          new Function<Pair<String, Boolean>, T>() {
-            int i = 0;
+      return Lists.transform(individualParams, new Function<Pair<String, Boolean>, T>() {
+        int i = 0;
 
-            @Override
-            public T apply(final Pair<String, Boolean> input) {
-              if (input != null) {
-                return mainParamInitializer.apply(
-                    toURLFriendlyString(input.getLeft()),
-                    input.getRight(),
-                    field,
-                    i++,
-                    totalSize,
-                    instance);
-              } else {
-                return null;
-              }
-            }
-          });
+        @Override
+        public T apply(final Pair<String, Boolean> input) {
+          if (input != null) {
+            return mainParamInitializer.apply(toURLFriendlyString(input.getLeft()),
+                input.getRight(), field, i++, totalSize, instance);
+          } else {
+            return null;
+          }
+        }
+      });
     } else {
       return Collections.singletonList(parameterInitializer.apply(field, parameter, instance));
     }

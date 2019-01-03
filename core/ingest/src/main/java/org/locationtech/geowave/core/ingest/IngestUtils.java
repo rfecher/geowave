@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,22 +35,16 @@ import org.slf4j.LoggerFactory;
 public class IngestUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(IngestUtils.class);
 
-  public static boolean checkIndexesAgainstProvider(
-      final String providerName,
-      final DataAdapterProvider<?> adapterProvider,
-      final List<IndexPluginOptions> indexOptions) {
+  public static boolean checkIndexesAgainstProvider(final String providerName,
+      final DataAdapterProvider<?> adapterProvider, final List<IndexPluginOptions> indexOptions) {
     boolean valid = true;
     for (final IndexPluginOptions option : indexOptions) {
       if (!IngestUtils.isCompatible(adapterProvider, option)) {
         // HP Fortify "Log Forging" false positive
         // What Fortify considers "user input" comes only
         // from users with OS-level access anyway
-        LOGGER.warn(
-            "Local file ingest plugin for ingest type '"
-                + providerName
-                + "' does not support dimensionality '"
-                + option.getType()
-                + "'");
+        LOGGER.warn("Local file ingest plugin for ingest type '" + providerName
+            + "' does not support dimensionality '" + option.getType() + "'");
         valid = false;
       }
     }
@@ -57,16 +52,14 @@ public class IngestUtils {
   }
 
   public static enum URLTYPE {
-    S3,
-    HDFS
+    S3, HDFS
   }
 
   private static boolean hasS3Handler = false;
   private static boolean hasHdfsHandler = false;
 
-  public static void setURLStreamHandlerFactory(URLTYPE urlType)
-      throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-          IllegalAccessException {
+  public static void setURLStreamHandlerFactory(URLTYPE urlType) throws NoSuchFieldException,
+      SecurityException, IllegalArgumentException, IllegalAccessException {
     // One-time init for each type
     if (urlType == URLTYPE.S3 && hasS3Handler) {
       return;
@@ -126,8 +119,7 @@ public class IngestUtils {
    * @param index an index that an ingest type supports
    * @return whether the adapter is compatible with the common index model
    */
-  public static boolean isCompatible(
-      final DataAdapterProvider<?> adapterProvider,
+  public static boolean isCompatible(final DataAdapterProvider<?> adapterProvider,
       final IndexPluginOptions dimensionalityProvider) {
     final Class<? extends CommonIndexValue>[] supportedTypes =
         adapterProvider.getSupportedIndexableTypes();
@@ -151,8 +143,7 @@ public class IngestUtils {
     return true;
   }
 
-  public static boolean isSupported(
-      final DataAdapterProvider<?> adapterProvider,
+  public static boolean isSupported(final DataAdapterProvider<?> adapterProvider,
       final List<IndexPluginOptions> dimensionalityTypes) {
     for (final IndexPluginOptions option : dimensionalityTypes) {
       if (isCompatible(adapterProvider, option)) {
@@ -166,13 +157,10 @@ public class IngestUtils {
     Path path = null;
     FileSystem fs = null;
     try {
-      fs =
-          FileSystems.newFileSystem(
-              new URI(s3EndpointUrl + "/"),
-              Collections.singletonMap(
-                  S3FileSystemProvider.AMAZON_S3_FACTORY_CLASS,
-                  GeoWaveAmazonS3Factory.class.getName()),
-              Thread.currentThread().getContextClassLoader());
+      fs = FileSystems.newFileSystem(new URI(s3EndpointUrl + "/"),
+          Collections.singletonMap(S3FileSystemProvider.AMAZON_S3_FACTORY_CLASS,
+              GeoWaveAmazonS3Factory.class.getName()),
+          Thread.currentThread().getContextClassLoader());
       // HP Fortify "Path Traversal" false positive
       // What Fortify considers "user input" comes only
       // from users with OS-level access anyway

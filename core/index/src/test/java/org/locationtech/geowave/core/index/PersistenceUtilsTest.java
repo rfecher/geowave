@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,20 +35,16 @@ public class PersistenceUtilsTest {
   @Test
   public void test() {
     APersistable persistable = new APersistable();
-    Assert.assertTrue(
-        PersistenceUtils.fromBinaryAsList(PersistenceUtils.toBinary(new ArrayList<Persistable>()))
-            .isEmpty());
-    Assert.assertTrue(
-        PersistenceUtils.fromBinaryAsList(
-                    PersistenceUtils.toBinary(Collections.<Persistable>singleton(persistable)))
-                .size()
-            == 1);
+    Assert.assertTrue(PersistenceUtils
+        .fromBinaryAsList(PersistenceUtils.toBinary(new ArrayList<Persistable>())).isEmpty());
+    Assert.assertTrue(PersistenceUtils
+        .fromBinaryAsList(
+            PersistenceUtils.toBinary(Collections.<Persistable>singleton(persistable)))
+        .size() == 1);
 
-    Assert.assertTrue(
-        PersistenceUtils.fromBinaryAsList(
-                    PersistenceUtils.toBinary(
-                        Arrays.<Persistable>asList(new Persistable[] {persistable, persistable})))
-                .size()
-            == 2);
+    Assert.assertTrue(PersistenceUtils
+        .fromBinaryAsList(PersistenceUtils
+            .toBinary(Arrays.<Persistable>asList(new Persistable[] {persistable, persistable})))
+        .size() == 2);
   }
 }

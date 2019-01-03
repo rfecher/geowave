@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -55,7 +56,8 @@ public class MemoryLockManager extends AbstractLockingManagement {
         }
       }
     }
-    for (AuthorizedLock lockToRelease : toRelease) lockToRelease.invalidate();
+    for (AuthorizedLock lockToRelease : toRelease)
+      lockToRelease.invalidate();
   }
 
   /**
@@ -75,11 +77,11 @@ public class MemoryLockManager extends AbstractLockingManagement {
         }
       }
     }
-    for (AuthorizedLock lockToRelease : toRelease) lockToRelease.resetExpireTime();
+    for (AuthorizedLock lockToRelease : toRelease)
+      lockToRelease.resetExpireTime();
   }
 
-  @SuppressFBWarnings(
-      value = {"MWN_MISMATCHED_WAIT"},
+  @SuppressFBWarnings(value = {"MWN_MISMATCHED_WAIT"},
       justification = "incorrect flag; lock held (in synchronized block)")
   @Override
   public void lock(AuthorizedLock lock, String featureID) {
@@ -106,8 +108,8 @@ public class MemoryLockManager extends AbstractLockingManagement {
             // only wait a little, because the feature lock could be
             // stale
             // flagged as mismatched wait...but this is correct
-            featureLock.wait(
-                Math.min(5000, featureLock.getExpireTime() - System.currentTimeMillis()));
+            featureLock
+                .wait(Math.min(5000, featureLock.getExpireTime() - System.currentTimeMillis()));
           } catch (InterruptedException ex) {
           } catch (Exception e) {
             LOGGER.error(
@@ -133,7 +135,8 @@ public class MemoryLockManager extends AbstractLockingManagement {
       Iterator<Entry<String, AuthorizedLock>> it = locks.entrySet().iterator();
       while (it.hasNext()) {
         Entry<String, AuthorizedLock> entry = it.next();
-        if (entry.getValue().isAuthorized(authID) || !entry.getValue().isStale()) return true;
+        if (entry.getValue().isAuthorized(authID) || !entry.getValue().isStale())
+          return true;
       }
     }
     return false;

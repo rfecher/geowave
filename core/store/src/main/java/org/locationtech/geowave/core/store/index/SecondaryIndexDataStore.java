@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,14 +38,9 @@ public interface SecondaryIndexDataStore {
    * @param primaryIndexSortKey
    * @param attributeVisibility
    */
-  public void storeJoinEntry(
-      String secondaryIndexName,
-      ByteArray indexedAttributeValue,
-      String typeName,
-      String indexedAttributeFieldName,
-      String primaryIndexName,
-      ByteArray primaryIndexPartitionKey,
-      ByteArray primaryIndexSortKey,
+  public void storeJoinEntry(String secondaryIndexName, ByteArray indexedAttributeValue,
+      String typeName, String indexedAttributeFieldName, String primaryIndexName,
+      ByteArray primaryIndexPartitionKey, ByteArray primaryIndexSortKey,
       ByteArray attributeVisibility);
 
   /**
@@ -58,12 +54,8 @@ public interface SecondaryIndexDataStore {
    * @param dataId
    * @param originalFields
    */
-  public void storeEntry(
-      String secondaryIndexName,
-      ByteArray indexedAttributeValue,
-      String typeName,
-      String indexedAttributeFieldName,
-      ByteArray dataId,
+  public void storeEntry(String secondaryIndexName, ByteArray indexedAttributeValue,
+      String typeName, String indexedAttributeFieldName, ByteArray dataId,
       GeoWaveValue... originalFields);
 
   /**
@@ -77,30 +69,17 @@ public interface SecondaryIndexDataStore {
    * @param authorizations
    * @return
    */
-  public <T> CloseableIterator<T> query(
-      final SecondaryIndexImpl<T> secondaryIndex,
-      final String indexedAttributeFieldName,
-      final InternalDataAdapter<T> adapter,
-      final Index primaryIndex,
-      final QueryConstraints query,
-      final String... authorizations);
+  public <T> CloseableIterator<T> query(final SecondaryIndexImpl<T> secondaryIndex,
+      final String indexedAttributeFieldName, final InternalDataAdapter<T> adapter,
+      final Index primaryIndex, final QueryConstraints query, final String... authorizations);
 
-  public void deleteJoinEntry(
-      String secondaryIndexName,
-      ByteArray indexedAttributeValue,
-      String typeName,
-      String indexedAttributeFieldName,
-      String primaryIndexName,
-      ByteArray primaryIndexPartitionKey,
-      ByteArray primaryIndexSortKey,
+  public void deleteJoinEntry(String secondaryIndexName, ByteArray indexedAttributeValue,
+      String typeName, String indexedAttributeFieldName, String primaryIndexName,
+      ByteArray primaryIndexPartitionKey, ByteArray primaryIndexSortKey,
       ByteArray attributeVisibility);
 
-  public void deleteEntry(
-      String secondaryIndexName,
-      ByteArray indexedAttributeValue,
-      String typeName,
-      String indexedAttributeFieldName,
-      ByteArray dataId,
+  public void deleteEntry(String secondaryIndexName, ByteArray indexedAttributeValue,
+      String typeName, String indexedAttributeFieldName, ByteArray dataId,
       GeoWaveValue... originalFields);
 
   public void flush();

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,12 +30,8 @@ public class DateRangeFilter implements QueryFilter {
     super();
   }
 
-  public DateRangeFilter(
-      final String fieldName,
-      final Date start,
-      final Date end,
-      final boolean inclusiveLow,
-      final boolean inclusiveHigh) {
+  public DateRangeFilter(final String fieldName, final Date start, final Date end,
+      final boolean inclusiveLow, final boolean inclusiveHigh) {
     super();
     this.fieldName = fieldName;
     this.start = start;
@@ -44,8 +41,8 @@ public class DateRangeFilter implements QueryFilter {
   }
 
   @Override
-  public boolean accept(
-      final CommonIndexModel indexModel, final IndexedPersistenceEncoding<?> persistenceEncoding) {
+  public boolean accept(final CommonIndexModel indexModel,
+      final IndexedPersistenceEncoding<?> persistenceEncoding) {
     final ByteArray dateLongBytes =
         (ByteArray) persistenceEncoding.getCommonData().getValue(fieldName);
     if (dateLongBytes != null) {
@@ -79,12 +76,9 @@ public class DateRangeFilter implements QueryFilter {
   public byte[] toBinary() {
     final byte[] fieldNameBytes = StringUtils.stringToBinary(fieldName);
     final ByteBuffer bb =
-        ByteBuffer.allocate(
-            VarintUtils.unsignedIntByteLength(fieldNameBytes.length)
-                + fieldNameBytes.length
-                + VarintUtils.timeByteLength(start.getTime())
-                + VarintUtils.timeByteLength(end.getTime())
-                + 2);
+        ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(fieldNameBytes.length)
+            + fieldNameBytes.length + VarintUtils.timeByteLength(start.getTime())
+            + VarintUtils.timeByteLength(end.getTime()) + 2);
     VarintUtils.writeUnsignedInt(fieldNameBytes.length, bb);
     bb.put(fieldNameBytes);
     VarintUtils.writeTime(start.getTime(), bb);

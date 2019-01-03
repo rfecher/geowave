@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,12 +36,10 @@ public class IngestRunner extends RasterIngestRunner {
   private final VectorOverrideCommandLineOptions vectorOverrideOptions;
   private SimpleFeatureType sceneType;
 
-  public IngestRunner(
-      final Sentinel2BasicCommandLineOptions analyzeOptions,
+  public IngestRunner(final Sentinel2BasicCommandLineOptions analyzeOptions,
       final Sentinel2DownloadCommandLineOptions downloadOptions,
       final Sentinel2RasterIngestCommandLineOptions ingestOptions,
-      final VectorOverrideCommandLineOptions vectorOverrideOptions,
-      final List<String> parameters) {
+      final VectorOverrideCommandLineOptions vectorOverrideOptions, final List<String> parameters) {
     super(analyzeOptions, downloadOptions, ingestOptions, parameters);
     this.vectorOverrideOptions = vectorOverrideOptions;
   }

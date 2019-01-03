@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,12 +29,12 @@ import org.locationtech.geowave.core.cli.utils.PropertiesUtils;
  * Required notation for specifying varying inputs are:
  *
  * <ul>
- *   <li><b>pass</b>:&lt;password&gt;
- *   <li><b>env</b>:&lt;variable containing the password&gt;
- *   <li><b>file</b>:&lt;local file containing the password&gt;
- *   <li><b>propfile</b>:&lt;local properties file containing the password&gt;<b>:</b>&lt;property
- *       file key&gt;
- *   <li><b>stdin</b>
+ * <li><b>pass</b>:&lt;password&gt;
+ * <li><b>env</b>:&lt;variable containing the password&gt;
+ * <li><b>file</b>:&lt;local file containing the password&gt;
+ * <li><b>propfile</b>:&lt;local properties file containing the password&gt;<b>:</b>&lt;property
+ * file key&gt;
+ * <li><b>stdin</b>
  * </ul>
  */
 public class PasswordConverter extends GeoWaveBaseConverter<String> {
@@ -99,11 +100,9 @@ public class PasswordConverter extends GeoWaveBaseConverter<String> {
                 }
               } else {
                 try {
-                  throw new ParameterException(
-                      new FileNotFoundException(
-                          propsFile != null
-                              ? "Properties file not found at path: " + propsFile.getCanonicalPath()
-                              : "No properties file specified"));
+                  throw new ParameterException(new FileNotFoundException(propsFile != null
+                      ? "Properties file not found at path: " + propsFile.getCanonicalPath()
+                      : "No properties file specified"));
                 } catch (IOException e) {
                   throw new ParameterException(e);
                 }

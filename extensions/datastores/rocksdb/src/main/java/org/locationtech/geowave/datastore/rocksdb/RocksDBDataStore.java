@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -21,15 +22,10 @@ import org.locationtech.geowave.mapreduce.BaseMapReduceDataStore;
 
 public class RocksDBDataStore extends BaseMapReduceDataStore implements Closeable {
   public RocksDBDataStore(final RocksDBOperations operations, final DataStoreOptions options) {
-    super(
-        new IndexStoreImpl(operations, options),
-        new AdapterStoreImpl(operations, options),
+    super(new IndexStoreImpl(operations, options), new AdapterStoreImpl(operations, options),
         new DataStatisticsStoreImpl(operations, options),
-        new AdapterIndexMappingStoreImpl(operations, options),
-        new SecondaryIndexStoreImpl(),
-        operations,
-        options,
-        new InternalAdapterStoreImpl(operations));
+        new AdapterIndexMappingStoreImpl(operations, options), new SecondaryIndexStoreImpl(),
+        operations, options, new InternalAdapterStoreImpl(operations));
   }
 
   @Override

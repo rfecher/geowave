@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,7 +37,8 @@ public class StageOSMToHDFSCommand extends DefaultOperation implements Command {
   @Parameter(description = "<file or directory> <path to base directory to write to>")
   private List<String> parameters = new ArrayList<String>();
 
-  @ParametersDelegate private OsmPbfParserOptions parserOptions = new OsmPbfParserOptions();
+  @ParametersDelegate
+  private OsmPbfParserOptions parserOptions = new OsmPbfParserOptions();
 
   @Override
   public void execute(final OperationParams params) throws Exception {
@@ -72,9 +74,8 @@ public class StageOSMToHDFSCommand extends DefaultOperation implements Command {
         "Nodes size: " + getHDFSFileSummary(conf, parserOptions.getNodesBasePath()).getLength());
     System.out.println(
         "Ways size: " + getHDFSFileSummary(conf, parserOptions.getWaysBasePath()).getLength());
-    System.out.println(
-        "Relations size: "
-            + getHDFSFileSummary(conf, parserOptions.getRelationsBasePath()).getLength());
+    System.out.println("Relations size: "
+        + getHDFSFileSummary(conf, parserOptions.getRelationsBasePath()).getLength());
     System.out.println("**************************************************");
     System.out.println("finished osmpbf ingest");
   }

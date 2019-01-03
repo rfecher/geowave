@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -66,10 +67,8 @@ public class BasicBinningStrategy implements BinningStrategy {
   public BinRange[] getNormalizedRanges(NumericData index) {
     if (!index.isRange()) {
       BinValue value = getBinnedValue(index.getMin());
-      return new BinRange[] {
-        new BinRange(
-            value.getBinId(), value.getNormalizedValue(), value.getNormalizedValue(), false)
-      };
+      return new BinRange[] {new BinRange(value.getBinId(), value.getNormalizedValue(),
+          value.getNormalizedValue(), false)};
     }
     int minBin = (int) Math.ceil((index.getMin() - halfInterval) / interval);
     int maxBin = (int) Math.ceil((index.getMax() - halfInterval) / interval);
@@ -81,15 +80,13 @@ public class BasicBinningStrategy implements BinningStrategy {
       return new BinRange[] {new BinRange(buf.array(), min, max, false)};
     }
     BinRange[] retVal = new BinRange[maxBin - minBin + 1];
-    retVal[0] =
-        new BinRange(
-            intToBinary(minBin), (index.getMin() - interval * minBin), halfInterval, false);
+    retVal[0] = new BinRange(intToBinary(minBin), (index.getMin() - interval * minBin),
+        halfInterval, false);
     for (int b = minBin + 1; b < maxBin; b++) {
       retVal[b - minBin] = new BinRange(intToBinary(b), -halfInterval, halfInterval, true);
     }
-    retVal[maxBin - minBin] =
-        new BinRange(
-            intToBinary(maxBin), -halfInterval, (index.getMax() - interval * maxBin), false);
+    retVal[maxBin - minBin] = new BinRange(intToBinary(maxBin), -halfInterval,
+        (index.getMax() - interval * maxBin), false);
     return retVal;
   }
 
@@ -101,8 +98,8 @@ public class BasicBinningStrategy implements BinningStrategy {
       return new NumericRange(center - halfInterval, center + halfInterval);
     }
 
-    return new NumericRange(
-        center + binnedRange.getNormalizedMin(), center + binnedRange.getNormalizedMax());
+    return new NumericRange(center + binnedRange.getNormalizedMin(),
+        center + binnedRange.getNormalizedMax());
   }
 
   @Override

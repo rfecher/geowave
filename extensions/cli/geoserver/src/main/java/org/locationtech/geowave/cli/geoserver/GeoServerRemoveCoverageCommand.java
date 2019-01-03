@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,16 +23,10 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 @GeowaveOperation(name = "rmcv", parentOperation = GeoServerSection.class)
 @Parameters(commandDescription = "Remove a GeoServer coverage")
 public class GeoServerRemoveCoverageCommand extends GeoServerRemoveCommand<String> {
-  @Parameter(
-      names = {"-ws", "--workspace"},
-      required = false,
-      description = "workspace name")
+  @Parameter(names = {"-ws", "--workspace"}, required = false, description = "workspace name")
   private String workspace = null;
 
-  @Parameter(
-      names = {"-cs", "--cvgstore"},
-      required = true,
-      description = "coverage store name")
+  @Parameter(names = {"-cs", "--cvgstore"}, required = true, description = "coverage store name")
   private String cvgstore = null;
 
   @Parameter(description = "<coverage name>")
@@ -61,13 +56,9 @@ public class GeoServerRemoveCoverageCommand extends GeoServerRemoveCommand<Strin
     if (getCvgResponse.getStatus() == Status.OK.getStatusCode()) {
       return "\nRemove GeoServer coverage '" + cvgName + "': OK";
     }
-    String errorMessage =
-        "Error removing GeoServer coverage '"
-            + cvgName
-            + "': "
-            + getCvgResponse.readEntity(String.class)
-            + "\nGeoServer Response Code = "
-            + getCvgResponse.getStatus();
+    String errorMessage = "Error removing GeoServer coverage '" + cvgName + "': "
+        + getCvgResponse.readEntity(String.class) + "\nGeoServer Response Code = "
+        + getCvgResponse.getStatus();
     return handleError(getCvgResponse, errorMessage);
   }
 }

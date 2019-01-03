@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -46,59 +47,49 @@ public class FeatureConfigParser {
     while (featureIterator.hasNext()) {
       Map.Entry<String, JsonNode> props = featureIterator.next();
       switch (props.getKey()) {
-        case "fields":
-          {
-            parseFields(props.getValue(), fd);
-            break;
-          }
-        case "type":
-          {
-            switch (props.getValue().asText()) {
-              case "polygon":
-                {
-                  fd.type = FeatureType.Polygon;
-                  break;
-                }
-              case "linestring":
-                {
-                  fd.type = FeatureType.LineString;
-                  break;
-                }
-              case "point":
-                {
-                  fd.type = FeatureType.Point;
-                  break;
-                }
-              case "geometry":
-                {
-                  fd.type = FeatureType.Geometry;
-                  break;
-                }
-              case "validated_geometry":
-                {
-                  fd.type = FeatureType.Geometry;
-                  break;
-                }
-              default:
-                break;
+        case "fields": {
+          parseFields(props.getValue(), fd);
+          break;
+        }
+        case "type": {
+          switch (props.getValue().asText()) {
+            case "polygon": {
+              fd.type = FeatureType.Polygon;
+              break;
             }
-            break;
+            case "linestring": {
+              fd.type = FeatureType.LineString;
+              break;
+            }
+            case "point": {
+              fd.type = FeatureType.Point;
+              break;
+            }
+            case "geometry": {
+              fd.type = FeatureType.Geometry;
+              break;
+            }
+            case "validated_geometry": {
+              fd.type = FeatureType.Geometry;
+              break;
+            }
+            default:
+              break;
           }
-        case "mapping":
-          {
-            parseMapping(props.getValue(), fd);
-            break;
-          }
-        case "mappings":
-          {
-            parseSubMappings(props.getValue(), fd);
-            break;
-          }
-        case "filters":
-          {
-            parseFilters(props.getValue(), fd);
-            break;
-          }
+          break;
+        }
+        case "mapping": {
+          parseMapping(props.getValue(), fd);
+          break;
+        }
+        case "mappings": {
+          parseSubMappings(props.getValue(), fd);
+          break;
+        }
+        case "filters": {
+          parseFilters(props.getValue(), fd);
+          break;
+        }
         default:
           break;
       }
@@ -164,34 +155,30 @@ public class FeatureConfigParser {
       while (fieldIterator.hasNext()) {
         Map.Entry<String, JsonNode> field = fieldIterator.next();
         switch (field.getKey()) {
-          case "type":
-            {
-              ad.type = field.getValue().asText();
-              break;
-            }
-          case "name":
-            {
-              ad.name = field.getValue().asText();
-              break;
-            }
-          case "key":
-            {
-              ad.key = field.getValue().asText();
-              break;
-            }
-          case "args":
-            {
-              Iterator<Map.Entry<String, JsonNode>> argsIterator = field.getValue().fields();
-              while (argsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> arg = argsIterator.next();
-                List<String> allArgs = new ArrayList<>();
-                for (JsonNode item : arg.getValue()) {
-                  allArgs.add(item.asText());
-                }
-                ad.args.put(arg.getKey(), allArgs);
+          case "type": {
+            ad.type = field.getValue().asText();
+            break;
+          }
+          case "name": {
+            ad.name = field.getValue().asText();
+            break;
+          }
+          case "key": {
+            ad.key = field.getValue().asText();
+            break;
+          }
+          case "args": {
+            Iterator<Map.Entry<String, JsonNode>> argsIterator = field.getValue().fields();
+            while (argsIterator.hasNext()) {
+              Map.Entry<String, JsonNode> arg = argsIterator.next();
+              List<String> allArgs = new ArrayList<>();
+              for (JsonNode item : arg.getValue()) {
+                allArgs.add(item.asText());
               }
-              break;
+              ad.args.put(arg.getKey(), allArgs);
             }
+            break;
+          }
         }
       }
       fd.attributes.add(ad);

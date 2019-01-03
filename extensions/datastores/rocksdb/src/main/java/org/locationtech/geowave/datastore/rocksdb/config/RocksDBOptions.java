@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -18,30 +19,27 @@ import org.locationtech.geowave.datastore.rocksdb.RocksDBStoreFactoryFamily;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 
 public class RocksDBOptions extends StoreFactoryOptions {
-  @Parameter(
-      names = "--directory",
-      description =
-          "The directory to read/write to.  Defaults to \"rocksdb\" in the working directory.")
+  @Parameter(names = "--directory",
+      description = "The directory to read/write to.  Defaults to \"rocksdb\" in the working directory.")
   private String directory = "rocksdb";
 
   @ParametersDelegate
-  protected BaseDataStoreOptions baseOptions =
-      new BaseDataStoreOptions() {
-        @Override
-        public boolean isServerSideLibraryEnabled() {
-          return false;
-        }
+  protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
+    @Override
+    public boolean isServerSideLibraryEnabled() {
+      return false;
+    }
 
-        @Override
-        protected int defaultMaxRangeDecomposition() {
-          return RocksDBUtils.ROCKSDB_DEFAULT_MAX_RANGE_DECOMPOSITION;
-        }
+    @Override
+    protected int defaultMaxRangeDecomposition() {
+      return RocksDBUtils.ROCKSDB_DEFAULT_MAX_RANGE_DECOMPOSITION;
+    }
 
-        @Override
-        protected int defaultAggregationMaxRangeDecomposition() {
-          return RocksDBUtils.ROCKSDB_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION;
-        }
-      };
+    @Override
+    protected int defaultAggregationMaxRangeDecomposition() {
+      return RocksDBUtils.ROCKSDB_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION;
+    }
+  };
 
   public RocksDBOptions() {
     super();

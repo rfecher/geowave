@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -20,8 +21,9 @@ public class TrackPoint {
   /**
    * Date and Time of this event (track item).
    *
-   * <p>for example, indicating the time when the tracked target was on a specific position. Values
-   * and formats In accordance with the W3C recommendation for implementation of ISO 8601 standard.
+   * <p>
+   * for example, indicating the time when the tracked target was on a specific position. Values and
+   * formats In accordance with the W3C recommendation for implementation of ISO 8601 standard.
    */
   public long eventTime;
 
@@ -55,7 +57,8 @@ public class TrackPoint {
   /**
    * A spatial outline of an object being tracked.
    *
-   * <p>for example, in case of video tracking, a box or polygon surrounding the object may be
+   * <p>
+   * for example, in case of video tracking, a box or polygon surrounding the object may be
    * specified.
    */
   public Area objectMask;

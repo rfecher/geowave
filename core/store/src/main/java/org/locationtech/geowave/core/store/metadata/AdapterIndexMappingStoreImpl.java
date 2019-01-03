@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,19 +26,21 @@ import org.slf4j.LoggerFactory;
  * This class will persist Adapter Index Mappings within an Accumulo table for GeoWave metadata. The
  * mappings will be persisted in an "AIM" column family.
  *
- * <p>There is an LRU cache associated with it so staying in sync with external updates is not
+ * <p>
+ * There is an LRU cache associated with it so staying in sync with external updates is not
  * practical - it assumes the objects are not updated often or at all. The objects are stored in
  * their own table.
  *
- * <p>Objects are maintained with regard to visibility. The assumption is that a mapping between an
+ * <p>
+ * Objects are maintained with regard to visibility. The assumption is that a mapping between an
  * adapter and indexing is consistent across all visibility constraints.
  */
 public class AdapterIndexMappingStoreImpl extends AbstractGeoWavePersistence<AdapterToIndexMapping>
     implements AdapterIndexMappingStore {
   private static final Logger LOGGER = LoggerFactory.getLogger(AdapterIndexMappingStoreImpl.class);
 
-  public AdapterIndexMappingStoreImpl(
-      final DataStoreOperations operations, final DataStoreOptions options) {
+  public AdapterIndexMappingStoreImpl(final DataStoreOperations operations,
+      final DataStoreOptions options) {
     super(operations, options, MetadataType.AIM);
   }
 
@@ -54,9 +57,8 @@ public class AdapterIndexMappingStoreImpl extends AbstractGeoWavePersistence<Ada
   @Override
   public AdapterToIndexMapping getIndicesForAdapter(final short adapterId) {
 
-    final AdapterToIndexMapping mapping =
-        super.internalGetObject(
-            new ByteArray(ByteArrayUtils.shortToByteArray(adapterId)), null, false, null);
+    final AdapterToIndexMapping mapping = super.internalGetObject(
+        new ByteArray(ByteArrayUtils.shortToByteArray(adapterId)), null, false, null);
     return (mapping != null) ? mapping : new AdapterToIndexMapping(adapterId, new String[0]);
   }
 
@@ -69,12 +71,10 @@ public class AdapterIndexMappingStoreImpl extends AbstractGeoWavePersistence<Ada
       if (!oldMapping.equals(mapping)) {
         // combine the 2 arrays and remove duplicates (get unique set of
         // index names)
-        final String[] uniqueCombinedIndices =
-            Streams.concat(
-                    Arrays.stream(mapping.getIndexNames()),
-                    Arrays.stream(oldMapping.getIndexNames()))
-                .distinct()
-                .toArray(size -> new String[size]);
+        final String[] uniqueCombinedIndices = Streams
+            .concat(Arrays.stream(mapping.getIndexNames()),
+                Arrays.stream(oldMapping.getIndexNames()))
+            .distinct().toArray(size -> new String[size]);
         if (LOGGER.isInfoEnabled()) {
           LOGGER.info(
               "Updating indices for datatype to " + ArrayUtils.toString(uniqueCombinedIndices));

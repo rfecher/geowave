@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.adapter.vector.plugin.lock;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.UUID;
 import org.geotools.data.DefaultTransaction;
@@ -38,23 +38,21 @@ public class MemoryLockManagerTest {
     t2.addAuthorization("auth5");
     FeatureLock lock = new FeatureLock("auth5", 1 /* minute */);
     memoryLockManager.lockFeatureID("sometime", "f5", t1, lock);
-    Thread commiter =
-        new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                try {
-                  Thread.sleep(4000);
-                  memoryLockManager.release("auth5", t1);
-                } catch (InterruptedException e) {
-                  e.printStackTrace();
-                  throw new RuntimeException(e);
-                } catch (IOException e) {
-                  e.printStackTrace();
-                  throw new RuntimeException(e);
-                }
-              }
-            });
+    Thread commiter = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          Thread.sleep(4000);
+          memoryLockManager.release("auth5", t1);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+          throw new RuntimeException(e);
+        } catch (IOException e) {
+          e.printStackTrace();
+          throw new RuntimeException(e);
+        }
+      }
+    });
     long currentTime = System.currentTimeMillis();
     commiter.start();
     memoryLockManager.lock(t2, "f5");
@@ -98,24 +96,22 @@ public class MemoryLockManagerTest {
     memoryLockManager.lock(t1, "f3");
     final DefaultTransaction t2 = new DefaultTransaction();
 
-    Thread commiter =
-        new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                try {
-                  Thread.sleep(4000);
-                  // System.out.println("commit");
-                  t1.commit();
-                } catch (InterruptedException e) {
-                  e.printStackTrace();
-                  throw new RuntimeException(e);
-                } catch (IOException e) {
-                  e.printStackTrace();
-                  throw new RuntimeException(e);
-                }
-              }
-            });
+    Thread commiter = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          Thread.sleep(4000);
+          // System.out.println("commit");
+          t1.commit();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+          throw new RuntimeException(e);
+        } catch (IOException e) {
+          e.printStackTrace();
+          throw new RuntimeException(e);
+        }
+      }
+    });
 
     long currentTime = System.currentTimeMillis();
     commiter.start();

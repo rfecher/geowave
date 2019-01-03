@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,8 +45,8 @@ public class DateUtilities {
     return df.parse(input);
   }
 
-  public static TemporalRange getTemporalRange(
-      final DataStorePluginOptions dataStorePlugin, final String typeName, final String timeField) {
+  public static TemporalRange getTemporalRange(final DataStorePluginOptions dataStorePlugin,
+      final String typeName, final String timeField) {
     final DataStatisticsStore statisticsStore = dataStorePlugin.createDataStatisticsStore();
     final InternalAdapterStore internalAdapterStore = dataStorePlugin.createInternalAdapterStore();
     final short adapterId = internalAdapterStore.getAdapterId(typeName);
@@ -58,15 +59,11 @@ public class DateUtilities {
       Date start = null;
       Date end = null;
 
-      StatisticsQuery<Interval> query =
-          VectorStatisticsQueryBuilder.newBuilder()
-              .factory()
-              .timeRange()
-              .fieldName(startField)
-              .build();
+      StatisticsQuery<Interval> query = VectorStatisticsQueryBuilder.newBuilder().factory()
+          .timeRange().fieldName(startField).build();
       try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt =
-          statisticsStore.getDataStatistics(
-              adapterId, query.getExtendedId(), query.getStatsType(), new String[0])) {
+          statisticsStore.getDataStatistics(adapterId, query.getExtendedId(), query.getStatsType(),
+              new String[0])) {
         if (timeStatIt.hasNext()) {
           final InternalDataStatistics<?, ?, ?> timeStat = timeStatIt.next();
           if (timeStat instanceof FeatureTimeRangeStatistics) {
@@ -75,15 +72,11 @@ public class DateUtilities {
           }
         }
       }
-      query =
-          VectorStatisticsQueryBuilder.newBuilder()
-              .factory()
-              .timeRange()
-              .fieldName(endField)
-              .build();
+      query = VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(endField)
+          .build();
       try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt =
-          statisticsStore.getDataStatistics(
-              adapterId, query.getExtendedId(), query.getStatsType(), new String[0])) {
+          statisticsStore.getDataStatistics(adapterId, query.getExtendedId(), query.getStatsType(),
+              new String[0])) {
         if (timeStatIt.hasNext()) {
           final InternalDataStatistics<?, ?, ?> timeStat = timeStatIt.next();
           if (timeStat instanceof FeatureTimeRangeStatistics) {
@@ -99,15 +92,11 @@ public class DateUtilities {
     } else {
       // Look up the time range stat for this adapter
 
-      final StatisticsQuery<Interval> query =
-          VectorStatisticsQueryBuilder.newBuilder()
-              .factory()
-              .timeRange()
-              .fieldName(timeField)
-              .build();
+      final StatisticsQuery<Interval> query = VectorStatisticsQueryBuilder.newBuilder().factory()
+          .timeRange().fieldName(timeField).build();
       try (CloseableIterator<InternalDataStatistics<?, ?, ?>> timeStatIt =
-          statisticsStore.getDataStatistics(
-              adapterId, query.getExtendedId(), query.getStatsType(), new String[0])) {
+          statisticsStore.getDataStatistics(adapterId, query.getExtendedId(), query.getStatsType(),
+              new String[0])) {
         if (timeStatIt.hasNext()) {
           final InternalDataStatistics<?, ?, ?> timeStat = timeStatIt.next();
           if (timeStat instanceof FeatureTimeRangeStatistics) {

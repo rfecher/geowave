@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -68,31 +69,20 @@ public class KMeansMapReduce {
     protected CentroidExtractor<Object> centroidExtractor;
     protected AnalyticItemWrapperFactory<Object> itemWrapperFactory;
 
-    AssociationNotification<Object> centroidAssociationFn =
-        new AssociationNotification<Object>() {
-          @Override
-          public void notify(final CentroidPairing<Object> pairing) {
-            outputKeyWritable.set(
-                pairing.getCentroid().getGroupID(), pairing.getCentroid().getID());
-            final double extra[] = pairing.getPairedItem().getDimensionValues();
-            final Point p = centroidExtractor.getCentroid(pairing.getPairedItem().getWrappedItem());
-            association.set(
-                p.getCoordinate().x,
-                p.getCoordinate().y,
-                p.getCoordinate().z,
-                extra,
-                pairing.getDistance());
-          }
-        };
+    AssociationNotification<Object> centroidAssociationFn = new AssociationNotification<Object>() {
+      @Override
+      public void notify(final CentroidPairing<Object> pairing) {
+        outputKeyWritable.set(pairing.getCentroid().getGroupID(), pairing.getCentroid().getID());
+        final double extra[] = pairing.getPairedItem().getDimensionValues();
+        final Point p = centroidExtractor.getCentroid(pairing.getPairedItem().getWrappedItem());
+        association.set(p.getCoordinate().x, p.getCoordinate().y, p.getCoordinate().z, extra,
+            pairing.getDistance());
+      }
+    };
 
     @Override
-    protected void mapNativeValue(
-        final GeoWaveInputKey key,
-        final Object value,
-        final org.apache.hadoop.mapreduce.Mapper<
-                    GeoWaveInputKey, ObjectWritable, GroupIDText, BytesWritable>
-                .Context
-            context)
+    protected void mapNativeValue(final GeoWaveInputKey key, final Object value,
+        final org.apache.hadoop.mapreduce.Mapper<GeoWaveInputKey, ObjectWritable, GroupIDText, BytesWritable>.Context context)
         throws IOException, InterruptedException {
       final AnalyticItemWrapper<Object> item = itemWrapperFactory.create(value);
       nestedGroupCentroidAssigner.findCentroidForLevel(item, centroidAssociationFn);
@@ -106,34 +96,26 @@ public class KMeansMapReduce {
         final Mapper<GeoWaveInputKey, ObjectWritable, GroupIDText, BytesWritable>.Context context)
         throws IOException, InterruptedException {
       super.setup(context);
-      final ScopedJobConfiguration config =
-          new ScopedJobConfiguration(
-              context.getConfiguration(), KMeansMapReduce.class, KMeansMapReduce.LOGGER);
+      final ScopedJobConfiguration config = new ScopedJobConfiguration(context.getConfiguration(),
+          KMeansMapReduce.class, KMeansMapReduce.LOGGER);
 
       try {
-        nestedGroupCentroidAssigner =
-            new NestedGroupCentroidAssignment<>(
-                context, KMeansMapReduce.class, KMeansMapReduce.LOGGER);
+        nestedGroupCentroidAssigner = new NestedGroupCentroidAssignment<>(context,
+            KMeansMapReduce.class, KMeansMapReduce.LOGGER);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
 
       try {
-        centroidExtractor =
-            config.getInstance(
-                CentroidParameters.Centroid.EXTRACTOR_CLASS,
-                CentroidExtractor.class,
-                SimpleFeatureCentroidExtractor.class);
+        centroidExtractor = config.getInstance(CentroidParameters.Centroid.EXTRACTOR_CLASS,
+            CentroidExtractor.class, SimpleFeatureCentroidExtractor.class);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
 
       try {
-        itemWrapperFactory =
-            config.getInstance(
-                CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-                AnalyticItemWrapperFactory.class,
-                SimpleFeatureItemWrapperFactory.class);
+        itemWrapperFactory = config.getInstance(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+            AnalyticItemWrapperFactory.class, SimpleFeatureItemWrapperFactory.class);
 
         itemWrapperFactory.initialize(context, KMeansMapReduce.class, KMeansMapReduce.LOGGER);
       } catch (final Exception e1) {
@@ -149,9 +131,7 @@ public class KMeansMapReduce {
     private final BytesWritable outputValWritable = new BytesWritable();
 
     @Override
-    public void reduce(
-        final GroupIDText key,
-        final Iterable<BytesWritable> values,
+    public void reduce(final GroupIDText key, final Iterable<BytesWritable> values,
         final Reducer<GroupIDText, BytesWritable, GroupIDText, BytesWritable>.Context context)
         throws IOException, InterruptedException {
       final GeoObjectDimensionValues totals = new GeoObjectDimensionValues();
@@ -174,9 +154,7 @@ public class KMeansMapReduce {
     private String[] indexNames;
 
     @Override
-    public void reduce(
-        final GroupIDText key,
-        final Iterable<BytesWritable> values,
+    public void reduce(final GroupIDText key, final Iterable<BytesWritable> values,
         final Reducer<GroupIDText, BytesWritable, GeoWaveOutputKey, Object>.Context context)
         throws IOException, InterruptedException {
       final String centroidID = key.getID();
@@ -217,17 +195,12 @@ public class KMeansMapReduce {
         KMeansMapReduce.LOGGER.trace(groupID + " contains " + centroidID);
       }
 
-      final AnalyticItemWrapper<Object> nextCentroid =
-          centroidManager.createNextCentroid(
-              centroid.getWrappedItem(),
-              groupID,
-              new Coordinate(totals.x, totals.y, totals.z),
-              centroid.getExtraDimensions(),
-              totals.values);
+      final AnalyticItemWrapper<Object> nextCentroid = centroidManager.createNextCentroid(
+          centroid.getWrappedItem(), groupID, new Coordinate(totals.x, totals.y, totals.z),
+          centroid.getExtraDimensions(), totals.values);
 
       // new center
-      context.write(
-          new GeoWaveOutputKey(centroidManager.getDataTypeName(), indexNames),
+      context.write(new GeoWaveOutputKey(centroidManager.getDataTypeName(), indexNames),
           nextCentroid.getWrappedItem());
     }
 

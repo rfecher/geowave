@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -46,8 +47,10 @@ public class Tests {
    */
   public static String[] authenticationSettings(String providerName) throws IOException {
     String resourceName;
-    if (providerName.toUpperCase() == "THEIA") resourceName = THEIA_AUTHENTICATION_FILE;
-    else return new String[] {"", ""};
+    if (providerName.toUpperCase() == "THEIA")
+      resourceName = THEIA_AUTHENTICATION_FILE;
+    else
+      return new String[] {"", ""};
 
     URL authFile = Tests.class.getClassLoader().getResource(resourceName);
 
@@ -84,15 +87,12 @@ public class Tests {
     providerName = providerName.toUpperCase();
 
     // Did you configure your user/password?
-    if (providerName == "THEIA"
-        && (settings == null
-            || settings[0].equals("name.surname@domain.country")
-            || settings[1].equals("password"))) {
-      LOGGER.warn(
-          "You have to register yourself in Theia website to be able to download imagery "
-              + "('https://peps.cnes.fr/'). \n"
-              + "Then you will have to change the credentials in 'auth_theia.txt' file. \n"
-              + "Meanwhile tests which download imagery will be ignored, otherwise they will fail.");
+    if (providerName == "THEIA" && (settings == null
+        || settings[0].equals("name.surname@domain.country") || settings[1].equals("password"))) {
+      LOGGER.warn("You have to register yourself in Theia website to be able to download imagery "
+          + "('https://peps.cnes.fr/'). \n"
+          + "Then you will have to change the credentials in 'auth_theia.txt' file. \n"
+          + "Meanwhile tests which download imagery will be ignored, otherwise they will fail.");
 
       return false;
     }

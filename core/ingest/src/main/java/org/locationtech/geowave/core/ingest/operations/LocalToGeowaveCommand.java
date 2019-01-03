@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,14 +32,14 @@ import org.locationtech.geowave.core.store.ingest.LocalFileIngestPlugin;
 
 @GeowaveOperation(name = "localToGW", parentOperation = IngestSection.class)
 @Parameters(
-    commandDescription =
-        "Ingest supported files in local file system directly, from S3 or from HDFS ")
+    commandDescription = "Ingest supported files in local file system directly, from S3 or from HDFS ")
 public class LocalToGeowaveCommand extends ServiceEnabledCommand<Void> {
 
   @Parameter(description = "<file or directory> <storename> <comma delimited index/group list>")
   private List<String> parameters = new ArrayList<String>();
 
-  @ParametersDelegate private VisibilityOptions ingestOptions = new VisibilityOptions();
+  @ParametersDelegate
+  private VisibilityOptions ingestOptions = new VisibilityOptions();
 
   @ParametersDelegate
   private LocalInputCommandLineOptions localInputOptions = new LocalInputCommandLineOptions();
@@ -48,8 +49,7 @@ public class LocalToGeowaveCommand extends ServiceEnabledCommand<Void> {
   @ParametersDelegate
   private IngestFormatPluginOptions pluginFormats = new IngestFormatPluginOptions();
 
-  @Parameter(
-      names = {"-t", "--threads"},
+  @Parameter(names = {"-t", "--threads"},
       description = "number of threads to use for ingest, default to 1 (optional)")
   private int threads = 1;
 
@@ -81,8 +81,8 @@ public class LocalToGeowaveCommand extends ServiceEnabledCommand<Void> {
     return parameters;
   }
 
-  public void setParameters(
-      final String fileOrDirectory, final String storeName, final String commaDelimitedIndexes) {
+  public void setParameters(final String fileOrDirectory, final String storeName,
+      final String commaDelimitedIndexes) {
     parameters = new ArrayList<String>();
     parameters.add(fileOrDirectory);
     parameters.add(storeName);
@@ -161,14 +161,8 @@ public class LocalToGeowaveCommand extends ServiceEnabledCommand<Void> {
         pluginFormats.createLocalIngestPlugins();
 
     // Driver
-    final LocalFileIngestDriver driver =
-        new LocalFileIngestDriver(
-            inputStoreOptions,
-            inputIndexOptions,
-            ingestPlugins,
-            ingestOptions,
-            localInputOptions,
-            threads);
+    final LocalFileIngestDriver driver = new LocalFileIngestDriver(inputStoreOptions,
+        inputIndexOptions, ingestPlugins, ingestOptions, localInputOptions, threads);
 
     // Execute
     if (!driver.runOperation(inputPath, configFile)) {

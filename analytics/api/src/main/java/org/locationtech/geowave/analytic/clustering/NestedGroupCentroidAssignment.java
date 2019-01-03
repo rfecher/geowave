@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -59,11 +60,8 @@ public class NestedGroupCentroidAssignment<T> {
   private final int endZoomLevel;
   private final String parentBatchID;
 
-  public NestedGroupCentroidAssignment(
-      final CentroidManager<T> centroidManager,
-      final int endZoomLevel,
-      final String parentBatchID,
-      final DistanceFn<T> distanceFunction) {
+  public NestedGroupCentroidAssignment(final CentroidManager<T> centroidManager,
+      final int endZoomLevel, final String parentBatchID, final DistanceFn<T> distanceFunction) {
     super();
     this.centroidManager = centroidManager;
     this.endZoomLevel = endZoomLevel;
@@ -71,21 +69,16 @@ public class NestedGroupCentroidAssignment<T> {
     this.associationdFunction.setDistanceFunction(distanceFunction);
   }
 
-  public NestedGroupCentroidAssignment(
-      final JobContext context, final Class<?> scope, final Logger logger)
-      throws InstantiationException, IllegalAccessException, IOException {
+  public NestedGroupCentroidAssignment(final JobContext context, final Class<?> scope,
+      final Logger logger) throws InstantiationException, IllegalAccessException, IOException {
     final ScopedJobConfiguration config =
         new ScopedJobConfiguration(context.getConfiguration(), scope, logger);
     endZoomLevel = config.getInt(CentroidParameters.Centroid.ZOOM_LEVEL, 1);
-    parentBatchID =
-        config.getString(
-            GlobalParameters.Global.PARENT_BATCH_ID,
-            config.getString(GlobalParameters.Global.BATCH_ID, null));
+    parentBatchID = config.getString(GlobalParameters.Global.PARENT_BATCH_ID,
+        config.getString(GlobalParameters.Global.BATCH_ID, null));
     @SuppressWarnings("unchecked")
     final DistanceFn<T> distanceFunction =
-        config.getInstance(
-            CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-            DistanceFn.class,
+        config.getInstance(CommonParameters.Common.DISTANCE_FUNCTION_CLASS, DistanceFn.class,
             FeatureCentroidDistanceFn.class);
     this.associationdFunction.setDistanceFunction(distanceFunction);
     centroidManager = new CentroidManagerGeoWave<T>(context, scope);
@@ -98,8 +91,8 @@ public class NestedGroupCentroidAssignment<T> {
    * @param runTimeProperties
    * @param zoomLevel
    */
-  public static void setZoomLevel(
-      final Configuration config, final Class<?> scope, final int zoomLevel) {
+  public static void setZoomLevel(final Configuration config, final Class<?> scope,
+      final int zoomLevel) {
     CentroidParameters.Centroid.ZOOM_LEVEL.getHelper().setValue(config, scope, zoomLevel);
   }
 
@@ -110,8 +103,8 @@ public class NestedGroupCentroidAssignment<T> {
    * @param runTimeProperties
    * @param zoomLevel
    */
-  public static void setParentBatchID(
-      final Configuration config, final Class<?> scope, final String parentID) {
+  public static void setParentBatchID(final Configuration config, final Class<?> scope,
+      final String parentID) {
     GlobalParameters.Global.PARENT_BATCH_ID.getHelper().setValue(config, scope, parentID);
   }
 
@@ -119,13 +112,8 @@ public class NestedGroupCentroidAssignment<T> {
     final Set<ParameterEnum<?>> params = new HashSet<ParameterEnum<?>>();
     params.addAll(CentroidManagerGeoWave.getParameters());
 
-    params.addAll(
-        Arrays.asList(
-            new ParameterEnum<?>[] {
-              CentroidParameters.Centroid.ZOOM_LEVEL,
-              GlobalParameters.Global.PARENT_BATCH_ID,
-              CommonParameters.Common.DISTANCE_FUNCTION_CLASS
-            }));
+    params.addAll(Arrays.asList(new ParameterEnum<?>[] {CentroidParameters.Centroid.ZOOM_LEVEL,
+        GlobalParameters.Global.PARENT_BATCH_ID, CommonParameters.Common.DISTANCE_FUNCTION_CLASS}));
     return params;
   }
 
@@ -145,23 +133,19 @@ public class NestedGroupCentroidAssignment<T> {
       if (centroids.size() == 0) {
         throw new IOException("Cannot find group " + group.getGroupID());
       }
-      associationdFunction.compute(
-          item,
-          centroids,
-          new AssociationNotification<T>() {
-            @Override
-            public void notify(final CentroidPairing<T> pairing) {
-              group.setGroupID(pairing.getCentroid().getID());
-            }
-          });
+      associationdFunction.compute(item, centroids, new AssociationNotification<T>() {
+        @Override
+        public void notify(final CentroidPairing<T> pairing) {
+          group.setGroupID(pairing.getCentroid().getID());
+        }
+      });
       currentLevel = centroids.get(0).getZoomLevel() + 1;
     }
     return group.getGroupID();
   }
 
-  public double findCentroidForLevel(
-      final AnalyticItemWrapper<T> item, final AssociationNotification<T> associationNotification)
-      throws IOException {
+  public double findCentroidForLevel(final AnalyticItemWrapper<T> item,
+      final AssociationNotification<T> associationNotification) throws IOException {
     final GroupHolder group = new GroupHolder();
     group.setGroupID(item.getGroupID());
     double currentDistance = Double.NaN;
@@ -176,47 +160,35 @@ public class NestedGroupCentroidAssignment<T> {
       // only use the parent batch ID for upper levels, otherwise use the
       // current batch ID.
       final List<AnalyticItemWrapper<T>> centroids =
-          (currentLevel == endZoomLevel)
-              ? centroidManager.getCentroidsForGroup(group.getGroupID())
+          (currentLevel == endZoomLevel) ? centroidManager.getCentroidsForGroup(group.getGroupID())
               : centroidManager.getCentroidsForGroup(parentBatchID, group.getGroupID());
       if (centroids.size() == 0) {
         throw new IOException("Cannot find group " + group.getGroupID());
       }
 
       currentDistance =
-          associationdFunction.compute(
-              item,
-              centroids,
-              new AssociationNotification<T>() {
-                @Override
-                public void notify(final CentroidPairing<T> pairing) {
-                  group.setGroupID(pairing.getCentroid().getID());
-                  if (reachedEndLevel) {
-                    associationNotification.notify(pairing);
-                  }
-                }
-              });
+          associationdFunction.compute(item, centroids, new AssociationNotification<T>() {
+            @Override
+            public void notify(final CentroidPairing<T> pairing) {
+              group.setGroupID(pairing.getCentroid().getID());
+              if (reachedEndLevel) {
+                associationNotification.notify(pairing);
+              }
+            }
+          });
       // update for next loop
       currentLevel = centroids.get(0).getZoomLevel() + 1;
     }
     return currentDistance;
   }
 
-  public static void setParameters(
-      final Configuration config,
-      final Class<?> scope,
+  public static void setParameters(final Configuration config, final Class<?> scope,
       final PropertyManagement runTimeProperties) {
     CentroidManagerGeoWave.setParameters(config, scope, runTimeProperties);
 
-    runTimeProperties.setConfig(
-        new ParameterEnum[] {
-          CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-          CentroidParameters.Centroid.ZOOM_LEVEL,
-          GlobalParameters.Global.BATCH_ID,
-          GlobalParameters.Global.PARENT_BATCH_ID
-        },
-        config,
-        scope);
+    runTimeProperties.setConfig(new ParameterEnum[] {
+        CommonParameters.Common.DISTANCE_FUNCTION_CLASS, CentroidParameters.Centroid.ZOOM_LEVEL,
+        GlobalParameters.Global.BATCH_ID, GlobalParameters.Global.PARENT_BATCH_ID}, config, scope);
   }
 
   private class GroupHolder {

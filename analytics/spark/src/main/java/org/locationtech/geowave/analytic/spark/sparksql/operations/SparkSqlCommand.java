@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -39,17 +40,14 @@ import org.slf4j.LoggerFactory;
 public class SparkSqlCommand extends ServiceEnabledCommand<Void> {
   private static final Logger LOGGER = LoggerFactory.getLogger(SparkSqlCommand.class);
   private static final String STORE_ADAPTER_DELIM = "|";
-  private static final String CMD_DESCR =
-      "<sql query> - e.g. 'select * from %storename["
-          + STORE_ADAPTER_DELIM
-          + "adaptername"
-          + STORE_ADAPTER_DELIM
-          + "viewName] where condition...'";
+  private static final String CMD_DESCR = "<sql query> - e.g. 'select * from %storename["
+      + STORE_ADAPTER_DELIM + "adaptername" + STORE_ADAPTER_DELIM + "viewName] where condition...'";
 
   @Parameter(description = CMD_DESCR)
   private List<String> parameters = new ArrayList<>();
 
-  @ParametersDelegate private SparkSqlOptions sparkSqlOptions = new SparkSqlOptions();
+  @ParametersDelegate
+  private SparkSqlOptions sparkSqlOptions = new SparkSqlOptions();
 
   private DataStorePluginOptions outputDataStore = null;
   private final SqlQueryRunner sqlRunner = new SqlQueryRunner();
@@ -118,13 +116,8 @@ public class SparkSqlCommand extends ServiceEnabledCommand<Void> {
     }
 
     if (sparkSqlOptions.getCsvOutputFile() != null) {
-      results
-          .repartition(1)
-          .write()
-          .format("com.databricks.spark.csv")
-          .option("header", "true")
-          .mode(SaveMode.Overwrite)
-          .save(sparkSqlOptions.getCsvOutputFile());
+      results.repartition(1).write().format("com.databricks.spark.csv").option("header", "true")
+          .mode(SaveMode.Overwrite).save(sparkSqlOptions.getCsvOutputFile());
     }
     sqlRunner.close();
     return null;
@@ -164,11 +157,8 @@ public class SparkSqlCommand extends ServiceEnabledCommand<Void> {
           storeName = storeNameParts[0].trim();
           break;
         default:
-          throw new ParameterException(
-              "Ambiguous datastore"
-                  + STORE_ADAPTER_DELIM
-                  + "adapter designation: "
-                  + storeNameParts);
+          throw new ParameterException("Ambiguous datastore" + STORE_ADAPTER_DELIM
+              + "adapter designation: " + storeNameParts);
       }
 
       final StoreLoader inputStoreLoader = new StoreLoader(storeName);

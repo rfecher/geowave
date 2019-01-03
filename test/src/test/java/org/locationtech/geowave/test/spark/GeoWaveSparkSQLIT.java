@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,16 +44,9 @@ import org.slf4j.LoggerFactory;
 public class GeoWaveSparkSQLIT extends AbstractGeoWaveBasicVectorIT {
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveSparkSQLIT.class);
 
-  @GeoWaveTestStore(
-      value = {
-        GeoWaveStoreType.ACCUMULO,
-        GeoWaveStoreType.BIGTABLE,
-        GeoWaveStoreType.DYNAMODB,
-        GeoWaveStoreType.CASSANDRA,
-        GeoWaveStoreType.HBASE,
-        GeoWaveStoreType.REDIS,
-        GeoWaveStoreType.ROCKSDB
-      })
+  @GeoWaveTestStore(value = {GeoWaveStoreType.ACCUMULO, GeoWaveStoreType.BIGTABLE,
+      GeoWaveStoreType.DYNAMODB, GeoWaveStoreType.CASSANDRA, GeoWaveStoreType.HBASE,
+      GeoWaveStoreType.REDIS, GeoWaveStoreType.ROCKSDB})
   protected DataStorePluginOptions dataStore;
 
   private static Stopwatch stopwatch = new Stopwatch();
@@ -103,15 +97,15 @@ public class GeoWaveSparkSQLIT extends AbstractGeoWaveBasicVectorIT {
 
       final String bbox = "POLYGON ((-94 34, -93 34, -93 35, -94 35, -94 34))";
 
-      queryRunner.setSql(
-          "SELECT * FROM features WHERE GeomContains(GeomFromWKT('" + bbox + "'), geom)");
+      queryRunner
+          .setSql("SELECT * FROM features WHERE GeomContains(GeomFromWKT('" + bbox + "'), geom)");
 
       Dataset<Row> results = queryRunner.run();
       final long containsCount = results.count();
       LOGGER.warn("Got " + containsCount + " for GeomContains test");
 
-      queryRunner.setSql(
-          "SELECT * FROM features WHERE GeomWithin(geom, GeomFromWKT('" + bbox + "'))");
+      queryRunner
+          .setSql("SELECT * FROM features WHERE GeomWithin(geom, GeomFromWKT('" + bbox + "'))");
       results = queryRunner.run();
       final long withinCount = results.count();
       LOGGER.warn("Got " + withinCount + " for GeomWithin test");
@@ -149,10 +143,8 @@ public class GeoWaveSparkSQLIT extends AbstractGeoWaveBasicVectorIT {
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail(
-          "Error occurred while testing a bounding box query of spatial index: '"
-              + e.getLocalizedMessage()
-              + "'");
+      Assert.fail("Error occurred while testing a bounding box query of spatial index: '"
+          + e.getLocalizedMessage() + "'");
     }
 
     // Clean up
@@ -171,24 +163,22 @@ public class GeoWaveSparkSQLIT extends AbstractGeoWaveBasicVectorIT {
     // ingest test points
     TestUtils.testLocalIngest(dataStore, DimensionalityType.SPATIAL, HAIL_SHAPEFILE_FILE, 1);
 
-    TestUtils.testLocalIngest(
-        dataStore, DimensionalityType.SPATIAL, TORNADO_TRACKS_SHAPEFILE_FILE, 1);
+    TestUtils.testLocalIngest(dataStore, DimensionalityType.SPATIAL, TORNADO_TRACKS_SHAPEFILE_FILE,
+        1);
 
     try {
       // Run a valid sql query that should do a optimized join
       queryRunner.addInputStore(dataStore, "hail", "hail");
       queryRunner.addInputStore(dataStore, "tornado_tracks", "tornado");
-      queryRunner.setSql(
-          "select hail.* from hail, tornado where GeomIntersects(hail.geom, tornado.geom)");
+      queryRunner
+          .setSql("select hail.* from hail, tornado where GeomIntersects(hail.geom, tornado.geom)");
       final Dataset<Row> results = queryRunner.run();
       LOGGER.warn("Indexed intersect from sql returns: " + results.count() + " results.");
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail(
-          "Error occurred while attempting optimized join from sql query runner: '"
-              + e.getLocalizedMessage()
-              + "'");
+      Assert.fail("Error occurred while attempting optimized join from sql query runner: '"
+          + e.getLocalizedMessage() + "'");
     }
 
     // Clean up

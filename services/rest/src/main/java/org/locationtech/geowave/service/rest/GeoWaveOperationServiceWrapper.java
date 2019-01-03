@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -60,8 +61,8 @@ public class GeoWaveOperationServiceWrapper<T> extends ServerResource {
   private final ServiceEnabledCommand<T> operation;
   private final String initContextConfigFile;
 
-  public GeoWaveOperationServiceWrapper(
-      final ServiceEnabledCommand<T> operation, final String initContextConfigFile) {
+  public GeoWaveOperationServiceWrapper(final ServiceEnabledCommand<T> operation,
+      final String initContextConfigFile) {
     this.operation = operation;
     this.initContextConfigFile = initContextConfigFile;
   }
@@ -98,8 +99,8 @@ public class GeoWaveOperationServiceWrapper<T> extends ServerResource {
     return handleRequestWithPayload(HttpMethod.PUT, request);
   }
 
-  private Representation handleRequestWithPayload(
-      HttpMethod requiredMethod, Representation request) {
+  private Representation handleRequestWithPayload(HttpMethod requiredMethod,
+      Representation request) {
     // First check that the request is the requiredMethod, return 405 if
     // not.
     if (requiredMethod.equals(operation.getMethod())) {
@@ -134,9 +135,10 @@ public class GeoWaveOperationServiceWrapper<T> extends ServerResource {
    * Reads Parameter fields of the current instance, and populates them with values from the
    * request.
    *
-   * <p>This uses an analogous approach to JCommander. Ideally, it could reuse the same
-   * implementation, but ParametersDelegate makes this a bit trickier, since those aren't
-   * initialized right away. Follow the behavior as best as possible, and perform validation.
+   * <p>
+   * This uses an analogous approach to JCommander. Ideally, it could reuse the same implementation,
+   * but ParametersDelegate makes this a bit trickier, since those aren't initialized right away.
+   * Follow the behavior as best as possible, and perform validation.
    *
    * @param form The form to fetch parameters from, or the query if form is null.
    * @throws IllegalAccessException
@@ -213,17 +215,12 @@ public class GeoWaveOperationServiceWrapper<T> extends ServerResource {
 
   private Representation handleRequest(final RequestParameters parameters) {
 
-    final String configFileParameter =
-        (parameters == null)
-            ? getQueryValue("config_file")
-            : (String) parameters.getValue("config_file");
+    final String configFileParameter = (parameters == null) ? getQueryValue("config_file")
+        : (String) parameters.getValue("config_file");
 
-    final File configFile =
-        (configFileParameter != null)
-            ? new File(configFileParameter)
-            : (initContextConfigFile != null)
-                ? new File(initContextConfigFile)
-                : ConfigOptions.getDefaultPropertyFile();
+    final File configFile = (configFileParameter != null) ? new File(configFileParameter)
+        : (initContextConfigFile != null) ? new File(initContextConfigFile)
+            : ConfigOptions.getDefaultPropertyFile();
 
     final OperationParams params = new ManualOperationParams();
     params.getContext().put(ConfigOptions.PROPERTIES_FILE_CONTEXT, configFile);
@@ -266,14 +263,13 @@ public class GeoWaveOperationServiceWrapper<T> extends ServerResource {
         final ExecutorService opPool =
             (ExecutorService) appContext.getAttributes().get("asyncOperationPool");
         final ConcurrentHashMap<String, Future> opStatuses =
-            (ConcurrentHashMap<String, Future>)
-                appContext.getAttributes().get("asyncOperationStatuses");
+            (ConcurrentHashMap<String, Future>) appContext.getAttributes()
+                .get("asyncOperationStatuses");
 
-        Callable<T> task =
-            () -> {
-              T res = operation.computeResults(params);
-              return res;
-            };
+        Callable<T> task = () -> {
+          T res = operation.computeResults(params);
+          return res;
+        };
         final Future<T> futureResult = opPool.submit(task);
         final UUID opId = UUID.randomUUID();
         opStatuses.put(opId.toString(), futureResult);
@@ -350,7 +346,7 @@ public class GeoWaveOperationServiceWrapper<T> extends ServerResource {
    * @param expectedType The expected type.
    * @param request The request whose MediaType is being checked.
    * @return true, if the MediaTypes match. --- OR false, if the MediaTypes do not match, or the
-   *     request is null.
+   *         request is null.
    */
   private boolean checkMediaType(MediaType expectedType, Representation request) {
     if (request == null) {

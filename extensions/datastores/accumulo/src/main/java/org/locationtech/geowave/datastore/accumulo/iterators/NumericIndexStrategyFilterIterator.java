@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -45,11 +46,8 @@ public class NumericIndexStrategyFilterIterator implements SortedKeyValueIterato
   private int partitionKeyLength = 0;
 
   @Override
-  public void init(
-      final SortedKeyValueIterator<Key, Value> source,
-      final Map<String, String> options,
-      final IteratorEnvironment env)
-      throws IOException {
+  public void init(final SortedKeyValueIterator<Key, Value> source,
+      final Map<String, String> options, final IteratorEnvironment env) throws IOException {
     this.source = source;
     if (options == null) {
       throw new IllegalArgumentException(
@@ -62,11 +60,8 @@ public class NumericIndexStrategyFilterIterator implements SortedKeyValueIterato
         indexStrategy = (NumericIndexStrategy) URLClassloaderUtils.fromBinary(idxStrategyBytes);
         partitionKeyLength = indexStrategy.getPartitionKeyLength();
       } else {
-        throw new IllegalArgumentException(
-            "'"
-                + INDEX_STRATEGY_KEY
-                + "' must be set for "
-                + NumericIndexStrategyFilterIterator.class.getName());
+        throw new IllegalArgumentException("'" + INDEX_STRATEGY_KEY + "' must be set for "
+            + NumericIndexStrategyFilterIterator.class.getName());
       }
       if (options.containsKey(COORDINATE_RANGE_KEY)) {
         final String coordRangeStr = options.get(COORDINATE_RANGE_KEY);
@@ -75,11 +70,8 @@ public class NumericIndexStrategyFilterIterator implements SortedKeyValueIterato
         arrays.fromBinary(coordRangeBytes);
         rangeCache = RangeLookupFactory.createMultiRangeLookup(arrays.getCoordinateArrays());
       } else {
-        throw new IllegalArgumentException(
-            "'"
-                + COORDINATE_RANGE_KEY
-                + "' must be set for "
-                + NumericIndexStrategyFilterIterator.class.getName());
+        throw new IllegalArgumentException("'" + COORDINATE_RANGE_KEY + "' must be set for "
+            + NumericIndexStrategyFilterIterator.class.getName());
       }
     } catch (final Exception e) {
       throw new IllegalArgumentException(e);
@@ -98,9 +90,8 @@ public class NumericIndexStrategyFilterIterator implements SortedKeyValueIterato
   }
 
   @Override
-  public void seek(
-      final Range range, final Collection<ByteSequence> columnFamilies, final boolean inclusive)
-      throws IOException {
+  public void seek(final Range range, final Collection<ByteSequence> columnFamilies,
+      final boolean inclusive) throws IOException {
     source.seek(range, columnFamilies, inclusive);
     findTop();
   }
@@ -145,9 +136,8 @@ public class NumericIndexStrategyFilterIterator implements SortedKeyValueIterato
   private boolean inBounds(final Key k) {
     k.getRow(row);
     final GeoWaveKeyImpl key = new GeoWaveKeyImpl(row.getBytes(), partitionKeyLength);
-    final MultiDimensionalCoordinates coordinates =
-        indexStrategy.getCoordinatesPerDimension(
-            new ByteArray(key.getPartitionKey()), new ByteArray(key.getSortKey()));
+    final MultiDimensionalCoordinates coordinates = indexStrategy.getCoordinatesPerDimension(
+        new ByteArray(key.getPartitionKey()), new ByteArray(key.getSortKey()));
     return rangeCache.inBounds(coordinates);
   }
 }

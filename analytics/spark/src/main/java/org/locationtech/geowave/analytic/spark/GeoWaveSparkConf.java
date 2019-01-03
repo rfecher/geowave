@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,9 +29,8 @@ public class GeoWaveSparkConf implements Serializable {
     defaultConfig = defaultConfig.setMaster("yarn");
     defaultConfig =
         defaultConfig.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer");
-    defaultConfig =
-        defaultConfig.set(
-            "spark.kryo.registrator", "org.locationtech.geowave.analytic.spark.GeoWaveRegistrator");
+    defaultConfig = defaultConfig.set("spark.kryo.registrator",
+        "org.locationtech.geowave.analytic.spark.GeoWaveRegistrator");
     return defaultConfig;
   }
 
@@ -39,9 +39,8 @@ public class GeoWaveSparkConf implements Serializable {
   public static SparkConf applyDefaultsToConfig(final SparkConf userConf) {
     SparkConf newConf = userConf.clone();
     newConf = newConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer");
-    newConf =
-        newConf.set(
-            "spark.kryo.registrator", "org.locationtech.geowave.analytic.spark.GeoWaveRegistrator");
+    newConf = newConf.set("spark.kryo.registrator",
+        "org.locationtech.geowave.analytic.spark.GeoWaveRegistrator");
     return newConf;
   }
 
@@ -60,8 +59,8 @@ public class GeoWaveSparkConf implements Serializable {
 
   // Create a SparkSession from default config with additional options, if
   // set. Mainly used from Command line runners.
-  public static SparkSession createSessionFromParams(
-      String appName, String master, String host, String jars) {
+  public static SparkSession createSessionFromParams(String appName, String master, String host,
+      String jars) {
     // Grab default config for GeoWave
     SparkConf defaultConfig = GeoWaveSparkConf.getDefaultConfig();
     // Apply master from default

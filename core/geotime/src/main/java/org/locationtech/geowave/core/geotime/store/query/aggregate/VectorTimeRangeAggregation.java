@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -62,8 +63,7 @@ public class VectorTimeRangeAggregation
         return null;
       }
       // TODO we may want to sanity check that start is less than end?
-      return Interval.of(
-          Instant.ofEpochMilli(TimeUtils.getTimeMillis(start)),
+      return Interval.of(Instant.ofEpochMilli(TimeUtils.getTimeMillis(start)),
           Instant.ofEpochMilli(TimeUtils.getTimeMillis(end)));
     } else if (desc.getTime() != null) {
       final Object time = entry.getAttribute(desc.getTime().getName());
@@ -74,10 +74,8 @@ public class VectorTimeRangeAggregation
       final Instant instant = Instant.ofEpochMilli(TimeUtils.getTimeMillis(time));
       return Interval.of(instant, instant);
     }
-    LOGGER.error(
-        "time field not found for type '"
-            + entry.getFeatureType().getTypeName()
-            + "'. Consider explicitly setting field name.");
+    LOGGER.error("time field not found for type '" + entry.getFeatureType().getTypeName()
+        + "'. Consider explicitly setting field name.");
     return null;
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,7 +30,7 @@ public interface IngestFromHdfsPlugin<I, O> extends IndexProvider, AvroSchemaPro
    * both implementations are non-null.
    *
    * @return If true, the framework will use ingestWithReducer() and only fall back to
-   *     ingestWithMapper() if necessary, otherwise the behavior will be the reverse
+   *         ingestWithMapper() if necessary, otherwise the behavior will be the reverse
    */
   public boolean isUseReducerPreferred();
 
@@ -47,9 +48,9 @@ public interface IngestFromHdfsPlugin<I, O> extends IndexProvider, AvroSchemaPro
    * and perform an ingest of data into GeoWave from the key-value pairs emitted by the mapper.
    *
    * @return The implementation for ingestion with a mapper and reducer. It is important to provide
-   *     the correct concrete implementation of Key and Value classes within the appropriate
-   *     generics because the framework will use reflection to set the key and value classes for
-   *     map-reduce.
+   *         the correct concrete implementation of Key and Value classes within the appropriate
+   *         generics because the framework will use reflection to set the key and value classes for
+   *         map-reduce.
    */
   public IngestWithReducer<I, ?, ?, O> ingestWithReducer();
 }

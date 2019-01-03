@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -59,32 +60,13 @@ public class BandFeatureIterator implements SimpleFeatureIterator {
     return typeBuilder;
   }
 
-  public BandFeatureIterator(
-      final String providerName,
-      final String collection,
-      final String platform,
-      final String location,
-      final Date startDate,
-      final Date endDate,
-      final int orbitNumber,
-      final int relativeOrbitNumber,
-      final Filter cqlFilter,
-      final String workspaceDir)
-      throws MalformedURLException, IOException, NoSuchAuthorityCodeException, FactoryException,
-          GeneralSecurityException {
-    this(
-        new SceneFeatureIterator(
-            providerName,
-            collection,
-            platform,
-            location,
-            startDate,
-            endDate,
-            orbitNumber,
-            relativeOrbitNumber,
-            cqlFilter,
-            workspaceDir),
-        cqlFilter);
+  public BandFeatureIterator(final String providerName, final String collection,
+      final String platform, final String location, final Date startDate, final Date endDate,
+      final int orbitNumber, final int relativeOrbitNumber, final Filter cqlFilter,
+      final String workspaceDir) throws MalformedURLException, IOException,
+      NoSuchAuthorityCodeException, FactoryException, GeneralSecurityException {
+    this(new SceneFeatureIterator(providerName, collection, platform, location, startDate, endDate,
+        orbitNumber, relativeOrbitNumber, cqlFilter, workspaceDir), cqlFilter);
   }
 
   public BandFeatureIterator(final SceneFeatureIterator sceneIterator, final Filter cqlFilter)
@@ -100,9 +82,8 @@ public class BandFeatureIterator implements SimpleFeatureIterator {
 
     Iterator<SimpleFeature> featureIterator =
         new FeatureIteratorIterator<SimpleFeature>(sceneIterator);
-    featureIterator =
-        Iterators.concat(
-            Iterators.transform(featureIterator, new SceneToBandFeatureTransform(bandType)));
+    featureIterator = Iterators
+        .concat(Iterators.transform(featureIterator, new SceneToBandFeatureTransform(bandType)));
 
     if (cqlFilter != null && !cqlFilter.equals(Filter.INCLUDE)) {
       final String[] attributes = DataUtilities.attributeNames(cqlFilter, bandType);
@@ -110,9 +91,8 @@ public class BandFeatureIterator implements SimpleFeatureIterator {
       // we can rely on the scene filtering if we don't have to check any
       // specific band filters
       if (ArrayUtils.contains(attributes, BAND_ATTRIBUTE_NAME)) {
-        featureIterator =
-            Iterators.filter(
-                featureIterator, new SceneFeatureIterator.CqlFilterPredicate(cqlFilter));
+        featureIterator = Iterators.filter(featureIterator,
+            new SceneFeatureIterator.CqlFilterPredicate(cqlFilter));
       }
     }
     iterator = featureIterator;
@@ -152,8 +132,8 @@ public class BandFeatureIterator implements SimpleFeatureIterator {
       final String entityId = scene.getID();
       final List<SimpleFeature> bands = new ArrayList<SimpleFeature>();
 
-      for (String bandId :
-          scene.getAttribute(SceneFeatureIterator.BANDS_ATTRIBUTE_NAME).toString().split(";")) {
+      for (String bandId : scene.getAttribute(SceneFeatureIterator.BANDS_ATTRIBUTE_NAME).toString()
+          .split(";")) {
         SimpleFeature band = featureBuilder.buildFeature(entityId + "_" + bandId);
 
         for (Property property : scene.getProperties()) {

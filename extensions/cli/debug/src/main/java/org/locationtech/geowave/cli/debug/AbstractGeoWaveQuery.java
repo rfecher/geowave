@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -68,11 +69,9 @@ public abstract class AbstractGeoWaveQuery extends DefaultOperation implements C
 
     final GeotoolsFeatureDataAdapter adapter;
     if (typeName != null) {
-      adapter =
-          (GeotoolsFeatureDataAdapter)
-              adapterStore
-                  .getAdapter(storeOptions.createInternalAdapterStore().getAdapterId(typeName))
-                  .getAdapter();
+      adapter = (GeotoolsFeatureDataAdapter) adapterStore
+          .getAdapter(storeOptions.createInternalAdapterStore().getAdapterId(typeName))
+          .getAdapter();
     } else {
       final CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters();
       adapter = (GeotoolsFeatureDataAdapter) it.next().getAdapter();
@@ -88,12 +87,8 @@ public abstract class AbstractGeoWaveQuery extends DefaultOperation implements C
     System.out.println("Got " + results + " results in " + stopWatch.toString());
   }
 
-  protected abstract long runQuery(
-      final GeotoolsFeatureDataAdapter adapter,
-      final String typeName,
-      final String indexName,
-      DataStore dataStore,
-      boolean debug,
+  protected abstract long runQuery(final GeotoolsFeatureDataAdapter adapter, final String typeName,
+      final String indexName, DataStore dataStore, boolean debug,
       DataStorePluginOptions pluginOptions);
 
   public static class StringToByteArrayConverter extends GeoWaveBaseConverter<ByteArray> {

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -11,7 +12,6 @@ package org.locationtech.geowave.adapter.vector.plugin;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.UUID;
@@ -45,17 +45,13 @@ public class WFSSpatialTest extends BaseDataStoreTest {
   @Before
   public void setup() throws SchemaException, CQLException, IOException, GeoWavePluginException {
     dataStore = createDataStore();
-    type =
-        DataUtilities.createType(
-            "geostuff", "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,pid:String");
+    type = DataUtilities.createType("geostuff",
+        "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,pid:String");
 
     dataStore.createSchema(type);
-    query =
-        new Query(
-            "geostuff",
-            CQL.toFilter(
-                "BBOX(geometry,27.20,41.30,27.30,41.20) and when during 2005-05-19T20:32:56Z/2005-05-19T21:32:56Z"),
-            new String[] {"geometry", "pid"});
+    query = new Query("geostuff", CQL.toFilter(
+        "BBOX(geometry,27.20,41.30,27.30,41.20) and when during 2005-05-19T20:32:56Z/2005-05-19T21:32:56Z"),
+        new String[] {"geometry", "pid"});
   }
 
   @Test

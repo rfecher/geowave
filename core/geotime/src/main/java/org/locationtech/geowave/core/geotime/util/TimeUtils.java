@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -63,12 +64,8 @@ public class TimeUtils {
       } else if (timeObj instanceof Number) {
         return ((Number) timeObj).longValue();
       } else {
-        LOGGER.warn(
-            "Time value '"
-                + timeObj
-                + "' of type '"
-                + timeObj.getClass()
-                + "' is not of expected temporal type");
+        LOGGER.warn("Time value '" + timeObj + "' of type '" + timeObj.getClass()
+            + "' is not of expected temporal type");
       }
     }
     return -1;
@@ -94,7 +91,7 @@ public class TimeUtils {
    * interpreted as milliseconds since the epoch in GMT
    *
    * @param bindingClass The class to try to instantiate for this time value. Currently
-   *     java.util.Calendar, java.util.Date, and java.lang.Long are supported.
+   *        java.util.Calendar, java.util.Date, and java.lang.Long are supported.
    * @param longVal A value to be interpreted as milliseconds since the epoch in GMT
    * @return An instance of the binding class with the value interpreted from longVal
    */
@@ -112,12 +109,8 @@ public class TimeUtils {
     } else if (Long.class.isAssignableFrom(bindingClass)) {
       return Long.valueOf(longVal);
     }
-    LOGGER.warn(
-        "Numeric value '"
-            + longVal
-            + "' of type '"
-            + bindingClass
-            + "' is not of expected temporal type");
+    LOGGER.warn("Numeric value '" + longVal + "' of type '" + bindingClass
+        + "' is not of expected temporal type");
     return null;
   }
 

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,11 +33,8 @@ public class MiniAccumuloClusterFactory {
     return VersionUtil.compareVersions(VersionInfo.getVersion(), "2.2.0") >= 0;
   }
 
-  public static MiniAccumuloClusterImpl newAccumuloCluster(
-      final MiniAccumuloConfigImpl config,
-      final Class context,
-      final URL... additionalClasspathUrls)
-      throws IOException {
+  public static MiniAccumuloClusterImpl newAccumuloCluster(final MiniAccumuloConfigImpl config,
+      final Class context, final URL... additionalClasspathUrls) throws IOException {
 
     final String jarPath =
         ClasspathUtils.setupPathingJarClassPath(config.getDir(), context, additionalClasspathUrls);
@@ -78,8 +76,7 @@ public class MiniAccumuloClusterFactory {
         if (hadoopDir.exists()) {
           final File binDir = new File(config.getDir(), "bin");
           if (binDir.mkdir()) {
-            FileUtils.copyFile(
-                new File(hadoopDir + File.separator + "bin", HADOOP_WINDOWS_UTIL),
+            FileUtils.copyFile(new File(hadoopDir + File.separator + "bin", HADOOP_WINDOWS_UTIL),
                 new File(binDir, HADOOP_WINDOWS_UTIL));
             success = true;
           }

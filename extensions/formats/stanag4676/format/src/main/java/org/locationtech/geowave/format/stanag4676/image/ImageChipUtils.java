@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -20,15 +21,14 @@ public class ImageChipUtils {
     final int currentHeight = img.getHeight(null);
     final int currentPixelSize = Math.max(currentWidth, currentHeight);
     final double scaleFactor = (double) targetPixelSize / (double) currentPixelSize;
-    return getScaledImageOfType(
-        img, (int) (currentWidth * scaleFactor), (int) (currentHeight * scaleFactor), type);
+    return getScaledImageOfType(img, (int) (currentWidth * scaleFactor),
+        (int) (currentHeight * scaleFactor), type);
   }
 
-  public static BufferedImage getScaledImageOfType(
-      final Image img, final int width, final int height, final int type) {
+  public static BufferedImage getScaledImageOfType(final Image img, final int width,
+      final int height, final int type) {
     if (img instanceof BufferedImage) {
-      if ((((BufferedImage) img).getType() == type)
-          && (img.getWidth(null) == width)
+      if ((((BufferedImage) img).getType() == type) && (img.getWidth(null) == width)
           && (img.getHeight(null) == height)) {
         return (BufferedImage) img;
       }
@@ -46,8 +46,8 @@ public class ImageChipUtils {
     return bi;
   }
 
-  public static ByteArray getDataId(
-      final String mission, final String trackId, final long timeMillis) {
+  public static ByteArray getDataId(final String mission, final String trackId,
+      final long timeMillis) {
     return new ByteArray(mission + "/" + trackId + "/" + timeMillis);
   }
 

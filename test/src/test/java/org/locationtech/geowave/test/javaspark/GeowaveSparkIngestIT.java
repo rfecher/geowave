@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.test.javaspark;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,16 +50,9 @@ public class GeowaveSparkIngestIT extends AbstractGeoWaveBasicVectorIT {
   protected static final String GDELT_INPUT_FILES = "s3://geowave-test/data/gdelt";
   private static final int GDELT_COUNT = 448675;
 
-  @GeoWaveTestStore(
-      value = {
-        GeoWaveStoreType.ACCUMULO,
-        GeoWaveStoreType.HBASE,
-        GeoWaveStoreType.BIGTABLE,
-        GeoWaveStoreType.CASSANDRA,
-        GeoWaveStoreType.DYNAMODB,
-        GeoWaveStoreType.REDIS,
-        GeoWaveStoreType.ROCKSDB
-      })
+  @GeoWaveTestStore(value = {GeoWaveStoreType.ACCUMULO, GeoWaveStoreType.HBASE,
+      GeoWaveStoreType.BIGTABLE, GeoWaveStoreType.CASSANDRA, GeoWaveStoreType.DYNAMODB,
+      GeoWaveStoreType.REDIS, GeoWaveStoreType.ROCKSDB})
   protected DataStorePluginOptions dataStore;
 
   private static Stopwatch stopwatch = new Stopwatch();
@@ -90,8 +83,8 @@ public class GeowaveSparkIngestIT extends AbstractGeoWaveBasicVectorIT {
   public void testBasicSparkIngest() throws Exception {
 
     // ingest test points
-    TestUtils.testSparkIngest(
-        dataStore, DimensionalityType.SPATIAL, S3URL, GDELT_INPUT_FILES, "gdelt");
+    TestUtils.testSparkIngest(dataStore, DimensionalityType.SPATIAL, S3URL, GDELT_INPUT_FILES,
+        "gdelt");
 
     final DataStatisticsStore statsStore = dataStore.createDataStatisticsStore();
     final PersistentAdapterStore adapterStore = dataStore.createAdapterStore();
@@ -103,53 +96,36 @@ public class GeowaveSparkIngestIT extends AbstractGeoWaveBasicVectorIT {
 
         // query by the full bounding box, make sure there is more than
         // 0 count and make sure the count matches the number of results
-        final StatisticsId statsId =
-            VectorStatisticsQueryBuilder.newBuilder()
-                .factory()
-                .bbox()
-                .fieldName(adapter.getFeatureType().getGeometryDescriptor().getLocalName())
-                .build()
-                .getId();
+        final StatisticsId statsId = VectorStatisticsQueryBuilder.newBuilder().factory().bbox()
+            .fieldName(adapter.getFeatureType().getGeometryDescriptor().getLocalName()).build()
+            .getId();
         try (final CloseableIterator<BoundingBoxDataStatistics<?>> bboxStatIt =
-            (CloseableIterator)
-                statsStore.getDataStatistics(
-                    internalDataAdapter.getAdapterId(),
-                    statsId.getExtendedId(),
-                    statsId.getType())) {
+            (CloseableIterator) statsStore.getDataStatistics(internalDataAdapter.getAdapterId(),
+                statsId.getExtendedId(), statsId.getType())) {
           final BoundingBoxDataStatistics<?> bboxStat = bboxStatIt.next();
           try (final CloseableIterator<CountDataStatistics<SimpleFeature>> countStatIt =
-              (CloseableIterator)
-                  statsStore.getDataStatistics(
-                      internalDataAdapter.getAdapterId(), CountDataStatistics.STATS_TYPE)) {
+              (CloseableIterator) statsStore.getDataStatistics(internalDataAdapter.getAdapterId(),
+                  CountDataStatistics.STATS_TYPE)) {
             final CountDataStatistics<?> countStat = countStatIt.next();
             // then query it
             final GeometryFactory factory = new GeometryFactory();
-            final Envelope env =
-                new Envelope(
-                    bboxStat.getMinX(), bboxStat.getMaxX(), bboxStat.getMinY(), bboxStat.getMaxY());
+            final Envelope env = new Envelope(bboxStat.getMinX(), bboxStat.getMaxX(),
+                bboxStat.getMinY(), bboxStat.getMaxY());
             final Geometry spatialFilter = factory.toGeometry(env);
             final QueryConstraints query = new SpatialQuery(spatialFilter);
             final int resultCount = testQuery(adapter, query);
             assertTrue(
-                "'"
-                    + adapter.getTypeName()
+                "'" + adapter.getTypeName()
                     + "' adapter must have at least one element in its statistic",
                 countStat.getCount() > 0);
-            assertEquals(
-                "'"
-                    + adapter.getTypeName()
-                    + "' adapter should have the same results from a spatial query of '"
-                    + env
-                    + "' as its total count statistic",
-                countStat.getCount(),
-                resultCount);
+            assertEquals("'" + adapter.getTypeName()
+                + "' adapter should have the same results from a spatial query of '" + env
+                + "' as its total count statistic", countStat.getCount(), resultCount);
 
             assertEquals(
-                "'"
-                    + adapter.getTypeName()
+                "'" + adapter.getTypeName()
                     + "' adapter entries ingested does not match expected count",
-                new Integer(GDELT_COUNT),
-                new Integer(resultCount));
+                new Integer(GDELT_COUNT), new Integer(resultCount));
 
             adapterCount++;
           }
@@ -167,12 +143,8 @@ public class GeowaveSparkIngestIT extends AbstractGeoWaveBasicVectorIT {
         dataStore.createDataStore();
 
     final CloseableIterator<?> accumuloResults =
-        geowaveStore.query(
-            QueryBuilder.newBuilder()
-                .addTypeName(adapter.getTypeName())
-                .indexName(TestUtils.DEFAULT_SPATIAL_INDEX.getName())
-                .constraints(query)
-                .build());
+        geowaveStore.query(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+            .indexName(TestUtils.DEFAULT_SPATIAL_INDEX.getName()).constraints(query).build());
 
     int resultCount = 0;
     while (accumuloResults.hasNext()) {

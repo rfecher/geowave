@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -17,8 +18,8 @@ import org.locationtech.geowave.datastore.redis.operations.RedisOperations;
 
 public class RedisDataStoreFactory extends BaseDataStoreFactory {
 
-  public RedisDataStoreFactory(
-      final String typeName, final String description, final StoreFactoryHelper helper) {
+  public RedisDataStoreFactory(final String typeName, final String description,
+      final StoreFactoryHelper helper) {
     super(typeName, description, helper);
   }
 
@@ -28,8 +29,7 @@ public class RedisDataStoreFactory extends BaseDataStoreFactory {
       throw new AssertionError("Expected " + RedisOptions.class.getSimpleName());
     }
 
-    return new RedisDataStore(
-        (RedisOperations) helper.createOperations(options),
+    return new RedisDataStore((RedisOperations) helper.createOperations(options),
         ((RedisOptions) options).getStoreOptions());
   }
 }

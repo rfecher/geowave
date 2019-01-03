@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -67,7 +68,8 @@ import org.slf4j.LoggerFactory;
 @Path("stanag4676")
 public class Stanag4676ImageryChipService {
   private static Logger LOGGER = LoggerFactory.getLogger(Stanag4676ImageryChipService.class);
-  @Context ServletContext context;
+  @Context
+  ServletContext context;
   private static DataStore dataStore;
 
   // private Map<String, Object> configOptions;
@@ -75,16 +77,11 @@ public class Stanag4676ImageryChipService {
   @GET
   @Path("image/{mission}/{track}/{year}-{month}-{day}T{hour}:{minute}:{second}.{millis}.jpg")
   @Produces("image/jpeg")
-  public Response getImage(
-      final @PathParam("mission") String mission,
-      final @PathParam("track") String track,
-      @PathParam("year") final int year,
-      @PathParam("month") final int month,
-      @PathParam("day") final int day,
-      @PathParam("hour") final int hour,
-      @PathParam("minute") final int minute,
-      @PathParam("second") final int second,
-      @PathParam("millis") final int millis,
+  public Response getImage(final @PathParam("mission") String mission,
+      final @PathParam("track") String track, @PathParam("year") final int year,
+      @PathParam("month") final int month, @PathParam("day") final int day,
+      @PathParam("hour") final int hour, @PathParam("minute") final int minute,
+      @PathParam("second") final int second, @PathParam("millis") final int millis,
       @QueryParam("size") @DefaultValue("-1") final int targetPixelSize) {
     final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
     cal.set(year, month - 1, day, hour, minute, second);
@@ -99,20 +96,13 @@ public class Stanag4676ImageryChipService {
     final QueryBuilder<?, ?> bldr = QueryBuilder.newBuilder();
     // ImageChipUtils.getDataId(mission,track,cal.getTimeInMillis()).getBytes()
     try (CloseableIterator<?> imageChipIt =
-        dataStore.query(
-            bldr.addTypeName(ImageChipDataAdapter.ADAPTER_TYPE_NAME)
-                .indexName(Stanag4676IngestPlugin.IMAGE_CHIP_INDEX.getName())
-                .constraints(
-                    bldr.constraintsFactory()
-                        .prefix(
-                            null,
-                            new ByteArray(
-                                ByteArrayUtils.combineArrays(
-                                    StringUtils.stringToBinary(
-                                        ImageChipDataAdapter.ADAPTER_TYPE_NAME),
-                                    ImageChipUtils.getDataId(mission, track, cal.getTimeInMillis())
-                                        .getBytes()))))
-                .build())) {
+        dataStore.query(bldr.addTypeName(ImageChipDataAdapter.ADAPTER_TYPE_NAME)
+            .indexName(Stanag4676IngestPlugin.IMAGE_CHIP_INDEX.getName())
+            .constraints(bldr.constraintsFactory().prefix(null,
+                new ByteArray(ByteArrayUtils.combineArrays(
+                    StringUtils.stringToBinary(ImageChipDataAdapter.ADAPTER_TYPE_NAME),
+                    ImageChipUtils.getDataId(mission, track, cal.getTimeInMillis()).getBytes()))))
+            .build())) {
 
       imageChip = (imageChipIt.hasNext()) ? imageChipIt.next() : null;
     }
@@ -134,8 +124,7 @@ public class Stanag4676ImageryChipService {
         } catch (final IOException e) {
           LOGGER.error("Unable to write image chip content to JPEG", e);
           return Response.serverError()
-              .entity("Error generating JPEG from image chip for mission/track.")
-              .build();
+              .entity("Error generating JPEG from image chip for mission/track.").build();
         }
       }
     }
@@ -148,8 +137,7 @@ public class Stanag4676ImageryChipService {
   @GET
   @Path("video/{mission}/{track}.webm")
   @Produces("video/webm")
-  public Response getVideo(
-      final @PathParam("mission") String mission,
+  public Response getVideo(final @PathParam("mission") String mission,
       final @PathParam("track") String track,
       @QueryParam("size") @DefaultValue("-1") final int targetPixelSize,
       @QueryParam("speed") @DefaultValue("1") final double speed,
@@ -163,20 +151,13 @@ public class Stanag4676ImageryChipService {
     int height = -1;
     final QueryBuilder<?, ?> bldr = QueryBuilder.newBuilder();
     try (CloseableIterator<?> imageChipIt =
-        dataStore.query(
-            bldr.addTypeName(ImageChipDataAdapter.ADAPTER_TYPE_NAME)
-                .indexName(Stanag4676IngestPlugin.IMAGE_CHIP_INDEX.getName())
-                .constraints(
-                    bldr.constraintsFactory()
-                        .prefix(
-                            null,
-                            new ByteArray(
-                                ByteArrayUtils.combineArrays(
-                                    StringUtils.stringToBinary(
-                                        ImageChipDataAdapter.ADAPTER_TYPE_NAME),
-                                    ImageChipUtils.getTrackDataIdPrefix(mission, track)
-                                        .getBytes()))))
-                .build())) {
+        dataStore.query(bldr.addTypeName(ImageChipDataAdapter.ADAPTER_TYPE_NAME)
+            .indexName(Stanag4676IngestPlugin.IMAGE_CHIP_INDEX.getName())
+            .constraints(bldr.constraintsFactory().prefix(null,
+                new ByteArray(ByteArrayUtils.combineArrays(
+                    StringUtils.stringToBinary(ImageChipDataAdapter.ADAPTER_TYPE_NAME),
+                    ImageChipUtils.getTrackDataIdPrefix(mission, track).getBytes()))))
+            .build())) {
 
       while (imageChipIt.hasNext()) {
         final Object imageChipObj = imageChipIt.next();
@@ -194,12 +175,8 @@ public class Stanag4676ImageryChipService {
       }
     } catch (final Exception e1) {
       LOGGER.error("Unable to read data to compose video file", e1);
-      return Response.serverError()
-          .entity(
-              "Video generation failed \nException: "
-                  + e1.getLocalizedMessage()
-                  + "\n stack trace: "
-                  + Arrays.toString(e1.getStackTrace()))
+      return Response.serverError().entity("Video generation failed \nException: "
+          + e1.getLocalizedMessage() + "\n stack trace: " + Arrays.toString(e1.getStackTrace()))
           .build();
     }
 
@@ -215,24 +192,23 @@ public class Stanag4676ImageryChipService {
         LOGGER.debug("Attempting to build the video the new way ...");
         responseBody = buildVideo2(mission, track, imageChips, width, height, speed);
         LOGGER.debug("Got a response body (path): " + responseBody.getAbsolutePath());
-        try (FileInputStream fis =
-            new FileInputStream(responseBody) {
+        try (FileInputStream fis = new FileInputStream(responseBody) {
 
-              @Override
-              public void close() throws IOException {
-                // super.close();
-                // try to delete the file immediately after it is
-                // returned
+          @Override
+          public void close() throws IOException {
+            // super.close();
+            // try to delete the file immediately after it is
+            // returned
 
-                if (!responseBody.delete()) {
-                  LOGGER.warn("Cannot delete response body");
-                }
+            if (!responseBody.delete()) {
+              LOGGER.warn("Cannot delete response body");
+            }
 
-                if (!responseBody.getParentFile().delete()) {
-                  LOGGER.warn("Cannot delete response body's parent file");
-                }
-              }
-            }) {
+            if (!responseBody.getParentFile().delete()) {
+              LOGGER.warn("Cannot delete response body's parent file");
+            }
+          }
+        }) {
           LOGGER.info("Returning video object: " + fis);
           return Response.ok().entity(fis).type("video/webm").build();
         } catch (final FileNotFoundException fnfe) {
@@ -305,14 +281,9 @@ public class Stanag4676ImageryChipService {
 
   private static final int MAX_FRAMES = 2000;
 
-  private static File buildVideo2(
-      final String mission,
-      final String track,
-      final TreeMap<Long, BufferedImage> data,
-      final int width,
-      final int height,
-      final double timeScaleFactor)
-      throws IOException {
+  private static File buildVideo2(final String mission, final String track,
+      final TreeMap<Long, BufferedImage> data, final int width, final int height,
+      final double timeScaleFactor) throws IOException {
 
     final File videoFileDir = Files.createTempDir();
     // HP Fortify "Path Traversal" false positive
@@ -364,14 +335,8 @@ public class Stanag4676ImageryChipService {
         return null;
       }
       if (videoTrack != null) {
-        LOGGER.debug(
-            "Found "
-                + y
-                + " of "
-                + i
-                + " new frames."
-                + "  videoTrack timescale is "
-                + videoTrack.getTimescale());
+        LOGGER.debug("Found " + y + " of " + i + " new frames." + "  videoTrack timescale is "
+            + videoTrack.getTimescale());
       }
       muxer.mux(sink);
 

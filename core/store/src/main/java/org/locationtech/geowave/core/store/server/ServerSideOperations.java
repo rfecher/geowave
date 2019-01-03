@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,8 +31,8 @@ public interface ServerSideOperations extends DataStoreOperations {
    * @param scope the scope
    * @return the options
    */
-  public Map<String, String> getServerOpOptions(
-      String index, String serverOpName, ServerOpScope scope);
+  public Map<String, String> getServerOpOptions(String index, String serverOpName,
+      ServerOpScope scope);
 
   /**
    * remove this server operation - because accumulo requires scopes as a parameter it is passed
@@ -48,19 +49,14 @@ public interface ServerSideOperations extends DataStoreOperations {
    *
    * @param index the index/table
    * @param priority the operation priority (this is merely relative, it defines how to order
-   *     multiple operations, from low to high)
+   *        multiple operations, from low to high)
    * @param serverOpName the operation name
    * @param operationClass the operation class
    * @param properties the operation options
    * @param configuredScopes the scopes
    */
-  public void addServerOp(
-      String index,
-      int priority,
-      String name,
-      String operationClass,
-      Map<String, String> properties,
-      ImmutableSet<ServerOpScope> configuredScopes);
+  public void addServerOp(String index, int priority, String name, String operationClass,
+      Map<String, String> properties, ImmutableSet<ServerOpScope> configuredScopes);
 
   /**
    * update this server operation, the current scopes are passed in because accumulo requires
@@ -69,20 +65,15 @@ public interface ServerSideOperations extends DataStoreOperations {
    *
    * @param index the index/table
    * @param priority the operation priority (this is merely relative, it defines how to order
-   *     multiple operations, from low to high)
+   *        multiple operations, from low to high)
    * @param serverOpName the operation name
    * @param operationClass the operation class
    * @param properties the operation options
    * @param currentScopes the existing scopes
    * @param newScopes the new configured scopes
    */
-  public void updateServerOp(
-      String index,
-      int priority,
-      String name,
-      String operationClass,
-      Map<String, String> properties,
-      ImmutableSet<ServerOpScope> currentScopes,
+  public void updateServerOp(String index, int priority, String name, String operationClass,
+      Map<String, String> properties, ImmutableSet<ServerOpScope> currentScopes,
       ImmutableSet<ServerOpScope> newScopes);
 
   /** Method to lookup the version of a remote datastore */

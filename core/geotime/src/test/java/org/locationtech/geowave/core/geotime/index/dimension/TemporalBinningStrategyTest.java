@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -49,14 +50,14 @@ public class TemporalBinningStrategyTest {
     internalTestBinsMatchExpectedCount(250000, Unit.MINUTE, 0L);
   }
 
-  private void internalTestBinsMatchExpectedCount(
-      final int binCount, final Unit unit, final long arbitraryTime) {
+  private void internalTestBinsMatchExpectedCount(final int binCount, final Unit unit,
+      final long arbitraryTime) {
     final BinRange[] ranges = getBinRangesUsingFullExtents(binCount, unit, arbitraryTime);
     Assert.assertEquals(binCount, ranges.length);
   }
 
-  private BinRange[] getBinRangesUsingFullExtents(
-      final int binCount, final Unit unit, final long arbitraryTime) {
+  private BinRange[] getBinRangesUsingFullExtents(final int binCount, final Unit unit,
+      final long arbitraryTime) {
     final Calendar startCal = Calendar.getInstance();
     final long time = arbitraryTime; // hopefully these approaches work for
     // any arbitrary time, but allow a
@@ -93,9 +94,8 @@ public class TemporalBinningStrategyTest {
     endCal.setTimeInMillis(time + (TemporalBinningStrategy.MILLIS_PER_DAY * 2));
     final TemporalBinningStrategy binStrategy = new TemporalBinningStrategy(Unit.DAY);
 
-    BinRange[] ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(startCal.getTimeInMillis(), endCal.getTimeInMillis()));
+    BinRange[] ranges = binStrategy.getNormalizedRanges(
+        new NumericRange(startCal.getTimeInMillis(), endCal.getTimeInMillis()));
     Assert.assertEquals(3, ranges.length);
 
     Assert.assertTrue(!ranges[0].isFullExtent());
@@ -109,9 +109,8 @@ public class TemporalBinningStrategyTest {
     startCalOnEpoch.setTimeInMillis(time);
     binStrategy.setToEpoch(startCalOnEpoch);
 
-    ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(startCalOnEpoch.getTimeInMillis(), endCal.getTimeInMillis()));
+    ranges = binStrategy.getNormalizedRanges(
+        new NumericRange(startCalOnEpoch.getTimeInMillis(), endCal.getTimeInMillis()));
     Assert.assertEquals(3, ranges.length);
     // now the first element should be full extent
     Assert.assertTrue(ranges[0].isFullExtent());
@@ -126,9 +125,8 @@ public class TemporalBinningStrategyTest {
     endCalOnMax.setTimeInMillis(time + (TemporalBinningStrategy.MILLIS_PER_DAY * 3));
     binStrategy.setToEpoch(endCalOnMax);
     endCalOnMax.add(Calendar.MILLISECOND, -1);
-    ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(startCal.getTimeInMillis(), endCalOnMax.getTimeInMillis()));
+    ranges = binStrategy.getNormalizedRanges(
+        new NumericRange(startCal.getTimeInMillis(), endCalOnMax.getTimeInMillis()));
     Assert.assertEquals(3, ranges.length);
 
     Assert.assertTrue(!ranges[0].isFullExtent());
@@ -156,9 +154,8 @@ public class TemporalBinningStrategyTest {
     endCal.setTimeInMillis(time);
     endCal.set(Calendar.MONTH, 0); // make sure its a month after one with 31 days
     binStrategy.setToEpoch(endCal);
-    final BinRange[] ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(startCal.getTimeInMillis() - 1, endCal.getTimeInMillis()));
+    final BinRange[] ranges = binStrategy.getNormalizedRanges(
+        new NumericRange(startCal.getTimeInMillis() - 1, endCal.getTimeInMillis()));
 
     Assert.assertEquals(2, ranges.length);
 
@@ -210,20 +207,16 @@ public class TemporalBinningStrategyTest {
     // test the day boundaries first - going from feb28 to march 1 should
     // give 2 bins
     TemporalBinningStrategy binStrategy = new TemporalBinningStrategy(Unit.DAY);
-    BinRange[] ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(startCal.getTimeInMillis(), endCal.getTimeInMillis()));
+    BinRange[] ranges = binStrategy.getNormalizedRanges(
+        new NumericRange(startCal.getTimeInMillis(), endCal.getTimeInMillis()));
 
     Assert.assertEquals(2, ranges.length);
 
     // now test the month boundaries - adding a day to feb28 for the end
     // time should give 2 bins
     binStrategy = new TemporalBinningStrategy(Unit.MONTH);
-    ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(
-                startCal.getTimeInMillis(),
-                startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY)));
+    ranges = binStrategy.getNormalizedRanges(new NumericRange(startCal.getTimeInMillis(),
+        startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY)));
 
     Assert.assertEquals(2, ranges.length);
   }
@@ -245,28 +238,21 @@ public class TemporalBinningStrategyTest {
     // test the day boundaries first - going from feb28 to march 1 should
     // give 3 bins
     TemporalBinningStrategy binStrategy = new TemporalBinningStrategy(Unit.DAY);
-    BinRange[] ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(startCal.getTimeInMillis(), endCal.getTimeInMillis()));
+    BinRange[] ranges = binStrategy.getNormalizedRanges(
+        new NumericRange(startCal.getTimeInMillis(), endCal.getTimeInMillis()));
 
     Assert.assertEquals(3, ranges.length);
 
     // now test the month boundaries - adding a day to feb28 for the end
     // time should give 1 bin, adding 2 days should give 2 bins
     binStrategy = new TemporalBinningStrategy(Unit.MONTH);
-    ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(
-                startCal.getTimeInMillis(),
-                startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY)));
+    ranges = binStrategy.getNormalizedRanges(new NumericRange(startCal.getTimeInMillis(),
+        startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY)));
 
     Assert.assertEquals(1, ranges.length);
     // add 2 days and now we should end up with 2 bins
-    ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(
-                startCal.getTimeInMillis(),
-                startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY * 2)));
+    ranges = binStrategy.getNormalizedRanges(new NumericRange(startCal.getTimeInMillis(),
+        startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY * 2)));
 
     Assert.assertEquals(2, ranges.length);
   }
@@ -281,10 +267,8 @@ public class TemporalBinningStrategyTest {
     binStrategy.setToEpoch(startCal);
     // if we add 365 days to this we should get 2 year bins
     final BinRange[] ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(
-                startCal.getTimeInMillis(),
-                startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY * 365)));
+        binStrategy.getNormalizedRanges(new NumericRange(startCal.getTimeInMillis(),
+            startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY * 365)));
     Assert.assertEquals(2, ranges.length);
   }
 
@@ -297,19 +281,13 @@ public class TemporalBinningStrategyTest {
     startCal.set(Calendar.YEAR, 2016);
     binStrategy.setToEpoch(startCal);
     // if we add 365 days to this we should get 1 year bin
-    BinRange[] ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(
-                startCal.getTimeInMillis(),
-                startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY * 365)));
+    BinRange[] ranges = binStrategy.getNormalizedRanges(new NumericRange(startCal.getTimeInMillis(),
+        startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY * 365)));
     Assert.assertEquals(1, ranges.length);
     // if we add 366 days to this we should get 2 year bins, and the second
     // bin should be the epoch
-    ranges =
-        binStrategy.getNormalizedRanges(
-            new NumericRange(
-                startCal.getTimeInMillis(),
-                startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY * 366)));
+    ranges = binStrategy.getNormalizedRanges(new NumericRange(startCal.getTimeInMillis(),
+        startCal.getTimeInMillis() + (TemporalBinningStrategy.MILLIS_PER_DAY * 366)));
     Assert.assertEquals(2, ranges.length);
 
     // the second bin should just contain the epoch

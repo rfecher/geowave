@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,23 +26,29 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is designed to support secondary partitioning.
  *
- * <p>(1) Partition added data using a partitioner.
+ * <p>
+ * (1) Partition added data using a partitioner.
  *
- * <p>(2) Process data, perform the O(N^2) (e.g. ~ n^2/2) comparisons within those partitions.
+ * <p>
+ * (2) Process data, perform the O(N^2) (e.g. ~ n^2/2) comparisons within those partitions.
  *
- * <p>Custom plug-ins include (1) A factory for the neighbor list to track those pairings of data
- * whose distance feel under the provided minimum. (2) A complete notification callback callback for
- * each primary data.
+ * <p>
+ * Custom plug-ins include (1) A factory for the neighbor list to track those pairings of data whose
+ * distance feel under the provided minimum. (2) A complete notification callback callback for each
+ * primary data.
  *
- * <p>The loop algorithms is For each primary compare to all remaining primary and all secondary
- * data items
+ * <p>
+ * The loop algorithms is For each primary compare to all remaining primary and all secondary data
+ * items
  *
- * <p>A powerful performance enhancing tool is the inference mechanism associated with the
- * neighborhood lists. A list can have intelligence to decide that a particular neighbor can be
- * inferred and, therefore, can be removed from the set of primaries to be inspected. This has no
- * effect on secondaries.
+ * <p>
+ * A powerful performance enhancing tool is the inference mechanism associated with the neighborhood
+ * lists. A list can have intelligence to decide that a particular neighbor can be inferred and,
+ * therefore, can be removed from the set of primaries to be inspected. This has no effect on
+ * secondaries.
  *
- * <p>The processor can be called multiple times, as the 'process' algorithm does not alter its
+ * <p>
+ * The processor can be called multiple times, as the 'process' algorithm does not alter its
  * internal state. The notification callback can be used to alter the internal state (e.g. calling
  * 'add' or 'remove' methods). Caution should used to alter internal state within the neighbor list.
  *
@@ -75,11 +82,8 @@ public class NNProcessor<PARTITION_VALUE, STORE_VALUE> {
 
   protected NeighborIndex<STORE_VALUE> index;
 
-  public NNProcessor(
-      Partitioner<Object> partitioner,
-      TypeConverter<STORE_VALUE> typeConverter,
-      DistanceProfileGenerateFn<?, STORE_VALUE> distanceProfileFn,
-      double maxDistance,
+  public NNProcessor(Partitioner<Object> partitioner, TypeConverter<STORE_VALUE> typeConverter,
+      DistanceProfileGenerateFn<?, STORE_VALUE> distanceProfileFn, double maxDistance,
       PartitionData parentPartition) {
     super();
     this.partitioner = partitioner;
@@ -125,7 +129,8 @@ public class NNProcessor<PARTITION_VALUE, STORE_VALUE> {
     if (partitionSet != null) {
       for (PartitionData pd : partitionSet) {
         final Set<ByteArray> idSet = partitionsToIds.get(pd);
-        if (idSet != null) idSet.remove(id);
+        if (idSet != null)
+          idSet.remove(id);
       }
     }
     primaries.remove(id);
@@ -141,27 +146,28 @@ public class NNProcessor<PARTITION_VALUE, STORE_VALUE> {
     final STORE_VALUE storeValue = this.typeConverter.convert(id, partitionValue);
 
     try {
-      partitioner.partition(
-          partitionValue,
-          new PartitionDataCallback() {
+      partitioner.partition(partitionValue, new PartitionDataCallback() {
 
-            @Override
-            public void partitionWith(final PartitionData partitionData) throws Exception {
-              PartitionData singleton = add(partitionData, id);
-              if (singleton != null) {
-                singleton.setPrimary(partitionData.isPrimary() || singleton.isPrimary());
-                if (isPrimary) primaries.put(id, storeValue);
-                else others.put(id, storeValue);
-              }
-            }
-          });
+        @Override
+        public void partitionWith(final PartitionData partitionData) throws Exception {
+          PartitionData singleton = add(partitionData, id);
+          if (singleton != null) {
+            singleton.setPrimary(partitionData.isPrimary() || singleton.isPrimary());
+            if (isPrimary)
+              primaries.put(id, storeValue);
+            else
+              others.put(id, storeValue);
+          }
+        }
+      });
 
     } catch (Exception e) {
       throw new IOException(e);
     }
 
     if (isPrimary) {
-      if (startingPoint == null) startingPoint = id;
+      if (startingPoint == null)
+        startingPoint = id;
     }
   }
 
@@ -197,23 +203,13 @@ public class NNProcessor<PARTITION_VALUE, STORE_VALUE> {
     return partitionsToIds.isEmpty();
   }
 
-  public void process(
-      NeighborListFactory<STORE_VALUE> listFactory,
-      final CompleteNotifier<STORE_VALUE> notification)
-      throws IOException, InterruptedException {
+  public void process(NeighborListFactory<STORE_VALUE> listFactory,
+      final CompleteNotifier<STORE_VALUE> notification) throws IOException, InterruptedException {
 
-    LOGGER.info(
-        "Processing "
-            + parentPartition.toString()
-            + " with primary = "
-            + primaries.size()
-            + " and other = "
-            + others.size());
-    LOGGER.info(
-        "Processing "
-            + parentPartition.toString()
-            + " with sub-partitions = "
-            + uniqueSetOfPartitions.size());
+    LOGGER.info("Processing " + parentPartition.toString() + " with primary = " + primaries.size()
+        + " and other = " + others.size());
+    LOGGER.info("Processing " + parentPartition.toString() + " with sub-partitions = "
+        + uniqueSetOfPartitions.size());
 
     index = new NeighborIndex<STORE_VALUE>(listFactory);
 
@@ -235,7 +231,8 @@ public class NNProcessor<PARTITION_VALUE, STORE_VALUE> {
       final ByteArray primaryId = nextStart;
       nextStart = null;
       farthestNeighbor = null;
-      if (LOGGER.isTraceEnabled()) LOGGER.trace("processing " + primaryId);
+      if (LOGGER.isTraceEnabled())
+        LOGGER.trace("processing " + primaryId);
       if (primary == null) {
         if (inspectionSet.size() > 0) {
           nextStart = inspectionSet.iterator().next();
@@ -246,16 +243,19 @@ public class NNProcessor<PARTITION_VALUE, STORE_VALUE> {
 
       for (PartitionData pd : partition) {
         for (ByteArray neighborId : partitionsToIds.get(pd)) {
-          if (neighborId.equals(primaryId)) continue;
+          if (neighborId.equals(primaryId))
+            continue;
           boolean isAPrimary = true;
           STORE_VALUE neighbor = primaries.get(neighborId);
           if (neighbor == null) {
             neighbor = others.get(neighborId);
             isAPrimary = false;
           } else // prior processed primary
-          if (!inspectionSet.contains(neighborId)) continue;
+          if (!inspectionSet.contains(neighborId))
+            continue;
 
-          if (neighbor == null) continue;
+          if (neighbor == null)
+            continue;
           final InferType inferResult = primaryList.infer(neighborId, neighbor);
           if (inferResult == InferType.NONE) {
             final DistanceProfile<?> distanceProfile =
@@ -263,7 +263,8 @@ public class NNProcessor<PARTITION_VALUE, STORE_VALUE> {
             final double distance = distanceProfile.getDistance();
             if (distance <= maxDistance) {
               index.add(distanceProfile, primaryId, primary, neighborId, neighbor, isAPrimary);
-              if (LOGGER.isTraceEnabled()) LOGGER.trace("Neighbor " + neighborId);
+              if (LOGGER.isTraceEnabled())
+                LOGGER.trace("Neighbor " + neighborId);
             }
             if (distance > farthestDistance && inspectionSet.contains(neighborId)) {
               farthestDistance = distance;

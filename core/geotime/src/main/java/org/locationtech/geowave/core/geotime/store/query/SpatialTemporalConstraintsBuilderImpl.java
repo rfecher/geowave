@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -64,9 +65,8 @@ public class SpatialTemporalConstraintsBuilderImpl implements SpatialTemporalCon
 
   @Override
   public SpatialTemporalConstraintsBuilder addTimeRange(final Date startTime, final Date endTime) {
-    return addTimeRange(
-        Interval.of(
-            Instant.ofEpochMilli(startTime.getTime()), Instant.ofEpochMilli(endTime.getTime())));
+    return addTimeRange(Interval.of(Instant.ofEpochMilli(startTime.getTime()),
+        Instant.ofEpochMilli(endTime.getTime())));
   }
 
   @Override
@@ -87,14 +87,12 @@ public class SpatialTemporalConstraintsBuilderImpl implements SpatialTemporalCon
   @Override
   public QueryConstraints build() {
     if ((crsCode != null) && (geometry == null)) {
-      LOGGER.warn(
-          "CRS code `" + crsCode + "` cannot be applied without a geometry.  Ignoring CRS.");
+      LOGGER
+          .warn("CRS code `" + crsCode + "` cannot be applied without a geometry.  Ignoring CRS.");
     }
     if ((spatialCompareOp != null) && (geometry == null)) {
-      LOGGER.warn(
-          "Spatial compare operator `"
-              + spatialCompareOp.name()
-              + "` cannot be applied without a geometry.  Ignoring compare operator.");
+      LOGGER.warn("Spatial compare operator `" + spatialCompareOp.name()
+          + "` cannot be applied without a geometry.  Ignoring compare operator.");
     }
     if (geometry != null) {
       // its at least spatial

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,32 +42,27 @@ public class DataStoreCallbackManager {
   final Map<Short, DeleteCallback<?, GeoWaveRow>> dcache =
       new HashMap<Short, DeleteCallback<?, GeoWaveRow>>();
 
-  public DataStoreCallbackManager(
-      final DataStatisticsStore statsStore,
-      final SecondaryIndexDataStore secondaryIndexStore,
-      boolean captureAdapterStats) {
+  public DataStoreCallbackManager(final DataStatisticsStore statsStore,
+      final SecondaryIndexDataStore secondaryIndexStore, boolean captureAdapterStats) {
     this.statsStore = statsStore;
     this.secondaryIndexStore = secondaryIndexStore;
     this.captureAdapterStats = captureAdapterStats;
   }
 
-  public <T> IngestCallback<T> getIngestCallback(
-      final InternalDataAdapter<T> writableAdapter, final Index index) {
+  public <T> IngestCallback<T> getIngestCallback(final InternalDataAdapter<T> writableAdapter,
+      final Index index) {
     if (!icache.containsKey(writableAdapter.getAdapterId())) {
       final DataStoreStatisticsProvider<T> statsProvider =
           new DataStoreStatisticsProvider<T>(writableAdapter, index, captureAdapterStats);
       final List<IngestCallback<T>> callbackList = new ArrayList<IngestCallback<T>>();
       if ((writableAdapter.getAdapter() instanceof StatisticsProvider) && persistStats) {
-        callbackList.add(
-            new StatsCompositionTool<T>(statsProvider, statsStore, index, writableAdapter));
+        callbackList
+            .add(new StatsCompositionTool<T>(statsProvider, statsStore, index, writableAdapter));
       }
       if (captureAdapterStats
           && writableAdapter.getAdapter() instanceof SecondaryIndexDataAdapter<?>) {
-        callbackList.add(
-            new SecondaryIndexDataManager<T>(
-                secondaryIndexStore,
-                (SecondaryIndexDataAdapter<T>) writableAdapter.getAdapter(),
-                index));
+        callbackList.add(new SecondaryIndexDataManager<T>(secondaryIndexStore,
+            (SecondaryIndexDataAdapter<T>) writableAdapter.getAdapter(), index));
       }
       icache.put(writableAdapter.getAdapterId(), new IngestCallbackList<T>(callbackList));
     }
@@ -85,19 +81,16 @@ public class DataStoreCallbackManager {
       final List<DeleteCallback<T, GeoWaveRow>> callbackList =
           new ArrayList<DeleteCallback<T, GeoWaveRow>>();
       if ((writableAdapter.getAdapter() instanceof StatisticsProvider) && persistStats) {
-        callbackList.add(
-            new StatsCompositionTool<T>(statsProvider, statsStore, index, writableAdapter));
+        callbackList
+            .add(new StatsCompositionTool<T>(statsProvider, statsStore, index, writableAdapter));
       }
       if (captureAdapterStats
           && writableAdapter.getAdapter() instanceof SecondaryIndexDataAdapter<?>) {
-        callbackList.add(
-            new SecondaryIndexDataManager<T>(
-                secondaryIndexStore,
-                (SecondaryIndexDataAdapter<T>) writableAdapter.getAdapter(),
-                index));
+        callbackList.add(new SecondaryIndexDataManager<T>(secondaryIndexStore,
+            (SecondaryIndexDataAdapter<T>) writableAdapter.getAdapter(), index));
       }
-      dcache.put(
-          writableAdapter.getAdapterId(), new DeleteCallbackList<T, GeoWaveRow>(callbackList));
+      dcache.put(writableAdapter.getAdapterId(),
+          new DeleteCallbackList<T, GeoWaveRow>(callbackList));
     }
     return (DeleteCallback<T, GeoWaveRow>) dcache.get(writableAdapter.getAdapterId());
   }

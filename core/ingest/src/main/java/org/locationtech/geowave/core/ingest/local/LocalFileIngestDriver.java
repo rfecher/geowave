@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -52,12 +53,10 @@ public class LocalFileIngestDriver
   protected int threads;
   protected ExecutorService ingestExecutor;
 
-  public LocalFileIngestDriver(
-      final DataStorePluginOptions storeOptions,
+  public LocalFileIngestDriver(final DataStorePluginOptions storeOptions,
       final List<IndexPluginOptions> indexOptions,
       final Map<String, LocalFileIngestPlugin<?>> ingestPlugins,
-      final VisibilityOptions ingestOptions,
-      final LocalInputCommandLineOptions inputOptions,
+      final VisibilityOptions ingestOptions, final LocalInputCommandLineOptions inputOptions,
       final int threads) {
     super(inputOptions);
     this.storeOptions = storeOptions;
@@ -73,8 +72,8 @@ public class LocalFileIngestDriver
     final List<DataTypeAdapter<?>> adapters = new ArrayList<>();
     for (final Entry<String, LocalFileIngestPlugin<?>> pluginEntry : ingestPlugins.entrySet()) {
 
-      if (!IngestUtils.checkIndexesAgainstProvider(
-          pluginEntry.getKey(), pluginEntry.getValue(), indexOptions)) {
+      if (!IngestUtils.checkIndexesAgainstProvider(pluginEntry.getKey(), pluginEntry.getValue(),
+          indexOptions)) {
         continue;
       }
 
@@ -133,18 +132,13 @@ public class LocalFileIngestDriver
   }
 
   @Override
-  public void processFile(
-      final URL file,
-      final String typeName,
-      final LocalFileIngestPlugin<?> plugin,
-      final LocalIngestRunData ingestRunData)
+  public void processFile(final URL file, final String typeName,
+      final LocalFileIngestPlugin<?> plugin, final LocalIngestRunData ingestRunData)
       throws IOException {
 
-    LOGGER.info(
-        String.format(
-            "Beginning ingest for file: [%s]",
-            // file.getName()));
-            FilenameUtils.getName(file.getPath())));
+    LOGGER.info(String.format("Beginning ingest for file: [%s]",
+        // file.getName()));
+        FilenameUtils.getName(file.getPath())));
 
     // This loads up the primary indexes that are specified on the command
     // line.
@@ -177,58 +171,43 @@ public class LocalFileIngestDriver
 
     if (threads == 1) {
 
-      processFileSingleThreaded(
-          file, typeName, plugin, ingestRunData, specifiedPrimaryIndexes, requiredIndexMap);
+      processFileSingleThreaded(file, typeName, plugin, ingestRunData, specifiedPrimaryIndexes,
+          requiredIndexMap);
 
     } else {
 
-      processFileMultiThreaded(
-          file, typeName, plugin, ingestRunData, specifiedPrimaryIndexes, requiredIndexMap);
+      processFileMultiThreaded(file, typeName, plugin, ingestRunData, specifiedPrimaryIndexes,
+          requiredIndexMap);
     }
 
     LOGGER.info(String.format("Finished ingest for file: [%s]", file.getFile()));
   }
 
-  public void processFileSingleThreaded(
-      final URL file,
-      final String typeName,
-      final LocalFileIngestPlugin<?> plugin,
-      final LocalIngestRunData ingestRunData,
-      final Map<String, Index> specifiedPrimaryIndexes,
-      final Map<String, Index> requiredIndexMap)
+  public void processFileSingleThreaded(final URL file, final String typeName,
+      final LocalFileIngestPlugin<?> plugin, final LocalIngestRunData ingestRunData,
+      final Map<String, Index> specifiedPrimaryIndexes, final Map<String, Index> requiredIndexMap)
       throws IOException {
 
     int count = 0;
     long dbWriteMs = 0L;
     final Map<String, Writer> indexWriters = new HashMap<>();
     // Read files until EOF from the command line.
-    try (CloseableIterator<?> geowaveDataIt =
-        plugin.toGeoWaveData(
-            file,
-            specifiedPrimaryIndexes.keySet().toArray(new String[0]),
-            ingestOptions.getVisibility())) {
+    try (CloseableIterator<?> geowaveDataIt = plugin.toGeoWaveData(file,
+        specifiedPrimaryIndexes.keySet().toArray(new String[0]), ingestOptions.getVisibility())) {
 
       while (geowaveDataIt.hasNext()) {
         final GeoWaveData<?> geowaveData = (GeoWaveData<?>) geowaveDataIt.next();
         try {
           final DataTypeAdapter adapter = ingestRunData.getDataAdapter(geowaveData);
           if (adapter == null) {
-            LOGGER.warn(
-                String.format(
-                    "Adapter not found for [%s] file [%s]",
-                    geowaveData.getValue(), FilenameUtils.getName(file.getPath())));
+            LOGGER.warn(String.format("Adapter not found for [%s] file [%s]",
+                geowaveData.getValue(), FilenameUtils.getName(file.getPath())));
             continue;
           }
 
           // Ingest the data!
-          dbWriteMs +=
-              ingestData(
-                  geowaveData,
-                  adapter,
-                  ingestRunData,
-                  specifiedPrimaryIndexes,
-                  requiredIndexMap,
-                  indexWriters);
+          dbWriteMs += ingestData(geowaveData, adapter, ingestRunData, specifiedPrimaryIndexes,
+              requiredIndexMap, indexWriters);
 
           count++;
 
@@ -237,10 +216,8 @@ public class LocalFileIngestDriver
         }
       }
 
-      LOGGER.debug(
-          String.format(
-              "Finished ingest for file: [%s]; Ingested %d items in %d seconds",
-              FilenameUtils.getName(file.getPath()), count, (int) dbWriteMs / 1000));
+      LOGGER.debug(String.format("Finished ingest for file: [%s]; Ingested %d items in %d seconds",
+          FilenameUtils.getName(file.getPath()), count, (int) dbWriteMs / 1000));
 
     } finally {
       // Clean up index writers
@@ -248,20 +225,16 @@ public class LocalFileIngestDriver
         try {
           ingestRunData.releaseIndexWriter(writerEntry.getKey(), writerEntry.getValue());
         } catch (final Exception e) {
-          LOGGER.warn(
-              String.format("Could not return index writer: [%s]", writerEntry.getKey()), e);
+          LOGGER.warn(String.format("Could not return index writer: [%s]", writerEntry.getKey()),
+              e);
         }
       }
     }
   }
 
-  private long ingestData(
-      final GeoWaveData<?> geowaveData,
-      final DataTypeAdapter adapter,
-      final LocalIngestRunData runData,
-      final Map<String, Index> specifiedPrimaryIndexes,
-      final Map<String, Index> requiredIndexMap,
-      final Map<String, Writer> indexWriters)
+  private long ingestData(final GeoWaveData<?> geowaveData, final DataTypeAdapter adapter,
+      final LocalIngestRunData runData, final Map<String, Index> specifiedPrimaryIndexes,
+      final Map<String, Index> requiredIndexMap, final Map<String, Writer> indexWriters)
       throws Exception {
 
     try {
@@ -304,13 +277,9 @@ public class LocalFileIngestDriver
     }
   }
 
-  public void processFileMultiThreaded(
-      final URL file,
-      final String typeName,
-      final LocalFileIngestPlugin<?> plugin,
-      final LocalIngestRunData ingestRunData,
-      final Map<String, Index> specifiedPrimaryIndexes,
-      final Map<String, Index> requiredIndexMap)
+  public void processFileMultiThreaded(final URL file, final String typeName,
+      final LocalFileIngestPlugin<?> plugin, final LocalIngestRunData ingestRunData,
+      final Map<String, Index> specifiedPrimaryIndexes, final Map<String, Index> requiredIndexMap)
       throws IOException {
 
     // Create our queue. We will post GeoWaveData items to these queue until
@@ -321,10 +290,8 @@ public class LocalFileIngestDriver
 
     // Create our Jobs. We submit as many jobs as we have executors for.
     // These folks will read our blocking queue
-    LOGGER.debug(
-        String.format(
-            "Creating [%d] threads to ingest file: [%s]",
-            threads, FilenameUtils.getName(file.getPath())));
+    LOGGER.debug(String.format("Creating [%d] threads to ingest file: [%s]", threads,
+        FilenameUtils.getName(file.getPath())));
     final List<IngestTask> ingestTasks = new ArrayList<>();
     try {
       for (int i = 0; i < threads; i++) {
@@ -336,11 +303,8 @@ public class LocalFileIngestDriver
       }
 
       // Read files until EOF from the command line.
-      try (CloseableIterator<?> geowaveDataIt =
-          plugin.toGeoWaveData(
-              file,
-              specifiedPrimaryIndexes.keySet().toArray(new String[0]),
-              ingestOptions.getVisibility())) {
+      try (CloseableIterator<?> geowaveDataIt = plugin.toGeoWaveData(file,
+          specifiedPrimaryIndexes.keySet().toArray(new String[0]), ingestOptions.getVisibility())) {
 
         while (geowaveDataIt.hasNext()) {
           final GeoWaveData<?> geowaveData = (GeoWaveData<?>) geowaveDataIt.next();

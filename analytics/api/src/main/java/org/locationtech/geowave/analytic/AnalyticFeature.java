@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,22 +30,13 @@ import org.slf4j.LoggerFactory;
 public class AnalyticFeature {
   static final Logger LOGGER = LoggerFactory.getLogger(AnalyticFeature.class);
 
-  public static SimpleFeature createGeometryFeature(
-      final SimpleFeatureType featureType,
-      final String batchId,
-      final String dataId,
-      final String name,
-      final String groupID,
-      final double weight,
-      final Geometry geometry,
-      final String[] extraDimensionNames,
-      final double[] extraDimensions,
-      final int zoomLevel,
-      final int iteration,
-      final long count) {
+  public static SimpleFeature createGeometryFeature(final SimpleFeatureType featureType,
+      final String batchId, final String dataId, final String name, final String groupID,
+      final double weight, final Geometry geometry, final String[] extraDimensionNames,
+      final double[] extraDimensions, final int zoomLevel, final int iteration, final long count) {
     if (extraDimensionNames.length != extraDimensions.length) {
-      LOGGER.error(
-          "The number of extraDimension names does not equal the number of extraDimensions");
+      LOGGER
+          .error("The number of extraDimension names does not equal the number of extraDimensions");
       throw new IllegalArgumentException(
           "The number of extraDimension names does not equal the number of extraDimensions");
     }
@@ -71,13 +63,9 @@ public class AnalyticFeature {
     return newFeature;
   }
 
-  public static FeatureDataAdapter createFeatureAdapter(
-      final String centroidDataTypeId,
-      final String[] extraNumericDimensions,
-      final String namespaceURI,
-      final String SRID,
-      final ClusterFeatureAttribute[] attributes,
-      final Class<? extends Geometry> geometryClass) {
+  public static FeatureDataAdapter createFeatureAdapter(final String centroidDataTypeId,
+      final String[] extraNumericDimensions, final String namespaceURI, final String SRID,
+      final ClusterFeatureAttribute[] attributes, final Class<? extends Geometry> geometryClass) {
     try {
       final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
       builder.setName(centroidDataTypeId);
@@ -87,8 +75,7 @@ public class AnalyticFeature {
       builder.setCRS(CRS.decode(SRID, true));
 
       for (final ClusterFeatureAttribute attrVal : attributes) {
-        builder.add(
-            attrVal.name,
+        builder.add(attrVal.name,
             attrVal.equals(ClusterFeatureAttribute.GEOMETRY) ? geometryClass : attrVal.type);
       }
       for (final String extraDim : extraNumericDimensions) {
@@ -106,29 +93,17 @@ public class AnalyticFeature {
     return null;
   }
 
-  public static FeatureDataAdapter createGeometryFeatureAdapter(
-      final String centroidDataTypeId,
-      final String[] extraNumericDimensions,
-      final String namespaceURI,
-      final String SRID) {
-    return createFeatureAdapter(
-        centroidDataTypeId,
-        extraNumericDimensions,
-        namespaceURI,
-        SRID,
-        ClusterFeatureAttribute.values(),
-        Geometry.class);
+  public static FeatureDataAdapter createGeometryFeatureAdapter(final String centroidDataTypeId,
+      final String[] extraNumericDimensions, final String namespaceURI, final String SRID) {
+    return createFeatureAdapter(centroidDataTypeId, extraNumericDimensions, namespaceURI, SRID,
+        ClusterFeatureAttribute.values(), Geometry.class);
   }
 
   public static enum ClusterFeatureAttribute {
-    NAME("name", String.class),
-    GROUP_ID("groupID", String.class),
-    ITERATION("iteration", Integer.class),
-    GEOMETRY("geometry", Geometry.class),
-    WEIGHT("weight", Double.class),
-    COUNT("count", Long.class),
-    ZOOM_LEVEL("level", Integer.class),
-    BATCH_ID("batchID", String.class);
+    NAME("name", String.class), GROUP_ID("groupID", String.class), ITERATION("iteration",
+        Integer.class), GEOMETRY("geometry", Geometry.class), WEIGHT("weight", Double.class), COUNT(
+            "count",
+            Long.class), ZOOM_LEVEL("level", Integer.class), BATCH_ID("batchID", String.class);
 
     private final String name;
     private final Class<?> type;

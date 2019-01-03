@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -53,12 +54,10 @@ public class IngestFromKafkaDriver {
   private final VisibilityOptions ingestOptions;
   private final List<Future<?>> futures = new ArrayList<>();
 
-  public IngestFromKafkaDriver(
-      final DataStorePluginOptions storeOptions,
+  public IngestFromKafkaDriver(final DataStorePluginOptions storeOptions,
       final List<IndexPluginOptions> indexOptions,
       final Map<String, AvroFormatPlugin<?, ?>> ingestPlugins,
-      final KafkaConsumerCommandLineOptions kafkaOptions,
-      final VisibilityOptions ingestOptions) {
+      final KafkaConsumerCommandLineOptions kafkaOptions, final VisibilityOptions ingestOptions) {
     this.storeOptions = storeOptions;
     this.indexOptions = indexOptions;
     this.ingestPlugins = ingestPlugins;
@@ -103,18 +102,16 @@ public class IngestFromKafkaDriver {
     return true;
   }
 
-  private void addPluginsToQueue(
-      final Map<String, AvroFormatPlugin<?, ?>> pluginProviders, final List<String> queue) {
+  private void addPluginsToQueue(final Map<String, AvroFormatPlugin<?, ?>> pluginProviders,
+      final List<String> queue) {
     queue.addAll(pluginProviders.keySet());
   }
 
-  private void configureAndLaunchPlugins(
-      final DataStore dataStore,
-      final Map<String, AvroFormatPlugin<?, ?>> pluginProviders,
-      final List<String> queue) {
+  private void configureAndLaunchPlugins(final DataStore dataStore,
+      final Map<String, AvroFormatPlugin<?, ?>> pluginProviders, final List<String> queue) {
     try {
-      for (final Entry<String, AvroFormatPlugin<?, ?>> pluginProvider :
-          pluginProviders.entrySet()) {
+      for (final Entry<String, AvroFormatPlugin<?, ?>> pluginProvider : pluginProviders
+          .entrySet()) {
         final List<DataTypeAdapter<?>> adapters = new ArrayList<>();
 
         AvroFormatPlugin<?, ?> avroFormatPlugin = null;
@@ -128,14 +125,11 @@ public class IngestFromKafkaDriver {
           adapters.addAll(Arrays.asList(dataAdapters));
           final KafkaIngestRunData runData = new KafkaIngestRunData(adapters, dataStore);
 
-          futures.add(
-              launchTopicConsumer(pluginProvider.getKey(), avroFormatPlugin, runData, queue));
+          futures
+              .add(launchTopicConsumer(pluginProvider.getKey(), avroFormatPlugin, runData, queue));
         } catch (final UnsupportedOperationException e) {
-          LOGGER.warn(
-              "Plugin provider '"
-                  + pluginProvider.getKey()
-                  + "' does not support ingest from Kafka",
-              e);
+          LOGGER.warn("Plugin provider '" + pluginProvider.getKey()
+              + "' does not support ingest from Kafka", e);
           continue;
         }
       }
@@ -154,31 +148,25 @@ public class IngestFromKafkaDriver {
     return consumer;
   }
 
-  private Future<?> launchTopicConsumer(
-      final String formatPluginName,
-      final AvroFormatPlugin<?, ?> avroFormatPlugin,
-      final KafkaIngestRunData ingestRunData,
-      final List<String> queue)
-      throws IllegalArgumentException {
+  private Future<?> launchTopicConsumer(final String formatPluginName,
+      final AvroFormatPlugin<?, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
+      final List<String> queue) throws IllegalArgumentException {
     final ExecutorService executorService = Executors.newFixedThreadPool(queue.size());
-    return executorService.submit(
-        new Runnable() {
+    return executorService.submit(new Runnable() {
 
-          @Override
-          public void run() {
-            try {
-              consumeFromTopic(formatPluginName, avroFormatPlugin, ingestRunData, queue);
-            } catch (final Exception e) {
-              LOGGER.error("Error consuming from Kafka topic [" + formatPluginName + "]", e);
-            }
-          }
-        });
+      @Override
+      public void run() {
+        try {
+          consumeFromTopic(formatPluginName, avroFormatPlugin, ingestRunData, queue);
+        } catch (final Exception e) {
+          LOGGER.error("Error consuming from Kafka topic [" + formatPluginName + "]", e);
+        }
+      }
+    });
   }
 
-  public <T> void consumeFromTopic(
-      final String formatPluginName,
-      final AvroFormatPlugin<T, ?> avroFormatPlugin,
-      final KafkaIngestRunData ingestRunData,
+  public <T> void consumeFromTopic(final String formatPluginName,
+      final AvroFormatPlugin<T, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
       final List<String> queue) {
 
     final ConsumerConnector consumer = buildKafkaConsumer();
@@ -187,12 +175,8 @@ public class IngestFromKafkaDriver {
           "Kafka consumer connector is null, unable to create message streams");
     }
     try {
-      LOGGER.debug(
-          "Kafka consumer setup for format ["
-              + formatPluginName
-              + "] against topic ["
-              + formatPluginName
-              + "]");
+      LOGGER.debug("Kafka consumer setup for format [" + formatPluginName + "] against topic ["
+          + formatPluginName + "]");
       final Map<String, Integer> topicCount = new HashMap<>();
       topicCount.put(formatPluginName, 1);
 
@@ -207,10 +191,8 @@ public class IngestFromKafkaDriver {
     }
   }
 
-  protected <T> void consumeMessages(
-      final String formatPluginName,
-      final AvroFormatPlugin<T, ?> avroFormatPlugin,
-      final KafkaIngestRunData ingestRunData,
+  protected <T> void consumeMessages(final String formatPluginName,
+      final AvroFormatPlugin<T, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
       final KafkaStream<byte[], byte[]> stream) {
     int currentBatchId = 0;
     final int batchSize = kafkaOptions.getBatchSize();
@@ -259,10 +241,8 @@ public class IngestFromKafkaDriver {
     }
   }
 
-  protected synchronized <T> void processMessage(
-      final T dataRecord,
-      final KafkaIngestRunData ingestRunData,
-      final AvroFormatPlugin<T, ?> plugin)
+  protected synchronized <T> void processMessage(final T dataRecord,
+      final KafkaIngestRunData ingestRunData, final AvroFormatPlugin<T, ?> plugin)
       throws IOException {
 
     final IngestPluginBase<T, ?> ingestPlugin = plugin.getIngestWithAvroPlugin();
@@ -287,9 +267,8 @@ public class IngestFromKafkaDriver {
       }
     }
 
-    try (CloseableIterator<?> geowaveDataIt =
-        ingestPlugin.toGeoWaveData(
-            dataRecord, indexMap.keySet().toArray(new String[0]), ingestOptions.getVisibility())) {
+    try (CloseableIterator<?> geowaveDataIt = ingestPlugin.toGeoWaveData(dataRecord,
+        indexMap.keySet().toArray(new String[0]), ingestOptions.getVisibility())) {
       while (geowaveDataIt.hasNext()) {
         final GeoWaveData<?> geowaveData = (GeoWaveData<?>) geowaveDataIt.next();
         final DataTypeAdapter adapter = ingestRunData.getDataAdapter(geowaveData);

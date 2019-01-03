@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,11 +35,9 @@ public class HilbertSFCTest {
     final double[] testValues = new double[] {90, 180};
     final long expectedID = 3074457345618258602L;
 
-    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS =
-        new SFCDimensionDefinition[] {
-          new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
-          new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)
-        };
+    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS = new SFCDimensionDefinition[] {
+        new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
+        new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)};
 
     final SpaceFillingCurve hilbertSFC =
         SFCFactory.createSpaceFillingCurve(SPATIAL_DIMENSIONS, SFCType.HILBERT);
@@ -54,11 +53,9 @@ public class HilbertSFCTest {
     final double[] testValues = new double[] {-90, -180};
     final long expectedID = 0L;
 
-    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS =
-        new SFCDimensionDefinition[] {
-          new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
-          new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)
-        };
+    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS = new SFCDimensionDefinition[] {
+        new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
+        new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)};
 
     final SpaceFillingCurve hilbertSFC =
         SFCFactory.createSpaceFillingCurve(SPATIAL_DIMENSIONS, SFCType.HILBERT);
@@ -75,11 +72,9 @@ public class HilbertSFCTest {
     final double[] testValues = new double[] {0, 0};
     final long expectedID = 768614336404564650L;
 
-    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS =
-        new SFCDimensionDefinition[] {
-          new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
-          new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)
-        };
+    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS = new SFCDimensionDefinition[] {
+        new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
+        new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)};
 
     final SpaceFillingCurve hilbertSFC =
         SFCFactory.createSpaceFillingCurve(SPATIAL_DIMENSIONS, SFCType.HILBERT);
@@ -95,19 +90,15 @@ public class HilbertSFCTest {
     final double[] minValue = new double[] {-90, -180};
     final double[] maxValue = new double[] {90, 180};
 
-    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS =
-        new SFCDimensionDefinition[] {
-          new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
-          new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)
-        };
+    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS = new SFCDimensionDefinition[] {
+        new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
+        new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)};
 
     final SpaceFillingCurve hilbertSFC =
         SFCFactory.createSpaceFillingCurve(SPATIAL_DIMENSIONS, SFCType.HILBERT);
 
-    Assert.assertTrue(
-        SignedBytes.lexicographicalComparator()
-                .compare(hilbertSFC.getId(minValue), hilbertSFC.getId(maxValue))
-            < 0);
+    Assert.assertTrue(SignedBytes.lexicographicalComparator().compare(hilbertSFC.getId(minValue),
+        hilbertSFC.getId(maxValue)) < 0);
   }
 
   // @Test(expected = IllegalArgumentException.class)
@@ -119,11 +110,9 @@ public class HilbertSFCTest {
     final double[] testValues = new double[] {-100, -180};
     final long expectedID = 0L;
 
-    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS =
-        new SFCDimensionDefinition[] {
-          new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
-          new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)
-        };
+    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS = new SFCDimensionDefinition[] {
+        new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS),
+        new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS)};
 
     final SpaceFillingCurve hilbertSFC =
         SFCFactory.createSpaceFillingCurve(SPATIAL_DIMENSIONS, SFCType.HILBERT);
@@ -137,11 +126,9 @@ public class HilbertSFCTest {
     final int LATITUDE_BITS = 31;
     final int LONGITUDE_BITS = 31;
 
-    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS =
-        new SFCDimensionDefinition[] {
-          new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS),
-          new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS)
-        };
+    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS = new SFCDimensionDefinition[] {
+        new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS),
+        new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS)};
 
     final SpaceFillingCurve hilbertSFC =
         SFCFactory.createSpaceFillingCurve(SPATIAL_DIMENSIONS, SFCType.HILBERT);
@@ -165,11 +152,9 @@ public class HilbertSFCTest {
     final int LATITUDE_BITS = 31;
     final int LONGITUDE_BITS = 31;
 
-    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS =
-        new SFCDimensionDefinition[] {
-          new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS),
-          new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS)
-        };
+    final SFCDimensionDefinition[] SPATIAL_DIMENSIONS = new SFCDimensionDefinition[] {
+        new SFCDimensionDefinition(new LongitudeDefinition(), LONGITUDE_BITS),
+        new SFCDimensionDefinition(new LatitudeDefinition(), LATITUDE_BITS)};
 
     final SpaceFillingCurve hilbertSFC =
         SFCFactory.createSpaceFillingCurve(SPATIAL_DIMENSIONS, SFCType.HILBERT);

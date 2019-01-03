@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -104,39 +105,26 @@ public class NNMapReduce {
     protected final PartitionDataWritable partitionDataWritable = new PartitionDataWritable();
 
     @Override
-    protected void map(
-        final GeoWaveInputKey key,
-        final Object value,
-        final Mapper<GeoWaveInputKey, Object, PartitionDataWritable, AdapterWithObjectWritable>
-                .Context
-            context)
+    protected void map(final GeoWaveInputKey key, final Object value,
+        final Mapper<GeoWaveInputKey, Object, PartitionDataWritable, AdapterWithObjectWritable>.Context context)
         throws IOException, InterruptedException {
 
       @SuppressWarnings("unchecked")
-      final T unwrappedValue =
-          (T)
-              ((value instanceof ObjectWritable)
-                  ? serializationTool.fromWritable(
-                      key.getInternalAdapterId(), (ObjectWritable) value)
-                  : value);
+      final T unwrappedValue = (T) ((value instanceof ObjectWritable)
+          ? serializationTool.fromWritable(key.getInternalAdapterId(), (ObjectWritable) value)
+          : value);
       try {
-        partitioner.partition(
-            unwrappedValue,
-            new PartitionDataCallback() {
+        partitioner.partition(unwrappedValue, new PartitionDataCallback() {
 
-              @Override
-              public void partitionWith(final PartitionData partitionData) throws Exception {
-                outputValue.setInternalAdapterId(key.getInternalAdapterId());
-                AdapterWithObjectWritable.fillWritableWithAdapter(
-                    serializationTool,
-                    outputValue,
-                    key.getInternalAdapterId(),
-                    key.getDataId(),
-                    unwrappedValue);
-                partitionDataWritable.setPartitionData(partitionData);
-                context.write(partitionDataWritable, outputValue);
-              }
-            });
+          @Override
+          public void partitionWith(final PartitionData partitionData) throws Exception {
+            outputValue.setInternalAdapterId(key.getInternalAdapterId());
+            AdapterWithObjectWritable.fillWritableWithAdapter(serializationTool, outputValue,
+                key.getInternalAdapterId(), key.getDataId(), unwrappedValue);
+            partitionDataWritable.setPartitionData(partitionData);
+            context.write(partitionDataWritable, outputValue);
+          }
+        });
       } catch (final IOException e) {
         throw e;
       } catch (final Exception e) {
@@ -147,20 +135,15 @@ public class NNMapReduce {
     @SuppressWarnings("unchecked")
     @Override
     protected void setup(
-        final Mapper<GeoWaveInputKey, Object, PartitionDataWritable, AdapterWithObjectWritable>
-                .Context
-            context)
+        final Mapper<GeoWaveInputKey, Object, PartitionDataWritable, AdapterWithObjectWritable>.Context context)
         throws IOException, InterruptedException {
       super.setup(context);
       final ScopedJobConfiguration config =
           new ScopedJobConfiguration(context.getConfiguration(), NNMapReduce.class, LOGGER);
       serializationTool = new HadoopWritableSerializationTool(context);
       try {
-        partitioner =
-            config.getInstance(
-                PartitionParameters.Partition.PARTITIONER_CLASS,
-                Partitioner.class,
-                OrthodromicDistancePartitioner.class);
+        partitioner = config.getInstance(PartitionParameters.Partition.PARTITIONER_CLASS,
+            Partitioner.class, OrthodromicDistancePartitioner.class);
 
         partitioner.initialize(context, NNMapReduce.class);
       } catch (final Exception e1) {
@@ -177,30 +160,26 @@ public class NNMapReduce {
     protected int maxNeighbors = Integer.MAX_VALUE;
     protected Partitioner<Object> partitioner;
 
-    protected TypeConverter<VALUEIN> typeConverter =
-        new TypeConverter<VALUEIN>() {
+    protected TypeConverter<VALUEIN> typeConverter = new TypeConverter<VALUEIN>() {
 
-          @SuppressWarnings("unchecked")
-          @Override
-          public VALUEIN convert(final ByteArray id, final Object o) {
-            return (VALUEIN) o;
-          }
-        };
+      @SuppressWarnings("unchecked")
+      @Override
+      public VALUEIN convert(final ByteArray id, final Object o) {
+        return (VALUEIN) o;
+      }
+    };
 
     protected DistanceProfileGenerateFn<?, VALUEIN> distanceProfileFn =
         new LocalDistanceProfileGenerateFn();
 
     @Override
-    protected void reduce(
-        final PartitionDataWritable key,
+    protected void reduce(final PartitionDataWritable key,
         final Iterable<AdapterWithObjectWritable> values,
-        final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context
-            context)
+        final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context)
         throws IOException, InterruptedException {
 
-      final NNProcessor<Object, VALUEIN> processor =
-          new NNProcessor<Object, VALUEIN>(
-              partitioner, typeConverter, distanceProfileFn, maxDistance, key.partitionData);
+      final NNProcessor<Object, VALUEIN> processor = new NNProcessor<Object, VALUEIN>(partitioner,
+          typeConverter, distanceProfileFn, maxDistance, key.partitionData);
 
       processor.setUpperBoundPerPartition(maxNeighbors);
 
@@ -216,18 +195,15 @@ public class NNMapReduce {
 
       preprocess(context, processor, summary);
 
-      processor.process(
-          this.createNeighborsListFactory(summary),
-          new CompleteNotifier<VALUEIN>() {
-            @Override
-            public void complete(
-                final ByteArray id, final VALUEIN value, final NeighborList<VALUEIN> primaryList)
-                throws IOException, InterruptedException {
-              context.progress();
-              processNeighbors(key.partitionData, id, value, primaryList, context, summary);
-              processor.remove(id);
-            }
-          });
+      processor.process(this.createNeighborsListFactory(summary), new CompleteNotifier<VALUEIN>() {
+        @Override
+        public void complete(final ByteArray id, final VALUEIN value,
+            final NeighborList<VALUEIN> primaryList) throws IOException, InterruptedException {
+          context.progress();
+          processNeighbors(key.partitionData, id, value, primaryList, context, summary);
+          processor.remove(id);
+        }
+      });
 
       processSummary(key.partitionData, summary, context);
     }
@@ -245,10 +221,8 @@ public class NNMapReduce {
      * @return alternate startingPoint
      */
     protected void preprocess(
-        final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context
-            context,
-        final NNProcessor<Object, VALUEIN> processor,
-        final PARTITION_SUMMARY summary)
+        final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context,
+        final NNProcessor<Object, VALUEIN> processor, final PARTITION_SUMMARY summary)
         throws IOException, InterruptedException {}
 
     /** @Return an object that represents a summary of the neighbors processed */
@@ -260,9 +234,7 @@ public class NNMapReduce {
      * @param summary
      * @param context
      */
-    protected abstract void processSummary(
-        PartitionData partitionData,
-        PARTITION_SUMMARY summary,
+    protected abstract void processSummary(PartitionData partitionData, PARTITION_SUMMARY summary,
         Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context)
         throws IOException, InterruptedException;
 
@@ -271,34 +243,25 @@ public class NNMapReduce {
       return new HashSet<VALUEIN>();
     }
 
-    protected abstract void processNeighbors(
-        PartitionData partitionData,
-        ByteArray primaryId,
-        VALUEIN primary,
-        NeighborList<VALUEIN> neighbors,
+    protected abstract void processNeighbors(PartitionData partitionData, ByteArray primaryId,
+        VALUEIN primary, NeighborList<VALUEIN> neighbors,
         Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context,
-        PARTITION_SUMMARY summary)
-        throws IOException, InterruptedException;
+        PARTITION_SUMMARY summary) throws IOException, InterruptedException;
 
     @SuppressWarnings("unchecked")
     @Override
     protected void setup(
-        final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context
-            context)
+        final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context)
         throws IOException, InterruptedException {
 
-      final ScopedJobConfiguration config =
-          new ScopedJobConfiguration(
-              context.getConfiguration(), NNMapReduce.class, NNMapReduce.LOGGER);
+      final ScopedJobConfiguration config = new ScopedJobConfiguration(context.getConfiguration(),
+          NNMapReduce.class, NNMapReduce.LOGGER);
 
       serializationTool = new HadoopWritableSerializationTool(context);
 
       try {
-        distanceFn =
-            config.getInstance(
-                CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-                DistanceFn.class,
-                FeatureGeometryDistanceFn.class);
+        distanceFn = config.getInstance(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
+            DistanceFn.class, FeatureGeometryDistanceFn.class);
       } catch (InstantiationException | IllegalAccessException e) {
         throw new IOException(e);
       }
@@ -307,11 +270,8 @@ public class NNMapReduce {
 
       try {
         LOGGER.info("Using secondary partitioning");
-        partitioner =
-            config.getInstance(
-                PartitionParameters.Partition.SECONDARY_PARTITIONER_CLASS,
-                Partitioner.class,
-                PassthruPartitioner.class);
+        partitioner = config.getInstance(PartitionParameters.Partition.SECONDARY_PARTITIONER_CLASS,
+            Partitioner.class, PassthruPartitioner.class);
         ((ParameterHelper<Double>) Partition.PARTITION_PRECISION.getHelper())
             .setValue(context.getConfiguration(), NNMapReduce.class, new Double(1.0));
         partitioner.initialize(context, NNMapReduce.class);
@@ -319,10 +279,8 @@ public class NNMapReduce {
         throw new IOException(e1);
       }
 
-      maxNeighbors =
-          config.getInt(
-              PartitionParameters.Partition.MAX_MEMBER_SELECTION,
-              NNProcessor.DEFAULT_UPPER_BOUND_PARTIION_SIZE);
+      maxNeighbors = config.getInt(PartitionParameters.Partition.MAX_MEMBER_SELECTION,
+          NNProcessor.DEFAULT_UPPER_BOUND_PARTIION_SIZE);
 
       LOGGER.info("Maximum Neighbors = {}", maxNeighbors);
     }
@@ -349,14 +307,10 @@ public class NNMapReduce {
     final byte[] sepBytes = new byte[] {0x2c};
 
     @Override
-    protected void processNeighbors(
-        final PartitionData partitionData,
-        final ByteArray primaryId,
-        final SimpleFeature primary,
-        final NeighborList<SimpleFeature> neighbors,
+    protected void processNeighbors(final PartitionData partitionData, final ByteArray primaryId,
+        final SimpleFeature primary, final NeighborList<SimpleFeature> neighbors,
         final Reducer<PartitionDataWritable, AdapterWithObjectWritable, Text, Text>.Context context,
-        final Boolean summary)
-        throws IOException, InterruptedException {
+        final Boolean summary) throws IOException, InterruptedException {
       if ((neighbors == null) || (neighbors.size() == 0)) {
         return;
       }
@@ -387,9 +341,7 @@ public class NNMapReduce {
     }
 
     @Override
-    protected void processSummary(
-        final PartitionData partitionData,
-        final Boolean summary,
+    protected void processSummary(final PartitionData partitionData, final Boolean summary,
         final org.apache.hadoop.mapreduce.Reducer.Context context) {
       // do nothing
     }
@@ -427,17 +379,12 @@ public class NNMapReduce {
 
     @Override
     public int compareTo(final PartitionDataWritable o) {
-      final int val =
-          UnsignedBytes.lexicographicalComparator()
-              .compare(
-                  partitionData.getCompositeKey().getBytes(),
-                  o.partitionData.getCompositeKey().getBytes());
-      if ((val == 0)
-          && (o.partitionData.getGroupId() != null)
+      final int val = UnsignedBytes.lexicographicalComparator().compare(
+          partitionData.getCompositeKey().getBytes(), o.partitionData.getCompositeKey().getBytes());
+      if ((val == 0) && (o.partitionData.getGroupId() != null)
           && (partitionData.getGroupId() != null)) {
-        return UnsignedBytes.lexicographicalComparator()
-            .compare(
-                partitionData.getGroupId().getBytes(), o.partitionData.getGroupId().getBytes());
+        return UnsignedBytes.lexicographicalComparator().compare(
+            partitionData.getGroupId().getBytes(), o.partitionData.getGroupId().getBytes());
       }
       return val;
     }
@@ -486,9 +433,8 @@ public class NNMapReduce {
     @Override
     public void initialize(final JobContext context, final Class<?> scope) throws IOException {}
 
-    private static final List<PartitionData> FixedPartition =
-        Collections.singletonList(
-            new PartitionData(new ByteArray(new byte[] {}), new ByteArray("1"), true));
+    private static final List<PartitionData> FixedPartition = Collections
+        .singletonList(new PartitionData(new ByteArray(new byte[] {}), new ByteArray("1"), true));
 
     @Override
     public List<PartitionData> getCubeIdentifiers(final T entry) {
@@ -506,9 +452,7 @@ public class NNMapReduce {
     }
 
     @Override
-    public void setup(
-        final PropertyManagement runTimeProperties,
-        final Class<?> scope,
+    public void setup(final PropertyManagement runTimeProperties, final Class<?> scope,
         final Configuration configuration) {}
   }
 }

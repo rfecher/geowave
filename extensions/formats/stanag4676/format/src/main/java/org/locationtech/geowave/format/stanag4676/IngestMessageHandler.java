@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -121,13 +122,8 @@ public class IngestMessageHandler implements ProcessMessage {
                   height = img.getHeight();
                 }
               }
-              timesWithImageChips.put(
-                  imagery.getTime(),
-                  new ImageChipInfo(
-                      img,
-                      imagery.getFrameNumber(),
-                      imagery.getPixelRow(),
-                      imagery.getPixelColumn()));
+              timesWithImageChips.put(imagery.getTime(), new ImageChipInfo(img,
+                  imagery.getFrameNumber(), imagery.getPixelRow(), imagery.getPixelColumn()));
             } catch (final Exception e) {
               LOGGER.warn("Unable to write image chip to file", e);
             }
@@ -137,8 +133,7 @@ public class IngestMessageHandler implements ProcessMessage {
             final BufferedImage img = chipInfo.getValue().getImage();
             if (img != null) {
               final BufferedImage scaledImage =
-                  toBufferedImage(
-                      img.getScaledInstance(width, height, Image.SCALE_SMOOTH),
+                  toBufferedImage(img.getScaledInstance(width, height, Image.SCALE_SMOOTH),
                       BufferedImage.TYPE_3BYTE_BGR);
               chipInfo.getValue().setImage(scaledImage);
               try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -167,10 +162,8 @@ public class IngestMessageHandler implements ProcessMessage {
             final double longitude = pt.getLocation().longitude;
             final double elevation = pt.getLocation().elevation;
 
-            final byte[] geometry =
-                wkbWriter.write(
-                    GeometryUtils.GEOMETRY_FACTORY.createPoint(
-                        new Coordinate(longitude, latitude)));
+            final byte[] geometry = wkbWriter.write(
+                GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(longitude, latitude)));
 
             double detailLatitude = Stanag4676EventWritable.NO_DETAIL;
             double detailLongitude = Stanag4676EventWritable.NO_DETAIL;
@@ -180,10 +173,8 @@ public class IngestMessageHandler implements ProcessMessage {
               detailLatitude = pt.getDetail().getLocation().latitude;
               detailLongitude = pt.getDetail().getLocation().longitude;
               detailElevation = pt.getDetail().getLocation().elevation;
-              detailGeometry =
-                  wkbWriter.write(
-                      GeometryUtils.GEOMETRY_FACTORY.createPoint(
-                          new Coordinate(detailLongitude, detailLatitude)));
+              detailGeometry = wkbWriter.write(GeometryUtils.GEOMETRY_FACTORY
+                  .createPoint(new Coordinate(detailLongitude, detailLatitude)));
             }
 
             final ImageChipInfo chipInfo = timesWithImageChips.get(timeStamp);
@@ -198,41 +189,19 @@ public class IngestMessageHandler implements ProcessMessage {
               imageBytes = chipInfo.getImageBytes();
             }
             Stanag4676EventWritable sw = new Stanag4676EventWritable();
-            sw.setTrackPointData(
-                geometry,
-                detailGeometry,
-                imageBytes,
-                missionUUID,
-                trackNumber,
-                trackUuid,
-                trackStatus,
-                trackClassification,
-                trackItemUUID,
-                trackPointSource,
-                timeStamp,
-                endTimeStamp,
-                speed,
-                course,
-                trackItemClassification,
-                latitude,
-                longitude,
-                elevation,
-                detailLatitude,
-                detailLongitude,
-                detailElevation,
-                pixelRow,
-                pixelColumn,
-                frameNumber);
+            sw.setTrackPointData(geometry, detailGeometry, imageBytes, missionUUID, trackNumber,
+                trackUuid, trackStatus, trackClassification, trackItemUUID, trackPointSource,
+                timeStamp, endTimeStamp, speed, course, trackItemClassification, latitude,
+                longitude, elevation, detailLatitude, detailLongitude, detailElevation, pixelRow,
+                pixelColumn, frameNumber);
 
-            intermediateData.add(
-                new KeyValueData<Text, Stanag4676EventWritable>(new Text(trackUuid), sw));
+            intermediateData
+                .add(new KeyValueData<Text, Stanag4676EventWritable>(new Text(trackUuid), sw));
           }
 
           for (final MotionEventPoint pt : evt.getMotionPoints().values()) {
-            final byte[] geometry =
-                wkbWriter.write(
-                    GeometryUtils.GEOMETRY_FACTORY.createPoint(
-                        new Coordinate(pt.getLocation().longitude, pt.getLocation().latitude)));
+            final byte[] geometry = wkbWriter.write(GeometryUtils.GEOMETRY_FACTORY.createPoint(
+                new Coordinate(pt.getLocation().longitude, pt.getLocation().latitude)));
             final String trackItemUUID = pt.getUuid();
             final long timeStamp = pt.getEventTime();
             final long endTimeStamp = pt.getEndTime();
@@ -261,32 +230,14 @@ public class IngestMessageHandler implements ProcessMessage {
             final String motionEvent = pt.motionEvent;
 
             Stanag4676EventWritable sw = new Stanag4676EventWritable();
-            sw.setMotionPointData(
-                geometry,
-                imageBytes,
-                missionUUID,
-                trackNumber,
-                trackUuid,
-                trackStatus,
-                trackClassification,
-                trackItemUUID,
-                trackPointSource,
-                timeStamp,
-                endTimeStamp,
-                speed,
-                course,
-                trackItemClassification,
-                latitude,
-                longitude,
-                elevation,
-                pixelRow,
-                pixelColumn,
-                frameNumber,
-                motionEvent);
+            sw.setMotionPointData(geometry, imageBytes, missionUUID, trackNumber, trackUuid,
+                trackStatus, trackClassification, trackItemUUID, trackPointSource, timeStamp,
+                endTimeStamp, speed, course, trackItemClassification, latitude, longitude,
+                elevation, pixelRow, pixelColumn, frameNumber, motionEvent);
 
             // motion events emitted, grouped by track
-            intermediateData.add(
-                new KeyValueData<Text, Stanag4676EventWritable>(new Text(trackUuid), sw));
+            intermediateData
+                .add(new KeyValueData<Text, Stanag4676EventWritable>(new Text(trackUuid), sw));
           }
 
           for (TrackClassification tc : evt.getClassifications()) {
@@ -296,11 +247,11 @@ public class IngestMessageHandler implements ProcessMessage {
             int objectClassRel = tc.credibility.getSourceReliability();
 
             Stanag4676EventWritable sw = new Stanag4676EventWritable();
-            sw.setTrackObjectClassData(
-                objectClassTime, objectClass, objectClassConf, objectClassRel);
+            sw.setTrackObjectClassData(objectClassTime, objectClass, objectClassConf,
+                objectClassRel);
 
-            intermediateData.add(
-                new KeyValueData<Text, Stanag4676EventWritable>(new Text(trackUuid), sw));
+            intermediateData
+                .add(new KeyValueData<Text, Stanag4676EventWritable>(new Text(trackUuid), sw));
           }
         }
       }
@@ -320,23 +271,17 @@ public class IngestMessageHandler implements ProcessMessage {
         String missionClassification = missionSummary.getSecurity();
         StringBuilder sb = new StringBuilder();
         for (final ObjectClassification oc : missionSummary.getClassifications()) {
-          if (sb.length() > 0) sb.append(",");
+          if (sb.length() > 0)
+            sb.append(",");
           sb.append(oc.toString());
         }
         String activeObjectClass = sb.toString();
         Stanag4676EventWritable msw = new Stanag4676EventWritable();
-        msw.setMissionSummaryData(
-            missionGeometry,
-            missionUUID,
-            missionName,
-            missionNumFrames,
-            missionStartTime,
-            missionEndTime,
-            missionClassification,
-            activeObjectClass);
+        msw.setMissionSummaryData(missionGeometry, missionUUID, missionName, missionNumFrames,
+            missionStartTime, missionEndTime, missionClassification, activeObjectClass);
 
-        intermediateData.add(
-            new KeyValueData<Text, Stanag4676EventWritable>(new Text(missionUUID), msw));
+        intermediateData
+            .add(new KeyValueData<Text, Stanag4676EventWritable>(new Text(missionUUID), msw));
 
         for (MissionFrame frame : missionSummary.getFrames()) {
           if (frame != null && frame.getCoverageArea() != null) {
@@ -346,8 +291,8 @@ public class IngestMessageHandler implements ProcessMessage {
             int frameNumber = frame.getFrameNumber();
             Stanag4676EventWritable fsw = new Stanag4676EventWritable();
             fsw.setMissionFrameData(frameGeometry, missionUUID, frameNumber, frameTimeStamp);
-            intermediateData.add(
-                new KeyValueData<Text, Stanag4676EventWritable>(new Text(missionUUID), fsw));
+            intermediateData
+                .add(new KeyValueData<Text, Stanag4676EventWritable>(new Text(missionUUID), fsw));
           }
         }
       }

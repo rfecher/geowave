@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,8 +23,7 @@ public class DownloadRunner extends AnalyzeRunner {
 
   protected Sentinel2DownloadCommandLineOptions downloadOptions;
 
-  public DownloadRunner(
-      final Sentinel2BasicCommandLineOptions analyzeOptions,
+  public DownloadRunner(final Sentinel2BasicCommandLineOptions analyzeOptions,
       final Sentinel2DownloadCommandLineOptions downloadOptions) {
     super(analyzeOptions);
     this.downloadOptions = downloadOptions;
@@ -54,18 +54,16 @@ public class DownloadRunner extends AnalyzeRunner {
       return;
     }
     if (!sceneDir.getParentFile().exists() && !sceneDir.getParentFile().mkdirs()) {
-      LOGGER.warn(
-          "Unable to create directory '" + sceneDir.getParentFile().getAbsolutePath() + "'");
+      LOGGER
+          .warn("Unable to create directory '" + sceneDir.getParentFile().getAbsolutePath() + "'");
     }
 
     // Download files of scene
     try {
       provider.downloadScene(firstBandOfScene, workspaceDir, userIdent, password);
     } catch (IOException e) {
-      LOGGER.error(
-          "Unable to download scene '"
-              + firstBandOfScene.getAttribute(SceneFeatureIterator.PRODUCT_ID_ATTRIBUTE_NAME)
-              + "'");
+      LOGGER.error("Unable to download scene '"
+          + firstBandOfScene.getAttribute(SceneFeatureIterator.PRODUCT_ID_ATTRIBUTE_NAME) + "'");
     }
   }
 
@@ -90,8 +88,8 @@ public class DownloadRunner extends AnalyzeRunner {
    * @param scene
    * @param workspaceDirectory
    */
-  protected static void cleanDownloadedFiles(
-      final SimpleFeature scene, final String workspaceDirectory) {
+  protected static void cleanDownloadedFiles(final SimpleFeature scene,
+      final String workspaceDirectory) {
     final File sceneDir = getSceneDirectory(scene, workspaceDirectory);
     if (sceneDir.isDirectory()) {
       FileUtil.fullyDelete(sceneDir);

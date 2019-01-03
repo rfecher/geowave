@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,10 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @GeowaveOperation(name = "rmtype", parentOperation = RemoteSection.class)
-@Parameters(
-    hidden = true,
-    commandDescription =
-        "Remove an data type from the remote store and all associated data of that type")
+@Parameters(hidden = true,
+    commandDescription = "Remove an data type from the remote store and all associated data of that type")
 public class RemoveTypeCommand extends ServiceEnabledCommand<Void> {
   private static final Logger LOGGER = LoggerFactory.getLogger(RemoveTypeCommand.class);
 
@@ -81,8 +80,7 @@ public class RemoveTypeCommand extends ServiceEnabledCommand<Void> {
     inputStoreOptions = inputStoreLoader.getDataStorePlugin();
 
     LOGGER.info("Deleting everything in store: " + inputStoreName + " with type name: " + typeName);
-    inputStoreOptions
-        .createDataStore()
+    inputStoreOptions.createDataStore()
         .delete(QueryBuilder.newBuilder().addTypeName(typeName).build());
     return null;
   }

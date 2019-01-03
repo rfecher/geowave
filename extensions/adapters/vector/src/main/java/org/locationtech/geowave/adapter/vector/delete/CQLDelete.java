@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -47,23 +48,17 @@ public class CQLDelete extends DefaultOperation implements Command {
   @Parameter(names = "--cql", required = true, description = "CQL Filter for delete")
   private String cqlStr;
 
-  @Parameter(
-      names = "--indexName",
-      required = false,
+  @Parameter(names = "--indexName", required = false,
       description = "The name of the index (optional)",
       converter = StringToByteArrayConverter.class)
   private String indexName;
 
-  @Parameter(
-      names = "--typeName",
-      required = false,
+  @Parameter(names = "--typeName", required = false,
       description = "Optional ability to provide a type name for the data adapter",
       converter = StringToByteArrayConverter.class)
   private String typeName;
 
-  @Parameter(
-      names = "--debug",
-      required = false,
+  @Parameter(names = "--debug", required = false,
       description = "Print out additional info for debug purposes")
   private boolean debug = false;
 
@@ -97,9 +92,8 @@ public class CQLDelete extends DefaultOperation implements Command {
 
     final GeotoolsFeatureDataAdapter adapter;
     if (typeName != null) {
-      adapter =
-          (GeotoolsFeatureDataAdapter)
-              adapterStore.getAdapter(internalAdapterStore.getAdapterId(typeName)).getAdapter();
+      adapter = (GeotoolsFeatureDataAdapter) adapterStore
+          .getAdapter(internalAdapterStore.getAdapterId(typeName)).getAdapter();
     } else {
       final CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters();
       adapter = (GeotoolsFeatureDataAdapter) it.next().getAdapter();
@@ -119,20 +113,13 @@ public class CQLDelete extends DefaultOperation implements Command {
     }
   }
 
-  protected long delete(
-      final GeotoolsFeatureDataAdapter adapter,
-      final String typeName,
-      final String indexName,
-      final DataStore dataStore,
-      final boolean debug) {
+  protected long delete(final GeotoolsFeatureDataAdapter adapter, final String typeName,
+      final String indexName, final DataStore dataStore, final boolean debug) {
     long missed = 0;
 
     final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
-    final Query<SimpleFeature> query =
-        bldr.addTypeName(typeName)
-            .indexName(indexName)
-            .constraints(bldr.constraintsFactory().cqlConstraints(cqlStr))
-            .build();
+    final Query<SimpleFeature> query = bldr.addTypeName(typeName).indexName(indexName)
+        .constraints(bldr.constraintsFactory().cqlConstraints(cqlStr)).build();
     final boolean success = dataStore.delete(query);
 
     if (debug) {

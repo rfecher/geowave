@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -210,32 +211,20 @@ public class NATO4676Encoder implements TrackEncoder {
       sec = defaultSecurity;
     }
     indentLevel++;
-    pw.write(
-        indent()
-            + "<securityClassification>"
-            + sec.getClassification()
-            + "</securityClassification>\n");
+    pw.write(indent() + "<securityClassification>" + sec.getClassification()
+        + "</securityClassification>\n");
     pw.write(indent() + "<securityPolicyName>" + sec.getPolicyName() + "</securityPolicyName>\n");
     if (sec.getControlSystem() != null) {
-      pw.write(
-          indent()
-              + "<securityControlSystem>"
-              + sec.getControlSystem()
-              + "</securityControlSystem>\n");
+      pw.write(indent() + "<securityControlSystem>" + sec.getControlSystem()
+          + "</securityControlSystem>\n");
     }
     if (sec.getDissemination() != null) {
-      pw.write(
-          indent()
-              + "<securityDissemination>"
-              + sec.getDissemination()
-              + "</securityDissemination>\n");
+      pw.write(indent() + "<securityDissemination>" + sec.getDissemination()
+          + "</securityDissemination>\n");
     }
     if (sec.getReleasability() != null) {
-      pw.write(
-          indent()
-              + "<securityReleasability>"
-              + sec.getReleasability()
-              + "</securityReleasability>\n");
+      pw.write(indent() + "<securityReleasability>" + sec.getReleasability()
+          + "</securityReleasability>\n");
     }
     indentLevel--;
   }
@@ -264,27 +253,18 @@ public class NATO4676Encoder implements TrackEncoder {
       pw.write(indent() + "<missionID>" + event.getMissionId() + "</missionID>\n");
     }
     if (event.getExerciseIndicator() != null) {
-      pw.write(
-          indent()
-              + "<exerciseIndicator>"
-              + event.getExerciseIndicator()
-              + "</exerciseIndicator>\n");
+      pw.write(indent() + "<exerciseIndicator>" + event.getExerciseIndicator()
+          + "</exerciseIndicator>\n");
     } else {
       pw.write(
           indent() + "<exerciseIndicator>" + defaultExerciseIndicator + "</exerciseIndicator>\n");
     }
     if (event.getSimulationIndicator() != null) {
-      pw.write(
-          indent()
-              + "<simulationIndicator>"
-              + event.getSimulationIndicator()
-              + "</simulationIndicator>\n");
+      pw.write(indent() + "<simulationIndicator>" + event.getSimulationIndicator()
+          + "</simulationIndicator>\n");
     } else {
-      pw.write(
-          indent()
-              + "<simulationIndicator>"
-              + defaultSimulationIndicator
-              + "</simulationIndicator>\n");
+      pw.write(indent() + "<simulationIndicator>" + defaultSimulationIndicator
+          + "</simulationIndicator>\n");
     }
     for (final TrackPoint point : event.getPoints().values()) {
       pw.write(indent() + "<items xsi:type=\"TrackPoint\">\n");
@@ -408,11 +388,8 @@ public class NATO4676Encoder implements TrackEncoder {
       pw.write(indent() + "<classificationCredibility>\n");
       indentLevel++;
       pw.write(indent() + "<valueConfidence>" + cred.getValueConfidence() + "</valueConfidence>\n");
-      pw.write(
-          indent()
-              + "<sourceReliability>"
-              + cred.getSourceReliability()
-              + "</sourceReliability>\n");
+      pw.write(indent() + "<sourceReliability>" + cred.getSourceReliability()
+          + "</sourceReliability>\n");
       indentLevel--;
       pw.write(indent() + "</classificationCredibility>\n");
     }
@@ -482,8 +459,7 @@ public class NATO4676Encoder implements TrackEncoder {
     Encode(detail.getLocation());
     pw.write(indent() + "</pointDetailPosition>\n");
 
-    if ((detail.getVelocityX() != null)
-        || (detail.getVelocityY() != null)
+    if ((detail.getVelocityX() != null) || (detail.getVelocityY() != null)
         || (detail.getVelocityZ() != null)) {
       pw.write(indent() + "<pointDetailVelocity xsi:type=\"LocalCartesianVelocity\">\n");
       indentLevel++;
@@ -505,8 +481,7 @@ public class NATO4676Encoder implements TrackEncoder {
       indentLevel--;
       pw.write(indent() + "</pointDetailVelocity>\n");
     }
-    if ((detail.getAccelerationX() != null)
-        || (detail.getAccelerationY() != null)
+    if ((detail.getAccelerationX() != null) || (detail.getAccelerationY() != null)
         || (detail.getAccelerationZ() != null)) {
       pw.write(indent() + "<pointDetailAcceleration xsi:type=\"LocalCartesianAcceleration\">\n");
       indentLevel++;

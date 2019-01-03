@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,9 +45,8 @@ public class TypeUtils {
     return os.toByteArray();
   }
 
-  private static <T> T deserialize(
-      final T avroObject, final byte[] avroData, Class<T> avroClass, Schema avroSchema)
-      throws IOException {
+  private static <T> T deserialize(final T avroObject, final byte[] avroData, Class<T> avroClass,
+      Schema avroSchema) throws IOException {
     BinaryDecoder decoder = df.binaryDecoder(avroData, null);
     if (!readers.containsKey(avroClass.toString())) {
       readers.put(avroClass.toString(), new SpecificDatumReader(avroSchema));
@@ -55,13 +55,13 @@ public class TypeUtils {
     return reader.read(avroObject, decoder);
   }
 
-  public static AvroLongArray deserializeLongArray(
-      final byte[] avroData, AvroLongArray reusableInstance) throws IOException {
+  public static AvroLongArray deserializeLongArray(final byte[] avroData,
+      AvroLongArray reusableInstance) throws IOException {
     if (reusableInstance == null) {
       reusableInstance = new AvroLongArray();
     }
-    return deserialize(
-        reusableInstance, avroData, AvroLongArray.class, AvroLongArray.getClassSchema());
+    return deserialize(reusableInstance, avroData, AvroLongArray.class,
+        AvroLongArray.getClassSchema());
   }
 
   public static byte[] serializeLongArray(AvroLongArray avroObject) throws IOException {

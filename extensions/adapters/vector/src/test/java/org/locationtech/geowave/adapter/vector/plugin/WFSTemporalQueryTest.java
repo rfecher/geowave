@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,6 @@ package org.locationtech.geowave.adapter.vector.plugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.UUID;
@@ -45,13 +45,10 @@ public class WFSTemporalQueryTest extends BaseDataStoreTest {
   @Before
   public void setup() throws SchemaException, CQLException, IOException, GeoWavePluginException {
     dataStore = createDataStore();
-    ((GeoWaveGTDataStore) dataStore)
-        .indexStore.addIndex(
-            new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()));
-    type =
-        DataUtilities.createType(
-            "geostuff",
-            "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,start:Date,end:Date");
+    ((GeoWaveGTDataStore) dataStore).indexStore
+        .addIndex(new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()));
+    type = DataUtilities.createType("geostuff",
+        "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,start:Date,end:Date");
 
     dataStore.createSchema(type);
   }
@@ -95,12 +92,9 @@ public class WFSTemporalQueryTest extends BaseDataStoreTest {
 
     populate();
     final Transaction transaction2 = new DefaultTransaction();
-    final Query query =
-        new Query(
-            "geostuff",
-            CQL.toFilter(
-                "BBOX(geometry,44,27,42,30) and start during 2005-05-16T20:32:56Z/2005-05-20T21:32:56Z and end during 2005-05-18T20:32:56Z/2005-05-22T21:32:56Z"),
-            new String[] {"geometry", "start", "end", "pid"});
+    final Query query = new Query("geostuff", CQL.toFilter(
+        "BBOX(geometry,44,27,42,30) and start during 2005-05-16T20:32:56Z/2005-05-20T21:32:56Z and end during 2005-05-18T20:32:56Z/2005-05-22T21:32:56Z"),
+        new String[] {"geometry", "start", "end", "pid"});
     final FeatureReader<SimpleFeatureType, SimpleFeature> reader =
         dataStore.getFeatureReader(query, transaction2);
     int c = 0;

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -75,7 +76,7 @@ public interface DataTypeAdapter<T> extends DataReader<Object>, DataWriter<T, Ob
    * @param model the index model
    * @param position the position
    * @return the field name, if its part of the common index model, it should be the common field
-   *     name
+   *         name
    */
   public String getFieldNameForPosition(CommonIndexModel model, int position);
 }

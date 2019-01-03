@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -10,7 +11,9 @@ package org.locationtech.geowave.datastore.hbase.server;
 
 import org.locationtech.geowave.core.index.ByteArray;
 
-public interface GeowaveColumnId {}
+public interface GeowaveColumnId {
+}
+
 
 class ShortColumnId implements GeowaveColumnId {
   @Override
@@ -23,11 +26,15 @@ class ShortColumnId implements GeowaveColumnId {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     ShortColumnId other = (ShortColumnId) obj;
-    if (columnId != other.columnId) return false;
+    if (columnId != other.columnId)
+      return false;
     return true;
   }
 
@@ -37,6 +44,7 @@ class ShortColumnId implements GeowaveColumnId {
     this.columnId = columnId;
   }
 }
+
 
 class ByteArrayColumnId implements GeowaveColumnId {
 
@@ -52,13 +60,18 @@ class ByteArrayColumnId implements GeowaveColumnId {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     ByteArrayColumnId other = (ByteArrayColumnId) obj;
     if (columnId == null) {
-      if (other.columnId != null) return false;
-    } else if (!columnId.equals(other.columnId)) return false;
+      if (other.columnId != null)
+        return false;
+    } else if (!columnId.equals(other.columnId))
+      return false;
     return true;
   }
 

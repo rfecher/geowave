@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,9 +29,8 @@ public class MainResource extends ServerResource {
     String output = "";
     try {
       final StringBuilder routeStringBuilder = new StringBuilder();
-      final ServletContext servletContext =
-          (ServletContext)
-              getContext().getAttributes().get("org.restlet.ext.servlet.ServletContext");
+      final ServletContext servletContext = (ServletContext) getContext().getAttributes()
+          .get("org.restlet.ext.servlet.ServletContext");
       final String userName = (String) servletContext.getAttribute("userName");
       final String apiKey = (String) servletContext.getAttribute("apiKey");
       final ArrayList<RestRoute> availableRoutes =
@@ -43,13 +43,8 @@ public class MainResource extends ServerResource {
       }
 
       if (userName != null && !userName.equals("")) {
-        output =
-            "<b>Welcome "
-                + userName
-                + "!</b><br><b>API key:</b> "
-                + apiKey
-                + "<br><br>"
-                + routeStringBuilder.toString();
+        output = "<b>Welcome " + userName + "!</b><br><b>API key:</b> " + apiKey + "<br><br>"
+            + routeStringBuilder.toString();
       } else {
         output = routeStringBuilder.toString();
       }

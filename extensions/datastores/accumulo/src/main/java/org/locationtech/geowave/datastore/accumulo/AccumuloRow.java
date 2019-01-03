@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,11 +36,8 @@ public class AccumuloRow implements GeoWaveRow {
     }
   }
 
-  public AccumuloRow(
-      final byte[] rowBytes,
-      final int partitionKeyLength,
-      final List<Map<Key, Value>> fieldValueMapList,
-      final boolean sortByTime) {
+  public AccumuloRow(final byte[] rowBytes, final int partitionKeyLength,
+      final List<Map<Key, Value>> fieldValueMapList, final boolean sortByTime) {
     // TODO: GEOWAVE-1018 - can we do something more clever that lazily
     // parses only whats required by the getter (and caches anything else
     // that is parsed)?
@@ -57,11 +55,8 @@ public class AccumuloRow implements GeoWaveRow {
 
     for (final Map<Key, Value> kvMap : fieldValueMapList) {
       for (final Entry<Key, Value> kv : kvMap.entrySet()) {
-        fieldValueList.add(
-            new GeoWaveValueImpl(
-                kv.getKey().getColumnQualifier().getBytes(),
-                kv.getKey().getColumnVisibility().getBytes(),
-                kv.getValue().get()));
+        fieldValueList.add(new GeoWaveValueImpl(kv.getKey().getColumnQualifier().getBytes(),
+            kv.getKey().getColumnVisibility().getBytes(), kv.getValue().get()));
       }
     }
 
@@ -78,12 +73,9 @@ public class AccumuloRow implements GeoWaveRow {
 
     for (final Map<Key, Value> kvMap : fieldValueMapList) {
       for (final Entry<Key, Value> kv : kvMap.entrySet()) {
-        fieldValueSortedMap.put(
-            kv.getKey().getTimestamp(),
-            new GeoWaveValueImpl(
-                kv.getKey().getColumnQualifier().getBytes(),
-                kv.getKey().getColumnVisibility().getBytes(),
-                kv.getValue().get()));
+        fieldValueSortedMap.put(kv.getKey().getTimestamp(),
+            new GeoWaveValueImpl(kv.getKey().getColumnQualifier().getBytes(),
+                kv.getKey().getColumnVisibility().getBytes(), kv.getValue().get()));
       }
     }
 

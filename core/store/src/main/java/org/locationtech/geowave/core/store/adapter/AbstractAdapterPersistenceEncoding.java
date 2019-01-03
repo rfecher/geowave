@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,17 +20,13 @@ import org.locationtech.geowave.core.store.index.CommonIndexValue;
 public abstract class AbstractAdapterPersistenceEncoding extends CommonIndexedPersistenceEncoding {
   protected final PersistentDataset<Object> adapterExtendedData;
 
-  public AbstractAdapterPersistenceEncoding(
-      final short internalAdapterId,
-      final ByteArray dataId,
-      final ByteArray partitionKey,
-      final ByteArray sortKey,
-      final int duplicateCount,
+  public AbstractAdapterPersistenceEncoding(final short internalAdapterId, final ByteArray dataId,
+      final ByteArray partitionKey, final ByteArray sortKey, final int duplicateCount,
       final PersistentDataset<CommonIndexValue> commonData,
       final PersistentDataset<byte[]> unknownData,
       final PersistentDataset<Object> adapterExtendedData) {
-    super(
-        internalAdapterId, dataId, partitionKey, sortKey, duplicateCount, commonData, unknownData);
+    super(internalAdapterId, dataId, partitionKey, sortKey, duplicateCount, commonData,
+        unknownData);
     this.adapterExtendedData = adapterExtendedData;
   }
 
@@ -48,6 +45,6 @@ public abstract class AbstractAdapterPersistenceEncoding extends CommonIndexedPe
    * @param adapter
    * @param model
    */
-  public abstract void convertUnknownValues(
-      final DataTypeAdapter<?> adapter, final CommonIndexModel model);
+  public abstract void convertUnknownValues(final DataTypeAdapter<?> adapter,
+      final CommonIndexModel model);
 }

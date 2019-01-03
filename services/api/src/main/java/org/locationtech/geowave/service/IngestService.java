@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,20 +29,17 @@ public interface IngestService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/kafkaToGW")
-  public Response kafkaToGW(
-      @QueryParam("store_name") String store_name,
+  public Response kafkaToGW(@QueryParam("store_name") String store_name,
       @QueryParam("index_group_list") String index_group_list, // Array of
       // Strings
       @QueryParam("kafkaPropertyFile") String kafkaPropertyFile,
-      @QueryParam("visibility") String visibility,
-      @QueryParam("groupId") String groupId,
+      @QueryParam("visibility") String visibility, @QueryParam("groupId") String groupId,
       @QueryParam("zookeeperConnect") String zookeeperConnect,
       @QueryParam("autoOffsetReset") String autoOffsetReset,
       @QueryParam("fetchMessageMaxBytes") String fetchMessageMaxBytes,
       @QueryParam("consumerTimeoutMs") String consumerTimeoutMs,
       @QueryParam("reconnectOnTimeout") Boolean reconnectOnTimeout,
-      @QueryParam("batchSize") Integer batchSize,
-      @QueryParam("extensions") String extensions, // Array
+      @QueryParam("batchSize") Integer batchSize, @QueryParam("extensions") String extensions, // Array
       // of
       // Strings
       @QueryParam("formats") String formats);
@@ -49,21 +47,18 @@ public interface IngestService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/localToGW")
-  public Response localToGW(
-      @QueryParam("file_or_directory") String file_or_directory,
+  public Response localToGW(@QueryParam("file_or_directory") String file_or_directory,
       @QueryParam("storename") String storename,
       @QueryParam("index_group_list") String index_group_list, // Array of
       // Strings
-      @QueryParam("threads") Integer threads,
-      @QueryParam("visibility") String visibility,
+      @QueryParam("threads") Integer threads, @QueryParam("visibility") String visibility,
       @QueryParam("extensions") String extensions, // Array of Strings
       @QueryParam("formats") String formats);
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/localToHdfs")
-  public Response localToHdfs(
-      @QueryParam("file_or_directory") String file_or_directory,
+  public Response localToHdfs(@QueryParam("file_or_directory") String file_or_directory,
       @QueryParam("path_to_base_directory_to_write_to") String path_to_base_directory_to_write_to,
       @QueryParam("extensions") String extensions, // Array of Strings
       @QueryParam("formats") String formats);
@@ -71,8 +66,7 @@ public interface IngestService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/localToKafka")
-  public Response localToKafka(
-      @QueryParam("file_or_directory") String file_or_directory,
+  public Response localToKafka(@QueryParam("file_or_directory") String file_or_directory,
       @QueryParam("kafkaPropertyFile") String kafkaPropertyFile,
       @QueryParam("metadataBrokerList") String metadataBrokerList,
       @QueryParam("requestRequiredAcks") String requestRequiredAcks,
@@ -85,8 +79,7 @@ public interface IngestService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/localToMrGW")
-  public Response localToMrGW(
-      @QueryParam("file_or_directory") String file_or_directory,
+  public Response localToMrGW(@QueryParam("file_or_directory") String file_or_directory,
       @QueryParam("path_to_base_directory_to_write_to") String path_to_base_directory_to_write_to,
       @QueryParam("store_name") String store_name,
       @QueryParam("index_group_list") String index_group_list, // Array of
@@ -114,17 +107,13 @@ public interface IngestService {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/sparkToGW")
-  public Response sparkToGW(
-      @QueryParam("input_directory") String input_directory,
+  public Response sparkToGW(@QueryParam("input_directory") String input_directory,
       @QueryParam("store_name") String store_name,
       @QueryParam("index_group_list") String index_group_list, // Array of
       // Strings
-      @QueryParam("visibility") String visibility,
-      @QueryParam("appName") String appName,
-      @QueryParam("host") String host,
-      @QueryParam("master") String master,
-      @QueryParam("numExecutors") Integer numExecutors,
-      @QueryParam("numCores") Integer numCores,
+      @QueryParam("visibility") String visibility, @QueryParam("appName") String appName,
+      @QueryParam("host") String host, @QueryParam("master") String master,
+      @QueryParam("numExecutors") Integer numExecutors, @QueryParam("numCores") Integer numCores,
       @QueryParam("extensions") String extensions, // Array of Strings
       @QueryParam("formats") String formats);
 }

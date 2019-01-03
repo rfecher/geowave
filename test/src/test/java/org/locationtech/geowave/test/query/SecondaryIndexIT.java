@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -96,10 +97,10 @@ import org.locationtech.jts.geom.Point;
 @RunWith(GeoWaveITRunner.class)
 public class SecondaryIndexIT {
   @GeoWaveTestStore({GeoWaveStoreType.ACCUMULO
-    // HBase's VisibilityController isn't compatible with
-    // this test. We'll leave HBase out until the *real*
-    // secondary index implementation is complete.
-    // GeoWaveStoreType.HBASE
+      // HBase's VisibilityController isn't compatible with
+      // this test. We'll leave HBase out until the *real*
+      // secondary index implementation is complete.
+      // GeoWaveStoreType.HBASE
   })
   protected DataStorePluginOptions dataStoreOptions;
 
@@ -134,18 +135,15 @@ public class SecondaryIndexIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*    FINISHED SecondaryIndexIT          *");
-    LOGGER.warn(
-        "*         "
-            + ((System.currentTimeMillis() - startMillis) / 1000)
-            + "s elapsed.                 *");
+    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
+        + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
 
   @Test
-  public void testSecondaryIndicesManually()
-      throws AccumuloException, AccumuloSecurityException, TableNotFoundException, ParseException,
-          IOException {
+  public void testSecondaryIndicesManually() throws AccumuloException, AccumuloSecurityException,
+      TableNotFoundException, ParseException, IOException {
     Assert.assertTrue(allIndexIds.size() == 3);
 
     if (dataStoreOptions.getType().equals("accumulo")) {
@@ -153,13 +151,8 @@ public class SecondaryIndexIT {
       final AccumuloRequiredOptions options =
           (AccumuloRequiredOptions) dataStoreOptions.getFactoryOptions();
 
-      final Connector connector =
-          ConnectorPool.getInstance()
-              .getConnector(
-                  options.getZookeeper(),
-                  options.getInstance(),
-                  options.getUser(),
-                  options.getPassword());
+      final Connector connector = ConnectorPool.getInstance().getConnector(options.getZookeeper(),
+          options.getInstance(), options.getUser(), options.getPassword());
 
       numericJoinAccumulo(connector);
       textJoinAccumulo(connector);
@@ -204,21 +197,15 @@ public class SecondaryIndexIT {
 
     Assert.assertTrue(allSecondaryIndices.size() == 9);
 
-    final InternalDataAdapter<SimpleFeature> internalDataAdapter =
-        new InternalDataAdapterWrapper(
-            dataAdapter, internalAdapterStore.getAdapterId(dataAdapter.getTypeName()));
+    final InternalDataAdapter<SimpleFeature> internalDataAdapter = new InternalDataAdapterWrapper(
+        dataAdapter, internalAdapterStore.getAdapterId(dataAdapter.getTypeName()));
 
     for (final SecondaryIndexImpl<SimpleFeature> secondaryIndex : allSecondaryIndices) {
 
       final List<SimpleFeature> queryResults = new ArrayList<>();
       try (final CloseableIterator<SimpleFeature> results =
-          secondaryDataStore.query(
-              secondaryIndex,
-              secondaryIndex.getFieldName(),
-              internalDataAdapter,
-              index,
-              query,
-              DEFAULT_AUTHORIZATIONS)) {
+          secondaryDataStore.query(secondaryIndex, secondaryIndex.getFieldName(),
+              internalDataAdapter, index, query, DEFAULT_AUTHORIZATIONS)) {
 
         while (results.hasNext()) {
           queryResults.add(results.next());
@@ -241,24 +228,15 @@ public class SecondaryIndexIT {
 
     // test delete
     final QueryConstraints deleteQuery = new DataIdQuery(new ByteArray(expectedDataId));
-    dataStore.delete(
-        QueryBuilder.newBuilder()
-            .addTypeName(dataAdapter.getTypeName())
-            .indexName(index.getName())
-            .constraints(deleteQuery)
-            .build());
+    dataStore.delete(QueryBuilder.newBuilder().addTypeName(dataAdapter.getTypeName())
+        .indexName(index.getName()).constraints(deleteQuery).build());
 
     for (final SecondaryIndexImpl<SimpleFeature> secondaryIndex : allSecondaryIndices) {
 
       int numResults = 0;
       try (final CloseableIterator<SimpleFeature> results =
-          secondaryDataStore.query(
-              secondaryIndex,
-              secondaryIndex.getFieldName(),
-              internalDataAdapter,
-              index,
-              query,
-              DEFAULT_AUTHORIZATIONS)) {
+          secondaryDataStore.query(secondaryIndex, secondaryIndex.getFieldName(),
+              internalDataAdapter, index, query, DEFAULT_AUTHORIZATIONS)) {
 
         while (results.hasNext()) {
           results.next();
@@ -317,54 +295,33 @@ public class SecondaryIndexIT {
     final List<SimpleFeatureUserDataConfiguration> configs = new ArrayList<>();
 
     // JOIN
-    configs.add(
-        new NumericSecondaryIndexConfiguration(NUMERIC_JOIN_FIELD, SecondaryIndexType.JOIN));
-    configs.add(
-        new TemporalSecondaryIndexConfiguration(TEMPORAL_JOIN_FIELD, SecondaryIndexType.JOIN));
+    configs
+        .add(new NumericSecondaryIndexConfiguration(NUMERIC_JOIN_FIELD, SecondaryIndexType.JOIN));
+    configs
+        .add(new TemporalSecondaryIndexConfiguration(TEMPORAL_JOIN_FIELD, SecondaryIndexType.JOIN));
     configs.add(new TextSecondaryIndexConfiguration(TEXT_JOIN_FIELD, SecondaryIndexType.JOIN));
 
     // FULL
-    configs.add(
-        new NumericSecondaryIndexConfiguration(NUMERIC_FULL_FIELD, SecondaryIndexType.FULL));
-    configs.add(
-        new TemporalSecondaryIndexConfiguration(TEMPORAL_FULL_FIELD, SecondaryIndexType.FULL));
+    configs
+        .add(new NumericSecondaryIndexConfiguration(NUMERIC_FULL_FIELD, SecondaryIndexType.FULL));
+    configs
+        .add(new TemporalSecondaryIndexConfiguration(TEMPORAL_FULL_FIELD, SecondaryIndexType.FULL));
     configs.add(new TextSecondaryIndexConfiguration(TEXT_FULL_FIELD, SecondaryIndexType.FULL));
 
     // PARTIAL
-    configs.add(
-        new NumericSecondaryIndexConfiguration(
-            NUMERIC_PARTIAL_FIELD, SecondaryIndexType.PARTIAL, PARTIAL_LIST));
-    configs.add(
-        new TemporalSecondaryIndexConfiguration(
-            TEMPORAL_PARTIAL_FIELD, SecondaryIndexType.PARTIAL, PARTIAL_LIST));
-    configs.add(
-        new TextSecondaryIndexConfiguration(
-            TEXT_PARTIAL_FIELD, SecondaryIndexType.PARTIAL, PARTIAL_LIST));
+    configs.add(new NumericSecondaryIndexConfiguration(NUMERIC_PARTIAL_FIELD,
+        SecondaryIndexType.PARTIAL, PARTIAL_LIST));
+    configs.add(new TemporalSecondaryIndexConfiguration(TEMPORAL_PARTIAL_FIELD,
+        SecondaryIndexType.PARTIAL, PARTIAL_LIST));
+    configs.add(new TextSecondaryIndexConfiguration(TEXT_PARTIAL_FIELD, SecondaryIndexType.PARTIAL,
+        PARTIAL_LIST));
 
     // update schema with configs
-    final SimpleFeatureType schema =
-        DataUtilities.createType(
-            "record",
-            GEOMETRY_FIELD
-                + ":Geometry,"
-                + NUMERIC_JOIN_FIELD
-                + ":Double,"
-                + NUMERIC_FULL_FIELD
-                + ":Double,"
-                + NUMERIC_PARTIAL_FIELD
-                + ":Double,"
-                + TEMPORAL_JOIN_FIELD
-                + ":Date,"
-                + TEMPORAL_FULL_FIELD
-                + ":Date,"
-                + TEMPORAL_PARTIAL_FIELD
-                + ":Date,"
-                + TEXT_JOIN_FIELD
-                + ":String,"
-                + TEXT_FULL_FIELD
-                + ":String,"
-                + TEXT_PARTIAL_FIELD
-                + ":String");
+    final SimpleFeatureType schema = DataUtilities.createType("record",
+        GEOMETRY_FIELD + ":Geometry," + NUMERIC_JOIN_FIELD + ":Double," + NUMERIC_FULL_FIELD
+            + ":Double," + NUMERIC_PARTIAL_FIELD + ":Double," + TEMPORAL_JOIN_FIELD + ":Date,"
+            + TEMPORAL_FULL_FIELD + ":Date," + TEMPORAL_PARTIAL_FIELD + ":Date," + TEXT_JOIN_FIELD
+            + ":String," + TEXT_FULL_FIELD + ":String," + TEXT_PARTIAL_FIELD + ":String");
     numAttributes = schema.getAttributeCount();
     final SimpleFeatureUserDataConfigurationSet config =
         new SimpleFeatureUserDataConfigurationSet(schema, configs);
@@ -374,8 +331,8 @@ public class SecondaryIndexIT {
     final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(schema);
     final List<SimpleFeature> features = new ArrayList<>();
 
-    features.add(
-        buildSimpleFeature(builder, -180d, -90d, DATE_FORMAT.parse("11-11-2012"), 1d, "aaa"));
+    features
+        .add(buildSimpleFeature(builder, -180d, -90d, DATE_FORMAT.parse("11-11-2012"), 1d, "aaa"));
     features.add(buildSimpleFeature(builder, 0d, 0d, DATE_FORMAT.parse("11-30-2013"), 10d, "bbb"));
 
     // Create a feature and collect verification data from it
@@ -394,7 +351,7 @@ public class SecondaryIndexIT {
     dataAdapter.init(index);
     dataStore.addType(dataAdapter, index);
     try (@SuppressWarnings("unchecked")
-        final Writer<SimpleFeature> writer = dataStore.createWriter(dataAdapter.getTypeName())) {
+    final Writer<SimpleFeature> writer = dataStore.createWriter(dataAdapter.getTypeName())) {
       for (final SimpleFeature aFeature : features) {
         allIndexIds.addAll(writer.write(aFeature).getCompositeInsertionIds());
       }
@@ -406,34 +363,33 @@ public class SecondaryIndexIT {
     final Map<String, FilterableConstraints> additionalConstraints = new HashMap<>();
 
     final Number number = 25d;
-    additionalConstraints.put(
-        NUMERIC_JOIN_FIELD, new NumericGreaterThanConstraint(NUMERIC_JOIN_FIELD, number));
-    additionalConstraints.put(
-        NUMERIC_FULL_FIELD, new NumericGreaterThanConstraint(NUMERIC_FULL_FIELD, number));
-    additionalConstraints.put(
-        NUMERIC_PARTIAL_FIELD, new NumericGreaterThanConstraint(NUMERIC_PARTIAL_FIELD, number));
+    additionalConstraints.put(NUMERIC_JOIN_FIELD,
+        new NumericGreaterThanConstraint(NUMERIC_JOIN_FIELD, number));
+    additionalConstraints.put(NUMERIC_FULL_FIELD,
+        new NumericGreaterThanConstraint(NUMERIC_FULL_FIELD, number));
+    additionalConstraints.put(NUMERIC_PARTIAL_FIELD,
+        new NumericGreaterThanConstraint(NUMERIC_PARTIAL_FIELD, number));
 
     final String matchValue = "ccc";
-    additionalConstraints.put(
-        TEXT_JOIN_FIELD, new TextQueryConstraint(TEXT_JOIN_FIELD, matchValue, true));
-    additionalConstraints.put(
-        TEXT_FULL_FIELD, new TextQueryConstraint(TEXT_FULL_FIELD, matchValue, true));
-    additionalConstraints.put(
-        TEXT_PARTIAL_FIELD, new TextQueryConstraint(TEXT_PARTIAL_FIELD, matchValue, true));
+    additionalConstraints.put(TEXT_JOIN_FIELD,
+        new TextQueryConstraint(TEXT_JOIN_FIELD, matchValue, true));
+    additionalConstraints.put(TEXT_FULL_FIELD,
+        new TextQueryConstraint(TEXT_FULL_FIELD, matchValue, true));
+    additionalConstraints.put(TEXT_PARTIAL_FIELD,
+        new TextQueryConstraint(TEXT_PARTIAL_FIELD, matchValue, true));
 
     final Date start = DATE_FORMAT.parse("12-24-2015");
     final Date end = DATE_FORMAT.parse("12-26-2015");
-    additionalConstraints.put(
-        TEMPORAL_JOIN_FIELD, new TemporalQueryConstraint(TEMPORAL_JOIN_FIELD, start, end));
-    additionalConstraints.put(
-        TEMPORAL_FULL_FIELD, new TemporalQueryConstraint(TEMPORAL_FULL_FIELD, start, end));
-    additionalConstraints.put(
-        TEMPORAL_PARTIAL_FIELD, new TemporalQueryConstraint(TEMPORAL_PARTIAL_FIELD, start, end));
+    additionalConstraints.put(TEMPORAL_JOIN_FIELD,
+        new TemporalQueryConstraint(TEMPORAL_JOIN_FIELD, start, end));
+    additionalConstraints.put(TEMPORAL_FULL_FIELD,
+        new TemporalQueryConstraint(TEMPORAL_FULL_FIELD, start, end));
+    additionalConstraints.put(TEMPORAL_PARTIAL_FIELD,
+        new TemporalQueryConstraint(TEMPORAL_PARTIAL_FIELD, start, end));
 
-    query =
-        new SpatialQuery(
-            GeometryUtils.GEOMETRY_FACTORY.toGeometry(new Envelope(-180d, 180d, -90d, 90d)),
-            additionalConstraints);
+    query = new SpatialQuery(
+        GeometryUtils.GEOMETRY_FACTORY.toGeometry(new Envelope(-180d, 180d, -90d, 90d)),
+        additionalConstraints);
   }
 
   /** @throws IOException */
@@ -450,22 +406,17 @@ public class SecondaryIndexIT {
     final Scanner scanner =
         connector.createScanner(NUMERIC_JOIN_TABLE, DEFAULT_ACCUMULO_AUTHORIZATIONS);
 
-    scanner.setRange(
-        new Range(
-            new Text(Lexicoders.DOUBLE.toByteArray(0d)),
-            new Text(Lexicoders.DOUBLE.toByteArray(20d))));
+    scanner.setRange(new Range(new Text(Lexicoders.DOUBLE.toByteArray(0d)),
+        new Text(Lexicoders.DOUBLE.toByteArray(20d))));
 
-    scanner.fetchColumnFamily(
-        new Text(
-            SecondaryIndexUtils.constructColumnFamily(
-                dataAdapter.getTypeName(), NUMERIC_JOIN_FIELD)));
+    scanner.fetchColumnFamily(new Text(
+        SecondaryIndexUtils.constructColumnFamily(dataAdapter.getTypeName(), NUMERIC_JOIN_FIELD)));
     int numResults = 0;
 
     for (final Entry<Key, Value> entry : scanner) {
       numResults += 1;
-      final ByteArray primaryRowId =
-          SecondaryIndexUtils.getPrimaryRowId(
-              entry.getKey().getColumnQualifierData().getBackingArray());
+      final ByteArray primaryRowId = SecondaryIndexUtils
+          .getPrimaryRowId(entry.getKey().getColumnQualifierData().getBackingArray());
       if (numResults == 1) {
         Assert.assertTrue(primaryRowId.equals(allIndexIds.get(0)));
       } else if (numResults == 2) {
@@ -480,15 +431,13 @@ public class SecondaryIndexIT {
     final Scanner scanner =
         connector.createScanner(TEXT_JOIN_TABLE, DEFAULT_ACCUMULO_AUTHORIZATIONS);
     scanner.setRange(new Range(new Text(new ByteArray("bbb").getBytes())));
-    scanner.fetchColumnFamily(
-        new Text(
-            SecondaryIndexUtils.constructColumnFamily(dataAdapter.getTypeName(), TEXT_JOIN_FIELD)));
+    scanner.fetchColumnFamily(new Text(
+        SecondaryIndexUtils.constructColumnFamily(dataAdapter.getTypeName(), TEXT_JOIN_FIELD)));
     int numResults = 0;
     for (final Entry<Key, Value> entry : scanner) {
       numResults += 1;
-      final ByteArray primaryRowId =
-          SecondaryIndexUtils.getPrimaryRowId(
-              entry.getKey().getColumnQualifierData().getBackingArray());
+      final ByteArray primaryRowId = SecondaryIndexUtils
+          .getPrimaryRowId(entry.getKey().getColumnQualifierData().getBackingArray());
       Assert.assertTrue(primaryRowId.equals(allIndexIds.get(1)));
     }
     scanner.close();
@@ -512,9 +461,8 @@ public class SecondaryIndexIT {
     int numResults = 0;
     for (final Entry<Key, Value> entry : scanner) {
       numResults += 1;
-      final ByteArray primaryRowId =
-          SecondaryIndexUtils.getPrimaryRowId(
-              entry.getKey().getColumnQualifierData().getBackingArray());
+      final ByteArray primaryRowId = SecondaryIndexUtils
+          .getPrimaryRowId(entry.getKey().getColumnQualifierData().getBackingArray());
       Assert.assertTrue(primaryRowId.equals(allIndexIds.get(1)));
     }
     scanner.close();
@@ -524,14 +472,10 @@ public class SecondaryIndexIT {
   private void numericFullAccumulo(final Connector connector) throws TableNotFoundException {
     final Scanner scanner =
         connector.createScanner(NUMERIC_FULL_TABLE, DEFAULT_ACCUMULO_AUTHORIZATIONS);
-    scanner.setRange(
-        new Range(
-            new Text(Lexicoders.DOUBLE.toByteArray(0d)),
-            new Text(Lexicoders.DOUBLE.toByteArray(20d))));
-    scanner.fetchColumnFamily(
-        new Text(
-            SecondaryIndexUtils.constructColumnFamily(
-                dataAdapter.getTypeName(), NUMERIC_FULL_FIELD)));
+    scanner.setRange(new Range(new Text(Lexicoders.DOUBLE.toByteArray(0d)),
+        new Text(Lexicoders.DOUBLE.toByteArray(20d))));
+    scanner.fetchColumnFamily(new Text(
+        SecondaryIndexUtils.constructColumnFamily(dataAdapter.getTypeName(), NUMERIC_FULL_FIELD)));
     int numResults = 0;
     for (final Entry<Key, Value> entry : scanner) {
       final String dataId =
@@ -551,9 +495,8 @@ public class SecondaryIndexIT {
     final Scanner scanner =
         connector.createScanner(TEXT_FULL_TABLE, DEFAULT_ACCUMULO_AUTHORIZATIONS);
     scanner.setRange(new Range(new Text(new ByteArray("bbb").getBytes())));
-    scanner.fetchColumnFamily(
-        new Text(
-            SecondaryIndexUtils.constructColumnFamily(dataAdapter.getTypeName(), TEXT_FULL_FIELD)));
+    scanner.fetchColumnFamily(new Text(
+        SecondaryIndexUtils.constructColumnFamily(dataAdapter.getTypeName(), TEXT_FULL_FIELD)));
     int numResults = 0;
     for (final Entry<Key, Value> entry : scanner) {
       numResults += 1;
@@ -570,13 +513,10 @@ public class SecondaryIndexIT {
     final Scanner scanner =
         connector.createScanner(TEMPORAL_FULL_TABLE, DEFAULT_ACCUMULO_AUTHORIZATIONS);
     scanner.setRange(
-        new Range(
-            new Text(Lexicoders.LONG.toByteArray(DATE_FORMAT.parse("11-30-2012").getTime())),
+        new Range(new Text(Lexicoders.LONG.toByteArray(DATE_FORMAT.parse("11-30-2012").getTime())),
             new Text(Lexicoders.LONG.toByteArray(DATE_FORMAT.parse("11-30-2014").getTime()))));
-    scanner.fetchColumnFamily(
-        new Text(
-            SecondaryIndexUtils.constructColumnFamily(
-                dataAdapter.getTypeName(), TEMPORAL_FULL_FIELD)));
+    scanner.fetchColumnFamily(new Text(
+        SecondaryIndexUtils.constructColumnFamily(dataAdapter.getTypeName(), TEMPORAL_FULL_FIELD)));
     int numResults = 0;
     for (final Entry<Key, Value> entry : scanner) {
       numResults += 1;
@@ -591,14 +531,10 @@ public class SecondaryIndexIT {
   private void numericPartialAccumulo(final Connector connector) throws TableNotFoundException {
     final Scanner scanner =
         connector.createScanner(NUMERIC_PARTIAL_TABLE, DEFAULT_ACCUMULO_AUTHORIZATIONS);
-    scanner.setRange(
-        new Range(
-            new Text(Lexicoders.DOUBLE.toByteArray(0d)),
-            new Text(Lexicoders.DOUBLE.toByteArray(20d))));
-    scanner.fetchColumnFamily(
-        new Text(
-            SecondaryIndexUtils.constructColumnFamily(
-                dataAdapter.getTypeName(), NUMERIC_PARTIAL_FIELD)));
+    scanner.setRange(new Range(new Text(Lexicoders.DOUBLE.toByteArray(0d)),
+        new Text(Lexicoders.DOUBLE.toByteArray(20d))));
+    scanner.fetchColumnFamily(new Text(SecondaryIndexUtils
+        .constructColumnFamily(dataAdapter.getTypeName(), NUMERIC_PARTIAL_FIELD)));
     int numResults = 0;
     for (final Entry<Key, Value> entry : scanner) {
       numResults += 1;
@@ -621,10 +557,8 @@ public class SecondaryIndexIT {
     final Scanner scanner =
         connector.createScanner(TEXT_PARTIAL_TABLE, DEFAULT_ACCUMULO_AUTHORIZATIONS);
     scanner.setRange(new Range(new Text(new ByteArray("bbb").getBytes())));
-    scanner.fetchColumnFamily(
-        new Text(
-            SecondaryIndexUtils.constructColumnFamily(
-                dataAdapter.getTypeName(), TEXT_PARTIAL_FIELD)));
+    scanner.fetchColumnFamily(new Text(
+        SecondaryIndexUtils.constructColumnFamily(dataAdapter.getTypeName(), TEXT_PARTIAL_FIELD)));
     int numResults = 0;
     for (final Entry<Key, Value> entry : scanner) {
       numResults += 1;
@@ -643,13 +577,10 @@ public class SecondaryIndexIT {
     final Scanner scanner =
         connector.createScanner(TEMPORAL_PARTIAL_TABLE, DEFAULT_ACCUMULO_AUTHORIZATIONS);
     scanner.setRange(
-        new Range(
-            new Text(Lexicoders.LONG.toByteArray(DATE_FORMAT.parse("11-30-2012").getTime())),
+        new Range(new Text(Lexicoders.LONG.toByteArray(DATE_FORMAT.parse("11-30-2012").getTime())),
             new Text(Lexicoders.LONG.toByteArray(DATE_FORMAT.parse("11-30-2014").getTime()))));
-    scanner.fetchColumnFamily(
-        new Text(
-            SecondaryIndexUtils.constructColumnFamily(
-                dataAdapter.getTypeName(), TEMPORAL_PARTIAL_FIELD)));
+    scanner.fetchColumnFamily(new Text(SecondaryIndexUtils
+        .constructColumnFamily(dataAdapter.getTypeName(), TEMPORAL_PARTIAL_FIELD)));
     int numResults = 0;
     for (final Entry<Key, Value> entry : scanner) {
       numResults += 1;
@@ -672,15 +603,10 @@ public class SecondaryIndexIT {
    * @param stringField
    * @return
    */
-  private SimpleFeature buildSimpleFeature(
-      final SimpleFeatureBuilder builder,
-      final double lng,
-      final double lat,
-      final Date dateField,
-      final double doubleField,
-      final String stringField) {
-    builder.set(
-        GEOMETRY_FIELD, GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(lng, lat)));
+  private SimpleFeature buildSimpleFeature(final SimpleFeatureBuilder builder, final double lng,
+      final double lat, final Date dateField, final double doubleField, final String stringField) {
+    builder.set(GEOMETRY_FIELD,
+        GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(lng, lat)));
     builder.set(TEMPORAL_JOIN_FIELD, dateField);
     builder.set(TEMPORAL_FULL_FIELD, dateField);
     builder.set(TEMPORAL_PARTIAL_FIELD, dateField);

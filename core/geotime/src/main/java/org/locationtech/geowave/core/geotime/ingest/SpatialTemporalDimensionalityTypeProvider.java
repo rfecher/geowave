@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,20 +55,15 @@ public class SpatialTemporalDimensionalityTypeProvider
   // TODO should we use different default IDs for all the different
   // options, for now lets just use one
   public static final NumericDimensionDefinition[] SPATIAL_TEMPORAL_DIMENSIONS =
-      new NumericDimensionDefinition[] {
-        new LongitudeDefinition(),
-        new LatitudeDefinition(true),
-        new TimeDefinition(SpatialTemporalOptions.DEFAULT_PERIODICITY)
-      };
+      new NumericDimensionDefinition[] {new LongitudeDefinition(), new LatitudeDefinition(true),
+          new TimeDefinition(SpatialTemporalOptions.DEFAULT_PERIODICITY)};
 
   @SuppressWarnings("rawtypes")
   public static NumericDimensionField[] getSpatialTemporalFields(
       final @Nullable Integer geometryPrecision) {
-    return new NumericDimensionField[] {
-      new LongitudeField(geometryPrecision),
-      new LatitudeField(geometryPrecision, true),
-      new TimeField(SpatialTemporalOptions.DEFAULT_PERIODICITY)
-    };
+    return new NumericDimensionField[] {new LongitudeField(geometryPrecision),
+        new LatitudeField(geometryPrecision, true),
+        new TimeField(SpatialTemporalOptions.DEFAULT_PERIODICITY)};
   }
 
   public SpatialTemporalDimensionalityTypeProvider() {}
@@ -108,8 +104,7 @@ public class SpatialTemporalDimensionalityTypeProvider
     String crsCode = null;
     Integer geometryPrecision = options.getGeometryPrecision();
 
-    if ((options.crs == null)
-        || options.crs.isEmpty()
+    if ((options.crs == null) || options.crs.isEmpty()
         || options.crs.equalsIgnoreCase(GeometryUtils.DEFAULT_CRS_STR)) {
       dimensions = SPATIAL_TEMPORAL_DIMENSIONS;
       fields = getSpatialTemporalFields(geometryPrecision);
@@ -125,12 +120,10 @@ public class SpatialTemporalDimensionalityTypeProvider
 
       for (int d = 0; d < (dimensions.length - 1); d++) {
         final CoordinateSystemAxis csa = cs.getAxis(d);
-        dimensions[d] =
-            new CustomCRSBoundedSpatialDimension(
-                (byte) d, csa.getMinimumValue(), csa.getMaximumValue());
-        fields[d] =
-            new CustomCRSSpatialField(
-                (CustomCRSBoundedSpatialDimension) dimensions[d], geometryPrecision);
+        dimensions[d] = new CustomCRSBoundedSpatialDimension((byte) d, csa.getMinimumValue(),
+            csa.getMaximumValue());
+        fields[d] = new CustomCRSSpatialField((CustomCRSBoundedSpatialDimension) dimensions[d],
+            geometryPrecision);
       }
 
       dimensions[dimensions.length - 1] = new TimeDefinition(options.periodicity);
@@ -150,28 +143,17 @@ public class SpatialTemporalDimensionalityTypeProvider
           DEFAULT_SPATIAL_TEMPORAL_ID_STR + "_" + options.bias + "_" + options.periodicity;
     } else {
       combinedArrayID =
-          DEFAULT_SPATIAL_TEMPORAL_ID_STR
-              + "_"
-              + (crsCode.substring(crsCode.indexOf(":") + 1))
-              + "_"
-              + options.bias
-              + "_"
-              + options.periodicity;
+          DEFAULT_SPATIAL_TEMPORAL_ID_STR + "_" + (crsCode.substring(crsCode.indexOf(":") + 1))
+              + "_" + options.bias + "_" + options.periodicity;
     }
     final String combinedId = combinedArrayID;
 
     return new CustomNameIndex(
-        XZHierarchicalIndexFactory.createFullIncrementalTieredStrategy(
-            dimensions,
-            new int[] {
-              options.bias.getSpatialPrecision(),
-              options.bias.getSpatialPrecision(),
-              options.bias.getTemporalPrecision()
-            },
-            SFCType.HILBERT,
-            options.maxDuplicates),
-        indexModel,
-        combinedId);
+        XZHierarchicalIndexFactory.createFullIncrementalTieredStrategy(dimensions,
+            new int[] {options.bias.getSpatialPrecision(), options.bias.getSpatialPrecision(),
+                options.bias.getTemporalPrecision()},
+            SFCType.HILBERT, options.maxDuplicates),
+        indexModel, combinedId);
   }
 
   public static CoordinateReferenceSystem decodeCRS(final String crsCode) {
@@ -193,9 +175,7 @@ public class SpatialTemporalDimensionalityTypeProvider
   }
 
   public static enum Bias {
-    TEMPORAL,
-    BALANCED,
-    SPATIAL;
+    TEMPORAL, BALANCED, SPATIAL;
     // converter that will be used later
     public static Bias fromString(final String code) {
 
@@ -240,10 +220,7 @@ public class SpatialTemporalDimensionalityTypeProvider
 
       if (convertedValue == null) {
         throw new ParameterException(
-            "Value "
-                + value
-                + "can not be converted to an index bias. "
-                + "Available values are: "
+            "Value " + value + "can not be converted to an index bias. " + "Available values are: "
                 + StringUtils.join(Bias.values(), ", ").toLowerCase(Locale.ENGLISH));
       }
       return convertedValue;
@@ -258,10 +235,7 @@ public class SpatialTemporalDimensionalityTypeProvider
 
       if (convertedValue == null) {
         throw new ParameterException(
-            "Value "
-                + value
-                + "can not be converted to Unit. "
-                + "Available values are: "
+            "Value " + value + "can not be converted to Unit. " + "Available values are: "
                 + StringUtils.join(Unit.values(), ", ").toLowerCase(Locale.ENGLISH));
       }
       return convertedValue;

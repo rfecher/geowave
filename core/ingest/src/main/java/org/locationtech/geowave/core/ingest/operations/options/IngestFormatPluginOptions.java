@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -95,11 +96,8 @@ public class IngestFormatPluginOptions extends DefaultPluginOptions implements P
           throw new UnsupportedOperationException();
         }
       } catch (final UnsupportedOperationException e) {
-        LOGGER.warn(
-            "Plugin provider for ingest type '"
-                + formatPlugin.getIngestFormatName()
-                + "' does not support local file ingest",
-            e);
+        LOGGER.warn("Plugin provider for ingest type '" + formatPlugin.getIngestFormatName()
+            + "' does not support local file ingest", e);
         continue;
       }
       ingestPlugins.put(formatPlugin.getIngestFormatName(), plugin);
@@ -120,11 +118,8 @@ public class IngestFormatPluginOptions extends DefaultPluginOptions implements P
           throw new UnsupportedOperationException();
         }
       } catch (final UnsupportedOperationException e) {
-        LOGGER.warn(
-            "Plugin provider for ingest type '"
-                + formatPlugin.getIngestFormatName()
-                + "' does not support hdfs ingest",
-            e);
+        LOGGER.warn("Plugin provider for ingest type '" + formatPlugin.getIngestFormatName()
+            + "' does not support hdfs ingest", e);
         continue;
       }
       ingestPlugins.put(formatPlugin.getIngestFormatName(), plugin);
@@ -145,11 +140,8 @@ public class IngestFormatPluginOptions extends DefaultPluginOptions implements P
           throw new UnsupportedOperationException();
         }
       } catch (final UnsupportedOperationException e) {
-        LOGGER.warn(
-            "Plugin provider for ingest type '"
-                + formatPlugin.getIngestFormatName()
-                + "' does not support avro ingest",
-            e);
+        LOGGER.warn("Plugin provider for ingest type '" + formatPlugin.getIngestFormatName()
+            + "' does not support avro ingest", e);
         continue;
       }
       ingestPlugins.put(formatPlugin.getIngestFormatName(), plugin);

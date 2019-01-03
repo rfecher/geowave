@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,8 +24,8 @@ public class AggregateTypeQueryOptions<P extends Persistable, R, T>
 
   public AggregateTypeQueryOptions() {}
 
-  public AggregateTypeQueryOptions(
-      final Aggregation<P, R, T> aggregation, final String... typeNames) {
+  public AggregateTypeQueryOptions(final Aggregation<P, R, T> aggregation,
+      final String... typeNames) {
     this.typeNames = typeNames;
     this.aggregation = aggregation;
   }
@@ -52,10 +53,8 @@ public class AggregateTypeQueryOptions<P extends Persistable, R, T>
       aggregationBinary = new byte[0];
     }
     final ByteBuffer buf =
-        ByteBuffer.allocate(
-            VarintUtils.unsignedIntByteLength(typeNamesBinary.length)
-                + aggregationBinary.length
-                + typeNamesBinary.length);
+        ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(typeNamesBinary.length)
+            + aggregationBinary.length + typeNamesBinary.length);
     VarintUtils.writeUnsignedInt(typeNamesBinary.length, buf);
     buf.put(typeNamesBinary);
     buf.put(aggregationBinary);
@@ -92,14 +91,20 @@ public class AggregateTypeQueryOptions<P extends Persistable, R, T>
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     AggregateTypeQueryOptions other = (AggregateTypeQueryOptions) obj;
     if (aggregation == null) {
-      if (other.aggregation != null) return false;
-    } else if (!aggregation.equals(other.aggregation)) return false;
-    if (!Arrays.equals(typeNames, other.typeNames)) return false;
+      if (other.aggregation != null)
+        return false;
+    } else if (!aggregation.equals(other.aggregation))
+      return false;
+    if (!Arrays.equals(typeNames, other.typeNames))
+      return false;
     return true;
   }
 }

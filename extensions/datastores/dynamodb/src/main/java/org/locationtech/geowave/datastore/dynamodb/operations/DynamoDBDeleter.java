@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,19 +35,14 @@ public class DynamoDBDeleter implements RowDeleter {
     final DynamoDBRow dynRow = (DynamoDBRow) row;
 
     for (final Map<String, AttributeValue> attributeMappings : dynRow.getAttributeMapping()) {
-      operations
-          .getClient()
-          .deleteItem(
-              tableName,
-              Maps.filterEntries(
-                  attributeMappings,
-                  new Predicate<Entry<String, AttributeValue>>() {
-                    @Override
-                    public boolean apply(final Entry<String, AttributeValue> input) {
-                      return DynamoDBRow.GW_PARTITION_ID_KEY.equals(input.getKey())
-                          || DynamoDBRow.GW_RANGE_KEY.equals(input.getKey());
-                    }
-                  }));
+      operations.getClient().deleteItem(tableName,
+          Maps.filterEntries(attributeMappings, new Predicate<Entry<String, AttributeValue>>() {
+            @Override
+            public boolean apply(final Entry<String, AttributeValue> input) {
+              return DynamoDBRow.GW_PARTITION_ID_KEY.equals(input.getKey())
+                  || DynamoDBRow.GW_RANGE_KEY.equals(input.getKey());
+            }
+          }));
     }
   }
 

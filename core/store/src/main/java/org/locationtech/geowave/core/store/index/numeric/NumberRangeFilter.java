@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,12 +29,8 @@ public class NumberRangeFilter implements QueryFilter {
     super();
   }
 
-  public NumberRangeFilter(
-      final String fieldName,
-      final Number lowerValue,
-      final Number upperValue,
-      final boolean inclusiveLow,
-      final boolean inclusiveHigh) {
+  public NumberRangeFilter(final String fieldName, final Number lowerValue, final Number upperValue,
+      final boolean inclusiveLow, final boolean inclusiveHigh) {
     super();
     this.fieldName = fieldName;
     this.lowerValue = lowerValue;
@@ -63,8 +60,8 @@ public class NumberRangeFilter implements QueryFilter {
   }
 
   @Override
-  public boolean accept(
-      final CommonIndexModel indexModel, final IndexedPersistenceEncoding<?> persistenceEncoding) {
+  public boolean accept(final CommonIndexModel indexModel,
+      final IndexedPersistenceEncoding<?> persistenceEncoding) {
     final ByteArray value = (ByteArray) persistenceEncoding.getCommonData().getValue(fieldName);
     if (value != null) {
       final double val = Lexicoders.DOUBLE.fromByteArray(value.getBytes());
@@ -84,9 +81,8 @@ public class NumberRangeFilter implements QueryFilter {
   @Override
   public byte[] toBinary() {
     final byte[] fieldNameBytes = StringUtils.stringToBinary(fieldName);
-    final ByteBuffer bb =
-        ByteBuffer.allocate(
-            VarintUtils.unsignedIntByteLength(fieldNameBytes.length) + fieldNameBytes.length + 16);
+    final ByteBuffer bb = ByteBuffer.allocate(
+        VarintUtils.unsignedIntByteLength(fieldNameBytes.length) + fieldNameBytes.length + 16);
     VarintUtils.writeUnsignedInt(fieldNameBytes.length, bb);
     bb.put(fieldNameBytes);
     bb.putDouble(lowerValue.doubleValue());

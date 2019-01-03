@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -14,17 +15,16 @@ import java.util.function.Supplier;
 public class UDFRegistrySPI {
   public static UDFNameAndConstructor[] getSupportedUDFs() {
     return new UDFNameAndConstructor[] {
-      new UDFNameAndConstructor(new String[] {"GeomContains"}, GeomContains::new),
-      new UDFNameAndConstructor(new String[] {"GeomCovers"}, GeomCovers::new),
-      new UDFNameAndConstructor(new String[] {"GeomCrosses"}, GeomCrosses::new),
-      new UDFNameAndConstructor(new String[] {"GeomDisjoint"}, GeomDisjoint::new),
-      new UDFNameAndConstructor(new String[] {"GeomEquals"}, GeomEquals::new),
-      new UDFNameAndConstructor(new String[] {"GeomIntersects"}, GeomIntersects::new),
-      new UDFNameAndConstructor(new String[] {"GeomOverlaps"}, GeomOverlaps::new),
-      new UDFNameAndConstructor(new String[] {"GeomTouches"}, GeomTouches::new),
-      new UDFNameAndConstructor(new String[] {"GeomWithin"}, GeomWithin::new),
-      new UDFNameAndConstructor(new String[] {"GeomWithinDistance"}, GeomWithinDistance::new)
-    };
+        new UDFNameAndConstructor(new String[] {"GeomContains"}, GeomContains::new),
+        new UDFNameAndConstructor(new String[] {"GeomCovers"}, GeomCovers::new),
+        new UDFNameAndConstructor(new String[] {"GeomCrosses"}, GeomCrosses::new),
+        new UDFNameAndConstructor(new String[] {"GeomDisjoint"}, GeomDisjoint::new),
+        new UDFNameAndConstructor(new String[] {"GeomEquals"}, GeomEquals::new),
+        new UDFNameAndConstructor(new String[] {"GeomIntersects"}, GeomIntersects::new),
+        new UDFNameAndConstructor(new String[] {"GeomOverlaps"}, GeomOverlaps::new),
+        new UDFNameAndConstructor(new String[] {"GeomTouches"}, GeomTouches::new),
+        new UDFNameAndConstructor(new String[] {"GeomWithin"}, GeomWithin::new),
+        new UDFNameAndConstructor(new String[] {"GeomWithinDistance"}, GeomWithinDistance::new)};
   }
 
   public static UDFNameAndConstructor findFunctionByName(String udfName) {
@@ -42,8 +42,8 @@ public class UDFRegistrySPI {
     private final String[] udfNames;
     private final Supplier<GeomFunction> predicateConstructor;
 
-    public UDFNameAndConstructor(
-        final String[] udfNames, final Supplier<GeomFunction> predicateConstructor) {
+    public UDFNameAndConstructor(final String[] udfNames,
+        final Supplier<GeomFunction> predicateConstructor) {
       this.udfNames = udfNames;
       this.predicateConstructor = predicateConstructor;
     }

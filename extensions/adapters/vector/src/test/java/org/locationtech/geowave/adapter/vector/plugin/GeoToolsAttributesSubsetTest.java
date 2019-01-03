@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -9,7 +10,6 @@
 package org.locationtech.geowave.adapter.vector.plugin;
 
 import static org.junit.Assert.assertFalse;
-
 import java.io.IOException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
@@ -52,21 +52,19 @@ public class GeoToolsAttributesSubsetTest extends BaseDataStoreTest {
         geotoolsDataStore.getFeatureWriter(type.getTypeName(), transaction);
     assertFalse(writer.hasNext());
     SimpleFeature newFeature = writer.next();
-    newFeature.setAttribute(
-        geometry_attribute,
+    newFeature.setAttribute(geometry_attribute,
         GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(41.25, 41.25)));
     newFeature.setAttribute(long_attribute, 1l);
     newFeature.setAttribute(string_attribute, "string1");
     writer.write();
     newFeature = writer.next();
-    newFeature.setAttribute(
-        geometry_attribute, GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(41.5, 41.5)));
+    newFeature.setAttribute(geometry_attribute,
+        GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(41.5, 41.5)));
     newFeature.setAttribute(long_attribute, 2l);
     newFeature.setAttribute(string_attribute, "string2");
     writer.write();
     newFeature = writer.next();
-    newFeature.setAttribute(
-        geometry_attribute,
+    newFeature.setAttribute(geometry_attribute,
         GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(41.75, 41.75)));
     newFeature.setAttribute(long_attribute, 3l);
     newFeature.setAttribute(string_attribute, "string3");
@@ -94,11 +92,8 @@ public class GeoToolsAttributesSubsetTest extends BaseDataStoreTest {
 
   @Test
   public void testSubsetAttributes() throws CQLException, IOException {
-    final Query query =
-        new Query(
-            typeName,
-            CQL.toFilter(cqlPredicate),
-            new String[] {geometry_attribute, string_attribute});
+    final Query query = new Query(typeName, CQL.toFilter(cqlPredicate),
+        new String[] {geometry_attribute, string_attribute});
     final FeatureReader<SimpleFeatureType, SimpleFeature> reader =
         geotoolsDataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
     int count = 0;

@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -104,24 +105,19 @@ public class InsertionIds implements Persistable {
   }
 
   public QueryRanges asQueryRanges() {
-    return new QueryRanges(
-        Collections2.transform(
-            partitionKeys,
-            new Function<SinglePartitionInsertionIds, SinglePartitionQueryRanges>() {
-              @Override
-              public SinglePartitionQueryRanges apply(final SinglePartitionInsertionIds input) {
-                return new SinglePartitionQueryRanges(
-                    input.getPartitionKey(),
-                    Collections2.transform(
-                        input.getSortKeys(),
-                        new Function<ByteArray, ByteArrayRange>() {
-                          @Override
-                          public ByteArrayRange apply(final ByteArray input) {
-                            return new ByteArrayRange(input, input, false);
-                          }
-                        }));
-              }
-            }));
+    return new QueryRanges(Collections2.transform(partitionKeys,
+        new Function<SinglePartitionInsertionIds, SinglePartitionQueryRanges>() {
+          @Override
+          public SinglePartitionQueryRanges apply(final SinglePartitionInsertionIds input) {
+            return new SinglePartitionQueryRanges(input.getPartitionKey(), Collections2
+                .transform(input.getSortKeys(), new Function<ByteArray, ByteArrayRange>() {
+                  @Override
+                  public ByteArrayRange apply(final ByteArray input) {
+                    return new ByteArrayRange(input, input, false);
+                  }
+                }));
+          }
+        }));
   }
 
   public List<ByteArray> getCompositeInsertionIds() {

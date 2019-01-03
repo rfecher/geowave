@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,18 +20,18 @@ public class HBaseRequiredOptions extends StoreFactoryOptions {
 
   public static final String ZOOKEEPER_CONFIG_KEY = "zookeeper";
 
-  @Parameter(
-      names = {"-z", "--" + ZOOKEEPER_CONFIG_KEY},
+  @Parameter(names = {"-z", "--" + ZOOKEEPER_CONFIG_KEY},
       description = "A comma-separated list of zookeeper servers that an HBase instance is using",
       required = true)
   private String zookeeper;
 
-  @ParametersDelegate private HBaseOptions additionalOptions = new HBaseOptions();
+  @ParametersDelegate
+  private HBaseOptions additionalOptions = new HBaseOptions();
 
   public HBaseRequiredOptions() {}
 
-  public HBaseRequiredOptions(
-      String zookeeper, String gwNamespace, HBaseOptions additionalOptions) {
+  public HBaseRequiredOptions(String zookeeper, String gwNamespace,
+      HBaseOptions additionalOptions) {
     super(gwNamespace);
     this.zookeeper = zookeeper;
     this.additionalOptions = additionalOptions;

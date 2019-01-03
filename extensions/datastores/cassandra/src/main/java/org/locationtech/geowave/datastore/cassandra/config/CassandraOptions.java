@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -15,15 +16,12 @@ public class CassandraOptions extends BaseDataStoreOptions {
   @Parameter(names = "--batchWriteSize", description = "The number of inserts in a batch write.")
   private int batchWriteSize = 50;
 
-  @Parameter(
-      names = "--durableWrites",
-      description =
-          "Whether to write to commit log for durability, configured only on creation of new keyspace.",
+  @Parameter(names = "--durableWrites",
+      description = "Whether to write to commit log for durability, configured only on creation of new keyspace.",
       arity = 1)
   private boolean durableWrites = true;
 
-  @Parameter(
-      names = "--replicas",
+  @Parameter(names = "--replicas",
       description = "The number of replicas to use when creating a new keyspace.")
   private int replicationFactor = 3;
 

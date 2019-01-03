@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -55,18 +56,16 @@ public class GeoWaveGrpcServer {
     server.start();
     LOGGER.info("Server started, listening on " + port);
 
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread() {
-              @Override
-              public void run() {
-                // Use stderr here since the logger may have been reset
-                // by its JVM shutdown hook.
-                System.err.println("*** shutting down gRPC server since JVM is shutting down");
-                GeoWaveGrpcServer.this.stop();
-                System.err.println("*** server shut down");
-              }
-            });
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      @Override
+      public void run() {
+        // Use stderr here since the logger may have been reset
+        // by its JVM shutdown hook.
+        System.err.println("*** shutting down gRPC server since JVM is shutting down");
+        GeoWaveGrpcServer.this.stop();
+        System.err.println("*** server shut down");
+      }
+    });
   }
 
   /** Stop serving requests and shutdown resources. */

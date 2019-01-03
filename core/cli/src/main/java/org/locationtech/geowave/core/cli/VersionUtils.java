@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,7 +29,7 @@ public class VersionUtils {
 
     final Properties props = new Properties();
     try (InputStream stream =
-        VersionUtils.class.getClassLoader().getResourceAsStream(BUILD_PROPERTIES_FILE_NAME); ) {
+        VersionUtils.class.getClassLoader().getResourceAsStream(BUILD_PROPERTIES_FILE_NAME);) {
 
       if (stream != null) {
         props.load(stream);
@@ -37,10 +38,8 @@ public class VersionUtils {
       return props;
     } catch (final IOException e) {
       LOGGER.warn("Cannot read GeoWave build properties to show version information", e);
-      JCommander.getConsole()
-          .print(
-              "Cannot read GeoWave build properties to show version information: "
-                  + e.getMessage());
+      JCommander.getConsole().print(
+          "Cannot read GeoWave build properties to show version information: " + e.getMessage());
     }
     return props;
   }

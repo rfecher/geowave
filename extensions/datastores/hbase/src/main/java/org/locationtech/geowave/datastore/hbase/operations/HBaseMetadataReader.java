@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,9 +37,7 @@ public class HBaseMetadataReader implements MetadataReader {
   private final DataStoreOptions options;
   private final MetadataType metadataType;
 
-  public HBaseMetadataReader(
-      final HBaseOperations operations,
-      final DataStoreOptions options,
+  public HBaseMetadataReader(final HBaseOperations operations, final DataStoreOptions options,
       final MetadataType metadataType) {
     this.operations = operations;
     this.options = options;
@@ -77,33 +76,27 @@ public class HBaseMetadataReader implements MetadataReader {
           operations.getScannedResults(scanner, operations.getMetadataTableName(metadataType));
       final Iterator<Result> it = rS.iterator();
       final Iterator<GeoWaveMetadata> transformedIt =
-          Iterators.transform(
-              it,
-              new com.google.common.base.Function<Result, GeoWaveMetadata>() {
-                @Override
-                public GeoWaveMetadata apply(final Result result) {
-                  byte[] resultantCQ;
-                  if (columnQualifier == null) {
-                    final NavigableMap<byte[], byte[]> familyMap =
-                        result.getFamilyMap(columnFamily);
-                    if ((familyMap != null) && !familyMap.isEmpty()) {
-                      resultantCQ = familyMap.firstKey();
-                    } else {
-                      resultantCQ = new byte[0];
-                    }
-                  } else {
-                    resultantCQ = columnQualifier;
-                  }
-                  return new GeoWaveMetadata(
-                      result.getRow(),
-                      resultantCQ,
-                      null,
-                      getMergedStats(result, clientsideStatsMerge));
+          Iterators.transform(it, new com.google.common.base.Function<Result, GeoWaveMetadata>() {
+            @Override
+            public GeoWaveMetadata apply(final Result result) {
+              byte[] resultantCQ;
+              if (columnQualifier == null) {
+                final NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(columnFamily);
+                if ((familyMap != null) && !familyMap.isEmpty()) {
+                  resultantCQ = familyMap.firstKey();
+                } else {
+                  resultantCQ = new byte[0];
                 }
-              });
+              } else {
+                resultantCQ = columnQualifier;
+              }
+              return new GeoWaveMetadata(result.getRow(), resultantCQ, null,
+                  getMergedStats(result, clientsideStatsMerge));
+            }
+          });
       if (rS instanceof ResultScanner) {
-        return new CloseableIteratorWrapper<>(
-            new ScannerClosableWrapper((ResultScanner) rS), transformedIt);
+        return new CloseableIteratorWrapper<>(new ScannerClosableWrapper((ResultScanner) rS),
+            transformedIt);
       } else {
         return new CloseableIterator.Wrapper<>(transformedIt);
       }

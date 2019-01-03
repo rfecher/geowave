@@ -1,7 +1,8 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p>
+ * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -74,11 +75,8 @@ public class ConvexHullMapReduce {
 
     // Override parent since there is not need to decode the value.
     @Override
-    protected void mapWritableValue(
-        final GeoWaveInputKey key,
-        final ObjectWritable value,
-        final Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context
-            context)
+    protected void mapWritableValue(final GeoWaveInputKey key, final ObjectWritable value,
+        final Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
         throws IOException, InterruptedException {
       // cached for efficiency since the output is the input object
       // the de-serialized input object is only used for sampling.
@@ -90,21 +88,15 @@ public class ConvexHullMapReduce {
     }
 
     @Override
-    protected void mapNativeValue(
-        final GeoWaveInputKey key,
-        final Object value,
-        final org.apache.hadoop.mapreduce.Mapper<
-                    GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>
-                .Context
-            context)
+    protected void mapNativeValue(final GeoWaveInputKey key, final Object value,
+        final org.apache.hadoop.mapreduce.Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
         throws IOException, InterruptedException {
 
       @SuppressWarnings("unchecked")
       final AnalyticItemWrapper<T> wrapper = itemWrapperFactory.create((T) value);
       outputKey.setInternalAdapterId(key.getInternalAdapterId());
-      outputKey.setDataId(
-          new ByteArray(
-              StringUtils.stringToBinary(nestedGroupCentroidAssigner.getGroupForLevel(wrapper))));
+      outputKey.setDataId(new ByteArray(
+          StringUtils.stringToBinary(nestedGroupCentroidAssigner.getGroupForLevel(wrapper))));
       outputKey.setGeoWaveKey(key.getGeoWaveKey());
       context.write(outputKey, currentValue);
     }
@@ -112,32 +104,26 @@ public class ConvexHullMapReduce {
     @SuppressWarnings("unchecked")
     @Override
     protected void setup(
-        final Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context
-            context)
+        final Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
         throws IOException, InterruptedException {
       super.setup(context);
 
-      final ScopedJobConfiguration config =
-          new ScopedJobConfiguration(
-              context.getConfiguration(), ConvexHullMapReduce.class, ConvexHullMapReduce.LOGGER);
+      final ScopedJobConfiguration config = new ScopedJobConfiguration(context.getConfiguration(),
+          ConvexHullMapReduce.class, ConvexHullMapReduce.LOGGER);
       try {
-        itemWrapperFactory =
-            config.getInstance(
-                HullParameters.Hull.WRAPPER_FACTORY_CLASS,
-                AnalyticItemWrapperFactory.class,
-                SimpleFeatureItemWrapperFactory.class);
+        itemWrapperFactory = config.getInstance(HullParameters.Hull.WRAPPER_FACTORY_CLASS,
+            AnalyticItemWrapperFactory.class, SimpleFeatureItemWrapperFactory.class);
 
-        itemWrapperFactory.initialize(
-            context, ConvexHullMapReduce.class, ConvexHullMapReduce.LOGGER);
+        itemWrapperFactory.initialize(context, ConvexHullMapReduce.class,
+            ConvexHullMapReduce.LOGGER);
       } catch (final Exception e1) {
 
         throw new IOException(e1);
       }
 
       try {
-        nestedGroupCentroidAssigner =
-            new NestedGroupCentroidAssignment<T>(
-                context, ConvexHullMapReduce.class, ConvexHullMapReduce.LOGGER);
+        nestedGroupCentroidAssigner = new NestedGroupCentroidAssignment<T>(context,
+            ConvexHullMapReduce.class, ConvexHullMapReduce.LOGGER);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
@@ -160,11 +146,8 @@ public class ConvexHullMapReduce {
     private final List<Coordinate> batchCoords = new ArrayList<Coordinate>(10000);
 
     @Override
-    protected void reduceNativeValues(
-        final GeoWaveInputKey key,
-        final Iterable<Object> values,
-        final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveOutputKey, SimpleFeature>.Context
-            context)
+    protected void reduceNativeValues(final GeoWaveInputKey key, final Iterable<Object> values,
+        final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveOutputKey, SimpleFeature>.Context context)
         throws IOException, InterruptedException {
       // limit on new points per convex hull run (batch)
       int batchThreshold = 10000;
@@ -200,26 +183,17 @@ public class ConvexHullMapReduce {
       }
 
       final SimpleFeature newPolygonFeature =
-          AnalyticFeature.createGeometryFeature(
-              outputAdapter.getFeatureType(),
-              centroid.getBatchID(),
-              UUID.randomUUID().toString(),
-              centroid.getName(),
-              centroid.getGroupID(),
-              centroid.getCost(),
-              currentHull,
-              new String[0],
-              new double[0],
-              centroid.getZoomLevel(),
-              centroid.getIterationID(),
-              centroid.getAssociationCount());
+          AnalyticFeature.createGeometryFeature(outputAdapter.getFeatureType(),
+              centroid.getBatchID(), UUID.randomUUID().toString(), centroid.getName(),
+              centroid.getGroupID(), centroid.getCost(), currentHull, new String[0], new double[0],
+              centroid.getZoomLevel(), centroid.getIterationID(), centroid.getAssociationCount());
       // new center
-      context.write(
-          new GeoWaveOutputKey(outputAdapter.getTypeName(), indexNames), newPolygonFeature);
+      context.write(new GeoWaveOutputKey(outputAdapter.getTypeName(), indexNames),
+          newPolygonFeature);
     }
 
-    private static <T> Geometry compress(
-        final GeoWaveInputKey key, final List<Coordinate> batchCoords) {
+    private static <T> Geometry compress(final GeoWaveInputKey key,
+        final List<Coordinate> batchCoords) {
       final Coordinate[] actualCoords = batchCoords.toArray(new Coordinate[batchCoords.size()]);
 
       // generate convex hull for current batch of points
@@ -238,29 +212,23 @@ public class ConvexHullMapReduce {
     @SuppressWarnings("unchecked")
     @Override
     protected void setup(
-        final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveOutputKey, SimpleFeature>.Context
-            context)
+        final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveOutputKey, SimpleFeature>.Context context)
         throws IOException, InterruptedException {
 
-      final ScopedJobConfiguration config =
-          new ScopedJobConfiguration(
-              context.getConfiguration(), ConvexHullMapReduce.class, ConvexHullMapReduce.LOGGER);
+      final ScopedJobConfiguration config = new ScopedJobConfiguration(context.getConfiguration(),
+          ConvexHullMapReduce.class, ConvexHullMapReduce.LOGGER);
       super.setup(context);
       try {
-        centroidManager =
-            new CentroidManagerGeoWave<T>(
-                context, ConvexHullMapReduce.class, ConvexHullMapReduce.LOGGER);
+        centroidManager = new CentroidManagerGeoWave<T>(context, ConvexHullMapReduce.class,
+            ConvexHullMapReduce.LOGGER);
       } catch (final Exception e) {
         ConvexHullMapReduce.LOGGER.warn("Unable to initialize centroid manager", e);
         throw new IOException("Unable to initialize centroid manager");
       }
 
       try {
-        projectionFunction =
-            config.getInstance(
-                HullParameters.Hull.PROJECTION_CLASS,
-                Projection.class,
-                SimpleFeatureProjection.class);
+        projectionFunction = config.getInstance(HullParameters.Hull.PROJECTION_CLASS,
+            Projection.class, SimpleFeatureProjection.class);
 
         projectionFunction.initialize(context, ConvexHullMapReduce.class);
       } catch (final Exception e1) {
@@ -270,20 +238,13 @@ public class ConvexHullMapReduce {
       final String polygonDataTypeId =
           config.getString(HullParameters.Hull.DATA_TYPE_ID, "convex_hull");
 
-      outputAdapter =
-          AnalyticFeature.createGeometryFeatureAdapter(
-              polygonDataTypeId,
-              new String[0],
-              config.getString(
-                  HullParameters.Hull.DATA_NAMESPACE_URI, BasicFeatureTypes.DEFAULT_NAMESPACE),
-              ClusteringUtils.CLUSTERING_CRS);
+      outputAdapter = AnalyticFeature.createGeometryFeatureAdapter(polygonDataTypeId, new String[0],
+          config.getString(HullParameters.Hull.DATA_NAMESPACE_URI,
+              BasicFeatureTypes.DEFAULT_NAMESPACE),
+          ClusteringUtils.CLUSTERING_CRS);
 
-      indexNames =
-          new String[] {
-            config.getString(
-                HullParameters.Hull.INDEX_NAME,
-                new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName())
-          };
+      indexNames = new String[] {config.getString(HullParameters.Hull.INDEX_NAME,
+          new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName())};
     }
   }
 }
