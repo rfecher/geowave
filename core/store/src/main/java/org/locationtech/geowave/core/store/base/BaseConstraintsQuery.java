@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -57,28 +56,39 @@ public class BaseConstraintsQuery extends BaseFilteredIndexQuery {
   public final IndexMetaData[] indexMetaData;
   private final Index index;
 
-  public BaseConstraintsQuery(final short[] adapterIds, final Index index,
-      final QueryConstraints query, final DedupeFilter clientDedupeFilter,
+  public BaseConstraintsQuery(
+      final short[] adapterIds,
+      final Index index,
+      final QueryConstraints query,
+      final DedupeFilter clientDedupeFilter,
       final ScanCallback<?, ?> scanCallback,
       final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
       final Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair,
-      final IndexMetaData[] indexMetaData, final DuplicateEntryCount duplicateCounts,
+      final IndexMetaData[] indexMetaData,
+      final DuplicateEntryCount duplicateCounts,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
-      final FieldVisibilityCount visibilityCounts, final String[] authorizations) {
+      final FieldVisibilityCount visibilityCounts,
+      final String[] authorizations) {
     this(adapterIds, index, query != null ? query.getIndexConstraints(index) : null,
         query != null ? query.createFilters(index) : null, clientDedupeFilter, scanCallback,
         aggregation, fieldIdsAdapterPair, indexMetaData, duplicateCounts, differingVisibilityCounts,
         visibilityCounts, authorizations);
   }
 
-  public BaseConstraintsQuery(final short[] adapterIds, final Index index,
-      final List<MultiDimensionalNumericData> constraints, final List<QueryFilter> queryFilters,
-      DedupeFilter clientDedupeFilter, final ScanCallback<?, ?> scanCallback,
+  public BaseConstraintsQuery(
+      final short[] adapterIds,
+      final Index index,
+      final List<MultiDimensionalNumericData> constraints,
+      final List<QueryFilter> queryFilters,
+      DedupeFilter clientDedupeFilter,
+      final ScanCallback<?, ?> scanCallback,
       final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
       final Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair,
-      final IndexMetaData[] indexMetaData, final DuplicateEntryCount duplicateCounts,
+      final IndexMetaData[] indexMetaData,
+      final DuplicateEntryCount duplicateCounts,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
-      final FieldVisibilityCount visibilityCounts, final String[] authorizations) {
+      final FieldVisibilityCount visibilityCounts,
+      final String[] authorizations) {
     super(adapterIds, index, scanCallback, fieldIdsAdapterPair, differingVisibilityCounts,
         visibilityCounts, authorizations);
     this.constraints = constraints;
@@ -120,19 +130,25 @@ public class BaseConstraintsQuery extends BaseFilteredIndexQuery {
 
   @SuppressWarnings("unchecked")
   @Override
-  public CloseableIterator<Object> query(final DataStoreOperations datastoreOperations,
-      final DataStoreOptions options, final PersistentAdapterStore adapterStore,
+  public CloseableIterator<Object> query(
+      final DataStoreOperations datastoreOperations,
+      final DataStoreOptions options,
+      final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final double[] maxResolutionSubsamplingPerDimension,
-      final double[] targetResolutionPerDimensionForHierarchicalIndex, final Integer limit,
-      final Integer queryMaxRangeDecomposition, final boolean delete) {
+      final double[] targetResolutionPerDimensionForHierarchicalIndex,
+      final Integer limit,
+      final Integer queryMaxRangeDecomposition,
+      final boolean delete) {
     if (isAggregation()) {
       if ((options == null) || !options.isServerSideLibraryEnabled()) {
         // Aggregate client-side
-        final CloseableIterator<Object> it = super.query(datastoreOperations, options, adapterStore,
-            internalAdapterStore, maxResolutionSubsamplingPerDimension,
-            targetResolutionPerDimensionForHierarchicalIndex, limit, queryMaxRangeDecomposition,
-            false);
+        final CloseableIterator<Object> it =
+            super.query(
+                datastoreOperations, options, adapterStore, internalAdapterStore,
+                maxResolutionSubsamplingPerDimension,
+                targetResolutionPerDimensionForHierarchicalIndex, limit, queryMaxRangeDecomposition,
+                false);
         return BaseDataStoreUtils.aggregate(it, (Aggregation<?, ?, Object>) aggregation.getValue());
       } else {
         // the aggregation is run server-side use the reader to
@@ -151,10 +167,12 @@ public class BaseConstraintsQuery extends BaseFilteredIndexQuery {
                 "Aggregating results when duplicates exist in the table may result in duplicate aggregation");
           }
         }
-        try (final RowReader<GeoWaveRow> reader = getReader(datastoreOperations, options,
-            adapterStore, internalAdapterStore, maxResolutionSubsamplingPerDimension,
-            targetResolutionPerDimensionForHierarchicalIndex, limit, queryMaxRangeDecomposition,
-            GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER, false)) {
+        try (final RowReader<GeoWaveRow> reader =
+            getReader(
+                datastoreOperations, options, adapterStore, internalAdapterStore,
+                maxResolutionSubsamplingPerDimension,
+                targetResolutionPerDimensionForHierarchicalIndex, limit, queryMaxRangeDecomposition,
+                GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER, false)) {
           Object mergedAggregationResult = null;
           final Aggregation<?, Object, Object> agg =
               (Aggregation<?, Object, Object>) aggregation.getValue();
@@ -182,7 +200,8 @@ public class BaseConstraintsQuery extends BaseFilteredIndexQuery {
         }
       }
     }
-    return super.query(datastoreOperations, options, adapterStore, internalAdapterStore,
+    return super.query(
+        datastoreOperations, options, adapterStore, internalAdapterStore,
         maxResolutionSubsamplingPerDimension, targetResolutionPerDimensionForHierarchicalIndex,
         limit, queryMaxRangeDecomposition, delete);
   }
@@ -197,12 +216,14 @@ public class BaseConstraintsQuery extends BaseFilteredIndexQuery {
     }
     // add a index filter to the front of the list if there isn't already a
     // filter
-    if (distributableFilters.isEmpty() || ((distributableFilters.size() == 1)
-        && (distributableFilters.get(0) instanceof DedupeFilter))) {
+    if (distributableFilters.isEmpty()
+        || ((distributableFilters.size() == 1)
+            && (distributableFilters.get(0) instanceof DedupeFilter))) {
       final List<MultiDimensionalCoordinateRangesArray> coords = getCoordinateRanges();
       if (!coords.isEmpty()) {
-        clientFilters.add(0, new CoordinateRangeQueryFilter(index.getIndexStrategy(),
-            coords.toArray(new MultiDimensionalCoordinateRangesArray[] {})));
+        clientFilters.add(
+            0, new CoordinateRangeQueryFilter(index.getIndexStrategy(),
+                coords.toArray(new MultiDimensionalCoordinateRangesArray[] {})));
       }
     } else {
       // Without custom filters, we need all the filters on the client
@@ -239,17 +260,20 @@ public class BaseConstraintsQuery extends BaseFilteredIndexQuery {
       final NumericIndexStrategy indexStrategy = index.getIndexStrategy();
       final List<MultiDimensionalCoordinateRangesArray> ranges = new ArrayList<>();
       for (final MultiDimensionalNumericData nd : constraints) {
-        ranges.add(new MultiDimensionalCoordinateRangesArray(
-            indexStrategy.getCoordinateRangesPerDimension(nd, indexMetaData)));
+        ranges.add(
+            new MultiDimensionalCoordinateRangesArray(
+                indexStrategy.getCoordinateRangesPerDimension(nd, indexMetaData)));
       }
       return ranges;
     }
   }
 
   @Override
-  protected QueryRanges getRanges(final int maxRangeDecomposition,
+  protected QueryRanges getRanges(
+      final int maxRangeDecomposition,
       final double[] targetResolutionPerDimensionForHierarchicalIndex) {
-    return DataStoreUtils.constraintsToQueryRanges(constraints, index.getIndexStrategy(),
-        targetResolutionPerDimensionForHierarchicalIndex, maxRangeDecomposition, indexMetaData);
+    return DataStoreUtils.constraintsToQueryRanges(
+        constraints, index.getIndexStrategy(), targetResolutionPerDimensionForHierarchicalIndex,
+        maxRangeDecomposition, indexMetaData);
   }
 }

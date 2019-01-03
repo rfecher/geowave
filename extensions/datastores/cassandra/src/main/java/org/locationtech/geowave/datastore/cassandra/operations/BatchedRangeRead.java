@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -64,10 +63,13 @@ public class BatchedRangeRead<T> {
   // to control it
   private final Semaphore readSemaphore = new Semaphore(MAX_CONCURRENT_READ);
 
-  protected BatchedRangeRead(final PreparedStatement preparedRead,
-      final CassandraOperations operations, final short[] adapterIds,
+  protected BatchedRangeRead(
+      final PreparedStatement preparedRead,
+      final CassandraOperations operations,
+      final short[] adapterIds,
       final Collection<SinglePartitionQueryRanges> ranges,
-      final GeoWaveRowIteratorTransformer<T> rowTransformer, final Predicate<GeoWaveRow> filter) {
+      final GeoWaveRowIteratorTransformer<T> rowTransformer,
+      final Predicate<GeoWaveRow> filter) {
     this.preparedRead = preparedRead;
     this.operations = operations;
     this.adapterIds = adapterIds;
@@ -82,18 +84,23 @@ public class BatchedRangeRead<T> {
       for (final ByteArrayRange range : r.getSortKeyRanges()) {
         final BoundStatement boundRead = new BoundStatement(preparedRead);
         final byte[] start = range.getStart() != null ? range.getStart().getBytes() : new byte[0];
-        final byte[] end = range.getEnd() != null ? range.getEndAsNextPrefix().getBytes()
-            : new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF};
-        boundRead.set(CassandraField.GW_SORT_KEY.getLowerBoundBindMarkerName(),
-            ByteBuffer.wrap(start), ByteBuffer.class);
+        final byte[] end =
+            range.getEnd() != null ? range.getEndAsNextPrefix().getBytes()
+                : new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                    (byte) 0xFF, (byte) 0xFF};
+        boundRead.set(
+            CassandraField.GW_SORT_KEY.getLowerBoundBindMarkerName(), ByteBuffer.wrap(start),
+            ByteBuffer.class);
 
-        boundRead.set(CassandraField.GW_SORT_KEY.getUpperBoundBindMarkerName(),
-            ByteBuffer.wrap(end), ByteBuffer.class);
-        boundRead.set(CassandraField.GW_PARTITION_ID_KEY.getBindMarkerName(),
+        boundRead.set(
+            CassandraField.GW_SORT_KEY.getUpperBoundBindMarkerName(), ByteBuffer.wrap(end),
+            ByteBuffer.class);
+        boundRead.set(
+            CassandraField.GW_PARTITION_ID_KEY.getBindMarkerName(),
             ByteBuffer.wrap(r.getPartitionKey().getBytes()), ByteBuffer.class);
 
-        boundRead.set(CassandraField.GW_ADAPTER_ID_KEY.getBindMarkerName(),
+        boundRead.set(
+            CassandraField.GW_ADAPTER_ID_KEY.getBindMarkerName(),
             Arrays.asList(ArrayUtils.toObject(adapterIds)), TypeCodec.list(TypeCodec.smallInt()));
         statements.add(boundRead);
       }
@@ -117,8 +124,8 @@ public class BatchedRangeRead<T> {
 
             final ResultSetFuture f = operations.getSession().executeAsync(s);
             futures.add(f);
-            Futures.addCallback(f,
-                new QueryCallback(queryCount, results, rowTransformer, filter, readSemaphore),
+            Futures.addCallback(
+                f, new QueryCallback(queryCount, results, rowTransformer, filter, readSemaphore),
                 CassandraOperations.READ_RESPONSE_THREADS);
           } catch (final InterruptedException e) {
             LOGGER.warn("Exception while executing query", e);
@@ -158,8 +165,11 @@ public class BatchedRangeRead<T> {
     private final GeoWaveRowIteratorTransformer<T> rowTransform;
     Predicate<GeoWaveRow> filter;
 
-    public QueryCallback(final AtomicInteger queryCount, final BlockingQueue<Object> resultQueue,
-        final GeoWaveRowIteratorTransformer<T> rowTransform, final Predicate<GeoWaveRow> filter,
+    public QueryCallback(
+        final AtomicInteger queryCount,
+        final BlockingQueue<Object> resultQueue,
+        final GeoWaveRowIteratorTransformer<T> rowTransform,
+        final Predicate<GeoWaveRow> filter,
         final Semaphore semaphore) {
       this.queryCount = queryCount;
       this.queryCount.incrementAndGet();

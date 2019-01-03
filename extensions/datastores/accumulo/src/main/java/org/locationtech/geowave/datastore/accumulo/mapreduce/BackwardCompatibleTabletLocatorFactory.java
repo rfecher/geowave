@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -62,8 +61,9 @@ class BackwardCompatibleTabletLocatorFactory {
   }
 
   public static BackwardCompatibleTabletLocator createTabletLocator(
-      final AccumuloOperations operations, final String tableName, final TreeSet<Range> ranges)
-      throws IOException {
+      final AccumuloOperations operations,
+      final String tableName,
+      final TreeSet<Range> ranges) throws IOException {
     // @formatter:off
     /*if[accumulo.api=1.7]
     return new Accumulo_1_7_Locator(
@@ -265,7 +265,9 @@ class BackwardCompatibleTabletLocatorFactory {
     }
   }
 
-  private static Locations getLocations(final AccumuloOperations operations, final String tableName,
+  private static Locations getLocations(
+      final AccumuloOperations operations,
+      final String tableName,
       final TreeSet<Range> ranges)
       throws AccumuloException, AccumuloSecurityException, TableNotFoundException {
     final Connector conn = operations.getConnector();

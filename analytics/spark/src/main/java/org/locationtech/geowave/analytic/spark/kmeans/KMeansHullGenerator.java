@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,7 +24,8 @@ public class KMeansHullGenerator {
   private static final Logger LOGGER = LoggerFactory.getLogger(KMeansHullGenerator.class);
 
   public static JavaPairRDD<Integer, Iterable<Vector>> groupByIndex(
-      final JavaRDD<Vector> inputPoints, final KMeansModel clusterModel) {
+      final JavaRDD<Vector> inputPoints,
+      final KMeansModel clusterModel) {
     // Group the input points by their kmeans centroid index
     return inputPoints.groupBy(point -> {
       return clusterModel.predict(point);

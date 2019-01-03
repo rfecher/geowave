@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -72,7 +71,9 @@ public class EarthVector {
     return new EarthVector(lat, lon, DEGREES);
   }
 
-  public static EarthVector translateDegrees(final double lat, final double lon,
+  public static EarthVector translateDegrees(
+      final double lat,
+      final double lon,
       final Vector3d translation) {
     final EarthVector result = EarthVector.fromDegrees(lat, lon);
     result.getVector().add(translation);
@@ -511,13 +512,15 @@ public class EarthVector {
     return makeGreatCircleSegmentLength(endpoint, 100);
   }
 
-  public EarthVector[] makeGreatCircleSegmentLength(final EarthVector endpoint,
+  public EarthVector[] makeGreatCircleSegmentLength(
+      final EarthVector endpoint,
       final double segmentLengthKM) {
     final int segments = getNumGreatCircleSegments(endpoint, segmentLengthKM, false);
     return makeGreatCircleNumSegments(endpoint, segments, false);
   }
 
-  public EarthVector[] makeGreatCircleSegmentLengthReverseDirection(final EarthVector endpoint,
+  public EarthVector[] makeGreatCircleSegmentLengthReverseDirection(
+      final EarthVector endpoint,
       final double segmentLengthKM) {
     final int segments = getNumGreatCircleSegments(endpoint, segmentLengthKM, true);
     return makeGreatCircleNumSegments(endpoint, segments, true);
@@ -527,7 +530,9 @@ public class EarthVector {
     return makeGreatCircleNumSegments(endpoint, segments, false);
   }
 
-  public EarthVector[] makeGreatCircleNumSegments(final EarthVector endpoint, final int segments,
+  public EarthVector[] makeGreatCircleNumSegments(
+      final EarthVector endpoint,
+      final int segments,
       final boolean reverseDirection) {
     final double resolution = 1.0 / segments;
     double fraction = 0;
@@ -552,24 +557,30 @@ public class EarthVector {
     return points;
   }
 
-  public EarthVector[] makeInterpolatedLineSegmentLength(final EarthVector endpoint,
+  public EarthVector[] makeInterpolatedLineSegmentLength(
+      final EarthVector endpoint,
       final double segmentLengthKM) {
     return makeInterpolatedLineSegmentLength(endpoint, segmentLengthKM, false);
   }
 
-  public EarthVector[] makeInterpolatedLineSegmentLength(final EarthVector endpoint,
-      final double segmentLengthKM, final boolean reverseDirection) {
+  public EarthVector[] makeInterpolatedLineSegmentLength(
+      final EarthVector endpoint,
+      final double segmentLengthKM,
+      final boolean reverseDirection) {
     final int segments = getNumGreatCircleSegments(endpoint, segmentLengthKM, reverseDirection);
     return makeInterpolatedLineNumSegments(endpoint, segments, reverseDirection);
   }
 
-  public EarthVector[] makeInterpolatedLineNumSegments(final EarthVector endpoint,
+  public EarthVector[] makeInterpolatedLineNumSegments(
+      final EarthVector endpoint,
       final int segments) {
     return makeInterpolatedLineNumSegments(endpoint, segments, false);
   }
 
-  public EarthVector[] makeInterpolatedLineNumSegments(final EarthVector endpoint,
-      final int segments, final boolean reverseDirection) {
+  public EarthVector[] makeInterpolatedLineNumSegments(
+      final EarthVector endpoint,
+      final int segments,
+      final boolean reverseDirection) {
     final double resolution = 1.0 / segments;
     final EarthVector points[] = new EarthVector[segments + 1];
 
@@ -633,7 +644,9 @@ public class EarthVector {
     return getNumGreatCircleSegments(endpoint, segmentLengthKM, false);
   }
 
-  public int getNumGreatCircleSegments(final EarthVector endpoint, double segmentLengthKM,
+  public int getNumGreatCircleSegments(
+      final EarthVector endpoint,
+      double segmentLengthKM,
       final boolean reverseDirection) {
     if (segmentLengthKM <= 0) {
       segmentLengthKM = 100;
@@ -667,8 +680,9 @@ public class EarthVector {
     vec.cross(ecfVector, nextVector);
 
     // compute the fractional angle between this vector and the input vector
-    final double phi = fraction
-        * Math.acos(ecfVector.dot(nextVector) / (ecfVector.length() * nextVector.length()));
+    final double phi =
+        fraction
+            * Math.acos(ecfVector.dot(nextVector) / (ecfVector.length() * nextVector.length()));
 
     // create the vector rotated through phi about the normal vector
     final Vector3d output = rotate(vec, phi);
@@ -696,8 +710,9 @@ public class EarthVector {
     vec.negate();
 
     // compute the fractional angle between this vector and the input vector
-    final double phi = fraction
-        * Math.acos(ecfVector.dot(nextVector) / (ecfVector.length() * nextVector.length()));
+    final double phi =
+        fraction
+            * Math.acos(ecfVector.dot(nextVector) / (ecfVector.length() * nextVector.length()));
 
     // create the vector rotated through phi about the normal vector
     final Vector3d output = rotate(vec, phi);
@@ -755,7 +770,9 @@ public class EarthVector {
    * Locate a coordinate at a specific distance (km), elevation angle (radians), and heading
    * (radians) from this one.
    */
-  public EarthVector findPoint(final double distanceKM, final double azimuth,
+  public EarthVector findPoint(
+      final double distanceKM,
+      final double azimuth,
       final double elevAngle) {
     // convert distance to radians
     // final double distR = distanceKM / KMPerDegree() / DPR;
@@ -875,8 +892,10 @@ public class EarthVector {
    * @param loc The coordinate to compute the distance to
    */
   public double getDistance(final EarthVector loc) {
-    double dist = getEarthRadiusKM() * (Math
-        .acos(ecfVector.dot(loc.getVector()) / (ecfVector.length() * loc.getVector().length())));
+    double dist =
+        getEarthRadiusKM()
+            * (Math.acos(
+                ecfVector.dot(loc.getVector()) / (ecfVector.length() * loc.getVector().length())));
 
     if (Double.isNaN(dist) || Double.isInfinite(dist)) {
       dist = 0;
@@ -892,8 +911,12 @@ public class EarthVector {
    * @param loc The coordinate to compute the distance to
    */
   public double getDistanceReverseDirection(final EarthVector loc) {
-    double dist = getEarthRadiusKM() * ((2 * Math.PI) - Math
-        .acos(ecfVector.dot(loc.getVector()) / (ecfVector.length() * loc.getVector().length())));
+    double dist =
+        getEarthRadiusKM()
+            * ((2 * Math.PI)
+                - Math.acos(
+                    ecfVector.dot(loc.getVector())
+                        / (ecfVector.length() * loc.getVector().length())));
 
     if (Double.isNaN(dist) || Double.isInfinite(dist)) {
       dist = 0;
@@ -909,8 +932,11 @@ public class EarthVector {
    */
   public double getSphereDistance(final EarthVector loc) {
     return (getEarthRadiusKM()
-        * (Math.acos((Math.sin(latitude) * Math.sin(loc.getLatitude())) + (Math.cos(latitude)
-            * Math.cos(loc.getLatitude()) * Math.cos(loc.getLongitude() - longitude)))));
+        * (Math.acos(
+            (Math.sin(latitude) * Math.sin(loc.getLatitude()))
+                + (Math.cos(latitude)
+                    * Math.cos(loc.getLatitude())
+                    * Math.cos(loc.getLongitude() - longitude)))));
   }
 
   /**
@@ -986,8 +1012,9 @@ public class EarthVector {
     final double radiusAtEquatorKM = REKM;
 
     if (flat) {
-      return ((radiusAtEquatorKM * (1.0 - EARTH_FLATTENING)) / Math.sqrt(
-          1.0 - (Math.cos(lat) * Math.cos(lat) * EARTH_FLATTENING * (2.0 - EARTH_FLATTENING))));
+      return ((radiusAtEquatorKM * (1.0 - EARTH_FLATTENING))
+          / Math.sqrt(
+              1.0 - (Math.cos(lat) * Math.cos(lat) * EARTH_FLATTENING * (2.0 - EARTH_FLATTENING))));
     } else {
       return radiusAtEquatorKM;
     }

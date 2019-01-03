@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -76,8 +75,9 @@ public class ConfigOptions {
     // HP Fortify "Path Manipulation" false positive
     // What Fortify considers "user input" comes only
     // from users with OS-level access anyway
-    final String cachePath = String.format("%s%s%s", System.getProperty("user.home"),
-        File.separator, GEOWAVE_CACHE_PATH);
+    final String cachePath =
+        String
+            .format("%s%s%s", System.getProperty("user.home"), File.separator, GEOWAVE_CACHE_PATH);
     return new File(cachePath);
   }
 
@@ -123,13 +123,18 @@ public class ConfigOptions {
     // HP Fortify "Path Manipulation" false positive
     // What Fortify considers "user input" comes only
     // from users with OS-level access anyway
-    final String configFile = String.format("%s%s%s%s%s", defaultPath.getAbsolutePath(),
-        File.separator, version, "-", GEOWAVE_CACHE_FILE);
+    final String configFile =
+        String.format(
+            "%s%s%s%s%s", defaultPath.getAbsolutePath(), File.separator, version, "-",
+            GEOWAVE_CACHE_FILE);
     return new File(configFile);
   }
 
-  public static boolean writeProperties(final File configFile, final Properties properties,
-      Class<?> clazz, String namespacePrefix) {
+  public static boolean writeProperties(
+      final File configFile,
+      final Properties properties,
+      Class<?> clazz,
+      String namespacePrefix) {
     try {
       Properties tmp = new Properties() {
         private static final long serialVersionUID = 1L;
@@ -147,8 +152,9 @@ public class ConfigOptions {
 
       // check if encryption is enabled - it is by default and would need
       // to be explicitly disabled
-      if (Boolean.parseBoolean(properties.getProperty(Constants.ENCRYPTION_ENABLED_KEY,
-          Constants.ENCRYPTION_ENABLED_DEFAULT))) {
+      if (Boolean.parseBoolean(
+          properties.getProperty(
+              Constants.ENCRYPTION_ENABLED_KEY, Constants.ENCRYPTION_ENABLED_DEFAULT))) {
         // check if any values exist that need to be encrypted before
         // written to properties
         if (clazz != null) {
@@ -168,11 +174,14 @@ public class ConfigOptions {
                     String encryptedValue = value;
                     try {
                       File tokenFile = SecurityUtils.getFormattedTokenKeyFileForConfig(configFile);
-                      encryptedValue = SecurityUtils.encryptAndHexEncodeValue(value,
-                          tokenFile.getAbsolutePath());
+                      encryptedValue =
+                          SecurityUtils
+                              .encryptAndHexEncodeValue(value, tokenFile.getAbsolutePath());
                     } catch (Exception e) {
-                      LOGGER.error("An error occurred encrypting specified password value: "
-                          + e.getLocalizedMessage(), e);
+                      LOGGER.error(
+                          "An error occurred encrypting specified password value: "
+                              + e.getLocalizedMessage(),
+                          e);
                       encryptedValue = value;
                     }
                     properties.setProperty(storeFieldName, encryptedValue);

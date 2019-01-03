@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,23 +36,33 @@ public abstract class AbstractSecondaryIndexConfiguration<T>
   private SecondaryIndexType secondaryIndexType;
   private List<String> fieldIds;
 
-  public AbstractSecondaryIndexConfiguration(final Class<T> clazz, final String attribute,
+  public AbstractSecondaryIndexConfiguration(
+      final Class<T> clazz,
+      final String attribute,
       final SecondaryIndexType secondaryIndexType) {
     this(clazz, Sets.newHashSet(attribute), secondaryIndexType);
   }
 
-  public AbstractSecondaryIndexConfiguration(final Class<T> clazz, final Set<String> attributes,
+  public AbstractSecondaryIndexConfiguration(
+      final Class<T> clazz,
+      final Set<String> attributes,
       final SecondaryIndexType secondaryIndexType) {
     this(clazz, attributes, secondaryIndexType, Collections.<String>emptyList());
   }
 
-  public AbstractSecondaryIndexConfiguration(final Class<T> clazz, final String attribute,
-      final SecondaryIndexType secondaryIndexType, final List<String> fieldIds) {
+  public AbstractSecondaryIndexConfiguration(
+      final Class<T> clazz,
+      final String attribute,
+      final SecondaryIndexType secondaryIndexType,
+      final List<String> fieldIds) {
     this(clazz, Sets.newHashSet(attribute), secondaryIndexType, fieldIds);
   }
 
-  public AbstractSecondaryIndexConfiguration(final Class<T> clazz, final Set<String> attributes,
-      final SecondaryIndexType secondaryIndexType, final List<String> fieldIds) {
+  public AbstractSecondaryIndexConfiguration(
+      final Class<T> clazz,
+      final Set<String> attributes,
+      final SecondaryIndexType secondaryIndexType,
+      final List<String> fieldIds) {
     super();
     this.clazz = clazz;
     this.attributes = attributes;
@@ -86,12 +95,19 @@ public abstract class AbstractSecondaryIndexConfiguration<T>
             desc.getUserData().put(secondaryIndexType.getValue(), Joiner.on(",").join(fieldIds));
           }
         } else {
-          LOGGER.error("Expected type " + clazz.getName() + " for attribute '" + attribute
-              + "' but found " + attributeType.getName());
+          LOGGER.error(
+              "Expected type "
+                  + clazz.getName()
+                  + " for attribute '"
+                  + attribute
+                  + "' but found "
+                  + attributeType.getName());
         }
       } else {
-        LOGGER.error("SimpleFeatureType does not contain an AttributeDescriptor that matches '"
-            + attribute + "'");
+        LOGGER.error(
+            "SimpleFeatureType does not contain an AttributeDescriptor that matches '"
+                + attribute
+                + "'");
       }
     }
   }
@@ -119,10 +135,15 @@ public abstract class AbstractSecondaryIndexConfiguration<T>
     byte[] attributesBytes = StringUtils.stringsToBinary(attributes.toArray(new String[0]));
     byte secondaryIndexTypeByte = (byte) secondaryIndexType.ordinal();
     byte[] fieldIdsBytes = StringUtils.stringsToBinary(fieldIds.toArray(new String[0]));
-    ByteBuffer buf = ByteBuffer
-        .allocate(1 + VarintUtils.unsignedIntByteLength(clazzBytes.length) + clazzBytes.length
-            + VarintUtils.unsignedIntByteLength(attributesBytes.length) + attributesBytes.length
-            + VarintUtils.unsignedIntByteLength(fieldIdsBytes.length) + fieldIdsBytes.length);
+    ByteBuffer buf =
+        ByteBuffer.allocate(
+            1
+                + VarintUtils.unsignedIntByteLength(clazzBytes.length)
+                + clazzBytes.length
+                + VarintUtils.unsignedIntByteLength(attributesBytes.length)
+                + attributesBytes.length
+                + VarintUtils.unsignedIntByteLength(fieldIdsBytes.length)
+                + fieldIdsBytes.length);
     VarintUtils.writeUnsignedInt(clazzBytes.length, buf);
     buf.put(clazzBytes);
     buf.put(secondaryIndexTypeByte);

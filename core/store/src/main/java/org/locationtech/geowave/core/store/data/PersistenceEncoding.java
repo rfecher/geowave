@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,8 +28,11 @@ public class PersistenceEncoding<T> {
   protected static final Logger LOGGER = LoggerFactory.getLogger(PersistenceEncoding.class);
   protected static final double DOUBLE_TOLERANCE = 1E-12d;
 
-  public PersistenceEncoding(final Short internalAdapterId, final ByteArray dataId,
-      final PersistentDataset<T> commonData, final PersistentDataset<byte[]> unknownData) {
+  public PersistenceEncoding(
+      final Short internalAdapterId,
+      final ByteArray dataId,
+      final PersistentDataset<T> commonData,
+      final PersistentDataset<byte[]> unknownData) {
     this.internalAdapterId = internalAdapterId;
     this.dataId = dataId;
     this.commonData = commonData;

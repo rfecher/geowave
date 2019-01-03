@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,14 +29,18 @@ public class InputStoreParameterHelper implements ParameterHelper<PersistableSto
   }
 
   @Override
-  public void setValue(final Configuration config, final Class<?> scope,
+  public void setValue(
+      final Configuration config,
+      final Class<?> scope,
       final PersistableStore value) {
     final DataStorePluginOptions options = value.getDataStoreOptions();
     GeoWaveInputFormat.setStoreOptions(config, options);
   }
 
   @Override
-  public PersistableStore getValue(final JobContext context, final Class<?> scope,
+  public PersistableStore getValue(
+      final JobContext context,
+      final Class<?> scope,
       final PersistableStore defaultValue) {
     final DataStorePluginOptions pluginOptions = GeoWaveInputFormat.getStoreOptions(context);
     if (pluginOptions != null) {

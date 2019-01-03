@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -48,12 +47,14 @@ public class GeoWaveInputFormat<T> extends InputFormat<GeoWaveInputKey, T> {
   private static final Class<?> CLASS = GeoWaveInputFormat.class;
   protected static final Logger LOGGER = LoggerFactory.getLogger(CLASS);
 
-  public static void setStoreOptionsMap(final Configuration config,
+  public static void setStoreOptionsMap(
+      final Configuration config,
       final Map<String, String> storeConfigOptions) {
     GeoWaveConfiguratorBase.setStoreOptionsMap(CLASS, config, storeConfigOptions);
   }
 
-  public static void setStoreOptions(final Configuration config,
+  public static void setStoreOptions(
+      final Configuration config,
       final DataStorePluginOptions storeOptions) {
     if (storeOptions != null) {
       GeoWaveConfiguratorBase.setStoreOptionsMap(CLASS, config, storeOptions.getOptionsAsMap());
@@ -96,18 +97,23 @@ public class GeoWaveInputFormat<T> extends InputFormat<GeoWaveInputKey, T> {
     GeoWaveInputConfigurator.setMaximumSplitCount(CLASS, config, maxSplits);
   }
 
-  public static void setIsOutputWritable(final Configuration config,
+  public static void setIsOutputWritable(
+      final Configuration config,
       final Boolean isOutputWritable) {
-    config.setBoolean(GeoWaveConfiguratorBase.enumToConfKey(CLASS, InputConfig.OUTPUT_WRITABLE),
+    config.setBoolean(
+        GeoWaveConfiguratorBase.enumToConfKey(CLASS, InputConfig.OUTPUT_WRITABLE),
         isOutputWritable);
   }
 
-  public static void setQuery(final Configuration config, final Query<?> query,
-      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
+  public static void setQuery(
+      final Configuration config,
+      final Query<?> query,
+      final PersistentAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
       final IndexStore indexStore) {
     setCommonQueryOptions(config, query.getCommonQueryOptions());
-    setDataTypeQueryOptions(config, query.getDataTypeQueryOptions(), adapterStore,
-        internalAdapterStore);
+    setDataTypeQueryOptions(
+        config, query.getDataTypeQueryOptions(), adapterStore, internalAdapterStore);
     setIndexQueryOptions(config, query.getIndexQueryOptions(), indexStore);
     setQueryConstraints(config, (QueryConstraints) query.getQueryConstraints());
   }
@@ -120,8 +126,10 @@ public class GeoWaveInputFormat<T> extends InputFormat<GeoWaveInputKey, T> {
     return GeoWaveInputConfigurator.getQueryConstraints(CLASS, context);
   }
 
-  public static void setIndexQueryOptions(final Configuration config,
-      final IndexQueryOptions queryOptions, final IndexStore indexStore) {
+  public static void setIndexQueryOptions(
+      final Configuration config,
+      final IndexQueryOptions queryOptions,
+      final IndexStore indexStore) {
     final String indexName = queryOptions.getIndexName();
     if (indexName != null) {
       // make available to the context index store
@@ -142,8 +150,10 @@ public class GeoWaveInputFormat<T> extends InputFormat<GeoWaveInputKey, T> {
     return options == null ? new QueryAllTypes<>() : options;
   }
 
-  public static void setDataTypeQueryOptions(final Configuration config,
-      final DataTypeQueryOptions<?> queryOptions, final PersistentAdapterStore adapterStore,
+  public static void setDataTypeQueryOptions(
+      final Configuration config,
+      final DataTypeQueryOptions<?> queryOptions,
+      final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore) {
     // TODO figure out where to add internal adapter IDs to the job context
     // and read it from the job context instead
@@ -179,14 +189,15 @@ public class GeoWaveInputFormat<T> extends InputFormat<GeoWaveInputKey, T> {
     return options == null ? new CommonQueryOptions() : options;
   }
 
-  public static void setCommonQueryOptions(final Configuration config,
+  public static void setCommonQueryOptions(
+      final Configuration config,
       final CommonQueryOptions queryOptions) {
     GeoWaveInputConfigurator.setCommonQueryOptions(CLASS, config, queryOptions);
   }
 
   protected static Index getIndex(final JobContext context) {
-    return GeoWaveInputConfigurator.getIndex(CLASS,
-        GeoWaveConfiguratorBase.getConfiguration(context));
+    return GeoWaveInputConfigurator
+        .getIndex(CLASS, GeoWaveConfiguratorBase.getConfiguration(context));
   }
 
   protected static Boolean isOutputWritable(final JobContext context) {
@@ -203,7 +214,8 @@ public class GeoWaveInputFormat<T> extends InputFormat<GeoWaveInputKey, T> {
   }
 
   @Override
-  public RecordReader<GeoWaveInputKey, T> createRecordReader(final InputSplit split,
+  public RecordReader<GeoWaveInputKey, T> createRecordReader(
+      final InputSplit split,
       final TaskAttemptContext context) throws IOException, InterruptedException {
     final Map<String, String> configOptions = getStoreOptionsMap(context);
     final DataStore dataStore = GeoWaveStoreFinder.createDataStore(configOptions);
@@ -261,12 +273,13 @@ public class GeoWaveInputFormat<T> extends InputFormat<GeoWaveInputKey, T> {
     final Map<String, String> configOptions = getStoreOptionsMap(context);
     final DataStore dataStore = GeoWaveStoreFinder.createDataStore(configOptions);
     if ((dataStore != null) && (dataStore instanceof MapReduceDataStore)) {
-      return ((MapReduceDataStore) dataStore).getSplits(getCommonQueryOptions(context),
-          getDataTypeQueryOptions(context), getIndexQueryOptions(context),
-          getQueryConstraints(context), getJobContextAdapterStore(context),
-          getJobContextAdapterIndexMappingStore(context), getJobContextDataStatisticsStore(context),
-          getJobContextInternalAdapterStore(context), getJobContextIndexStore(context), context,
-          getMinimumSplitCount(context), getMaximumSplitCount(context));
+      return ((MapReduceDataStore) dataStore).getSplits(
+          getCommonQueryOptions(context), getDataTypeQueryOptions(context),
+          getIndexQueryOptions(context), getQueryConstraints(context),
+          getJobContextAdapterStore(context), getJobContextAdapterIndexMappingStore(context),
+          getJobContextDataStatisticsStore(context), getJobContextInternalAdapterStore(context),
+          getJobContextIndexStore(context), context, getMinimumSplitCount(context),
+          getMaximumSplitCount(context));
     }
 
     LOGGER.error("Data Store does not support map reduce");

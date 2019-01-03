@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -76,8 +75,9 @@ public class TemporalConstraints {
       pos++;
     }
     if ((nextNeighbor != null) && nextNeighbor.getStartTime().before(range.getEndTime())) {
-      constraints.add(pos, new TemporalRange(range.getStartTime(),
-          TemporalConstraints.max(nextNeighbor.getEndTime(), range.getEndTime())));
+      constraints.add(
+          pos, new TemporalRange(range.getStartTime(),
+              TemporalConstraints.max(nextNeighbor.getEndTime(), range.getEndTime())));
     } else {
       constraints.add(pos, range);
     }
@@ -119,7 +119,8 @@ public class TemporalConstraints {
     return constraints == null ? Collections.<TemporalRange>emptyList() : constraints;
   }
 
-  public static final TemporalConstraints findIntersections(final TemporalConstraints sideL,
+  public static final TemporalConstraints findIntersections(
+      final TemporalConstraints sideL,
       final TemporalConstraints sideR) {
 
     if (sideL.constraints.isEmpty()) {
@@ -137,14 +138,16 @@ public class TemporalConstraints {
             || rRange.getEndTime().before(lRange.getStartTime())) {
           continue;
         }
-        newSet.add(new TemporalRange(max(lRange.getStartTime(), rRange.getStartTime()),
-            min(lRange.getEndTime(), rRange.getEndTime())));
+        newSet.add(
+            new TemporalRange(max(lRange.getStartTime(), rRange.getStartTime()),
+                min(lRange.getEndTime(), rRange.getEndTime())));
       }
     }
     return newSet;
   }
 
-  public static final TemporalConstraints merge(final TemporalConstraints left,
+  public static final TemporalConstraints merge(
+      final TemporalConstraints left,
       final TemporalConstraints right) {
     if (left.isEmpty()) {
       return right;

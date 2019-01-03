@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -288,14 +287,16 @@ public class GpxUtils {
         .add(attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("PDOP"));
     simpleFeatureTypeBuilder
         .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Symbol"));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
-        .buildDescriptor("Classification"));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(String.class).nillable(true)
+            .buildDescriptor("Classification"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("GeoHeight"));
     simpleFeatureTypeBuilder
         .add(attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("Course"));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Double.class).nillable(true)
-        .buildDescriptor("MagneticVariation"));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(Double.class).nillable(true)
+            .buildDescriptor("MagneticVariation"));
     simpleFeatureTypeBuilder
         .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Source"));
     simpleFeatureTypeBuilder
@@ -343,8 +344,9 @@ public class GpxUtils {
         .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("URLName"));
     simpleFeatureTypeBuilder
         .add(attributeTypeBuilder.binding(String.class).nillable(true).buildDescriptor("Fix"));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Double.class).nillable(true)
-        .buildDescriptor("MagneticVariation"));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(Double.class).nillable(true)
+            .buildDescriptor("MagneticVariation"));
     simpleFeatureTypeBuilder.add(
         attributeTypeBuilder.binding(Double.class).nillable(true).buildDescriptor("GeoHeight"));
     simpleFeatureTypeBuilder.add(

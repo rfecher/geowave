@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,7 +36,8 @@ public class TimeDescriptors {
     endRange = null;
   }
 
-  public TimeDescriptors(final SimpleFeatureType type,
+  public TimeDescriptors(
+      final SimpleFeatureType type,
       final TimeDescriptorConfiguration configuration) {
     update(type, configuration);
   }
@@ -49,7 +49,8 @@ public class TimeDescriptors {
     this.endRange = endRange;
   }
 
-  public void update(final SimpleFeatureType type,
+  public void update(
+      final SimpleFeatureType type,
       final TimeDescriptorConfiguration configuration) {
     if (configuration.timeName != null) {
       time = type.getDescriptor(configuration.timeName);
@@ -209,12 +210,14 @@ public class TimeDescriptors {
           final Boolean isEnd = (Boolean) attrDesc.getUserData().get("end");
           if ((isStart != null) && isStart.booleanValue()) {
             setStartRangeName(attrDesc.getLocalName());
-          } else if ((isStart == null) && (getStartRangeName() == null)
+          } else if ((isStart == null)
+              && (getStartRangeName() == null)
               && attrDesc.getLocalName().toLowerCase(Locale.ENGLISH).startsWith("start")) {
             setStartRangeName(attrDesc.getLocalName());
           } else if ((isEnd != null) && isEnd.booleanValue()) {
             setEndRangeName(attrDesc.getLocalName());
-          } else if ((isEnd == null) && (getEndRangeName() == null)
+          } else if ((isEnd == null)
+              && (getEndRangeName() == null)
               && attrDesc.getLocalName().toLowerCase(Locale.ENGLISH).startsWith("end")) {
             setEndRangeName(attrDesc.getLocalName());
           } else if ((isTime == null) && (getTimeName() == null)) {

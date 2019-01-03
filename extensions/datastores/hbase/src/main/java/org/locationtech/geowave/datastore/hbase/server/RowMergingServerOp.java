@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,14 +53,16 @@ public class RowMergingServerOp extends MergingServerOp {
       throw new IllegalArgumentException("The column must not be empty");
     }
 
-    columnFamilyIds = Sets.newHashSet(Iterables.transform(Splitter.on(",").split(columnStr),
-        new Function<String, GeowaveColumnId>() {
+    columnFamilyIds =
+        Sets.newHashSet(
+            Iterables.transform(
+                Splitter.on(",").split(columnStr), new Function<String, GeowaveColumnId>() {
 
-          @Override
-          public GeowaveColumnId apply(final String input) {
-            return new ShortColumnId(ByteArrayUtils.shortFromString(input));
-          }
-        }));
+                  @Override
+                  public GeowaveColumnId apply(final String input) {
+                    return new ShortColumnId(ByteArrayUtils.shortFromString(input));
+                  }
+                }));
 
     final String rowTransformStr = options.get(RowMergingAdapterOptionProvider.ROW_TRANSFORM_KEY);
     final byte[] rowTransformBytes = ByteArrayUtils.byteArrayFromString(rowTransformStr);

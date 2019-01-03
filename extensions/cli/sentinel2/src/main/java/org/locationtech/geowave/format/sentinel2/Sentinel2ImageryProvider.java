@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -88,7 +87,9 @@ public abstract class Sentinel2ImageryProvider {
     private Iterator<?> iterator;
     private JSONObject currentObject;
 
-    public JSONFeatureIterator(Sentinel2ImageryProvider provider, SimpleFeatureType featureType,
+    public JSONFeatureIterator(
+        Sentinel2ImageryProvider provider,
+        SimpleFeatureType featureType,
         Iterator<?> iterator) {
       this.provider = provider;
       this.featureType = featureType;
@@ -116,8 +117,8 @@ public abstract class Sentinel2ImageryProvider {
 
       // Main ID attribute
       feature.setAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME, id);
-      feature.setAttribute(SceneFeatureIterator.PROVIDER_NAME_ATTRIBUTE_NAME,
-          provider.providerName());
+      feature
+          .setAttribute(SceneFeatureIterator.PROVIDER_NAME_ATTRIBUTE_NAME, provider.providerName());
 
       // Fill Geometry
       try {
@@ -142,8 +143,9 @@ public abstract class Sentinel2ImageryProvider {
           continue;
         }
         try {
-          value = binding == Date.class ? DateUtilities.parseISO(value.toString())
-              : Converters.convert(value, binding);
+          value =
+              binding == Date.class ? DateUtilities.parseISO(value.toString())
+                  : Converters.convert(value, binding);
         } catch (ParseException e) {
           LOGGER.warn("Unable to convert attribute '" + e.getMessage() + "'");
           value = null;
@@ -175,21 +177,31 @@ public abstract class Sentinel2ImageryProvider {
       throws NoSuchAuthorityCodeException, FactoryException;
 
   /** Returns the Product/Scene collection that matches the specified criteria. */
-  public abstract Iterator<SimpleFeature> searchScenes(final File scenesDir,
-      final String collection, final String platform, final String location,
-      final Envelope envelope, final Date startDate, final Date endDate, final int orbitNumber,
+  public abstract Iterator<SimpleFeature> searchScenes(
+      final File scenesDir,
+      final String collection,
+      final String platform,
+      final String location,
+      final Envelope envelope,
+      final Date startDate,
+      final Date endDate,
+      final int orbitNumber,
       final int relativeOrbitNumber) throws IOException;
 
   /** Download the scene from the Sentinel2 repository. */
-  public abstract boolean downloadScene(final SimpleFeature scene, final String workspaceDir,
-      final String userIdent, final String password) throws IOException;
+  public abstract boolean downloadScene(
+      final SimpleFeature scene,
+      final String workspaceDir,
+      final String userIdent,
+      final String password) throws IOException;
 
   /** Fetch the coverage of the specified band in the specified workspace directory */
   public abstract RasterBandData getCoverage(final SimpleFeature band, final String workspaceDir)
       throws IOException;
 
   /** Load CAs from a custom certs file. */
-  protected static boolean applyCustomCertsFile(HttpsURLConnection connection,
+  protected static boolean applyCustomCertsFile(
+      HttpsURLConnection connection,
       final File customCertsFile) throws GeneralSecurityException, IOException {
     if (customCertsFile.exists()) {
       try {
@@ -217,7 +229,8 @@ public abstract class Sentinel2ImageryProvider {
 
         return true;
       } catch (final GeneralSecurityException securityException) {
-        LOGGER.error("Unable to use keystore '" + customCertsFile.getAbsolutePath() + "'",
+        LOGGER.error(
+            "Unable to use keystore '" + customCertsFile.getAbsolutePath() + "'",
             securityException);
         throw securityException;
       }
@@ -235,7 +248,9 @@ public abstract class Sentinel2ImageryProvider {
    * @return
    * @throws IOException
    */
-  protected static long copyLarge(final InputStream input, final OutputStream output,
+  protected static long copyLarge(
+      final InputStream input,
+      final OutputStream output,
       final int contentLength) throws IOException {
     long count = 0;
     int n = 0;

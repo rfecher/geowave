@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -20,7 +19,8 @@ public class AccumuloMetadataDeleter implements MetadataDeleter {
   private final AccumuloOperations operations;
   private final String metadataTypeName;
 
-  public AccumuloMetadataDeleter(final AccumuloOperations operations,
+  public AccumuloMetadataDeleter(
+      final AccumuloOperations operations,
       final MetadataType metadataType) {
     super();
     this.operations = operations;
@@ -34,9 +34,10 @@ public class AccumuloMetadataDeleter implements MetadataDeleter {
   public boolean delete(final MetadataQuery query) {
     // the nature of metadata deleter is that primary ID is always
     // well-defined and it is deleting a single entry at a time
-    return operations.delete(AbstractGeoWavePersistence.METADATA_TABLE,
-        new ByteArray(query.getPrimaryId()), metadataTypeName,
-        query.getSecondaryId() != null ? query.getSecondaryId() : null, query.getAuthorizations());
+    return operations.delete(
+        AbstractGeoWavePersistence.METADATA_TABLE, new ByteArray(query.getPrimaryId()),
+        metadataTypeName, query.getSecondaryId() != null ? query.getSecondaryId() : null,
+        query.getAuthorizations());
   }
 
   @Override

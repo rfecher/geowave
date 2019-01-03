@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -83,9 +82,11 @@ public class GpxIngestPlugin extends AbstractSimpleFeatureIngestPlugin<AvroGpxTr
         long time = System.currentTimeMillis();
         metadata = GpxUtils.parseOsmMetadata(f);
         time = System.currentTimeMillis() - time;
-        final String timespan = String.format("%d min, %d sec",
-            TimeUnit.MILLISECONDS.toMinutes(time), TimeUnit.MILLISECONDS.toSeconds(time)
-                - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
+        final String timespan =
+            String.format(
+                "%d min, %d sec", TimeUnit.MILLISECONDS.toMinutes(time),
+                TimeUnit.MILLISECONDS.toSeconds(time)
+                    - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
         LOGGER.info("Metadata parsed in in " + timespan + " for " + metadata.size() + " tracks");
       } catch (final XMLStreamException | FileNotFoundException e) {
         LOGGER.warn("Unable to read OSM metadata file: " + f.getPath(), e);
@@ -169,7 +170,9 @@ public class GpxIngestPlugin extends AbstractSimpleFeatureIngestPlugin<AvroGpxTr
 
   @Override
   protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-      final AvroGpxTrack gpxTrack, final String[] indexNames, final String globalVisibility) {
+      final AvroGpxTrack gpxTrack,
+      final String[] indexNames,
+      final String globalVisibility) {
     final InputStream in = new ByteArrayInputStream(gpxTrack.getGpxfile().array());
     // LOGGER.debug("Processing track [" + gpxTrack.getTimestamp() + "]");
     try {

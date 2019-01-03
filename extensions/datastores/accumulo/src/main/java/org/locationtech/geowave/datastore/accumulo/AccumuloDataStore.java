@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,7 +42,8 @@ import org.slf4j.LoggerFactory;
 public class AccumuloDataStore extends BaseMapReduceDataStore {
   private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloDataStore.class);
 
-  public AccumuloDataStore(final AccumuloOperations accumuloOperations,
+  public AccumuloDataStore(
+      final AccumuloOperations accumuloOperations,
       final AccumuloOptions accumuloOptions) {
     super(new IndexStoreImpl(accumuloOperations, accumuloOptions),
         new AdapterStoreImpl(accumuloOperations, accumuloOptions),
@@ -64,10 +64,10 @@ public class AccumuloDataStore extends BaseMapReduceDataStore {
     final String typeName = adapter.getTypeName();
     try {
       if (adapter.getAdapter() instanceof RowMergingDataAdapter) {
-        if (!((AccumuloOperations) baseOperations).isRowMergingEnabled(adapter.getAdapterId(),
-            indexName)) {
-          if (!((AccumuloOperations) baseOperations).createTable(indexName, false,
-              baseOptions.isEnableBlockCache())) {
+        if (!((AccumuloOperations) baseOperations)
+            .isRowMergingEnabled(adapter.getAdapterId(), indexName)) {
+          if (!((AccumuloOperations) baseOperations)
+              .createTable(indexName, false, baseOptions.isEnableBlockCache())) {
             ((AccumuloOperations) baseOperations).enableVersioningIterator(indexName, false);
           }
           if (baseOptions.isServerSideLibraryEnabled()) {
@@ -79,10 +79,10 @@ public class AccumuloDataStore extends BaseMapReduceDataStore {
         }
       }
       if (((AccumuloOptions) baseOptions).isUseLocalityGroups()
-          && !((AccumuloOperations) baseOperations).localityGroupExists(indexName,
-              adapter.getTypeName())) {
-        ((AccumuloOperations) baseOperations).addLocalityGroup(indexName, adapter.getTypeName(),
-            adapter.getAdapterId());
+          && !((AccumuloOperations) baseOperations)
+              .localityGroupExists(indexName, adapter.getTypeName())) {
+        ((AccumuloOperations) baseOperations)
+            .addLocalityGroup(indexName, adapter.getTypeName(), adapter.getAdapterId());
       }
     } catch (AccumuloException | TableNotFoundException | AccumuloSecurityException e) {
       LOGGER.error("Unable to determine existence of locality group [" + typeName + "]", e);

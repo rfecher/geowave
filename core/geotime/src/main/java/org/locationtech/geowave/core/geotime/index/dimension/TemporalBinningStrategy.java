@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -217,26 +216,42 @@ public class TemporalBinningStrategy implements BinningStrategy {
       default:
         return StringUtils.stringToBinary(Integer.toString(value.get(Calendar.YEAR)));
       case MONTH:
-        return StringUtils.stringToBinary((Integer.toString(value.get(Calendar.YEAR)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))));
+        return StringUtils.stringToBinary(
+            (Integer.toString(value.get(Calendar.YEAR))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))));
       case WEEK:
-        return StringUtils.stringToBinary(Integer.toString(value.get(Calendar.YEAR)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.WEEK_OF_YEAR)));
+        return StringUtils.stringToBinary(
+            Integer.toString(value.get(Calendar.YEAR))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.WEEK_OF_YEAR)));
       case DAY:
-        return StringUtils.stringToBinary((Integer.toString(value.get(Calendar.YEAR)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH))));
+        return StringUtils.stringToBinary(
+            (Integer.toString(value.get(Calendar.YEAR))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH))));
       case HOUR:
-        return StringUtils.stringToBinary((Integer.toString(value.get(Calendar.YEAR)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.HOUR_OF_DAY))));
+        return StringUtils.stringToBinary(
+            (Integer.toString(value.get(Calendar.YEAR))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.HOUR_OF_DAY))));
       case MINUTE:
-        return StringUtils.stringToBinary((Integer.toString(value.get(Calendar.YEAR)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.HOUR_OF_DAY)) + "_"
-            + TWO_DIGIT_NUMBER.format(value.get(Calendar.MINUTE))));
+        return StringUtils.stringToBinary(
+            (Integer.toString(value.get(Calendar.YEAR))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MONTH))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.DAY_OF_MONTH))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.HOUR_OF_DAY))
+                + "_"
+                + TWO_DIGIT_NUMBER.format(value.get(Calendar.MINUTE))));
     }
   }
 
@@ -333,8 +348,9 @@ public class TemporalBinningStrategy implements BinningStrategy {
       }
       // we have the millis for range, but to normalize for this bin we
       // need to subtract the epoch of the bin
-      bins.add(new BinRange(getBinId(cal), startMillis - epochIterator, endMillis - epochIterator,
-          fullExtent));
+      bins.add(
+          new BinRange(getBinId(cal), startMillis - epochIterator, endMillis - epochIterator,
+              fullExtent));
       epochIterator = nextEpoch;
       // iterate until we reach our end epoch
     } while (!lastBin);

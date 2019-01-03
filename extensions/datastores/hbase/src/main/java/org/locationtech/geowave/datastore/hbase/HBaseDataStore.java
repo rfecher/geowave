@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,23 +42,28 @@ public class HBaseDataStore extends BaseMapReduceDataStore {
         operations, options, new InternalAdapterStoreImpl(operations));
   }
 
-  public HBaseDataStore(final IndexStore indexStore, final PersistentAdapterStore adapterStore,
-      final DataStatisticsStore statisticsStore, final AdapterIndexMappingStore indexMappingStore,
+  public HBaseDataStore(
+      final IndexStore indexStore,
+      final PersistentAdapterStore adapterStore,
+      final DataStatisticsStore statisticsStore,
+      final AdapterIndexMappingStore indexMappingStore,
       final SecondaryIndexDataStore secondaryIndexDataStore,
-      final MapReduceDataStoreOperations operations, final DataStoreOptions options,
+      final MapReduceDataStoreOperations operations,
+      final DataStoreOptions options,
       final InternalAdapterStore adapterMappingStore) {
     super(indexStore, adapterStore, statisticsStore, indexMappingStore, secondaryIndexDataStore,
         operations, options, adapterMappingStore);
   }
 
   @Override
-  protected <T> void initOnIndexWriterCreate(final InternalDataAdapter<T> adapter,
+  protected <T> void initOnIndexWriterCreate(
+      final InternalDataAdapter<T> adapter,
       final Index index) {
     final String indexName = index.getName();
     final boolean rowMerging = adapter.getAdapter() instanceof RowMergingDataAdapter;
     if (rowMerging) {
-      if (!((HBaseOperations) baseOperations).isRowMergingEnabled(adapter.getAdapterId(),
-          indexName)) {
+      if (!((HBaseOperations) baseOperations)
+          .isRowMergingEnabled(adapter.getAdapterId(), indexName)) {
         ((HBaseOperations) baseOperations).createTable(
             index.getIndexStrategy().getPredefinedSplits(), index.getName(), false,
             adapter.getAdapterId());
@@ -72,8 +76,8 @@ public class HBaseDataStore extends BaseMapReduceDataStore {
               RowMergingVisibilityServerOp.class.getName(), indexName);
         }
 
-        ((HBaseOperations) baseOperations).verifyColumnFamily(adapter.getAdapterId(), false,
-            indexName, true);
+        ((HBaseOperations) baseOperations)
+            .verifyColumnFamily(adapter.getAdapterId(), false, indexName, true);
       }
     }
   }

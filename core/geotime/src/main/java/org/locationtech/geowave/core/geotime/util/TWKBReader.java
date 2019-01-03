@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -115,7 +114,9 @@ public class TWKBReader {
     return GeometryUtils.GEOMETRY_FACTORY.createMultiPointFromCoords(points);
   }
 
-  private MultiLineString readMultiLineString(PrecisionReader precision, byte metadata,
+  private MultiLineString readMultiLineString(
+      PrecisionReader precision,
+      byte metadata,
       DataInput input) throws IOException {
     if ((metadata & TWKBUtils.EMPTY_GEOMETRY) != 0) {
       return GeometryUtils.GEOMETRY_FACTORY.createMultiLineString();
@@ -187,8 +188,9 @@ public class TWKBReader {
       for (int i = 0; i < numCoordinates; i++) {
         lastX = Varint.readSignedVarLong(input) + lastX;
         lastY = Varint.readSignedVarLong(input) + lastY;
-        coordinates[i] = new Coordinate(((double) lastX) / precisionMultiplier,
-            ((double) lastY) / precisionMultiplier);
+        coordinates[i] =
+            new Coordinate(((double) lastX) / precisionMultiplier,
+                ((double) lastY) / precisionMultiplier);
       }
       return coordinates;
     }
@@ -237,8 +239,9 @@ public class TWKBReader {
       for (int i = 0; i < numCoordinates; i++) {
         lastX = Varint.readSignedVarLong(input) + lastX;
         lastY = Varint.readSignedVarLong(input) + lastY;
-        coordinates[i] = new Coordinate(((double) lastX) / precisionMultiplier,
-            ((double) lastY) / precisionMultiplier);
+        coordinates[i] =
+            new Coordinate(((double) lastX) / precisionMultiplier,
+                ((double) lastY) / precisionMultiplier);
         if (hasZ) {
           lastZ = Varint.readSignedVarLong(input) + lastZ;
           coordinates[i].setZ(((double) lastZ) / zPrecisionMultiplier);

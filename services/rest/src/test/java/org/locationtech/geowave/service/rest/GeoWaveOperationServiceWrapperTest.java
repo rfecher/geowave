@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,7 +33,9 @@ public class GeoWaveOperationServiceWrapperTest {
     return mockedOperation(method, successStatusIs200, false);
   }
 
-  private ServiceEnabledCommand mockedOperation(HttpMethod method, Boolean successStatusIs200,
+  private ServiceEnabledCommand mockedOperation(
+      HttpMethod method,
+      Boolean successStatusIs200,
       boolean isAsync) throws Exception {
     ServiceEnabledCommand operation = Mockito.mock(ServiceEnabledCommand.class);
 
@@ -74,8 +75,8 @@ public class GeoWaveOperationServiceWrapperTest {
     classUnderTest.setResponse(new Response(null));
     classUnderTest.setRequest(new Request(Method.GET, "foo.bar"));
     classUnderTest.restGet();
-    Assert.assertEquals(successStatusIs200,
-        classUnderTest.getResponse().getStatus().equals(Status.SUCCESS_OK));
+    Assert.assertEquals(
+        successStatusIs200, classUnderTest.getResponse().getStatus().equals(Status.SUCCESS_OK));
   }
 
   @Test
@@ -89,8 +90,8 @@ public class GeoWaveOperationServiceWrapperTest {
     classUnderTest = new GeoWaveOperationServiceWrapper(operation, null);
     classUnderTest.setResponse(new Response(null));
     classUnderTest.restPost(mockedRequest(MediaType.APPLICATION_JSON));
-    Assert.assertEquals(successStatusIs200,
-        classUnderTest.getResponse().getStatus().equals(Status.SUCCESS_OK));
+    Assert.assertEquals(
+        successStatusIs200, classUnderTest.getResponse().getStatus().equals(Status.SUCCESS_OK));
   }
 
   @Test
@@ -108,7 +109,7 @@ public class GeoWaveOperationServiceWrapperTest {
 
     // TODO: Returns 500. Error Caught at
     // "final Context appContext = Application.getCurrent().getContext();"
-    Assert.assertEquals(successStatusIs200,
-        classUnderTest.getResponse().getStatus().equals(Status.SUCCESS_OK));
+    Assert.assertEquals(
+        successStatusIs200, classUnderTest.getResponse().getStatus().equals(Status.SUCCESS_OK));
   }
 }

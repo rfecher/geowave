@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,14 +31,15 @@ public class GeometryWrapperTest {
         new NumericDimensionField[] {new LatitudeField(GeometryUtils.MAX_GEOMETRY_PRECISION)};
 
     Geometry geo =
-        factory.createLineString(new Coordinate[] {new Coordinate(-99.22, 33.75000000000001), // notice
-            // that
-            // this gets
-            // tiled as
-            // 33.75
-            new Coordinate(-99.15, 33.75000000000001)
-        // notice that this gets tiled as 33.75
-        });
+        factory.createLineString(
+            new Coordinate[] {new Coordinate(-99.22, 33.75000000000001), // notice
+                // that
+                // this gets
+                // tiled as
+                // 33.75
+                new Coordinate(-99.15, 33.75000000000001)
+            // notice that this gets tiled as 33.75
+            });
 
     GeometryWrapper wrapper = new GeometryWrapper(geo);
 
@@ -60,14 +60,15 @@ public class GeometryWrapperTest {
         new NumericDimensionField[] {new LongitudeField(GeometryUtils.MAX_GEOMETRY_PRECISION)};
 
     Geometry geo =
-        factory.createLineString(new Coordinate[] {new Coordinate(-99.22, 33.75000000000001), // notice
-            // that
-            // this gets
-            // tiled as
-            // 33.75
-            new Coordinate(-99.15, 33.75000000000001)
-        // notice that this gets tiled as 33.75
-        });
+        factory.createLineString(
+            new Coordinate[] {new Coordinate(-99.22, 33.75000000000001), // notice
+                // that
+                // this gets
+                // tiled as
+                // 33.75
+                new Coordinate(-99.15, 33.75000000000001)
+            // notice that this gets tiled as 33.75
+            });
 
     GeometryWrapper wrapper = new GeometryWrapper(geo);
 

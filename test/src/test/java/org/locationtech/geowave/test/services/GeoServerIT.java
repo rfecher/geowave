@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -117,22 +116,31 @@ public class GeoServerIT extends AbstractGeoWaveIT {
   public void initialize() throws ClientProtocolException, IOException {
     // setup the wfs-requests
     geostuff_layer =
-        MessageFormat.format(IOUtils.toString(new FileInputStream(GEOSTUFF_LAYER_FILE)),
+        MessageFormat.format(
+            IOUtils.toString(new FileInputStream(GEOSTUFF_LAYER_FILE)),
             ServicesTestEnvironment.TEST_WORKSPACE);
 
-    insert = MessageFormat.format(IOUtils.toString(new FileInputStream(INSERT_FILE)),
-        ServicesTestEnvironment.TEST_WORKSPACE);
+    insert =
+        MessageFormat.format(
+            IOUtils.toString(new FileInputStream(INSERT_FILE)),
+            ServicesTestEnvironment.TEST_WORKSPACE);
 
-    lock = MessageFormat.format(IOUtils.toString(new FileInputStream(LOCK_FILE)),
-        ServicesTestEnvironment.TEST_WORKSPACE);
+    lock =
+        MessageFormat.format(
+            IOUtils.toString(new FileInputStream(LOCK_FILE)),
+            ServicesTestEnvironment.TEST_WORKSPACE);
 
-    query = MessageFormat.format(IOUtils.toString(new FileInputStream(QUERY_FILE)),
-        ServicesTestEnvironment.TEST_WORKSPACE);
+    query =
+        MessageFormat.format(
+            IOUtils.toString(new FileInputStream(QUERY_FILE)),
+            ServicesTestEnvironment.TEST_WORKSPACE);
 
-    geoServerServiceClient = new GeoServerServiceClient(ServicesTestEnvironment.GEOWAVE_BASE_URL,
-        ServicesTestEnvironment.GEOSERVER_USER, ServicesTestEnvironment.GEOSERVER_PASS);
-    configServiceClient = new ConfigServiceClient(ServicesTestEnvironment.GEOWAVE_BASE_URL,
-        ServicesTestEnvironment.GEOSERVER_USER, ServicesTestEnvironment.GEOSERVER_PASS);
+    geoServerServiceClient =
+        new GeoServerServiceClient(ServicesTestEnvironment.GEOWAVE_BASE_URL,
+            ServicesTestEnvironment.GEOSERVER_USER, ServicesTestEnvironment.GEOSERVER_PASS);
+    configServiceClient =
+        new ConfigServiceClient(ServicesTestEnvironment.GEOWAVE_BASE_URL,
+            ServicesTestEnvironment.GEOSERVER_USER, ServicesTestEnvironment.GEOSERVER_PASS);
 
     boolean success = true;
     configServiceClient.configGeoServer("localhost:9011");
@@ -145,22 +153,28 @@ public class GeoServerIT extends AbstractGeoWaveIT {
     success &= enableWfs();
     success &= enableWms();
     // create the datastore
-    configServiceClient.addStoreReRoute(dataStoreOptions.getGeoWaveNamespace(),
-        dataStoreOptions.getType(), dataStoreOptions.getGeoWaveNamespace(),
-        dataStoreOptions.getOptionsAsMap());
-    Response addDs = geoServerServiceClient.addDataStore(dataStoreOptions.getGeoWaveNamespace(),
-        ServicesTestEnvironment.TEST_WORKSPACE, dataStoreOptions.getGeoWaveNamespace());
+    configServiceClient.addStoreReRoute(
+        dataStoreOptions.getGeoWaveNamespace(), dataStoreOptions.getType(),
+        dataStoreOptions.getGeoWaveNamespace(), dataStoreOptions.getOptionsAsMap());
+    Response addDs =
+        geoServerServiceClient.addDataStore(
+            dataStoreOptions.getGeoWaveNamespace(), ServicesTestEnvironment.TEST_WORKSPACE,
+            dataStoreOptions.getGeoWaveNamespace());
     success &= (addDs.getStatus() == 201);
-    Response addDsBad = geoServerServiceClient.addDataStore(dataStoreOptions.getGeoWaveNamespace(),
-        ServicesTestEnvironment.TEST_WORKSPACE, dataStoreOptions.getGeoWaveNamespace());
+    Response addDsBad =
+        geoServerServiceClient.addDataStore(
+            dataStoreOptions.getGeoWaveNamespace(), ServicesTestEnvironment.TEST_WORKSPACE,
+            dataStoreOptions.getGeoWaveNamespace());
     // Make sure that we handle duplicates correctly
     success &= (addDsBad.getStatus() == 400);
     // make sure the datastore exists
-    Response getDs = geoServerServiceClient.getDataStore(dataStoreOptions.getGeoWaveNamespace(),
-        ServicesTestEnvironment.TEST_WORKSPACE);
+    Response getDs =
+        geoServerServiceClient.getDataStore(
+            dataStoreOptions.getGeoWaveNamespace(), ServicesTestEnvironment.TEST_WORKSPACE);
     success &= (getDs.getStatus() == 201);
-    Response getDsBad = geoServerServiceClient.getDataStore(TestUtils.TEST_NAMESPACE_BAD,
-        ServicesTestEnvironment.TEST_WORKSPACE);
+    Response getDsBad =
+        geoServerServiceClient
+            .getDataStore(TestUtils.TEST_NAMESPACE_BAD, ServicesTestEnvironment.TEST_WORKSPACE);
     // Make sure that we handle duplicates correctly
     success &= (getDsBad.getStatus() == 404);
     success &= createLayers();
@@ -172,7 +186,8 @@ public class GeoServerIT extends AbstractGeoWaveIT {
 
   @After
   public void cleanupWorkspace() {
-    TestUtils.assertStatusCode("Workspace should be removed successfully", 200,
+    TestUtils.assertStatusCode(
+        "Workspace should be removed successfully", 200,
         geoServerServiceClient.removeWorkspace(ServicesTestEnvironment.TEST_WORKSPACE));
     TestUtils.deleteAll(dataStoreOptions);
   }
@@ -183,8 +198,10 @@ public class GeoServerIT extends AbstractGeoWaveIT {
     final String lockID = lockPoint();
 
     // setup the lock and update messages
-    update = MessageFormat.format(IOUtils.toString(new FileInputStream(UPDATE_FILE)),
-        ServicesTestEnvironment.TEST_WORKSPACE, lockID);
+    update =
+        MessageFormat.format(
+            IOUtils.toString(new FileInputStream(UPDATE_FILE)),
+            ServicesTestEnvironment.TEST_WORKSPACE, lockID);
 
     assertNotNull(lockID);
     assertTrue(updatePoint(lockID));
@@ -198,8 +215,11 @@ public class GeoServerIT extends AbstractGeoWaveIT {
     final CloseableHttpClient httpclient = clientAndContext.getLeft();
     final HttpClientContext context = clientAndContext.getRight();
     try {
-      final HttpPut command = new HttpPut(ServicesTestEnvironment.GEOSERVER_REST_PATH
-          + "/services/wfs/workspaces/" + ServicesTestEnvironment.TEST_WORKSPACE + "/settings");
+      final HttpPut command =
+          new HttpPut(ServicesTestEnvironment.GEOSERVER_REST_PATH
+              + "/services/wfs/workspaces/"
+              + ServicesTestEnvironment.TEST_WORKSPACE
+              + "/settings");
       command.setHeader("Content-type", "text/xml");
       command.setEntity(
           EntityBuilder.create().setFile(new File("src/test/resources/wfs-requests/wfs.xml"))
@@ -216,8 +236,11 @@ public class GeoServerIT extends AbstractGeoWaveIT {
     final CloseableHttpClient httpclient = clientAndContext.getLeft();
     final HttpClientContext context = clientAndContext.getRight();
     try {
-      final HttpPut command = new HttpPut(ServicesTestEnvironment.GEOSERVER_REST_PATH
-          + "/services/wms/workspaces/" + ServicesTestEnvironment.TEST_WORKSPACE + "/settings");
+      final HttpPut command =
+          new HttpPut(ServicesTestEnvironment.GEOSERVER_REST_PATH
+              + "/services/wms/workspaces/"
+              + ServicesTestEnvironment.TEST_WORKSPACE
+              + "/settings");
       command.setHeader("Content-type", "text/xml");
       command.setEntity(
           EntityBuilder.create().setFile(new File("src/test/resources/wfs-requests/wms.xml"))
@@ -234,12 +257,17 @@ public class GeoServerIT extends AbstractGeoWaveIT {
     final CloseableHttpClient httpclient = clientAndContext.getLeft();
     final HttpClientContext context = clientAndContext.getRight();
     try {
-      final HttpPost command = new HttpPost(ServicesTestEnvironment.GEOSERVER_REST_PATH
-          + "/workspaces/" + ServicesTestEnvironment.TEST_WORKSPACE + "/datastores/"
-          + dataStoreOptions.getGeoWaveNamespace() + "/featuretypes");
+      final HttpPost command =
+          new HttpPost(ServicesTestEnvironment.GEOSERVER_REST_PATH
+              + "/workspaces/"
+              + ServicesTestEnvironment.TEST_WORKSPACE
+              + "/datastores/"
+              + dataStoreOptions.getGeoWaveNamespace()
+              + "/featuretypes");
       command.setHeader("Content-type", "text/xml");
-      command.setEntity(EntityBuilder.create().setText(geostuff_layer)
-          .setContentType(ContentType.TEXT_XML).build());
+      command.setEntity(
+          EntityBuilder.create().setText(geostuff_layer).setContentType(ContentType.TEXT_XML)
+              .build());
       final HttpResponse r = httpclient.execute(command, context);
       return r.getStatusLine().getStatusCode() == Status.CREATED.getStatusCode();
     } finally {
@@ -249,7 +277,8 @@ public class GeoServerIT extends AbstractGeoWaveIT {
 
   protected static Pair<CloseableHttpClient, HttpClientContext> createClientAndContext() {
     final CredentialsProvider provider = new BasicCredentialsProvider();
-    provider.setCredentials(new AuthScope("localhost", ServicesTestEnvironment.JETTY_PORT),
+    provider.setCredentials(
+        new AuthScope("localhost", ServicesTestEnvironment.JETTY_PORT),
         new UsernamePasswordCredentials(ServicesTestEnvironment.GEOSERVER_USER,
             ServicesTestEnvironment.GEOSERVER_PASS));
     final AuthCache authCache = new BasicAuthCache();
@@ -265,7 +294,9 @@ public class GeoServerIT extends AbstractGeoWaveIT {
         .of(HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build(), context);
   }
 
-  private HttpPost createWFSTransaction(final HttpClient httpclient, final String version,
+  private HttpPost createWFSTransaction(
+      final HttpClient httpclient,
+      final String version,
       final BasicNameValuePair... paramTuples) throws Exception {
     final HttpPost command = new HttpPost(WFS_URL_PREFIX + "/Transaction");
 
@@ -283,7 +314,8 @@ public class GeoServerIT extends AbstractGeoWaveIT {
     return command;
   }
 
-  private HttpGet createWFSGetFeature(final String version,
+  private HttpGet createWFSGetFeature(
+      final String version,
       final BasicNameValuePair... paramTuples) {
 
     final StringBuilder buf = new StringBuilder();
@@ -387,7 +419,8 @@ public class GeoServerIT extends AbstractGeoWaveIT {
         final String patternX = "34.6815818";
         final String patternY = "35.1828408";
         // name space check as well
-        return content.contains(patternX) && content.contains(patternY)
+        return content.contains(patternX)
+            && content.contains(patternY)
             && content.contains(ServicesTestEnvironment.TEST_WORKSPACE + ":geometry");
       }
       return false;
@@ -428,11 +461,13 @@ public class GeoServerIT extends AbstractGeoWaveIT {
     final CloseableHttpClient httpclient = clientAndContext.getLeft();
     final HttpClientContext context = clientAndContext.getRight();
     try {
-      final HttpGet command = createWFSGetFeature("1.1.0",
-          new BasicNameValuePair("cql_filter", URLEncoder.encode(
-              "BBOX(geometry,34.68,35.18,34.7,35.19) and when during 2005-05-19T00:00:00Z/2005-05-19T21:32:56Z",
-              "UTF8")),
-          new BasicNameValuePair("srsName", "EPSG:4326"));
+      final HttpGet command =
+          createWFSGetFeature(
+              "1.1.0",
+              new BasicNameValuePair("cql_filter", URLEncoder.encode(
+                  "BBOX(geometry,34.68,35.18,34.7,35.19) and when during 2005-05-19T00:00:00Z/2005-05-19T21:32:56Z",
+                  "UTF8")),
+              new BasicNameValuePair("srsName", "EPSG:4326"));
       final HttpResponse r = httpclient.execute(command, context);
 
       final String content = getContent(r);
@@ -448,11 +483,13 @@ public class GeoServerIT extends AbstractGeoWaveIT {
     final CloseableHttpClient httpclient = clientAndContext.getLeft();
     final HttpClientContext context = clientAndContext.getRight();
     try {
-      final HttpGet command = createWFSGetFeature("1.1.0",
-          new BasicNameValuePair("cql_filter", URLEncoder.encode(
-              "BBOX(geometry,34.68,35.18,34.7,35.19) and when during 2005-05-19T20:32:56Z/2005-05-19T21:32:56Z",
-              "UTF8")),
-          new BasicNameValuePair("srsName", "EPSG:4326"));
+      final HttpGet command =
+          createWFSGetFeature(
+              "1.1.0",
+              new BasicNameValuePair("cql_filter", URLEncoder.encode(
+                  "BBOX(geometry,34.68,35.18,34.7,35.19) and when during 2005-05-19T20:32:56Z/2005-05-19T21:32:56Z",
+                  "UTF8")),
+              new BasicNameValuePair("srsName", "EPSG:4326"));
       final HttpResponse r = httpclient.execute(command, context);
 
       final String content = getContent(r);

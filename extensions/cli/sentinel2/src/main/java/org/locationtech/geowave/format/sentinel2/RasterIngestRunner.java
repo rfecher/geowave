@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -83,9 +82,11 @@ public class RasterIngestRunner extends DownloadRunner {
   protected Index[] indices = null;
   protected Sentinel2ImageryProvider provider;
 
-  public RasterIngestRunner(final Sentinel2BasicCommandLineOptions analyzeOptions,
+  public RasterIngestRunner(
+      final Sentinel2BasicCommandLineOptions analyzeOptions,
       final Sentinel2DownloadCommandLineOptions downloadOptions,
-      final Sentinel2RasterIngestCommandLineOptions ingestOptions, final List<String> parameters) {
+      final Sentinel2RasterIngestCommandLineOptions ingestOptions,
+      final List<String> parameters) {
     super(analyzeOptions, downloadOptions);
     this.ingestOptions = ingestOptions;
     this.parameters = parameters;
@@ -138,8 +139,9 @@ public class RasterIngestRunner extends DownloadRunner {
       indices[i++] = primaryIndex;
     }
 
-    coverageNameTemplate = new Template("name", new StringReader(ingestOptions.getCoverageName()),
-        new Configuration());
+    coverageNameTemplate =
+        new Template("name", new StringReader(ingestOptions.getCoverageName()),
+            new Configuration());
   }
 
   @Override
@@ -186,8 +188,9 @@ public class RasterIngestRunner extends DownloadRunner {
       }
     }
     if (ingestOptions.isSubsample()) {
-      coverage = (GridCoverage2D) RasterUtils.getCoverageOperations().filteredSubsample(coverage,
-          ingestOptions.getScale(), ingestOptions.getScale(), null);
+      coverage =
+          (GridCoverage2D) RasterUtils.getCoverageOperations().filteredSubsample(
+              coverage, ingestOptions.getScale(), ingestOptions.getScale(), null);
     }
 
     // its unclear whether cropping should be done first or subsampling
@@ -196,7 +199,8 @@ public class RasterIngestRunner extends DownloadRunner {
       final Filter filter = sentinel2Options.getCqlFilter();
       if (filter != null) {
         final ExtractGeometryFilterVisitorResult geometryAndCompareOp =
-            ExtractGeometryFilterVisitor.getConstraints(filter, GeoWaveGTRasterFormat.DEFAULT_CRS,
+            ExtractGeometryFilterVisitor.getConstraints(
+                filter, GeoWaveGTRasterFormat.DEFAULT_CRS,
                 SceneFeatureIterator.SHAPE_ATTRIBUTE_NAME);
 
         Geometry geometry = geometryAndCompareOp.getGeometry();
@@ -214,8 +218,9 @@ public class RasterIngestRunner extends DownloadRunner {
             params.parameter("Source").setValue(coverage);
 
             try {
-              final MathTransform transform = CRS.findMathTransform(GeometryUtils.getDefaultCRS(),
-                  coverage.getCoordinateReferenceSystem(), true);
+              final MathTransform transform =
+                  CRS.findMathTransform(
+                      GeometryUtils.getDefaultCRS(), coverage.getCoordinateReferenceSystem(), true);
               params.parameter(Crop.CROP_ROI.getName().getCode())
                   .setValue(JTS.transform(geometry, transform));
               params.parameter(Crop.NODATA.getName().getCode())
@@ -280,8 +285,11 @@ public class RasterIngestRunner extends DownloadRunner {
         }
         writer.write(nextCov);
       } catch (IOException | TemplateException e) {
-        LOGGER.error("Unable to ingest band " + band.getID()
-            + " because coverage name cannot be resolved from template", e);
+        LOGGER.error(
+            "Unable to ingest band "
+                + band.getID()
+                + " because coverage name cannot be resolved from template",
+            e);
       }
     } else {
       lastSceneBands.add(band);
@@ -297,8 +305,8 @@ public class RasterIngestRunner extends DownloadRunner {
       System.out.println("Merging overlapping tiles...");
 
       for (final Index index : indices) {
-        if (dataStorePluginOptions.createDataStoreOperations().mergeData(index,
-            dataStorePluginOptions.createAdapterStore(),
+        if (dataStorePluginOptions.createDataStoreOperations().mergeData(
+            index, dataStorePluginOptions.createAdapterStore(),
             dataStorePluginOptions.createInternalAdapterStore(),
             dataStorePluginOptions.createAdapterIndexMappingStore())) {
           System.out.println(
@@ -352,8 +360,12 @@ public class RasterIngestRunner extends DownloadRunner {
             if (coverageName == null) {
               coverageName = bandData.name;
             } else if (!coverageName.equals(bandData.name)) {
-              LOGGER.warn("Unable to use band data as the band coverage name '" + bandData.name
-                  + "' is unexpectedly different from default name '" + coverageName + "'");
+              LOGGER.warn(
+                  "Unable to use band data as the band coverage name '"
+                      + bandData.name
+                      + "' is unexpectedly different from default name '"
+                      + coverageName
+                      + "'");
             }
 
             final String bandName =
@@ -411,28 +423,36 @@ public class RasterIngestRunner extends DownloadRunner {
             noDataValues[b++] = new double[] {bandData.nodataValue};
           }
 
-          final RasterDataAdapter adapter = new RasterDataAdapter(coverageName, metadata,
-              mergedCoverage, ingestOptions.getTileSize(), ingestOptions.isCreatePyramid(),
-              ingestOptions.isCreateHistogram(), noDataValues, new NoDataMergeStrategy());
+          final RasterDataAdapter adapter =
+              new RasterDataAdapter(coverageName, metadata, mergedCoverage,
+                  ingestOptions.getTileSize(), ingestOptions.isCreatePyramid(),
+                  ingestOptions.isCreateHistogram(), noDataValues, new NoDataMergeStrategy());
           store.addType(adapter, indices);
           writer = store.createWriter(adapter.getTypeName());
           writerCache.put(coverageName, writer);
           bandsIngested = thisSceneBands;
         } else if (!Arrays.equals(bandsIngested, thisSceneBands)) {
-          LOGGER.warn("The bands in this scene ('" + Arrays.toString(thisSceneBands)
-              + "') differ from the previous scene ('" + Arrays.toString(bandsIngested)
-              + "').  To merge bands all scenes must use the same bands.  Skipping scene'"
-              + lastSceneBands.get(0).getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)
-              + "'.");
+          LOGGER.warn(
+              "The bands in this scene ('"
+                  + Arrays.toString(thisSceneBands)
+                  + "') differ from the previous scene ('"
+                  + Arrays.toString(bandsIngested)
+                  + "').  To merge bands all scenes must use the same bands.  Skipping scene'"
+                  + lastSceneBands.get(0)
+                      .getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)
+                  + "'.");
           lastSceneBands.clear();
           return;
         } else {
           writer = writerCache.get(coverageName);
           if (writer == null) {
-            LOGGER.warn("Unable to find writer for coverage '" + coverageName
-                + "'.  Skipping scene'"
-                + lastSceneBands.get(0).getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)
-                + "'.");
+            LOGGER.warn(
+                "Unable to find writer for coverage '"
+                    + coverageName
+                    + "'.  Skipping scene'"
+                    + lastSceneBands.get(0)
+                        .getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)
+                    + "'.");
             lastSceneBands.clear();
             return;
           }

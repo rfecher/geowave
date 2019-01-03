@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,11 +23,13 @@ public class SecondaryIndexUtils {
    * @param indexedAttributeFieldId
    * @return byte array for use as a column family
    */
-  public static byte[] constructColumnFamily(final String typeName,
+  public static byte[] constructColumnFamily(
+      final String typeName,
       final String indexedAttributeFieldName) {
     Preconditions.checkNotNull(typeName, "adapterId cannot be null");
     Preconditions.checkNotNull(indexedAttributeFieldName, "indexedAttributeFieldId cannot be null");
-    return constructColumnFamily(StringUtils.stringToBinary(typeName),
+    return constructColumnFamily(
+        StringUtils.stringToBinary(typeName),
         StringUtils.stringToBinary(indexedAttributeFieldName));
   }
 
@@ -40,7 +41,8 @@ public class SecondaryIndexUtils {
    * @param indexedAttributeFieldId
    * @return byte array for use as a column family
    */
-  public static byte[] constructColumnFamily(final byte[] adapterId,
+  public static byte[] constructColumnFamily(
+      final byte[] adapterId,
       final byte[] indexedAttributeFieldId) {
     return ByteArrayUtils.combineArrays(adapterId, indexedAttributeFieldId);
   }

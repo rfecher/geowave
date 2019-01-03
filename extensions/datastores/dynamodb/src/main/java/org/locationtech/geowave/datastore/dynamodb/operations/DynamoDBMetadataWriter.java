@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,21 +35,26 @@ public class DynamoDBMetadataWriter implements MetadataWriter {
   @Override
   public void write(final GeoWaveMetadata metadata) {
     final Map<String, AttributeValue> map = new HashMap<>();
-    map.put(DynamoDBOperations.METADATA_PRIMARY_ID_KEY,
+    map.put(
+        DynamoDBOperations.METADATA_PRIMARY_ID_KEY,
         new AttributeValue().withB(ByteBuffer.wrap(metadata.getPrimaryId())));
 
     if (metadata.getSecondaryId() != null) {
-      map.put(DynamoDBOperations.METADATA_SECONDARY_ID_KEY,
+      map.put(
+          DynamoDBOperations.METADATA_SECONDARY_ID_KEY,
           new AttributeValue().withB(ByteBuffer.wrap(metadata.getSecondaryId())));
       if (metadata.getVisibility() != null && metadata.getVisibility().length > 0) {
-        map.put(DynamoDBOperations.METADATA_VISIBILITY_KEY,
+        map.put(
+            DynamoDBOperations.METADATA_VISIBILITY_KEY,
             new AttributeValue().withB(ByteBuffer.wrap(metadata.getVisibility())));
       }
     }
 
-    map.put(DynamoDBOperations.METADATA_TIMESTAMP_KEY,
+    map.put(
+        DynamoDBOperations.METADATA_TIMESTAMP_KEY,
         new AttributeValue().withN(Long.toString(System.currentTimeMillis())));
-    map.put(DynamoDBOperations.METADATA_VALUE_KEY,
+    map.put(
+        DynamoDBOperations.METADATA_VALUE_KEY,
         new AttributeValue().withB(ByteBuffer.wrap(metadata.getValue())));
 
     try {

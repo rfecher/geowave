@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,7 +43,9 @@ public class AccumuloMetadataReader implements MetadataReader {
   private final DataStoreOptions options;
   private final MetadataType metadataType;
 
-  public AccumuloMetadataReader(final AccumuloOperations operations, final DataStoreOptions options,
+  public AccumuloMetadataReader(
+      final AccumuloOperations operations,
+      final DataStoreOptions options,
       final MetadataType metadataType) {
     this.operations = operations;
     this.options = options;
@@ -54,8 +55,9 @@ public class AccumuloMetadataReader implements MetadataReader {
   @Override
   public CloseableIterator<GeoWaveMetadata> query(final MetadataQuery query) {
     try {
-      final BatchScanner scanner = operations
-          .createBatchScanner(AbstractGeoWavePersistence.METADATA_TABLE, query.getAuthorizations());
+      final BatchScanner scanner =
+          operations.createBatchScanner(
+              AbstractGeoWavePersistence.METADATA_TABLE, query.getAuthorizations());
       final String columnFamily = metadataType.name();
       final byte[] columnQualifier = query.getSecondaryId();
       if (columnFamily != null) {
@@ -102,8 +104,8 @@ public class AccumuloMetadataReader implements MetadataReader {
           final Key key = keyMap.get(rowId);
           final InternalDataStatistics<?, ?, ?> mergedStats = mergedDataMap.get(rowId);
 
-          metadataList
-              .add(new GeoWaveMetadata(key.getRow().getBytes(), key.getColumnQualifier().getBytes(),
+          metadataList.add(
+              new GeoWaveMetadata(key.getRow().getBytes(), key.getColumnQualifier().getBytes(),
                   key.getColumnVisibility().getBytes(), PersistenceUtils.toBinary(mergedStats)));
         }
 
@@ -112,7 +114,8 @@ public class AccumuloMetadataReader implements MetadataReader {
       }
 
       return new CloseableIteratorWrapper<>(new ScannerClosableWrapper(scanner),
-          Iterators.transform(scanner.iterator(),
+          Iterators.transform(
+              scanner.iterator(),
               new com.google.common.base.Function<Entry<Key, Value>, GeoWaveMetadata>() {
 
                 @Override

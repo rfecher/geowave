@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,16 +31,23 @@ public class ComparisonGaussianCellMapper extends GaussianCellMapper {
   }
 
   @Override
-  protected void populateLevelStore(final org.apache.hadoop.mapreduce.Mapper.Context context,
-      final int numXPosts, final int numYPosts, final int level) {
+  protected void populateLevelStore(
+      final org.apache.hadoop.mapreduce.Mapper.Context context,
+      final int numXPosts,
+      final int numYPosts,
+      final int level) {
     super.populateLevelStore(context, numXPosts, numYPosts, level);
 
-    winterLevelStoreMap.put(level, new LevelStore(numXPosts, numYPosts,
-        new NegativeCellIdCounter(context, level, minLevel, maxLevel)));
+    winterLevelStoreMap.put(
+        level, new LevelStore(numXPosts, numYPosts,
+            new NegativeCellIdCounter(context, level, minLevel, maxLevel)));
   }
 
   @Override
-  protected void incrementLevelStore(final int level, final Point pt, final SimpleFeature feature,
+  protected void incrementLevelStore(
+      final int level,
+      final Point pt,
+      final SimpleFeature feature,
       final ValueRange[] valueRangePerDimension) {
     final Object obj = feature.getAttribute(timeAttribute);
     if ((obj != null) && (obj instanceof Date)) {
@@ -104,8 +110,9 @@ public class ComparisonGaussianCellMapper extends GaussianCellMapper {
         levelStore = levelStoreMap.get(level);
       }
 
-      GaussianFilter.incrementPt(pt.getY(), pt.getX(), levelStore.counter, levelStore.numXPosts,
-          levelStore.numYPosts, contribution, valueRangePerDimension);
+      GaussianFilter.incrementPt(
+          pt.getY(), pt.getX(), levelStore.counter, levelStore.numXPosts, levelStore.numYPosts,
+          contribution, valueRangePerDimension);
     }
   }
 }

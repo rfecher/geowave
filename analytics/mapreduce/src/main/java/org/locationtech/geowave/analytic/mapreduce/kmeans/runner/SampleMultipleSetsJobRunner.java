@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -82,13 +81,15 @@ public class SampleMultipleSetsJobRunner<T> extends MapReduceJobController
 
   private void stage2Setup(final PropertyManagement runTimeProperties) {
     setIterations(iterationCountCalculateRunner.getIterationsCount());
-    init(new MapReduceJobRunner[] {jobGrowSampleRunner, updateCostRunner, stripWeakCentroidsRunner},
+    init(
+        new MapReduceJobRunner[] {jobGrowSampleRunner, updateCostRunner, stripWeakCentroidsRunner},
         new PostOperationTask[] {DoNothingTask, DoNothingTask, new PostOperationTask() {
           @Override
           public void runTask(final Configuration config, final MapReduceJobRunner runner) {
             updateCostRunner.setReducerCount(
-                Math.min(stripWeakCentroidsRunner.getCurrentCentroidCount(), runTimeProperties
-                    .getPropertyAsInt(ClusteringParameters.Clustering.MAX_REDUCER_COUNT, 32)));
+                Math.min(
+                    stripWeakCentroidsRunner.getCurrentCentroidCount(), runTimeProperties
+                        .getPropertyAsInt(ClusteringParameters.Clustering.MAX_REDUCER_COUNT, 32)));
           }
         }});
   }
@@ -104,28 +105,29 @@ public class SampleMultipleSetsJobRunner<T> extends MapReduceJobController
         runTimeProperties.getPropertyAsInt(SampleParameters.Sample.MIN_SAMPLE_SIZE, 2),
         runTimeProperties.getPropertyAsInt(SampleParameters.Sample.MAX_SAMPLE_SIZE, 1000));
 
-    runTimeProperties.store(SampleParameters.Sample.SAMPLE_SIZE,
+    runTimeProperties.store(
+        SampleParameters.Sample.SAMPLE_SIZE,
         runTimeProperties.getPropertyAsInt(SampleParameters.Sample.MAX_SAMPLE_SIZE, 1000));
 
     setIterations(runTimeProperties.getPropertyAsInt(SampleParameters.Sample.SAMPLE_ITERATIONS, 1));
 
-    runTimeProperties.storeIfEmpty(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-        SimpleFeatureItemWrapperFactory.class);
+    runTimeProperties.storeIfEmpty(
+        CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS, SimpleFeatureItemWrapperFactory.class);
 
-    runTimeProperties.storeIfEmpty(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-        FeatureCentroidDistanceFn.class);
+    runTimeProperties.storeIfEmpty(
+        CommonParameters.Common.DISTANCE_FUNCTION_CLASS, FeatureCentroidDistanceFn.class);
 
-    runTimeProperties.storeIfEmpty(CentroidParameters.Centroid.EXTRACTOR_CLASS,
-        SimpleFeatureCentroidExtractor.class);
+    runTimeProperties.storeIfEmpty(
+        CentroidParameters.Centroid.EXTRACTOR_CLASS, SimpleFeatureCentroidExtractor.class);
 
-    runTimeProperties.storeIfEmpty(CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
-        SimpleFeatureGeometryExtractor.class);
+    runTimeProperties.storeIfEmpty(
+        CommonParameters.Common.DIMENSION_EXTRACT_CLASS, SimpleFeatureGeometryExtractor.class);
 
-    runTimeProperties.copy(CentroidParameters.Centroid.DATA_TYPE_ID,
-        SampleParameters.Sample.DATA_TYPE_NAME);
+    runTimeProperties
+        .copy(CentroidParameters.Centroid.DATA_TYPE_ID, SampleParameters.Sample.DATA_TYPE_NAME);
 
-    runTimeProperties.copy(CentroidParameters.Centroid.INDEX_NAME,
-        SampleParameters.Sample.INDEX_NAME);
+    runTimeProperties
+        .copy(CentroidParameters.Centroid.INDEX_NAME, SampleParameters.Sample.INDEX_NAME);
 
     runTimeProperties.store(CentroidParameters.Centroid.ZOOM_LEVEL, zoomLevel);
 
@@ -148,14 +150,17 @@ public class SampleMultipleSetsJobRunner<T> extends MapReduceJobController
   @Override
   public Collection<ParameterEnum<?>> getParameters() {
     final Set<ParameterEnum<?>> params = new HashSet<ParameterEnum<?>>();
-    params.addAll(Arrays.asList(new ParameterEnum<?>[] {SampleParameters.Sample.MAX_SAMPLE_SIZE,
-        SampleParameters.Sample.SAMPLE_ITERATIONS, SampleParameters.Sample.MIN_SAMPLE_SIZE,
-        CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS, CentroidParameters.Centroid.INDEX_NAME,
-        CentroidParameters.Centroid.DATA_TYPE_ID, CentroidParameters.Centroid.DATA_NAMESPACE_URI,
-        CentroidParameters.Centroid.EXTRACTOR_CLASS,
-        CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-        CommonParameters.Common.DIMENSION_EXTRACT_CLASS, StoreParameters.StoreParam.INPUT_STORE,
-        GlobalParameters.Global.BATCH_ID}));
+    params.addAll(
+        Arrays.asList(
+            new ParameterEnum<?>[] {SampleParameters.Sample.MAX_SAMPLE_SIZE,
+                SampleParameters.Sample.SAMPLE_ITERATIONS, SampleParameters.Sample.MIN_SAMPLE_SIZE,
+                CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+                CentroidParameters.Centroid.INDEX_NAME, CentroidParameters.Centroid.DATA_TYPE_ID,
+                CentroidParameters.Centroid.DATA_NAMESPACE_URI,
+                CentroidParameters.Centroid.EXTRACTOR_CLASS,
+                CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
+                CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
+                StoreParameters.StoreParam.INPUT_STORE, GlobalParameters.Global.BATCH_ID}));
 
     params.addAll(MapReduceParameters.getParameters());
 

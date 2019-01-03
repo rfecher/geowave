@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -112,15 +111,20 @@ public class SpatialJoinRunner implements Serializable {
     }
   }
 
-  private Index[] getIndicesForAdapter(final DataStorePluginOptions storeOptions,
-      final String typeName, final InternalAdapterStore internalAdapterStore,
+  private Index[] getIndicesForAdapter(
+      final DataStorePluginOptions storeOptions,
+      final String typeName,
+      final InternalAdapterStore internalAdapterStore,
       final IndexStore indexStore) {
     return storeOptions.createAdapterIndexMappingStore()
         .getIndicesForAdapter(internalAdapterStore.getAdapterId(typeName)).getIndices(indexStore);
   }
 
-  private FeatureDataAdapter createOutputAdapter(final DataStorePluginOptions originalOptions,
-      final String originalTypeName, final Index[] indices, String outputTypeName) {
+  private FeatureDataAdapter createOutputAdapter(
+      final DataStorePluginOptions originalOptions,
+      final String originalTypeName,
+      final Index[] indices,
+      String outputTypeName) {
 
     if (outputTypeName == null) {
       outputTypeName = createDefaultAdapterTypeName(originalTypeName, originalOptions);
@@ -133,15 +137,18 @@ public class SpatialJoinRunner implements Serializable {
 
   private void writeResultsToNewAdapter() throws IOException {
     if (outputStore != null) {
-      final Index[] leftIndices = getIndicesForAdapter(leftStore, leftAdapterTypeName,
-          leftInternalAdapterStore, leftIndexStore);
+      final Index[] leftIndices =
+          getIndicesForAdapter(
+              leftStore, leftAdapterTypeName, leftInternalAdapterStore, leftIndexStore);
       final FeatureDataAdapter newLeftAdapter =
           createOutputAdapter(leftStore, leftAdapterTypeName, leftIndices, outLeftAdapterTypeName);
 
-      final Index[] rightIndices = getIndicesForAdapter(rightStore, rightAdapterTypeName,
-          rightInternalAdapterStore, rightIndexStore);
-      final FeatureDataAdapter newRightAdapter = createOutputAdapter(rightStore,
-          rightAdapterTypeName, rightIndices, outRightAdapterTypeName);
+      final Index[] rightIndices =
+          getIndicesForAdapter(
+              rightStore, rightAdapterTypeName, rightInternalAdapterStore, rightIndexStore);
+      final FeatureDataAdapter newRightAdapter =
+          createOutputAdapter(
+              rightStore, rightAdapterTypeName, rightIndices, outRightAdapterTypeName);
       // Write each feature set to new adapter and store using original
       // indexing methods.
       RDDUtils.writeRDDToGeoWave(sc, leftIndices, outputStore, newLeftAdapter, getLeftResults());
@@ -149,7 +156,8 @@ public class SpatialJoinRunner implements Serializable {
     }
   }
 
-  private String createDefaultAdapterTypeName(final String typeName,
+  private String createDefaultAdapterTypeName(
+      final String typeName,
       final DataStorePluginOptions storeOptions) {
     String defaultAdapterName = typeName + "_joined";
     final InternalAdapterStore adapterStore = storeOptions.createInternalAdapterStore();
@@ -172,8 +180,9 @@ public class SpatialJoinRunner implements Serializable {
     if (session == null) {
       String jar = "";
       try {
-        jar = SpatialJoinRunner.class.getProtectionDomain().getCodeSource().getLocation().toURI()
-            .getPath();
+        jar =
+            SpatialJoinRunner.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+                .getPath();
       } catch (final URISyntaxException e) {
         LOGGER.error("Unable to set jar location in spark configuration", e);
       }
@@ -194,8 +203,10 @@ public class SpatialJoinRunner implements Serializable {
     sc = session.sparkContext();
   }
 
-  private GeoWaveIndexedRDD createRDDFromOptions(final DataStorePluginOptions storeOptions,
-      String adapterTypeName, final InternalAdapterStore internalAdapterStore,
+  private GeoWaveIndexedRDD createRDDFromOptions(
+      final DataStorePluginOptions storeOptions,
+      String adapterTypeName,
+      final InternalAdapterStore internalAdapterStore,
       final IndexStore indexStore) throws IOException {
 
     // If no adapterId provided by user grab first adapterId
@@ -234,15 +245,17 @@ public class SpatialJoinRunner implements Serializable {
   private void loadDatasets() throws IOException {
     if (leftStore != null) {
       if (leftRDD == null) {
-        leftRDD = createRDDFromOptions(leftStore, leftAdapterTypeName, leftInternalAdapterStore,
-            leftIndexStore);
+        leftRDD =
+            createRDDFromOptions(
+                leftStore, leftAdapterTypeName, leftInternalAdapterStore, leftIndexStore);
       }
     }
 
     if (rightStore != null) {
       if (rightRDD == null) {
-        rightRDD = createRDDFromOptions(rightStore, rightAdapterTypeName, rightInternalAdapterStore,
-            rightIndexStore);
+        rightRDD =
+            createRDDFromOptions(
+                rightStore, rightAdapterTypeName, rightInternalAdapterStore, rightIndexStore);
       }
     }
   }

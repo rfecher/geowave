@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,8 +31,11 @@ public class StatisticsQuery<R> {
    * @param extendedId an extended ID to ensure uniqueness
    * @param authorizations the authorizations
    */
-  public StatisticsQuery(final String typeName, final StatisticsType<R, ?> statsType,
-      final String extendedId, final String[] authorizations) {
+  public StatisticsQuery(
+      final String typeName,
+      final StatisticsType<R, ?> statsType,
+      final String extendedId,
+      final String[] authorizations) {
     super();
     this.typeName = typeName;
     this.statsType = statsType;

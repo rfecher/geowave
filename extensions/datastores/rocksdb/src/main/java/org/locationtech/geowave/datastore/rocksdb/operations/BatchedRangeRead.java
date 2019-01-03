@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,13 +53,15 @@ public class BatchedRangeRead<T> {
 
     @Override
     public int compare(final RangeReadInfo o1, final RangeReadInfo o2) {
-      int comp = UnsignedBytes.lexicographicalComparator()
-          .compare(o1.sortKeyRange.getStart().getBytes(), o2.sortKeyRange.getStart().getBytes());
+      int comp =
+          UnsignedBytes.lexicographicalComparator().compare(
+              o1.sortKeyRange.getStart().getBytes(), o2.sortKeyRange.getStart().getBytes());
       if (comp != 0) {
         return comp;
       }
-      comp = UnsignedBytes.lexicographicalComparator().compare(o1.sortKeyRange.getEnd().getBytes(),
-          o2.sortKeyRange.getEnd().getBytes());
+      comp =
+          UnsignedBytes.lexicographicalComparator()
+              .compare(o1.sortKeyRange.getEnd().getBytes(), o2.sortKeyRange.getEnd().getBytes());
       if (comp != 0) {
         return comp;
       }
@@ -84,10 +85,15 @@ public class BatchedRangeRead<T> {
   private final Pair<Boolean, Boolean> groupByRowAndSortByTimePair;
   private final boolean isSortFinalResultsBySortKey;
 
-  protected BatchedRangeRead(final RocksDBClient client, final String indexNamePrefix,
-      final short adapterId, final Collection<SinglePartitionQueryRanges> ranges,
-      final GeoWaveRowIteratorTransformer<T> rowTransformer, final Predicate<GeoWaveRow> filter,
-      final boolean async, final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
+  protected BatchedRangeRead(
+      final RocksDBClient client,
+      final String indexNamePrefix,
+      final short adapterId,
+      final Collection<SinglePartitionQueryRanges> ranges,
+      final GeoWaveRowIteratorTransformer<T> rowTransformer,
+      final Predicate<GeoWaveRow> filter,
+      final boolean async,
+      final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
       final boolean isSortFinalResultsBySortKey) {
     this.client = client;
     this.indexNamePrefix = indexNamePrefix;
@@ -100,8 +106,8 @@ public class BatchedRangeRead<T> {
   }
 
   private RocksDBIndexTable getTable(final byte[] partitionKey) {
-    return RocksDBUtils.getIndexTableFromPrefix(client, indexNamePrefix, adapterId, partitionKey,
-        groupByRowAndSortByTimePair.getRight());
+    return RocksDBUtils.getIndexTableFromPrefix(
+        client, indexNamePrefix, adapterId, partitionKey, groupByRowAndSortByTimePair.getRight());
   }
 
   public CloseableIterator<T> results() {
@@ -129,20 +135,23 @@ public class BatchedRangeRead<T> {
       // if we don't have enough
       // precision we need to make
       // sure the end is inclusive
-      return transformAndFilter(setCache.get(partitionKey).iterator(r.sortKeyRange),
-          r.partitionKey);
+      return transformAndFilter(
+          setCache.get(partitionKey).iterator(r.sortKeyRange), r.partitionKey);
     }).iterator()));
   }
 
-  private CloseableIterator<T> transformAndFilter(final CloseableIterator<GeoWaveRow> result,
+  private CloseableIterator<T> transformAndFilter(
+      final CloseableIterator<GeoWaveRow> result,
       final byte[] partitionKey) {
-    return new CloseableIteratorWrapper<>(result,
-        rowTransformer.apply(sortByKeyIfRequired(isSortFinalResultsBySortKey,
+    return new CloseableIteratorWrapper<>(result, rowTransformer.apply(
+        sortByKeyIfRequired(
+            isSortFinalResultsBySortKey,
             (Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator(
                 Iterators.filter(result, filter)))));
   }
 
-  private static Iterator<GeoWaveRow> sortByKeyIfRequired(final boolean isRequired,
+  private static Iterator<GeoWaveRow> sortByKeyIfRequired(
+      final boolean isRequired,
       final Iterator<GeoWaveRow> it) {
     if (isRequired) {
       return RocksDBUtils.sortBySortKey(it);

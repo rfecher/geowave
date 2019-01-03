@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -48,9 +47,12 @@ public class GeoWaveDataStoreComponents {
 
   private final Index[] adapterIndices;
 
-  public GeoWaveDataStoreComponents(final DataStore dataStore,
-      final DataStatisticsStore dataStatisticsStore, final IndexStore indexStore,
-      final GeotoolsFeatureDataAdapter adapter, final GeoWaveGTDataStore gtStore,
+  public GeoWaveDataStoreComponents(
+      final DataStore dataStore,
+      final DataStatisticsStore dataStatisticsStore,
+      final IndexStore indexStore,
+      final GeotoolsFeatureDataAdapter adapter,
+      final GeoWaveGTDataStore gtStore,
       final TransactionsAllocator transactionAllocator) {
     this.adapter = adapter;
     this.dataStore = dataStore;
@@ -101,10 +103,12 @@ public class GeoWaveDataStoreComponents {
 
   public CloseableIterator<Index> getIndices(
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats,
-      final BasicQuery query, final boolean spatialOnly) {
+      final BasicQuery query,
+      final boolean spatialOnly) {
     final GeoWaveGTDataStore gtStore = getGTstore();
     final Map<QueryHint, Object> queryHints = Maps.newHashMap();
-    queryHints.put(QueryHint.MAX_RANGE_DECOMPOSITION,
+    queryHints.put(
+        QueryHint.MAX_RANGE_DECOMPOSITION,
         gtStore.getDataStoreOptions().getMaxRangeDecomposition());
     Index[] indices = gtStore.getIndicesForAdapter(adapter, spatialOnly);
     if (spatialOnly && indices.length == 0) {
@@ -117,30 +121,35 @@ public class GeoWaveDataStoreComponents {
       throws IOException {
     final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
 
-    dataStore.delete(bldr.setAuthorizations(transaction.composeAuthorizations())
-        .addTypeName(adapter.getTypeName())
-        .constraints(
-            bldr.constraintsFactory().dataIds(new ByteArray[] {adapter.getDataId(feature)}))
-        .build());
+    dataStore.delete(
+        bldr.setAuthorizations(transaction.composeAuthorizations())
+            .addTypeName(adapter.getTypeName())
+            .constraints(
+                bldr.constraintsFactory().dataIds(new ByteArray[] {adapter.getDataId(feature)}))
+            .build());
   }
 
   public void remove(final String fid, final GeoWaveTransaction transaction) throws IOException {
 
     final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
 
-    dataStore
-        .delete(bldr.setAuthorizations(transaction.composeAuthorizations())
+    dataStore.delete(
+        bldr.setAuthorizations(transaction.composeAuthorizations())
             .addTypeName(adapter.getTypeName())
-            .constraints(bldr.constraintsFactory()
-                .dataIds(new ByteArray[] {new ByteArray(StringUtils.stringToBinary(fid))}))
+            .constraints(
+                bldr.constraintsFactory()
+                    .dataIds(new ByteArray[] {new ByteArray(StringUtils.stringToBinary(fid))}))
             .build());
   }
 
   @SuppressWarnings("unchecked")
-  public void write(final Iterator<SimpleFeature> featureIt, final Set<String> fidList,
+  public void write(
+      final Iterator<SimpleFeature> featureIt,
+      final Set<String> fidList,
       final GeoWaveTransaction transaction) throws IOException {
-    final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<>(
-        new GlobalVisibilityHandler<>(transaction.composeVisibility()));
+    final VisibilityWriter<SimpleFeature> visibilityWriter =
+        new UniformVisibilityWriter<>(
+            new GlobalVisibilityHandler<>(transaction.composeVisibility()));
     dataStore.addType(adapter, adapterIndices);
     try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(adapter.getTypeName())) {
       while (featureIt.hasNext()) {
@@ -154,8 +163,9 @@ public class GeoWaveDataStoreComponents {
   public void writeCommit(final SimpleFeature feature, final GeoWaveTransaction transaction)
       throws IOException {
 
-    final VisibilityWriter<SimpleFeature> visibilityWriter = new UniformVisibilityWriter<>(
-        new GlobalVisibilityHandler<>(transaction.composeVisibility()));
+    final VisibilityWriter<SimpleFeature> visibilityWriter =
+        new UniformVisibilityWriter<>(
+            new GlobalVisibilityHandler<>(transaction.composeVisibility()));
     dataStore.addType(adapter, adapterIndices);
     try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(adapter.getTypeName())) {
       indexWriter.write(feature, visibilityWriter);

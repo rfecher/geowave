@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -52,9 +51,9 @@ import org.slf4j.LoggerFactory;
  * given distance from each other. This process can continue no new clusters are created (merges do
  * not occur).
  *
- * <p>
- * The first iteration places a constraint on the minimum number of neighbors. Subsequent iterations
- * do not have a minimum, since each of the clusters is already vetted out by the first iteration.
+ * <p> The first iteration places a constraint on the minimum number of neighbors. Subsequent
+ * iterations do not have a minimum, since each of the clusters is already vetted out by the first
+ * iteration.
  */
 public class DBScanIterationsJobRunner implements MapReduceJobRunner, IndependentJobRunner {
 
@@ -102,8 +101,8 @@ public class DBScanIterationsJobRunner implements MapReduceJobRunner, Independen
         fs.delete(startPath, true);
       }
 
-      runTimeProperties.storeIfEmpty(Partition.PARTITIONER_CLASS,
-          OrthodromicDistancePartitioner.class);
+      runTimeProperties
+          .storeIfEmpty(Partition.PARTITIONER_CLASS, OrthodromicDistancePartitioner.class);
 
       final double maxDistance = runTimeProperties.getPropertyAsDouble(Partition.MAX_DISTANCE, 10);
 
@@ -141,8 +140,8 @@ public class DBScanIterationsJobRunner implements MapReduceJobRunner, Independen
         }
         secondary |= (total >= (Math.pow(maxDistance, distancePerDimension.length) * 2.0));
         if (secondary) {
-          runTimeProperties.copy(Partition.PARTITIONER_CLASS,
-              Partition.SECONDARY_PARTITIONER_CLASS);
+          runTimeProperties
+              .copy(Partition.PARTITIONER_CLASS, Partition.SECONDARY_PARTITIONER_CLASS);
         }
       }
 
@@ -173,8 +172,9 @@ public class DBScanIterationsJobRunner implements MapReduceJobRunner, Independen
 
         try {
           final Partitioner<?> partitioner =
-              runTimeProperties.getClassInstance(PartitionParameters.Partition.PARTITIONER_CLASS,
-                  Partitioner.class, OrthodromicDistancePartitioner.class);
+              runTimeProperties.getClassInstance(
+                  PartitionParameters.Partition.PARTITIONER_CLASS, Partitioner.class,
+                  OrthodromicDistancePartitioner.class);
 
           partitioner.initialize(Job.getInstance(config), partitioner.getClass());
         } catch (final IllegalArgumentException argEx) {
@@ -199,8 +199,8 @@ public class DBScanIterationsJobRunner implements MapReduceJobRunner, Independen
          * dimension space or assuming only two dimensions were both undesirable.
          */
         if ((precisionFactor <= 0.9) && !overrideSecondary) {
-          localScopeProperties.store(Partition.SECONDARY_PARTITIONER_CLASS,
-              PassthruPartitioner.class);
+          localScopeProperties
+              .store(Partition.SECONDARY_PARTITIONER_CLASS, PassthruPartitioner.class);
         }
 
         localScopeProperties.store(Partition.PARTITION_PRECISION, precisionFactor);
@@ -212,8 +212,9 @@ public class DBScanIterationsJobRunner implements MapReduceJobRunner, Independen
 
         localScopeProperties.store(HullParameters.Hull.ITERATION, iteration);
 
-        localScopeProperties.storeIfEmpty(OutputParameters.Output.DATA_TYPE_ID, localScopeProperties
-            .getPropertyAsString(HullParameters.Hull.DATA_TYPE_ID, "concave_hull"));
+        localScopeProperties.storeIfEmpty(
+            OutputParameters.Output.DATA_TYPE_ID, localScopeProperties
+                .getPropertyAsString(HullParameters.Hull.DATA_TYPE_ID, "concave_hull"));
 
         // Set to zero to force each cluster to be moved into the next
         // iteration
@@ -251,12 +252,14 @@ public class DBScanIterationsJobRunner implements MapReduceJobRunner, Independen
       }
       final PropertyManagement localScopeProperties = new PropertyManagement(runTimeProperties);
 
-      localScopeProperties.storeIfEmpty(OutputParameters.Output.DATA_TYPE_ID, localScopeProperties
-          .getPropertyAsString(HullParameters.Hull.DATA_TYPE_ID, "concave_hull"));
-      localScopeProperties.storeIfEmpty(OutputParameters.Output.DATA_NAMESPACE_URI,
-          localScopeProperties.getPropertyAsString(HullParameters.Hull.DATA_NAMESPACE_URI,
-              BasicFeatureTypes.DEFAULT_NAMESPACE));
-      localScopeProperties.storeIfEmpty(OutputParameters.Output.INDEX_ID,
+      localScopeProperties.storeIfEmpty(
+          OutputParameters.Output.DATA_TYPE_ID, localScopeProperties
+              .getPropertyAsString(HullParameters.Hull.DATA_TYPE_ID, "concave_hull"));
+      localScopeProperties.storeIfEmpty(
+          OutputParameters.Output.DATA_NAMESPACE_URI, localScopeProperties.getPropertyAsString(
+              HullParameters.Hull.DATA_NAMESPACE_URI, BasicFeatureTypes.DEFAULT_NAMESPACE));
+      localScopeProperties.storeIfEmpty(
+          OutputParameters.Output.INDEX_ID,
           localScopeProperties.get(HullParameters.Hull.INDEX_NAME));
       inputLoadRunner
           .setInputFormatConfiguration(new SequenceFileInputFormatConfiguration(startPath));

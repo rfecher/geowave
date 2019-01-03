@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,7 +40,9 @@ public class ChooseBestMatchIndexQueryStrategy implements IndexQueryStrategySPI 
   @Override
   public CloseableIterator<Index> getIndices(
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats,
-      final BasicQuery query, final Index[] indices, final Map<QueryHint, Object> hints) {
+      final BasicQuery query,
+      final Index[] indices,
+      final Map<QueryHint, Object> hints) {
     return new CloseableIterator<Index>() {
       Index nextIdx = null;
       boolean done = false;
@@ -60,8 +61,9 @@ public class ChooseBestMatchIndexQueryStrategy implements IndexQueryStrategySPI 
           final List<MultiDimensionalNumericData> constraints = query.getIndexConstraints(nextIdx);
           boolean containsRowRangeHistograms = false;
 
-          final StatisticsQuery<NumericHistogram> query = VectorStatisticsQueryBuilder.newBuilder()
-              .factory().rowHistogram().indexName(nextIdx.getName()).build();
+          final StatisticsQuery<NumericHistogram> query =
+              VectorStatisticsQueryBuilder.newBuilder().factory().rowHistogram()
+                  .indexName(nextIdx.getName()).build();
           for (final StatisticsId statsId : stats.keySet()) {
             // find out if any partition histograms exist for this
             // index ID by checking the prefix
@@ -91,8 +93,9 @@ public class ChooseBestMatchIndexQueryStrategy implements IndexQueryStrategySPI 
                   "No max range decomposition hint was provided, this should be provided from the data store options");
               maxRangeDecomposition = 2000;
             }
-            final QueryRanges ranges = DataStoreUtils.constraintsToQueryRanges(constraints,
-                nextIdx.getIndexStrategy(), null, maxRangeDecomposition);
+            final QueryRanges ranges =
+                DataStoreUtils.constraintsToQueryRanges(
+                    constraints, nextIdx.getIndexStrategy(), null, maxRangeDecomposition);
             final long temp = DataStoreUtils.cardinality(nextIdx, stats, ranges);
             if (temp < min) {
               bestIdx = nextIdx;

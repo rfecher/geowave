@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,8 +25,12 @@ public class GeoWaveRowRange implements Writable {
 
   protected GeoWaveRowRange() {}
 
-  public GeoWaveRowRange(final byte[] partitionKey, final byte[] startKey, final byte[] endKey,
-      final boolean startKeyInclusive, final boolean endKeyInclusive) {
+  public GeoWaveRowRange(
+      final byte[] partitionKey,
+      final byte[] startKey,
+      final byte[] endKey,
+      final boolean startKeyInclusive,
+      final boolean endKeyInclusive) {
     this.partitionKey = partitionKey;
     this.startKey = startKey;
     this.endKey = endKey;
@@ -131,8 +134,16 @@ public class GeoWaveRowRange implements Writable {
 
   @Override
   public String toString() {
-    return "GeoWaveRowRange [partitionKey=" + Arrays.toString(partitionKey) + ", startKey="
-        + Arrays.toString(startKey) + ", endKey=" + Arrays.toString(endKey) + ", startKeyInclusive="
-        + startKeyInclusive + ", endKeyInclusive=" + endKeyInclusive + "]";
+    return "GeoWaveRowRange [partitionKey="
+        + Arrays.toString(partitionKey)
+        + ", startKey="
+        + Arrays.toString(startKey)
+        + ", endKey="
+        + Arrays.toString(endKey)
+        + ", startKeyInclusive="
+        + startKeyInclusive
+        + ", endKeyInclusive="
+        + endKeyInclusive
+        + "]";
   }
 }

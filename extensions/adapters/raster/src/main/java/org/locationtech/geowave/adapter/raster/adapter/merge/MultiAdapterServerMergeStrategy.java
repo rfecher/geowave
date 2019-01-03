@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -76,16 +75,20 @@ public class MultiAdapterServerMergeStrategy<T extends Persistable>
     synchronized (this) {
       if ((merge != null) && (merge instanceof MultiAdapterServerMergeStrategy)) {
         final MultiAdapterServerMergeStrategy<T> other = (MultiAdapterServerMergeStrategy) merge;
-        mergeMaps(sampleModels, adapterIdToSampleModelKey, other.sampleModels,
+        mergeMaps(
+            sampleModels, adapterIdToSampleModelKey, other.sampleModels,
             other.adapterIdToSampleModelKey);
-        mergeMaps(childMergeStrategies, adapterIdToChildMergeStrategyKey,
-            other.childMergeStrategies, other.adapterIdToChildMergeStrategyKey);
+        mergeMaps(
+            childMergeStrategies, adapterIdToChildMergeStrategyKey, other.childMergeStrategies,
+            other.adapterIdToChildMergeStrategyKey);
       }
     }
   }
 
-  private static <T> void mergeMaps(final Map<Integer, T> thisValues,
-      final Map<Short, Integer> thisAdapterIdToValueKeys, final Map<Integer, T> otherValues,
+  private static <T> void mergeMaps(
+      final Map<Integer, T> thisValues,
+      final Map<Short, Integer> thisAdapterIdToValueKeys,
+      final Map<Integer, T> otherValues,
       final Map<Short, Integer> otherAdapterIdToValueKeys) {
     // this was generalized to apply to both sample models and merge
     // strategies, comments refer to sample models but in general it is also
@@ -133,8 +136,11 @@ public class MultiAdapterServerMergeStrategy<T extends Persistable>
     }
   }
 
-  private static synchronized <T> void addValue(final List<Short> adapterIds, final T sampleModel,
-      final Map<Integer, T> values, final Map<Short, Integer> adapterIdToValueKeys) {
+  private static synchronized <T> void addValue(
+      final List<Short> adapterIds,
+      final T sampleModel,
+      final Map<Integer, T> values,
+      final Map<Short, Integer> adapterIdToValueKeys) {
     int nextId = 1;
     boolean idAvailable = false;
     while (!idAvailable) {
@@ -280,8 +286,8 @@ public class MultiAdapterServerMergeStrategy<T extends Persistable>
     final int sampleModelAdapterIdSize = VarintUtils.readUnsignedInt(buf);
     adapterIdToSampleModelKey = new HashMap<Short, Integer>(sampleModelAdapterIdSize);
     for (int i = 0; i < sampleModelAdapterIdSize; i++) {
-      adapterIdToSampleModelKey.put(VarintUtils.readUnsignedShort(buf),
-          VarintUtils.readUnsignedInt(buf));
+      adapterIdToSampleModelKey
+          .put(VarintUtils.readUnsignedShort(buf), VarintUtils.readUnsignedInt(buf));
     }
 
     final int mergeStrategySize = VarintUtils.readUnsignedInt(buf);
@@ -307,8 +313,8 @@ public class MultiAdapterServerMergeStrategy<T extends Persistable>
     final int mergeStrategyAdapterIdSize = VarintUtils.readUnsignedInt(buf);
     adapterIdToChildMergeStrategyKey = new HashMap<Short, Integer>(mergeStrategyAdapterIdSize);
     for (int i = 0; i < mergeStrategyAdapterIdSize; i++) {
-      adapterIdToChildMergeStrategyKey.put(VarintUtils.readUnsignedShort(buf),
-          VarintUtils.readUnsignedInt(buf));
+      adapterIdToChildMergeStrategyKey
+          .put(VarintUtils.readUnsignedShort(buf), VarintUtils.readUnsignedInt(buf));
     }
   }
 
@@ -327,7 +333,9 @@ public class MultiAdapterServerMergeStrategy<T extends Persistable>
   // }
 
   @Override
-  public void merge(final RasterTile thisTile, final RasterTile nextTile,
+  public void merge(
+      final RasterTile thisTile,
+      final RasterTile nextTile,
       final short internalAdapterId) {
     final RasterTileMergeStrategy<T> childMergeStrategy = getChildMergeStrategy(internalAdapterId);
 

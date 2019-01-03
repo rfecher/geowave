@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -50,11 +49,12 @@ public class GaussianCellMapper
     super.setup(context);
     minLevel = context.getConfiguration().getInt(KDEJobRunner.MIN_LEVEL_KEY, 1);
     maxLevel = context.getConfiguration().getInt(KDEJobRunner.MAX_LEVEL_KEY, 25);
-    valueRangePerDimension = new ValueRange[] {
-        new ValueRange(context.getConfiguration().getDouble(KDEJobRunner.X_MIN_KEY, -180),
-            context.getConfiguration().getDouble(KDEJobRunner.X_MAX_KEY, 180)),
-        new ValueRange(context.getConfiguration().getDouble(KDEJobRunner.Y_MIN_KEY, -90),
-            context.getConfiguration().getDouble(KDEJobRunner.Y_MAX_KEY, 90))};
+    valueRangePerDimension =
+        new ValueRange[] {
+            new ValueRange(context.getConfiguration().getDouble(KDEJobRunner.X_MIN_KEY, -180),
+                context.getConfiguration().getDouble(KDEJobRunner.X_MAX_KEY, 180)),
+            new ValueRange(context.getConfiguration().getDouble(KDEJobRunner.Y_MIN_KEY, -90),
+                context.getConfiguration().getDouble(KDEJobRunner.Y_MAX_KEY, 90))};
     inputCrsCode = context.getConfiguration().get(KDEJobRunner.INPUT_CRSCODE_KEY);
     outputCrsCode = context.getConfiguration().get(KDEJobRunner.OUTPUT_CRSCODE_KEY);
 
@@ -75,10 +75,14 @@ public class GaussianCellMapper
     }
   }
 
-  protected void populateLevelStore(final Context context, final int numXPosts, final int numYPosts,
+  protected void populateLevelStore(
+      final Context context,
+      final int numXPosts,
+      final int numYPosts,
       final int level) {
-    levelStoreMap.put(level, new LevelStore(numXPosts, numYPosts,
-        new MapContextCellCounter(context, level, minLevel, maxLevel)));
+    levelStoreMap.put(
+        level, new LevelStore(numXPosts, numYPosts,
+            new MapContextCellCounter(context, level, minLevel, maxLevel)));
   }
 
   @Override
@@ -98,8 +102,9 @@ public class GaussianCellMapper
           if (transform == null) {
 
             try {
-              transform = CRS.findMathTransform(CRS.decode(inputCrsCode, true),
-                  CRS.decode(outputCrsCode, true), true);
+              transform =
+                  CRS.findMathTransform(
+                      CRS.decode(inputCrsCode, true), CRS.decode(outputCrsCode, true), true);
             } catch (FactoryException e) {
               LOGGER.error("Unable to decode " + inputCrsCode + " CRS", e);
               throw new RuntimeException("Unable to initialize " + inputCrsCode + " object", e);
@@ -125,11 +130,15 @@ public class GaussianCellMapper
     }
   }
 
-  protected void incrementLevelStore(final int level, final Point pt, final SimpleFeature feature,
+  protected void incrementLevelStore(
+      final int level,
+      final Point pt,
+      final SimpleFeature feature,
       final ValueRange[] valueRangePerDimension) {
     final LevelStore levelStore = levelStoreMap.get(level);
-    GaussianFilter.incrementPt(pt.getY(), pt.getX(), levelStore.counter, levelStore.numXPosts,
-        levelStore.numYPosts, valueRangePerDimension);
+    GaussianFilter.incrementPt(
+        pt.getY(), pt.getX(), levelStore.counter, levelStore.numXPosts, levelStore.numYPosts,
+        valueRangePerDimension);
   }
 
   public static class LevelStore {

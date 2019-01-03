@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -46,7 +45,8 @@ public class VisibilityConfiguration implements SimpleFeatureUserDataConfigurati
    * @param type - feature type object to be checked and updated
    * @param manager - VisibilityManagement object to be used for this type
    */
-  public void updateWithDefaultIfNeeded(final SimpleFeatureType type,
+  public void updateWithDefaultIfNeeded(
+      final SimpleFeatureType type,
       final VisibilityManagement<SimpleFeature> manager) {
     if ((!configureManager(type)) && (manager != null)) {
       this.manager = manager;
@@ -178,9 +178,12 @@ public class VisibilityConfiguration implements SimpleFeatureUserDataConfigurati
     } else {
       attributeBytes = new byte[0];
     }
-    final ByteBuffer buf = ByteBuffer.allocate(attributeBytes.length + managerClassBytes.length
-        + VarintUtils.unsignedIntByteLength(attributeBytes.length)
-        + VarintUtils.unsignedIntByteLength(managerClassBytes.length));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            attributeBytes.length
+                + managerClassBytes.length
+                + VarintUtils.unsignedIntByteLength(attributeBytes.length)
+                + VarintUtils.unsignedIntByteLength(managerClassBytes.length));
     VarintUtils.writeUnsignedInt(attributeBytes.length, buf);
     buf.put(attributeBytes);
     VarintUtils.writeUnsignedInt(managerClassBytes.length, buf);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -42,15 +41,22 @@ import javax.media.jai.iterator.RandomIter;
  * following code does not work if the source is significant lower resolution than the destination
  * and seems unnecessary in general:
  *
- * <p>
- * roiTile = roi.intersect(new ROIShape(srcRectExpanded));
+ * <p> roiTile = roi.intersect(new ROIShape(srcRectExpanded));
  */
 @SuppressFBWarnings
 public abstract class WarpOpImage extends it.geosolutions.jaiext.warp.WarpOpImage {
 
-  public WarpOpImage(RenderedImage source, ImageLayout layout, Map<?, ?> configuration,
-      boolean cobbleSources, BorderExtender extender, Interpolation interp, Warp warp,
-      double[] backgroundValues, ROI roi, Range noData) {
+  public WarpOpImage(
+      RenderedImage source,
+      ImageLayout layout,
+      Map<?, ?> configuration,
+      boolean cobbleSources,
+      BorderExtender extender,
+      Interpolation interp,
+      Warp warp,
+      double[] backgroundValues,
+      ROI roi,
+      Range noData) {
     super(source, layout, configuration, cobbleSources, extender, interp, warp, backgroundValues,
         roi, noData);
   }
@@ -59,7 +65,9 @@ public abstract class WarpOpImage extends it.geosolutions.jaiext.warp.WarpOpImag
    * Warps a rectangle. If ROI is present, the intersection between ROI and tile bounds is
    * calculated; The result ROI will be used for calculations inside the computeRect() method.
    */
-  protected void computeRect(final PlanarImage[] sources, final WritableRaster dest,
+  protected void computeRect(
+      final PlanarImage[] sources,
+      final WritableRaster dest,
       final Rectangle destRect) {
     // Retrieve format tags.
     final RasterFormatTag[] formatTags = getFormatTags();
@@ -76,8 +84,9 @@ public abstract class WarpOpImage extends it.geosolutions.jaiext.warp.WarpOpImag
     if (hasROI) {
       Rectangle srcRectExpanded = mapDestRect(destRect, 0);
       // The tile dimension is extended for avoiding border errors
-      srcRectExpanded.setRect(srcRectExpanded.getMinX() - leftPad,
-          srcRectExpanded.getMinY() - topPad, srcRectExpanded.getWidth() + rightPad + leftPad,
+      srcRectExpanded.setRect(
+          srcRectExpanded.getMinX() - leftPad, srcRectExpanded.getMinY() - topPad,
+          srcRectExpanded.getWidth() + rightPad + leftPad,
           srcRectExpanded.getHeight() + bottomPad + topPad);
 
       if (!roiBounds.intersects(srcRectExpanded)) {

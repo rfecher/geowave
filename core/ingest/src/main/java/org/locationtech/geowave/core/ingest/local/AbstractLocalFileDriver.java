@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,8 +43,11 @@ public abstract class AbstractLocalFileDriver<P extends LocalPluginBase, R> {
     localInput = input;
   }
 
-  protected void processInput(final String inputPath, final File configFile,
-      final Map<String, P> localPlugins, final R runData) throws IOException {
+  protected void processInput(
+      final String inputPath,
+      final File configFile,
+      final Map<String, P> localPlugins,
+      final R runData) throws IOException {
     if (inputPath == null) {
       LOGGER.error("Unable to ingest data, base directory or file input not specified");
       return;
@@ -129,7 +131,8 @@ public abstract class AbstractLocalFileDriver<P extends LocalPluginBase, R> {
       localPlugin.init(path.toUri().toURL());
     }
 
-    Files.walkFileTree(path,
+    Files.walkFileTree(
+        path,
         new LocalPluginFileVisitor<P, R>(localPlugins, this, runData, localInput.getExtensions()));
   }
 

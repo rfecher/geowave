@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -48,12 +47,14 @@ public class WFSTransactionTest extends BaseDataStoreTest {
   @Before
   public void setup() throws SchemaException, CQLException, IOException, GeoWavePluginException {
     dataStore = createDataStore();
-    type = DataUtilities.createType("geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String");
+    type =
+        DataUtilities
+            .createType("geostuff", "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String");
 
     dataStore.createSchema(type);
-    query = new Query("geostuff", CQL.toFilter("BBOX(geometry,27.20,41.20,27.30,41.30)"),
-        new String[] {"geometry", "pid"});
+    query =
+        new Query("geostuff", CQL.toFilter("BBOX(geometry,27.20,41.20,27.30,41.30)"),
+            new String[] {"geometry", "pid"});
   }
 
   @Test
@@ -107,12 +108,15 @@ public class WFSTransactionTest extends BaseDataStoreTest {
 
     // stats check
     final Transaction transaction3 = new DefaultTransaction();
-    reader = ((GeoWaveFeatureSource) ((GeoWaveGTDataStore) dataStore).getFeatureSource("geostuff",
-        transaction3)).getReaderInternal(query);
+    reader =
+        ((GeoWaveFeatureSource) ((GeoWaveGTDataStore) dataStore)
+            .getFeatureSource("geostuff", transaction3)).getReaderInternal(query);
     Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> transStats =
         ((GeoWaveFeatureReader) reader).getTransaction().getDataStatistics();
-    assertNotNull(transStats.get(
-        FeatureNumericRangeStatistics.STATS_TYPE.newBuilder().fieldName("pop").build().getId()));
+    assertNotNull(
+        transStats.get(
+            FeatureNumericRangeStatistics.STATS_TYPE.newBuilder().fieldName("pop").build()
+                .getId()));
     transaction3.close();
   }
 

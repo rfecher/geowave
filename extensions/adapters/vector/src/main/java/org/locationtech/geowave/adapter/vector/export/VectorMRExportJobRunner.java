@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -49,8 +48,11 @@ public class VectorMRExportJobRunner extends Configured implements Tool {
   private final String hdfsHostPort;
   private final String hdfsPath;
 
-  public VectorMRExportJobRunner(final DataStorePluginOptions storeOptions,
-      final VectorMRExportOptions mrOptions, final String hdfsHostPort, final String hdfsPath) {
+  public VectorMRExportJobRunner(
+      final DataStorePluginOptions storeOptions,
+      final VectorMRExportOptions mrOptions,
+      final String hdfsHostPort,
+      final String hdfsPath) {
     this.storeOptions = storeOptions;
     this.mrOptions = mrOptions;
     this.hdfsHostPort = hdfsHostPort;
@@ -65,8 +67,8 @@ public class VectorMRExportJobRunner extends Configured implements Tool {
       conf = new Configuration();
       setConf(conf);
     }
-    GeoWaveConfiguratorBase.setRemoteInvocationParams(hdfsHostPort,
-        mrOptions.getResourceManagerHostPort(), conf);
+    GeoWaveConfiguratorBase
+        .setRemoteInvocationParams(hdfsHostPort, mrOptions.getResourceManagerHostPort(), conf);
     final String[] typeNames = mrOptions.getTypeNames();
     final PersistentAdapterStore adapterStore = storeOptions.createAdapterStore();
     final InternalAdapterStore internalAdapterStore = storeOptions.createInternalAdapterStore();

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -107,15 +106,20 @@ public class AccumuloOptionsTest {
 
     mockDataStore.addType(adapter, index);
     try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
-      final Pair<ByteArray, ByteArray> rowId2 = indexWriter
-          .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_2"))
-          .getFirstPartitionAndSortKeyPair();
+      final Pair<ByteArray, ByteArray> rowId2 =
+          indexWriter
+              .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_2"))
+              .getFirstPartitionAndSortKeyPair();
 
-      final TestGeometry geom2 = (TestGeometry) mockDataStore.query(QueryBuilder.newBuilder()
-          .addTypeName(adapter.getTypeName()).indexName(index.getName())
-          .constraints(
-              new InsertionIdQuery(rowId2.getLeft(), rowId2.getRight(), new ByteArray("test_pt_2")))
-          .build()).next();
+      final TestGeometry geom2 =
+          (TestGeometry) mockDataStore.query(
+              QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+                  .indexName(index.getName())
+                  .constraints(
+                      new InsertionIdQuery(rowId2.getLeft(), rowId2.getRight(),
+                          new ByteArray("test_pt_2")))
+                  .build())
+              .next();
 
       // as we have chosen to persist the index, we will see the index
       // entry
@@ -139,9 +143,10 @@ public class AccumuloOptionsTest {
     accumuloOptions.setUseLocalityGroups(false);
     mockDataStore.addType(adapter, index);
     try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
-      final Pair<ByteArray, ByteArray> rowId1 = indexWriter
-          .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_1"))
-          .getFirstPartitionAndSortKeyPair();
+      final Pair<ByteArray, ByteArray> rowId1 =
+          indexWriter
+              .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_1"))
+              .getFirstPartitionAndSortKeyPair();
 
       try {
         // as we are not using locality groups, we expect that this will
@@ -151,11 +156,15 @@ public class AccumuloOptionsTest {
         LOGGER.error("Locality Group check failed", e);
       }
 
-      final TestGeometry geom1 = (TestGeometry) mockDataStore.query(QueryBuilder.newBuilder()
-          .addTypeName(adapter.getTypeName()).indexName(index.getName())
-          .constraints(
-              new InsertionIdQuery(rowId1.getLeft(), rowId1.getRight(), new ByteArray("test_pt_1")))
-          .build()).next();
+      final TestGeometry geom1 =
+          (TestGeometry) mockDataStore.query(
+              QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+                  .indexName(index.getName())
+                  .constraints(
+                      new InsertionIdQuery(rowId1.getLeft(), rowId1.getRight(),
+                          new ByteArray("test_pt_1")))
+                  .build())
+              .next();
 
       // of course, the point is actually stored in this case
       assertEquals("test_pt_1", geom1.id);
@@ -165,9 +174,10 @@ public class AccumuloOptionsTest {
     mockDataStore.deleteAll();
     mockDataStore.addType(adapter, index);
     try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
-      final Pair<ByteArray, ByteArray> rowId2 = indexWriter
-          .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_2"))
-          .getFirstPartitionAndSortKeyPair();
+      final Pair<ByteArray, ByteArray> rowId2 =
+          indexWriter
+              .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_2"))
+              .getFirstPartitionAndSortKeyPair();
 
       try {
         // now that locality groups are turned on, we expect this to
@@ -177,11 +187,15 @@ public class AccumuloOptionsTest {
       } catch (final AccumuloException | TableNotFoundException e) {
         LOGGER.error("Locality Group check failed", e);
       }
-      final TestGeometry geom2 = (TestGeometry) mockDataStore.query(QueryBuilder.newBuilder()
-          .addTypeName(adapter.getTypeName()).indexName(index.getName())
-          .constraints(
-              new InsertionIdQuery(rowId2.getLeft(), rowId2.getRight(), new ByteArray("test_pt_2")))
-          .build()).next();
+      final TestGeometry geom2 =
+          (TestGeometry) mockDataStore.query(
+              QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+                  .indexName(index.getName())
+                  .constraints(
+                      new InsertionIdQuery(rowId2.getLeft(), rowId2.getRight(),
+                          new ByteArray("test_pt_2")))
+                  .build())
+              .next();
 
       // of course, the point is actually stored in this case
       assertEquals("test_pt_2", geom2.id);
@@ -196,15 +210,19 @@ public class AccumuloOptionsTest {
 
     mockDataStore.addType(adapter, index);
     try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
-      final Pair<ByteArray, ByteArray> rowId2 = indexWriter
-          .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_2"))
-          .getFirstPartitionAndSortKeyPair();
+      final Pair<ByteArray, ByteArray> rowId2 =
+          indexWriter
+              .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_2"))
+              .getFirstPartitionAndSortKeyPair();
 
-      try (final CloseableIterator<?> geomItr = mockDataStore.query(QueryBuilder.newBuilder()
-          .addTypeName(adapter.getTypeName()).indexName(index.getName())
-          .constraints(
-              new InsertionIdQuery(rowId2.getLeft(), rowId2.getRight(), new ByteArray("test_pt_2")))
-          .build())) {
+      try (final CloseableIterator<?> geomItr =
+          mockDataStore.query(
+              QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+                  .indexName(index.getName())
+                  .constraints(
+                      new InsertionIdQuery(rowId2.getLeft(), rowId2.getRight(),
+                          new ByteArray("test_pt_2")))
+                  .build())) {
         assertTrue(geomItr.hasNext());
         final TestGeometry geom2 = (TestGeometry) geomItr.next();
 
@@ -213,8 +231,9 @@ public class AccumuloOptionsTest {
       }
 
       try (final CloseableIterator<TestGeometry> geomItr =
-          (CloseableIterator) mockDataStore.query(QueryBuilder.newBuilder()
-              .addTypeName(adapter.getTypeName()).indexName(index.getName()).build())) {
+          (CloseableIterator) mockDataStore.query(
+              QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+                  .indexName(index.getName()).build())) {
 
         while (geomItr.hasNext()) {
           final TestGeometry geom2 = geomItr.next();
@@ -243,25 +262,29 @@ public class AccumuloOptionsTest {
 
     mockDataStore.addType(adapter0, index);
     try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter0.getTypeName())) {
-      final Pair<ByteArray, ByteArray> rowId0 = indexWriter
-          .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_0"))
-          .getFirstPartitionAndSortKeyPair();
+      final Pair<ByteArray, ByteArray> rowId0 =
+          indexWriter
+              .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_0"))
+              .getFirstPartitionAndSortKeyPair();
     }
 
     mockDataStore.addType(adapter1, index);
     try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter1.getTypeName())) {
-      final Pair<ByteArray, ByteArray> rowId0 = indexWriter
-          .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_0"))
-          .getFirstPartitionAndSortKeyPair();
+      final Pair<ByteArray, ByteArray> rowId0 =
+          indexWriter
+              .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_0"))
+              .getFirstPartitionAndSortKeyPair();
 
-      final Pair<ByteArray, ByteArray> rowId1 = indexWriter
-          .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_1"))
-          .getFirstPartitionAndSortKeyPair();
+      final Pair<ByteArray, ByteArray> rowId1 =
+          indexWriter
+              .write(new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt_1"))
+              .getFirstPartitionAndSortKeyPair();
     }
 
     CloseableIterator it =
-        mockDataStore.query(QueryBuilder.newBuilder().addTypeName(adapter0.getTypeName())
-            .indexName(index.getName()).constraints(new EverythingQuery()).build());
+        mockDataStore.query(
+            QueryBuilder.newBuilder().addTypeName(adapter0.getTypeName()).indexName(index.getName())
+                .constraints(new EverythingQuery()).build());
     int count = 0;
     while (it.hasNext()) {
       it.next();
@@ -269,8 +292,10 @@ public class AccumuloOptionsTest {
     }
     assertEquals(1, count);
 
-    it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName())
-        .indexName(index.getName()).constraints(new EverythingQuery()).build());
+    it =
+        mockDataStore.query(
+            QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName()).indexName(index.getName())
+                .constraints(new EverythingQuery()).build());
     count = 0;
     while (it.hasNext()) {
       it.next();
@@ -278,8 +303,10 @@ public class AccumuloOptionsTest {
     }
     assertEquals(2, count);
 
-    it = mockDataStore.query(QueryBuilder.newBuilder().indexName(index.getName())
-        .constraints(new EverythingQuery()).build());
+    it =
+        mockDataStore.query(
+            QueryBuilder.newBuilder().indexName(index.getName()).constraints(new EverythingQuery())
+                .build());
     count = 0;
     while (it.hasNext()) {
       it.next();
@@ -289,11 +316,15 @@ public class AccumuloOptionsTest {
 
     // delete entry by data id & adapter id
 
-    assertTrue(mockDataStore.delete(QueryBuilder.newBuilder().addTypeName(adapter0.getTypeName())
-        .indexName(index.getName()).constraints(new EverythingQuery()).build()));
+    assertTrue(
+        mockDataStore.delete(
+            QueryBuilder.newBuilder().addTypeName(adapter0.getTypeName()).indexName(index.getName())
+                .constraints(new EverythingQuery()).build()));
 
-    it = mockDataStore.query(QueryBuilder.newBuilder().indexName(index.getName())
-        .constraints(new EverythingQuery()).build());
+    it =
+        mockDataStore.query(
+            QueryBuilder.newBuilder().indexName(index.getName()).constraints(new EverythingQuery())
+                .build());
     count = 0;
     while (it.hasNext()) {
       it.next();
@@ -301,8 +332,10 @@ public class AccumuloOptionsTest {
     }
     assertEquals(2, count);
 
-    it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(adapter0.getTypeName())
-        .indexName(index.getName()).constraints(new EverythingQuery()).build());
+    it =
+        mockDataStore.query(
+            QueryBuilder.newBuilder().addTypeName(adapter0.getTypeName()).indexName(index.getName())
+                .constraints(new EverythingQuery()).build());
     count = 0;
     while (it.hasNext()) {
       it.next();
@@ -323,12 +356,15 @@ public class AccumuloOptionsTest {
     }
     assertEquals(3, count);
 
-    assertTrue(mockDataStore.delete(
-        QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName()).indexName(index.getName())
-            .constraints(new DataIdQuery(new ByteArray("test_pt_1"))).build()));
+    assertTrue(
+        mockDataStore.delete(
+            QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName()).indexName(index.getName())
+                .constraints(new DataIdQuery(new ByteArray("test_pt_1"))).build()));
 
-    it = mockDataStore.query(QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName())
-        .indexName(index.getName()).constraints(new EverythingQuery()).build());
+    it =
+        mockDataStore.query(
+            QueryBuilder.newBuilder().addTypeName(adapter1.getTypeName()).indexName(index.getName())
+                .constraints(new EverythingQuery()).build());
     count = 0;
     while (it.hasNext()) {
       it.next();
@@ -344,11 +380,15 @@ public class AccumuloOptionsTest {
     }
     assertEquals(2, count);
 
-    assertTrue(mockDataStore.delete(QueryBuilder.newBuilder().indexName(index.getName())
-        .constraints(new EverythingQuery()).build()));
+    assertTrue(
+        mockDataStore.delete(
+            QueryBuilder.newBuilder().indexName(index.getName()).constraints(new EverythingQuery())
+                .build()));
 
-    it = mockDataStore.query(QueryBuilder.newBuilder().indexName(index.getName())
-        .constraints(new EverythingQuery()).build());
+    it =
+        mockDataStore.query(
+            QueryBuilder.newBuilder().indexName(index.getName()).constraints(new EverythingQuery())
+                .build());
     count = 0;
     while (it.hasNext()) {
       it.next();

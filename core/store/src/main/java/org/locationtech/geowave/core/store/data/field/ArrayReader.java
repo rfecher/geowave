@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -92,7 +91,8 @@ public class ArrayReader<FieldType> implements FieldReader<FieldType[]> {
   }
 
   @SuppressWarnings("unchecked")
-  protected FieldType[] readFixedSizeField(final byte[] fieldData,
+  protected FieldType[] readFixedSizeField(
+      final byte[] fieldData,
       final SerializationHelper<FieldType> serializationHelper) {
     if (fieldData.length < 1) {
       return null;
@@ -131,14 +131,16 @@ public class ArrayReader<FieldType> implements FieldReader<FieldType[]> {
         }
       }
     }
-    final FieldType[] resultArray = (FieldType[]) Array.newInstance(
-        GenericTypeResolver.resolveTypeArgument(reader.getClass(), FieldReader.class),
-        result.size());
+    final FieldType[] resultArray =
+        (FieldType[]) Array.newInstance(
+            GenericTypeResolver.resolveTypeArgument(reader.getClass(), FieldReader.class),
+            result.size());
     return result.toArray(resultArray);
   }
 
   @SuppressWarnings("unchecked")
-  protected FieldType[] readVariableSizeField(final byte[] fieldData,
+  protected FieldType[] readVariableSizeField(
+      final byte[] fieldData,
       final SerializationHelper<FieldType> serializationHelper) {
     if ((fieldData == null) || (fieldData.length == 0)) {
       return null;
@@ -162,9 +164,10 @@ public class ArrayReader<FieldType> implements FieldReader<FieldType[]> {
         result.add(null);
       }
     }
-    final FieldType[] resultArray = (FieldType[]) Array.newInstance(
-        GenericTypeResolver.resolveTypeArgument(reader.getClass(), FieldReader.class),
-        result.size());
+    final FieldType[] resultArray =
+        (FieldType[]) Array.newInstance(
+            GenericTypeResolver.resolveTypeArgument(reader.getClass(), FieldReader.class),
+            result.size());
     return result.toArray(resultArray);
   }
 

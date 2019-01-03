@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -89,7 +88,9 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
   private final GeoWaveTransaction transaction;
   private final Query query;
 
-  public GeoWaveFeatureReader(final Query query, final GeoWaveTransaction transaction,
+  public GeoWaveFeatureReader(
+      final Query query,
+      final GeoWaveTransaction transaction,
       final GeoWaveDataStoreComponents components) throws IOException {
     this.components = components;
     this.transaction = transaction;
@@ -150,8 +151,11 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
     return featureCollection.getCount();
   }
 
-  protected long getCountInternal(final Geometry jtsBounds, final TemporalConstraintsSet timeBounds,
-      final Filter filter, final Integer limit) {
+  protected long getCountInternal(
+      final Geometry jtsBounds,
+      final TemporalConstraintsSet timeBounds,
+      final Filter filter,
+      final Integer limit) {
     final CountQueryIssuer countIssuer = new CountQueryIssuer(filter, limit);
     issueQuery(jtsBounds, timeBounds, countIssuer);
     return countIssuer.count;
@@ -159,10 +163,12 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
 
   private BasicQuery getQuery(
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap,
-      final Geometry jtsBounds, final TemporalConstraintsSet timeBounds) {
+      final Geometry jtsBounds,
+      final TemporalConstraintsSet timeBounds) {
     final Constraints timeConstraints =
-        QueryIndexHelper.composeTimeBoundedConstraints(components.getAdapter().getFeatureType(),
-            components.getAdapter().getTimeDescriptors(), statsMap, timeBounds);
+        QueryIndexHelper.composeTimeBoundedConstraints(
+            components.getAdapter().getFeatureType(), components.getAdapter().getTimeDescriptors(),
+            statsMap, timeBounds);
 
     final GeoConstraintsWrapper geoConstraints =
         QueryIndexHelper.composeGeometricConstraints(getFeatureType(), statsMap, jtsBounds);
@@ -176,8 +182,10 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
     return query;
   }
 
-  public CloseableIterator<SimpleFeature> issueQuery(final Geometry jtsBounds,
-      final TemporalConstraintsSet timeBounds, final QueryIssuer issuer) {
+  public CloseableIterator<SimpleFeature> issueQuery(
+      final Geometry jtsBounds,
+      final TemporalConstraintsSet timeBounds,
+      final QueryIssuer issuer) {
 
     final List<CloseableIterator<SimpleFeature>> results = new ArrayList<>();
     final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap =
@@ -204,8 +212,8 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
     if (results.isEmpty()) {
       return getNoData();
     }
-    return interweaveTransaction(issuer.getLimit(), issuer.getFilter(),
-        new CloseableIteratorWrapper<>(new Closeable() {
+    return interweaveTransaction(
+        issuer.getLimit(), issuer.getFilter(), new CloseableIteratorWrapper<>(new Closeable() {
           @Override
           public void close() throws IOException {
             for (final CloseableIterator<SimpleFeature> result : results) {
@@ -216,7 +224,8 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
   }
 
   protected static boolean hasAtLeastSpatial(final Index index) {
-    if ((index == null) || (index.getIndexStrategy() == null)
+    if ((index == null)
+        || (index.getIndexStrategy() == null)
         || (index.getIndexStrategy().getOrderedDimensionDefinitions() == null)) {
       return false;
     }
@@ -235,7 +244,8 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
   }
 
   protected static boolean hasTime(final Index index) {
-    if ((index == null) || (index.getIndexStrategy() == null)
+    if ((index == null)
+        || (index.getIndexStrategy() == null)
         || (index.getIndexStrategy().getOrderedDimensionDefinitions() == null)) {
       return false;
     }
@@ -262,10 +272,12 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
 
     @Override
     public CloseableIterator<SimpleFeature> query(final Index index, final BasicQuery query) {
-      VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder()
-          .addTypeName(components.getAdapter().getTypeName()).indexName(index.getName())
-          .setAuthorizations(transaction.composeAuthorizations()).constraints(
-              OptimalCQLQuery.createOptimalQuery(filter, components.getAdapter(), index, query));
+      VectorQueryBuilder bldr =
+          VectorQueryBuilder.newBuilder().addTypeName(components.getAdapter().getTypeName())
+              .indexName(index.getName()).setAuthorizations(transaction.composeAuthorizations())
+              .constraints(
+                  OptimalCQLQuery
+                      .createOptimalQuery(filter, components.getAdapter(), index, query));
       if (limit != null) {
         bldr = bldr.limit(limit);
       }
@@ -298,8 +310,9 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
       VectorAggregationQueryBuilder<Persistable, Long> bldr =
           (VectorAggregationQueryBuilder) VectorAggregationQueryBuilder.newBuilder()
               .count(components.getAdapter().getTypeName()).indexName(index.getName())
-              .setAuthorizations(transaction.composeAuthorizations()).constraints(OptimalCQLQuery
-                  .createOptimalQuery(filter, components.getAdapter(), index, query));
+              .setAuthorizations(transaction.composeAuthorizations()).constraints(
+                  OptimalCQLQuery
+                      .createOptimalQuery(filter, components.getAdapter(), index, query));
       if (limit != null) {
         bldr = bldr.limit(limit);
       }
@@ -317,8 +330,13 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
     final int height;
     final double pixelSize;
 
-    public EnvelopeQueryIssuer(final int width, final int height, final double pixelSize,
-        final Filter filter, final Integer limit, final ReferencedEnvelope envelope) {
+    public EnvelopeQueryIssuer(
+        final int width,
+        final int height,
+        final double pixelSize,
+        final Filter filter,
+        final Integer limit,
+        final ReferencedEnvelope envelope) {
       super(filter, limit);
       this.width = width;
       this.height = height;
@@ -329,10 +347,12 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
     @Override
     public CloseableIterator<SimpleFeature> query(final Index index, final BasicQuery query) {
 
-      VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder()
-          .addTypeName(components.getAdapter().getTypeName()).indexName(index.getName())
-          .setAuthorizations(transaction.composeAuthorizations()).constraints(
-              OptimalCQLQuery.createOptimalQuery(filter, components.getAdapter(), index, query));
+      VectorQueryBuilder bldr =
+          VectorQueryBuilder.newBuilder().addTypeName(components.getAdapter().getTypeName())
+              .indexName(index.getName()).setAuthorizations(transaction.composeAuthorizations())
+              .constraints(
+                  OptimalCQLQuery
+                      .createOptimalQuery(filter, components.getAdapter(), index, query));
       if (limit != null) {
         bldr = bldr.limit(limit);
       }
@@ -345,15 +365,18 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
       final double south = envelope.getMinY();
 
       try {
-        final AffineTransform worldToScreen = RendererUtilities
-            .worldToScreenTransform(new ReferencedEnvelope(new Envelope(west, east, south, north),
-                envelope.getCoordinateReferenceSystem()), new Rectangle(width, height));
+        final AffineTransform worldToScreen =
+            RendererUtilities.worldToScreenTransform(
+                new ReferencedEnvelope(new Envelope(west, east, south, north),
+                    envelope.getCoordinateReferenceSystem()),
+                new Rectangle(width, height));
         final MathTransform2D fullTransform =
             (MathTransform2D) ProjectiveTransform.create(worldToScreen);
         // calculate spans
         try {
-          final double[] spans = Decimator.computeGeneralizationDistances(fullTransform.inverse(),
-              new Rectangle(width, height), pixelSize);
+          final double[] spans =
+              Decimator.computeGeneralizationDistances(
+                  fullTransform.inverse(), new Rectangle(width, height), pixelSize);
           bldr = bldr.addHint(DataStoreUtils.MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION, spans);
           return components.getDataStore().query(bldr.build());
         } catch (final TransformException e) {
@@ -368,7 +391,9 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
   private class RenderQueryIssuer extends BaseIssuer implements QueryIssuer {
     final DistributedRenderOptions renderOptions;
 
-    public RenderQueryIssuer(final Filter filter, final Integer limit,
+    public RenderQueryIssuer(
+        final Filter filter,
+        final Integer limit,
         final DistributedRenderOptions renderOptions) {
       super(filter, limit);
       this.renderOptions = renderOptions;
@@ -379,37 +404,53 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
       final VectorAggregationQueryBuilder<DistributedRenderOptions, DistributedRenderResult> bldr =
           (VectorAggregationQueryBuilder) VectorAggregationQueryBuilder.newBuilder()
               .indexName(index.getName()).setAuthorizations(transaction.composeAuthorizations());
-      bldr.aggregate(components.getAdapter().getTypeName(),
-          new DistributedRenderAggregation(renderOptions)).constraints(
+      bldr.aggregate(
+          components.getAdapter().getTypeName(), new DistributedRenderAggregation(renderOptions))
+          .constraints(
               OptimalCQLQuery.createOptimalQuery(filter, components.getAdapter(), index, query));
       final DistributedRenderResult result = components.getDataStore().aggregate(bldr.build());
       return new CloseableIterator.Wrapper(Iterators.singletonIterator(
-          SimpleFeatureBuilder.build(GeoWaveFeatureCollection.getDistributedRenderFeatureType(),
+          SimpleFeatureBuilder.build(
+              GeoWaveFeatureCollection.getDistributedRenderFeatureType(),
               new Object[] {result, renderOptions}, "render")));
     }
   }
 
-  public CloseableIterator<SimpleFeature> renderData(final Geometry jtsBounds,
-      final TemporalConstraintsSet timeBounds, final Filter filter, final Integer limit,
+  public CloseableIterator<SimpleFeature> renderData(
+      final Geometry jtsBounds,
+      final TemporalConstraintsSet timeBounds,
+      final Filter filter,
+      final Integer limit,
       final DistributedRenderOptions renderOptions) {
     return issueQuery(jtsBounds, timeBounds, new RenderQueryIssuer(filter, limit, renderOptions));
   }
 
-  public CloseableIterator<SimpleFeature> getData(final Geometry jtsBounds,
-      final TemporalConstraintsSet timeBounds, final int width, final int height,
-      final double pixelSize, final Filter filter, final ReferencedEnvelope envelope,
+  public CloseableIterator<SimpleFeature> getData(
+      final Geometry jtsBounds,
+      final TemporalConstraintsSet timeBounds,
+      final int width,
+      final int height,
+      final double pixelSize,
+      final Filter filter,
+      final ReferencedEnvelope envelope,
       final Integer limit) {
-    return issueQuery(jtsBounds, timeBounds,
+    return issueQuery(
+        jtsBounds, timeBounds,
         new EnvelopeQueryIssuer(width, height, pixelSize, filter, limit, envelope));
   }
 
-  public CloseableIterator<SimpleFeature> getData(final Geometry jtsBounds,
-      final TemporalConstraintsSet timeBounds, final Integer limit) {
+  public CloseableIterator<SimpleFeature> getData(
+      final Geometry jtsBounds,
+      final TemporalConstraintsSet timeBounds,
+      final Integer limit) {
     return issueQuery(jtsBounds, timeBounds, new BaseIssuer(null, limit));
   }
 
-  public CloseableIterator<SimpleFeature> getData(final Geometry jtsBounds,
-      final TemporalConstraintsSet timeBounds, final Filter filter, final Integer limit) {
+  public CloseableIterator<SimpleFeature> getData(
+      final Geometry jtsBounds,
+      final TemporalConstraintsSet timeBounds,
+      final Filter filter,
+      final Integer limit) {
     if (filter instanceof FidFilterImpl) {
       final Set<String> fids = ((FidFilterImpl) filter).getIDs();
       final ByteArray[] ids = new ByteArray[fids.size()];
@@ -441,8 +482,10 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
     return featureCollection;
   }
 
-  private CloseableIterator<SimpleFeature> interweaveTransaction(final Integer limit,
-      final Filter filter, final CloseableIterator<SimpleFeature> it) {
+  private CloseableIterator<SimpleFeature> interweaveTransaction(
+      final Integer limit,
+      final Filter filter,
+      final CloseableIterator<SimpleFeature> it) {
     return transaction.interweaveTransaction(limit, filter, it);
   }
 
@@ -462,16 +505,18 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
 
   protected TemporalConstraintsSet clipIndexedTemporalConstraints(
       final TemporalConstraintsSet constraintsSet) {
-    return QueryIndexHelper.clipIndexedTemporalConstraints(transaction.getDataStatistics(),
-        components.getAdapter().getTimeDescriptors(), constraintsSet);
+    return QueryIndexHelper.clipIndexedTemporalConstraints(
+        transaction.getDataStatistics(), components.getAdapter().getTimeDescriptors(),
+        constraintsSet);
   }
 
   protected Geometry clipIndexedBBOXConstraints(final Geometry bbox) {
-    return QueryIndexHelper.clipIndexedBBOXConstraints(getFeatureType(), bbox,
-        transaction.getDataStatistics());
+    return QueryIndexHelper
+        .clipIndexedBBOXConstraints(getFeatureType(), bbox, transaction.getDataStatistics());
   }
 
-  private BasicQuery composeQuery(final GeoConstraintsWrapper geoConstraints,
+  private BasicQuery composeQuery(
+      final GeoConstraintsWrapper geoConstraints,
       final Constraints temporalConstraints) {
 
     // TODO: this actually doesn't boost performance much, if at

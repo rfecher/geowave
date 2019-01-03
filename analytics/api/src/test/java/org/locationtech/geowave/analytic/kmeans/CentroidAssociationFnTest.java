@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,12 +27,14 @@ public class CentroidAssociationFnTest {
   static {
     expectedPairings.add(
         new CentroidPairing<Long>(new LongCentroid(10, "", 0), new LongCentroid(345, "", 0), 335));
-    expectedPairings.add(new CentroidPairing<Long>(new LongCentroid(1000, "", 0),
-        new LongCentroid(764, "", 0), 236));
+    expectedPairings.add(
+        new CentroidPairing<Long>(new LongCentroid(1000, "", 0), new LongCentroid(764, "", 0),
+            236));
     expectedPairings.add(
         new CentroidPairing<Long>(new LongCentroid(10, "", 0), new LongCentroid(89, "", 0), 79));
-    expectedPairings.add(new CentroidPairing<Long>(new LongCentroid(1000, "", 0),
-        new LongCentroid(900, "", 0), 100));
+    expectedPairings.add(
+        new CentroidPairing<Long>(new LongCentroid(1000, "", 0), new LongCentroid(900, "", 0),
+            100));
     for (final CentroidPairing<Long> pairing : expectedPairings) {
       expectedCost += pairing.getDistance();
     }
@@ -51,11 +52,13 @@ public class CentroidAssociationFnTest {
         return Math.abs(x.longValue() - y.longValue());
       }
     });
-    final List<AnalyticItemWrapper<Long>> dataSet = Arrays.asList(
-        (AnalyticItemWrapper<Long>) new LongCentroid(345, "", 0), new LongCentroid(764, "", 0),
-        new LongCentroid(89, "", 0), new LongCentroid(900, "", 0));
+    final List<AnalyticItemWrapper<Long>> dataSet =
+        Arrays.asList(
+            (AnalyticItemWrapper<Long>) new LongCentroid(345, "", 0), new LongCentroid(764, "", 0),
+            new LongCentroid(89, "", 0), new LongCentroid(900, "", 0));
     final List<AnalyticItemWrapper<Long>> centroidSet =
-        Arrays.asList((AnalyticItemWrapper<Long>) new LongCentroid(10, "", 0),
+        Arrays.asList(
+            (AnalyticItemWrapper<Long>) new LongCentroid(10, "", 0),
             (AnalyticItemWrapper<Long>) new LongCentroid(1000, "", 0));
     final double cost = fn.compute(dataSet, centroidSet, new AssociationNotification<Long>() {
 

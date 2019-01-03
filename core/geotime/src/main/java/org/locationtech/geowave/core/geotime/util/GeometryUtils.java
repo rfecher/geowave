@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -161,8 +160,10 @@ public class GeometryUtils {
    * @param destinationListOfSets
    * @param checkTopoEquality
    */
-  private static boolean constructListOfConstraintSetsFromGeometry(final Geometry geometry,
-      final List<ConstraintSet> destinationListOfSets, final boolean checkTopoEquality) {
+  private static boolean constructListOfConstraintSetsFromGeometry(
+      final Geometry geometry,
+      final List<ConstraintSet> destinationListOfSets,
+      final boolean checkTopoEquality) {
 
     // Get the envelope of the geometry being held
     final int n = geometry.getNumGeometries();
@@ -170,8 +171,8 @@ public class GeometryUtils {
     if (n > 1) {
       retVal = false;
       for (int gi = 0; gi < n; gi++) {
-        constructListOfConstraintSetsFromGeometry(geometry.getGeometryN(gi), destinationListOfSets,
-            checkTopoEquality);
+        constructListOfConstraintSetsFromGeometry(
+            geometry.getGeometryN(gi), destinationListOfSets, checkTopoEquality);
       }
     } else {
       final Envelope env = geometry.getEnvelopeInternal();
@@ -230,7 +231,8 @@ public class GeometryUtils {
    * @return Constraints as a mapping of NumericData objects representing ranges for a latitude
    *         dimension and a longitude dimension
    */
-  public static ConstraintSet basicConstraintsFromPoint(final double latitudeDegrees,
+  public static ConstraintSet basicConstraintsFromPoint(
+      final double latitudeDegrees,
       final double longitudeDegrees) {
     // Create a NumericData object using the x axis
     final NumericData latitude = new NumericValue(latitudeDegrees);
@@ -294,7 +296,8 @@ public class GeometryUtils {
    * @param geometry The JTS geometry
    * @return The binary representation of the geometry
    */
-  public static byte[] geometryToBinary(final Geometry geometry,
+  public static byte[] geometryToBinary(
+      final Geometry geometry,
       final @Nullable Integer precision) {
     if (precision == null) {
       return new WKBWriter().write(geometry);
@@ -308,7 +311,8 @@ public class GeometryUtils {
    * @param binary The well known binary
    * @return The JTS geometry
    */
-  public static Geometry geometryFromBinary(final byte[] binary,
+  public static Geometry geometryFromBinary(
+      final byte[] binary,
       final @Nullable Integer precision) {
     try {
       if (precision == null) {
@@ -327,7 +331,9 @@ public class GeometryUtils {
    * @param binary The well known binary
    * @return The JTS geometry
    */
-  public static Geometry geometryFromBinary(final byte[] binary, final @Nullable Integer precision,
+  public static Geometry geometryFromBinary(
+      final byte[] binary,
+      final @Nullable Integer precision,
       final byte serializationVersion) {
     if (serializationVersion < FieldUtils.SERIALIZATION_VERSION) {
       try {
@@ -349,8 +355,9 @@ public class GeometryUtils {
   public static Geometry infinity() {
     // unless we make this synchronized, we will want to instantiate a new
     // geometry factory because geometry factories are not thread safe
-    return new GeometryFactory().toGeometry(new Envelope(Double.NEGATIVE_INFINITY,
-        Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
+    return new GeometryFactory().toGeometry(
+        new Envelope(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+            Double.POSITIVE_INFINITY));
   }
 
   public static class GeoConstraintsWrapper {
@@ -358,8 +365,10 @@ public class GeometryUtils {
     private final boolean constraintsMatchGeometry;
     private final Geometry jtsBounds;
 
-    public GeoConstraintsWrapper(final Constraints constraints,
-        final boolean constraintsMatchGeometry, final Geometry jtsBounds) {
+    public GeoConstraintsWrapper(
+        final Constraints constraints,
+        final boolean constraintsMatchGeometry,
+        final Geometry jtsBounds) {
       this.constraints = constraints;
       this.constraintsMatchGeometry = constraintsMatchGeometry;
       this.jtsBounds = jtsBounds;
@@ -433,9 +442,11 @@ public class GeometryUtils {
    * @return
    * @throws TransformException
    */
-  public static final Pair<Geometry, Double> buffer(final CoordinateReferenceSystem crs,
-      final Geometry geometry, final String distanceUnits, final double distance)
-      throws TransformException {
+  public static final Pair<Geometry, Double> buffer(
+      final CoordinateReferenceSystem crs,
+      final Geometry geometry,
+      final String distanceUnits,
+      final double distance) throws TransformException {
     Unit<Length> unit;
     try {
       unit = lookup(distanceUnits);
@@ -526,16 +537,15 @@ public class GeometryUtils {
   /**
    * Adjust geometry so that coordinates fit into long/lat bounds.
    *
-   * <p>
-   * Split date-line crossing polygons.
+   * <p> Split date-line crossing polygons.
    *
-   * <p>
-   * For now, clip hemisphere crossing portions of the polygon.
+   * <p> For now, clip hemisphere crossing portions of the polygon.
    *
    * @param geometry
    * @return list valid polygons
    */
-  public static List<Polygon> fixRangeOfCoordinates(final CoordinateReferenceSystem crs,
+  public static List<Polygon> fixRangeOfCoordinates(
+      final CoordinateReferenceSystem crs,
       final Geometry geometry) {
 
     final List<Polygon> replacements = new ArrayList<>();
@@ -603,7 +613,8 @@ public class GeometryUtils {
    * @param coords
    * @return
    */
-  private static Coordinate findModifier(final CoordinateReferenceSystem crs,
+  private static Coordinate findModifier(
+      final CoordinateReferenceSystem crs,
       final Coordinate[] coords) {
     final Coordinate maxModifier = new Coordinate(0, 0, 0);
     for (final Coordinate coord : coords) {
@@ -617,16 +628,16 @@ public class GeometryUtils {
    * Produce a set of polygons for each region of the map corrected for date line and hemisphere
    * crossings. Due to the complexity of going around the hemisphere, clip the range.
    *
-   * <p>
-   * Consider a polygon that cross both the hemisphere in the north and the date line in the west
-   * (-182 92, -182 88, -178 88, -178 92, -182 92). The result is two polygons: (-180 90, -180 88,
-   * -178 88, -178 90, -180 90) (180 90, 180 88, 178 88, 178 90, 180 90)
+   * <p> Consider a polygon that cross both the hemisphere in the north and the date line in the
+   * west (-182 92, -182 88, -178 88, -178 92, -182 92). The result is two polygons: (-180 90, -180
+   * 88, -178 88, -178 90, -180 90) (180 90, 180 88, 178 88, 178 90, 180 90)
    *
    * @param modifier
    * @param geometry - a geometry that may cross date line and/or hemispheres.
    * @return
    */
-  public static List<Polygon> constructGeometriesOverMapRegions(final Coordinate modifier,
+  public static List<Polygon> constructGeometriesOverMapRegions(
+      final Coordinate modifier,
       final Geometry geometry) {
     final Coordinate[] geoCoords = geometry.getCoordinates();
     final List<Polygon> polygons = new LinkedList<>();
@@ -671,7 +682,8 @@ public class GeometryUtils {
    * @param coord
    * @return
    */
-  public static Coordinate adjustCoordinateToFitInRange(final CoordinateReferenceSystem crs,
+  public static Coordinate adjustCoordinateToFitInRange(
+      final CoordinateReferenceSystem crs,
       final Coordinate coord) {
     return new Coordinate(adjustCoordinateDimensionToRange(coord.getX(), crs, 0),
         clipRange(coord.getY(), crs, 1), clipRange(coord.getZ(), crs, 2));
@@ -694,7 +706,9 @@ public class GeometryUtils {
    * @param axis the coordinate axis
    * @return
    */
-  private static double clipRange(final double val, final CoordinateReferenceSystem crs,
+  private static double clipRange(
+      final double val,
+      final CoordinateReferenceSystem crs,
       final int axis) {
     final CoordinateSystem coordinateSystem = crs.getCoordinateSystem();
     if (coordinateSystem.getDimension() > axis) {
@@ -717,8 +731,10 @@ public class GeometryUtils {
    * @param axis the coordinate axis
    * @return
    */
-  public static double adjustCoordinateDimensionToRange(final double val,
-      final CoordinateReferenceSystem crs, final int axis) {
+  public static double adjustCoordinateDimensionToRange(
+      final double val,
+      final CoordinateReferenceSystem crs,
+      final int axis) {
     final CoordinateSystem coordinateSystem = crs.getCoordinateSystem();
     if (coordinateSystem.getDimension() > axis) {
       final double lowerBound = coordinateSystem.getAxis(axis).getMinimumValue();
@@ -753,10 +769,12 @@ public class GeometryUtils {
     final BitSet greyCode = new BitSet(coordinateSystem.getDimension());
     final BitSet mask = getGreyCodeMask(coordinateSystem.getDimension());
     for (int i = 0; i < coordinates.length; i++) {
-      coordinates[i] = new Coordinate(getValue(greyCode, coordinateSystem.getAxis(0), 0),
-          getValue(greyCode, coordinateSystem.getAxis(1), 1),
-          coordinateSystem.getDimension() > 2 ? getValue(greyCode, coordinateSystem.getAxis(2), 2)
-              : Double.NaN);
+      coordinates[i] =
+          new Coordinate(getValue(greyCode, coordinateSystem.getAxis(0), 0),
+              getValue(greyCode, coordinateSystem.getAxis(1), 1),
+              coordinateSystem.getDimension() > 2
+                  ? getValue(greyCode, coordinateSystem.getAxis(2), 2)
+                  : Double.NaN);
 
       grayCode(greyCode, mask);
     }
@@ -778,7 +796,9 @@ public class GeometryUtils {
     BitSetMath.grayCode(code);
   }
 
-  private static double getValue(final BitSet set, final CoordinateSystemAxis axis,
+  private static double getValue(
+      final BitSet set,
+      final CoordinateSystemAxis axis,
       final int dimension) {
     return (set.get(dimension)) ? axis.getMaximumValue() : axis.getMinimumValue();
   }
@@ -788,30 +808,39 @@ public class GeometryUtils {
    *
    * @throws TransformException
    */
-  private static double distanceToDegrees(final CoordinateReferenceSystem crs,
-      final Geometry geometry, final double meters) throws TransformException {
+  private static double distanceToDegrees(
+      final CoordinateReferenceSystem crs,
+      final Geometry geometry,
+      final double meters) throws TransformException {
     final GeometryFactory factory = geometry.getFactory();
     return (geometry instanceof Point)
         ? geometry.distance(farthestPoint(crs, (Point) geometry, meters))
-        : distanceToDegrees(crs, geometry.getEnvelopeInternal(),
-            factory == null ? new GeometryFactory() : factory, meters);
+        : distanceToDegrees(
+            crs, geometry.getEnvelopeInternal(), factory == null ? new GeometryFactory() : factory,
+            meters);
   }
 
-  private static double distanceToDegrees(final CoordinateReferenceSystem crs, final Envelope env,
-      final GeometryFactory factory, final double meters) throws TransformException {
-    return Collections.max(Arrays.asList(
-        distanceToDegrees(crs, factory.createPoint(new Coordinate(env.getMaxX(), env.getMaxY())),
-            meters),
-        distanceToDegrees(crs, factory.createPoint(new Coordinate(env.getMaxX(), env.getMinY())),
-            meters),
-        distanceToDegrees(crs, factory.createPoint(new Coordinate(env.getMinX(), env.getMinY())),
-            meters),
-        distanceToDegrees(crs, factory.createPoint(new Coordinate(env.getMinX(), env.getMaxY())),
-            meters)));
+  private static double distanceToDegrees(
+      final CoordinateReferenceSystem crs,
+      final Envelope env,
+      final GeometryFactory factory,
+      final double meters) throws TransformException {
+    return Collections.max(
+        Arrays.asList(
+            distanceToDegrees(
+                crs, factory.createPoint(new Coordinate(env.getMaxX(), env.getMaxY())), meters),
+            distanceToDegrees(
+                crs, factory.createPoint(new Coordinate(env.getMaxX(), env.getMinY())), meters),
+            distanceToDegrees(
+                crs, factory.createPoint(new Coordinate(env.getMinX(), env.getMinY())), meters),
+            distanceToDegrees(
+                crs, factory.createPoint(new Coordinate(env.getMinX(), env.getMaxY())), meters)));
   }
 
   /** farther point in longitudinal axis given a latitude */
-  private static Point farthestPoint(final CoordinateReferenceSystem crs, final Point point,
+  private static Point farthestPoint(
+      final CoordinateReferenceSystem crs,
+      final Point point,
       final double meters) {
     final GeodeticCalculator calc = new GeodeticCalculator(crs);
     calc.setStartingGeographicPoint(point.getX(), point.getY());
@@ -825,8 +854,10 @@ public class GeometryUtils {
     return point.getFactory().createPoint(new Coordinate(dest2D.getX(), dest2D.getY()));
   }
 
-  public static SimpleFeature crsTransform(final SimpleFeature entry,
-      final SimpleFeatureType reprojectedType, final MathTransform transform) {
+  public static SimpleFeature crsTransform(
+      final SimpleFeature entry,
+      final SimpleFeatureType reprojectedType,
+      final MathTransform transform) {
     SimpleFeature crsEntry = entry;
 
     if (transform != null) {

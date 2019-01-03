@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,7 +31,8 @@ public class CoordinateRangeQueryFilter implements QueryFilter {
 
   public CoordinateRangeQueryFilter() {}
 
-  public CoordinateRangeQueryFilter(final NumericIndexStrategy indexStrategy,
+  public CoordinateRangeQueryFilter(
+      final NumericIndexStrategy indexStrategy,
       final MultiDimensionalCoordinateRangesArray[] coordinateRanges) {
     this.indexStrategy = indexStrategy;
     this.coordinateRanges = coordinateRanges;
@@ -40,14 +40,16 @@ public class CoordinateRangeQueryFilter implements QueryFilter {
   }
 
   @Override
-  public boolean accept(final CommonIndexModel indexModel,
+  public boolean accept(
+      final CommonIndexModel indexModel,
       final IndexedPersistenceEncoding<?> persistenceEncoding) {
-    if ((persistenceEncoding == null) || ((persistenceEncoding.getInsertionPartitionKey() == null)
-        && (persistenceEncoding.getInsertionSortKey() == null))) {
+    if ((persistenceEncoding == null)
+        || ((persistenceEncoding.getInsertionPartitionKey() == null)
+            && (persistenceEncoding.getInsertionSortKey() == null))) {
       return false;
     }
-    return inBounds(persistenceEncoding.getInsertionPartitionKey(),
-        persistenceEncoding.getInsertionSortKey());
+    return inBounds(
+        persistenceEncoding.getInsertionPartitionKey(), persistenceEncoding.getInsertionSortKey());
   }
 
   private boolean inBounds(final ByteArray partitionKey, final ByteArray sortKey) {
@@ -61,8 +63,11 @@ public class CoordinateRangeQueryFilter implements QueryFilter {
     final byte[] indexStrategyBytes = PersistenceUtils.toBinary(indexStrategy);
     final byte[] coordinateRangesBinary = new ArrayOfArrays(coordinateRanges).toBinary();
 
-    final ByteBuffer buf = ByteBuffer.allocate(coordinateRangesBinary.length
-        + indexStrategyBytes.length + VarintUtils.unsignedIntByteLength(indexStrategyBytes.length));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            coordinateRangesBinary.length
+                + indexStrategyBytes.length
+                + VarintUtils.unsignedIntByteLength(indexStrategyBytes.length));
 
     VarintUtils.writeUnsignedInt(indexStrategyBytes.length, buf);
     buf.put(indexStrategyBytes);

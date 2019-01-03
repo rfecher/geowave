@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -16,22 +15,21 @@ package org.locationtech.geowave.core.store.adapter.statistics.histogram;
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  *
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p> http://www.apache.org/licenses/LICENSE-2.0
  *
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * <p> Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class ByteUtils {
 
-  private static final byte[] INFINITY_BYTE = new byte[] {(byte) 0xff, (byte) 0xff, (byte) 0xff,
-      (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
+  private static final byte[] INFINITY_BYTE =
+      new byte[] {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+          (byte) 0xff, (byte) 0xff};
 
   public static byte[] toBytes(double val) {
     BigInteger tmp = new BigDecimal(val).toBigInteger();

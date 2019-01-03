@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -115,8 +114,10 @@ public class GeoToolsRasterDataStoreIngestPlugin implements LocalFileIngestPlugi
   }
 
   @Override
-  public CloseableIterator<GeoWaveData<GridCoverage>> toGeoWaveData(final URL input,
-      final String[] indexNames, final String globalVisibility) {
+  public CloseableIterator<GeoWaveData<GridCoverage>> toGeoWaveData(
+      final URL input,
+      final String[] indexNames,
+      final String globalVisibility) {
     final AbstractGridFormat format = prioritizedFindFormat(input);
     if (format == null) {
       return new Wrapper(Collections.emptyIterator());
@@ -164,20 +165,22 @@ public class GeoToolsRasterDataStoreIngestPlugin implements LocalFileIngestPlugi
                   : FilenameUtils.getName(input.getPath());
           final double[][] nodata = optionProvider.getNodata(coverage.getNumSampleDimensions());
           for (int b = 0; b < coverage.getNumSampleDimensions(); b++) {
-            final RasterDataAdapter adapter = new RasterDataAdapter(baseName + "_B" + b, metadata,
-                (GridCoverage2D) RasterUtils.getCoverageOperations().selectSampleDimension(coverage,
-                    new int[] {b}),
-                optionProvider.getTileSize(), optionProvider.isBuildPyramid(),
-                optionProvider.isBuildHistogram(), new double[][] {nodata[b]});
+            final RasterDataAdapter adapter =
+                new RasterDataAdapter(baseName + "_B" + b, metadata,
+                    (GridCoverage2D) RasterUtils.getCoverageOperations()
+                        .selectSampleDimension(coverage, new int[] {b}),
+                    optionProvider.getTileSize(), optionProvider.isBuildPyramid(),
+                    optionProvider.isBuildHistogram(), new double[][] {nodata[b]});
             coverages.add(new GeoWaveData<>(adapter, indexNames, coverage));
           }
         } else {
-          final RasterDataAdapter adapter = new RasterDataAdapter(
-              optionProvider.getCoverageName() != null ? optionProvider.getCoverageName()
-                  : input.getPath(),
-              metadata, coverage, optionProvider.getTileSize(), optionProvider.isBuildPyramid(),
-              optionProvider.isBuildHistogram(),
-              optionProvider.getNodata(coverage.getNumSampleDimensions()));
+          final RasterDataAdapter adapter =
+              new RasterDataAdapter(
+                  optionProvider.getCoverageName() != null ? optionProvider.getCoverageName()
+                      : input.getPath(),
+                  metadata, coverage, optionProvider.getTileSize(), optionProvider.isBuildPyramid(),
+                  optionProvider.isBuildHistogram(),
+                  optionProvider.getNodata(coverage.getNumSampleDimensions()));
           coverages.add(new GeoWaveData<>(adapter, indexNames, coverage));
         }
         return new Wrapper(coverages.iterator()) {
@@ -192,12 +195,21 @@ public class GeoToolsRasterDataStoreIngestPlugin implements LocalFileIngestPlugi
           }
         };
       } else {
-        LOGGER.warn("Null grid coverage from file '" + input.getPath()
-            + "' for discovered geotools format '" + format.getName() + "'");
+        LOGGER.warn(
+            "Null grid coverage from file '"
+                + input.getPath()
+                + "' for discovered geotools format '"
+                + format.getName()
+                + "'");
       }
     } catch (final IOException e) {
-      LOGGER.warn("Unable to read grid coverage of file '" + input.getPath()
-          + "' for discovered geotools format '" + format.getName() + "'", e);
+      LOGGER.warn(
+          "Unable to read grid coverage of file '"
+              + input.getPath()
+              + "' for discovered geotools format '"
+              + format.getName()
+              + "'",
+          e);
     }
     return new Wrapper(Collections.emptyIterator());
   }

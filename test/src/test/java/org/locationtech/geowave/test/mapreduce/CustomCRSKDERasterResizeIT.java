@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -87,8 +86,10 @@ public class CustomCRSKDERasterResizeIT {
 
   @BeforeClass
   public static void extractTestFiles() throws URISyntaxException {
-    ZipUtils.unZipFile(new File(CustomCRSKDERasterResizeIT.class.getClassLoader()
-        .getResource(TEST_DATA_ZIP_RESOURCE_PATH).toURI()), TestUtils.TEST_CASE_BASE);
+    ZipUtils.unZipFile(
+        new File(CustomCRSKDERasterResizeIT.class.getClassLoader()
+            .getResource(TEST_DATA_ZIP_RESOURCE_PATH).toURI()),
+        TestUtils.TEST_CASE_BASE);
     startMillis = System.currentTimeMillis();
     LOGGER.warn("-------------------------------------------------");
     LOGGER.warn("*                                               *");
@@ -102,8 +103,10 @@ public class CustomCRSKDERasterResizeIT {
     LOGGER.warn("------------------------------------------------");
     LOGGER.warn("*                                              *");
     LOGGER.warn("*      FINISHED CustomCRSKDERasterResizeIT     *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                               *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                               *");
     LOGGER.warn("*                                              *");
     LOGGER.warn("------------------------------------------------");
   }
@@ -117,8 +120,9 @@ public class CustomCRSKDERasterResizeIT {
   @Test
   public void testKDEAndRasterResize() throws Exception {
     TestUtils.deleteAll(inputDataStorePluginOptions);
-    TestUtils.testLocalIngest(inputDataStorePluginOptions, DimensionalityType.SPATIAL, "EPSG:4901",
-        KDE_SHAPEFILE_FILE, "geotools-vector", 1);
+    TestUtils.testLocalIngest(
+        inputDataStorePluginOptions, DimensionalityType.SPATIAL, "EPSG:4901", KDE_SHAPEFILE_FILE,
+        "geotools-vector", 1);
 
     File configFile = File.createTempFile("test_export", null);
     ManualOperationParams params = new ManualOperationParams();
@@ -148,16 +152,17 @@ public class CustomCRSKDERasterResizeIT {
     final double cellOriginYMinLevel = Math.round(TARGET_MIN_LAT / decimalDegreesPerCellMinLevel);
     final double numCellsMinLevel =
         Math.round(TARGET_DECIMAL_DEGREES_SIZE / decimalDegreesPerCellMinLevel);
-    final GeneralEnvelope queryEnvelope = new GeneralEnvelope(new double[] {
-        // this is exactly on a tile boundary, so there will be no
-        // scaling on the tile composition/rendering
-        decimalDegreesPerCellMinLevel * cellOriginXMinLevel,
-        decimalDegreesPerCellMinLevel * cellOriginYMinLevel},
-        new double[] {
-            // these values are also on a tile boundary, to avoid
-            // scaling
-            decimalDegreesPerCellMinLevel * (cellOriginXMinLevel + numCellsMinLevel),
-            decimalDegreesPerCellMinLevel * (cellOriginYMinLevel + numCellsMinLevel)});
+    final GeneralEnvelope queryEnvelope =
+        new GeneralEnvelope(new double[] {
+            // this is exactly on a tile boundary, so there will be no
+            // scaling on the tile composition/rendering
+            decimalDegreesPerCellMinLevel * cellOriginXMinLevel,
+            decimalDegreesPerCellMinLevel * cellOriginYMinLevel},
+            new double[] {
+                // these values are also on a tile boundary, to avoid
+                // scaling
+                decimalDegreesPerCellMinLevel * (cellOriginXMinLevel + numCellsMinLevel),
+                decimalDegreesPerCellMinLevel * (cellOriginYMinLevel + numCellsMinLevel)});
 
     final MapReduceTestEnvironment env = MapReduceTestEnvironment.getInstance();
     for (int i = MIN_TILE_SIZE_POWER_OF_2; i <= MAX_TILE_SIZE_POWER_OF_2; i += INCREMENT) {
@@ -186,11 +191,13 @@ public class CustomCRSKDERasterResizeIT {
     final int numLevels = (BASE_MAX_LEVEL - BASE_MIN_LEVEL) + 1;
     final double[][][][] initialSampleValuesPerRequestSize = new double[numLevels][][][];
     for (int l = 0; l < numLevels; l++) {
-      initialSampleValuesPerRequestSize[l] = testSamplesMatch(TEST_COVERAGE_NAME_PREFIX,
-          ((MAX_TILE_SIZE_POWER_OF_2 - MIN_TILE_SIZE_POWER_OF_2) / INCREMENT) + 1, queryEnvelope,
-          new Rectangle((int) (numCellsMinLevel * Math.pow(2, l)),
-              (int) (numCellsMinLevel * Math.pow(2, l))),
-          null);
+      initialSampleValuesPerRequestSize[l] =
+          testSamplesMatch(
+              TEST_COVERAGE_NAME_PREFIX,
+              ((MAX_TILE_SIZE_POWER_OF_2 - MIN_TILE_SIZE_POWER_OF_2) / INCREMENT) + 1,
+              queryEnvelope, new Rectangle((int) (numCellsMinLevel * Math.pow(2, l)),
+                  (int) (numCellsMinLevel * Math.pow(2, l))),
+              null);
     }
 
     for (int i = MIN_TILE_SIZE_POWER_OF_2; i <= MAX_TILE_SIZE_POWER_OF_2; i += INCREMENT) {
@@ -222,7 +229,8 @@ public class CustomCRSKDERasterResizeIT {
     }
 
     for (int l = 0; l < numLevels; l++) {
-      testSamplesMatch(TEST_RESIZE_COVERAGE_NAME_PREFIX,
+      testSamplesMatch(
+          TEST_RESIZE_COVERAGE_NAME_PREFIX,
           ((MAX_TILE_SIZE_POWER_OF_2 - MIN_TILE_SIZE_POWER_OF_2) / INCREMENT) + 1, queryEnvelope,
           new Rectangle((int) (numCellsMinLevel * Math.pow(2, l)),
               (int) (numCellsMinLevel * Math.pow(2, l))),
@@ -230,13 +238,17 @@ public class CustomCRSKDERasterResizeIT {
     }
   }
 
-  private double[][][] testSamplesMatch(final String coverageNamePrefix, final int numCoverages,
-      final GeneralEnvelope queryEnvelope, final Rectangle pixelDimensions,
+  private double[][][] testSamplesMatch(
+      final String coverageNamePrefix,
+      final int numCoverages,
+      final GeneralEnvelope queryEnvelope,
+      final Rectangle pixelDimensions,
       double[][][] expectedResults) throws Exception {
-    final StringBuilder str = new StringBuilder(StoreFactoryOptions.GEOWAVE_NAMESPACE_OPTION)
-        .append("=").append(TEST_COVERAGE_NAMESPACE)
-        .append(";equalizeHistogramOverride=false;scaleTo8Bit=false;interpolationOverride=")
-        .append(Interpolation.INTERP_NEAREST);
+    final StringBuilder str =
+        new StringBuilder(StoreFactoryOptions.GEOWAVE_NAMESPACE_OPTION).append("=")
+            .append(TEST_COVERAGE_NAMESPACE)
+            .append(";equalizeHistogramOverride=false;scaleTo8Bit=false;interpolationOverride=")
+            .append(Interpolation.INTERP_NEAREST);
 
     str.append(";").append(GeoWaveStoreFinder.STORE_HINT_KEY).append("=")
         .append(outputDataStorePluginOptions.getType());
@@ -257,8 +269,9 @@ public class CustomCRSKDERasterResizeIT {
     int coverageCount = 0;
     for (int i = MIN_TILE_SIZE_POWER_OF_2; i <= MAX_TILE_SIZE_POWER_OF_2; i += INCREMENT) {
       final String tileSizeCoverageName = coverageNamePrefix + i;
-      final GridCoverage gridCoverage = reader.renderGridCoverage(tileSizeCoverageName,
-          pixelDimensions, queryEnvelope, Color.BLACK, null, null);
+      final GridCoverage gridCoverage =
+          reader.renderGridCoverage(
+              tileSizeCoverageName, pixelDimensions, queryEnvelope, Color.BLACK, null, null);
       final RenderedImage image = gridCoverage.getRenderedImage();
       final Raster raster = image.getData();
       rasters[coverageCount++] = raster;
@@ -291,8 +304,14 @@ public class CustomCRSKDERasterResizeIT {
               }
             } else {
               Assert.assertEquals(
-                  "The sample does not match the expected sample value for the coverage " + i
-                      + " at x=" + x + ",y=" + y + ",b=" + b,
+                  "The sample does not match the expected sample value for the coverage "
+                      + i
+                      + " at x="
+                      + x
+                      + ",y="
+                      + y
+                      + ",b="
+                      + b,
                   new Double(expectedResults[x][y][b]), new Double(sample));
             }
           }

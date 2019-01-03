@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,8 +42,9 @@ public class WFSBoundedQueryTest extends BaseDataStoreTest {
   @Before
   public void setup() throws SchemaException, CQLException, IOException, GeoWavePluginException {
     dataStore = createDataStore();
-    type = DataUtilities.createType("geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
+    type =
+        DataUtilities.createType(
+            "geostuff", "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
 
     dataStore.createSchema(type);
   }
@@ -85,10 +85,10 @@ public class WFSBoundedQueryTest extends BaseDataStoreTest {
 
     populate();
     Transaction transaction2 = new DefaultTransaction();
-    Query query = new Query("geostuff",
-        CQL.toFilter(
+    Query query =
+        new Query("geostuff", CQL.toFilter(
             "BBOX(geometry,44,27,42,30) and when during 2005-05-01T20:32:56Z/2005-05-29T21:32:56Z"),
-        new String[] {"geometry", "when", "pid"});
+            new String[] {"geometry", "when", "pid"});
     FeatureReader<SimpleFeatureType, SimpleFeature> reader =
         dataStore.getFeatureReader(query, transaction2);
     int c = 0;
@@ -102,10 +102,10 @@ public class WFSBoundedQueryTest extends BaseDataStoreTest {
     assertEquals(3, c);
 
     transaction2 = new DefaultTransaction();
-    query = new Query("geostuff",
-        CQL.toFilter(
+    query =
+        new Query("geostuff", CQL.toFilter(
             "BBOX(geometry,42,28,44,30) and when during 2005-05-01T20:32:56Z/2005-05-29T21:32:56Z"),
-        new String[] {"geometry", "when", "pid"});
+            new String[] {"geometry", "when", "pid"});
     reader = dataStore.getFeatureReader(query, transaction2);
     c = 0;
     while (reader.hasNext()) {

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -180,13 +179,18 @@ public class GeoWaveGrpcTestClient {
   }
 
   // Vector Service Methods
-  public void vectorIngest(final int minLat, final int maxLat, final int minLon, final int maxLon,
-      final int latStepDegs, final int lonStepDegs)
-      throws InterruptedException, UnsupportedEncodingException {
+  public void vectorIngest(
+      final int minLat,
+      final int maxLat,
+      final int minLon,
+      final int maxLon,
+      final int latStepDegs,
+      final int lonStepDegs) throws InterruptedException, UnsupportedEncodingException {
     LOGGER.info("Performing Vector Ingest...");
-    final VectorStoreParametersProtos baseParams = VectorStoreParametersProtos.newBuilder()
-        .setStoreName(GeoWaveGrpcTestUtils.storeName).setTypeName(GeoWaveGrpcTestUtils.typeName)
-        .setIndexName(GeoWaveGrpcTestUtils.indexName).build();
+    final VectorStoreParametersProtos baseParams =
+        VectorStoreParametersProtos.newBuilder().setStoreName(GeoWaveGrpcTestUtils.storeName)
+            .setTypeName(GeoWaveGrpcTestUtils.typeName).setIndexName(GeoWaveGrpcTestUtils.indexName)
+            .build();
 
     final CountDownLatch finishLatch = new CountDownLatch(1);
     final StreamObserver<StringResponseProtos> responseObserver =
@@ -223,8 +227,11 @@ public class GeoWaveGrpcTestClient {
     final FeatureAttributeProtos.Builder attBuilder = FeatureAttributeProtos.newBuilder();
     for (int longitude = minLon; longitude <= maxLon; longitude += lonStepDegs) {
       for (int latitude = minLat; latitude <= maxLat; latitude += latStepDegs) {
-        attBuilder.setValGeometry(copyFrom(new WKBWriter().write(
-            GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(longitude, latitude)))));
+        attBuilder.setValGeometry(
+            copyFrom(
+                new WKBWriter().write(
+                    GeometryUtils.GEOMETRY_FACTORY
+                        .createPoint(new Coordinate(longitude, latitude)))));
         requestBuilder.putFeature("geometry", attBuilder.build());
 
         final TimeZone tz = TimeZone.getTimeZone("UTC");
@@ -264,9 +271,10 @@ public class GeoWaveGrpcTestClient {
 
   public ArrayList<FeatureProtos> vectorQuery() throws UnsupportedEncodingException {
     LOGGER.info("Performing Vector Query...");
-    final VectorQueryParametersProtos request = VectorQueryParametersProtos.newBuilder()
-        .setStoreName(GeoWaveGrpcTestUtils.storeName).setTypeName(GeoWaveGrpcTestUtils.typeName)
-        .setQuery(GeoWaveGrpcTestUtils.cqlSpatialQuery).build();
+    final VectorQueryParametersProtos request =
+        VectorQueryParametersProtos.newBuilder().setStoreName(GeoWaveGrpcTestUtils.storeName)
+            .setTypeName(GeoWaveGrpcTestUtils.typeName)
+            .setQuery(GeoWaveGrpcTestUtils.cqlSpatialQuery).build();
 
     final Iterator<FeatureProtos> features = vectorBlockingStub.vectorQuery(request);
     final ArrayList<FeatureProtos> feature_list = new ArrayList<>();
@@ -285,12 +293,14 @@ public class GeoWaveGrpcTestClient {
 
   public ArrayList<FeatureProtos> cqlQuery() throws UnsupportedEncodingException {
     LOGGER.info("Performing CQL Query...");
-    final VectorStoreParametersProtos baseParams = VectorStoreParametersProtos.newBuilder()
-        .setStoreName(GeoWaveGrpcTestUtils.storeName).setTypeName(GeoWaveGrpcTestUtils.typeName)
-        .setIndexName(GeoWaveGrpcTestUtils.indexName).build();
+    final VectorStoreParametersProtos baseParams =
+        VectorStoreParametersProtos.newBuilder().setStoreName(GeoWaveGrpcTestUtils.storeName)
+            .setTypeName(GeoWaveGrpcTestUtils.typeName).setIndexName(GeoWaveGrpcTestUtils.indexName)
+            .build();
 
-    final CQLQueryParametersProtos request = CQLQueryParametersProtos.newBuilder()
-        .setBaseParams(baseParams).setCql(GeoWaveGrpcTestUtils.cqlSpatialQuery).build();
+    final CQLQueryParametersProtos request =
+        CQLQueryParametersProtos.newBuilder().setBaseParams(baseParams)
+            .setCql(GeoWaveGrpcTestUtils.cqlSpatialQuery).build();
 
     Iterator<FeatureProtos> features;
     final ArrayList<FeatureProtos> feature_list = new ArrayList<>();
@@ -306,9 +316,10 @@ public class GeoWaveGrpcTestClient {
 
   public ArrayList<FeatureProtos> spatialQuery() throws UnsupportedEncodingException {
     LOGGER.info("Performing Spatial Query...");
-    final VectorStoreParametersProtos baseParams = VectorStoreParametersProtos.newBuilder()
-        .setStoreName(GeoWaveGrpcTestUtils.storeName).setTypeName(GeoWaveGrpcTestUtils.typeName)
-        .setIndexName(GeoWaveGrpcTestUtils.indexName).build();
+    final VectorStoreParametersProtos baseParams =
+        VectorStoreParametersProtos.newBuilder().setStoreName(GeoWaveGrpcTestUtils.storeName)
+            .setTypeName(GeoWaveGrpcTestUtils.typeName).setIndexName(GeoWaveGrpcTestUtils.indexName)
+            .build();
 
     final SpatialQueryParametersProtos request =
         SpatialQueryParametersProtos.newBuilder().setBaseParams(baseParams)
@@ -328,8 +339,9 @@ public class GeoWaveGrpcTestClient {
 
   public ArrayList<FeatureProtos> spatialTemporalQuery() throws ParseException {
     LOGGER.info("Performing Spatial Temporal Query...");
-    final VectorStoreParametersProtos baseParams = VectorStoreParametersProtos.newBuilder()
-        .setStoreName(GeoWaveGrpcTestUtils.storeName).build();
+    final VectorStoreParametersProtos baseParams =
+        VectorStoreParametersProtos.newBuilder().setStoreName(GeoWaveGrpcTestUtils.storeName)
+            .build();
 
     final TimeZone tz = TimeZone.getTimeZone("UTC");
     final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate
@@ -340,12 +352,13 @@ public class GeoWaveGrpcTestClient {
     final SpatialQueryParametersProtos spatialQuery =
         SpatialQueryParametersProtos.newBuilder().setBaseParams(baseParams)
             .setGeometry(copyFrom(GeoWaveGrpcTestUtils.wkbSpatialQuery)).build();
-    final TemporalConstraintsProtos t = TemporalConstraintsProtos.newBuilder()
-        .setStartTime(
+    final TemporalConstraintsProtos t =
+        TemporalConstraintsProtos.newBuilder().setStartTime(
             Timestamps.fromMillis(df.parse(GeoWaveGrpcTestUtils.temporalQueryStartTime).getTime()))
-        .setEndTime(
-            Timestamps.fromMillis(df.parse(GeoWaveGrpcTestUtils.temporalQueryEndTime).getTime()))
-        .build();
+            .setEndTime(
+                Timestamps
+                    .fromMillis(df.parse(GeoWaveGrpcTestUtils.temporalQueryEndTime).getTime()))
+            .build();
     final SpatialTemporalQueryParametersProtos request =
         SpatialTemporalQueryParametersProtos.newBuilder().setSpatialParams(spatialQuery)
             .addTemporalConstraints(0, t).setCompareOperation("CONTAINS").build();
@@ -364,8 +377,9 @@ public class GeoWaveGrpcTestClient {
 
   // Core Mapreduce
   public boolean configHDFSCommand() {
-    final ConfigHDFSCommandParametersProtos request = ConfigHDFSCommandParametersProtos.newBuilder()
-        .addParameters(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfs()).build();
+    final ConfigHDFSCommandParametersProtos request =
+        ConfigHDFSCommandParametersProtos.newBuilder()
+            .addParameters(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfs()).build();
     coreMapreduceBlockingStub.configHDFSCommand(request);
     return true;
   }
@@ -374,14 +388,17 @@ public class GeoWaveGrpcTestClient {
   public boolean dbScanCommand() {
     final ArrayList<String> types = new ArrayList<>();
     types.add(GeoWaveGrpcTestUtils.typeName);
-    final DBScanCommandParametersProtos request = DBScanCommandParametersProtos.newBuilder()
-        .addParameters(GeoWaveGrpcTestUtils.storeName).setClusteringMaxIterations("5")
-        .setClusteringMinimumSize("10").setExtractMinInputSplit("2").setExtractMaxInputSplit("6")
-        .setPartitionMaxDistance("1000").setOutputReducerCount("4")
-        .setMapReduceHdfsHostPort(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfs())
-        .setMapReduceJobtrackerHostPort(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getJobtracker())
-        .setMapReduceHdfsBaseDir(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfsBaseDirectory())
-        .addAllTypeNames(types).build();
+    final DBScanCommandParametersProtos request =
+        DBScanCommandParametersProtos.newBuilder().addParameters(GeoWaveGrpcTestUtils.storeName)
+            .setClusteringMaxIterations("5").setClusteringMinimumSize("10")
+            .setExtractMinInputSplit("2").setExtractMaxInputSplit("6")
+            .setPartitionMaxDistance("1000").setOutputReducerCount("4")
+            .setMapReduceHdfsHostPort(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfs())
+            .setMapReduceJobtrackerHostPort(
+                GeoWaveGrpcTestUtils.getMapReduceTestEnv().getJobtracker())
+            .setMapReduceHdfsBaseDir(
+                GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfsBaseDirectory())
+            .addAllTypeNames(types).build();
     analyticMapreduceBlockingStub.dBScanCommand(request);
     return true;
   }
@@ -389,16 +406,20 @@ public class GeoWaveGrpcTestClient {
   public boolean nearestNeighborCommand() {
     final ArrayList<String> types = new ArrayList<>();
     types.add(GeoWaveGrpcTestUtils.typeName);
-    final NearestNeighborCommandParametersProtos request = NearestNeighborCommandParametersProtos
-        .newBuilder().addParameters(GeoWaveGrpcTestUtils.storeName).addAllTypeNames(types)
-        .setExtractQuery(GeoWaveGrpcTestUtils.wktSpatialQuery).setExtractMinInputSplit("2")
-        .setExtractMaxInputSplit("6").setPartitionMaxDistance("10").setOutputReducerCount("4")
-        .setMapReduceHdfsHostPort(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfs())
-        .setMapReduceJobtrackerHostPort(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getJobtracker())
-        .setOutputHdfsOutputPath(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfsBaseDirectory()
-            + "/GrpcNearestNeighbor")
-        .setMapReduceHdfsBaseDir(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfsBaseDirectory())
-        .build();
+    final NearestNeighborCommandParametersProtos request =
+        NearestNeighborCommandParametersProtos.newBuilder()
+            .addParameters(GeoWaveGrpcTestUtils.storeName).addAllTypeNames(types)
+            .setExtractQuery(GeoWaveGrpcTestUtils.wktSpatialQuery).setExtractMinInputSplit("2")
+            .setExtractMaxInputSplit("6").setPartitionMaxDistance("10").setOutputReducerCount("4")
+            .setMapReduceHdfsHostPort(GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfs())
+            .setMapReduceJobtrackerHostPort(
+                GeoWaveGrpcTestUtils.getMapReduceTestEnv().getJobtracker())
+            .setOutputHdfsOutputPath(
+                GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfsBaseDirectory()
+                    + "/GrpcNearestNeighbor")
+            .setMapReduceHdfsBaseDir(
+                GeoWaveGrpcTestUtils.getMapReduceTestEnv().getHdfsBaseDirectory())
+            .build();
     analyticMapreduceBlockingStub.nearestNeighborCommand(request);
     return true;
   }
@@ -423,8 +444,9 @@ public class GeoWaveGrpcTestClient {
   public boolean RecalculateStatsCommand() {
     final ArrayList<String> params = new ArrayList<>();
     params.add(GeoWaveGrpcTestUtils.storeName);
-    final RecalculateStatsCommandParametersProtos request = RecalculateStatsCommandParametersProtos
-        .newBuilder().addAllParameters(params).setJsonFormatFlag(true).build();
+    final RecalculateStatsCommandParametersProtos request =
+        RecalculateStatsCommandParametersProtos.newBuilder().addAllParameters(params)
+            .setJsonFormatFlag(true).build();
     coreStoreBlockingStub.recalculateStatsCommand(request);
     return true;
   }
@@ -517,8 +539,9 @@ public class GeoWaveGrpcTestClient {
     params.add(GeoWaveGrpcTestUtils.storeName);
     params.add(GeoWaveGrpcTestUtils.typeName);
     params.add("BOUNDING_BOX");
-    final RemoveStatCommandParametersProtos request = RemoveStatCommandParametersProtos.newBuilder()
-        .addAllParameters(params).setFieldName("geometry").build();
+    final RemoveStatCommandParametersProtos request =
+        RemoveStatCommandParametersProtos.newBuilder().addAllParameters(params)
+            .setFieldName("geometry").build();
     coreStoreBlockingStub.removeStatCommand(request);
     return true;
   }
@@ -528,8 +551,9 @@ public class GeoWaveGrpcTestClient {
     params.add(GeoWaveGrpcTestUtils.storeName);
     params.add(GeoWaveGrpcTestUtils.typeName);
     params.add("BOUNDING_BOX");
-    final CalculateStatCommandParametersProtos request = CalculateStatCommandParametersProtos
-        .newBuilder().addAllParameters(params).setFieldName("geometry").build();
+    final CalculateStatCommandParametersProtos request =
+        CalculateStatCommandParametersProtos.newBuilder().addAllParameters(params)
+            .setFieldName("geometry").build();
     coreStoreBlockingStub.calculateStatCommand(request);
     return true;
   }
@@ -901,12 +925,13 @@ public class GeoWaveGrpcTestClient {
       LOGGER.warn("unable to get canonical hostname for localhost", e);
     }
 
-    final LocalToKafkaCommandParametersProtos request = LocalToKafkaCommandParametersProtos
-        .newBuilder().addAllParameters(params).addAllExtensions(extensions).setFormats("gpx")
-        .setMetadataBrokerList(localhost + ":9092").setRequestRequiredAcks("1")
-        .setProducerType("sync")
-        .setSerializerClass("org.locationtech.geowave.core.ingest.kafka.AvroKafkaEncoder")
-        .setRetryBackoffMs("1000").build();
+    final LocalToKafkaCommandParametersProtos request =
+        LocalToKafkaCommandParametersProtos.newBuilder().addAllParameters(params)
+            .addAllExtensions(extensions).setFormats("gpx")
+            .setMetadataBrokerList(localhost + ":9092").setRequestRequiredAcks("1")
+            .setProducerType("sync")
+            .setSerializerClass("org.locationtech.geowave.core.ingest.kafka.AvroKafkaEncoder")
+            .setRetryBackoffMs("1000").build();
     coreIngestBlockingStub.localToKafkaCommand(request);
     return true;
   }
@@ -916,22 +941,23 @@ public class GeoWaveGrpcTestClient {
     final ArrayList<String> params = new ArrayList<>();
     params.add(GeoWaveGrpcTestUtils.storeName);
     params.add(GeoWaveGrpcTestUtils.outputStoreName);
-    final KmeansSparkCommandParametersProtos request = KmeansSparkCommandParametersProtos
-        .newBuilder().addAllParameters(params).setAppName("test-app") // Spark
-        // app
-        // name
-        .setHost("localhost")
-        // spark host
-        .setMaster("local[*]")
-        // spark master designation Id
-        .setTypeName(GeoWaveGrpcTestUtils.typeName).setNumClusters(2)
-        //
-        .setNumIterations(2).setEpsilon(20.0).setUseTime(false).setGenerateHulls(true)
-        // optional
-        .setComputeHullData(true)
-        // optional
-        .setCqlFilter(GeoWaveGrpcTestUtils.cqlSpatialQuery).setMinSplits(1).setMaxSplits(4)
-        .setCentroidTypeName("poly").setHullTypeName("poly-hull").build();
+    final KmeansSparkCommandParametersProtos request =
+        KmeansSparkCommandParametersProtos.newBuilder().addAllParameters(params)
+            .setAppName("test-app") // Spark
+            // app
+            // name
+            .setHost("localhost")
+            // spark host
+            .setMaster("local[*]")
+            // spark master designation Id
+            .setTypeName(GeoWaveGrpcTestUtils.typeName).setNumClusters(2)
+            //
+            .setNumIterations(2).setEpsilon(20.0).setUseTime(false).setGenerateHulls(true)
+            // optional
+            .setComputeHullData(true)
+            // optional
+            .setCqlFilter(GeoWaveGrpcTestUtils.cqlSpatialQuery).setMinSplits(1).setMaxSplits(4)
+            .setCentroidTypeName("poly").setHullTypeName("poly-hull").build();
     analyticSparkBlockingStub.kmeansSparkCommand(request);
     return true;
   }
@@ -940,10 +966,11 @@ public class GeoWaveGrpcTestClient {
     final ArrayList<String> params = new ArrayList<>();
     params.add(
         "select * from %" + GeoWaveGrpcTestUtils.storeName + "|" + GeoWaveGrpcTestUtils.typeName);
-    final SparkSqlCommandParametersProtos request = SparkSqlCommandParametersProtos.newBuilder()
-        .addAllParameters(params).setOutputStoreName(GeoWaveGrpcTestUtils.outputStoreName)
-        .setMaster("local[*]").setAppName("sparkSqlTestApp").setHost("localhost")
-        .setOutputTypeName(GeoWaveGrpcTestUtils.typeName).setShowResults(5).build();
+    final SparkSqlCommandParametersProtos request =
+        SparkSqlCommandParametersProtos.newBuilder().addAllParameters(params)
+            .setOutputStoreName(GeoWaveGrpcTestUtils.outputStoreName).setMaster("local[*]")
+            .setAppName("sparkSqlTestApp").setHost("localhost")
+            .setOutputTypeName(GeoWaveGrpcTestUtils.typeName).setShowResults(5).build();
     analyticSparkBlockingStub.sparkSqlCommand(request);
     return true;
   }
@@ -954,13 +981,14 @@ public class GeoWaveGrpcTestClient {
     params.add(GeoWaveGrpcTestUtils.storeName);
     params.add(GeoWaveGrpcTestUtils.storeName);
     params.add(GeoWaveGrpcTestUtils.outputStoreName);
-    final SpatialJoinCommandParametersProtos request = SpatialJoinCommandParametersProtos
-        .newBuilder().addAllParameters(params).setAppName("test-app2").setMaster("local[*]")
-        .setHost("localhost").setLeftAdapterTypeName(GeoWaveGrpcTestUtils.typeName)
-        .setRightAdapterTypeName(GeoWaveGrpcTestUtils.typeName)
-        .setOutLeftAdapterTypeName(GeoWaveGrpcTestUtils.typeName + "_l")
-        .setOutRightAdapterTypeName(GeoWaveGrpcTestUtils.typeName + "_r")
-        .setPredicate("GeomIntersects").setRadius(0.1).setNegativeTest(false).build();
+    final SpatialJoinCommandParametersProtos request =
+        SpatialJoinCommandParametersProtos.newBuilder().addAllParameters(params)
+            .setAppName("test-app2").setMaster("local[*]").setHost("localhost")
+            .setLeftAdapterTypeName(GeoWaveGrpcTestUtils.typeName)
+            .setRightAdapterTypeName(GeoWaveGrpcTestUtils.typeName)
+            .setOutLeftAdapterTypeName(GeoWaveGrpcTestUtils.typeName + "_l")
+            .setOutRightAdapterTypeName(GeoWaveGrpcTestUtils.typeName + "_r")
+            .setPredicate("GeomIntersects").setRadius(0.1).setNegativeTest(false).build();
     analyticSparkBlockingStub.spatialJoinCommand(request);
     return true;
   }

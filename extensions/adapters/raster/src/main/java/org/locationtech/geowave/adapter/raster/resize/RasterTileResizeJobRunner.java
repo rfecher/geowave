@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,7 +53,8 @@ public class RasterTileResizeJobRunner extends Configured implements Tool {
   private final DataStorePluginOptions outputStoreOptions;
   protected RasterTileResizeCommandLineOptions rasterResizeOptions;
 
-  public RasterTileResizeJobRunner(final DataStorePluginOptions inputStoreOptions,
+  public RasterTileResizeJobRunner(
+      final DataStorePluginOptions inputStoreOptions,
       final DataStorePluginOptions outputStoreOptions,
       final RasterTileResizeCommandLineOptions rasterResizeOptions) {
     this.inputStoreOptions = inputStoreOptions;
@@ -69,7 +69,8 @@ public class RasterTileResizeJobRunner extends Configured implements Tool {
       conf = new Configuration();
       setConf(conf);
     }
-    GeoWaveConfiguratorBase.setRemoteInvocationParams(rasterResizeOptions.getHdfsHostPort(),
+    GeoWaveConfiguratorBase.setRemoteInvocationParams(
+        rasterResizeOptions.getHdfsHostPort(),
         rasterResizeOptions.getJobTrackerOrResourceManHostPort(), conf);
     conf.set(OLD_TYPE_NAME_KEY, rasterResizeOptions.getInputCoverageName());
     conf.set(NEW_TYPE_NAME_KEY, rasterResizeOptions.getOutputCoverageName());
@@ -77,8 +78,11 @@ public class RasterTileResizeJobRunner extends Configured implements Tool {
 
     job.setJarByClass(this.getClass());
 
-    job.setJobName("Converting " + rasterResizeOptions.getInputCoverageName() + " to tile size="
-        + rasterResizeOptions.getOutputTileSize());
+    job.setJobName(
+        "Converting "
+            + rasterResizeOptions.getInputCoverageName()
+            + " to tile size="
+            + rasterResizeOptions.getOutputTileSize());
 
     job.setMapperClass(RasterTileResizeMapper.class);
     job.setCombinerClass(RasterTileResizeCombiner.class);
@@ -91,10 +95,10 @@ public class RasterTileResizeJobRunner extends Configured implements Tool {
     job.setOutputValueClass(GridCoverage.class);
     job.setNumReduceTasks(8);
 
-    GeoWaveInputFormat.setMinimumSplitCount(job.getConfiguration(),
-        rasterResizeOptions.getMinSplits());
-    GeoWaveInputFormat.setMaximumSplitCount(job.getConfiguration(),
-        rasterResizeOptions.getMaxSplits());
+    GeoWaveInputFormat
+        .setMinimumSplitCount(job.getConfiguration(), rasterResizeOptions.getMinSplits());
+    GeoWaveInputFormat
+        .setMaximumSplitCount(job.getConfiguration(), rasterResizeOptions.getMaxSplits());
 
     GeoWaveInputFormat.setStoreOptions(job.getConfiguration(), inputStoreOptions);
 
@@ -106,13 +110,16 @@ public class RasterTileResizeJobRunner extends Configured implements Tool {
         inputStoreOptions.createAdapterStore().getAdapter(internalAdapterId).getAdapter();
 
     if (adapter == null) {
-      throw new IllegalArgumentException(
-          "Adapter for coverage '" + rasterResizeOptions.getInputCoverageName()
-              + "' does not exist in namespace '" + inputStoreOptions.getGeoWaveNamespace() + "'");
+      throw new IllegalArgumentException("Adapter for coverage '"
+          + rasterResizeOptions.getInputCoverageName()
+          + "' does not exist in namespace '"
+          + inputStoreOptions.getGeoWaveNamespace()
+          + "'");
     }
 
-    final RasterDataAdapter newAdapter = new RasterDataAdapter((RasterDataAdapter) adapter,
-        rasterResizeOptions.getOutputCoverageName(), rasterResizeOptions.getOutputTileSize());
+    final RasterDataAdapter newAdapter =
+        new RasterDataAdapter((RasterDataAdapter) adapter,
+            rasterResizeOptions.getOutputCoverageName(), rasterResizeOptions.getOutputTileSize());
 
     JobContextAdapterStore.addDataAdapter(job.getConfiguration(), adapter);
     JobContextAdapterStore.addDataAdapter(job.getConfiguration(), newAdapter);
@@ -138,10 +145,10 @@ public class RasterTileResizeJobRunner extends Configured implements Tool {
         outputStoreOptions.createInternalAdapterStore().addTypeName(newAdapter.getTypeName());
     // what if the adapter IDs are the same, but the internal IDs are
     // different (unlikely corner case, but seemingly possible)
-    JobContextInternalAdapterStore.addTypeName(job.getConfiguration(), newAdapter.getTypeName(),
-        newInternalAdapterId);
-    JobContextInternalAdapterStore.addTypeName(job.getConfiguration(), adapter.getTypeName(),
-        internalAdapterId);
+    JobContextInternalAdapterStore
+        .addTypeName(job.getConfiguration(), newAdapter.getTypeName(), newInternalAdapterId);
+    JobContextInternalAdapterStore
+        .addTypeName(job.getConfiguration(), adapter.getTypeName(), internalAdapterId);
 
     job.getConfiguration().setInt(OLD_ADAPTER_ID_KEY, internalAdapterId);
 
@@ -164,9 +171,10 @@ public class RasterTileResizeJobRunner extends Configured implements Tool {
       LOGGER.error("Error waiting for map reduce tile resize job: ", ex);
     }
 
-    final CloseableIterator<Object> obj = outputStoreOptions.createDataStore()
-        .query(QueryBuilder.newBuilder().addTypeName(rasterResizeOptions.getOutputCoverageName())
-            .indexName(index.getName()).build());
+    final CloseableIterator<Object> obj =
+        outputStoreOptions.createDataStore().query(
+            QueryBuilder.newBuilder().addTypeName(rasterResizeOptions.getOutputCoverageName())
+                .indexName(index.getName()).build());
     while (obj.hasNext()) {
       obj.next();
     }

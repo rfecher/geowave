@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,7 +43,9 @@ public class LocalPluginFileVisitor<P extends LocalPluginBase, R> implements Fil
     private final String typeName;
     private final P localPluginBase;
 
-    public PluginVisitor(final P localPluginBase, final String typeName,
+    public PluginVisitor(
+        final P localPluginBase,
+        final String typeName,
         final String[] userExtensions) {
       final String[] combinedExtensions =
           ArrayUtils.addAll(localPluginBase.getFileExtensionFilters(), userExtensions);
@@ -90,12 +91,16 @@ public class LocalPluginFileVisitor<P extends LocalPluginBase, R> implements Fil
   private final List<PluginVisitor<P>> pluginVisitors;
   private final R runData;
 
-  public LocalPluginFileVisitor(final Map<String, P> localPlugins,
-      final AbstractLocalFileDriver<P, R> driver, final R runData, final String[] userExtensions) {
+  public LocalPluginFileVisitor(
+      final Map<String, P> localPlugins,
+      final AbstractLocalFileDriver<P, R> driver,
+      final R runData,
+      final String[] userExtensions) {
     pluginVisitors = new ArrayList<PluginVisitor<P>>(localPlugins.size());
     for (final Entry<String, P> localPluginBase : localPlugins.entrySet()) {
-      pluginVisitors.add(new PluginVisitor<P>(localPluginBase.getValue(), localPluginBase.getKey(),
-          userExtensions));
+      pluginVisitors.add(
+          new PluginVisitor<P>(localPluginBase.getValue(), localPluginBase.getKey(),
+              userExtensions));
     }
     this.driver = driver;
     this.runData = runData;

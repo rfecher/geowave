@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -48,9 +47,13 @@ public class GeoServerGetFeatureLayerCommand extends GeoServerCommand<String> {
       final JSONObject jsonResponse = JSONObject.fromObject(getLayerResponse.getEntity());
       return "\nGeoServer layer info for '" + layerName + "': " + jsonResponse.toString(2);
     }
-    final String errorMessage = "Error getting GeoServer layer info for '" + layerName + "': "
-        + getLayerResponse.readEntity(String.class) + "\nGeoServer Response Code = "
-        + getLayerResponse.getStatus();
+    final String errorMessage =
+        "Error getting GeoServer layer info for '"
+            + layerName
+            + "': "
+            + getLayerResponse.readEntity(String.class)
+            + "\nGeoServer Response Code = "
+            + getLayerResponse.getStatus();
     return handleError(getLayerResponse, errorMessage);
   }
 }

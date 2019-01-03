@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,8 +25,7 @@ import org.locationtech.geowave.analytic.mapreduce.MapReduceJobRunner;
  * psi is the initial cost of the system with a single centroid. Rounding is in effect. To obtain a
  * reasonable sample, the minimum is 2.
  *
- * <p>
- * This class has been adapted to determine the maximum number of iterations required across
+ * <p> This class has been adapted to determine the maximum number of iterations required across
  * multiple groups. Each group is its own set of clusters.
  */
 public class IterationCountCalculateRunner<T> implements MapReduceJobRunner {
@@ -62,8 +60,10 @@ public class IterationCountCalculateRunner<T> implements MapReduceJobRunner {
     centroidManager.processForAllGroups(new CentroidProcessingFn<T>() {
       @Override
       public int processGroup(final String groupID, final List<AnalyticItemWrapper<T>> centroids) {
-        resultHolder.set(Math.max(resultHolder.get(),
-            (centroids.size() > 0) ? (int) Math.round(Math.log(maxCost(centroids))) : 0));
+        resultHolder.set(
+            Math.max(
+                resultHolder.get(),
+                (centroids.size() > 0) ? (int) Math.round(Math.log(maxCost(centroids))) : 0));
         return 0;
       }
     });

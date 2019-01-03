@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,7 +43,8 @@ public class AccumuloSecondaryIndexDataStore extends BaseSecondaryIndexDataStore
     this(accumuloOperations, new AccumuloOptions());
   }
 
-  public AccumuloSecondaryIndexDataStore(final AccumuloOperations accumuloOperations,
+  public AccumuloSecondaryIndexDataStore(
+      final AccumuloOperations accumuloOperations,
       final AccumuloOptions accumuloOptions) {
     super();
     this.accumuloOperations = accumuloOperations;
@@ -85,9 +85,13 @@ public class AccumuloSecondaryIndexDataStore extends BaseSecondaryIndexDataStore
   }
 
   @Override
-  protected GeoWaveRow buildJoinMutation(final byte[] secondaryIndexRowId, final byte[] adapterId,
-      final byte[] indexedAttributeFieldId, final byte[] primaryIndexId,
-      final byte[] primaryIndexPartitionKey, final byte[] primaryIndexSortKey,
+  protected GeoWaveRow buildJoinMutation(
+      final byte[] secondaryIndexRowId,
+      final byte[] adapterId,
+      final byte[] indexedAttributeFieldId,
+      final byte[] primaryIndexId,
+      final byte[] primaryIndexPartitionKey,
+      final byte[] primaryIndexSortKey,
       final byte[] attributeVisibility) {
     // final Mutation m = new Mutation(
     // secondaryIndexRowId);
@@ -107,9 +111,14 @@ public class AccumuloSecondaryIndexDataStore extends BaseSecondaryIndexDataStore
   }
 
   @Override
-  protected GeoWaveRow buildMutation(final byte[] secondaryIndexRowId, final byte[] adapterId,
-      final byte[] indexedAttributeFieldId, final byte[] dataId, final byte[] fieldId,
-      final byte[] fieldValue, final byte[] fieldVisibility) {
+  protected GeoWaveRow buildMutation(
+      final byte[] secondaryIndexRowId,
+      final byte[] adapterId,
+      final byte[] indexedAttributeFieldId,
+      final byte[] dataId,
+      final byte[] fieldId,
+      final byte[] fieldValue,
+      final byte[] fieldVisibility) {
     // final Mutation m = new Mutation(
     // secondaryIndexRowId);
     // final ColumnVisibility columnVisibility = new ColumnVisibility(
@@ -128,8 +137,11 @@ public class AccumuloSecondaryIndexDataStore extends BaseSecondaryIndexDataStore
   }
 
   @Override
-  protected GeoWaveRow buildFullDeleteMutation(final byte[] secondaryIndexRowId,
-      final byte[] adapterId, final byte[] indexedAttributeFieldId, final byte[] dataId,
+  protected GeoWaveRow buildFullDeleteMutation(
+      final byte[] secondaryIndexRowId,
+      final byte[] adapterId,
+      final byte[] indexedAttributeFieldId,
+      final byte[] dataId,
       final byte[] fieldId) {
     // final Mutation m = new Mutation(
     // secondaryIndexRowId);
@@ -145,9 +157,13 @@ public class AccumuloSecondaryIndexDataStore extends BaseSecondaryIndexDataStore
   }
 
   @Override
-  public <T> CloseableIterator<T> query(final SecondaryIndexImpl<T> secondaryIndex,
-      final String indexedAttributeFieldName, final InternalDataAdapter<T> adapter,
-      final Index primaryIndex, final QueryConstraints query, final String... authorizations) {
+  public <T> CloseableIterator<T> query(
+      final SecondaryIndexImpl<T> secondaryIndex,
+      final String indexedAttributeFieldName,
+      final InternalDataAdapter<T> adapter,
+      final Index primaryIndex,
+      final QueryConstraints query,
+      final String... authorizations) {
     // final Scanner scanner = getScanner(
     // secondaryIndex.getName(),
     // authorizations);
@@ -263,9 +279,13 @@ public class AccumuloSecondaryIndexDataStore extends BaseSecondaryIndexDataStore
   }
 
   @Override
-  protected GeoWaveRow buildJoinDeleteMutation(final byte[] secondaryIndexRowId,
-      final byte[] adapterId, final byte[] indexedAttributeFieldId, final byte[] primaryIndexId,
-      final byte[] primaryIndexPartitionKey, final byte[] primaryIndexSortKey) throws IOException {
+  protected GeoWaveRow buildJoinDeleteMutation(
+      final byte[] secondaryIndexRowId,
+      final byte[] adapterId,
+      final byte[] indexedAttributeFieldId,
+      final byte[] primaryIndexId,
+      final byte[] primaryIndexPartitionKey,
+      final byte[] primaryIndexSortKey) throws IOException {
     // TODO Auto-generated method stub
     return null;
   }

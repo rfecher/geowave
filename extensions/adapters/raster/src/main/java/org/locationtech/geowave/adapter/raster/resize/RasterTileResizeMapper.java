@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,13 +28,16 @@ public class RasterTileResizeMapper
   private RasterTileResizeHelper helper;
 
   @Override
-  protected void mapNativeValue(final GeoWaveInputKey key, final GridCoverage value,
+  protected void mapNativeValue(
+      final GeoWaveInputKey key,
+      final GridCoverage value,
       final MapContext<GeoWaveInputKey, GridCoverage, GeoWaveInputKey, Object> context)
       throws IOException, InterruptedException {
     if (helper.isOriginalCoverage(key.getInternalAdapterId())) {
       final InternalDataAdapter<?> adapter =
           super.serializationTool.getInternalAdapter(key.getInternalAdapterId());
-      if ((adapter != null) && (adapter.getAdapter() != null)
+      if ((adapter != null)
+          && (adapter.getAdapter() != null)
           && (adapter.getAdapter() instanceof RasterDataAdapter)) {
         final Iterator<GridCoverage> coverages = helper.getCoveragesForIndex(value);
         if (coverages == null) {
@@ -50,9 +52,10 @@ public class RasterTileResizeMapper
           if (c instanceof FitToIndexGridCoverage) {
             final ByteArray partitionKey = ((FitToIndexGridCoverage) c).getPartitionKey();
             final ByteArray sortKey = ((FitToIndexGridCoverage) c).getSortKey();
-            final GeoWaveKey geowaveKey = new GeoWaveKeyImpl(helper.getNewDataId(c).getBytes(),
-                key.getInternalAdapterId(), partitionKey == null ? null : partitionKey.getBytes(),
-                sortKey == null ? null : sortKey.getBytes(), 0);
+            final GeoWaveKey geowaveKey =
+                new GeoWaveKeyImpl(helper.getNewDataId(c).getBytes(), key.getInternalAdapterId(),
+                    partitionKey == null ? null : partitionKey.getBytes(),
+                    sortKey == null ? null : sortKey.getBytes(), 0);
             final GeoWaveInputKey inputKey =
                 new GeoWaveInputKey(helper.getNewAdapterId(), geowaveKey, helper.getIndexName());
             context.write(inputKey, c);

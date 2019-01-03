@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -64,8 +63,9 @@ public class AdapterMapping implements Persistable {
   @Override
   public byte[] toBinary() {
     final byte[] adapterIdBytes = this.adapterId.getBytes();
-    final ByteBuffer buf = ByteBuffer
-        .allocate(adapterIdBytes.length + VarintUtils.unsignedShortByteLength(internalAdapterId));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            adapterIdBytes.length + VarintUtils.unsignedShortByteLength(internalAdapterId));
     buf.put(adapterIdBytes);
     VarintUtils.writeUnsignedShort(internalAdapterId, buf);
     return buf.array();

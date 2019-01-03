@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,7 +28,8 @@ public abstract class AbstractAccumuloSplitsOperation {
   private final DataStorePluginOptions storeOptions;
   private final SplitCommandLineOptions splitOptions;
 
-  public AbstractAccumuloSplitsOperation(final DataStorePluginOptions storeOptions,
+  public AbstractAccumuloSplitsOperation(
+      final DataStorePluginOptions storeOptions,
       final SplitCommandLineOptions splitOptions) {
     this.storeOptions = storeOptions;
     this.splitOptions = splitOptions;
@@ -69,8 +69,10 @@ public abstract class AbstractAccumuloSplitsOperation {
       } else {
         final Index index = indexStore.getIndex(splitOptions.getIndexName());
         if (index == null) {
-          LOGGER.error("index '" + splitOptions.getIndexName()
-              + "' does not exist; unable to create splits");
+          LOGGER.error(
+              "index '"
+                  + splitOptions.getIndexName()
+                  + "' does not exist; unable to create splits");
         }
         return setSplits(connector, index, namespace, number);
       }
@@ -85,6 +87,9 @@ public abstract class AbstractAccumuloSplitsOperation {
     return false;
   };
 
-  protected abstract boolean setSplits(Connector connector, Index index, String namespace,
+  protected abstract boolean setSplits(
+      Connector connector,
+      Index index,
+      String namespace,
       long number);
 }

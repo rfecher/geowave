@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -53,8 +52,11 @@ public class HBaseParallelDecoder<T> extends ParallelDecoder<T> {
   private final List<ByteArrayRange> ranges;
   private final int partitionKeyLength;
 
-  public HBaseParallelDecoder(GeoWaveRowIteratorTransformer<T> rowTransformer,
-      Provider<Scan> scanProvider, HBaseOperations operations, List<ByteArrayRange> ranges,
+  public HBaseParallelDecoder(
+      GeoWaveRowIteratorTransformer<T> rowTransformer,
+      Provider<Scan> scanProvider,
+      HBaseOperations operations,
+      List<ByteArrayRange> ranges,
       int partitionKeyLength) {
     super(rowTransformer);
     this.scanProvider = scanProvider;
@@ -87,12 +89,14 @@ public class HBaseParallelDecoder<T> extends ParallelDecoder<T> {
         regionScan.setFilter(filter);
         regionScan.setStartRow(
             regionInfo.getStartKey().length == 0 ? new byte[] {0} : regionInfo.getStartKey());
-        regionScan.setStopRow(regionInfo.getEndKey().length == 0
-            ? new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}
-            : regionInfo.getEndKey());
-        scanners.add(new HBaseScanner(operations.getConnection(), tableName, regionScan,
-            partitionKeyLength));
+        regionScan.setStopRow(
+            regionInfo.getEndKey().length == 0
+                ? new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                    (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}
+                : regionInfo.getEndKey());
+        scanners.add(
+            new HBaseScanner(operations.getConnection(), tableName, regionScan,
+                partitionKeyLength));
       }
     } else {
       // Divide all ranges into their respective regions
@@ -161,8 +165,9 @@ public class HBaseParallelDecoder<T> extends ParallelDecoder<T> {
         } else {
           continue;
         }
-        scanners.add(new HBaseScanner(operations.getConnection(), tableName, regionScan,
-            partitionKeyLength));
+        scanners.add(
+            new HBaseScanner(operations.getConnection(), tableName, regionScan,
+                partitionKeyLength));
       }
     }
     return scanners;
@@ -178,7 +183,10 @@ public class HBaseParallelDecoder<T> extends ParallelDecoder<T> {
     private ResultScanner baseResults;
     private Iterator<Result> resultsIterator;
 
-    public HBaseScanner(Connection connection, TableName tableName, Scan sourceScanner,
+    public HBaseScanner(
+        Connection connection,
+        TableName tableName,
+        Scan sourceScanner,
         int partitionKeyLength) {
       this.connection = connection;
       this.tableName = tableName;

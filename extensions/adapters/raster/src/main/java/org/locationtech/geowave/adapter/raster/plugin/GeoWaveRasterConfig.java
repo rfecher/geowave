@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -81,15 +80,20 @@ public class GeoWaveRasterConfig {
 
   protected GeoWaveRasterConfig() {}
 
-  public static GeoWaveRasterConfig createConfig(final Map<String, String> dataStoreConfig,
+  public static GeoWaveRasterConfig createConfig(
+      final Map<String, String> dataStoreConfig,
       final String geowaveNamespace) {
     return createConfig(dataStoreConfig, geowaveNamespace, null, null, null, null, null);
   }
 
-  public static GeoWaveRasterConfig createConfig(final Map<String, String> dataStoreConfig,
-      final String geowaveNamespace, final Boolean equalizeHistogramOverride,
-      final Boolean scaleTo8Bit, final Integer interpolationOverride,
-      final String authorizationProvider, final URL authorizationURL) {
+  public static GeoWaveRasterConfig createConfig(
+      final Map<String, String> dataStoreConfig,
+      final String geowaveNamespace,
+      final Boolean equalizeHistogramOverride,
+      final Boolean scaleTo8Bit,
+      final Integer interpolationOverride,
+      final String authorizationProvider,
+      final URL authorizationURL) {
     final GeoWaveRasterConfig result = new GeoWaveRasterConfig();
     result.equalizeHistogramOverride = equalizeHistogramOverride;
     result.interpolationOverride = interpolationOverride;
@@ -197,7 +201,8 @@ public class GeoWaveRasterConfig {
     }
   }
 
-  private static void parseParamsIntoRasterConfig(final GeoWaveRasterConfig result,
+  private static void parseParamsIntoRasterConfig(
+      final GeoWaveRasterConfig result,
       final Map<String, String> params) {
     final Map<String, String> storeParams = new HashMap<String, String>(params);
     // isolate just the dynamic store params
@@ -248,8 +253,9 @@ public class GeoWaveRasterConfig {
   public synchronized DataStore getDataStore() {
     if (dataStore == null) {
       dataStore =
-          factoryFamily.getDataStoreFactory().createStore(ConfigUtils.populateOptionsFromList(
-              factoryFamily.getDataStoreFactory().createOptionsInstance(), storeConfigObj));
+          factoryFamily.getDataStoreFactory().createStore(
+              ConfigUtils.populateOptionsFromList(
+                  factoryFamily.getDataStoreFactory().createOptionsInstance(), storeConfigObj));
     }
     return dataStore;
   }
@@ -257,18 +263,20 @@ public class GeoWaveRasterConfig {
   public synchronized PersistentAdapterStore getAdapterStore() {
     if (adapterStore == null) {
       adapterStore =
-          factoryFamily.getAdapterStoreFactory().createStore(ConfigUtils.populateOptionsFromList(
-              factoryFamily.getAdapterStoreFactory().createOptionsInstance(), storeConfigObj));
+          factoryFamily.getAdapterStoreFactory().createStore(
+              ConfigUtils.populateOptionsFromList(
+                  factoryFamily.getAdapterStoreFactory().createOptionsInstance(), storeConfigObj));
     }
     return adapterStore;
   }
 
   public synchronized InternalAdapterStore getInternalAdapterStore() {
     if (internalAdapterStore == null) {
-      internalAdapterStore = factoryFamily.getInternalAdapterStoreFactory()
-          .createStore(ConfigUtils.populateOptionsFromList(
-              factoryFamily.getInternalAdapterStoreFactory().createOptionsInstance(),
-              storeConfigObj));
+      internalAdapterStore =
+          factoryFamily.getInternalAdapterStoreFactory().createStore(
+              ConfigUtils.populateOptionsFromList(
+                  factoryFamily.getInternalAdapterStoreFactory().createOptionsInstance(),
+                  storeConfigObj));
     }
     return internalAdapterStore;
   }
@@ -276,28 +284,31 @@ public class GeoWaveRasterConfig {
   public synchronized IndexStore getIndexStore() {
     if (indexStore == null) {
       indexStore =
-          factoryFamily.getIndexStoreFactory().createStore(ConfigUtils.populateOptionsFromList(
-              factoryFamily.getIndexStoreFactory().createOptionsInstance(), storeConfigObj));
+          factoryFamily.getIndexStoreFactory().createStore(
+              ConfigUtils.populateOptionsFromList(
+                  factoryFamily.getIndexStoreFactory().createOptionsInstance(), storeConfigObj));
     }
     return indexStore;
   }
 
   public synchronized DataStatisticsStore getDataStatisticsStore() {
     if (dataStatisticsStore == null) {
-      dataStatisticsStore = factoryFamily.getDataStatisticsStoreFactory()
-          .createStore(ConfigUtils.populateOptionsFromList(
-              factoryFamily.getDataStatisticsStoreFactory().createOptionsInstance(),
-              storeConfigObj));
+      dataStatisticsStore =
+          factoryFamily.getDataStatisticsStoreFactory().createStore(
+              ConfigUtils.populateOptionsFromList(
+                  factoryFamily.getDataStatisticsStoreFactory().createOptionsInstance(),
+                  storeConfigObj));
     }
     return dataStatisticsStore;
   }
 
   public synchronized AdapterIndexMappingStore getAdapterIndexMappingStore() {
     if (adapterIndexMappingStore == null) {
-      adapterIndexMappingStore = factoryFamily.getAdapterIndexMappingStoreFactory()
-          .createStore(ConfigUtils.populateOptionsFromList(
-              factoryFamily.getDataStatisticsStoreFactory().createOptionsInstance(),
-              storeConfigObj));
+      adapterIndexMappingStore =
+          factoryFamily.getAdapterIndexMappingStoreFactory().createStore(
+              ConfigUtils.populateOptionsFromList(
+                  factoryFamily.getDataStatisticsStoreFactory().createOptionsInstance(),
+                  storeConfigObj));
     }
     return adapterIndexMappingStore;
   }

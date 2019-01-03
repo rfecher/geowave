@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -116,8 +115,10 @@ public class SpatialTemporalQueryIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*    FINISHED SpatialTemporalQueryIT    *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                 *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -158,10 +159,11 @@ public class SpatialTemporalQueryIT {
     try {
       for (int day = cal.getActualMinimum(Calendar.DAY_OF_MONTH); day <= cal
           .getActualMaximum(Calendar.DAY_OF_MONTH); day++) {
-        final double ptVal = ((((day + 1.0) - cal.getActualMinimum(Calendar.DAY_OF_MONTH))
-            / ((cal.getActualMaximum(Calendar.DAY_OF_MONTH)
-                - cal.getActualMinimum(Calendar.DAY_OF_MONTH)) + 2.0))
-            * 2) - 1;
+        final double ptVal =
+            ((((day + 1.0) - cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                / ((cal.getActualMaximum(Calendar.DAY_OF_MONTH)
+                    - cal.getActualMinimum(Calendar.DAY_OF_MONTH)) + 2.0))
+                * 2) - 1;
         cal.set(Calendar.DAY_OF_MONTH, day);
         final Point pt = geomFactory.createPoint(new Coordinate(ptVal, ptVal));
         featureBuilder.add(pt);
@@ -175,18 +177,20 @@ public class SpatialTemporalQueryIT {
           .getActualMaximum(Calendar.MONTH); month++) {
         cal.set(Calendar.MONTH, month);
 
-        final double ptVal = ((((month + 1.0) - cal.getActualMinimum(Calendar.MONTH))
-            / ((cal.getActualMaximum(Calendar.MONTH) - cal.getActualMinimum(Calendar.MONTH)) + 2.0))
-            * 2) - 1;
+        final double ptVal =
+            ((((month + 1.0) - cal.getActualMinimum(Calendar.MONTH))
+                / ((cal.getActualMaximum(Calendar.MONTH) - cal.getActualMinimum(Calendar.MONTH))
+                    + 2.0))
+                * 2) - 1;
         final Point pt = geomFactory.createPoint(new Coordinate(ptVal, ptVal));
         featureBuilder.add(pt);
         featureBuilder.add(cal.getTime());
         final SimpleFeature feature = featureBuilder.buildFeature("month:" + month);
         timeWriters.write(feature);
       }
-      ingestTimeRangeData(cal, rangeWriters, featureTimeRangeBuilder,
-          cal.getActualMinimum(Calendar.MONTH), cal.getActualMaximum(Calendar.MONTH),
-          Calendar.MONTH, "month");
+      ingestTimeRangeData(
+          cal, rangeWriters, featureTimeRangeBuilder, cal.getActualMinimum(Calendar.MONTH),
+          cal.getActualMaximum(Calendar.MONTH), Calendar.MONTH, "month");
 
       cal = getInitialYearCalendar();
       for (int year = MULTI_YEAR_MIN; year <= MULTI_YEAR_MAX; year++) {
@@ -201,8 +205,9 @@ public class SpatialTemporalQueryIT {
         timeWriters.write(feature);
       }
 
-      ingestTimeRangeData(cal, rangeWriters, featureTimeRangeBuilder, MULTI_YEAR_MIN,
-          MULTI_YEAR_MAX, Calendar.YEAR, "year");
+      ingestTimeRangeData(
+          cal, rangeWriters, featureTimeRangeBuilder, MULTI_YEAR_MIN, MULTI_YEAR_MAX, Calendar.YEAR,
+          "year");
 
       Point pt = geomFactory.createPoint(new Coordinate(-50, -50));
       featureBuilder.add(pt);
@@ -234,8 +239,9 @@ public class SpatialTemporalQueryIT {
 
       // Ingest data for duplicate deletion, should not overlap time
       // ranges from other tests
-      ingestTimeRangeDataForDuplicateDeletion(cal, rangeWriters, featureTimeRangeBuilder,
-          DUPLICATE_DELETION_YEAR_MIN, DUPLICATE_DELETION_YEAR_MAX, Calendar.YEAR, "ranged_year");
+      ingestTimeRangeDataForDuplicateDeletion(
+          cal, rangeWriters, featureTimeRangeBuilder, DUPLICATE_DELETION_YEAR_MIN,
+          DUPLICATE_DELETION_YEAR_MAX, Calendar.YEAR, "ranged_year");
     } finally {
       timeWriters.close();
       rangeWriters.close();
@@ -248,7 +254,9 @@ public class SpatialTemporalQueryIT {
           @Override
           public CloseableIterator<Index> getIndices(
               final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats,
-              final BasicQuery query, final Index[] indices, final Map<QueryHint, Object> hints) {
+              final BasicQuery query,
+              final Index[] indices,
+              final Map<QueryHint, Object> hints) {
             return new CloseableIteratorWrapper<>(new Closeable() {
               @Override
               public void close() throws IOException {}
@@ -297,9 +305,14 @@ public class SpatialTemporalQueryIT {
     }
   }
 
-  private static void ingestTimeRangeData(final Calendar cal, final Writer writer,
-      final SimpleFeatureBuilder featureTimeRangeBuilder, final int min, final int max,
-      final int field, final String name) throws IOException {
+  private static void ingestTimeRangeData(
+      final Calendar cal,
+      final Writer writer,
+      final SimpleFeatureBuilder featureTimeRangeBuilder,
+      final int min,
+      final int max,
+      final int field,
+      final String name) throws IOException {
     final GeometryFactory geomFactory = new GeometryFactory();
     final int midPoint = (int) Math.floor((min + max) / 2.0);
     cal.set(field, min);
@@ -326,9 +339,14 @@ public class SpatialTemporalQueryIT {
     writer.write(feature);
   }
 
-  private static void ingestTimeRangeDataForDuplicateDeletion(final Calendar cal,
-      final Writer writer, final SimpleFeatureBuilder featureTimeRangeBuilder, final int min,
-      final int max, final int field, final String name) throws IOException {
+  private static void ingestTimeRangeDataForDuplicateDeletion(
+      final Calendar cal,
+      final Writer writer,
+      final SimpleFeatureBuilder featureTimeRangeBuilder,
+      final int min,
+      final int max,
+      final int field,
+      final String name) throws IOException {
     final GeometryFactory geomFactory = new GeometryFactory();
     cal.set(field, min);
     featureTimeRangeBuilder.add(geomFactory.createPoint(new Coordinate(0, 0)));
@@ -339,9 +357,13 @@ public class SpatialTemporalQueryIT {
     writer.write(feature);
   }
 
-  private void testQueryMultipleBins(final Calendar cal, final int field, final int min,
-      final int max, final VectorQueryBuilder bldr, final String name)
-      throws IOException, CQLException {
+  private void testQueryMultipleBins(
+      final Calendar cal,
+      final int field,
+      final int min,
+      final int max,
+      final VectorQueryBuilder bldr,
+      final String name) throws IOException, CQLException {
     bldr.setTypeNames(new String[] {timeStampAdapter.getTypeName()});
     cal.set(field, min);
     Date startOfQuery = cal.getTime();
@@ -358,29 +380,49 @@ public class SpatialTemporalQueryIT {
     testQueryMultipleBinsGivenDateRange(bldr, name, midPoint, max, startOfQuery, endOfQuery);
   }
 
-  private void testQueryMultipleBinsGivenDateRange(final VectorQueryBuilder bldr, final String name,
-      final int minExpectedResult, final int maxExpectedResult, final Date startOfQuery,
+  private void testQueryMultipleBinsGivenDateRange(
+      final VectorQueryBuilder bldr,
+      final String name,
+      final int minExpectedResult,
+      final int maxExpectedResult,
+      final Date startOfQuery,
       final Date endOfQuery) throws CQLException, IOException {
     final Set<String> fidExpectedResults =
         new HashSet<>((maxExpectedResult - minExpectedResult) + 1);
     for (int i = minExpectedResult; i <= maxExpectedResult; i++) {
       fidExpectedResults.add(name + ":" + i);
     }
-    testQueryGivenDateRange(bldr, name, fidExpectedResults, startOfQuery, endOfQuery,
-        timeStampAdapter.getTypeName(), "timestamp", "timestamp");
+    testQueryGivenDateRange(
+        bldr, name, fidExpectedResults, startOfQuery, endOfQuery, timeStampAdapter.getTypeName(),
+        "timestamp", "timestamp");
   }
 
-  private void testQueryGivenDateRange(final VectorQueryBuilder bldr, final String name,
-      final Set<String> fidExpectedResults, final Date startOfQuery, final Date endOfQuery,
-      final String adapterId, final String startTimeAttribute, final String endTimeAttribute)
-      throws CQLException, IOException {
-    final String cqlPredicate = "BBOX(\"geo\",-1,-1,1,1) AND \"" + startTimeAttribute + "\" <= '"
-        + CQL_DATE_FORMAT.format(endOfQuery) + "' AND \"" + endTimeAttribute + "\" >= '"
-        + CQL_DATE_FORMAT.format(startOfQuery) + "'";
+  private void testQueryGivenDateRange(
+      final VectorQueryBuilder bldr,
+      final String name,
+      final Set<String> fidExpectedResults,
+      final Date startOfQuery,
+      final Date endOfQuery,
+      final String adapterId,
+      final String startTimeAttribute,
+      final String endTimeAttribute) throws CQLException, IOException {
+    final String cqlPredicate =
+        "BBOX(\"geo\",-1,-1,1,1) AND \""
+            + startTimeAttribute
+            + "\" <= '"
+            + CQL_DATE_FORMAT.format(endOfQuery)
+            + "' AND \""
+            + endTimeAttribute
+            + "\" >= '"
+            + CQL_DATE_FORMAT.format(startOfQuery)
+            + "'";
     final Set<String> fidResults = new HashSet<>();
     try (CloseableIterator<SimpleFeature> it =
-        (CloseableIterator) dataStore.query(bldr.constraints(new SpatialTemporalQuery(startOfQuery,
-            endOfQuery, new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1)))).build())) {
+        (CloseableIterator) dataStore.query(
+            bldr.constraints(
+                new SpatialTemporalQuery(startOfQuery, endOfQuery,
+                    new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1))))
+                .build())) {
       while (it.hasNext()) {
         final SimpleFeature feature = it.next();
         fidResults.add(feature.getID());
@@ -390,8 +432,9 @@ public class SpatialTemporalQueryIT {
 
     final Set<String> geotoolsFidResults = new HashSet<>();
     // now make sure geotools results match
-    try (final SimpleFeatureIterator features = geowaveGtDataStore.getFeatureSource(adapterId)
-        .getFeatures(CQL.toFilter(cqlPredicate)).features()) {
+    try (final SimpleFeatureIterator features =
+        geowaveGtDataStore.getFeatureSource(adapterId).getFeatures(CQL.toFilter(cqlPredicate))
+            .features()) {
       while (features.hasNext()) {
         final SimpleFeature feature = features.next();
         geotoolsFidResults.add(feature.getID());
@@ -400,9 +443,12 @@ public class SpatialTemporalQueryIT {
     assertFidsMatchExpectation(name, fidExpectedResults, geotoolsFidResults);
   }
 
-  private void assertFidsMatchExpectation(final String name, final Set<String> fidExpectedResults,
+  private void assertFidsMatchExpectation(
+      final String name,
+      final Set<String> fidExpectedResults,
       final Set<String> fidResults) {
-    Assert.assertEquals("Expected result count does not match actual result count for " + name,
+    Assert.assertEquals(
+        "Expected result count does not match actual result count for " + name,
         fidExpectedResults.size(), fidResults.size());
     final Iterator<String> it = fidExpectedResults.iterator();
     while (it.hasNext()) {
@@ -417,7 +463,8 @@ public class SpatialTemporalQueryIT {
     bldr.indexName(DAY_INDEX.getName());
     currentGeotoolsIndex = DAY_INDEX;
     final Calendar cal = getInitialDayCalendar();
-    testQueryMultipleBins(cal, Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH),
+    testQueryMultipleBins(
+        cal, Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH),
         cal.getActualMaximum(Calendar.DAY_OF_MONTH), bldr, "day");
   }
 
@@ -427,7 +474,8 @@ public class SpatialTemporalQueryIT {
     bldr.indexName(MONTH_INDEX.getName());
     currentGeotoolsIndex = MONTH_INDEX;
     final Calendar cal = getInitialMonthCalendar();
-    testQueryMultipleBins(cal, Calendar.MONTH, cal.getActualMinimum(Calendar.MONTH),
+    testQueryMultipleBins(
+        cal, Calendar.MONTH, cal.getActualMinimum(Calendar.MONTH),
         cal.getActualMaximum(Calendar.MONTH), bldr, "month");
   }
 
@@ -441,9 +489,13 @@ public class SpatialTemporalQueryIT {
     testQueryMultipleBins(cal, Calendar.YEAR, MULTI_YEAR_MIN, MULTI_YEAR_MAX, bldr, "year");
   }
 
-  private void testTimeRangeAcrossBins(final Calendar cal, final int field, final int min,
-      final int max, final VectorQueryBuilder bldr, final String name)
-      throws IOException, CQLException {
+  private void testTimeRangeAcrossBins(
+      final Calendar cal,
+      final int field,
+      final int min,
+      final int max,
+      final VectorQueryBuilder bldr,
+      final String name) throws IOException, CQLException {
     cal.set(field, min);
     Date startOfQuery = cal.getTime();
     final int midPoint = (int) Math.floor((min + max) / 2.0);
@@ -453,8 +505,9 @@ public class SpatialTemporalQueryIT {
     fidExpectedResults.add(name + ":fullrange");
     fidExpectedResults.add(name + ":firsthalfrange");
 
-    testQueryGivenDateRange(bldr, name, fidExpectedResults, startOfQuery, endOfQuery,
-        timeRangeAdapter.getTypeName(), "startTime", "endTime");
+    testQueryGivenDateRange(
+        bldr, name, fidExpectedResults, startOfQuery, endOfQuery, timeRangeAdapter.getTypeName(),
+        "startTime", "endTime");
 
     cal.set(field, midPoint + 1);
     startOfQuery = cal.getTime();
@@ -464,8 +517,9 @@ public class SpatialTemporalQueryIT {
     fidExpectedResults.add(name + ":fullrange");
     fidExpectedResults.add(name + ":secondhalfrange");
 
-    testQueryGivenDateRange(bldr, name, fidExpectedResults, startOfQuery, endOfQuery,
-        timeRangeAdapter.getTypeName(), "startTime", "endTime");
+    testQueryGivenDateRange(
+        bldr, name, fidExpectedResults, startOfQuery, endOfQuery, timeRangeAdapter.getTypeName(),
+        "startTime", "endTime");
 
     cal.set(field, min);
     startOfQuery = cal.getTime();
@@ -475,8 +529,9 @@ public class SpatialTemporalQueryIT {
     fidExpectedResults.add(name + ":fullrange");
     fidExpectedResults.add(name + ":firsthalfrange");
     fidExpectedResults.add(name + ":secondhalfrange");
-    testQueryGivenDateRange(bldr, name, fidExpectedResults, startOfQuery, endOfQuery,
-        timeRangeAdapter.getTypeName(), "startTime", "endTime");
+    testQueryGivenDateRange(
+        bldr, name, fidExpectedResults, startOfQuery, endOfQuery, timeRangeAdapter.getTypeName(),
+        "startTime", "endTime");
   }
 
   @Test
@@ -486,7 +541,8 @@ public class SpatialTemporalQueryIT {
     currentGeotoolsIndex = MONTH_INDEX;
     bldr.setTypeNames(new String[] {timeRangeAdapter.getTypeName()});
     final Calendar cal = getInitialMonthCalendar();
-    testTimeRangeAcrossBins(cal, Calendar.MONTH, cal.getActualMinimum(Calendar.MONTH),
+    testTimeRangeAcrossBins(
+        cal, Calendar.MONTH, cal.getActualMinimum(Calendar.MONTH),
         cal.getActualMaximum(Calendar.MONTH), bldr, "month");
   }
 
@@ -521,8 +577,9 @@ public class SpatialTemporalQueryIT {
     cal.set(Calendar.YEAR, DUPLICATE_DELETION_YEAR_MAX);
     Date endOfQuery = cal.getTime();
 
-    SpatialTemporalQuery fullRangeQuery = new SpatialTemporalQuery(startOfQuery, endOfQuery,
-        new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1)));
+    SpatialTemporalQuery fullRangeQuery =
+        new SpatialTemporalQuery(startOfQuery, endOfQuery,
+            new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1)));
 
     // Create query for selecting items that should still exist
     // after the deletion query is performed
@@ -533,8 +590,9 @@ public class SpatialTemporalQueryIT {
     cal.set(Calendar.YEAR, MULTI_YEAR_MAX);
     endOfQuery = cal.getTime();
 
-    SpatialTemporalQuery sanityQuery = new SpatialTemporalQuery(startOfQuery, endOfQuery,
-        new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1)));
+    SpatialTemporalQuery sanityQuery =
+        new SpatialTemporalQuery(startOfQuery, endOfQuery,
+            new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1)));
 
     // Create deletion query to remove a single entry (1970-1971). Even
     // though we are requesting to delete within a single year, this should
@@ -545,8 +603,9 @@ public class SpatialTemporalQueryIT {
     cal.set(Calendar.YEAR, DUPLICATE_DELETION_YEAR_MIN + 1);
     endOfQuery = cal.getTime();
 
-    SpatialTemporalQuery deletionQuery = new SpatialTemporalQuery(startOfQuery, endOfQuery,
-        new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1)));
+    SpatialTemporalQuery deletionQuery =
+        new SpatialTemporalQuery(startOfQuery, endOfQuery,
+            new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1)));
 
     // Sanity count number of entries that have nothing to do with
     // the deletion query (after the deletion we will query again and see
@@ -574,8 +633,10 @@ public class SpatialTemporalQueryIT {
     long numExpectedDuplicates = (DUPLICATE_DELETION_YEAR_MAX - DUPLICATE_DELETION_YEAR_MIN);
 
     // check and count the number of entries with duplicates
-    DuplicateEntryCount dupeEntryCount = DuplicateEntryCount.getDuplicateCounts(YEAR_INDEX,
-        Collections.singletonList(typeId), ((BaseDataStore) dataStore).getStatisticsStore());
+    DuplicateEntryCount dupeEntryCount =
+        DuplicateEntryCount.getDuplicateCounts(
+            YEAR_INDEX, Collections.singletonList(typeId),
+            ((BaseDataStore) dataStore).getStatisticsStore());
 
     Assert.assertEquals(numExpectedEntries, dupeEntryCount.getEntriesWithDuplicatesCount());
 
@@ -609,8 +670,10 @@ public class SpatialTemporalQueryIT {
     // ..and it should not count the entry as having any duplicates i.e. the
     // number of entries with duplicates should match the sanity query count
     // 3(1980-1987, 1987-1995, 1980-1990)
-    dupeEntryCount = DuplicateEntryCount.getDuplicateCounts(YEAR_INDEX,
-        Collections.singletonList(typeId), ((BaseDataStore) dataStore).getStatisticsStore());
+    dupeEntryCount =
+        DuplicateEntryCount.getDuplicateCounts(
+            YEAR_INDEX, Collections.singletonList(typeId),
+            ((BaseDataStore) dataStore).getStatisticsStore());
 
     // if delete works, it should not count the entry as having any
     // duplicates and the number of entries with duplicates should match the

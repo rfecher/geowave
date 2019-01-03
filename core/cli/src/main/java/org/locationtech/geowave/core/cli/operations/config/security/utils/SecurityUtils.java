@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,8 +42,10 @@ public class SecurityUtils {
               "Encountered exception during content decryption: " + t.getLocalizedMessage(), t);
         }
       } else {
-        LOGGER.debug("WARNING: Value to decrypt was not propertly encoded and wrapped with "
-            + WRAPPER + ". Not decrypting value.");
+        LOGGER.debug(
+            "WARNING: Value to decrypt was not propertly encoded and wrapped with "
+                + WRAPPER
+                + ". Not decrypting value.");
         return value;
       }
     } else {
@@ -75,7 +76,8 @@ public class SecurityUtils {
       } else {
         LOGGER.debug(
             "WARNING: Value to encrypt already appears to be encrypted and already wrapped with "
-                + WRAPPER + ". Not encrypting value.");
+                + WRAPPER
+                + ". Not encrypting value.");
         return value;
       }
     } else {

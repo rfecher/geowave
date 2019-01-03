@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,19 +27,25 @@ public abstract class GeoWaveWritableOutputMapper<KEYIN, VALUEIN>
   protected HadoopWritableSerializationTool serializationTool;
 
   @Override
-  protected void map(final KEYIN key, final VALUEIN value,
+  protected void map(
+      final KEYIN key,
+      final VALUEIN value,
       final Mapper<KEYIN, VALUEIN, GeoWaveInputKey, ObjectWritable>.Context context)
       throws IOException, InterruptedException {
     mapWritableValue(key, value, context);
   }
 
-  protected void mapWritableValue(final KEYIN key, final VALUEIN value,
+  protected void mapWritableValue(
+      final KEYIN key,
+      final VALUEIN value,
       final Mapper<KEYIN, VALUEIN, GeoWaveInputKey, ObjectWritable>.Context context)
       throws IOException, InterruptedException {
     mapNativeValue(key, value, new NativeMapContext(context, serializationTool));
   }
 
-  protected abstract void mapNativeValue(final KEYIN key, final VALUEIN value,
+  protected abstract void mapNativeValue(
+      final KEYIN key,
+      final VALUEIN value,
       final MapContext<KEYIN, VALUEIN, GeoWaveInputKey, Object> context)
       throws IOException, InterruptedException;
 

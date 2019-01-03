@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,7 +53,9 @@ public class FeatureHyperLogLogStatistics extends
    * @param precision number of bits to support counting. 2^p is the maximum count value per
    *        distinct value. 1 <= p <= 32
    */
-  public FeatureHyperLogLogStatistics(final Short adapterId, final String fieldName,
+  public FeatureHyperLogLogStatistics(
+      final Short adapterId,
+      final String fieldName,
       final int precision) {
     super(adapterId, STATS_TYPE, fieldName);
     loglog = new HyperLogLogPlus(precision);
@@ -176,7 +177,8 @@ public class FeatureHyperLogLogStatistics extends
 
     @Override
     public InternalDataStatistics<SimpleFeature, HyperLogLogPlus, FieldStatisticsQueryBuilder<HyperLogLogPlus>> create(
-        final Short internalDataAdapterId, final String fieldName) {
+        final Short internalDataAdapterId,
+        final String fieldName) {
       return new FeatureHyperLogLogStatistics(internalDataAdapterId, fieldName, precision);
     }
 

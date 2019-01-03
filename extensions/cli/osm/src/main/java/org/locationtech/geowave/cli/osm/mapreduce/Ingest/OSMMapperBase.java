@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,49 +53,56 @@ public class OSMMapperBase<T> extends Mapper<AvroKey<T>, NullWritable, Text, Mut
 
   protected void put(final Mutation m, final String cf, final String cq, final Long val) {
     if (val != null) {
-      m.put(StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
+      m.put(
+          StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
           longWriter.writeField(val));
     }
   }
 
   protected void put(final Mutation m, final String cf, final String cq, final Integer val) {
     if (val != null) {
-      m.put(StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
+      m.put(
+          StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
           intWriter.writeField(val));
     }
   }
 
   protected void put(final Mutation m, final String cf, final String cq, final Double val) {
     if (val != null) {
-      m.put(StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
+      m.put(
+          StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
           doubleWriter.writeField(val));
     }
   }
 
   protected void put(final Mutation m, final String cf, final String cq, final String val) {
     if (val != null) {
-      m.put(StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
+      m.put(
+          StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
           stringWriter.writeField(val));
     }
   }
 
   protected void put(final Mutation m, final String cf, final String cq, final CharSequence val) {
     if (val != null) {
-      m.put(StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
+      m.put(
+          StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
           stringWriter.writeField(val.toString()));
     }
   }
 
   protected void put(final Mutation m, final String cf, final String cq, final Boolean val) {
     if (val != null) {
-      m.put(StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
+      m.put(
+          StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
           booleanWriter.writeField(val));
     }
   }
 
   protected void put(final Mutation m, final String cf, final String cq, final Calendar val) {
     if (val != null) {
-      m.put(StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
+      m.put(
+          StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
           calendarWriter.writeField(val));
     }
   }
@@ -104,7 +110,8 @@ public class OSMMapperBase<T> extends Mapper<AvroKey<T>, NullWritable, Text, Mut
   protected void put(final Mutation m, final String cf, final String cq, final AvroLongArray val) {
     if (val != null) {
       try {
-        m.put(StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
+        m.put(
+            StringUtils.stringToBinary(cf), StringUtils.stringToBinary(cq), _visibility,
             TypeUtils.serializeLongArray(val));
       } catch (final IOException e) {
         log.error("Unable to serialize LongArray instance", e);

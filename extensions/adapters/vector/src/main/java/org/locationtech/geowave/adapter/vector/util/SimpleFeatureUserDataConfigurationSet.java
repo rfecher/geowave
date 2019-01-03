@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,9 +53,8 @@ public class SimpleFeatureUserDataConfigurationSet implements java.io.Serializab
   public SimpleFeatureUserDataConfigurationSet() {}
 
   /**
-   * Constructor<br>
-   * Creates a new SimpleFeatureUserDataConfigurationSet configured using the passed in
-   * SimpleFeature type. Will be accessed using the type name.
+   * Constructor<br> Creates a new SimpleFeatureUserDataConfigurationSet configured using the passed
+   * in SimpleFeature type. Will be accessed using the type name.
    *
    * @param type - SFT to be configured
    */
@@ -69,15 +67,15 @@ public class SimpleFeatureUserDataConfigurationSet implements java.io.Serializab
   }
 
   /**
-   * Constructor<br>
-   * Creates a new SimpleFeatureUserDataConfigurationSet configured using the passed in
-   * SimpleFeature type and adding the passed in configurations. Will be accessed using the type
+   * Constructor<br> Creates a new SimpleFeatureUserDataConfigurationSet configured using the passed
+   * in SimpleFeature type and adding the passed in configurations. Will be accessed using the type
    * name.
    *
    * @param type
    * @param configurations
    */
-  public SimpleFeatureUserDataConfigurationSet(final SimpleFeatureType type,
+  public SimpleFeatureUserDataConfigurationSet(
+      final SimpleFeatureType type,
       final List<SimpleFeatureUserDataConfiguration> configurations) {
     super();
     getConfigurationsForType(type.getTypeName()).addAll(configurations);
@@ -193,8 +191,10 @@ public class SimpleFeatureUserDataConfigurationSet implements java.io.Serializab
     for (Entry<String, List<SimpleFeatureUserDataConfiguration>> e : configurations.entrySet()) {
       byte[] keyBytes = StringUtils.stringToBinary(e.getKey());
       List<byte[]> configs = new ArrayList<>(e.getValue().size());
-      int entrySize = VarintUtils.unsignedIntByteLength(keyBytes.length) + keyBytes.length
-          + VarintUtils.unsignedIntByteLength(configs.size());
+      int entrySize =
+          VarintUtils.unsignedIntByteLength(keyBytes.length)
+              + keyBytes.length
+              + VarintUtils.unsignedIntByteLength(configs.size());
       for (SimpleFeatureUserDataConfiguration config : e.getValue()) {
         byte[] confBytes = PersistenceUtils.toBinary(config);
         entrySize += VarintUtils.unsignedIntByteLength(confBytes.length);

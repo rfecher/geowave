@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,12 +50,13 @@ public class ImageChipDataAdapter implements DataTypeAdapter<ImageChip> {
 
   @Override
   public ImageChip decode(final IndexedAdapterPersistenceEncoding data, final Index index) {
-    return ImageChipUtils.fromDataIdAndValue(data.getDataId(),
-        (byte[]) data.getAdapterExtendedData().getValue(IMAGE_FIELD_NAME));
+    return ImageChipUtils.fromDataIdAndValue(
+        data.getDataId(), (byte[]) data.getAdapterExtendedData().getValue(IMAGE_FIELD_NAME));
   }
 
   @Override
-  public AdapterPersistenceEncoding encode(final ImageChip entry,
+  public AdapterPersistenceEncoding encode(
+      final ImageChip entry,
       final CommonIndexModel indexModel) {
     final Map<String, Object> fieldIdToValueMap = new HashMap<>();
     fieldIdToValueMap.put(IMAGE_FIELD_NAME, entry.getImageBinary());
@@ -84,8 +84,8 @@ public class ImageChipDataAdapter implements DataTypeAdapter<ImageChip> {
   public FieldWriter<ImageChip, Object> getWriter(final String fieldId) {
     if (IMAGE_FIELD_NAME.equals(fieldId)) {
       if (imageChipVisibilityHandler != null) {
-        return (FieldWriter) FieldUtils.getDefaultWriterForClass(byte[].class,
-            imageChipVisibilityHandler);
+        return (FieldWriter) FieldUtils
+            .getDefaultWriterForClass(byte[].class, imageChipVisibilityHandler);
       } else {
         return (FieldWriter) FieldUtils.getDefaultWriterForClass(byte[].class);
       }

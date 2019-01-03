@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,7 +33,9 @@ public class HistogramConfig implements Persistable {
       int bins;
       double min = range.getMinimum(true);
       double max = range.getMaximum(true);
-      if (Double.isInfinite(min) || Double.isInfinite(max) || Double.isNaN(min)
+      if (Double.isInfinite(min)
+          || Double.isInfinite(max)
+          || Double.isNaN(min)
           || Double.isNaN(max)) {
         // in this case there is no reasonable default, just use a range
         // of 0 to 1 as a placeholder

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -100,8 +99,12 @@ public class NATO4676Decoder implements TrackDecoder {
         String name = rootEl.getName();
         if ("TrackMessage".equals(name)) {
           msg = readTrackMessage(rootEl, xmlns);
-          LOGGER.info("TrackMessage read " + trackStatsNumTracks + " Tracks and "
-              + trackStatsNumDots + " TrackPoints.");
+          LOGGER.info(
+              "TrackMessage read "
+                  + trackStatsNumTracks
+                  + " Tracks and "
+                  + trackStatsNumDots
+                  + " TrackPoints.");
         } else if ("MissionSummary".equals(name)) {
           msg = readMissionSummaryMessage(rootEl, xmlns);
         }
@@ -120,7 +123,8 @@ public class NATO4676Decoder implements TrackDecoder {
     return msg;
   }
 
-  private MissionSummaryMessage readMissionSummaryMessage(final Element element,
+  private MissionSummaryMessage readMissionSummaryMessage(
+      final Element element,
       final Namespace xmlns) {
     final MissionSummaryMessage msg = new MissionSummaryMessage();
     MissionSummary missionSummary = msg.getMissionSummary();
@@ -156,7 +160,8 @@ public class NATO4676Decoder implements TrackDecoder {
     return msg;
   }
 
-  private List<ObjectClassification> readObjectClassifications(final Element element,
+  private List<ObjectClassification> readObjectClassifications(
+      final Element element,
       final Namespace xmlns) {
     final List<ObjectClassification> objClassList = new ArrayList<ObjectClassification>();
     final List<Element> children = element.getChildren();
@@ -490,7 +495,8 @@ public class NATO4676Decoder implements TrackDecoder {
     return trackIdentity;
   }
 
-  private TrackClassification readTrackClassification(final Element element,
+  private TrackClassification readTrackClassification(
+      final Element element,
       final Namespace xmlns) {
     final TrackClassification trackClassification = new TrackClassification();
     final List<Element> children = element.getChildren();
@@ -651,7 +657,8 @@ public class NATO4676Decoder implements TrackDecoder {
     return relation;
   }
 
-  private ClassificationCredibility readClassificationCredibility(final Element element,
+  private ClassificationCredibility readClassificationCredibility(
+      final Element element,
       final Namespace xmlns) {
     final ClassificationCredibility credibility = new ClassificationCredibility();
     final List<Element> children = element.getChildren();

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -53,15 +52,19 @@ public class ServerSideOperationsObserver extends BaseRegionObserver {
       new InternalScannerWrapperFactory();
 
   private static interface ScannerWrapperFactory<T extends InternalScanner> {
-    public T createScannerWrapper(Collection<HBaseServerOp> orderedServerOps, T delegate,
+    public T createScannerWrapper(
+        Collection<HBaseServerOp> orderedServerOps,
+        T delegate,
         Scan scan);
   }
 
   private static class RegionScannerWrapperFactory implements ScannerWrapperFactory<RegionScanner> {
 
     @Override
-    public RegionScanner createScannerWrapper(final Collection<HBaseServerOp> orderedServerOps,
-        final RegionScanner delegate, final Scan scan) {
+    public RegionScanner createScannerWrapper(
+        final Collection<HBaseServerOp> orderedServerOps,
+        final RegionScanner delegate,
+        final Scan scan) {
       return new ServerOpRegionScannerWrapper(orderedServerOps, delegate, scan);
     }
   }
@@ -70,39 +73,52 @@ public class ServerSideOperationsObserver extends BaseRegionObserver {
       implements ScannerWrapperFactory<InternalScanner> {
 
     @Override
-    public InternalScanner createScannerWrapper(final Collection<HBaseServerOp> orderedServerOps,
-        final InternalScanner delegate, final Scan scan) {
+    public InternalScanner createScannerWrapper(
+        final Collection<HBaseServerOp> orderedServerOps,
+        final InternalScanner delegate,
+        final Scan scan) {
       return new ServerOpInternalScannerWrapper(orderedServerOps, delegate, scan);
     }
   }
 
   @Override
-  public InternalScanner preFlush(final ObserverContext<RegionCoprocessorEnvironment> e,
-      final Store store, final InternalScanner scanner) throws IOException {
+  public InternalScanner preFlush(
+      final ObserverContext<RegionCoprocessorEnvironment> e,
+      final Store store,
+      final InternalScanner scanner) throws IOException {
     if (opStore == null) {
       return super.preFlush(e, store, scanner);
     }
-    return super.preFlush(e, store,
-        wrapScannerWithOps(e.getEnvironment().getRegionInfo().getTable(), scanner, null,
+    return super.preFlush(
+        e, store,
+        wrapScannerWithOps(
+            e.getEnvironment().getRegionInfo().getTable(), scanner, null,
             ServerOpScope.MINOR_COMPACTION, INTERNAL_SCANNER_FACTORY));
   }
 
   @Override
-  public InternalScanner preCompact(final ObserverContext<RegionCoprocessorEnvironment> e,
-      final Store store, final InternalScanner scanner, final ScanType scanType,
+  public InternalScanner preCompact(
+      final ObserverContext<RegionCoprocessorEnvironment> e,
+      final Store store,
+      final InternalScanner scanner,
+      final ScanType scanType,
       final CompactionRequest request) throws IOException {
     if (opStore == null) {
       return super.preCompact(e, store, scanner, scanType, request);
     }
-    return super.preCompact(e, store,
-        wrapScannerWithOps(e.getEnvironment().getRegionInfo().getTable(), scanner, null,
+    return super.preCompact(
+        e, store,
+        wrapScannerWithOps(
+            e.getEnvironment().getRegionInfo().getTable(), scanner, null,
             ServerOpScope.MAJOR_COMPACTION, INTERNAL_SCANNER_FACTORY),
         scanType, request);
   }
 
   @Override
-  public RegionScanner preScannerOpen(final ObserverContext<RegionCoprocessorEnvironment> e,
-      final Scan scan, final RegionScanner s) throws IOException {
+  public RegionScanner preScannerOpen(
+      final ObserverContext<RegionCoprocessorEnvironment> e,
+      final Scan scan,
+      final RegionScanner s) throws IOException {
     if (opStore != null) {
       final TableName tableName = e.getEnvironment().getRegionInfo().getTable();
       if (!tableName.isSystemTable()) {
@@ -119,18 +135,25 @@ public class ServerSideOperationsObserver extends BaseRegionObserver {
   }
 
   @Override
-  public RegionScanner postScannerOpen(final ObserverContext<RegionCoprocessorEnvironment> e,
-      final Scan scan, final RegionScanner s) throws IOException {
+  public RegionScanner postScannerOpen(
+      final ObserverContext<RegionCoprocessorEnvironment> e,
+      final Scan scan,
+      final RegionScanner s) throws IOException {
     if (opStore == null) {
       return super.postScannerOpen(e, scan, s);
     }
-    return super.postScannerOpen(e, scan,
-        wrapScannerWithOps(e.getEnvironment().getRegionInfo().getTable(), s, scan,
-            ServerOpScope.SCAN, REGION_SCANNER_FACTORY));
+    return super.postScannerOpen(
+        e, scan,
+        wrapScannerWithOps(
+            e.getEnvironment().getRegionInfo().getTable(), s, scan, ServerOpScope.SCAN,
+            REGION_SCANNER_FACTORY));
   }
 
-  public <T extends InternalScanner> T wrapScannerWithOps(final TableName tableName,
-      final T scanner, final Scan scan, final ServerOpScope scope,
+  public <T extends InternalScanner> T wrapScannerWithOps(
+      final TableName tableName,
+      final T scanner,
+      final Scan scan,
+      final ServerOpScope scope,
       final ScannerWrapperFactory<T> factory) {
     if (!tableName.isSystemTable()) {
       final String namespace = tableName.getNamespaceAsString();
@@ -197,12 +220,14 @@ public class ServerSideOperationsObserver extends BaseRegionObserver {
       final List<String> optionKeys = uniqueOpAndOptions.getValue();
       final Map<String, String> optionsMap = new HashMap<>();
       for (final String optionKey : optionKeys) {
-        final String optionValue = config
-            .get(uniqueOp + ServerSideOperationUtils.SERVER_OP_OPTIONS_PREFIX + "." + optionKey);
+        final String optionValue =
+            config.get(
+                uniqueOp + ServerSideOperationUtils.SERVER_OP_OPTIONS_PREFIX + "." + optionKey);
         optionsMap.put(optionKey, optionValue);
       }
       final String[] uniqueOpSplit = uniqueOp.split("\\.");
-      opStore.addOperation(HBaseUtils.readConfigSafeTableName(uniqueOpSplit[1]),
+      opStore.addOperation(
+          HBaseUtils.readConfigSafeTableName(uniqueOpSplit[1]),
           HBaseUtils.readConfigSafeTableName(uniqueOpSplit[2]), uniqueOpSplit[3], priority, scopes,
           ByteArrayUtils.byteArrayFromString(classIdStr), optionsMap);
     }

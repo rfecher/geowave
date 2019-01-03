@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -71,8 +70,11 @@ public class RocksDBRowDeleter implements RowDeleter {
   private final InternalAdapterStore internalAdapterStore;
   private final String indexName;
 
-  public RocksDBRowDeleter(final RocksDBClient client, final PersistentAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore, final String indexName) {
+  public RocksDBRowDeleter(
+      final RocksDBClient client,
+      final PersistentAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
+      final String indexName) {
     this.client = client;
     this.adapterStore = adapterStore;
     this.internalAdapterStore = internalAdapterStore;
@@ -86,17 +88,20 @@ public class RocksDBRowDeleter implements RowDeleter {
   }
 
   private RocksDBIndexTable getIndexTable(final CacheKey cacheKey) {
-    return RocksDBUtils.getIndexTable(client, cacheKey.tableName, cacheKey.adapterId,
-        cacheKey.partition, RocksDBUtils.isSortByTime(adapterStore.getAdapter(cacheKey.adapterId)));
+    return RocksDBUtils.getIndexTable(
+        client, cacheKey.tableName, cacheKey.adapterId, cacheKey.partition,
+        RocksDBUtils.isSortByTime(adapterStore.getAdapter(cacheKey.adapterId)));
   }
 
   @Override
   public void delete(final GeoWaveRow row) {
     final RocksDBIndexTable table =
-        tableCache.get(new CacheKey(
-            RocksDBUtils.getTableName(internalAdapterStore.getTypeName(row.getAdapterId()),
-                indexName, row.getAdapterId(), row.getPartitionKey()),
-            row.getAdapterId(), row.getPartitionKey()));
+        tableCache.get(
+            new CacheKey(
+                RocksDBUtils.getTableName(
+                    internalAdapterStore.getTypeName(row.getAdapterId()), indexName,
+                    row.getAdapterId(), row.getPartitionKey()),
+                row.getAdapterId(), row.getPartitionKey()));
 
     Arrays.stream(((RocksDBRow) row).getKeys()).forEach(k -> table.delete(k));
   }

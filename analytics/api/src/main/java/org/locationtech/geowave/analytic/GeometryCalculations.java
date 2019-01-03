@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,8 +50,10 @@ public class GeometryCalculations {
    * @param coordinate
    * @return
    */
-  public List<Geometry> buildSurroundingGeometries(final double[] distances,
-      final Unit<Length> unit, Coordinate coordinate) {
+  public List<Geometry> buildSurroundingGeometries(
+      final double[] distances,
+      final Unit<Length> unit,
+      Coordinate coordinate) {
     List<Geometry> geos = new LinkedList<Geometry>();
     GeodeticCalculator geoCalc = new GeodeticCalculator();
     geoCalc.setStartingGeographicPoint(coordinate.x, coordinate.y);
@@ -81,8 +82,13 @@ public class GeometryCalculations {
     return null;
   }
 
-  private void handleBoundaries(List<Geometry> geos, Coordinate coordinate, double x1, double x2,
-      double y1, double y2) {
+  private void handleBoundaries(
+      List<Geometry> geos,
+      Coordinate coordinate,
+      double x1,
+      double x2,
+      double y1,
+      double y2) {
 
     if (Math.signum(x1) > Math.signum(coordinate.x)) {
       ReferencedEnvelope bounds =

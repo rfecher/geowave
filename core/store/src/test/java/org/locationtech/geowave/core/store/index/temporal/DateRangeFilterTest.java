@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,8 +39,9 @@ public class DateRangeFilterTest {
 
   @Test
   public void testAccept() throws ParseException {
-    final DateRangeFilter filter = new DateRangeFilter("myAttribute",
-        format.parse("01-01-2014 11:01:01"), format.parse("12-31-2014 11:01:01"), true, true);
+    final DateRangeFilter filter =
+        new DateRangeFilter("myAttribute", format.parse("01-01-2014 11:01:01"),
+            format.parse("12-31-2014 11:01:01"), true, true);
 
     // should match because date is in range
     final IndexedPersistenceEncoding<ByteArray> persistenceEncoding =

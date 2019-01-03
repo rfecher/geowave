@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -58,9 +57,13 @@ public class GeoServerSetLayerStyleCommand extends GeoServerCommand<String> {
       final String style = IOUtils.toString((InputStream) setLayerStyleResponse.getEntity());
       return "Set style for GeoServer layer '" + layerName + ": OK" + style;
     }
-    String errorMessage = "Error setting style for GeoServer layer '" + layerName + "': "
-        + setLayerStyleResponse.readEntity(String.class) + "\nGeoServer Response Code = "
-        + setLayerStyleResponse.getStatus();
+    String errorMessage =
+        "Error setting style for GeoServer layer '"
+            + layerName
+            + "': "
+            + setLayerStyleResponse.readEntity(String.class)
+            + "\nGeoServer Response Code = "
+            + setLayerStyleResponse.getStatus();
     return handleError(setLayerStyleResponse, errorMessage);
   }
 }

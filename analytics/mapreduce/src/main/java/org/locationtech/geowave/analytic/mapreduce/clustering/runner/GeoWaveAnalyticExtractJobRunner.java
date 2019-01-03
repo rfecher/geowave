@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -87,29 +86,37 @@ public class GeoWaveAnalyticExtractJobRunner extends GeoWaveDedupeJobRunner
     @SuppressWarnings("rawtypes")
     final Class<? extends DimensionExtractor> dimensionExtractorClass =
         job.getConfiguration().getClass(
-            GeoWaveConfiguratorBase.enumToConfKey(SimpleFeatureOutputReducer.class,
+            GeoWaveConfiguratorBase.enumToConfKey(
+                SimpleFeatureOutputReducer.class,
                 ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS),
             SimpleFeatureGeometryExtractor.class, DimensionExtractor.class);
 
-    GeoWaveOutputFormat.addDataAdapter(job.getConfiguration(),
+    GeoWaveOutputFormat.addDataAdapter(
+        job.getConfiguration(),
         createAdapter(
-            job.getConfiguration()
-                .get(GeoWaveConfiguratorBase.enumToConfKey(SimpleFeatureOutputReducer.class,
+            job.getConfiguration().get(
+                GeoWaveConfiguratorBase.enumToConfKey(
+                    SimpleFeatureOutputReducer.class,
                     ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID)),
-            job.getConfiguration().get(GeoWaveConfiguratorBase.enumToConfKey(
-                SimpleFeatureOutputReducer.class, ExtractParameters.Extract.DATA_NAMESPACE_URI)),
+            job.getConfiguration().get(
+                GeoWaveConfiguratorBase.enumToConfKey(
+                    SimpleFeatureOutputReducer.class,
+                    ExtractParameters.Extract.DATA_NAMESPACE_URI)),
             dimensionExtractorClass));
 
     job.setJobName("GeoWave Extract (" + dataStoreOptions.getGeoWaveNamespace() + ")");
     job.setReduceSpeculativeExecution(false);
   }
 
-  private FeatureDataAdapter createAdapter(final String outputDataTypeID, final String namespaceURI,
+  private FeatureDataAdapter createAdapter(
+      final String outputDataTypeID,
+      final String namespaceURI,
       @SuppressWarnings("rawtypes") final Class<? extends DimensionExtractor> dimensionExtractorClass)
       throws InstantiationException, IllegalAccessException {
     final DimensionExtractor<?> extractor = dimensionExtractorClass.newInstance();
-    return AnalyticFeature.createGeometryFeatureAdapter(outputDataTypeID,
-        extractor.getDimensionNames(), namespaceURI, ClusteringUtils.CLUSTERING_CRS);
+    return AnalyticFeature.createGeometryFeatureAdapter(
+        outputDataTypeID, extractor.getDimensionNames(), namespaceURI,
+        ClusteringUtils.CLUSTERING_CRS);
   }
 
   @Override
@@ -135,16 +142,16 @@ public class GeoWaveAnalyticExtractJobRunner extends GeoWaveDedupeJobRunner
         config, SimpleFeatureOutputReducer.class);
 
     config.set(
-        GeoWaveConfiguratorBase.enumToConfKey(SimpleFeatureOutputReducer.class,
-            ExtractParameters.Extract.GROUP_ID),
-        runTimeProperties.getPropertyAsString(ExtractParameters.Extract.GROUP_ID,
-            UUID.randomUUID().toString()));
+        GeoWaveConfiguratorBase
+            .enumToConfKey(SimpleFeatureOutputReducer.class, ExtractParameters.Extract.GROUP_ID),
+        runTimeProperties
+            .getPropertyAsString(ExtractParameters.Extract.GROUP_ID, UUID.randomUUID().toString()));
 
     config.set(
-        GeoWaveConfiguratorBase.enumToConfKey(SimpleFeatureOutputReducer.class,
-            GlobalParameters.Global.BATCH_ID),
-        runTimeProperties.getPropertyAsString(GlobalParameters.Global.BATCH_ID,
-            UUID.randomUUID().toString()));
+        GeoWaveConfiguratorBase
+            .enumToConfKey(SimpleFeatureOutputReducer.class, GlobalParameters.Global.BATCH_ID),
+        runTimeProperties
+            .getPropertyAsString(GlobalParameters.Global.BATCH_ID, UUID.randomUUID().toString()));
 
     final Query query = runTimeProperties.getPropertyAsQuery(ExtractParameters.Extract.QUERY);
 
@@ -154,8 +161,8 @@ public class GeoWaveAnalyticExtractJobRunner extends GeoWaveDedupeJobRunner
         runTimeProperties.getPropertyAsInt(ExtractParameters.Extract.MAX_INPUT_SPLIT, 10000));
     if (query != null) {
       if (query.getQueryConstraints() != null) {
-        GeoWaveInputFormat.setQueryConstraints(config,
-            (QueryConstraints) query.getQueryConstraints());
+        GeoWaveInputFormat
+            .setQueryConstraints(config, (QueryConstraints) query.getQueryConstraints());
         setQueryConstraints((QueryConstraints) query.getQueryConstraints());
       }
 
@@ -165,14 +172,15 @@ public class GeoWaveAnalyticExtractJobRunner extends GeoWaveDedupeJobRunner
       }
 
       if (query.getDataTypeQueryOptions() != null) {
-        GeoWaveInputFormat.setDataTypeQueryOptions(config, query.getDataTypeQueryOptions(),
-            dataStoreOptions.createAdapterStore(), dataStoreOptions.createInternalAdapterStore());
+        GeoWaveInputFormat.setDataTypeQueryOptions(
+            config, query.getDataTypeQueryOptions(), dataStoreOptions.createAdapterStore(),
+            dataStoreOptions.createInternalAdapterStore());
         setDataTypeQueryOptions(query.getDataTypeQueryOptions());
       }
 
       if (query.getIndexQueryOptions() != null) {
-        GeoWaveInputFormat.setIndexQueryOptions(config, query.getIndexQueryOptions(),
-            dataStoreOptions.createIndexStore());
+        GeoWaveInputFormat.setIndexQueryOptions(
+            config, query.getIndexQueryOptions(), dataStoreOptions.createIndexStore());
         setIndexQueryOptions(query.getIndexQueryOptions());
       }
     }
@@ -186,10 +194,11 @@ public class GeoWaveAnalyticExtractJobRunner extends GeoWaveDedupeJobRunner
     setConf(config);
 
     config.setClass(
-        GeoWaveConfiguratorBase.enumToConfKey(SimpleFeatureOutputReducer.class,
-            ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS),
-        runTimeProperties.getPropertyAsClass(ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-            DimensionExtractor.class, SimpleFeatureGeometryExtractor.class),
+        GeoWaveConfiguratorBase.enumToConfKey(
+            SimpleFeatureOutputReducer.class, ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS),
+        runTimeProperties.getPropertyAsClass(
+            ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS, DimensionExtractor.class,
+            SimpleFeatureGeometryExtractor.class),
         DimensionExtractor.class);
 
     final PersistableStore store =
@@ -215,12 +224,15 @@ public class GeoWaveAnalyticExtractJobRunner extends GeoWaveDedupeJobRunner
   @Override
   public Collection<ParameterEnum<?>> getParameters() {
     final Set<ParameterEnum<?>> params = new HashSet<>();
-    params.addAll(Arrays.asList(new ParameterEnum<?>[] {ExtractParameters.Extract.REDUCER_COUNT,
-        ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID, ExtractParameters.Extract.DATA_NAMESPACE_URI,
-        ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-        ExtractParameters.Extract.MIN_INPUT_SPLIT, ExtractParameters.Extract.MAX_INPUT_SPLIT,
-        ExtractParameters.Extract.QUERY, StoreParam.INPUT_STORE,
-        GlobalParameters.Global.BATCH_ID}));
+    params.addAll(
+        Arrays.asList(
+            new ParameterEnum<?>[] {ExtractParameters.Extract.REDUCER_COUNT,
+                ExtractParameters.Extract.OUTPUT_DATA_TYPE_ID,
+                ExtractParameters.Extract.DATA_NAMESPACE_URI,
+                ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
+                ExtractParameters.Extract.MIN_INPUT_SPLIT,
+                ExtractParameters.Extract.MAX_INPUT_SPLIT, ExtractParameters.Extract.QUERY,
+                StoreParam.INPUT_STORE, GlobalParameters.Global.BATCH_ID}));
 
     params.addAll(MapReduceParameters.getParameters());
     return params;

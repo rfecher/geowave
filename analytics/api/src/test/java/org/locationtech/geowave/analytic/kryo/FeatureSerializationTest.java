@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,8 +53,9 @@ public class FeatureSerializationTest {
     kryo.getSerializer(SimpleFeatureImpl.class).write(kryo, output, feature);
     final Input input = new InputChunked();
     input.setBuffer(output.getBuffer());
-    final SimpleFeature f2 = (SimpleFeature) kryo.getSerializer(SimpleFeatureImpl.class).read(kryo,
-        input, SimpleFeatureImpl.class);
+    final SimpleFeature f2 =
+        (SimpleFeature) kryo.getSerializer(SimpleFeatureImpl.class)
+            .read(kryo, input, SimpleFeatureImpl.class);
     assertEquals(feature, f2);
   }
 }

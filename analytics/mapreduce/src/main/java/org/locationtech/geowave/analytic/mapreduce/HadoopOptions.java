@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,14 +32,17 @@ public class HadoopOptions {
   private final Configuration config = new Configuration();
 
   public HadoopOptions(final PropertyManagement runTimeProperties) throws IOException {
-    final boolean setRemoteInvocation = runTimeProperties.hasProperty(MRConfig.HDFS_HOST_PORT)
-        || runTimeProperties.hasProperty(MRConfig.JOBTRACKER_HOST_PORT);
+    final boolean setRemoteInvocation =
+        runTimeProperties.hasProperty(MRConfig.HDFS_HOST_PORT)
+            || runTimeProperties.hasProperty(MRConfig.JOBTRACKER_HOST_PORT);
     final String hostport =
         runTimeProperties.getPropertyAsString(MRConfig.HDFS_HOST_PORT, "localhost:53000");
     hdfsHostPort = hostport;
     basePath = new Path(runTimeProperties.getPropertyAsString(MRConfig.HDFS_BASE_DIR), "/");
-    jobTrackerHostPort = runTimeProperties.getPropertyAsString(MRConfig.JOBTRACKER_HOST_PORT,
-        runTimeProperties.getPropertyAsString(MRConfig.YARN_RESOURCE_MANAGER));
+    jobTrackerHostPort =
+        runTimeProperties.getPropertyAsString(
+            MRConfig.JOBTRACKER_HOST_PORT,
+            runTimeProperties.getPropertyAsString(MRConfig.YARN_RESOURCE_MANAGER));
 
     final String name =
         runTimeProperties.getPropertyAsString(MapReduceParameters.MRConfig.CONFIG_FILE);
@@ -69,7 +71,9 @@ public class HadoopOptions {
     }
   }
 
-  public HadoopOptions(final String hdfsHostPort, final Path basePath,
+  public HadoopOptions(
+      final String hdfsHostPort,
+      final Path basePath,
       final String jobTrackerHostport) {
     this.hdfsHostPort = hdfsHostPort;
     this.basePath = basePath;

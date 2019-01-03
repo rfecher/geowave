@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -17,7 +16,9 @@ import org.apache.hadoop.util.Tool;
 import org.locationtech.geowave.analytic.PropertyManagement;
 
 public interface MapReduceIntegration {
-  public int submit(final Configuration configuration, final PropertyManagement runTimeProperties,
+  public int submit(
+      final Configuration configuration,
+      final PropertyManagement runTimeProperties,
       final GeoWaveAnalyticJobRunner tool) throws Exception;
 
   public Counters waitForCompletion(Job job) throws InterruptedException, Exception;

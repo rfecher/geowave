@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -60,7 +59,8 @@ public class SampleModelPersistenceUtils {
         sampleModelType = TYPE_BANDED;
       } else if ((sampleModel instanceof InternalComponentSampleModelJAI
           || sampleModel instanceof ComponentSampleModelJAI)
-          || (transferType == DataBuffer.TYPE_FLOAT) || (transferType == DataBuffer.TYPE_DOUBLE)) {
+          || (transferType == DataBuffer.TYPE_FLOAT)
+          || (transferType == DataBuffer.TYPE_DOUBLE)) {
         sampleModelType = TYPE_COMPONENT_JAI;
       }
       bldr.setModelType(sampleModelType);
@@ -99,12 +99,13 @@ public class SampleModelPersistenceUtils {
     final int sampleModelType = sm.getModelType();
     switch (sampleModelType) {
       case TYPE_PIXEL_INTERLEAVED:
-        return createPixelInterleavedSampleModel(sm.getTransferType(), sm.getWidth(),
-            sm.getHeight(), sm.getPixelStride(), sm.getScanlineStride(),
+        return createPixelInterleavedSampleModel(
+            sm.getTransferType(), sm.getWidth(), sm.getHeight(), sm.getPixelStride(),
+            sm.getScanlineStride(),
             DataBufferPersistenceUtils.integerListToPrimitiveArray(sm.getBandOffsetsList()));
       case TYPE_BANDED:
-        return createBandedSampleModel(sm.getTransferType(), sm.getWidth(), sm.getHeight(),
-            sm.getScanlineStride(),
+        return createBandedSampleModel(
+            sm.getTransferType(), sm.getWidth(), sm.getHeight(), sm.getScanlineStride(),
             DataBufferPersistenceUtils.integerListToPrimitiveArray(sm.getBankIndicesList()),
             DataBufferPersistenceUtils.integerListToPrimitiveArray(sm.getBandOffsetsList()));
       case TYPE_COMPONENT_JAI:
@@ -130,8 +131,13 @@ public class SampleModelPersistenceUtils {
     }
   }
 
-  private static SampleModel createBandedSampleModel(final int dataType, final int width,
-      final int height, final int numBands, int bankIndices[], int bandOffsets[]) {
+  private static SampleModel createBandedSampleModel(
+      final int dataType,
+      final int width,
+      final int height,
+      final int numBands,
+      int bankIndices[],
+      int bandOffsets[]) {
     if (numBands < 1) {
       throw new IllegalArgumentException("Num Bands must be >= 1");
     }
@@ -148,15 +154,22 @@ public class SampleModelPersistenceUtils {
       }
     }
     if (bandOffsets.length != bankIndices.length) {
-      throw new IllegalArgumentException("Band Offsets " + bandOffsets.length
-          + " doesn't match Bank Indicies " + bankIndices.length);
+      throw new IllegalArgumentException("Band Offsets "
+          + bandOffsets.length
+          + " doesn't match Bank Indicies "
+          + bankIndices.length);
     }
     return new InternalComponentSampleModelJAI(dataType, width, height, 1, width, bankIndices,
         bandOffsets);
   }
 
-  private static SampleModel createPixelInterleavedSampleModel(final int dataType, final int width,
-      final int height, final int pixelStride, final int scanlineStride, final int bandOffsets[]) {
+  private static SampleModel createPixelInterleavedSampleModel(
+      final int dataType,
+      final int width,
+      final int height,
+      final int pixelStride,
+      final int scanlineStride,
+      final int bandOffsets[]) {
     if (bandOffsets == null) {
       throw new IllegalArgumentException();
     }
@@ -168,12 +181,18 @@ public class SampleModelPersistenceUtils {
     }
     maxBandOff -= minBandOff;
     if (maxBandOff > scanlineStride) {
-      throw new IllegalArgumentException("max Band Offset (" + maxBandOff
-          + ") must be > scanline stride (" + scanlineStride + ")");
+      throw new IllegalArgumentException("max Band Offset ("
+          + maxBandOff
+          + ") must be > scanline stride ("
+          + scanlineStride
+          + ")");
     }
     if ((pixelStride * width) > scanlineStride) {
-      throw new IllegalArgumentException("pixelStride*width (" + pixelStride * width
-          + ") must be > scanline stride (" + scanlineStride + ")");
+      throw new IllegalArgumentException("pixelStride*width ("
+          + pixelStride * width
+          + ") must be > scanline stride ("
+          + scanlineStride
+          + ")");
     }
     if (pixelStride < maxBandOff) {
       throw new IllegalArgumentException(
@@ -244,8 +263,13 @@ public class SampleModelPersistenceUtils {
      * @param scanlineStride The line stride of the region of image data described.
      * @param bandOffsets The offsets of all bands.
      */
-    public InternalComponentSampleModelJAI(int dataType, int w, int h, int pixelStride,
-        int scanlineStride, int bandOffsets[]) {
+    public InternalComponentSampleModelJAI(
+        int dataType,
+        int w,
+        int h,
+        int pixelStride,
+        int scanlineStride,
+        int bandOffsets[]) {
       super(dataType, w, h, pixelStride, scanlineStride, bandOffsets);
     }
 
@@ -262,8 +286,14 @@ public class SampleModelPersistenceUtils {
      * @param bankIndices The bank indices of all bands.
      * @param bandOffsets The band offsets of all bands.
      */
-    public InternalComponentSampleModelJAI(int dataType, int w, int h, int pixelStride,
-        int scanlineStride, int bankIndices[], int bandOffsets[]) {
+    public InternalComponentSampleModelJAI(
+        int dataType,
+        int w,
+        int h,
+        int pixelStride,
+        int scanlineStride,
+        int bankIndices[],
+        int bandOffsets[]) {
       super(dataType, w, h, pixelStride, scanlineStride, bankIndices, bandOffsets);
     }
 
@@ -446,8 +476,7 @@ public class SampleModelPersistenceUtils {
      * <code>Object</code> will be created automatically and will be of the right primitive data
      * type.
      *
-     * <p>
-     * The following code illustrates transferring data for one pixel from <code>DataBuffer
+     * <p> The following code illustrates transferring data for one pixel from <code>DataBuffer
      * </code> <code>db1</code>, whose storage layout is described by <code>ComponentSampleModel
      * </code> <code>csm1</code>, to <code>DataBuffer</code> <code>db2</code>, whose storage layout
      * is described by <code>ComponentSampleModel</code> <code>csm2</code>. The transfer will
@@ -587,8 +616,7 @@ public class SampleModelPersistenceUtils {
      * the <code>Object</code> will be created automatically and will be of the right primitive data
      * type.
      *
-     * <p>
-     * The following code illustrates transferring data for a rectangular region of pixels from
+     * <p> The following code illustrates transferring data for a rectangular region of pixels from
      * <code>DataBuffer</code> <code>db1</code>, whose storage layout is described by <code>
      * SampleModel</code> <code>sm1</code>, to <code>DataBuffer</code> <code>db2</code>, whose
      * storage layout is described by <code>SampleModel</code> <code>sm2</code>. The transfer will
@@ -778,8 +806,7 @@ public class SampleModelPersistenceUtils {
      * array of type TransferType. For a <code>ComponentSampleModel</code>, this will be the same as
      * the data type, and samples are transferred one per array element.
      *
-     * <p>
-     * The following code illustrates transferring data for one pixel from <code>DataBuffer
+     * <p> The following code illustrates transferring data for one pixel from <code>DataBuffer
      * </code> <code>db1</code>, whose storage layout is described by <code>ComponentSampleModel
      * </code> <code>csm1</code>, to <code>DataBuffer</code> <code>db2</code>, whose storage layout
      * is described by <code>ComponentSampleModel</code> <code>csm2</code>. The transfer will
@@ -873,8 +900,7 @@ public class SampleModelPersistenceUtils {
      * be one of the dataTypes supported by java.awt.image.DataBuffer. Data in the array may be in a
      * packed format, thus increasing efficiency for data transfers.
      *
-     * <p>
-     * The following code illustrates transferring data for a rectangular region of pixels from
+     * <p> The following code illustrates transferring data for a rectangular region of pixels from
      * <code>DataBuffer</code> <code>db1</code>, whose storage layout is described by <code>
      * SampleModel</code> <code>sm1</code>, to <code>DataBuffer</code> <code>db2</code>, whose
      * storage layout is described by <code>SampleModel</code> <code>sm2</code>. The transfer will
@@ -1118,9 +1144,17 @@ public class SampleModelPersistenceUtils {
     /** Returns a <code>String</code> containing the values of all valid fields. */
     @SuppressFBWarnings
     public String toString() {
-      String ret = "ComponentSampleModelJAI: " + "  dataType=" + this.getDataType() + "  numBands="
-          + this.getNumBands() + "  width=" + this.getWidth() + "  height=" + this.getHeight()
-          + "  bandOffsets=[ ";
+      String ret =
+          "ComponentSampleModelJAI: "
+              + "  dataType="
+              + this.getDataType()
+              + "  numBands="
+              + this.getNumBands()
+              + "  width="
+              + this.getWidth()
+              + "  height="
+              + this.getHeight()
+              + "  bandOffsets=[ ";
       for (int i = 0; i < numBands; i++) {
         ret += this.getBandOffsets()[i] + " ";
       }

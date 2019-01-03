@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -165,9 +164,16 @@ public class AmazonImageryProvider extends Sentinel2ImageryProvider {
   }
 
   @Override
-  public Iterator<SimpleFeature> searchScenes(final File scenesDir, final String collection,
-      final String platform, final String location, final Envelope envelope, final Date startDate,
-      final Date endDate, final int orbitNumber, final int relativeOrbitNumber) throws IOException {
+  public Iterator<SimpleFeature> searchScenes(
+      final File scenesDir,
+      final String collection,
+      final String platform,
+      final String location,
+      final Envelope envelope,
+      final Date startDate,
+      final Date endDate,
+      final int orbitNumber,
+      final int relativeOrbitNumber) throws IOException {
 
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     Filter extraFilter = Filter.INCLUDE;
@@ -185,8 +191,10 @@ public class AmazonImageryProvider extends Sentinel2ImageryProvider {
         extraFilter = FF.and(extraFilter, temp);
     }
     if ((envelope != null) && (envelope.isNull() == false)) {
-      searchUrl += String.format(Locale.ENGLISH, "box=%.6f,%.6f,%.6f,%.6f&", envelope.getMinX(),
-          envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY());
+      searchUrl +=
+          String.format(
+              Locale.ENGLISH, "box=%.6f,%.6f,%.6f,%.6f&", envelope.getMinX(), envelope.getMinY(),
+              envelope.getMaxX(), envelope.getMaxY());
     }
     if (startDate != null) {
       searchUrl += "startDate=" + dateFormat.format(startDate) + "&";
@@ -225,8 +233,10 @@ public class AmazonImageryProvider extends Sentinel2ImageryProvider {
       SimpleFeatureType type = typeBuilder.buildFeatureType();
 
       class AmazonJSONFeatureIterator extends JSONFeatureIterator {
-        public AmazonJSONFeatureIterator(Sentinel2ImageryProvider provider,
-            SimpleFeatureType featureType, Iterator<?> iterator) {
+        public AmazonJSONFeatureIterator(
+            Sentinel2ImageryProvider provider,
+            SimpleFeatureType featureType,
+            Iterator<?> iterator) {
           super(provider, featureType, iterator);
         }
 
@@ -241,11 +251,11 @@ public class AmazonImageryProvider extends Sentinel2ImageryProvider {
             // Set missing basic values.
             String s3Path = properties.getString("s3Path");
             String[] path = s3Path.split("/");
-            feature.setAttribute(SceneFeatureIterator.LOCATION_ATTRIBUTE_NAME,
-                "T" + path[1] + path[2] + path[3]);
+            feature.setAttribute(
+                SceneFeatureIterator.LOCATION_ATTRIBUTE_NAME, "T" + path[1] + path[2] + path[3]);
             feature.setAttribute(SceneFeatureIterator.BANDS_ATTRIBUTE_NAME, AWS_RASTER_BANDS_NAMES);
-            feature.setAttribute(SceneFeatureIterator.SCENE_DOWNLOAD_ATTRIBUTE_NAME,
-                DOWNLOAD_URL + s3Path);
+            feature.setAttribute(
+                SceneFeatureIterator.SCENE_DOWNLOAD_ATTRIBUTE_NAME, DOWNLOAD_URL + s3Path);
 
             // Normalize values of this AWS repository.
             InputStream inputStream = null;
@@ -271,11 +281,12 @@ public class AmazonImageryProvider extends Sentinel2ImageryProvider {
               feature.setAttribute(SceneFeatureIterator.COLLECTION_ATTRIBUTE_NAME, "SENTINEL2");
 
               final String platform = name.substring(0, 4);
-              final String level = (String) feature
-                  .getAttribute(SceneFeatureIterator.PROCESSING_LEVEL_ATTRIBUTE_NAME);
+              final String level =
+                  (String) feature
+                      .getAttribute(SceneFeatureIterator.PROCESSING_LEVEL_ATTRIBUTE_NAME);
               if (!level.startsWith("LEVEL")) {
-                feature.setAttribute(SceneFeatureIterator.PROCESSING_LEVEL_ATTRIBUTE_NAME,
-                    "LEVEL" + level);
+                feature.setAttribute(
+                    SceneFeatureIterator.PROCESSING_LEVEL_ATTRIBUTE_NAME, "LEVEL" + level);
               }
               if (platform.equalsIgnoreCase("S2A_")) {
                 feature.setAttribute(SceneFeatureIterator.PLATFORM_ATTRIBUTE_NAME, "SENTINEL2A");
@@ -326,7 +337,9 @@ public class AmazonImageryProvider extends Sentinel2ImageryProvider {
    *
    * @throws IOException
    */
-  private static boolean downloadFile(final String downloadUrl, final File sceneDir,
+  private static boolean downloadFile(
+      final String downloadUrl,
+      final File sceneDir,
       final String resourceName) throws IOException {
     final String fileName = AWS_SCENE_RESOURCE_NAMES.get(resourceName);
     final String resourceUrl = downloadUrl + "/" + fileName;
@@ -371,8 +384,11 @@ public class AmazonImageryProvider extends Sentinel2ImageryProvider {
   }
 
   @Override
-  public boolean downloadScene(final SimpleFeature scene, final String workspaceDir,
-      final String userIdent, final String password) throws IOException {
+  public boolean downloadScene(
+      final SimpleFeature scene,
+      final String workspaceDir,
+      final String userIdent,
+      final String password) throws IOException {
 
     final String productId =
         (String) scene.getAttribute(SceneFeatureIterator.PRODUCT_ID_ATTRIBUTE_NAME);

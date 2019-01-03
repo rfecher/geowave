@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -49,40 +48,44 @@ public class CQLQueryFilter implements QueryFilter {
   }
 
   @Override
-  public boolean accept(final CommonIndexModel indexModel,
+  public boolean accept(
+      final CommonIndexModel indexModel,
       final IndexedPersistenceEncoding persistenceEncoding) {
     if ((filter != null) && (indexModel != null) && (adapter != null)) {
       final PersistentDataset<Object> adapterExtendedValues = new PersistentDataset<>();
       if (persistenceEncoding instanceof AbstractAdapterPersistenceEncoding) {
-        ((AbstractAdapterPersistenceEncoding) persistenceEncoding).convertUnknownValues(adapter,
-            indexModel);
+        ((AbstractAdapterPersistenceEncoding) persistenceEncoding)
+            .convertUnknownValues(adapter, indexModel);
         final PersistentDataset<Object> existingExtValues =
             ((AbstractAdapterPersistenceEncoding) persistenceEncoding).getAdapterExtendedData();
         if (existingExtValues != null) {
           adapterExtendedValues.addValues(existingExtValues.getValues());
         }
       }
-      final IndexedAdapterPersistenceEncoding encoding = new IndexedAdapterPersistenceEncoding(
-          persistenceEncoding.getInternalAdapterId(), persistenceEncoding.getDataId(),
-          persistenceEncoding.getInsertionPartitionKey(), persistenceEncoding.getInsertionSortKey(),
-          persistenceEncoding.getDuplicateCount(), persistenceEncoding.getCommonData(),
-          new PersistentDataset<byte[]>(), adapterExtendedValues);
+      final IndexedAdapterPersistenceEncoding encoding =
+          new IndexedAdapterPersistenceEncoding(persistenceEncoding.getInternalAdapterId(),
+              persistenceEncoding.getDataId(), persistenceEncoding.getInsertionPartitionKey(),
+              persistenceEncoding.getInsertionSortKey(), persistenceEncoding.getDuplicateCount(),
+              persistenceEncoding.getCommonData(), new PersistentDataset<byte[]>(),
+              adapterExtendedValues);
 
-      final SimpleFeature feature = adapter.decode(encoding, new PrimaryIndex(null, // because we
-          // know the
-          // feature data
-          // adapter doesn't use the numeric
-          // index
-          // strategy and only the common
-          // index
-          // model to decode the simple
-          // feature,
-          // we pass along a null strategy to
-          // eliminate the necessity to send a
-          // serialization of the strategy in
-          // the
-          // options of this iterator
-          indexModel));
+      final SimpleFeature feature =
+          adapter.decode(
+              encoding, new PrimaryIndex(null, // because we
+                  // know the
+                  // feature data
+                  // adapter doesn't use the numeric
+                  // index
+                  // strategy and only the common
+                  // index
+                  // model to decode the simple
+                  // feature,
+                  // we pass along a null strategy to
+                  // eliminate the necessity to send a
+                  // serialization of the strategy in
+                  // the
+                  // options of this iterator
+                  indexModel));
       if (feature == null) {
         return false;
       }
@@ -107,8 +110,11 @@ public class CQLQueryFilter implements QueryFilter {
       LOGGER.warn("Feature Data Adapter is null");
       adapterBytes = new byte[] {};
     }
-    final ByteBuffer buf = ByteBuffer.allocate(filterBytes.length + adapterBytes.length
-        + VarintUtils.unsignedIntByteLength(filterBytes.length));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            filterBytes.length
+                + adapterBytes.length
+                + VarintUtils.unsignedIntByteLength(filterBytes.length));
     VarintUtils.writeUnsignedInt(filterBytes.length, buf);
     buf.put(filterBytes);
     buf.put(adapterBytes);

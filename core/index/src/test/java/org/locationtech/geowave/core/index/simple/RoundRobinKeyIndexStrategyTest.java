@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,8 +42,9 @@ public class RoundRobinKeyIndexStrategyTest {
       new NumericDimensionDefinition[] {new BasicDimensionDefinition(-180, 180),
           new BasicDimensionDefinition(-90, 90)};
 
-  private static final NumericIndexStrategy sfcIndexStrategy = TieredSFCIndexFactory
-      .createSingleTierStrategy(SPATIAL_DIMENSIONS, new int[] {16, 16}, SFCType.HILBERT);
+  private static final NumericIndexStrategy sfcIndexStrategy =
+      TieredSFCIndexFactory
+          .createSingleTierStrategy(SPATIAL_DIMENSIONS, new int[] {16, 16}, SFCType.HILBERT);
 
   private static final CompoundIndexStrategy compoundIndexStrategy =
       new CompoundIndexStrategy(new RoundRobinKeyIndexStrategy(), sfcIndexStrategy);
@@ -76,16 +76,19 @@ public class RoundRobinKeyIndexStrategyTest {
     final List<ByteArrayRange> ranges = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
       for (final ByteArrayRange r2 : sfcIndexRanges) {
-        final ByteArray start = new ByteArray(
-            ByteArrayUtils.combineArrays(new byte[] {(byte) i}, r2.getStart().getBytes()));
-        final ByteArray end = new ByteArray(
-            ByteArrayUtils.combineArrays(new byte[] {(byte) i}, r2.getEnd().getBytes()));
+        final ByteArray start =
+            new ByteArray(
+                ByteArrayUtils.combineArrays(new byte[] {(byte) i}, r2.getStart().getBytes()));
+        final ByteArray end =
+            new ByteArray(
+                ByteArrayUtils.combineArrays(new byte[] {(byte) i}, r2.getEnd().getBytes()));
         ranges.add(new ByteArrayRange(start, end));
       }
     }
     final Set<ByteArrayRange> testRanges = new HashSet<>(ranges);
-    final Set<ByteArrayRange> compoundIndexRanges = new HashSet<>(
-        compoundIndexStrategy.getQueryRanges(sfcIndexedRange).getCompositeQueryRanges());
+    final Set<ByteArrayRange> compoundIndexRanges =
+        new HashSet<>(
+            compoundIndexStrategy.getQueryRanges(sfcIndexedRange).getCompositeQueryRanges());
     Assert.assertTrue(testRanges.containsAll(compoundIndexRanges));
     Assert.assertTrue(compoundIndexRanges.containsAll(testRanges));
   }
@@ -121,12 +124,14 @@ public class RoundRobinKeyIndexStrategyTest {
       }
     }
     final Set<ByteArray> testIds = new HashSet<>(ids);
-    final Set<ByteArray> compoundIndexIds = new HashSet<>(
-        compoundIndexStrategy.getInsertionIds(sfcIndexedRange, 8).getCompositeInsertionIds());
+    final Set<ByteArray> compoundIndexIds =
+        new HashSet<>(
+            compoundIndexStrategy.getInsertionIds(sfcIndexedRange, 8).getCompositeInsertionIds());
     Assert.assertTrue(testIds.containsAll(compoundIndexIds));
     final SinglePartitionInsertionIds id2 = ids2.getPartitionKeys().iterator().next();
-    final MultiDimensionalCoordinates sfcIndexCoordinatesPerDim = sfcIndexStrategy
-        .getCoordinatesPerDimension(id2.getPartitionKey(), id2.getSortKeys().get(0));
+    final MultiDimensionalCoordinates sfcIndexCoordinatesPerDim =
+        sfcIndexStrategy
+            .getCoordinatesPerDimension(id2.getPartitionKey(), id2.getSortKeys().get(0));
     // the first 2 bytes are the partition keys
     final MultiDimensionalCoordinates coordinatesPerDim =
         compoundIndexStrategy.getCoordinatesPerDimension(

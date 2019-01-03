@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,7 +31,8 @@ public class HBaseNumericIndexStrategyFilter extends FilterBase {
 
   public HBaseNumericIndexStrategyFilter() {}
 
-  public HBaseNumericIndexStrategyFilter(final NumericIndexStrategy indexStrategy,
+  public HBaseNumericIndexStrategyFilter(
+      final NumericIndexStrategy indexStrategy,
       final MultiDimensionalCoordinateRangesArray[] coordinateRanges) {
     super();
     this.indexStrategy = indexStrategy;
@@ -67,8 +67,11 @@ public class HBaseNumericIndexStrategyFilter extends FilterBase {
     final byte[] indexStrategyBytes = URLClassloaderUtils.toBinary(indexStrategy);
     final byte[] coordinateRangesBinary = new ArrayOfArrays(coordinateRanges).toBinary();
 
-    final ByteBuffer buf = ByteBuffer.allocate(coordinateRangesBinary.length
-        + indexStrategyBytes.length + VarintUtils.unsignedIntByteLength(indexStrategyBytes.length));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            coordinateRangesBinary.length
+                + indexStrategyBytes.length
+                + VarintUtils.unsignedIntByteLength(indexStrategyBytes.length));
 
     VarintUtils.writeUnsignedInt(indexStrategyBytes.length, buf);
     buf.put(indexStrategyBytes);
@@ -86,8 +89,9 @@ public class HBaseNumericIndexStrategyFilter extends FilterBase {
   }
 
   private boolean inBounds(final Cell cell) {
-    GeoWaveKeyImpl cellKey = new GeoWaveKeyImpl(cell.getRowArray(),
-        indexStrategy.getPartitionKeyLength(), cell.getRowOffset(), cell.getRowLength());
+    GeoWaveKeyImpl cellKey =
+        new GeoWaveKeyImpl(cell.getRowArray(), indexStrategy.getPartitionKeyLength(),
+            cell.getRowOffset(), cell.getRowLength());
 
     ByteArray sortKey = new ByteArray(cellKey.getSortKey());
     ByteArray partitionKey = new ByteArray(cellKey.getPartitionKey());

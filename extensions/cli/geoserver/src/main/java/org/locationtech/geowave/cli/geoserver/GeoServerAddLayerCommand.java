@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -60,11 +59,14 @@ public class GeoServerAddLayerCommand extends GeoServerCommand<String> {
     public AddOption convert(final String value) {
       final AddOption convertedValue = AddOption.valueOf(value.toUpperCase());
 
-      if ((convertedValue != AddOption.ALL) && (convertedValue != AddOption.RASTER)
+      if ((convertedValue != AddOption.ALL)
+          && (convertedValue != AddOption.RASTER)
           && (convertedValue != AddOption.VECTOR)) {
-        throw new ParameterException(
-            "Value " + value + "can not be converted to an add option. " + "Available values are: "
-                + StringUtils.join(AddOption.values(), ", ").toLowerCase(Locale.ENGLISH));
+        throw new ParameterException("Value "
+            + value
+            + "can not be converted to an add option. "
+            + "Available values are: "
+            + StringUtils.join(AddOption.values(), ", ").toLowerCase(Locale.ENGLISH));
       }
       return convertedValue;
     }
@@ -95,8 +97,12 @@ public class GeoServerAddLayerCommand extends GeoServerCommand<String> {
       return "Add GeoServer layer for '" + gwStore + ": OK : " + jsonResponse.toString(2);
     }
     String errorMessage =
-        "Error adding GeoServer layer for store '" + gwStore + "': " + addLayerResponse.getEntity()
-            + "\nGeoServer Response Code = " + addLayerResponse.getStatus();
+        "Error adding GeoServer layer for store '"
+            + gwStore
+            + "': "
+            + addLayerResponse.getEntity()
+            + "\nGeoServer Response Code = "
+            + addLayerResponse.getStatus();
     return handleError(addLayerResponse, errorMessage);
   }
 }

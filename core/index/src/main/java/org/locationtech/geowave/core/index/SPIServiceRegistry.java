@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,17 +23,13 @@ import org.slf4j.LoggerFactory;
  * Compensate for VFSClassloader's failure to discovery SPI registered classes (used by JBOSS and
  * Accumulo).
  *
- * <p>
- * To Use:
+ * <p> To Use:
  *
- * <p>
- * (1) Register class loaders:
+ * <p> (1) Register class loaders:
  *
- * <p>
- * (2) Look up SPI providers:
+ * <p> (2) Look up SPI providers:
  *
- * <p>
- * final Iterator<FieldSerializationProviderSpi> serializationProviders = new
+ * <p> final Iterator<FieldSerializationProviderSpi> serializationProviders = new
  * SPIServiceRegistry(FieldSerializationProviderSpi.class).load(
  * FieldSerializationProviderSpi.class);
  */
@@ -103,17 +98,14 @@ public class SPIServiceRegistry extends ServiceRegistry {
    *
    * <p>
    *
-   * <ul>
-   * <li>{@linkplain Class#getClassLoader This object class loader}
+   * <ul> <li>{@linkplain Class#getClassLoader This object class loader}
    * <li>{@linkplain Thread#getContextClassLoader The thread context class loader}
-   * <li>{@linkplain ClassLoader#getSystemClassLoader The system class loader}
-   * </ul>
+   * <li>{@linkplain ClassLoader#getSystemClassLoader The system class loader} </ul>
    *
    * Both locally registered (this instance) and globally registered classloaders are included it
    * the search.
    *
-   * <p>
-   * Redundancies and parent classloaders are removed where possible. Possible error conditions
+   * <p> Redundancies and parent classloaders are removed where possible. Possible error conditions
    * include security exceptions. Security exceptions are not logger UNLESS the set of searchable
    * classloaders is empty.
    *

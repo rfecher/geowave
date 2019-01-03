@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -82,9 +81,11 @@ public class RasterIngestRunner extends DownloadRunner {
   protected DataStorePluginOptions dataStorePluginOptions = null;
   protected Index[] indices = null;
 
-  public RasterIngestRunner(final Landsat8BasicCommandLineOptions analyzeOptions,
+  public RasterIngestRunner(
+      final Landsat8BasicCommandLineOptions analyzeOptions,
       final Landsat8DownloadCommandLineOptions downloadOptions,
-      final Landsat8RasterIngestCommandLineOptions ingestOptions, final List<String> parameters) {
+      final Landsat8RasterIngestCommandLineOptions ingestOptions,
+      final List<String> parameters) {
     super(analyzeOptions, downloadOptions);
     this.ingestOptions = ingestOptions;
     this.parameters = parameters;
@@ -127,8 +128,9 @@ public class RasterIngestRunner extends DownloadRunner {
       }
       indices[i++] = primaryIndex;
     }
-    coverageNameTemplate = new Template("name", new StringReader(ingestOptions.getCoverageName()),
-        new Configuration());
+    coverageNameTemplate =
+        new Template("name", new StringReader(ingestOptions.getCoverageName()),
+            new Configuration());
   }
 
   @Override
@@ -170,8 +172,9 @@ public class RasterIngestRunner extends DownloadRunner {
       }
     }
     if (ingestOptions.isSubsample()) {
-      coverage = (GridCoverage2D) RasterUtils.getCoverageOperations().filteredSubsample(coverage,
-          ingestOptions.getScale(), ingestOptions.getScale(), null);
+      coverage =
+          (GridCoverage2D) RasterUtils.getCoverageOperations().filteredSubsample(
+              coverage, ingestOptions.getScale(), ingestOptions.getScale(), null);
     }
     // its unclear whether cropping should be done first or subsampling
     if (ingestOptions.isCropToSpatialConstraint()) {
@@ -179,8 +182,8 @@ public class RasterIngestRunner extends DownloadRunner {
       final Filter filter = landsatOptions.getCqlFilter();
       if (filter != null) {
         final ExtractGeometryFilterVisitorResult geometryAndCompareOp =
-            ExtractGeometryFilterVisitor.getConstraints(filter, GeometryUtils.getDefaultCRS(),
-                SceneFeatureIterator.SHAPE_ATTRIBUTE_NAME);
+            ExtractGeometryFilterVisitor.getConstraints(
+                filter, GeometryUtils.getDefaultCRS(), SceneFeatureIterator.SHAPE_ATTRIBUTE_NAME);
         Geometry geometry = geometryAndCompareOp.getGeometry();
         if (geometry != null) {
           // go ahead and intersect this with the scene geometry
@@ -195,8 +198,9 @@ public class RasterIngestRunner extends DownloadRunner {
             final ParameterValueGroup params = op.getParameters();
             params.parameter("Source").setValue(coverage);
             try {
-              final MathTransform transform = CRS.findMathTransform(GeometryUtils.getDefaultCRS(),
-                  coverage.getCoordinateReferenceSystem(), true);
+              final MathTransform transform =
+                  CRS.findMathTransform(
+                      GeometryUtils.getDefaultCRS(), coverage.getCoordinateReferenceSystem(), true);
               params.parameter(Crop.CROP_ROI.getName().getCode())
                   .setValue(JTS.transform(geometry, transform));
               final double nodataValue = getNoDataValue(band);
@@ -277,8 +281,11 @@ public class RasterIngestRunner extends DownloadRunner {
           }
         }
       } catch (IOException | TemplateException e) {
-        LOGGER.error("Unable to ingest band " + band.getID()
-            + " because coverage name cannot be resolved from template", e);
+        LOGGER.error(
+            "Unable to ingest band "
+                + band.getID()
+                + " because coverage name cannot be resolved from template",
+            e);
       }
     } else {
       lastSceneBands.add(band);
@@ -292,8 +299,8 @@ public class RasterIngestRunner extends DownloadRunner {
     if (!ingestOptions.isSkipMerge()) {
       System.out.println("Merging overlapping tiles...");
       for (final Index index : indices) {
-        if (dataStorePluginOptions.createDataStoreOperations().mergeData(index,
-            dataStorePluginOptions.createAdapterStore(),
+        if (dataStorePluginOptions.createDataStoreOperations().mergeData(
+            index, dataStorePluginOptions.createAdapterStore(),
             dataStorePluginOptions.createInternalAdapterStore(),
             dataStorePluginOptions.createAdapterIndexMappingStore())) {
           System.out.println(
@@ -330,8 +337,12 @@ public class RasterIngestRunner extends DownloadRunner {
             if (coverageName == null) {
               coverageName = bandData.name;
             } else if (!coverageName.equals(bandData.name)) {
-              LOGGER.warn("Unable to use band data as the band coverage name '" + bandData.name
-                  + "' is unexpectedly different from default name '" + coverageName + "'");
+              LOGGER.warn(
+                  "Unable to use band data as the band coverage name '"
+                      + bandData.name
+                      + "' is unexpectedly different from default name '"
+                      + coverageName
+                      + "'");
             }
 
             final String bandName =
@@ -381,28 +392,36 @@ public class RasterIngestRunner extends DownloadRunner {
           for (final String bandName : sceneData.keySet()) {
             noDataValues[b++] = new double[] {getNoDataValueFromName(bandName)};
           }
-          final RasterDataAdapter adapter = new RasterDataAdapter(coverageName, metadata,
-              mergedCoverage, ingestOptions.getTileSize(), ingestOptions.isCreatePyramid(),
-              ingestOptions.isCreateHistogram(), noDataValues, new NoDataMergeStrategy());
+          final RasterDataAdapter adapter =
+              new RasterDataAdapter(coverageName, metadata, mergedCoverage,
+                  ingestOptions.getTileSize(), ingestOptions.isCreatePyramid(),
+                  ingestOptions.isCreateHistogram(), noDataValues, new NoDataMergeStrategy());
           store.addType(adapter, indices);
           writer = store.createWriter(adapter.getTypeName());
           writerCache.put(coverageName, writer);
           bandsIngested = thisSceneBands;
         } else if (!Arrays.equals(bandsIngested, thisSceneBands)) {
-          LOGGER.warn("The bands in this scene ('" + Arrays.toString(thisSceneBands)
-              + "') differ from the previous scene ('" + Arrays.toString(bandsIngested)
-              + "').  To merge bands all scenes must use the same bands.  Skipping scene'"
-              + lastSceneBands.get(0).getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)
-              + "'.");
+          LOGGER.warn(
+              "The bands in this scene ('"
+                  + Arrays.toString(thisSceneBands)
+                  + "') differ from the previous scene ('"
+                  + Arrays.toString(bandsIngested)
+                  + "').  To merge bands all scenes must use the same bands.  Skipping scene'"
+                  + lastSceneBands.get(0)
+                      .getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)
+                  + "'.");
           lastSceneBands.clear();
           return;
         } else {
           writer = writerCache.get(coverageName);
           if (writer == null) {
-            LOGGER.warn("Unable to find writer for coverage '" + coverageName
-                + "'.  Skipping scene'"
-                + lastSceneBands.get(0).getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)
-                + "'.");
+            LOGGER.warn(
+                "Unable to find writer for coverage '"
+                    + coverageName
+                    + "'.  Skipping scene'"
+                    + lastSceneBands.get(0)
+                        .getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)
+                    + "'.");
             lastSceneBands.clear();
             return;
           }
@@ -448,8 +467,11 @@ public class RasterIngestRunner extends DownloadRunner {
     private final GDALGeoTiffReader reader;
     private final File geotiffFile;
 
-    public BandData(final String name, final GridCoverage2D coverage,
-        final GDALGeoTiffReader reader, final File geotiffFile) {
+    public BandData(
+        final String name,
+        final GridCoverage2D coverage,
+        final GDALGeoTiffReader reader,
+        final File geotiffFile) {
       this.name = name;
       this.coverage = coverage;
       this.reader = reader;

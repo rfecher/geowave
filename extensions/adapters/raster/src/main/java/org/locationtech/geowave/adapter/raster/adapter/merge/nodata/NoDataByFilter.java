@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -52,8 +51,9 @@ public class NoDataByFilter implements NoDataMetadata {
         }
       }
     }
-    if ((shape != null) && !shape.intersects(
-        new GeometryFactory().createPoint(new Coordinate(index.getX(), index.getY())))) {
+    if ((shape != null)
+        && !shape.intersects(
+            new GeometryFactory().createPoint(new Coordinate(index.getX(), index.getY())))) {
       return true;
     }
     return false;
@@ -92,8 +92,11 @@ public class NoDataByFilter implements NoDataMetadata {
     } else {
       geometryBinary = GeometryUtils.geometryToBinary(shape, GeometryUtils.MAX_GEOMETRY_PRECISION);
     }
-    final ByteBuffer buf = ByteBuffer.allocate(geometryBinary.length + noDataBinary.length
-        + VarintUtils.unsignedIntByteLength(noDataBinary.length));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            geometryBinary.length
+                + noDataBinary.length
+                + VarintUtils.unsignedIntByteLength(noDataBinary.length));
     VarintUtils.writeUnsignedInt(noDataBinary.length, buf);
     buf.put(noDataBinary);
     buf.put(geometryBinary);
@@ -104,8 +107,10 @@ public class NoDataByFilter implements NoDataMetadata {
   public void fromBinary(final byte[] bytes) {
     final ByteBuffer buf = ByteBuffer.wrap(bytes);
     final int noDataBinaryLength = VarintUtils.readUnsignedInt(buf);
-    final byte[] geometryBinary = new byte[bytes.length - noDataBinaryLength
-        - VarintUtils.unsignedIntByteLength(noDataBinaryLength)];
+    final byte[] geometryBinary =
+        new byte[bytes.length
+            - noDataBinaryLength
+            - VarintUtils.unsignedIntByteLength(noDataBinaryLength)];
     if (noDataBinaryLength == 0) {
       noDataPerBand = new double[][] {};
     } else {

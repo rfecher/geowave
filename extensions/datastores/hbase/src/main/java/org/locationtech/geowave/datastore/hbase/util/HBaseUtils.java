@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,7 +30,8 @@ import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
 
 @SuppressWarnings("rawtypes")
 public class HBaseUtils {
-  public static String getQualifiedTableName(final String tableNamespace,
+  public static String getQualifiedTableName(
+      final String tableNamespace,
       final String unqualifiedTableName) {
     if ((tableNamespace == null) || tableNamespace.isEmpty()) {
       return unqualifiedTableName;
@@ -60,7 +60,8 @@ public class HBaseUtils {
   }
 
   public static QueryRanges constraintsToByteArrayRanges(
-      final MultiDimensionalNumericData constraints, final NumericIndexStrategy indexStrategy,
+      final MultiDimensionalNumericData constraints,
+      final NumericIndexStrategy indexStrategy,
       final int maxRanges) {
     if ((constraints == null) || constraints.isEmpty()) {
       return null; // implies in negative and
@@ -70,8 +71,11 @@ public class HBaseUtils {
     }
   }
 
-  public static RowMutations getDeleteMutations(final byte[] rowId, final byte[] columnFamily,
-      final byte[] columnQualifier, final String[] authorizations) throws IOException {
+  public static RowMutations getDeleteMutations(
+      final byte[] rowId,
+      final byte[] columnFamily,
+      final byte[] columnQualifier,
+      final String[] authorizations) throws IOException {
     final RowMutations m = new RowMutations(rowId);
     final Delete d = new Delete(rowId);
     d.addColumns(columnFamily, columnQualifier);

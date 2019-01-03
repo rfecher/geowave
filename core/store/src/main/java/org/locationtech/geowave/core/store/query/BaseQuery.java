@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,8 +25,11 @@ public abstract class BaseQuery<T, O extends DataTypeQueryOptions<T>> implements
 
   protected BaseQuery() {}
 
-  public BaseQuery(final CommonQueryOptions commonQueryOptions, final O dataTypeQueryOptions,
-      final IndexQueryOptions indexQueryOptions, final QueryConstraints queryConstraints) {
+  public BaseQuery(
+      final CommonQueryOptions commonQueryOptions,
+      final O dataTypeQueryOptions,
+      final IndexQueryOptions indexQueryOptions,
+      final QueryConstraints queryConstraints) {
     this.commonQueryOptions = commonQueryOptions;
     this.dataTypeQueryOptions = dataTypeQueryOptions;
     this.indexQueryOptions = indexQueryOptions;
@@ -75,11 +77,14 @@ public abstract class BaseQuery<T, O extends DataTypeQueryOptions<T>> implements
       queryConstraintsBinary = new byte[0];
     }
     final ByteBuffer buf =
-        ByteBuffer.allocate(commonQueryOptionsBinary.length + dataTypeQueryOptionsBinary.length
-            + indexQueryOptionsBinary.length + queryConstraintsBinary.length
-            + VarintUtils.unsignedIntByteLength(commonQueryOptionsBinary.length)
-            + VarintUtils.unsignedIntByteLength(dataTypeQueryOptionsBinary.length)
-            + VarintUtils.unsignedIntByteLength(indexQueryOptionsBinary.length));
+        ByteBuffer.allocate(
+            commonQueryOptionsBinary.length
+                + dataTypeQueryOptionsBinary.length
+                + indexQueryOptionsBinary.length
+                + queryConstraintsBinary.length
+                + VarintUtils.unsignedIntByteLength(commonQueryOptionsBinary.length)
+                + VarintUtils.unsignedIntByteLength(dataTypeQueryOptionsBinary.length)
+                + VarintUtils.unsignedIntByteLength(indexQueryOptionsBinary.length));
     VarintUtils.writeUnsignedInt(commonQueryOptionsBinary.length, buf);
     buf.put(commonQueryOptionsBinary);
     VarintUtils.writeUnsignedInt(dataTypeQueryOptionsBinary.length, buf);

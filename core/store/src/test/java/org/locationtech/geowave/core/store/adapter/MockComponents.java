@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -230,8 +229,10 @@ public class MockComponents {
     }
 
     @Override
-    public EntryVisibilityHandler<Integer> getVisibilityHandler(final CommonIndexModel indexModel,
-        final DataTypeAdapter<Integer> adapter, final StatisticsId statisticsId) {
+    public EntryVisibilityHandler<Integer> getVisibilityHandler(
+        final CommonIndexModel indexModel,
+        final DataTypeAdapter<Integer> adapter,
+        final StatisticsId statisticsId) {
       return new FieldNameStatisticVisibility<>(new TestDimensionField().fieldName, indexModel,
           adapter);
     }
@@ -276,7 +277,8 @@ public class MockComponents {
     public void setVisibility(final byte[] visibility) {}
 
     @Override
-    public boolean overlaps(final NumericDimensionField[] dimensions,
+    public boolean overlaps(
+        final NumericDimensionField[] dimensions,
         final NumericData[] rangeData) {
       return (rangeData[0].getMin() <= indexValue) && (rangeData[0].getMax() >= indexValue);
     }
@@ -522,14 +524,17 @@ public class MockComponents {
     public void fromBinary(final byte[] bytes) {}
 
     @Override
-    public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+    public QueryRanges getQueryRanges(
+        final MultiDimensionalNumericData indexedRange,
         final IndexMetaData... hints) {
       return getQueryRanges(indexedRange, -1, hints);
     }
 
     @Override
-    public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
-        final int maxEstimatedRangeDecomposition, final IndexMetaData... hints) {
+    public QueryRanges getQueryRanges(
+        final MultiDimensionalNumericData indexedRange,
+        final int maxEstimatedRangeDecomposition,
+        final IndexMetaData... hints) {
       return new QueryRanges();
     }
 
@@ -543,7 +548,8 @@ public class MockComponents {
     }
 
     @Override
-    public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+    public InsertionIds getInsertionIds(
+        final MultiDimensionalNumericData indexedData,
         final int maxEstimatedDuplicateIds) {
       return this.getInsertionIds(indexedData);
     }
@@ -570,7 +576,8 @@ public class MockComponents {
 
     @Override
     public MultiDimensionalCoordinateRanges[] getCoordinateRangesPerDimension(
-        final MultiDimensionalNumericData dataRange, final IndexMetaData... hints) {
+        final MultiDimensionalNumericData dataRange,
+        final IndexMetaData... hints) {
       final CoordinateRange[][] coordinateRangesPerDimension =
           new CoordinateRange[dataRange.getDimensionCount()][];
       for (int d = 0; d < coordinateRangesPerDimension.length; d++) {
@@ -584,7 +591,8 @@ public class MockComponents {
     }
 
     @Override
-    public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+    public MultiDimensionalNumericData getRangeForId(
+        final ByteArray partitionKey,
         final ByteArray sortKey) {
       return null;
     }
@@ -596,14 +604,16 @@ public class MockComponents {
     }
 
     @Override
-    public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+    public Set<ByteArray> getQueryPartitionKeys(
+        final MultiDimensionalNumericData queryData,
         final IndexMetaData... hints) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+    public MultiDimensionalCoordinates getCoordinatesPerDimension(
+        final ByteArray partitionKey,
         final ByteArray sortKey) {
       return new MultiDimensionalCoordinates(new byte[] {}, new Coordinate[] {new Coordinate(
           (long) Double.parseDouble(new String(sortKey.getBytes())), new byte[] {})});
@@ -685,7 +695,9 @@ public class MockComponents {
   public static class IntegerWriter implements FieldWriter<Object, TestIndexFieldType> {
 
     @Override
-    public byte[] getVisibility(final Object rowValue, final String fieldName,
+    public byte[] getVisibility(
+        final Object rowValue,
+        final String fieldName,
         final TestIndexFieldType fieldValue) {
       return fieldValue.getVisibility();
     }

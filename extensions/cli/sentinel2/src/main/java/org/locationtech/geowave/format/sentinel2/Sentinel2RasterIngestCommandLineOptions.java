@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,16 +27,24 @@ public class Sentinel2RasterIngestCommandLineOptions {
 
   @Parameter(names = "--tilesize",
       description = "The option to set the pixel size for each tile stored in GeoWave.  The default is "
-          + RasterDataAdapter.DEFAULT_TILE_SIZE + ".")
+          + RasterDataAdapter.DEFAULT_TILE_SIZE
+          + ".")
   private int tileSize = 512;
 
   @Parameter(names = "--coverage", description = "The name to give to each unique coverage.  "
       + "Freemarker templating can be used for variable substitution based on the same attributes used for filtering.  "
-      + "The default coverage name is '${" + SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME + "}_${"
-      + BandFeatureIterator.BAND_ATTRIBUTE_NAME + "}'.  "
+      + "The default coverage name is '${"
+      + SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME
+      + "}_${"
+      + BandFeatureIterator.BAND_ATTRIBUTE_NAME
+      + "}'.  "
       + "If ${band} is unused in the coverage name, all bands will be merged together into the same coverage.")
-  private String coverageName = "${" + SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME + "}_${"
-      + BandFeatureIterator.BAND_ATTRIBUTE_NAME + "}";
+  private String coverageName =
+      "${"
+          + SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME
+          + "}_${"
+          + BandFeatureIterator.BAND_ATTRIBUTE_NAME
+          + "}";
 
   @Parameter(names = "--converter",
       description = "Prior to ingesting an image, this converter will be used to massage the data.  The default is not to convert the data.")

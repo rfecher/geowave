@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -89,8 +88,8 @@ public class OsmPbfParser {
 
       parser.setupWriter(nodeWriter, wayWriter, relationWriter);
 
-      Files.walkFileTree(Paths.get(args.getIngestDirectory()),
-          new SimpleFileVisitor<java.nio.file.Path>() {
+      Files.walkFileTree(
+          Paths.get(args.getIngestDirectory()), new SimpleFileVisitor<java.nio.file.Path>() {
             @Override
             // I couldn't figure out how to get rid of the findbugs
             // issue.
@@ -140,7 +139,9 @@ public class OsmPbfParser {
     private DataFileWriter wayWriter = null;
     private DataFileWriter relationWriter = null;
 
-    public void setupWriter(DataFileWriter nodeWriter, DataFileWriter wayWriter,
+    public void setupWriter(
+        DataFileWriter nodeWriter,
+        DataFileWriter wayWriter,
         DataFileWriter relationWriter) {
       this.nodeWriter = nodeWriter;
       this.wayWriter = wayWriter;

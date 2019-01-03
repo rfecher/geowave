@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,26 +40,34 @@ public class SceneFeatureIteratorTest {
       public boolean matches(Object item) {
         SimpleFeature feature = (SimpleFeature) item;
 
-        return feature.getProperty("shape") != null && feature.getProperty("entityId") != null
-            && feature.getProperty("provider") != null && feature.getProperty("location") != null
+        return feature.getProperty("shape") != null
+            && feature.getProperty("entityId") != null
+            && feature.getProperty("provider") != null
+            && feature.getProperty("location") != null
             && feature.getProperty("productIdentifier") != null
             && feature.getProperty("productType") != null
-            && feature.getProperty("collection") != null && feature.getProperty("platform") != null
+            && feature.getProperty("collection") != null
+            && feature.getProperty("platform") != null
             && feature.getProperty("processingLevel") != null
-            && feature.getProperty("startDate") != null && feature.getProperty("quicklook") != null
-            && feature.getProperty("thumbnail") != null && feature.getProperty("bands") != null
+            && feature.getProperty("startDate") != null
+            && feature.getProperty("quicklook") != null
+            && feature.getProperty("thumbnail") != null
+            && feature.getProperty("bands") != null
             && feature.getProperty("resolution") != null
-            && feature.getProperty("cloudCover") != null && feature.getProperty("snowCover") != null
+            && feature.getProperty("cloudCover") != null
+            && feature.getProperty("snowCover") != null
             && feature.getProperty("waterCover") != null;
       }
 
       @Override
       public void describeTo(Description description) {
-        description.appendText("feature should have properties {"
-            + "shape, entityId, provider, location, productIdentifier, "
-            + "productType, collection, platform, processingLevel, "
-            + "startDate, quicklook, thumbnail, "
-            + "bands, resolution, cloudCover, snowCover, waterCover" + "}");
+        description.appendText(
+            "feature should have properties {"
+                + "shape, entityId, provider, location, productIdentifier, "
+                + "productType, collection, platform, processingLevel, "
+                + "startDate, quicklook, thumbnail, "
+                + "bands, resolution, cloudCover, snowCover, waterCover"
+                + "}");
       }
     };
   }
@@ -118,9 +125,13 @@ public class SceneFeatureIteratorTest {
     }
 
     assertEquals(features.size(), 1);
-    assertThat(features,
+    assertThat(
+        features,
         everyItem(
-            allOf(hasProperties(), inBounds(new Envelope2D(new DirectPosition2D(-1.828, 42.325),
-                new DirectPosition2D(-1.624, 42.474))))));
+            allOf(
+                hasProperties(),
+                inBounds(
+                    new Envelope2D(new DirectPosition2D(-1.828, 42.325),
+                        new DirectPosition2D(-1.624, 42.474))))));
   }
 }

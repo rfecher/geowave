@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -72,16 +71,18 @@ public class RasterFootprintStatistics
   @Override
   public void entryIngested(final GridCoverage entry, final GeoWaveRow... geoWaveRows) {
     if (entry instanceof FitToIndexGridCoverage) {
-      footprint = RasterUtils.combineIntoOneGeometry(footprint,
-          ((FitToIndexGridCoverage) entry).getFootprintWorldGeometry());
+      footprint =
+          RasterUtils.combineIntoOneGeometry(
+              footprint, ((FitToIndexGridCoverage) entry).getFootprintWorldGeometry());
     }
   }
 
   @Override
   public void merge(final Mergeable statistics) {
     if (statistics instanceof RasterFootprintStatistics) {
-      footprint = RasterUtils.combineIntoOneGeometry(footprint,
-          ((RasterFootprintStatistics) statistics).footprint);
+      footprint =
+          RasterUtils.combineIntoOneGeometry(
+              footprint, ((RasterFootprintStatistics) statistics).footprint);
     }
   }
 

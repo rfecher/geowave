@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -18,7 +17,10 @@ public class GeoWaveMetadata implements Comparable<GeoWaveMetadata> {
   protected byte[] visibility;
   protected byte[] value;
 
-  public GeoWaveMetadata(final byte[] primaryId, final byte[] secondaryId, final byte[] visibility,
+  public GeoWaveMetadata(
+      final byte[] primaryId,
+      final byte[] secondaryId,
+      final byte[] visibility,
       final byte[] value) {
     this.primaryId = primaryId;
     this.secondaryId = secondaryId;
@@ -46,13 +48,16 @@ public class GeoWaveMetadata implements Comparable<GeoWaveMetadata> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = (prime * result)
-        + ((primaryId == null || primaryId.length == 0) ? 0 : Arrays.hashCode(primaryId));
-    result = (prime * result)
-        + ((secondaryId == null || secondaryId.length == 0) ? 0 : Arrays.hashCode(secondaryId));
+    result =
+        (prime * result)
+            + ((primaryId == null || primaryId.length == 0) ? 0 : Arrays.hashCode(primaryId));
+    result =
+        (prime * result)
+            + ((secondaryId == null || secondaryId.length == 0) ? 0 : Arrays.hashCode(secondaryId));
     result = (prime * result) + ((value == null || value.length == 0) ? 0 : Arrays.hashCode(value));
-    result = (prime * result)
-        + ((visibility == null || visibility.length == 0) ? 0 : Arrays.hashCode(visibility));
+    result =
+        (prime * result)
+            + ((visibility == null || visibility.length == 0) ? 0 : Arrays.hashCode(visibility));
     return result;
   }
 

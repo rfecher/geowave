@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -114,8 +113,9 @@ public class GeoWaveDedupeJobRunner extends AbstractGeoWaveJobRunner {
     StoreLoader loader = new StoreLoader(holder.getMainParameter().get(0));
     loader.loadFromConfig((File) params.getContext().get(ConfigOptions.PROPERTIES_FILE_CONTEXT));
 
-    final int res = ToolRunner.run(new Configuration(),
-        new GeoWaveDedupeJobRunner(loader.getDataStorePlugin()), args);
+    final int res =
+        ToolRunner.run(
+            new Configuration(), new GeoWaveDedupeJobRunner(loader.getDataStorePlugin()), args);
     System.exit(res);
   }
 

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -48,24 +47,32 @@ public class FilterToCQLTool {
   public static Filter toFilter(final String expression) throws CQLException {
     return ECQL.toFilter(expression, new FilterFactoryImpl() {
       @Override
-      public DWithin dwithin(final Expression geometry1, final Expression geometry2,
-          final double distance, final String units, final MatchAction matchAction) {
+      public DWithin dwithin(
+          final Expression geometry1,
+          final Expression geometry2,
+          final double distance,
+          final String units,
+          final MatchAction matchAction) {
         try {
           return matchAction == null ? new FixedDWithinImpl(geometry1, geometry2, units, distance)
               : new FixedDWithinImpl(geometry1, geometry2, units, distance, matchAction);
         } catch (IllegalFilterException | TransformException e) {
           LOGGER.warn("Cannot convert DWithin Expression to work with WSG84", e);
         }
-        final DWithinImpl impl = matchAction == null ? new DWithinImpl(geometry1, geometry2)
-            : new DWithinImpl(geometry1, geometry2, matchAction);
+        final DWithinImpl impl =
+            matchAction == null ? new DWithinImpl(geometry1, geometry2)
+                : new DWithinImpl(geometry1, geometry2, matchAction);
         impl.setDistance(distance);
         impl.setUnits(units);
         return impl;
       }
 
       @Override
-      public DWithin dwithin(final Expression geometry1, final Expression geometry2,
-          final double distance, final String units) {
+      public DWithin dwithin(
+          final Expression geometry1,
+          final Expression geometry2,
+          final double distance,
+          final String units) {
         return dwithin(geometry1, geometry2, distance, units, (MatchAction) null);
       }
     });
@@ -76,9 +83,13 @@ public class FilterToCQLTool {
     private final double distance;
     private final String units;
 
-    public FixedDWithinImpl(final Expression e1, final Expression e2, final String units,
+    public FixedDWithinImpl(
+        final Expression e1,
+        final Expression e2,
+        final String units,
         final double distance) throws IllegalFilterException, TransformException {
-      super(new LiteralExpressionImpl(GeometryUtils.buffer(getCRS(e1, e2),
+      super(new LiteralExpressionImpl(GeometryUtils.buffer(
+          getCRS(e1, e2),
           e1 instanceof PropertyName ? e2.evaluate(null, org.locationtech.jts.geom.Geometry.class)
               : e1.evaluate(null, org.locationtech.jts.geom.Geometry.class),
           units, distance).getLeft()), e1 instanceof PropertyName ? e1 : e2);
@@ -90,16 +101,15 @@ public class FilterToCQLTool {
       return GeometryUtils.getDefaultCRS();
     }
 
-    public FixedDWithinImpl(final Expression e1, final Expression e2, final String units,
-        final double distance, final MatchAction matchAction)
-        throws IllegalFilterException, TransformException {
-      super(
-          new LiteralExpressionImpl(
-              GeometryUtils
-                  .buffer(getCRS(e1, e2),
-                      e1.evaluate(null, org.locationtech.jts.geom.Geometry.class), units, distance)
-                  .getLeft()),
-          e2, matchAction);
+    public FixedDWithinImpl(
+        final Expression e1,
+        final Expression e2,
+        final String units,
+        final double distance,
+        final MatchAction matchAction) throws IllegalFilterException, TransformException {
+      super(new LiteralExpressionImpl(GeometryUtils.buffer(
+          getCRS(e1, e2), e1.evaluate(null, org.locationtech.jts.geom.Geometry.class), units,
+          distance).getLeft()), e2, matchAction);
       this.units = units;
       this.distance = distance;
     }

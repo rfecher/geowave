@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -105,8 +104,9 @@ public class ApiRestletApplication extends Application {
    * also generates the swagger definition file.
    */
   public void attachApiRoutes(final Router router) {
-    final ServletContext servlet = (ServletContext) router.getContext().getAttributes()
-        .get("org.restlet.ext.servlet.ServletContext");
+    final ServletContext servlet =
+        (ServletContext) router.getContext().getAttributes()
+            .get("org.restlet.ext.servlet.ServletContext");
     // TODO document that this can be provided rather than discovered used
     // this servlet init param
     String apiHostPort = servlet.getInitParameter("host_port");
@@ -120,10 +120,12 @@ public class ApiRestletApplication extends Application {
 
     String defaultConfigFile = servlet.getInitParameter("config_file");
 
-    final SwaggerApiParser apiParser = new SwaggerApiParser(apiHostPort, servlet.getContextPath(),
-        VersionUtils.getVersion(), "GeoWave API", "REST API for GeoWave CLI commands");
+    final SwaggerApiParser apiParser =
+        new SwaggerApiParser(apiHostPort, servlet.getContextPath(), VersionUtils.getVersion(),
+            "GeoWave API", "REST API for GeoWave CLI commands");
     for (final RestRoute route : availableRoutes) {
-      router.attach("/" + route.getPath(),
+      router.attach(
+          "/" + route.getPath(),
           new GeoWaveOperationFinder(route.getOperation(), defaultConfigFile));
 
       apiParser.addRoute(route);

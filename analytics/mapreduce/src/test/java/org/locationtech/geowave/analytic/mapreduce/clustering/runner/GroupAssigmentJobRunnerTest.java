@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -63,19 +62,19 @@ public class GroupAssigmentJobRunnerTest {
   @Before
   public void init() {
     final SimpleFeatureType ftype =
-        AnalyticFeature
-            .createGeometryFeatureAdapter("centroidtest", new String[] {"extra1"},
-                BasicFeatureTypes.DEFAULT_NAMESPACE, ClusteringUtils.CLUSTERING_CRS)
-            .getFeatureType();
+        AnalyticFeature.createGeometryFeatureAdapter(
+            "centroidtest", new String[] {"extra1"}, BasicFeatureTypes.DEFAULT_NAMESPACE,
+            ClusteringUtils.CLUSTERING_CRS).getFeatureType();
 
     runner.setMapReduceIntegrater(new MapReduceIntegration() {
       @Override
-      public int submit(final Configuration configuration,
-          final PropertyManagement runTimeProperties, final GeoWaveAnalyticJobRunner tool)
-          throws Exception {
+      public int submit(
+          final Configuration configuration,
+          final PropertyManagement runTimeProperties,
+          final GeoWaveAnalyticJobRunner tool) throws Exception {
         tool.setConf(configuration);
-        ((ParameterHelper<Object>) StoreParam.INPUT_STORE.getHelper()).setValue(configuration,
-            GroupAssignmentMapReduce.class,
+        ((ParameterHelper<Object>) StoreParam.INPUT_STORE.getHelper()).setValue(
+            configuration, GroupAssignmentMapReduce.class,
             StoreParam.INPUT_STORE.getHelper().getValue(runTimeProperties));
         return tool.run(new String[] {});
       }
@@ -91,21 +90,23 @@ public class GroupAssigmentJobRunnerTest {
         Assert.assertEquals("file://foo/bin", job.getConfiguration().get("mapred.input.dir"));
 
         Assert.assertEquals(3, configWrapper.getInt(CentroidParameters.Centroid.ZOOM_LEVEL, -1));
-        Assert.assertEquals("b1234",
-            configWrapper.getString(GlobalParameters.Global.PARENT_BATCH_ID, ""));
-        Assert.assertEquals("b12345",
-            configWrapper.getString(GlobalParameters.Global.BATCH_ID, ""));
+        Assert.assertEquals(
+            "b1234", configWrapper.getString(GlobalParameters.Global.PARENT_BATCH_ID, ""));
+        Assert
+            .assertEquals("b12345", configWrapper.getString(GlobalParameters.Global.BATCH_ID, ""));
 
         try {
           final AnalyticItemWrapperFactory<?> wrapper =
-              configWrapper.getInstance(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+              configWrapper.getInstance(
+                  CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
                   AnalyticItemWrapperFactory.class, SimpleFeatureItemWrapperFactory.class);
 
           Assert.assertEquals(SimpleFeatureItemWrapperFactory.class, wrapper.getClass());
 
           final DistanceFn<?> distancFn =
-              configWrapper.getInstance(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-                  DistanceFn.class, GeometryCentroidDistanceFn.class);
+              configWrapper.getInstance(
+                  CommonParameters.Common.DISTANCE_FUNCTION_CLASS, DistanceFn.class,
+                  GeometryCentroidDistanceFn.class);
 
           Assert.assertEquals(FeatureCentroidDistanceFn.class, distancFn.getClass());
 
@@ -139,12 +140,12 @@ public class GroupAssigmentJobRunnerTest {
     runTimeProperties.store(GlobalParameters.Global.BATCH_ID, "b12345");
     runTimeProperties.store(GlobalParameters.Global.PARENT_BATCH_ID, "b1234");
 
-    runTimeProperties.store(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-        FeatureCentroidDistanceFn.class);
+    runTimeProperties
+        .store(CommonParameters.Common.DISTANCE_FUNCTION_CLASS, FeatureCentroidDistanceFn.class);
 
     final DataStorePluginOptions pluginOptions = new DataStorePluginOptions();
-    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put("memory",
-        new MemoryStoreFactoryFamily());
+    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies()
+        .put("memory", new MemoryStoreFactoryFamily());
     pluginOptions.selectPlugin("memory");
     final MemoryRequiredOptions opts = (MemoryRequiredOptions) pluginOptions.getFactoryOptions();
     final String namespace = "test_" + getClass().getName() + "_" + name.getMethodName();
@@ -156,8 +157,9 @@ public class GroupAssigmentJobRunnerTest {
     final FeatureDataAdapter adapter = new FeatureDataAdapter(ftype);
     final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     adapter.init(index);
-    pluginOptions.createAdapterStore().addAdapter(new InternalDataAdapterWrapper<>(adapter,
-        pluginOptions.createInternalAdapterStore().addTypeName(adapter.getTypeName())));
+    pluginOptions.createAdapterStore().addAdapter(
+        new InternalDataAdapterWrapper<>(adapter,
+            pluginOptions.createInternalAdapterStore().addTypeName(adapter.getTypeName())));
   }
 
   @Test

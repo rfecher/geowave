@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,9 +28,10 @@ public class SpatialQueryTest {
   @Test
   public void test() {
     final GeometryFactory factory = new GeometryFactory();
-    final SpatialQuery query = new SpatialQuery(
-        factory.createPolygon(new Coordinate[] {new Coordinate(24, 33), new Coordinate(28, 33),
-            new Coordinate(28, 31), new Coordinate(24, 31), new Coordinate(24, 33)}));
+    final SpatialQuery query =
+        new SpatialQuery(factory.createPolygon(
+            new Coordinate[] {new Coordinate(24, 33), new Coordinate(28, 33),
+                new Coordinate(28, 31), new Coordinate(24, 31), new Coordinate(24, 33)}));
     final SpatialQuery queryCopy = new SpatialQuery();
     queryCopy.fromBinary(query.toBinary());
     assertEquals(queryCopy.getQueryGeometry(), query.getQueryGeometry());
@@ -74,17 +74,20 @@ public class SpatialQueryTest {
     // this polygon is same as query polygon
     final Coordinate[] dataPolygon = queryCoord.clone();
 
-    final IndexedPersistenceEncoding[] data = new IndexedPersistenceEncoding[] {
-        createData(factory.createLineString(line1)), createData(factory.createLineString(line2)),
-        createData(factory.createLineString(line3)), createData(factory.createLineString(line4)),
-        createData(factory.createPolygon(smallPolygon)),
-        createData(factory.createPolygon(dataPolygon))};
+    final IndexedPersistenceEncoding[] data =
+        new IndexedPersistenceEncoding[] {createData(factory.createLineString(line1)),
+            createData(factory.createLineString(line2)),
+            createData(factory.createLineString(line3)),
+            createData(factory.createLineString(line4)),
+            createData(factory.createPolygon(smallPolygon)),
+            createData(factory.createPolygon(dataPolygon))};
 
     int pos = 0;
     final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     for (final IndexedPersistenceEncoding dataItem : data) {
       for (final QueryFilter filter : queryCopy.createFilters(index)) {
-        assertEquals("result: " + pos, expectedResults[pos++],
+        assertEquals(
+            "result: " + pos, expectedResults[pos++],
             filter.accept(index.getIndexModel(), dataItem));
       }
     }

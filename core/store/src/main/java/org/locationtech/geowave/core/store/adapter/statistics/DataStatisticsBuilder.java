@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,8 +29,11 @@ public class DataStatisticsBuilder<T, R, B extends StatisticsQueryBuilder<R, B>>
   private final StatisticsId statisticsId;
   private final EntryVisibilityHandler<T> visibilityHandler;
 
-  public DataStatisticsBuilder(final Index index, final DataTypeAdapter<T> adapter,
-      final DataStoreStatisticsProvider<T> statisticsProvider, final StatisticsId statisticsId) {
+  public DataStatisticsBuilder(
+      final Index index,
+      final DataTypeAdapter<T> adapter,
+      final DataStoreStatisticsProvider<T> statisticsProvider,
+      final StatisticsId statisticsId) {
     this.statisticsProvider = statisticsProvider;
     this.statisticsId = statisticsId;
     this.visibilityHandler =

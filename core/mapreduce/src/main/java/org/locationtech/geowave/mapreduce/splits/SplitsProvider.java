@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -62,13 +61,20 @@ public class SplitsProvider {
   public SplitsProvider() {}
 
   /** Read the metadata table to get tablets and match up ranges to them. */
-  public List<InputSplit> getSplits(final DataStoreOperations operations,
-      final CommonQueryOptions commonOptions, final DataTypeQueryOptions<?> typeOptions,
-      final IndexQueryOptions indexOptions, final QueryConstraints constraints,
-      final TransientAdapterStore adapterStore, final DataStatisticsStore statsStore,
-      final InternalAdapterStore internalAdapterStore, final IndexStore indexStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore, final JobContext context,
-      final Integer minSplits, final Integer maxSplits) throws IOException, InterruptedException {
+  public List<InputSplit> getSplits(
+      final DataStoreOperations operations,
+      final CommonQueryOptions commonOptions,
+      final DataTypeQueryOptions<?> typeOptions,
+      final IndexQueryOptions indexOptions,
+      final QueryConstraints constraints,
+      final TransientAdapterStore adapterStore,
+      final DataStatisticsStore statsStore,
+      final InternalAdapterStore internalAdapterStore,
+      final IndexStore indexStore,
+      final AdapterIndexMappingStore adapterIndexMappingStore,
+      final JobContext context,
+      final Integer minSplits,
+      final Integer maxSplits) throws IOException, InterruptedException {
 
     final Map<Pair<Index, ByteArray>, RowRangeHistogramStatistics<?>> statsCache = new HashMap<>();
 
@@ -76,10 +82,11 @@ public class SplitsProvider {
     final TreeSet<IntermediateSplitInfo> splits = new TreeSet<>();
     final Map<String, List<Short>> indexIdToAdaptersMap = new HashMap<>();
     for (final Pair<Index, List<Short>> indexAdapterIdPair : BaseDataStoreUtils
-        .getAdaptersWithMinimalSetOfIndices(typeOptions.getTypeNames(), indexOptions.getIndexName(),
-            adapterStore, internalAdapterStore, adapterIndexMappingStore, indexStore)) {
-      indexIdToAdaptersMap.put(indexAdapterIdPair.getKey().getName(),
-          indexAdapterIdPair.getValue());
+        .getAdaptersWithMinimalSetOfIndices(
+            typeOptions.getTypeNames(), indexOptions.getIndexName(), adapterStore,
+            internalAdapterStore, adapterIndexMappingStore, indexStore)) {
+      indexIdToAdaptersMap
+          .put(indexAdapterIdPair.getKey().getName(), indexAdapterIdPair.getValue());
       QueryConstraints indexAdapterConstraints;
       if (constraints instanceof AdapterAndIndexBasedQueryConstraints) {
         final List<Short> adapters = indexAdapterIdPair.getRight();
@@ -95,8 +102,9 @@ public class SplitsProvider {
         if (adapter == null) {
           LOGGER.warn("Unable to find type matching an adapter dependent query");
         }
-        indexAdapterConstraints = ((AdapterAndIndexBasedQueryConstraints) constraints)
-            .createQueryConstraints(adapter, indexAdapterIdPair.getLeft());
+        indexAdapterConstraints =
+            ((AdapterAndIndexBasedQueryConstraints) constraints)
+                .createQueryConstraints(adapter, indexAdapterIdPair.getLeft());
         // make sure we pass along the new constraints to the record
         // reader - for spark on YARN (not localy though), job
         // configuration is immutable so while picking up the
@@ -111,14 +119,16 @@ public class SplitsProvider {
       IndexMetaData[] indexMetadata;
       if (indexAdapterConstraints != null) {
 
-        indexMetadata = IndexMetaDataSet.getIndexMetadata(indexAdapterIdPair.getLeft(),
-            indexAdapterIdPair.getRight(), statsStore, commonOptions.getAuthorizations());
+        indexMetadata =
+            IndexMetaDataSet.getIndexMetadata(
+                indexAdapterIdPair.getLeft(), indexAdapterIdPair.getRight(), statsStore,
+                commonOptions.getAuthorizations());
       } else {
         indexMetadata = null;
       }
-      populateIntermediateSplits(splits, operations, indexAdapterIdPair.getLeft(),
-          indexAdapterIdPair.getValue(), statsCache, adapterStore, statsStore, maxSplits,
-          indexAdapterConstraints,
+      populateIntermediateSplits(
+          splits, operations, indexAdapterIdPair.getLeft(), indexAdapterIdPair.getValue(),
+          statsCache, adapterStore, statsStore, maxSplits, indexAdapterConstraints,
           (double[]) commonOptions.getHints()
               .get(DataStoreUtils.TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX),
           indexMetadata, commonOptions.getAuthorizations());
@@ -131,7 +141,9 @@ public class SplitsProvider {
     // down the middle to get 3, rather than splitting one range into
     // thirds)
     final List<IntermediateSplitInfo> unsplittable = new ArrayList<>();
-    if (!statsCache.isEmpty() && !splits.isEmpty() && (minSplits != null)
+    if (!statsCache.isEmpty()
+        && !splits.isEmpty()
+        && (minSplits != null)
         && (splits.size() < minSplits)) {
       // set the ranges to at least min splits
       do {
@@ -181,13 +193,18 @@ public class SplitsProvider {
   }
 
   protected TreeSet<IntermediateSplitInfo> populateIntermediateSplits(
-      final TreeSet<IntermediateSplitInfo> splits, final DataStoreOperations operations,
-      final Index index, final List<Short> adapterIds,
+      final TreeSet<IntermediateSplitInfo> splits,
+      final DataStoreOperations operations,
+      final Index index,
+      final List<Short> adapterIds,
       final Map<Pair<Index, ByteArray>, RowRangeHistogramStatistics<?>> statsCache,
-      final TransientAdapterStore adapterStore, final DataStatisticsStore statsStore,
-      final Integer maxSplits, final QueryConstraints constraints,
+      final TransientAdapterStore adapterStore,
+      final DataStatisticsStore statsStore,
+      final Integer maxSplits,
+      final QueryConstraints constraints,
       final double[] targetResolutionPerDimensionForHierarchicalIndex,
-      final IndexMetaData[] indexMetadata, final String[] authorizations) throws IOException {
+      final IndexMetaData[] indexMetadata,
+      final String[] authorizations) throws IOException {
 
     final NumericIndexStrategy indexStrategy = index.getIndexStrategy();
     final int partitionKeyLength = indexStrategy.getPartitionKeyLength();
@@ -198,15 +215,19 @@ public class SplitsProvider {
       final List<MultiDimensionalNumericData> indexConstraints =
           constraints.getIndexConstraints(index);
       if ((maxSplits != null) && (maxSplits > 0)) {
-        ranges = DataStoreUtils
-            .constraintsToQueryRanges(indexConstraints, indexStrategy,
-                targetResolutionPerDimensionForHierarchicalIndex, maxSplits, indexMetadata)
-            .getCompositeQueryRanges();
+        ranges =
+            DataStoreUtils
+                .constraintsToQueryRanges(
+                    indexConstraints, indexStrategy,
+                    targetResolutionPerDimensionForHierarchicalIndex, maxSplits, indexMetadata)
+                .getCompositeQueryRanges();
       } else {
-        ranges = DataStoreUtils
-            .constraintsToQueryRanges(indexConstraints, indexStrategy,
-                targetResolutionPerDimensionForHierarchicalIndex, -1, indexMetadata)
-            .getCompositeQueryRanges();
+        ranges =
+            DataStoreUtils
+                .constraintsToQueryRanges(
+                    indexConstraints, indexStrategy,
+                    targetResolutionPerDimensionForHierarchicalIndex, -1, indexMetadata)
+                .getCompositeQueryRanges();
       }
     }
     final List<RangeLocationPair> rangeList = new ArrayList<>();
@@ -221,10 +242,15 @@ public class SplitsProvider {
         for (final ByteArray partitionKey : partitionKeys) {
           final GeoWaveRowRange gwRange =
               new GeoWaveRowRange(partitionKey.getBytes(), null, null, true, true);
-          final double cardinality = getCardinality(getHistStats(index, adapterIds, adapterStore,
-              statsStore, statsCache, partitionKey, authorizations), gwRange);
-          rangeList.add(new RangeLocationPair(gwRange,
-              cardinality <= 0 ? 0 : cardinality < 1 ? 1.0 : cardinality));
+          final double cardinality =
+              getCardinality(
+                  getHistStats(
+                      index, adapterIds, adapterStore, statsStore, statsCache, partitionKey,
+                      authorizations),
+                  gwRange);
+          rangeList.add(
+              new RangeLocationPair(gwRange,
+                  cardinality <= 0 ? 0 : cardinality < 1 ? 1.0 : cardinality));
         }
       } else {
         // add one all-inclusive range
@@ -236,11 +262,15 @@ public class SplitsProvider {
         final GeoWaveRowRange gwRange = SplitsProvider.toRowRange(range, partitionKeyLength);
 
         final double cardinality =
-            getCardinality(getHistStats(index, adapterIds, adapterStore, statsStore, statsCache,
-                new ByteArray(gwRange.getPartitionKey()), authorizations), gwRange);
+            getCardinality(
+                getHistStats(
+                    index, adapterIds, adapterStore, statsStore, statsCache,
+                    new ByteArray(gwRange.getPartitionKey()), authorizations),
+                gwRange);
 
-        rangeList.add(new RangeLocationPair(gwRange,
-            cardinality <= 0 ? 0 : cardinality < 1 ? 1.0 : cardinality));
+        rangeList.add(
+            new RangeLocationPair(gwRange,
+                cardinality <= 0 ? 0 : cardinality < 1 ? 1.0 : cardinality));
       }
     }
 
@@ -254,7 +284,8 @@ public class SplitsProvider {
     return splits;
   }
 
-  protected double getCardinality(final RowRangeHistogramStatistics<?> rangeStats,
+  protected double getCardinality(
+      final RowRangeHistogramStatistics<?> rangeStats,
       final GeoWaveRowRange range) {
     if (range == null) {
       if (rangeStats != null) {
@@ -270,17 +301,21 @@ public class SplitsProvider {
         : rangeStats.cardinality(range.getStartSortKey(), range.getEndSortKey());
   }
 
-  protected RowRangeHistogramStatistics<?> getHistStats(final Index index,
-      final List<Short> adapterIds, final TransientAdapterStore adapterStore,
+  protected RowRangeHistogramStatistics<?> getHistStats(
+      final Index index,
+      final List<Short> adapterIds,
+      final TransientAdapterStore adapterStore,
       final DataStatisticsStore statsStore,
       final Map<Pair<Index, ByteArray>, RowRangeHistogramStatistics<?>> statsCache,
-      final ByteArray partitionKey, final String[] authorizations) throws IOException {
+      final ByteArray partitionKey,
+      final String[] authorizations) throws IOException {
     RowRangeHistogramStatistics<?> rangeStats = statsCache.get(Pair.of(index, partitionKey));
 
     if (rangeStats == null) {
       try {
-        rangeStats = getRangeStats(index, adapterIds, adapterStore, statsStore, partitionKey,
-            authorizations);
+        rangeStats =
+            getRangeStats(
+                index, adapterIds, adapterStore, statsStore, partitionKey, authorizations);
       } catch (final Exception e) {
         throw new IOException(e);
       }
@@ -300,17 +335,22 @@ public class SplitsProvider {
     return bytes;
   }
 
-  private RowRangeHistogramStatistics<?> getRangeStats(final Index index,
-      final List<Short> adapterIds, final TransientAdapterStore adapterStore,
-      final DataStatisticsStore store, final ByteArray partitionKey,
+  private RowRangeHistogramStatistics<?> getRangeStats(
+      final Index index,
+      final List<Short> adapterIds,
+      final TransientAdapterStore adapterStore,
+      final DataStatisticsStore store,
+      final ByteArray partitionKey,
       final String[] authorizations) {
     RowRangeHistogramStatistics<?> singleStats = null;
 
-    final StatisticsQuery<NumericHistogram> statsQuery = StatisticsQueryBuilder.newBuilder()
-        .factory().rowHistogram().indexName(index.getName()).partition(partitionKey).build();
+    final StatisticsQuery<NumericHistogram> statsQuery =
+        StatisticsQueryBuilder.newBuilder().factory().rowHistogram().indexName(index.getName())
+            .partition(partitionKey).build();
     for (final Short adapterId : adapterIds) {
-      try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> it = store.getDataStatistics(
-          adapterId, statsQuery.getExtendedId(), statsQuery.getStatsType(), authorizations)) {
+      try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> it =
+          store.getDataStatistics(
+              adapterId, statsQuery.getExtendedId(), statsQuery.getStatsType(), authorizations)) {
         while (it.hasNext()) {
           final RowRangeHistogramStatistics<?> rowStat = (RowRangeHistogramStatistics<?>) it.next();
           if (singleStats == null) {
@@ -325,16 +365,19 @@ public class SplitsProvider {
     return singleStats;
   }
 
-  protected PartitionStatistics<?> getPartitionStats(final Index index,
-      final List<Short> adapterIds, final DataStatisticsStore store,
+  protected PartitionStatistics<?> getPartitionStats(
+      final Index index,
+      final List<Short> adapterIds,
+      final DataStatisticsStore store,
       final String[] authorizations) {
     PartitionStatistics<?> singleStats = null;
-    final StatisticsQuery<Set<ByteArray>> statsQuery = StatisticsQueryBuilder.newBuilder().factory()
-        .partitions().indexName(index.getName()).build();
+    final StatisticsQuery<Set<ByteArray>> statsQuery =
+        StatisticsQueryBuilder.newBuilder().factory().partitions().indexName(index.getName())
+            .build();
     for (final Short adapterId : adapterIds) {
-      try (
-          CloseableIterator<InternalDataStatistics<?, ?, ?>> it = store.getDataStatistics(adapterId,
-              statsQuery.getExtendedId(), statsQuery.getStatsType(), authorizations)) {
+      try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it =
+          store.getDataStatistics(
+              adapterId, statsQuery.getExtendedId(), statsQuery.getStatsType(), authorizations)) {
         while (it.hasNext()) {
           final PartitionStatistics<?> rowStat = (PartitionStatistics<?>) it.next();
           if (singleStats == null) {
@@ -416,7 +459,9 @@ public class SplitsProvider {
     return extractBytes(seq, numBytes, false);
   }
 
-  protected static byte[] extractBytes(final byte[] seq, final int numBytes,
+  protected static byte[] extractBytes(
+      final byte[] seq,
+      final int numBytes,
       final boolean infiniteEndKey) {
     final byte[] bytes = new byte[numBytes + 2];
     bytes[0] = 1;
@@ -436,7 +481,8 @@ public class SplitsProvider {
     return bytes;
   }
 
-  public static GeoWaveRowRange toRowRange(final ByteArrayRange range,
+  public static GeoWaveRowRange toRowRange(
+      final ByteArrayRange range,
       final int partitionKeyLength) {
     final byte[] startRow = range.getStart() == null ? null : range.getStart().getBytes();
     final byte[] stopRow = range.getEnd() == null ? null : range.getEnd().getBytes();
@@ -477,8 +523,9 @@ public class SplitsProvider {
 
       return new ByteArrayRange(new ByteArray(startKey), new ByteArray(endKey));
     } else {
-      final byte[] startKey = (range.getStartSortKey() == null) ? range.getPartitionKey()
-          : ArrayUtils.addAll(range.getPartitionKey(), range.getStartSortKey());
+      final byte[] startKey =
+          (range.getStartSortKey() == null) ? range.getPartitionKey()
+              : ArrayUtils.addAll(range.getPartitionKey(), range.getStartSortKey());
 
       final byte[] endKey =
           (range.getEndSortKey() == null) ? ByteArray.getNextPrefix(range.getPartitionKey())

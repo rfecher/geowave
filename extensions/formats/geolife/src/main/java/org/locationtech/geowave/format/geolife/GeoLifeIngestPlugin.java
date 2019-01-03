@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -138,7 +137,9 @@ public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<AvroW
 
   @Override
   protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-      final AvroWholeFile hfile, final String[] indexNames, final String globalVisibility) {
+      final AvroWholeFile hfile,
+      final String[] indexNames,
+      final String globalVisibility) {
 
     final List<GeoWaveData<SimpleFeature>> featureData = new ArrayList<>();
 
@@ -190,12 +191,13 @@ public class GeoLifeIngestPlugin extends AbstractSimpleFeatureIngestPlugin<AvroW
           elevation = null;
         }
         geolifePointBuilder.set("Elevation", elevation);
-        featureData.add(new GeoWaveData<>(pointKey, indexNames,
-            geolifePointBuilder.buildFeature(trackId + "_" + pointInstance)));
+        featureData.add(
+            new GeoWaveData<>(pointKey, indexNames,
+                geolifePointBuilder.buildFeature(trackId + "_" + pointInstance)));
       }
 
-      geolifeTrackBuilder.set("geometry",
-          geometryFactory.createLineString(pts.toArray(new Coordinate[pts.size()])));
+      geolifeTrackBuilder.set(
+          "geometry", geometryFactory.createLineString(pts.toArray(new Coordinate[pts.size()])));
 
       geolifeTrackBuilder.set("StartTimeStamp", startTimeStamp);
       geolifeTrackBuilder.set("EndTimeStamp", endTimeStamp);

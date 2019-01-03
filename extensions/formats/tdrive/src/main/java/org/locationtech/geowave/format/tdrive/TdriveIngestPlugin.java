@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -165,21 +164,25 @@ public class TdriveIngestPlugin extends AbstractSimpleFeatureIngestPlugin<AvroTd
 
   @Override
   protected CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-      final AvroTdrivePoint tdrivePoint, final String[] indexNames, final String globalVisibility) {
+      final AvroTdrivePoint tdrivePoint,
+      final String[] indexNames,
+      final String globalVisibility) {
 
     final List<GeoWaveData<SimpleFeature>> featureData = new ArrayList<>();
 
     // tdrivepointBuilder = new SimpleFeatureBuilder(tdrivepointType);
-    tdrivepointBuilder.set("geometry", GeometryUtils.GEOMETRY_FACTORY
-        .createPoint(new Coordinate(tdrivePoint.getLongitude(), tdrivePoint.getLatitude())));
+    tdrivepointBuilder.set(
+        "geometry", GeometryUtils.GEOMETRY_FACTORY
+            .createPoint(new Coordinate(tdrivePoint.getLongitude(), tdrivePoint.getLatitude())));
     tdrivepointBuilder.set("taxiid", tdrivePoint.getTaxiid());
     tdrivepointBuilder.set("pointinstance", tdrivePoint.getPointinstance());
     tdrivepointBuilder.set("Timestamp", new Date(tdrivePoint.getTimestamp()));
     tdrivepointBuilder.set("Latitude", tdrivePoint.getLatitude());
     tdrivepointBuilder.set("Longitude", tdrivePoint.getLongitude());
-    featureData.add(new GeoWaveData<SimpleFeature>(TdriveUtils.TDRIVE_POINT_FEATURE, indexNames,
-        tdrivepointBuilder
-            .buildFeature(tdrivePoint.getTaxiid() + "_" + tdrivePoint.getPointinstance())));
+    featureData.add(
+        new GeoWaveData<SimpleFeature>(TdriveUtils.TDRIVE_POINT_FEATURE, indexNames,
+            tdrivepointBuilder
+                .buildFeature(tdrivePoint.getTaxiid() + "_" + tdrivePoint.getPointinstance())));
 
     return new CloseableIterator.Wrapper<>(featureData.iterator());
   }

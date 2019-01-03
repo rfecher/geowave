@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,19 +50,24 @@ public class FeatureDataUtils {
     return "EAST";
   }
 
-  public static SimpleFeatureType decodeType(final String nameSpace, final String typeName,
-      final String typeDescriptor, final String axis) throws SchemaException {
+  public static SimpleFeatureType decodeType(
+      final String nameSpace,
+      final String typeName,
+      final String typeDescriptor,
+      final String axis) throws SchemaException {
 
-    SimpleFeatureType featureType = (nameSpace != null) && (nameSpace.length() > 0)
-        ? DataUtilities.createType(nameSpace, typeName, typeDescriptor)
-        : DataUtilities.createType(typeName, typeDescriptor);
+    SimpleFeatureType featureType =
+        (nameSpace != null) && (nameSpace.length() > 0)
+            ? DataUtilities.createType(nameSpace, typeName, typeDescriptor)
+            : DataUtilities.createType(typeName, typeDescriptor);
 
     final String lCaseAxis = axis.toLowerCase(Locale.ENGLISH);
     final CoordinateReferenceSystem crs = featureType.getCoordinateReferenceSystem();
     final String typeAxis = getAxis(crs);
     // Default for EPSG:4326 is lat/long, If the provided type was
     // long/lat, then re-establish the order
-    if ((crs != null) && crs.getIdentifiers().toString().contains("EPSG:4326")
+    if ((crs != null)
+        && crs.getIdentifiers().toString().contains("EPSG:4326")
         && !lCaseAxis.equalsIgnoreCase(typeAxis)) {
       final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
       builder.init(featureType);
@@ -72,8 +76,9 @@ public class FeatureDataUtils {
         // truely no way to force lat first
         // but it is the default in later versions of GeoTools.
         // this all depends on the authority at the time of creation
-        featureType = SimpleFeatureTypeBuilder.retype(featureType,
-            CRS.decode("EPSG:4326", lCaseAxis.equals("east")));
+        featureType =
+            SimpleFeatureTypeBuilder
+                .retype(featureType, CRS.decode("EPSG:4326", lCaseAxis.equals("east")));
       } catch (final FactoryException e) {
         throw new SchemaException("Cannot decode EPSG:4326", e);
       }
@@ -81,7 +86,8 @@ public class FeatureDataUtils {
     return featureType;
   }
 
-  public static SimpleFeature buildFeature(final SimpleFeatureType featureType,
+  public static SimpleFeature buildFeature(
+      final SimpleFeatureType featureType,
       final Pair<String, Object>[] entries) {
 
     final List<AttributeDescriptor> descriptors = featureType.getAttributeDescriptors();
@@ -98,7 +104,8 @@ public class FeatureDataUtils {
     return newFeature;
   }
 
-  public static SimpleFeatureType getFeatureType(final DataStorePluginOptions dataStore,
+  public static SimpleFeatureType getFeatureType(
+      final DataStorePluginOptions dataStore,
       String typeName) {
     // if no id provided, locate a single featureadapter
     if (typeName == null) {
@@ -131,7 +138,8 @@ public class FeatureDataUtils {
   }
 
   public static FeatureDataAdapter cloneFeatureDataAdapter(
-      final DataStorePluginOptions storeOptions, final String originalTypeName,
+      final DataStorePluginOptions storeOptions,
+      final String originalTypeName,
       final String newTypeName) {
 
     // Get original feature type info
@@ -194,7 +202,8 @@ public class FeatureDataUtils {
           return timeDescriptors.getTime().getLocalName();
         } else if (timeDescriptors.getStartRange() != null) {
           // give back start|stop string
-          return timeDescriptors.getStartRange().getLocalName() + "|"
+          return timeDescriptors.getStartRange().getLocalName()
+              + "|"
               + timeDescriptors.getEndRange().getLocalName();
         }
       }

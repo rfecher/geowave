@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,8 +32,9 @@ public class DistributedRenderProcess {
 
   @DescribeResult(name = "result",
       description = "This is just a pass-through, the key is to provide enough information within invertQuery to perform a map to screen transform")
-  public SimpleFeatureCollection execute(@DescribeParameter(name = "data",
-      description = "Feature collection containing the rendered image") final SimpleFeatureCollection features)
+  public SimpleFeatureCollection execute(
+      @DescribeParameter(name = "data",
+          description = "Feature collection containing the rendered image") final SimpleFeatureCollection features)
       throws ProcessException {
     // this is a pass through, only used so that legend rendering works
     // appropriately

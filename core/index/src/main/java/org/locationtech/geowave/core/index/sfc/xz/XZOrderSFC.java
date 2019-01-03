@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -167,8 +166,11 @@ public class XZOrderSFC implements SpaceFillingCurve {
         bTerm = longs[0];
       }
 
-      cs += 1L
-          + bTerm * (((long) (Math.pow(nthPowerOfTwo, g - i))) - 1L) / ((long) nthPowerOfTwo - 1);
+      cs +=
+          1L
+              + bTerm
+                  * (((long) (Math.pow(nthPowerOfTwo, g - i))) - 1L)
+                  / ((long) nthPowerOfTwo - 1);
 
       for (int j = 0; j < dimensionCount; j++) {
         if (minValues[j] < centers[j]) {
@@ -186,9 +188,8 @@ public class XZOrderSFC implements SpaceFillingCurve {
    * An extended Z curve element. Bounds refer to the non-extended z element for simplicity of
    * calculation.
    *
-   * <p>
-   * An extended Z element refers to a normal Z curve element that has its upper bounds expanded by
-   * double its dimensions. By convention, an element is always an n-cube.
+   * <p> An extended Z element refers to a normal Z curve element that has its upper bounds expanded
+   * by double its dimensions. By convention, an element is always an n-cube.
    */
   private static class XElement {
 
@@ -293,8 +294,10 @@ public class XZOrderSFC implements SpaceFillingCurve {
   }
 
   @Override
-  public RangeDecomposition decomposeRange(MultiDimensionalNumericData query,
-      boolean overInclusiveOnEdge, int maxRanges) {
+  public RangeDecomposition decomposeRange(
+      MultiDimensionalNumericData query,
+      boolean overInclusiveOnEdge,
+      int maxRanges) {
 
     // normalize query values
     double[] queryMins = query.getMinValuesPerDimension();
@@ -361,8 +364,13 @@ public class XZOrderSFC implements SpaceFillingCurve {
   // adds it to our results as fully matching, or
   // adds it to our results as partial matching and queues up it's children
   // for further processing
-  private void checkValue(XElement value, Short level, double[] queryMins, double[] queryMaxes,
-      ArrayList<ByteArrayRange> ranges, ArrayDeque<XElement> remaining) {
+  private void checkValue(
+      XElement value,
+      Short level,
+      double[] queryMins,
+      double[] queryMaxes,
+      ArrayList<ByteArrayRange> ranges,
+      ArrayDeque<XElement> remaining) {
     if (value.isContained(queryMins, queryMaxes)) {
       // whole range matches, happy day
       ByteArrayRange range = sequenceInterval(value.minsPerDimension, level, false);
@@ -388,7 +396,9 @@ public class XZOrderSFC implements SpaceFillingCurve {
    *        contained
    * @return
    */
-  private ByteArrayRange sequenceInterval(double[] minsPerDimension, short length,
+  private ByteArrayRange sequenceInterval(
+      double[] minsPerDimension,
+      short length,
       boolean partial) {
     byte[] min = sequenceCode(minsPerDimension, length);
     // if a partial match, we just use the single sequence code as an
@@ -400,9 +410,11 @@ public class XZOrderSFC implements SpaceFillingCurve {
       max = min;
     } else {
       // from lemma 3 in the XZ-Ordering paper
-      max = ByteArrayUtils.longToByteArray(ByteArrayUtils.byteArrayToLong(min)
-          + (((long) (Math.pow(nthPowerOfTwo, g - length + 1))) - 1L)
-              / ((long) (nthPowerOfTwo - 1)));
+      max =
+          ByteArrayUtils.longToByteArray(
+              ByteArrayUtils.byteArrayToLong(min)
+                  + (((long) (Math.pow(nthPowerOfTwo, g - length + 1))) - 1L)
+                      / ((long) (nthPowerOfTwo - 1)));
     }
     return new ByteArrayRange(new ByteArray(min), new ByteArray(max));
   }
@@ -413,8 +425,9 @@ public class XZOrderSFC implements SpaceFillingCurve {
     int bufferLength = VarintUtils.unsignedIntByteLength(dimensionDefs.length);
     for (final SFCDimensionDefinition sfcDimension : dimensionDefs) {
       final byte[] sfcDimensionBinary = PersistenceUtils.toBinary(sfcDimension);
-      bufferLength += (sfcDimensionBinary.length
-          + VarintUtils.unsignedIntByteLength(sfcDimensionBinary.length));
+      bufferLength +=
+          (sfcDimensionBinary.length
+              + VarintUtils.unsignedIntByteLength(sfcDimensionBinary.length));
       dimensionDefBinaries.add(sfcDimensionBinary);
     }
     final ByteBuffer buf = ByteBuffer.allocate(bufferLength);

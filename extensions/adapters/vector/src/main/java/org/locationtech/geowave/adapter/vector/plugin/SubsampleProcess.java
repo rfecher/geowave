@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,8 +36,9 @@ public class SubsampleProcess {
 
   @DescribeResult(name = "result",
       description = "This is just a pass-through, the key is to provide enough information within invertQuery to perform a map to screen transform")
-  public SimpleFeatureCollection execute(@DescribeParameter(name = "data",
-      description = "Feature collection containing the data") final SimpleFeatureCollection features,
+  public SimpleFeatureCollection execute(
+      @DescribeParameter(name = "data",
+          description = "Feature collection containing the data") final SimpleFeatureCollection features,
       @DescribeParameter(name = "outputBBOX",
           description = "Georeferenced bounding box of the output") final ReferencedEnvelope argOutputEnv,
       @DescribeParameter(name = "outputWidth",
@@ -53,15 +53,17 @@ public class SubsampleProcess {
     return features;
   }
 
-  public Query invertQuery(@DescribeParameter(name = "outputBBOX",
-      description = "Georeferenced bounding box of the output") final ReferencedEnvelope argOutputEnv,
+  public Query invertQuery(
+      @DescribeParameter(name = "outputBBOX",
+          description = "Georeferenced bounding box of the output") final ReferencedEnvelope argOutputEnv,
       @DescribeParameter(name = "outputWidth",
           description = "Width of the output raster") final Integer argOutputWidth,
       @DescribeParameter(name = "outputHeight",
           description = "Height of the output raster") final Integer argOutputHeight,
       @DescribeParameter(name = "pixelSize",
           description = "The pixel size to base subsampling on") final Double pixelSize,
-      final Query targetQuery, final GridGeometry targetGridGeometry) throws ProcessException {
+      final Query targetQuery,
+      final GridGeometry targetGridGeometry) throws ProcessException {
 
     // add to the query hints
     targetQuery.getHints().put(SUBSAMPLE_ENABLED, true);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -63,8 +62,9 @@ public class KMeansParallelInitializeTest {
 
   @Test
   public void test() {
-    final GeometryDataSetGenerator dataGenerator = new GeometryDataSetGenerator(
-        initializer.getCentroidAssociationFn().getDistanceFunction(), getBuilder());
+    final GeometryDataSetGenerator dataGenerator =
+        new GeometryDataSetGenerator(initializer.getCentroidAssociationFn().getDistanceFunction(),
+            getBuilder());
     final List<SimpleFeature> pointSet = dataGenerator.generatePointSet(0.15, 0.2, 10, 10000);
     // Sort the data as if coming out of geowave
     // Also, the pointSet from the generator contains the centers first, so
@@ -73,10 +73,12 @@ public class KMeansParallelInitializeTest {
     Collections.sort(pointSet, new Comparator<SimpleFeature>() {
       @Override
       public int compare(final SimpleFeature arg0, final SimpleFeature arg1) {
-        final double arg0ToCorner = initializer.getCentroidAssociationFn().getDistanceFunction()
-            .measure(arg0, dataGenerator.getCorner());
-        final double arg1ToCorner = initializer.getCentroidAssociationFn().getDistanceFunction()
-            .measure(arg1, dataGenerator.getCorner());
+        final double arg0ToCorner =
+            initializer.getCentroidAssociationFn().getDistanceFunction()
+                .measure(arg0, dataGenerator.getCorner());
+        final double arg1ToCorner =
+            initializer.getCentroidAssociationFn().getDistanceFunction()
+                .measure(arg1, dataGenerator.getCorner());
         return (arg0ToCorner - arg1ToCorner) < 0 ? -1 : 1;
       }
     });

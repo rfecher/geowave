@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,7 +36,8 @@ public class JobContextAdapterStore implements TransientAdapterStore {
   private InternalAdapterStore internalAdapterStore = null;
   private final Map<String, DataTypeAdapter<?>> adapterCache = new HashMap<>();
 
-  public JobContextAdapterStore(final JobContext context,
+  public JobContextAdapterStore(
+      final JobContext context,
       final PersistentAdapterStore persistentAdapterStore,
       final InternalAdapterStore internalAdapterStore) {
     this.context = context;
@@ -134,7 +134,8 @@ public class JobContextAdapterStore implements TransientAdapterStore {
     }
   }
 
-  protected static DataTypeAdapter<?> getDataAdapter(final JobContext context,
+  protected static DataTypeAdapter<?> getDataAdapter(
+      final JobContext context,
       final String typeName) {
     return GeoWaveConfiguratorBase.getDataAdapter(CLASS, context, typeName);
   }
@@ -143,7 +144,8 @@ public class JobContextAdapterStore implements TransientAdapterStore {
     return GeoWaveConfiguratorBase.getDataAdapters(CLASS, context);
   }
 
-  public static void addDataAdapter(final Configuration configuration,
+  public static void addDataAdapter(
+      final Configuration configuration,
       final DataTypeAdapter<?> adapter) {
     GeoWaveConfiguratorBase.addDataAdapter(CLASS, configuration, adapter);
   }

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,14 +42,17 @@ public class NullNumericIndexStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+  public QueryRanges getQueryRanges(
+      final MultiDimensionalNumericData indexedRange,
       final IndexMetaData... hints) {
     return getQueryRanges(indexedRange, -1);
   }
 
   @Override
-  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
-      final int maxRangeDecomposition, final IndexMetaData... hints) {
+  public QueryRanges getQueryRanges(
+      final MultiDimensionalNumericData indexedRange,
+      final int maxRangeDecomposition,
+      final IndexMetaData... hints) {
     // a null return here should be interpreted as negative to positive
     // infinite
     return new QueryRanges(null, null);
@@ -73,7 +75,8 @@ public class NullNumericIndexStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+  public MultiDimensionalNumericData getRangeForId(
+      final ByteArray partitionKey,
       final ByteArray sortKey) {
     // a null return here should be interpreted as negative to positive
     // infinite
@@ -87,14 +90,16 @@ public class NullNumericIndexStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+  public MultiDimensionalCoordinates getCoordinatesPerDimension(
+      final ByteArray partitionKey,
       final ByteArray sortKey) {
     // there are no dimensions so return an empty array
     return new MultiDimensionalCoordinates();
   }
 
   @Override
-  public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+  public InsertionIds getInsertionIds(
+      final MultiDimensionalNumericData indexedData,
       final int maxDuplicateInsertionIds) {
     // return a single empty sort key as the ID
     final List<ByteArray> retVal = new ArrayList<ByteArray>();
@@ -114,7 +119,8 @@ public class NullNumericIndexStrategy implements NumericIndexStrategy {
 
   @Override
   public MultiDimensionalCoordinateRanges[] getCoordinateRangesPerDimension(
-      final MultiDimensionalNumericData dataRange, final IndexMetaData... hints) {
+      final MultiDimensionalNumericData dataRange,
+      final IndexMetaData... hints) {
     return new MultiDimensionalCoordinateRanges[] {new MultiDimensionalCoordinateRanges()};
   }
 
@@ -124,7 +130,8 @@ public class NullNumericIndexStrategy implements NumericIndexStrategy {
   }
 
   @Override
-  public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+  public Set<ByteArray> getQueryPartitionKeys(
+      final MultiDimensionalNumericData queryData,
       final IndexMetaData... hints) {
     return null;
   }

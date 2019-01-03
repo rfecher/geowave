@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,8 +32,11 @@ public abstract class EntryIteratorWrapper<T> implements Iterator<T> {
 
   protected T nextValue;
 
-  public EntryIteratorWrapper(final PersistentAdapterStore adapterStore, final Index index,
-      final Iterator<GeoWaveRow> scannerIt, final QueryFilter clientFilter,
+  public EntryIteratorWrapper(
+      final PersistentAdapterStore adapterStore,
+      final Index index,
+      final Iterator<GeoWaveRow> scannerIt,
+      final QueryFilter clientFilter,
       final ScanCallback<T, ? extends GeoWaveRow> scanCallback) {
     this.adapterStore = adapterStore;
     this.index = index;
@@ -62,7 +64,9 @@ public abstract class EntryIteratorWrapper<T> implements Iterator<T> {
     return scannerIt.next();
   }
 
-  protected abstract T decodeRow(final GeoWaveRow row, final QueryFilter clientFilter,
+  protected abstract T decodeRow(
+      final GeoWaveRow row,
+      final QueryFilter clientFilter,
       final Index index);
 
   @Override

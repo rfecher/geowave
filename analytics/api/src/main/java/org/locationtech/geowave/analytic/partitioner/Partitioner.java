@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,13 +26,12 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 /**
  * Provide a partition for a data item.
  *
- * <p>
- * Multiple partitions are permitted. Only one partition is consider primary. A primary partition is
- * the partition for an item in which the item is processed on behalf of itself. All other
- * partitions are those partitions that require visibility to the a specific item for other items to
- * reference. This approach supports nearest neighbor type queries. Consider that an item can only
- * discover neighbors in its partition. However, the item can be discovered as a nearest neighbor in
- * those partitions in which the item participates as a none primary.
+ * <p> Multiple partitions are permitted. Only one partition is consider primary. A primary
+ * partition is the partition for an item in which the item is processed on behalf of itself. All
+ * other partitions are those partitions that require visibility to the a specific item for other
+ * items to reference. This approach supports nearest neighbor type queries. Consider that an item
+ * can only discover neighbors in its partition. However, the item can be discovered as a nearest
+ * neighbor in those partitions in which the item participates as a none primary.
  *
  * @param <T>
  */
@@ -47,7 +45,9 @@ public interface Partitioner<T> extends Serializable {
 
   public Collection<ParameterEnum<?>> getParameters();
 
-  public void setup(PropertyManagement runTimeProperties, Class<?> scope,
+  public void setup(
+      PropertyManagement runTimeProperties,
+      Class<?> scope,
       Configuration configuration);
 
   public static interface PartitionDataCallback {
@@ -95,7 +95,9 @@ public interface Partitioner<T> extends Serializable {
 
     public PartitionData() {}
 
-    public PartitionData(final ByteArray partitionKey, final ByteArray sortKey,
+    public PartitionData(
+        final ByteArray partitionKey,
+        final ByteArray sortKey,
         final boolean primary) {
       super();
       this.partitionKey = partitionKey;
@@ -105,9 +107,15 @@ public interface Partitioner<T> extends Serializable {
 
     @Override
     public String toString() {
-      return "PartitionData [partitionKey=" + Hex.encodeHexString(partitionKey.getBytes())
-          + ", sortKey=" + Hex.encodeHexString(sortKey.getBytes()) + ", groupId="
-          + (groupId == null ? "null" : groupId.getString()) + ", isPrimary=" + isPrimary + "]";
+      return "PartitionData [partitionKey="
+          + Hex.encodeHexString(partitionKey.getBytes())
+          + ", sortKey="
+          + Hex.encodeHexString(sortKey.getBytes())
+          + ", groupId="
+          + (groupId == null ? "null" : groupId.getString())
+          + ", isPrimary="
+          + isPrimary
+          + "]";
     }
 
     @Override

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -122,8 +121,9 @@ public class PropertyManagementConverter {
     Object value = entry.getParam().get(entry.getObject());
     if (value != null) {
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(String.format("Analytic Property Value: %s = %s", entry.getAsPropertyName(),
-            value.toString()));
+        LOGGER.debug(
+            String.format(
+                "Analytic Property Value: %s = %s", entry.getAsPropertyName(), value.toString()));
       }
       for (ParameterEnum<?> enumVal : enumVals) {
         ((ParameterEnum<Object>) enumVal).getHelper().setValue(properties, value);

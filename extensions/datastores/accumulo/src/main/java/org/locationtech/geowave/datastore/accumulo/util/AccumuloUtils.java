@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -71,10 +70,12 @@ public class AccumuloUtils {
     if (byteArrayRange.isSingleValue()) {
       return Range.exact(new Text(byteArrayRange.getStart().getBytes()));
     }
-    final Text start = byteArrayRange.getStart().getBytes() == null ? null
-        : new Text(byteArrayRange.getStart().getBytes());
-    final Text end = byteArrayRange.getEnd().getBytes() == null ? null
-        : new Text(byteArrayRange.getEnd().getBytes());
+    final Text start =
+        byteArrayRange.getStart().getBytes() == null ? null
+            : new Text(byteArrayRange.getStart().getBytes());
+    final Text end =
+        byteArrayRange.getEnd().getBytes() == null ? null
+            : new Text(byteArrayRange.getEnd().getBytes());
     if ((start != null) && (end != null) && (start.compareTo(end) > 0)) {
       return null;
     }
@@ -103,7 +104,8 @@ public class AccumuloUtils {
     return accumuloRanges;
   }
 
-  public static String getQualifiedTableName(final String tableNamespace,
+  public static String getQualifiedTableName(
+      final String tableNamespace,
       final String unqualifiedTableName) {
     return ((tableNamespace == null) || tableNamespace.isEmpty()) ? unqualifiedTableName
         : tableNamespace + "_" + unqualifiedTableName;
@@ -132,7 +134,8 @@ public class AccumuloUtils {
    * @param connector
    * @param namespace
    */
-  public static List<DataTypeAdapter<?>> getDataAdapters(final Connector connector,
+  public static List<DataTypeAdapter<?>> getDataAdapters(
+      final Connector connector,
       final String namespace) {
     final List<DataTypeAdapter<?>> adapters = new ArrayList<>();
 
@@ -182,8 +185,11 @@ public class AccumuloUtils {
    * @throws IOException
    * @throws TableNotFoundException
    */
-  public static void setSplitsByRandomPartitions(final Connector connector, final String namespace,
-      final Index index, final int randomPartitions)
+  public static void setSplitsByRandomPartitions(
+      final Connector connector,
+      final String namespace,
+      final Index index,
+      final int randomPartitions)
       throws AccumuloException, AccumuloSecurityException, IOException, TableNotFoundException {
     final AccumuloOperations operations =
         new AccumuloOperations(connector, namespace, new AccumuloOptions());
@@ -206,8 +212,12 @@ public class AccumuloUtils {
    * @throws IOException
    * @throws TableNotFoundException
    */
-  public static void setSplitsByQuantile(final BaseDataStore dataStore, final Connector connector,
-      final String namespace, final Index index, final int quantile)
+  public static void setSplitsByQuantile(
+      final BaseDataStore dataStore,
+      final Connector connector,
+      final String namespace,
+      final Index index,
+      final int quantile)
       throws AccumuloException, AccumuloSecurityException, IOException, TableNotFoundException {
     final long count = getEntries(dataStore, connector, namespace, index);
 
@@ -248,8 +258,11 @@ public class AccumuloUtils {
    * @throws IOException
    * @throws TableNotFoundException
    */
-  public static void setSplitsByNumSplits(final Connector connector, final String namespace,
-      final Index index, final int numSplits)
+  public static void setSplitsByNumSplits(
+      final Connector connector,
+      final String namespace,
+      final Index index,
+      final int numSplits)
       throws AccumuloException, AccumuloSecurityException, IOException, TableNotFoundException {
     final SortedSet<Text> splits = new TreeSet<>();
 
@@ -309,8 +322,11 @@ public class AccumuloUtils {
    * @throws IOException
    * @throws TableNotFoundException
    */
-  public static void setSplitsByNumRows(final Connector connector, final String namespace,
-      final Index index, final long numberRows)
+  public static void setSplitsByNumRows(
+      final Connector connector,
+      final String namespace,
+      final Index index,
+      final long numberRows)
       throws AccumuloException, AccumuloSecurityException, IOException, TableNotFoundException {
     try (final CloseableIterator<Entry<Key, Value>> iterator =
         getIterator(connector, namespace, index)) {
@@ -349,8 +365,11 @@ public class AccumuloUtils {
    * @throws IOException
    * @throws TableNotFoundException
    */
-  public static boolean isLocalityGroupSet(final Connector connector, final String namespace,
-      final Index index, final DataTypeAdapter<?> adapter)
+  public static boolean isLocalityGroupSet(
+      final Connector connector,
+      final String namespace,
+      final Index index,
+      final DataTypeAdapter<?> adapter)
       throws AccumuloException, AccumuloSecurityException, IOException, TableNotFoundException {
     final AccumuloOperations operations =
         new AccumuloOperations(connector, namespace, new AccumuloOptions());
@@ -369,8 +388,11 @@ public class AccumuloUtils {
    * @throws IOException
    * @throws TableNotFoundException
    */
-  public static void setLocalityGroup(final Connector connector, final String namespace,
-      final Index index, final InternalDataAdapter<?> adapter)
+  public static void setLocalityGroup(
+      final Connector connector,
+      final String namespace,
+      final Index index,
+      final InternalDataAdapter<?> adapter)
       throws AccumuloException, AccumuloSecurityException, IOException, TableNotFoundException {
     final AccumuloOperations operations =
         new AccumuloOperations(connector, namespace, new AccumuloOptions());
@@ -387,9 +409,11 @@ public class AccumuloUtils {
    * @throws AccumuloSecurityException
    * @throws IOException
    */
-  public static long getEntries(final BaseDataStore dataStore, final Connector connector,
-      final String namespace, final Index index)
-      throws AccumuloException, AccumuloSecurityException, IOException {
+  public static long getEntries(
+      final BaseDataStore dataStore,
+      final Connector connector,
+      final String namespace,
+      final Index index) throws AccumuloException, AccumuloSecurityException, IOException {
     long counter = 0L;
     final AccumuloOptions options = new AccumuloOptions();
     final AccumuloOperations operations = new AccumuloOperations(connector, namespace, options);
@@ -406,8 +430,10 @@ public class AccumuloUtils {
     return counter;
   }
 
-  private static CloseableIterator<Entry<Key, Value>> getIterator(final Connector connector,
-      final String namespace, final Index index)
+  private static CloseableIterator<Entry<Key, Value>> getIterator(
+      final Connector connector,
+      final String namespace,
+      final Index index)
       throws AccumuloException, AccumuloSecurityException, IOException, TableNotFoundException {
     CloseableIterator<Entry<Key, Value>> iterator = null;
     final AccumuloOptions options = new AccumuloOptions();
@@ -439,8 +465,11 @@ public class AccumuloUtils {
     private final QueryFilter clientFilter;
     private Entry<Key, Value> nextValue;
 
-    public IteratorWrapper(final PersistentAdapterStore adapterStore, final Index index,
-        final Iterator<Entry<Key, Value>> scannerIt, final QueryFilter clientFilter) {
+    public IteratorWrapper(
+        final PersistentAdapterStore adapterStore,
+        final Index index,
+        final Iterator<Entry<Key, Value>> scannerIt,
+        final QueryFilter clientFilter) {
       this.adapterStore = adapterStore;
       this.index = index;
       this.scannerIt = scannerIt;
@@ -460,7 +489,9 @@ public class AccumuloUtils {
       nextValue = null;
     }
 
-    private Object decodeRow(final Entry<Key, Value> row, final QueryFilter clientFilter,
+    private Object decodeRow(
+        final Entry<Key, Value> row,
+        final QueryFilter clientFilter,
         final Index index) {
       try {
         final List<Map<Key, Value>> fieldValueMapList = new ArrayList();

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -123,8 +122,8 @@ public class WRS2GeometryStore {
         while (entries.hasMoreElements()) {
           final ZipArchiveEntry entry = entries.nextElement();
           if (!entry.isDirectory()) {
-            FileUtils.copyInputStreamToFile(zipFile.getInputStream(entry),
-                new File(wrs2Directory, entry.getName()));
+            FileUtils.copyInputStreamToFile(
+                zipFile.getInputStream(entry), new File(wrs2Directory, entry.getName()));
             // HP Fortify "Path Traversal" false positive
             // What Fortify considers "user input" comes only
             // from users with OS-level access anyway
@@ -153,12 +152,13 @@ public class WRS2GeometryStore {
         final SimpleFeature feature = iterator.next();
         final Number path = (Number) feature.getAttribute("PATH");
         final Number row = (Number) feature.getAttribute("ROW");
-        featureCache.put(new WRS2Key(path.intValue(), row.intValue()),
+        featureCache.put(
+            new WRS2Key(path.intValue(), row.intValue()),
             (MultiPolygon) feature.getDefaultGeometry());
       }
     } catch (final IOException e) {
-      LOGGER.error("Unable to read wrs2_asc_desc shapefile '" + wrs2Shape.getAbsolutePath() + "'",
-          e);
+      LOGGER
+          .error("Unable to read wrs2_asc_desc shapefile '" + wrs2Shape.getAbsolutePath() + "'", e);
       throw (e);
     }
   }

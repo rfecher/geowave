@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -93,9 +92,10 @@ public abstract class AbstractStatsCommand<T> extends ServiceEnabledCommand<T> {
   }
 
   /** Abstracted command method to be called when command selected */
-  protected abstract boolean performStatsCommand(final DataStorePluginOptions options,
-      final InternalDataAdapter<?> adapter, final StatsCommandLineOptions statsOptions)
-      throws IOException;
+  protected abstract boolean performStatsCommand(
+      final DataStorePluginOptions options,
+      final InternalDataAdapter<?> adapter,
+      final StatsCommandLineOptions statsOptions) throws IOException;
 
   /**
    * Helper method to extract a list of authorizations from a string passed in from the command line

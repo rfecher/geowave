@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -95,9 +94,11 @@ public class HistogramStatistics extends
       }
       // 8 for key and value lengths as ints
 
-      final int entryBytes = VarintUtils.unsignedIntByteLength(keyBytes.length)
-          + VarintUtils.unsignedIntByteLength(valueBytes.length) + keyBytes.length
-          + valueBytes.length;
+      final int entryBytes =
+          VarintUtils.unsignedIntByteLength(keyBytes.length)
+              + VarintUtils.unsignedIntByteLength(valueBytes.length)
+              + keyBytes.length
+              + valueBytes.length;
       final ByteBuffer buf = ByteBuffer.allocate(entryBytes);
       VarintUtils.writeUnsignedInt(keyBytes.length, buf);
       buf.put(keyBytes);
@@ -190,7 +191,9 @@ public class HistogramStatistics extends
     }
   }
 
-  private void mergePoly(final GridCoverage originalCoverage, final Polygon poly,
+  private void mergePoly(
+      final GridCoverage originalCoverage,
+      final Polygon poly,
       final Resolution resolution) {
     final CoverageProcessor processor = CoverageProcessor.getInstance();
     final AbstractOperation op = (AbstractOperation) processor.getOperation("Histogram");
@@ -203,8 +206,9 @@ public class HistogramStatistics extends
     try {
 
       final GridCoverage2D coverage = (GridCoverage2D) op.doOperation(params, null);
-      final javax.media.jai.Histogram histogram = (javax.media.jai.Histogram) coverage
-          .getProperty(Histogram.GT_SYNTHETIC_PROPERTY_HISTOGRAM);
+      final javax.media.jai.Histogram histogram =
+          (javax.media.jai.Histogram) coverage
+              .getProperty(Histogram.GT_SYNTHETIC_PROPERTY_HISTOGRAM);
 
       javax.media.jai.Histogram mergedHistogram;
       final javax.media.jai.Histogram resolutionHistogram = histograms.get(resolution);
@@ -227,7 +231,8 @@ public class HistogramStatistics extends
   }
 
   private static javax.media.jai.Histogram mergeHistograms(
-      final javax.media.jai.Histogram histogram1, final javax.media.jai.Histogram histogram2) {
+      final javax.media.jai.Histogram histogram1,
+      final javax.media.jai.Histogram histogram2) {
     final int numBands = Math.min(histogram1.getNumBands(), histogram2.getNumBands());
     final double[] lowValue1 = histogram1.getLowValue();
     final double[] lowValue2 = histogram2.getLowValue();

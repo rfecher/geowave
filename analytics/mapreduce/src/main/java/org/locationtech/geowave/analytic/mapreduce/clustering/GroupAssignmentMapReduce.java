@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -67,7 +66,9 @@ public class GroupAssignmentMapReduce {
     private final Map<String, AtomicInteger> logCounts = new HashMap<String, AtomicInteger>();
 
     @Override
-    protected void mapNativeValue(final GeoWaveInputKey key, final Object value,
+    protected void mapNativeValue(
+        final GeoWaveInputKey key,
+        final Object value,
         final org.apache.hadoop.mapreduce.Mapper<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
         throws IOException, InterruptedException {
       final AssociationNotification<Object> centroidAssociationFn =
@@ -96,8 +97,8 @@ public class GroupAssignmentMapReduce {
             }
           };
 
-      nestedGroupCentroidAssigner.findCentroidForLevel(itemWrapperFactory.create(value),
-          centroidAssociationFn);
+      nestedGroupCentroidAssigner
+          .findCentroidForLevel(itemWrapperFactory.create(value), centroidAssociationFn);
 
       context.write(key, outputValWritable);
     }
@@ -118,29 +119,35 @@ public class GroupAssignmentMapReduce {
         throws IOException, InterruptedException {
       super.setup(context);
 
-      final ScopedJobConfiguration config = new ScopedJobConfiguration(context.getConfiguration(),
-          GroupAssignmentMapReduce.class, GroupAssignmentMapReduce.LOGGER);
+      final ScopedJobConfiguration config =
+          new ScopedJobConfiguration(context.getConfiguration(), GroupAssignmentMapReduce.class,
+              GroupAssignmentMapReduce.LOGGER);
 
       try {
-        nestedGroupCentroidAssigner = new NestedGroupCentroidAssignment<Object>(context,
-            GroupAssignmentMapReduce.class, GroupAssignmentMapReduce.LOGGER);
+        nestedGroupCentroidAssigner =
+            new NestedGroupCentroidAssignment<Object>(context, GroupAssignmentMapReduce.class,
+                GroupAssignmentMapReduce.LOGGER);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
 
       try {
-        centroidExtractor = config.getInstance(CentroidParameters.Centroid.EXTRACTOR_CLASS,
-            CentroidExtractor.class, SimpleFeatureCentroidExtractor.class);
+        centroidExtractor =
+            config.getInstance(
+                CentroidParameters.Centroid.EXTRACTOR_CLASS, CentroidExtractor.class,
+                SimpleFeatureCentroidExtractor.class);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
 
       try {
-        itemWrapperFactory = config.getInstance(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-            AnalyticItemWrapperFactory.class, SimpleFeatureItemWrapperFactory.class);
+        itemWrapperFactory =
+            config.getInstance(
+                CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS, AnalyticItemWrapperFactory.class,
+                SimpleFeatureItemWrapperFactory.class);
 
-        itemWrapperFactory.initialize(context, GroupAssignmentMapReduce.class,
-            GroupAssignmentMapReduce.LOGGER);
+        itemWrapperFactory
+            .initialize(context, GroupAssignmentMapReduce.class, GroupAssignmentMapReduce.LOGGER);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }

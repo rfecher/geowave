@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -98,37 +97,52 @@ public class GDELTUtils {
 
     final AttributeTypeBuilder attributeTypeBuilder = new AttributeTypeBuilder();
 
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Point.class).nillable(false)
-        .buildDescriptor(GDELT_GEOMETRY_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Integer.class).nillable(false)
-        .buildDescriptor(GDELT_EVENT_ID_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Date.class).nillable(false)
-        .buildDescriptor(GDELT_TIMESTAMP_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Double.class).nillable(false)
-        .buildDescriptor(GDELT_LATITUDE_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Double.class).nillable(false)
-        .buildDescriptor(GDELT_LONGITUDE_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
-        .buildDescriptor(ACTOR_1_NAME_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
-        .buildDescriptor(ACTOR_2_NAME_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
-        .buildDescriptor(ACTION_COUNTRY_CODE_ATTRIBUTE));
-    simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
-        .buildDescriptor(SOURCE_URL_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(Point.class).nillable(false)
+            .buildDescriptor(GDELT_GEOMETRY_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(Integer.class).nillable(false)
+            .buildDescriptor(GDELT_EVENT_ID_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(Date.class).nillable(false)
+            .buildDescriptor(GDELT_TIMESTAMP_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(Double.class).nillable(false)
+            .buildDescriptor(GDELT_LATITUDE_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(Double.class).nillable(false)
+            .buildDescriptor(GDELT_LONGITUDE_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(String.class).nillable(true)
+            .buildDescriptor(ACTOR_1_NAME_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(String.class).nillable(true)
+            .buildDescriptor(ACTOR_2_NAME_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(String.class).nillable(true)
+            .buildDescriptor(ACTION_COUNTRY_CODE_ATTRIBUTE));
+    simpleFeatureTypeBuilder.add(
+        attributeTypeBuilder.binding(String.class).nillable(true)
+            .buildDescriptor(SOURCE_URL_ATTRIBUTE));
     if (includeSupplementalFields) {
-      simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
-          .buildDescriptor(ACTOR_1_COUNTRY_CODE_ATTRIBUTE));
-      simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(String.class).nillable(true)
-          .buildDescriptor(ACTOR_2_COUNTRY_CODE_ATTRIBUTE));
-      simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Integer.class).nillable(false)
-          .buildDescriptor(NUM_MENTIONS_ATTRIBUTE));
-      simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Integer.class).nillable(false)
-          .buildDescriptor(NUM_SOURCES_ATTRIBUTE));
-      simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Integer.class).nillable(false)
-          .buildDescriptor(NUM_ARTICLES_ATTRIBUTE));
-      simpleFeatureTypeBuilder.add(attributeTypeBuilder.binding(Double.class).nillable(false)
-          .buildDescriptor(AVG_TONE_ATTRIBUTE));
+      simpleFeatureTypeBuilder.add(
+          attributeTypeBuilder.binding(String.class).nillable(true)
+              .buildDescriptor(ACTOR_1_COUNTRY_CODE_ATTRIBUTE));
+      simpleFeatureTypeBuilder.add(
+          attributeTypeBuilder.binding(String.class).nillable(true)
+              .buildDescriptor(ACTOR_2_COUNTRY_CODE_ATTRIBUTE));
+      simpleFeatureTypeBuilder.add(
+          attributeTypeBuilder.binding(Integer.class).nillable(false)
+              .buildDescriptor(NUM_MENTIONS_ATTRIBUTE));
+      simpleFeatureTypeBuilder.add(
+          attributeTypeBuilder.binding(Integer.class).nillable(false)
+              .buildDescriptor(NUM_SOURCES_ATTRIBUTE));
+      simpleFeatureTypeBuilder.add(
+          attributeTypeBuilder.binding(Integer.class).nillable(false)
+              .buildDescriptor(NUM_ARTICLES_ATTRIBUTE));
+      simpleFeatureTypeBuilder.add(
+          attributeTypeBuilder.binding(Double.class).nillable(false)
+              .buildDescriptor(AVG_TONE_ATTRIBUTE));
     }
 
     return simpleFeatureTypeBuilder.buildFeatureType();
@@ -138,7 +152,9 @@ public class GDELTUtils {
 
     final String latString = vals[GDELTUtils.GDELT_ACTION_LATITUDE_COLUMN_ID];
     final String lonString = vals[GDELTUtils.GDELT_ACTION_LONGITUDE_COLUMN_ID];
-    if ((latString == null) || (lonString == null) || latString.trim().isEmpty()
+    if ((latString == null)
+        || (lonString == null)
+        || latString.trim().isEmpty()
         || lonString.trim().isEmpty()) {
       return null;
     }

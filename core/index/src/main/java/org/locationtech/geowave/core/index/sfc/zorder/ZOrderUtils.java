@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,7 +18,9 @@ import org.locationtech.geowave.core.index.sfc.data.NumericRange;
  * bit-interleaving approach).
  */
 public class ZOrderUtils {
-  public static NumericRange[] decodeRanges(final byte[] bytes, final int bitsPerDimension,
+  public static NumericRange[] decodeRanges(
+      final byte[] bytes,
+      final int bitsPerDimension,
       final SFCDimensionDefinition[] dimensionDefinitions) {
     final byte[] littleEndianBytes = swapEndianFormat(bytes);
     final BitSet bitSet = BitSet.valueOf(littleEndianBytes);
@@ -38,7 +39,9 @@ public class ZOrderUtils {
     return normalizedValues;
   }
 
-  public static long[] decodeIndices(final byte[] bytes, final int bitsPerDimension,
+  public static long[] decodeIndices(
+      final byte[] bytes,
+      final int bitsPerDimension,
       final int numDimensions) {
     final byte[] littleEndianBytes = swapEndianFormat(bytes);
     final BitSet bitSet = BitSet.valueOf(littleEndianBytes);
@@ -72,7 +75,10 @@ public class ZOrderUtils {
     return mid;
   }
 
-  private static NumericRange decode(final BitSet bs, double floor, double ceiling,
+  private static NumericRange decode(
+      final BitSet bs,
+      double floor,
+      double ceiling,
       final SFCDimensionDefinition dimensionDefinition) {
     double mid = 0;
     for (int i = 0; i < bs.length(); i++) {
@@ -87,7 +93,9 @@ public class ZOrderUtils {
         dimensionDefinition.denormalize(ceiling));
   }
 
-  public static byte[] encode(final double[] normalizedValues, final int bitsPerDimension,
+  public static byte[] encode(
+      final double[] normalizedValues,
+      final int bitsPerDimension,
       final int numDimensions) {
     final BitSet[] bitSets = new BitSet[numDimensions];
 
@@ -135,7 +143,10 @@ public class ZOrderUtils {
     return (byte) (converted & 0xFF);
   }
 
-  private static BitSet getBits(final double value, double floor, double ceiling,
+  private static BitSet getBits(
+      final double value,
+      double floor,
+      double ceiling,
       final int bitsPerDimension) {
     final BitSet buffer = new BitSet(bitsPerDimension);
     for (int i = 0; i < bitsPerDimension; i++) {

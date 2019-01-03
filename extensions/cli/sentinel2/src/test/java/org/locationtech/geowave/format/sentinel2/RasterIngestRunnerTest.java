@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,8 +37,8 @@ public class RasterIngestRunnerTest {
     // Skip this test if we're on a Mac
     org.junit.Assume.assumeTrue(isNotMac());
 
-    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put("memory",
-        new MemoryStoreFactoryFamily());
+    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies()
+        .put("memory", new MemoryStoreFactoryFamily());
 
     InstallGdal.main(new String[] {System.getenv("GDAL_DIR")});
   }
@@ -102,13 +101,14 @@ public class RasterIngestRunnerTest {
     ingestOptions.setScale(10);
     ingestOptions.setCreateHistogram(true);
 
-    RasterIngestRunner runner = new RasterIngestRunner(analyzeOptions, downloadOptions,
-        ingestOptions, Arrays.asList("memorystore", "spatialindex"));
+    RasterIngestRunner runner =
+        new RasterIngestRunner(analyzeOptions, downloadOptions, ingestOptions,
+            Arrays.asList("memorystore", "spatialindex"));
 
     ManualOperationParams params = new ManualOperationParams();
-    params.getContext().put(ConfigOptions.PROPERTIES_FILE_CONTEXT,
-        new File(RasterIngestRunnerTest.class.getClassLoader()
-            .getResource("geowave-config.properties").toURI()));
+    params.getContext().put(
+        ConfigOptions.PROPERTIES_FILE_CONTEXT, new File(RasterIngestRunnerTest.class
+            .getClassLoader().getResource("geowave-config.properties").toURI()));
 
     runner.runInternal(params);
 

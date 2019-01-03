@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -145,14 +144,21 @@ public class AnalyzeRunner {
               throw new RuntimeException("feature is null");
             }
             // print scene info
-            System.out.println("\n<--   "
-                + feature.getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME) + "   -->");
-            System.out.println("Acquisition Date: " + sdf.format(
-                feature.getAttribute(SceneFeatureIterator.ACQUISITION_DATE_ATTRIBUTE_NAME)));
-            System.out.println("Cloud Cover: "
-                + feature.getAttribute(SceneFeatureIterator.CLOUD_COVER_ATTRIBUTE_NAME));
-            System.out.println("Scene Download URL: "
-                + feature.getAttribute(SceneFeatureIterator.SCENE_DOWNLOAD_ATTRIBUTE_NAME));
+            System.out.println(
+                "\n<--   "
+                    + feature.getAttribute(SceneFeatureIterator.ENTITY_ID_ATTRIBUTE_NAME)
+                    + "   -->");
+            System.out.println(
+                "Acquisition Date: "
+                    + sdf.format(
+                        feature
+                            .getAttribute(SceneFeatureIterator.ACQUISITION_DATE_ATTRIBUTE_NAME)));
+            System.out.println(
+                "Cloud Cover: "
+                    + feature.getAttribute(SceneFeatureIterator.CLOUD_COVER_ATTRIBUTE_NAME));
+            System.out.println(
+                "Scene Download URL: "
+                    + feature.getAttribute(SceneFeatureIterator.SCENE_DOWNLOAD_ATTRIBUTE_NAME));
             first = false;
           }
           final float mb = (Float) feature.getAttribute(BandFeatureIterator.SIZE_ATTRIBUTE_NAME);
@@ -181,8 +187,12 @@ public class AnalyzeRunner {
       if (sceneCount > 0) {
         final SimpleDateFormat sdf =
             new SimpleDateFormat(SceneFeatureIterator.AQUISITION_DATE_FORMAT);
-        System.out.println("Date Range: [" + sdf.format(new Date(startDate)) + ", "
-            + sdf.format(new Date(endDate)) + "]");
+        System.out.println(
+            "Date Range: ["
+                + sdf.format(new Date(startDate))
+                + ", "
+                + sdf.format(new Date(endDate))
+                + "]");
         System.out.println("Cloud Cover Range: [" + minCloudCover + ", " + maxCloudCover + "]");
         System.out.println("Average Cloud Cover: " + (totalCloudCover / sceneCount));
         System.out.println("WRS2 Paths/Rows covered: " + wrs2Keys.size());

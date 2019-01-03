@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,13 +36,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class generically supports most of the operations necessary to implement a Data Adapter and
- * can be easily extended to support specific data types.<br>
- * Many of the details are handled by mapping IndexFieldHandler's based on either types or exact
- * dimensions. These handler mappings can be supplied in the constructor. The dimension matching
- * handlers are used first when trying to decode a persistence encoded value. This can be done
- * specifically to match a field (for example if there are multiple ways of encoding/decoding the
- * same type). Otherwise the type matching handlers will simply match any field with the same type
- * as its generic field type.
+ * can be easily extended to support specific data types.<br> Many of the details are handled by
+ * mapping IndexFieldHandler's based on either types or exact dimensions. These handler mappings can
+ * be supplied in the constructor. The dimension matching handlers are used first when trying to
+ * decode a persistence encoded value. This can be done specifically to match a field (for example
+ * if there are multiple ways of encoding/decoding the same type). Otherwise the type matching
+ * handlers will simply match any field with the same type as its generic field type.
  *
  * @param <T> The type for the entries handled by this adapter
  */
@@ -72,7 +70,8 @@ public abstract class AbstractDataAdapter<T> implements DataTypeAdapter<T> {
   protected AbstractDataAdapter(
       final List<PersistentIndexFieldHandler<T, ? extends CommonIndexValue, Object>> indexFieldHandlers,
       final List<NativeFieldHandler<T, Object>> nativeFieldHandlers,
-      final FieldVisibilityHandler<T, Object> fieldVisiblityHandler, final Object defaultTypeData) {
+      final FieldVisibilityHandler<T, Object> fieldVisiblityHandler,
+      final Object defaultTypeData) {
     this.nativeFieldHandlers = nativeFieldHandlers;
     this.fieldVisiblityHandler = fieldVisiblityHandler;
     init(indexFieldHandlers, defaultTypeData);
@@ -106,8 +105,9 @@ public abstract class AbstractDataAdapter<T> implements DataTypeAdapter<T> {
         // but they shouldn't conflict with an existing type matching
         // class
 
-        typeMatchingFieldHandlers.put(GenericTypeResolver
-            .resolveTypeArguments(indexHandler.getClass(), IndexFieldHandler.class)[1],
+        typeMatchingFieldHandlers.put(
+            GenericTypeResolver
+                .resolveTypeArguments(indexHandler.getClass(), IndexFieldHandler.class)[1],
             indexHandler);
       }
     }
@@ -120,15 +120,16 @@ public abstract class AbstractDataAdapter<T> implements DataTypeAdapter<T> {
         getDefaultTypeMatchingHandlers(defaultIndexHandlerData);
 
     for (final IndexFieldHandler<T, ? extends CommonIndexValue, Object> defaultFieldHandler : defaultTypeMatchingHandlers) {
-      final Class<?> defaultFieldHandlerClass = GenericTypeResolver
-          .resolveTypeArguments(defaultFieldHandler.getClass(), IndexFieldHandler.class)[1];
+      final Class<?> defaultFieldHandlerClass =
+          GenericTypeResolver
+              .resolveTypeArguments(defaultFieldHandler.getClass(), IndexFieldHandler.class)[1];
 
       // if the type matching handlers can already handle this class,
       // don't overload it, otherwise, use this as a default handler
 
       final IndexFieldHandler<T, ? extends CommonIndexValue, Object> existingTypeHandler =
-          FieldUtils.getAssignableValueFromClassMap(defaultFieldHandlerClass,
-              typeMatchingFieldHandlers);
+          FieldUtils
+              .getAssignableValueFromClassMap(defaultFieldHandlerClass, typeMatchingFieldHandlers);
       if (existingTypeHandler == null) {
         typeMatchingFieldHandlers.put(defaultFieldHandlerClass, defaultFieldHandler);
       }
@@ -202,8 +203,11 @@ public abstract class AbstractDataAdapter<T> implements DataTypeAdapter<T> {
             // dont waste time converting IDs to String if info is
             // not
             // enabled
-            LOGGER.info("Unable to find field handler for data adapter '" + getTypeName()
-                + "' and indexed field '" + dimension.getFieldName());
+            LOGGER.info(
+                "Unable to find field handler for data adapter '"
+                    + getTypeName()
+                    + "' and indexed field '"
+                    + dimension.getFieldName());
           }
           continue;
         }
@@ -240,8 +244,11 @@ public abstract class AbstractDataAdapter<T> implements DataTypeAdapter<T> {
     if (fieldHandler == null) {
       // if that fails, go for type matching
       fieldHandler =
-          FieldUtils.getAssignableValueFromClassMap(GenericTypeResolver.resolveTypeArgument(
-              dimension.getClass(), NumericDimensionField.class), typeMatchingFieldHandlers);
+          FieldUtils
+              .getAssignableValueFromClassMap(
+                  GenericTypeResolver
+                      .resolveTypeArgument(dimension.getClass(), NumericDimensionField.class),
+                  typeMatchingFieldHandlers);
       fieldNameMatchingFieldHandlers.put(dimension.getFieldName(), fieldHandler);
     }
     return fieldHandler;
@@ -279,8 +286,10 @@ public abstract class AbstractDataAdapter<T> implements DataTypeAdapter<T> {
     final byte[] defaultTypeDataBinary = defaultTypeDataToBinary();
     final byte[] persistablesBytes = PersistenceUtils.toBinary(persistables);
     final ByteBuffer buf =
-        ByteBuffer.allocate(defaultTypeDataBinary.length + persistablesBytes.length
-            + VarintUtils.unsignedIntByteLength(defaultTypeDataBinary.length));
+        ByteBuffer.allocate(
+            defaultTypeDataBinary.length
+                + persistablesBytes.length
+                + VarintUtils.unsignedIntByteLength(defaultTypeDataBinary.length));
     VarintUtils.writeUnsignedInt(defaultTypeDataBinary.length, buf);
     buf.put(defaultTypeDataBinary);
     buf.put(persistablesBytes);

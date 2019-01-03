@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -76,14 +75,21 @@ public class SimpleFeatureItemWrapperFactory implements AnalyticItemWrapperFacto
 
     @Override
     public void incrementAssociationCount(final long increment) {
-      item.setAttribute(ClusterFeatureAttribute.COUNT.attrName(),
-          getAssociationCount() + increment);
+      item.setAttribute(
+          ClusterFeatureAttribute.COUNT.attrName(), getAssociationCount() + increment);
     }
 
     @Override
     public String toString() {
-      return "SimpleFeatureCentroid [item=" + item.getID() + ", + group=" + getGroupID()
-          + ", + count=" + getAssociationCount() + ", cost=" + getCost() + "]";
+      return "SimpleFeatureCentroid [item="
+          + item.getID()
+          + ", + group="
+          + getGroupID()
+          + ", + count="
+          + getAssociationCount()
+          + ", cost="
+          + getCost()
+          + "]";
     }
 
     @Override
@@ -144,7 +150,9 @@ public class SimpleFeatureItemWrapperFactory implements AnalyticItemWrapperFacto
     return att == null ? null : att.toString();
   }
 
-  private static int getIntAttribute(final SimpleFeature feature, final String name,
+  private static int getIntAttribute(
+      final SimpleFeature feature,
+      final String name,
       final int defaultValue) {
     final Object att = feature.getAttribute(name);
     return att == null ? defaultValue
@@ -157,8 +165,11 @@ public class SimpleFeatureItemWrapperFactory implements AnalyticItemWrapperFacto
    */
 
   @Override
-  public AnalyticItemWrapper<SimpleFeature> createNextItem(final SimpleFeature feature,
-      final String groupID, final Coordinate coordinate, final String[] extraNames,
+  public AnalyticItemWrapper<SimpleFeature> createNextItem(
+      final SimpleFeature feature,
+      final String groupID,
+      final Coordinate coordinate,
+      final String[] extraNames,
       final double[] extraValues) {
     final Geometry geometry =
         (Geometry) feature.getAttribute(ClusterFeatureAttribute.GEOMETRY.attrName());

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -86,8 +85,8 @@ public abstract class GeoWaveBaseConverter<T> extends BaseConverter<T> {
     PropertiesUtils propsUtils = new PropertiesUtils(getProperties());
     boolean defaultEchoEnabled =
         propsUtils.getBoolean(Constants.CONSOLE_DEFAULT_ECHO_ENABLED_KEY, false);
-    LOGGER.debug("Default console echo is {}",
-        new Object[] {defaultEchoEnabled ? "enabled" : "disabled"});
+    LOGGER.debug(
+        "Default console echo is {}", new Object[] {defaultEchoEnabled ? "enabled" : "disabled"});
     getConsole().print(promptMessage);
     char[] responseChars = getConsole().readPassword(defaultEchoEnabled);
     String response = new String(responseChars);
@@ -109,8 +108,8 @@ public abstract class GeoWaveBaseConverter<T> extends BaseConverter<T> {
         propsUtils.getBoolean(Constants.CONSOLE_DEFAULT_ECHO_ENABLED_KEY, false);
     boolean passwordEchoEnabled =
         propsUtils.getBoolean(Constants.CONSOLE_PASSWORD_ECHO_ENABLED_KEY, defaultEchoEnabled);
-    LOGGER.debug("Password console echo is {}",
-        new Object[] {passwordEchoEnabled ? "enabled" : "disabled"});
+    LOGGER.debug(
+        "Password console echo is {}", new Object[] {passwordEchoEnabled ? "enabled" : "disabled"});
     getConsole().print(promptMessage);
     char[] passwordChars = getConsole().readPassword(passwordEchoEnabled);
     String strPassword = new String(passwordChars);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -57,8 +56,10 @@ public class GeoWaveAvroFeatureUtils {
    * @return
    * @throws IOException
    */
-  public static AvroFeatureDefinition buildFeatureDefinition(AvroFeatureDefinition fd,
-      final SimpleFeatureType sft, final Map<String, String> defaultClassifications,
+  public static AvroFeatureDefinition buildFeatureDefinition(
+      AvroFeatureDefinition fd,
+      final SimpleFeatureType sft,
+      final Map<String, String> defaultClassifications,
       final String defaultClassification) throws IOException {
     if (fd == null) {
       fd = new AvroFeatureDefinition();
@@ -96,9 +97,10 @@ public class GeoWaveAvroFeatureUtils {
    * @return
    * @throws IOException
    */
-  private static String getClassification(final String localName,
-      final Map<String, String> defaultClassifications, final String defaultClassification)
-      throws IOException {
+  private static String getClassification(
+      final String localName,
+      final Map<String, String> defaultClassifications,
+      final String defaultClassification) throws IOException {
     String classification;
 
     if ((defaultClassifications != null) && defaultClassifications.containsKey(localName)) {
@@ -109,7 +111,8 @@ public class GeoWaveAvroFeatureUtils {
 
     if (classification == null) {
       throw new IOException("No default classification was provided, and no classification for: '"
-          + localName + "' was provided");
+          + localName
+          + "' was provided");
     }
 
     return classification;
@@ -122,7 +125,8 @@ public class GeoWaveAvroFeatureUtils {
    * @param sft
    * @return
    */
-  public static synchronized AvroAttributeValues buildAttributeValue(final SimpleFeature sf,
+  public static synchronized AvroAttributeValues buildAttributeValue(
+      final SimpleFeature sf,
       final SimpleFeatureType sft) {
     final AvroAttributeValues attributeValue = new AvroAttributeValues();
 
@@ -184,8 +188,10 @@ public class GeoWaveAvroFeatureUtils {
     return sftb.buildFeatureType();
   }
 
-  public static SimpleFeature avroSimpleFeatureToGTSimpleFeature(final SimpleFeatureType type,
-      final List<String> attributeTypes, final AvroAttributeValues attributeValues)
+  public static SimpleFeature avroSimpleFeatureToGTSimpleFeature(
+      final SimpleFeatureType type,
+      final List<String> attributeTypes,
+      final AvroAttributeValues attributeValues)
       throws IOException, ClassNotFoundException, ParseException {
     // Convert
     SimpleFeature simpleFeature;
@@ -209,8 +215,9 @@ public class GeoWaveAvroFeatureUtils {
           sfb.add(WKB_READER.read(val.array()));
         }
       } else {
-        final FieldReader<?> fr = FieldUtils
-            .getDefaultReaderForClass(Class.forName(jtsCompatibility(attributeTypes.get(i))));
+        final FieldReader<?> fr =
+            FieldUtils
+                .getDefaultReaderForClass(Class.forName(jtsCompatibility(attributeTypes.get(i))));
         sfb.add(fr.readField(val.array(), serializationVersion));
       }
     }
@@ -235,7 +242,8 @@ public class GeoWaveAvroFeatureUtils {
    * @return instance of AvroSimpleFeature with values parsed from avroData
    * @throws IOException
    */
-  private static AvroSimpleFeature deserializeASF(final byte[] avroData,
+  private static AvroSimpleFeature deserializeASF(
+      final byte[] avroData,
       AvroSimpleFeature avroObjectToReuse) throws IOException {
     final BinaryDecoder decoder = DECODER_FACTORY.binaryDecoder(avroData, null);
     if (avroObjectToReuse == null) {

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -61,7 +60,8 @@ public class SceneFeatureIterator implements SimpleFeatureIterator {
 
     @Override
     public int compare(final SimpleFeature first, final SimpleFeature second) {
-      return Float.compare((Float) first.getAttribute(CLOUD_COVER_ATTRIBUTE_NAME),
+      return Float.compare(
+          (Float) first.getAttribute(CLOUD_COVER_ATTRIBUTE_NAME),
           (Float) second.getAttribute(CLOUD_COVER_ATTRIBUTE_NAME));
     }
   }
@@ -93,16 +93,26 @@ public class SceneFeatureIterator implements SimpleFeatureIterator {
   private Iterator<SimpleFeature> iterator;
   private SimpleFeatureType type;
 
-  public SceneFeatureIterator(final boolean onlyScenesSinceLastRun, final boolean useCachedScenes,
-      final boolean nBestScenesByPathRow, final int nBestScenes, final Filter cqlFilter,
+  public SceneFeatureIterator(
+      final boolean onlyScenesSinceLastRun,
+      final boolean useCachedScenes,
+      final boolean nBestScenesByPathRow,
+      final int nBestScenes,
+      final Filter cqlFilter,
       final String workspaceDir) throws MalformedURLException, IOException {
-    init(new File(workspaceDir, SCENES_DIR), onlyScenesSinceLastRun, useCachedScenes,
+    init(
+        new File(workspaceDir, SCENES_DIR), onlyScenesSinceLastRun, useCachedScenes,
         nBestScenesByPathRow, nBestScenes, new WRS2GeometryStore(workspaceDir), cqlFilter);
   }
 
-  private void init(final File scenesDir, final boolean onlyScenesSinceLastRun,
-      final boolean useCachedScenes, final boolean nBestScenesByPathRow, final int nBestScenes,
-      final WRS2GeometryStore geometryStore, final Filter cqlFilter) throws IOException {
+  private void init(
+      final File scenesDir,
+      final boolean onlyScenesSinceLastRun,
+      final boolean useCachedScenes,
+      final boolean nBestScenesByPathRow,
+      final int nBestScenes,
+      final WRS2GeometryStore geometryStore,
+      final Filter cqlFilter) throws IOException {
     if (!scenesDir.exists() && !scenesDir.mkdirs()) {
       LOGGER.warn("Unable to create directory '" + scenesDir.getAbsolutePath() + "'");
     }
@@ -196,8 +206,12 @@ public class SceneFeatureIterator implements SimpleFeatureIterator {
         }
       }
       if (!tempCsvFile.renameTo(csvFile)) {
-        LOGGER.warn("Unable to rename '" + tempCsvFile.getAbsolutePath() + "' to '"
-            + csvFile.getAbsolutePath() + "'");
+        LOGGER.warn(
+            "Unable to rename '"
+                + tempCsvFile.getAbsolutePath()
+                + "' to '"
+                + csvFile.getAbsolutePath()
+                + "'");
       }
     }
     type = createFeatureType();
@@ -277,8 +291,10 @@ public class SceneFeatureIterator implements SimpleFeatureIterator {
     }
   }
 
-  protected static Iterator<SimpleFeature> nBestScenes(final SimpleFeatureIterator iterator,
-      final boolean byPathRow, final int n) {
+  protected static Iterator<SimpleFeature> nBestScenes(
+      final SimpleFeatureIterator iterator,
+      final boolean byPathRow,
+      final int n) {
     if (byPathRow) {
       final Map<PathRowPair, MinMaxPriorityQueue<SimpleFeature>> bestScenes = new HashMap<>();
       while (iterator.hasNext()) {
@@ -313,9 +329,11 @@ public class SceneFeatureIterator implements SimpleFeatureIterator {
     return bestScenes.iterator();
   }
 
-  private void setupCsvToFeatureIterator(final File csvFile, final long startLine,
-      final WRS2GeometryStore geometryStore, final Filter cqlFilter)
-      throws FileNotFoundException, IOException {
+  private void setupCsvToFeatureIterator(
+      final File csvFile,
+      final long startLine,
+      final WRS2GeometryStore geometryStore,
+      final Filter cqlFilter) throws FileNotFoundException, IOException {
 
     parserFis = new FileInputStream(csvFile);
     parserIsr = new InputStreamReader(parserFis, StringUtils.UTF8_CHARSET);
@@ -387,7 +405,8 @@ public class SceneFeatureIterator implements SimpleFeatureIterator {
     private final WRS2GeometryStore wrs2Geometry;
     private final SimpleFeatureBuilder featureBuilder;
 
-    public CSVToFeatureTransform(final WRS2GeometryStore wrs2Geometry,
+    public CSVToFeatureTransform(
+        final WRS2GeometryStore wrs2Geometry,
         final SimpleFeatureType type) {
       this.wrs2Geometry = wrs2Geometry;
 

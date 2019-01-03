@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -67,13 +66,19 @@ public class GeoWaveInputLoadJobRunner extends GeoWaveAnalyticJobRunner
   @Override
   public int run(final Configuration config, final PropertyManagement runTimeProperties)
       throws Exception {
-    final String indexId = checkIndex(runTimeProperties, OutputParameters.Output.INDEX_ID,
-        runTimeProperties.getPropertyAsString(CentroidParameters.Centroid.INDEX_NAME,
-            new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()).getName()));
+    final String indexId =
+        checkIndex(
+            runTimeProperties, OutputParameters.Output.INDEX_ID,
+            runTimeProperties.getPropertyAsString(
+                CentroidParameters.Centroid.INDEX_NAME, new SpatialDimensionalityTypeProvider()
+                    .createIndex(new SpatialOptions()).getName()));
     OutputParameters.Output.INDEX_ID.getHelper().setValue(config, getScope(), indexId);
 
-    addDataAdapter(config, getAdapter(runTimeProperties, OutputParameters.Output.DATA_TYPE_ID,
-        OutputParameters.Output.DATA_NAMESPACE_URI));
+    addDataAdapter(
+        config,
+        getAdapter(
+            runTimeProperties, OutputParameters.Output.DATA_TYPE_ID,
+            OutputParameters.Output.DATA_NAMESPACE_URI));
     runTimeProperties.setConfig(
         new ParameterEnum[] {OutputParameters.Output.DATA_TYPE_ID,
             OutputParameters.Output.DATA_NAMESPACE_URI, OutputParameters.Output.INDEX_ID},
@@ -87,8 +92,10 @@ public class GeoWaveInputLoadJobRunner extends GeoWaveAnalyticJobRunner
   @Override
   public Collection<ParameterEnum<?>> getParameters() {
     final Collection<ParameterEnum<?>> params = super.getParameters();
-    params.addAll(Arrays.asList(new OutputParameters.Output[] {OutputParameters.Output.INDEX_ID,
-        OutputParameters.Output.DATA_TYPE_ID, OutputParameters.Output.DATA_NAMESPACE_URI}));
+    params.addAll(
+        Arrays.asList(
+            new OutputParameters.Output[] {OutputParameters.Output.INDEX_ID,
+                OutputParameters.Output.DATA_TYPE_ID, OutputParameters.Output.DATA_NAMESPACE_URI}));
     params.addAll(MapReduceParameters.getParameters());
     return params;
   }

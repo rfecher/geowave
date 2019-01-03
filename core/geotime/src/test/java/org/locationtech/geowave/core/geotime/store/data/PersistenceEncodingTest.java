@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -62,12 +61,13 @@ public class PersistenceEncodingTest {
       new NumericDimensionDefinition[] {new LongitudeDefinition(), new LatitudeDefinition(),
           new TimeDefinition(Unit.YEAR),};
 
-  private static final CommonIndexModel model = new SpatialTemporalDimensionalityTypeProvider()
-      .createIndex(new SpatialTemporalOptions()).getIndexModel();
+  private static final CommonIndexModel model =
+      new SpatialTemporalDimensionalityTypeProvider().createIndex(new SpatialTemporalOptions())
+          .getIndexModel();
 
   private static final NumericIndexStrategy strategy =
-      TieredSFCIndexFactory.createSingleTierStrategy(SPATIAL_TEMPORAL_DIMENSIONS,
-          new int[] {16, 16, 16}, SFCType.HILBERT);
+      TieredSFCIndexFactory.createSingleTierStrategy(
+          SPATIAL_TEMPORAL_DIMENSIONS, new int[] {16, 16, 16}, SFCType.HILBERT);
 
   private static final Index index = new PrimaryIndex(strategy, model);
 
@@ -100,10 +100,11 @@ public class PersistenceEncodingTest {
 
     final GeoObjDataAdapter adapter =
         new GeoObjDataAdapter(NATIVE_FIELD_HANDLER_LIST, COMMON_FIELD_HANDLER_LIST);
-    final GeoObj entry = new GeoObj(
-        factory.createLineString(
-            new Coordinate[] {new Coordinate(43.444, 28.232), new Coordinate(43.454, 28.242)}),
-        start, end, "g1");
+    final GeoObj entry =
+        new GeoObj(
+            factory.createLineString(
+                new Coordinate[] {new Coordinate(43.444, 28.232), new Coordinate(43.454, 28.242)}),
+            start, end, "g1");
     final List<ByteArray> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
     assertEquals(7, ids.size());
@@ -112,22 +113,24 @@ public class PersistenceEncodingTest {
   @Test
   public void testLineWithPrecisionOnTheTileEdge() {
 
-    final NumericIndexStrategy strategy = TieredSFCIndexFactory.createSingleTierStrategy(
-        SPATIAL_TEMPORAL_DIMENSIONS, new int[] {14, 14, 14}, SFCType.HILBERT);
+    final NumericIndexStrategy strategy =
+        TieredSFCIndexFactory.createSingleTierStrategy(
+            SPATIAL_TEMPORAL_DIMENSIONS, new int[] {14, 14, 14}, SFCType.HILBERT);
 
     final Index index = new PrimaryIndex(strategy, model);
 
     final GeoObjDataAdapter adapter =
         new GeoObjDataAdapter(NATIVE_FIELD_HANDLER_LIST, COMMON_FIELD_HANDLER_LIST);
-    final GeoObj entry = new GeoObj(
-        factory.createLineString(new Coordinate[] {new Coordinate(-99.22, 33.75000000000001), // notice
-            // that
-            // this gets
-            // tiled as
-            // 33.75
-            new Coordinate(-99.15, 33.75000000000001)
-        // notice that this gets tiled as 33.75
-        }), new Date(352771200000l), new Date(352771200000l), "g1");
+    final GeoObj entry =
+        new GeoObj(factory.createLineString(
+            new Coordinate[] {new Coordinate(-99.22, 33.75000000000001), // notice
+                // that
+                // this gets
+                // tiled as
+                // 33.75
+                new Coordinate(-99.15, 33.75000000000001)
+            // notice that this gets tiled as 33.75
+            }), new Date(352771200000l), new Date(352771200000l), "g1");
     final List<ByteArray> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
     assertEquals(4, ids.size());
@@ -137,11 +140,12 @@ public class PersistenceEncodingTest {
   public void testPoly() {
     final GeoObjDataAdapter adapter =
         new GeoObjDataAdapter(NATIVE_FIELD_HANDLER_LIST, COMMON_FIELD_HANDLER_LIST);
-    final GeoObj entry = new GeoObj(
-        factory.createLineString(
-            new Coordinate[] {new Coordinate(43.444, 28.232), new Coordinate(43.454, 28.242),
-                new Coordinate(43.444, 28.252), new Coordinate(43.444, 28.232),}),
-        start, end, "g1");
+    final GeoObj entry =
+        new GeoObj(
+            factory.createLineString(
+                new Coordinate[] {new Coordinate(43.444, 28.232), new Coordinate(43.454, 28.242),
+                    new Coordinate(43.444, 28.252), new Coordinate(43.444, 28.232),}),
+            start, end, "g1");
     final List<ByteArray> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
     assertEquals(18, ids.size());
@@ -166,10 +170,11 @@ public class PersistenceEncodingTest {
 
     final GeoObjDataAdapter adapter =
         new GeoObjDataAdapter(NATIVE_FIELD_RANGE_HANDLER_LIST, COMMON_FIELD_RANGE_HANDLER_LIST);
-    final GeoObj entry = new GeoObj(
-        factory.createLineString(
-            new Coordinate[] {new Coordinate(43.444, 28.232), new Coordinate(43.454, 28.242)}),
-        start, end, "g1");
+    final GeoObj entry =
+        new GeoObj(
+            factory.createLineString(
+                new Coordinate[] {new Coordinate(43.444, 28.232), new Coordinate(43.454, 28.242)}),
+            start, end, "g1");
     final List<ByteArray> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
     assertTrue(ids.size() < 100);
@@ -260,7 +265,8 @@ public class PersistenceEncodingTest {
       super();
     }
 
-    public GeoObjDataAdapter(final List<NativeFieldHandler<GeoObj, Object>> nativeFields,
+    public GeoObjDataAdapter(
+        final List<NativeFieldHandler<GeoObj, Object>> nativeFields,
         final List<PersistentIndexFieldHandler<GeoObj, ? extends CommonIndexValue, Object>> commonFields) {
       super(commonFields, nativeFields);
     }
@@ -402,7 +408,10 @@ public class PersistenceEncodingTest {
     private final Date startTime;
     private final Date endTime;
 
-    public GeoObj(final Geometry geometry, final Date startTime, final Date endTime,
+    public GeoObj(
+        final Geometry geometry,
+        final Date startTime,
+        final Date endTime,
         final String id) {
       super();
       this.geometry = geometry;

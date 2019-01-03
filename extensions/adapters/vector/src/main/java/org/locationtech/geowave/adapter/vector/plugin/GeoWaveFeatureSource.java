@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,12 +35,16 @@ import org.opengis.geometry.BoundingBox;
 public class GeoWaveFeatureSource extends ContentFeatureStore {
   private final GeoWaveDataStoreComponents components;
 
-  public GeoWaveFeatureSource(final ContentEntry entry, final Query query,
-      final GeotoolsFeatureDataAdapter adapter, final TransactionsAllocator transactionAllocator) {
+  public GeoWaveFeatureSource(
+      final ContentEntry entry,
+      final Query query,
+      final GeotoolsFeatureDataAdapter adapter,
+      final TransactionsAllocator transactionAllocator) {
     super(entry, query);
-    components = new GeoWaveDataStoreComponents(getDataStore().getDataStore(),
-        getDataStore().getDataStatisticsStore(), getDataStore().getIndexStore(), adapter,
-        getDataStore(), transactionAllocator);
+    components =
+        new GeoWaveDataStoreComponents(getDataStore().getDataStore(),
+            getDataStore().getDataStatisticsStore(), getDataStore().getIndexStore(), adapter,
+            getDataStore(), transactionAllocator);
   }
 
   public GeoWaveDataStoreComponents getComponents() {
@@ -57,8 +60,11 @@ public class GeoWaveFeatureSource extends ContentFeatureStore {
     if (query.getFilter().equals(Filter.INCLUDE)) {
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats =
           new GeoWaveEmptyTransaction(components).getDataStatistics();
-      bboxStats = stats.get(VectorStatisticsQueryBuilder.newBuilder().factory().bbox()
-          .fieldName(getFeatureType().getGeometryDescriptor().getLocalName()).build().getId());
+      bboxStats =
+          stats.get(
+              VectorStatisticsQueryBuilder.newBuilder().factory().bbox()
+                  .fieldName(getFeatureType().getGeometryDescriptor().getLocalName()).build()
+                  .getId());
     }
     if (bboxStats != null) {
       minx = ((BoundingBoxDataStatistics) bboxStats).getMinX();
@@ -117,7 +123,8 @@ public class GeoWaveFeatureSource extends ContentFeatureStore {
   }
 
   @Override
-  protected FeatureWriter<SimpleFeatureType, SimpleFeature> getWriterInternal(final Query query,
+  protected FeatureWriter<SimpleFeatureType, SimpleFeature> getWriterInternal(
+      final Query query,
       final int flags) throws IOException {
     final GeoWaveTransactionState state = getDataStore().getMyTransactionState(transaction, this);
     return new GeoWaveFeatureWriter(components, state.getGeoWaveTransaction(query.getTypeName()),
@@ -162,7 +169,7 @@ public class GeoWaveFeatureSource extends ContentFeatureStore {
   @Override
   protected void doUnlockInternal(final String typeName, final SimpleFeature feature)
       throws IOException {
-    getDataStore().getLockingManager().unLockFeatureID(typeName, feature.getID(), transaction,
-        lock);
+    getDataStore().getLockingManager()
+        .unLockFeatureID(typeName, feature.getID(), transaction, lock);
   }
 }

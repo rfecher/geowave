@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,23 +23,29 @@ public class TextSecondaryIndexConfiguration extends AbstractSecondaryIndexConfi
     super(String.class, Collections.<String>emptySet(), SecondaryIndexType.JOIN);
   }
 
-  public TextSecondaryIndexConfiguration(final String attribute,
+  public TextSecondaryIndexConfiguration(
+      final String attribute,
       final SecondaryIndexType secondaryIndexType) {
     super(String.class, attribute, secondaryIndexType);
   }
 
-  public TextSecondaryIndexConfiguration(final Set<String> attributes,
+  public TextSecondaryIndexConfiguration(
+      final Set<String> attributes,
       final SecondaryIndexType secondaryIndexType) {
     super(String.class, attributes, secondaryIndexType);
   }
 
-  public TextSecondaryIndexConfiguration(final String attribute,
-      final SecondaryIndexType secondaryIndexType, final List<String> fieldIds) {
+  public TextSecondaryIndexConfiguration(
+      final String attribute,
+      final SecondaryIndexType secondaryIndexType,
+      final List<String> fieldIds) {
     super(String.class, attribute, secondaryIndexType, fieldIds);
   }
 
-  public TextSecondaryIndexConfiguration(final Set<String> attributes,
-      final SecondaryIndexType secondaryIndexType, final List<String> fieldIds) {
+  public TextSecondaryIndexConfiguration(
+      final Set<String> attributes,
+      final SecondaryIndexType secondaryIndexType,
+      final List<String> fieldIds) {
     super(String.class, attributes, secondaryIndexType, fieldIds);
   }
 

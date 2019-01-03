@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,8 +25,8 @@ public class BasicDimensionDefinitionTest {
     final double midValue = 60;
     final double normalizedValue = 0.5;
 
-    Assert.assertEquals(normalizedValue, getNormalizedValueUsingBounds(MINIMUM, MAXIMUM, midValue),
-        DELTA);
+    Assert.assertEquals(
+        normalizedValue, getNormalizedValueUsingBounds(MINIMUM, MAXIMUM, midValue), DELTA);
   }
 
   @Test
@@ -36,8 +35,8 @@ public class BasicDimensionDefinitionTest {
     final double lowerValue = 20;
     final double normalizedValue = 0.0;
 
-    Assert.assertEquals(normalizedValue,
-        getNormalizedValueUsingBounds(MINIMUM, MAXIMUM, lowerValue), DELTA);
+    Assert.assertEquals(
+        normalizedValue, getNormalizedValueUsingBounds(MINIMUM, MAXIMUM, lowerValue), DELTA);
   }
 
   @Test
@@ -46,8 +45,8 @@ public class BasicDimensionDefinitionTest {
     final double upperValue = 100;
     final double normalizedValue = 1.0;
 
-    Assert.assertEquals(normalizedValue,
-        getNormalizedValueUsingBounds(MINIMUM, MAXIMUM, upperValue), DELTA);
+    Assert.assertEquals(
+        normalizedValue, getNormalizedValueUsingBounds(MINIMUM, MAXIMUM, upperValue), DELTA);
   }
 
   @Test
@@ -56,8 +55,8 @@ public class BasicDimensionDefinitionTest {
     final double value = 1;
     final double normalizedValue = 0.0;
 
-    Assert.assertEquals(normalizedValue, getNormalizedValueUsingBounds(MINIMUM, MAXIMUM, value),
-        DELTA);
+    Assert.assertEquals(
+        normalizedValue, getNormalizedValueUsingBounds(MINIMUM, MAXIMUM, value), DELTA);
   }
 
   @Test
@@ -84,7 +83,9 @@ public class BasicDimensionDefinitionTest {
     Assert.assertEquals(MAXIMUM, binRange[0].getNormalizedMax(), DELTA);
   }
 
-  private double getNormalizedValueUsingBounds(final double min, final double max,
+  private double getNormalizedValueUsingBounds(
+      final double min,
+      final double max,
       final double value) {
     return new BasicDimensionDefinition(min, max).normalize(value);
   }

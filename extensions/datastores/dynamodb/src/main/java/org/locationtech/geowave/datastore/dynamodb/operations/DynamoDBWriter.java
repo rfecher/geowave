@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -109,25 +108,28 @@ public class DynamoDBWriter implements RowWriter {
        * asynchronously Keep track of futures, so that they can be waited on during "flush"
        */
       final BatchWriteItemRequest batchRequest = new BatchWriteItemRequest(writes);
-      final Future<BatchWriteItemResult> future = client.batchWriteItemAsync(batchRequest,
-          new AsyncHandler<BatchWriteItemRequest, BatchWriteItemResult>() {
+      final Future<BatchWriteItemResult> future =
+          client.batchWriteItemAsync(
+              batchRequest, new AsyncHandler<BatchWriteItemRequest, BatchWriteItemResult>() {
 
-            @Override
-            public void onError(final Exception exception) {
-              LOGGER.warn("Unable to get response from Dynamo-Async Write " + exception.toString());
-              futureMap.remove(batchRequest);
-              return;
-            }
+                @Override
+                public void onError(final Exception exception) {
+                  LOGGER.warn(
+                      "Unable to get response from Dynamo-Async Write " + exception.toString());
+                  futureMap.remove(batchRequest);
+                  return;
+                }
 
-            @Override
-            public void onSuccess(final BatchWriteItemRequest request,
-                final BatchWriteItemResult result) {
-              retryAsync(result.getUnprocessedItems());
-              if (futureMap.remove(request) == null) {
-                LOGGER.warn(" Unable to delete BatchWriteRequest from futuresMap ");
-              }
-            }
-          });
+                @Override
+                public void onSuccess(
+                    final BatchWriteItemRequest request,
+                    final BatchWriteItemResult result) {
+                  retryAsync(result.getUnprocessedItems());
+                  if (futureMap.remove(request) == null) {
+                    LOGGER.warn(" Unable to delete BatchWriteRequest from futuresMap ");
+                  }
+                }
+              });
 
       futureMap.put(batchRequest, future);
     } else {
@@ -219,21 +221,24 @@ public class DynamoDBWriter implements RowWriter {
       byte[] rowId = DynamoDBRow.getRangeKey(row);
       Map<String, AttributeValue> map = new HashMap<>();
 
-      map.put(DynamoDBRow.GW_PARTITION_ID_KEY,
+      map.put(
+          DynamoDBRow.GW_PARTITION_ID_KEY,
           new AttributeValue().withB(ByteBuffer.wrap(partitionKey)));
 
       map.put(DynamoDBRow.GW_RANGE_KEY, new AttributeValue().withB(ByteBuffer.wrap(rowId)));
 
-      map.put(DynamoDBRow.GW_FIELD_MASK_KEY,
+      map.put(
+          DynamoDBRow.GW_FIELD_MASK_KEY,
           new AttributeValue().withB(ByteBuffer.wrap(value.getFieldMask())));
 
       if ((value.getVisibility() != null) && (value.getVisibility().length > 0)) {
-        map.put(DynamoDBRow.GW_VISIBILITY_KEY,
+        map.put(
+            DynamoDBRow.GW_VISIBILITY_KEY,
             new AttributeValue().withB(ByteBuffer.wrap(value.getVisibility())));
       }
 
-      map.put(DynamoDBRow.GW_VALUE_KEY,
-          new AttributeValue().withB(ByteBuffer.wrap(value.getValue())));
+      map.put(
+          DynamoDBRow.GW_VALUE_KEY, new AttributeValue().withB(ByteBuffer.wrap(value.getValue())));
 
       mutations.add(new WriteRequest(new PutRequest(map)));
     }

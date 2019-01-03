@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -50,7 +49,8 @@ public class KMeansIterationsJobRunner<T> implements MapReduceJobRunner, Indepen
 
   public KMeansIterationsJobRunner() {}
 
-  protected CentroidManager<T> constructCentroidManager(final Configuration config,
+  protected CentroidManager<T> constructCentroidManager(
+      final Configuration config,
       final PropertyManagement runTimeProperties) throws IOException {
     return new CentroidManagerGeoWave<T>(runTimeProperties);
   }
@@ -68,12 +68,14 @@ public class KMeansIterationsJobRunner<T> implements MapReduceJobRunner, Indepen
   public int run(final Configuration config, final PropertyManagement runTimeProperties)
       throws Exception {
 
-    convergenceTol = runTimeProperties
-        .getPropertyAsDouble(ClusteringParameters.Clustering.CONVERGANCE_TOLERANCE, convergenceTol);
+    convergenceTol =
+        runTimeProperties.getPropertyAsDouble(
+            ClusteringParameters.Clustering.CONVERGANCE_TOLERANCE, convergenceTol);
 
     final DistanceFn<T> distanceFunction =
-        runTimeProperties.getClassInstance(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-            DistanceFn.class, FeatureCentroidDistanceFn.class);
+        runTimeProperties.getClassInstance(
+            CommonParameters.Common.DISTANCE_FUNCTION_CLASS, DistanceFn.class,
+            FeatureCentroidDistanceFn.class);
 
     int maxIterationCount =
         runTimeProperties.getPropertyAsInt(ClusteringParameters.Clustering.MAX_ITERATIONS, 15);
@@ -100,19 +102,20 @@ public class KMeansIterationsJobRunner<T> implements MapReduceJobRunner, Indepen
   protected int runJob(final Configuration config, final PropertyManagement runTimeProperties)
       throws Exception {
 
-    runTimeProperties.storeIfEmpty(CentroidParameters.Centroid.EXTRACTOR_CLASS,
-        SimpleFeatureCentroidExtractor.class);
-    runTimeProperties.storeIfEmpty(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-        SimpleFeatureItemWrapperFactory.class);
-    runTimeProperties.storeIfEmpty(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-        FeatureCentroidDistanceFn.class);
+    runTimeProperties.storeIfEmpty(
+        CentroidParameters.Centroid.EXTRACTOR_CLASS, SimpleFeatureCentroidExtractor.class);
+    runTimeProperties.storeIfEmpty(
+        CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS, SimpleFeatureItemWrapperFactory.class);
+    runTimeProperties.storeIfEmpty(
+        CommonParameters.Common.DISTANCE_FUNCTION_CLASS, FeatureCentroidDistanceFn.class);
     // HP Fortify "Command Injection" false positive
     // What Fortify considers "externally-influenced input"
     // comes only from users with OS-level access anyway
     return jobRunner.run(config, runTimeProperties);
   }
 
-  private boolean checkForConvergence(final CentroidManager<T> centroidManager,
+  private boolean checkForConvergence(
+      final CentroidManager<T> centroidManager,
       final DistanceFn<T> distanceFunction) throws IOException {
     final AtomicInteger grpCount = new AtomicInteger(0);
     final AtomicInteger failuresCount = new AtomicInteger(0);
@@ -139,8 +142,10 @@ public class KMeansIterationsJobRunner<T> implements MapReduceJobRunner, Indepen
     return status && (failuresCount.get() == 0);
   }
 
-  protected int computeCostAndCleanUp(final String groupID,
-      final List<AnalyticItemWrapper<T>> centroids, final CentroidManager<T> centroidManager,
+  protected int computeCostAndCleanUp(
+      final String groupID,
+      final List<AnalyticItemWrapper<T>> centroids,
+      final CentroidManager<T> centroidManager,
       final DistanceFn<T> distanceFunction) {
     double distance = 0;
     final List<String> deletionKeys = new ArrayList<String>();
@@ -180,7 +185,8 @@ public class KMeansIterationsJobRunner<T> implements MapReduceJobRunner, Indepen
       distance += distanceFunction.measure(prior.getWrappedItem(), centroid.getWrappedItem());
       deletionKeys.add(prior.getID());
       if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Within group {} replace {} with {}",
+        LOGGER.trace(
+            "Within group {} replace {} with {}",
             new String[] {prior.getGroupID(), prior.getID(), centroid.getID()});
       }
       prior = null;
@@ -199,14 +205,17 @@ public class KMeansIterationsJobRunner<T> implements MapReduceJobRunner, Indepen
   @Override
   public Collection<ParameterEnum<?>> getParameters() {
     final Set<ParameterEnum<?>> params = new HashSet<ParameterEnum<?>>();
-    params.addAll(Arrays.asList(new ParameterEnum<?>[] {CentroidParameters.Centroid.INDEX_NAME,
-        CentroidParameters.Centroid.DATA_TYPE_ID, CentroidParameters.Centroid.DATA_NAMESPACE_URI,
-        CentroidParameters.Centroid.EXTRACTOR_CLASS,
-        CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-        ClusteringParameters.Clustering.MAX_REDUCER_COUNT,
-        ClusteringParameters.Clustering.MAX_ITERATIONS,
-        ClusteringParameters.Clustering.CONVERGANCE_TOLERANCE,
-        CommonParameters.Common.DISTANCE_FUNCTION_CLASS}));
+    params.addAll(
+        Arrays.asList(
+            new ParameterEnum<?>[] {CentroidParameters.Centroid.INDEX_NAME,
+                CentroidParameters.Centroid.DATA_TYPE_ID,
+                CentroidParameters.Centroid.DATA_NAMESPACE_URI,
+                CentroidParameters.Centroid.EXTRACTOR_CLASS,
+                CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
+                ClusteringParameters.Clustering.MAX_REDUCER_COUNT,
+                ClusteringParameters.Clustering.MAX_ITERATIONS,
+                ClusteringParameters.Clustering.CONVERGANCE_TOLERANCE,
+                CommonParameters.Common.DISTANCE_FUNCTION_CLASS}));
 
     params.addAll(CentroidManagerGeoWave.getParameters());
     params.addAll(NestedGroupCentroidAssignment.getParameters());

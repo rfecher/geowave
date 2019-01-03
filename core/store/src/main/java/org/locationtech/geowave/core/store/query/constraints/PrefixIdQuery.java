@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -65,8 +64,10 @@ public class PrefixIdQuery implements QueryConstraints {
       sortKeyPrefixBinary = new byte[0];
     }
     final ByteBuffer buf =
-        ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(partitionKeyBinary.length)
-            + sortKeyPrefixBinary.length + partitionKeyBinary.length);
+        ByteBuffer.allocate(
+            VarintUtils.unsignedIntByteLength(partitionKeyBinary.length)
+                + sortKeyPrefixBinary.length
+                + partitionKeyBinary.length);
     VarintUtils.writeUnsignedInt(partitionKeyBinary.length, buf);
     buf.put(partitionKeyBinary);
     buf.put(sortKeyPrefixBinary);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,8 +31,12 @@ public class RedisWriter implements RowWriter {
       Caffeine.newBuilder().build(partitionKey -> getSet(partitionKey.getBytes()));
   boolean isTimestampRequired;
 
-  public RedisWriter(final RedissonClient client, final Compression compression,
-      final String namespace, final String typeName, final String indexName,
+  public RedisWriter(
+      final RedissonClient client,
+      final Compression compression,
+      final String namespace,
+      final String typeName,
+      final String indexName,
       final boolean isTimestampRequired) {
     this.client = client;
     this.compression = compression;
@@ -42,8 +45,8 @@ public class RedisWriter implements RowWriter {
   }
 
   private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(final byte[] partitionKey) {
-    return RedisUtils.getRowSet(client, compression, setNamePrefix, partitionKey,
-        isTimestampRequired);
+    return RedisUtils
+        .getRowSet(client, compression, setNamePrefix, partitionKey, isTimestampRequired);
   }
 
   @Override
@@ -62,7 +65,8 @@ public class RedisWriter implements RowWriter {
       partitionKey = new ByteArray(row.getPartitionKey());
     }
     for (final GeoWaveValue value : row.getFieldValues()) {
-      setCache.get(partitionKey).add(RedisUtils.getScore(row.getSortKey()),
+      setCache.get(partitionKey).add(
+          RedisUtils.getScore(row.getSortKey()),
           isTimestampRequired
               ? new GeoWaveRedisPersistedTimestampRow((short) row.getNumberOfDuplicates(),
                   row.getDataId(), value, Instant.now())

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,13 +25,15 @@ public class RedisMetadataReader implements MetadataReader {
   private final RScoredSortedSet<GeoWaveMetadata> set;
   private final MetadataType metadataType;
 
-  public RedisMetadataReader(final RScoredSortedSet<GeoWaveMetadata> set,
+  public RedisMetadataReader(
+      final RScoredSortedSet<GeoWaveMetadata> set,
       final MetadataType metadataType) {
     this.set = set;
     this.metadataType = metadataType;
   }
 
-  public CloseableIterator<GeoWaveMetadata> query(final MetadataQuery query,
+  public CloseableIterator<GeoWaveMetadata> query(
+      final MetadataQuery query,
       final boolean mergeStats) {
     Iterable<GeoWaveMetadata> results;
     if (query.getPrimaryId() != null) {
@@ -44,8 +45,10 @@ public class RedisMetadataReader implements MetadataReader {
       } else {
         // the primary ID prefix is short enough that we can use the
         // score of the next prefix to subset the data
-        results = set.valueRange(RedisUtils.getScore(query.getPrimaryId()), true,
-            RedisUtils.getScore(ByteArray.getNextPrefix(query.getPrimaryId())), false);
+        results =
+            set.valueRange(
+                RedisUtils.getScore(query.getPrimaryId()), true,
+                RedisUtils.getScore(ByteArray.getNextPrefix(query.getPrimaryId())), false);
       }
     } else {
       results = set;

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,15 +34,20 @@ public class ClasspathUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClasspathUtils.class);
   private static List<ClassLoaderTransformerSpi> transformerList = null;
 
-  public static String setupPathingJarClassPath(final File dir, final Class context,
+  public static String setupPathingJarClassPath(
+      final File dir,
+      final Class context,
       final URL... additionalClasspathUrls) throws IOException {
     return setupPathingJarClassPath(
         new File(dir.getParentFile().getAbsolutePath() + File.separator + "pathing", "pathing.jar"),
         null, context, additionalClasspathUrls);
   }
 
-  public static String setupPathingJarClassPath(final File jarFile, final String mainClass,
-      final Class context, final URL... additionalClasspathUrls) throws IOException {
+  public static String setupPathingJarClassPath(
+      final File jarFile,
+      final String mainClass,
+      final Class context,
+      final URL... additionalClasspathUrls) throws IOException {
 
     final File jarDir = jarFile.getParentFile();
     final String classpath = getClasspath(context, additionalClasspathUrls);

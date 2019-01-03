@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,12 +36,10 @@ public class AsyncPaginatedScan extends LazyIteratorChain<Map<String, AttributeV
    * The async paginated query is a much more complicated but asynchronous version of the paginated
    * query
    *
-   * <p>
-   * As soon a async paginated query is fired, multiple asynchronous query requests are fired in
+   * <p> As soon a async paginated query is fired, multiple asynchronous query requests are fired in
    * tandem across different async paginated queries.
    *
-   * <p>
-   * A max of "MAX_ASYNC_SCAN_RESULTS" can be in progress at any time
+   * <p> A max of "MAX_ASYNC_SCAN_RESULTS" can be in progress at any time
    */
   public AsyncPaginatedScan(final ScanRequest request, final AmazonDynamoDBAsync dynamoDBClient) {
     lastRequest = request;
@@ -62,12 +59,10 @@ public class AsyncPaginatedScan extends LazyIteratorChain<Map<String, AttributeV
    * Get the next query data If the last request is equal to null then we have no more query
    * requests to fire
    *
-   * <p>
-   * If asyncQueryResults is not empty, we have already fetched the next query data that can be read
-   * immediately
+   * <p> If asyncQueryResults is not empty, we have already fetched the next query data that can be
+   * read immediately
    *
-   * <p>
-   * If due to max async query limit, we couldn't fire async requests, we fire the request now
+   * <p> If due to max async query limit, we couldn't fire async requests, we fire the request now
    */
   @Override
   protected Iterator<? extends Map<String, AttributeValue>> nextIterator(final int arg0) {
@@ -121,8 +116,7 @@ public class AsyncPaginatedScan extends LazyIteratorChain<Map<String, AttributeV
    * Fire the async query On success, we check to see if we can fire any more queries We continue to
    * fire queries until the global max is reached or we have asynchronously fired all queries
    *
-   * <p>
-   * Any waiting threads are signaled here
+   * <p> Any waiting threads are signaled here
    */
   private void makeAsyncScan() {
     synchronized (monitorLock) {

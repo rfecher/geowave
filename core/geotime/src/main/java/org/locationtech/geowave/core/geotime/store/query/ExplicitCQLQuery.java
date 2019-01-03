@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,7 +37,9 @@ public class ExplicitCQLQuery implements QueryConstraints, TypeConstraintQuery {
 
   public ExplicitCQLQuery() {}
 
-  public ExplicitCQLQuery(final QueryConstraints baseQuery, final Filter filter,
+  public ExplicitCQLQuery(
+      final QueryConstraints baseQuery,
+      final Filter filter,
       final GeotoolsFeatureDataAdapter adapter) {
     // TODO consider ensuring the baseQuery amd the filter are in the
     // coordinate reference system of the adapter
@@ -87,8 +88,11 @@ public class ExplicitCQLQuery implements QueryConstraints, TypeConstraintQuery {
       filterBytes = new byte[] {};
     }
 
-    final ByteBuffer buf = ByteBuffer.allocate(filterBytes.length + baseQueryBytes.length
-        + VarintUtils.unsignedIntByteLength(filterBytes.length));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            filterBytes.length
+                + baseQueryBytes.length
+                + VarintUtils.unsignedIntByteLength(filterBytes.length));
     VarintUtils.writeUnsignedInt(filterBytes.length, buf);
     buf.put(filterBytes);
     buf.put(baseQueryBytes);

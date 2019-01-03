@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -39,8 +38,9 @@ public class QueryIndexHelper {
     final TemporalRange timeRange = new TemporalRange();
     if (attr != null) {
       final FeatureTimeRangeStatistics stat =
-          ((FeatureTimeRangeStatistics) statsMap.get(VectorStatisticsQueryBuilder.newBuilder()
-              .factory().timeRange().fieldName(attr.getLocalName()).build().getId()));
+          ((FeatureTimeRangeStatistics) statsMap.get(
+              VectorStatisticsQueryBuilder.newBuilder().factory().timeRange()
+                  .fieldName(attr.getLocalName()).build().getId()));
       if (stat != null) {
         timeRange.setStartTime(stat.getMinTime());
         timeRange.setEndTime(stat.getMaxTime());
@@ -59,7 +59,8 @@ public class QueryIndexHelper {
    */
   public static TemporalConstraintsSet clipIndexedTemporalConstraints(
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap,
-      final TimeDescriptors timeDescriptors, final TemporalConstraintsSet constraintsSet) {
+      final TimeDescriptors timeDescriptors,
+      final TemporalConstraintsSet constraintsSet) {
     // TODO: if query range doesn't intersect with the stats, it seems the
     // constraints are removed or empty - does this make sense? It seems
     // this can result in open-ended time when it should find no results.
@@ -86,8 +87,9 @@ public class QueryIndexHelper {
         && constraintsSet.hasConstraintsFor(timeDescriptors.getTime().getLocalName())) {
       final String name = timeDescriptors.getTime().getLocalName();
       final FeatureTimeRangeStatistics stats =
-          ((FeatureTimeRangeStatistics) statsMap.get(VectorStatisticsQueryBuilder.newBuilder()
-              .factory().timeRange().fieldName(name).build().getId()));
+          ((FeatureTimeRangeStatistics) statsMap.get(
+              VectorStatisticsQueryBuilder.newBuilder().factory().timeRange().fieldName(name)
+                  .build().getId()));
 
       final TemporalConstraints constraints = constraintsSet.getConstraintsFor(name);
       if (stats != null) {
@@ -108,19 +110,22 @@ public class QueryIndexHelper {
    * @param statsMap
    * @return
    */
-  public static Geometry clipIndexedBBOXConstraints(final SimpleFeatureType featureType,
+  public static Geometry clipIndexedBBOXConstraints(
+      final SimpleFeatureType featureType,
       final Geometry bbox,
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap) {
 
     final String geoAttrName = featureType.getGeometryDescriptor().getLocalName();
 
-    final StatisticsId statId = VectorStatisticsQueryBuilder.newBuilder().factory().bbox()
-        .fieldName(geoAttrName).build().getId();
+    final StatisticsId statId =
+        VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(geoAttrName).build()
+            .getId();
     final FeatureBoundingBoxStatistics bboxStats =
         (FeatureBoundingBoxStatistics) statsMap.get(statId);
     if ((bboxStats != null) && bboxStats.isSet() && (bbox != null)) {
-      final Geometry geo = bboxStats.composeGeometry(
-          featureType.getGeometryDescriptor().getType().getCoordinateReferenceSystem());
+      final Geometry geo =
+          bboxStats.composeGeometry(
+              featureType.getGeometryDescriptor().getType().getCoordinateReferenceSystem());
       // TODO if the query doesn't intersect the stats this will return an
       // empty geometry, it seems that'd be an opportunity to quickly
       // return no results rather than continuing on and hoping that an
@@ -130,20 +135,23 @@ public class QueryIndexHelper {
     return bbox;
   }
 
-  public static ConstraintSet getTimeConstraintsFromIndex(final TimeDescriptors timeDescriptors,
+  public static ConstraintSet getTimeConstraintsFromIndex(
+      final TimeDescriptors timeDescriptors,
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> stats) {
 
     if ((timeDescriptors.getEndRange() != null) || (timeDescriptors.getStartRange() != null)) {
-      final FeatureTimeRangeStatistics endRange = (timeDescriptors.getEndRange() != null)
-          ? ((FeatureTimeRangeStatistics) stats
-              .get(VectorStatisticsQueryBuilder.newBuilder().factory().timeRange()
-                  .fieldName(timeDescriptors.getEndRange().getLocalName()).build().getId()))
-          : null;
-      final FeatureTimeRangeStatistics startRange = (timeDescriptors.getStartRange() != null)
-          ? ((FeatureTimeRangeStatistics) stats
-              .get(VectorStatisticsQueryBuilder.newBuilder().factory().timeRange()
-                  .fieldName(timeDescriptors.getStartRange().getLocalName()).build().getId()))
-          : null;
+      final FeatureTimeRangeStatistics endRange =
+          (timeDescriptors.getEndRange() != null)
+              ? ((FeatureTimeRangeStatistics) stats.get(
+                  VectorStatisticsQueryBuilder.newBuilder().factory().timeRange()
+                      .fieldName(timeDescriptors.getEndRange().getLocalName()).build().getId()))
+              : null;
+      final FeatureTimeRangeStatistics startRange =
+          (timeDescriptors.getStartRange() != null)
+              ? ((FeatureTimeRangeStatistics) stats.get(
+                  VectorStatisticsQueryBuilder.newBuilder().factory().timeRange()
+                      .fieldName(timeDescriptors.getStartRange().getLocalName()).build().getId()))
+              : null;
 
       if ((endRange != null) && (startRange != null)) {
         return SpatialTemporalQuery.createConstraints(
@@ -154,9 +162,10 @@ public class QueryIndexHelper {
         return SpatialTemporalQuery.createConstraints(startRange.asTemporalRange(), true);
       }
     } else if (timeDescriptors.getTime() != null) {
-      final FeatureTimeRangeStatistics timeStat = ((FeatureTimeRangeStatistics) stats
-          .get(VectorStatisticsQueryBuilder.newBuilder().factory().timeRange()
-              .fieldName(timeDescriptors.getTime().getLocalName()).build().getId()));
+      final FeatureTimeRangeStatistics timeStat =
+          ((FeatureTimeRangeStatistics) stats.get(
+              VectorStatisticsQueryBuilder.newBuilder().factory().timeRange()
+                  .fieldName(timeDescriptors.getTime().getLocalName()).build().getId()));
       if (timeStat != null) {
         return SpatialTemporalQuery.createConstraints(timeStat.asTemporalRange(), true);
       }
@@ -164,11 +173,13 @@ public class QueryIndexHelper {
     return new ConstraintSet();
   }
 
-  public static ConstraintSet getBBOXIndexConstraintsFromIndex(final SimpleFeatureType featureType,
+  public static ConstraintSet getBBOXIndexConstraintsFromIndex(
+      final SimpleFeatureType featureType,
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap) {
     final String geoAttrName = featureType.getGeometryDescriptor().getLocalName();
-    final StatisticsId statId = VectorStatisticsQueryBuilder.newBuilder().factory().bbox()
-        .fieldName(geoAttrName).build().getId();
+    final StatisticsId statId =
+        VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(geoAttrName).build()
+            .getId();
     final BoundingBoxDataStatistics<SimpleFeature> bboxStats =
         (BoundingBoxDataStatistics<SimpleFeature>) statsMap.get(statId);
     return (bboxStats != null) ? bboxStats.getConstraints() : new ConstraintSet();
@@ -184,7 +195,8 @@ public class QueryIndexHelper {
    * @param timeBoundsSet
    * @return
    */
-  public static Constraints composeTimeConstraints(final SimpleFeatureType featureType,
+  public static Constraints composeTimeConstraints(
+      final SimpleFeatureType featureType,
       final TimeDescriptors timeDescriptors,
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap,
       final TemporalConstraintsSet timeBoundsSet) {
@@ -206,7 +218,8 @@ public class QueryIndexHelper {
    * @param timeBoundsSet
    * @return
    */
-  public static Constraints composeTimeBoundedConstraints(final SimpleFeatureType featureType,
+  public static Constraints composeTimeBoundedConstraints(
+      final SimpleFeatureType featureType,
       final TimeDescriptors timeDescriptors,
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap,
       final TemporalConstraintsSet timeBoundsSet) {
@@ -270,10 +283,12 @@ public class QueryIndexHelper {
    * @param timeBoundsSet
    * @return
    */
-  public static Constraints composeConstraints(final SimpleFeatureType featureType,
+  public static Constraints composeConstraints(
+      final SimpleFeatureType featureType,
       final TimeDescriptors timeDescriptors,
       final Map<StatisticsId, InternalDataStatistics<SimpleFeature, ?, ?>> statsMap,
-      final Geometry jtsBounds, final TemporalConstraintsSet timeBoundsSet) {
+      final Geometry jtsBounds,
+      final TemporalConstraintsSet timeBoundsSet) {
 
     final Constraints timeConstraints =
         composeTimeConstraints(featureType, timeDescriptors, statsMap, timeBoundsSet);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -56,7 +55,8 @@ public class FileUploadIT {
 
   @Test
   public void fileUpload() {
-    TestUtils.assertStatusCode("Should succeed for valid file path", 201,
+    TestUtils.assertStatusCode(
+        "Should succeed for valid file path", 201,
         fileUploadServiceClient.uploadFile("data/osm_gpx_test_case/public/000/992/000992764.gpx"));
   }
 

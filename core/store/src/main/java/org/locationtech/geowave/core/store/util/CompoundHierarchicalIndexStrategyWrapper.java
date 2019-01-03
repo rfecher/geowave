@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -67,8 +66,9 @@ public class CompoundHierarchicalIndexStrategyWrapper implements HierarchicalNum
         final CompoundIndexStrategy parent = parentStrategies.get(j);
         if (parent.getPrimarySubStrategy().equals(currentStrategyToBeReplaced)) {
           // replace primary
-          currentStrategyReplacement = new CompoundIndexStrategy(currentStrategyReplacement,
-              parent.getSecondarySubStrategy());
+          currentStrategyReplacement =
+              new CompoundIndexStrategy(currentStrategyReplacement,
+                  parent.getSecondarySubStrategy());
         } else {
           // replace secondary
           currentStrategyReplacement =
@@ -88,7 +88,8 @@ public class CompoundHierarchicalIndexStrategyWrapper implements HierarchicalNum
   }
 
   @Override
-  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+  public QueryRanges getQueryRanges(
+      final MultiDimensionalNumericData indexedRange,
       final IndexMetaData... hints) {
     return parentStrategies.get(0).getQueryRanges(indexedRange, hints);
   }
@@ -103,10 +104,12 @@ public class CompoundHierarchicalIndexStrategyWrapper implements HierarchicalNum
   }
 
   @Override
-  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
-      final int maxEstimatedRangeDecomposition, final IndexMetaData... hints) {
-    return parentStrategies.get(0).getQueryRanges(indexedRange, maxEstimatedRangeDecomposition,
-        hints);
+  public QueryRanges getQueryRanges(
+      final MultiDimensionalNumericData indexedRange,
+      final int maxEstimatedRangeDecomposition,
+      final IndexMetaData... hints) {
+    return parentStrategies.get(0)
+        .getQueryRanges(indexedRange, maxEstimatedRangeDecomposition, hints);
   }
 
   @Override
@@ -130,13 +133,15 @@ public class CompoundHierarchicalIndexStrategyWrapper implements HierarchicalNum
   }
 
   @Override
-  public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+  public InsertionIds getInsertionIds(
+      final MultiDimensionalNumericData indexedData,
       final int maxEstimatedDuplicateIds) {
     return parentStrategies.get(0).getInsertionIds(indexedData, maxEstimatedDuplicateIds);
   }
 
   @Override
-  public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+  public MultiDimensionalNumericData getRangeForId(
+      final ByteArray partitionKey,
       final ByteArray sortKey) {
     return parentStrategies.get(0).getRangeForId(partitionKey, sortKey);
   }
@@ -195,14 +200,16 @@ public class CompoundHierarchicalIndexStrategyWrapper implements HierarchicalNum
   }
 
   @Override
-  public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+  public MultiDimensionalCoordinates getCoordinatesPerDimension(
+      final ByteArray partitionKey,
       final ByteArray sortKey) {
     return parentStrategies.get(0).getCoordinatesPerDimension(partitionKey, sortKey);
   }
 
   @Override
   public MultiDimensionalCoordinateRanges[] getCoordinateRangesPerDimension(
-      final MultiDimensionalNumericData dataRange, final IndexMetaData... hints) {
+      final MultiDimensionalNumericData dataRange,
+      final IndexMetaData... hints) {
     return parentStrategies.get(0).getCoordinateRangesPerDimension(dataRange, hints);
   }
 
@@ -212,7 +219,8 @@ public class CompoundHierarchicalIndexStrategyWrapper implements HierarchicalNum
   }
 
   @Override
-  public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+  public Set<ByteArray> getQueryPartitionKeys(
+      final MultiDimensionalNumericData queryData,
       final IndexMetaData... hints) {
     return parentStrategies.get(0).getQueryPartitionKeys(queryData, hints);
   }

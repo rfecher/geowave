@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,7 +22,9 @@ public class ComparisonCellDataReducer
   private int level;
 
   @Override
-  protected void reduce(final DoubleWritable key, final Iterable<LongWritable> values,
+  protected void reduce(
+      final DoubleWritable key,
+      final Iterable<LongWritable> values,
       final Context context) throws IOException, InterruptedException {
     // for consistency give all cells with matching weight the same
     // percentile
@@ -46,7 +47,8 @@ public class ComparisonCellDataReducer
       level -= ((maxLevel - minLevel) + 1);
       isWinter = true;
     }
-    totalKeys = context.getConfiguration()
-        .getLong("Entries per level (" + (isWinter ? "winter" : "summer") + ", " + level + ")", 10);
+    totalKeys =
+        context.getConfiguration().getLong(
+            "Entries per level (" + (isWinter ? "winter" : "summer") + ", " + level + ")", 10);
   }
 }

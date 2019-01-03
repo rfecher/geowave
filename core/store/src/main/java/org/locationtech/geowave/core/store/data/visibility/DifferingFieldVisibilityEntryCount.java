@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -45,13 +44,16 @@ public class DifferingFieldVisibilityEntryCount<T>
     return entriesWithDifferingFieldVisibilities > 0;
   }
 
-  public DifferingFieldVisibilityEntryCount(final short internalDataAdapterId,
+  public DifferingFieldVisibilityEntryCount(
+      final short internalDataAdapterId,
       final String indexName) {
     this(internalDataAdapterId, indexName, 0);
   }
 
-  private DifferingFieldVisibilityEntryCount(final short internalDataAdapterId,
-      final String indexName, final long entriesWithDifferingFieldVisibilities) {
+  private DifferingFieldVisibilityEntryCount(
+      final short internalDataAdapterId,
+      final String indexName,
+      final long entriesWithDifferingFieldVisibilities) {
     super(internalDataAdapterId, STATS_TYPE, indexName);
     this.entriesWithDifferingFieldVisibilities = entriesWithDifferingFieldVisibilities;
   }
@@ -67,8 +69,9 @@ public class DifferingFieldVisibilityEntryCount<T>
     if (entriesWithDifferingFieldVisibilities == 0) {
       return super.binaryBuffer(0).array();
     }
-    final ByteBuffer buf = super.binaryBuffer(
-        VarintUtils.unsignedLongByteLength(entriesWithDifferingFieldVisibilities));
+    final ByteBuffer buf =
+        super.binaryBuffer(
+            VarintUtils.unsignedLongByteLength(entriesWithDifferingFieldVisibilities));
     VarintUtils.writeUnsignedLong(entriesWithDifferingFieldVisibilities, buf);
     return buf.array();
   }
@@ -123,14 +126,16 @@ public class DifferingFieldVisibilityEntryCount<T>
     return false;
   }
 
-  public static DifferingFieldVisibilityEntryCount getVisibilityCounts(final Index index,
-      final Collection<Short> adapterIdsToQuery, final DataStatisticsStore statisticsStore,
+  public static DifferingFieldVisibilityEntryCount getVisibilityCounts(
+      final Index index,
+      final Collection<Short> adapterIdsToQuery,
+      final DataStatisticsStore statisticsStore,
       final String... authorizations) {
     DifferingFieldVisibilityEntryCount combinedVisibilityCount = null;
     for (final short adapterId : adapterIdsToQuery) {
       try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> adapterVisibilityCountIt =
-          statisticsStore.getDataStatistics(adapterId, index.getName(), STATS_TYPE,
-              authorizations)) {
+          statisticsStore
+              .getDataStatistics(adapterId, index.getName(), STATS_TYPE, authorizations)) {
         if (adapterVisibilityCountIt.hasNext()) {
           final DifferingFieldVisibilityEntryCount adapterVisibilityCount =
               (DifferingFieldVisibilityEntryCount) adapterVisibilityCountIt.next();

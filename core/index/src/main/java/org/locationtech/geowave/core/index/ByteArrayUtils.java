@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,8 +21,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * String representation for transport. Use StringUtils for serializing and deserializing text-based
  * data.
  *
- * <p>
- * Additionally, this class has methods for manipulating byte arrays, such as combining or
+ * <p> Additionally, this class has methods for manipulating byte arrays, such as combining or
  * incrementing them.
  */
 public class ByteArrayUtils {
@@ -135,13 +133,11 @@ public class ByteArrayUtils {
    * Combines two variable length byte arrays into one large byte array and appends the length of
    * each individual byte array in sequential order at the end of the combined byte array.
    *
-   * <p>
-   * Given byte_array_1 of length 8 + byte_array_2 of length 16, the result will be byte_array1 +
-   * byte_array_2 + 8 + 16.
+   * <p> Given byte_array_1 of length 8 + byte_array_2 of length 16, the result will be byte_array1
+   * + byte_array_2 + 8 + 16.
    *
-   * <p>
-   * Lengths are put after the individual arrays so they don't impact sorting when used within the
-   * key of a sorted key-value data store.
+   * <p> Lengths are put after the individual arrays so they don't impact sorting when used within
+   * the key of a sorted key-value data store.
    *
    * @param array1 the first byte array
    * @param array2 the second byte array

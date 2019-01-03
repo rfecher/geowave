@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -99,11 +98,15 @@ public class GeometryUtilsTest {
   public void testConstraintGeneration() {
 
     final GeometryFactory gf = new GeometryFactory();
-    final Geometry multiPolygon = gf.createMultiPolygon(new Polygon[] {
-        gf.createPolygon(new Coordinate[] {new Coordinate(20.0, 30), new Coordinate(20, 40),
-            new Coordinate(10, 40), new Coordinate(10, 30), new Coordinate(20, 30)}),
-        gf.createPolygon(new Coordinate[] {new Coordinate(-9, -2), new Coordinate(-9, -1),
-            new Coordinate(-8, -1), new Coordinate(-8, -2), new Coordinate(-9, -2)})});
+    final Geometry multiPolygon =
+        gf.createMultiPolygon(
+            new Polygon[] {
+                gf.createPolygon(
+                    new Coordinate[] {new Coordinate(20.0, 30), new Coordinate(20, 40),
+                        new Coordinate(10, 40), new Coordinate(10, 30), new Coordinate(20, 30)}),
+                gf.createPolygon(
+                    new Coordinate[] {new Coordinate(-9, -2), new Coordinate(-9, -1),
+                        new Coordinate(-8, -1), new Coordinate(-8, -2), new Coordinate(-9, -2)})});
     final Constraints constraints = GeometryUtils.basicConstraintsFromGeometry(multiPolygon);
     final List<MultiDimensionalNumericData> results =
         constraints.getIndexConstraints(new ExampleNumericIndexStrategy());
@@ -118,9 +121,12 @@ public class GeometryUtilsTest {
 
   @Test
   public void testSplit() {
-    final Geometry multiPolygon = factory.createMultiPolygon(new Polygon[] {factory
-        .createPolygon(new Coordinate[] {new Coordinate(179.0, -89), new Coordinate(179.0, -92),
-            new Coordinate(182.0, -92), new Coordinate(192.0, -89), new Coordinate(179.0, -89)})});
+    final Geometry multiPolygon =
+        factory.createMultiPolygon(
+            new Polygon[] {factory.createPolygon(
+                new Coordinate[] {new Coordinate(179.0, -89), new Coordinate(179.0, -92),
+                    new Coordinate(182.0, -92), new Coordinate(192.0, -89),
+                    new Coordinate(179.0, -89)})});
     final Geometry result = GeometryUtils.adjustGeo(GeometryUtils.getDefaultCRS(), multiPolygon);
 
     assertTrue(result.intersects(multiPolygon));
@@ -130,9 +136,12 @@ public class GeometryUtilsTest {
   @Test
   public void testSimple() {
 
-    final Geometry singlePoly = factory.createMultiPolygon(new Polygon[] {factory
-        .createPolygon(new Coordinate[] {new Coordinate(169.0, 20), new Coordinate(169.0, 21),
-            new Coordinate(172.0, 21), new Coordinate(172.0, 20), new Coordinate(169.0, 20)})});
+    final Geometry singlePoly =
+        factory.createMultiPolygon(
+            new Polygon[] {factory.createPolygon(
+                new Coordinate[] {new Coordinate(169.0, 20), new Coordinate(169.0, 21),
+                    new Coordinate(172.0, 21), new Coordinate(172.0, 20),
+                    new Coordinate(169.0, 20)})});
     final Geometry result = GeometryUtils.adjustGeo(GeometryUtils.getDefaultCRS(), singlePoly);
 
     assertTrue(result.intersects(singlePoly));
@@ -172,19 +181,23 @@ public class GeometryUtilsTest {
 
     @Override
     public MultiDimensionalCoordinateRanges[] getCoordinateRangesPerDimension(
-        final MultiDimensionalNumericData dataRange, final IndexMetaData... hints) {
-      return null;
-    }
-
-    @Override
-    public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+        final MultiDimensionalNumericData dataRange,
         final IndexMetaData... hints) {
       return null;
     }
 
     @Override
-    public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
-        final int maxEstimatedRangeDecomposition, final IndexMetaData... hints) {
+    public QueryRanges getQueryRanges(
+        final MultiDimensionalNumericData indexedRange,
+        final IndexMetaData... hints) {
+      return null;
+    }
+
+    @Override
+    public QueryRanges getQueryRanges(
+        final MultiDimensionalNumericData indexedRange,
+        final int maxEstimatedRangeDecomposition,
+        final IndexMetaData... hints) {
       return null;
     }
 
@@ -194,25 +207,29 @@ public class GeometryUtilsTest {
     }
 
     @Override
-    public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+    public InsertionIds getInsertionIds(
+        final MultiDimensionalNumericData indexedData,
         final int maxEstimatedDuplicateIds) {
       return null;
     }
 
     @Override
-    public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+    public MultiDimensionalNumericData getRangeForId(
+        final ByteArray partitionKey,
         final ByteArray sortKey) {
       return null;
     }
 
     @Override
-    public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+    public Set<ByteArray> getQueryPartitionKeys(
+        final MultiDimensionalNumericData queryData,
         final IndexMetaData... hints) {
       return null;
     }
 
     @Override
-    public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+    public MultiDimensionalCoordinates getCoordinatesPerDimension(
+        final ByteArray partitionKey,
         final ByteArray sortKey) {
       return null;
     }

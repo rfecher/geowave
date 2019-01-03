@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -130,8 +129,9 @@ public class Landsat8TemporalBinningStrategy implements BinningStrategy {
 
       // we have the millis for range, but to normalize for this bin we
       // need to subtract the epoch of the bin
-      bins.add(new BinRange(getBinId(epochIterator), startMillis - epochIterator,
-          endMillis - epochIterator, fullExtent));
+      bins.add(
+          new BinRange(getBinId(epochIterator), startMillis - epochIterator,
+              endMillis - epochIterator, fullExtent));
       epochIterator = nextEpoch;
       // iterate until we reach our end epoch
     } while (!lastBin);

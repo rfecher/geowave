@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -18,8 +17,7 @@ import org.locationtech.geowave.core.index.sfc.data.NumericData;
  * The Longitude Definition class is a convenience class used to define a dimension which is
  * associated with the X axis on a Cartesian plane.
  *
- * <p>
- * Minimum bounds = -180 and maximum bounds = 180
+ * <p> Minimum bounds = -180 and maximum bounds = 180
  */
 public class LongitudeDefinition extends BasicDimensionDefinition {
 
@@ -56,8 +54,9 @@ public class LongitudeDefinition extends BasicDimensionDefinition {
     // also, special case min=0, max=-1 as this is used within JTS as the
     // envelope for empty geometry and we don't want empty geometry
     // interpreted as a dateline crossing
-    if (normalizedMax < normalizedMin && !((FloatCompareUtils.checkDoublesEqual(normalizedMax, -1)
-        && (FloatCompareUtils.checkDoublesEqual(normalizedMin, 0))))) {
+    if (normalizedMax < normalizedMin
+        && !((FloatCompareUtils.checkDoublesEqual(normalizedMax, -1)
+            && (FloatCompareUtils.checkDoublesEqual(normalizedMin, 0))))) {
 
       return new BinRange[] {new BinRange(-180, normalizedMax), new BinRange(normalizedMin, 180)};
     }

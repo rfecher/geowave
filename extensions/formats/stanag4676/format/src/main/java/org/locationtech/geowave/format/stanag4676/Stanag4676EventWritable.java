@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -130,14 +129,30 @@ public class Stanag4676EventWritable implements Writable {
     ObjectClassRel = new IntWritable();
   }
 
-  public void setTrackPointData(final byte[] geometry, final byte[] detailGeometry,
-      final byte[] image, final String missionUUID, final String trackNumber,
-      final String trackUUID, final String trackStatus, final String trackClassification,
-      final String trackItemUUID, final String trackPointSource, final long timeStamp,
-      final long endTimeStamp, final double speed, final double course,
-      final String trackItemClassification, final double latitude, final double longitude,
-      final double elevation, final double detailLatitude, final double detailLongitude,
-      final double detailElevation, final int pixelRow, final int pixelColumn,
+  public void setTrackPointData(
+      final byte[] geometry,
+      final byte[] detailGeometry,
+      final byte[] image,
+      final String missionUUID,
+      final String trackNumber,
+      final String trackUUID,
+      final String trackStatus,
+      final String trackClassification,
+      final String trackItemUUID,
+      final String trackPointSource,
+      final long timeStamp,
+      final long endTimeStamp,
+      final double speed,
+      final double course,
+      final String trackItemClassification,
+      final double latitude,
+      final double longitude,
+      final double elevation,
+      final double detailLatitude,
+      final double detailLongitude,
+      final double detailElevation,
+      final int pixelRow,
+      final int pixelColumn,
       final int frameNumber) {
     EventType = new IntWritable(0);
     Geometry = new BytesWritable(geometry);
@@ -170,13 +185,28 @@ public class Stanag4676EventWritable implements Writable {
     FrameNumber = new IntWritable(frameNumber);
   }
 
-  public void setMotionPointData(final byte[] geometry, final byte[] image,
-      final String missionUUID, final String trackNumber, final String trackUUID,
-      final String trackStatus, final String trackClassification, final String trackItemUUID,
-      final String trackPointSource, final long timeStamp, final long endTimeStamp,
-      final double speed, final double course, final String trackItemClassification,
-      final double latitude, final double longitude, final double elevation, final int pixelRow,
-      final int pixelColumn, final int frameNumber, final String motionEvent) {
+  public void setMotionPointData(
+      final byte[] geometry,
+      final byte[] image,
+      final String missionUUID,
+      final String trackNumber,
+      final String trackUUID,
+      final String trackStatus,
+      final String trackClassification,
+      final String trackItemUUID,
+      final String trackPointSource,
+      final long timeStamp,
+      final long endTimeStamp,
+      final double speed,
+      final double course,
+      final String trackItemClassification,
+      final double latitude,
+      final double longitude,
+      final double elevation,
+      final int pixelRow,
+      final int pixelColumn,
+      final int frameNumber,
+      final String motionEvent) {
     EventType = new IntWritable(1);
     Geometry = new BytesWritable(geometry);
     if (image != null) {
@@ -204,8 +234,11 @@ public class Stanag4676EventWritable implements Writable {
     MotionEvent = new Text(motionEvent);
   }
 
-  public void setTrackObjectClassData(final long timeStamp, final String objectClass,
-      final int objectConf, final int objectRel) {
+  public void setTrackObjectClassData(
+      final long timeStamp,
+      final String objectClass,
+      final int objectConf,
+      final int objectRel) {
     EventType = new IntWritable(2);
     TimeStamp = new LongWritable(timeStamp);
     ObjectClass = new Text(objectClass);
@@ -213,7 +246,10 @@ public class Stanag4676EventWritable implements Writable {
     ObjectClassRel = new IntWritable(objectRel);
   }
 
-  public void setMissionFrameData(final byte[] geometry, final String missionUUID, final int number,
+  public void setMissionFrameData(
+      final byte[] geometry,
+      final String missionUUID,
+      final int number,
       final long timeStamp) {
     EventType = new IntWritable(3);
     Geometry = new BytesWritable(geometry);
@@ -222,9 +258,15 @@ public class Stanag4676EventWritable implements Writable {
     TimeStamp = new LongWritable(timeStamp);
   }
 
-  public void setMissionSummaryData(final byte[] geometry, final String missionUUID,
-      final String missionName, final int missionNumFrames, final long timeStamp,
-      final long endTimeStamp, final String classification, final String objectClass) {
+  public void setMissionSummaryData(
+      final byte[] geometry,
+      final String missionUUID,
+      final String missionName,
+      final int missionNumFrames,
+      final long timeStamp,
+      final long endTimeStamp,
+      final String classification,
+      final String objectClass) {
     EventType = new IntWritable(4);
     Geometry = new BytesWritable(geometry);
     MissionUUID = new Text(missionUUID);

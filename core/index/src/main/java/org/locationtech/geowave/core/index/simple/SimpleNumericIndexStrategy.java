@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -46,8 +45,9 @@ public abstract class SimpleNumericIndexStrategy<T extends Number> implements Nu
 
   protected SimpleNumericIndexStrategy(final NumberLexicoder<T> lexicoder) {
     this.lexicoder = lexicoder;
-    this.definitions = new NumericDimensionDefinition[] {new BasicDimensionDefinition(
-        lexicoder.getMinimumValue().doubleValue(), lexicoder.getMaximumValue().doubleValue())};
+    this.definitions =
+        new NumericDimensionDefinition[] {new BasicDimensionDefinition(
+            lexicoder.getMinimumValue().doubleValue(), lexicoder.getMaximumValue().doubleValue())};
   }
 
   protected NumberLexicoder<T> getLexicoder() {
@@ -68,7 +68,8 @@ public abstract class SimpleNumericIndexStrategy<T extends Number> implements Nu
    * contiguous ByteArrayRange. {@inheritDoc}
    */
   @Override
-  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+  public QueryRanges getQueryRanges(
+      final MultiDimensionalNumericData indexedRange,
       final IndexMetaData... hints) {
     return getQueryRanges(indexedRange, -1, hints);
   }
@@ -79,8 +80,10 @@ public abstract class SimpleNumericIndexStrategy<T extends Number> implements Nu
    * contiguous ByteArrayRange. {@inheritDoc}
    */
   @Override
-  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
-      final int maxEstimatedRangeDecomposition, final IndexMetaData... hints) {
+  public QueryRanges getQueryRanges(
+      final MultiDimensionalNumericData indexedRange,
+      final int maxEstimatedRangeDecomposition,
+      final IndexMetaData... hints) {
     final T min = cast(indexedRange.getMinValuesPerDimension()[0]);
     final ByteArray start = new ByteArray(lexicoder.toByteArray(min));
     final T max = cast(Math.ceil(indexedRange.getMaxValuesPerDimension()[0]));
@@ -96,8 +99,7 @@ public abstract class SimpleNumericIndexStrategy<T extends Number> implements Nu
    * it will return the ByteArrayId of every value in the range (i.e. if you are storing a range
    * using this index strategy, your data will be replicated for every integer value in the range).
    *
-   * <p>
-   * {@inheritDoc}
+   * <p> {@inheritDoc}
    */
   @Override
   public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData) {
@@ -109,11 +111,11 @@ public abstract class SimpleNumericIndexStrategy<T extends Number> implements Nu
    * it will return the ByteArrayId of every value in the range (i.e. if you are storing a range
    * using this index strategy, your data will be replicated for every integer value in the range).
    *
-   * <p>
-   * {@inheritDoc}
+   * <p> {@inheritDoc}
    */
   @Override
-  public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+  public InsertionIds getInsertionIds(
+      final MultiDimensionalNumericData indexedData,
       final int maxEstimatedDuplicateIds) {
     final long min = (long) indexedData.getMinValuesPerDimension()[0];
     final long max = (long) Math.ceil(indexedData.getMaxValuesPerDimension()[0]);
@@ -130,7 +132,8 @@ public abstract class SimpleNumericIndexStrategy<T extends Number> implements Nu
   }
 
   @Override
-  public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+  public MultiDimensionalNumericData getRangeForId(
+      final ByteArray partitionKey,
       final ByteArray sortKey) {
     final long value = Long.class.cast(lexicoder.fromByteArray(sortKey.getBytes()));
     final NumericData[] dataPerDimension = new NumericData[] {new NumericValue(value)};
@@ -138,7 +141,8 @@ public abstract class SimpleNumericIndexStrategy<T extends Number> implements Nu
   }
 
   @Override
-  public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+  public MultiDimensionalCoordinates getCoordinatesPerDimension(
+      final ByteArray partitionKey,
       final ByteArray sortKey) {
     return new MultiDimensionalCoordinates(null, new Coordinate[] {
         new Coordinate(Long.class.cast(lexicoder.fromByteArray(sortKey.getBytes())), null)});
@@ -146,7 +150,8 @@ public abstract class SimpleNumericIndexStrategy<T extends Number> implements Nu
 
   @Override
   public MultiDimensionalCoordinateRanges[] getCoordinateRangesPerDimension(
-      final MultiDimensionalNumericData dataRange, final IndexMetaData... hints) {
+      final MultiDimensionalNumericData dataRange,
+      final IndexMetaData... hints) {
     // TODO: not sure what to do here
     return new MultiDimensionalCoordinateRanges[] {new MultiDimensionalCoordinateRanges()};
   }
@@ -211,7 +216,8 @@ public abstract class SimpleNumericIndexStrategy<T extends Number> implements Nu
   }
 
   @Override
-  public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+  public Set<ByteArray> getQueryPartitionKeys(
+      final MultiDimensionalNumericData queryData,
       final IndexMetaData... hints) {
     return null;
   }

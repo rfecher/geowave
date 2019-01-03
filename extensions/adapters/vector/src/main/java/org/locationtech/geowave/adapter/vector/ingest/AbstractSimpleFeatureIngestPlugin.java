@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -65,9 +64,12 @@ public abstract class AbstractSimpleFeatureIngestPlugin<I>
     final byte[] filterBinary = filterOptionProvider.toBinary();
     final byte[] typeNameBinary = typeNameProvider.toBinary();
     final byte[] simpBinary = simpOptionProvider.toBinary();
-    final byte[] backingBuffer = new byte[filterBinary.length + typeNameBinary.length
-        + simpBinary.length + VarintUtils.unsignedIntByteLength(filterBinary.length)
-        + VarintUtils.unsignedIntByteLength(typeNameBinary.length)];
+    final byte[] backingBuffer =
+        new byte[filterBinary.length
+            + typeNameBinary.length
+            + simpBinary.length
+            + VarintUtils.unsignedIntByteLength(filterBinary.length)
+            + VarintUtils.unsignedIntByteLength(typeNameBinary.length)];
     final ByteBuffer buf = ByteBuffer.wrap(backingBuffer);
     VarintUtils.writeUnsignedInt(filterBinary.length, buf);
     buf.put(filterBinary);
@@ -108,7 +110,8 @@ public abstract class AbstractSimpleFeatureIngestPlugin<I>
     simpOptionProvider.fromBinary(geometrySimpBinary);
   }
 
-  protected DataTypeAdapter<SimpleFeature> newAdapter(final SimpleFeatureType type,
+  protected DataTypeAdapter<SimpleFeature> newAdapter(
+      final SimpleFeatureType type,
       final FieldVisibilityHandler<SimpleFeature, Object> fieldVisiblityHandler) {
     if (serializationFormatOptionProvider.isAvro()) {
       return new GeoWaveAvroFeatureDataAdapter(type);
@@ -133,8 +136,10 @@ public abstract class AbstractSimpleFeatureIngestPlugin<I>
   }
 
   @Override
-  public CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveData(final URL input,
-      final String[] indexNames, final String globalVisibility) {
+  public CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveData(
+      final URL input,
+      final String[] indexNames,
+      final String globalVisibility) {
     final CloseableIterator<I> hdfsObjects = toAvroObjects(input);
     return new CloseableIterator<GeoWaveData<SimpleFeature>>() {
 
@@ -154,8 +159,9 @@ public abstract class AbstractSimpleFeatureIngestPlugin<I>
           }
           while (hdfsObjects.hasNext()) {
             final I hdfsObject = hdfsObjects.next();
-            currentIterator = wrapIteratorWithFilters(
-                toGeoWaveDataInternal(hdfsObject, indexNames, globalVisibility));
+            currentIterator =
+                wrapIteratorWithFilters(
+                    toGeoWaveDataInternal(hdfsObject, indexNames, globalVisibility));
             if (currentIterator.hasNext()) {
               next = currentIterator.next();
               return;
@@ -191,14 +197,16 @@ public abstract class AbstractSimpleFeatureIngestPlugin<I>
   protected CloseableIterator<GeoWaveData<SimpleFeature>> wrapIteratorWithFilters(
       final CloseableIterator<GeoWaveData<SimpleFeature>> geowaveData) {
     final CQLFilterOptionProvider internalFilterProvider;
-    if ((filterOptionProvider != null) && (filterOptionProvider.getCqlFilterString() != null)
+    if ((filterOptionProvider != null)
+        && (filterOptionProvider.getCqlFilterString() != null)
         && !filterOptionProvider.getCqlFilterString().trim().isEmpty()) {
       internalFilterProvider = filterOptionProvider;
     } else {
       internalFilterProvider = null;
     }
     final TypeNameOptionProvider internalTypeNameProvider;
-    if ((typeNameProvider != null) && (typeNameProvider.getTypeName() != null)
+    if ((typeNameProvider != null)
+        && (typeNameProvider.getTypeName() != null)
         && !typeNameProvider.getTypeName().trim().isEmpty()) {
       internalTypeNameProvider = typeNameProvider;
     } else {
@@ -224,8 +232,9 @@ public abstract class AbstractSimpleFeatureIngestPlugin<I>
                 return false;
               }
               if ((internalSimpOptionProvider != null)) {
-                final Geometry simpGeom = internalSimpOptionProvider
-                    .simplifyGeometry((Geometry) input.getValue().getDefaultGeometry());
+                final Geometry simpGeom =
+                    internalSimpOptionProvider
+                        .simplifyGeometry((Geometry) input.getValue().getDefaultGeometry());
                 if (!internalSimpOptionProvider.filterGeometry(simpGeom)) {
                   return false;
                 }
@@ -240,7 +249,9 @@ public abstract class AbstractSimpleFeatureIngestPlugin<I>
   }
 
   protected abstract CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveDataInternal(
-      final I hdfsObject, final String[] indexNames, final String globalVisibility);
+      final I hdfsObject,
+      final String[] indexNames,
+      final String globalVisibility);
 
   public abstract static class AbstractIngestSimpleFeatureWithMapper<I>
       implements IngestWithMapper<I, SimpleFeature> {
@@ -257,8 +268,10 @@ public abstract class AbstractSimpleFeatureIngestPlugin<I>
     }
 
     @Override
-    public CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveData(final I input,
-        final String[] indexNames, final String globalVisibility) {
+    public CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveData(
+        final I input,
+        final String[] indexNames,
+        final String globalVisibility) {
       return parentPlugin.wrapIteratorWithFilters(
           parentPlugin.toGeoWaveDataInternal(input, indexNames, globalVisibility));
     }

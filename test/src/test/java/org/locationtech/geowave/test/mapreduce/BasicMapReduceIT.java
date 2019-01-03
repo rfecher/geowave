@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -95,8 +94,10 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
 
   @BeforeClass
   public static void extractTestFiles() throws URISyntaxException {
-    ZipUtils.unZipFile(new File(MapReduceTestEnvironment.class.getClassLoader()
-        .getResource(TEST_DATA_ZIP_RESOURCE_PATH).toURI()), TestUtils.TEST_CASE_BASE);
+    ZipUtils.unZipFile(
+        new File(MapReduceTestEnvironment.class.getClassLoader()
+            .getResource(TEST_DATA_ZIP_RESOURCE_PATH).toURI()),
+        TestUtils.TEST_CASE_BASE);
 
     startMillis = System.currentTimeMillis();
     LOGGER.warn("-----------------------------------------");
@@ -111,8 +112,10 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*      FINISHED BasicMapReduceIT        *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                 *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -134,8 +137,8 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
   @Test
   public void testIngestAndQueryGeneralGpx() throws Exception {
     TestUtils.deleteAll(dataStorePluginOptions);
-    MapReduceTestUtils.testMapReduceIngest(dataStorePluginOptions, DimensionalityType.SPATIAL,
-        GENERAL_GPX_INPUT_GPX_DIR);
+    MapReduceTestUtils.testMapReduceIngest(
+        dataStorePluginOptions, DimensionalityType.SPATIAL, GENERAL_GPX_INPUT_GPX_DIR);
     final File gpxInputDir = new File(GENERAL_GPX_INPUT_GPX_DIR);
     final File expectedResultsDir = new File(GENERAL_GPX_EXPECTED_RESULTS_DIR);
     final List<URL> expectedResultsResources = new ArrayList<>();
@@ -169,9 +172,11 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
       Assert.assertNotNull(url);
       expectedResultsResources.add(url);
     }
-    final ExpectedResults expectedResults = TestUtils.getExpectedResults(
-        expectedResultsResources.toArray(new URL[expectedResultsResources.size()]));
-    runTestJob(expectedResults,
+    final ExpectedResults expectedResults =
+        TestUtils.getExpectedResults(
+            expectedResultsResources.toArray(new URL[expectedResultsResources.size()]));
+    runTestJob(
+        expectedResults,
         TestUtils.resourceToQuery(new File(GENERAL_GPX_FILTER_FILE).toURI().toURL()), null, null);
   }
 
@@ -180,8 +185,8 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
     TestUtils.deleteAll(dataStorePluginOptions);
     // ingest the data set into multiple indices and then try several query
     // methods, by adapter and by index
-    MapReduceTestUtils.testMapReduceIngest(dataStorePluginOptions, DimensionalityType.ALL,
-        OSM_GPX_INPUT_DIR);
+    MapReduceTestUtils
+        .testMapReduceIngest(dataStorePluginOptions, DimensionalityType.ALL, OSM_GPX_INPUT_DIR);
     final DataTypeAdapter<SimpleFeature>[] adapters = new GpxIngestPlugin().getDataAdapters(null);
 
     for (final DataTypeAdapter<SimpleFeature> adapter : adapters) {
@@ -194,25 +199,30 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
         dataStorePluginOptions.createDataStore();
     final Map<String, ExpectedResults> adapterIdToResultsMap = new HashMap<>();
     for (final DataTypeAdapter<SimpleFeature> adapter : adapters) {
-      adapterIdToResultsMap.put(adapter.getTypeName(), TestUtils.getExpectedResults(geowaveStore
-          .query(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).build())));
+      adapterIdToResultsMap.put(
+          adapter.getTypeName(),
+          TestUtils.getExpectedResults(
+              geowaveStore
+                  .query(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).build())));
     }
 
     final List<DataTypeAdapter<?>> firstTwoAdapters = new ArrayList<>();
     firstTwoAdapters.add(adapters[0]);
     firstTwoAdapters.add(adapters[1]);
 
-    final ExpectedResults firstTwoAdaptersResults = TestUtils.getExpectedResults(
-        geowaveStore.query(QueryBuilder.newBuilder().addTypeName(adapters[0].getTypeName())
-            .addTypeName(adapters[1].getTypeName()).build()));
+    final ExpectedResults firstTwoAdaptersResults =
+        TestUtils.getExpectedResults(
+            geowaveStore.query(
+                QueryBuilder.newBuilder().addTypeName(adapters[0].getTypeName())
+                    .addTypeName(adapters[1].getTypeName()).build()));
 
     final ExpectedResults fullDataSetResults =
         TestUtils.getExpectedResults(geowaveStore.query(QueryBuilder.newBuilder().build()));
 
     // just for sanity verify its greater than 0 (ie. that data was actually
     // ingested in the first place)
-    Assert.assertTrue("There is no data ingested from OSM GPX test files",
-        fullDataSetResults.count > 0);
+    Assert.assertTrue(
+        "There is no data ingested from OSM GPX test files", fullDataSetResults.count > 0);
 
     // now that we have expected results, run map-reduce export and
     // re-ingest it
@@ -229,8 +239,8 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
 
     // then try the first 2 adapters, and may as well try with both indices
     // set (should be the default behavior anyways)
-    runTestJob(firstTwoAdaptersResults, null, new DataTypeAdapter[] {adapters[0], adapters[1]},
-        null);
+    runTestJob(
+        firstTwoAdaptersResults, null, new DataTypeAdapter[] {adapters[0], adapters[1]}, null);
 
     // now try all adapters and the spatial temporal index, the result
     // should be the full data set
@@ -277,14 +287,21 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
         ToolRunner.run(conf, exportCommand.createRunner(env.getOperationParams()), new String[] {});
     Assert.assertTrue("Export Vector Data map reduce job failed", res == 0);
     TestUtils.deleteAll(dataStorePluginOptions);
-    MapReduceTestUtils.testMapReduceIngest(dataStorePluginOptions, DimensionalityType.ALL, "avro",
-        TestUtils.TEMP_DIR + File.separator + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
-            + File.separator + TEST_EXPORT_DIRECTORY);
+    MapReduceTestUtils.testMapReduceIngest(
+        dataStorePluginOptions, DimensionalityType.ALL, "avro",
+        TestUtils.TEMP_DIR
+            + File.separator
+            + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
+            + File.separator
+            + TEST_EXPORT_DIRECTORY);
   }
 
   @SuppressFBWarnings(value = "DM_GC", justification = "Memory usage kept low for travis-ci")
-  private void runTestJob(final ExpectedResults expectedResults, final QueryConstraints query,
-      final DataTypeAdapter<?>[] adapters, final Index index) throws Exception {
+  private void runTestJob(
+      final ExpectedResults expectedResults,
+      final QueryConstraints query,
+      final DataTypeAdapter<?>[] adapters,
+      final Index index) throws Exception {
     final TestJobRunner jobRunner = new TestJobRunner(dataStorePluginOptions, expectedResults);
     jobRunner.setMinInputSplits(MapReduceTestUtils.MIN_INPUT_SPLITS);
     jobRunner.setMaxInputSplits(MapReduceTestUtils.MAX_INPUT_SPLITS);
@@ -311,7 +328,8 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
   private static class TestJobRunner extends GeoWaveDedupeJobRunner {
     private final ExpectedResults expectedResults;
 
-    public TestJobRunner(final DataStorePluginOptions pluginOptions,
+    public TestJobRunner(
+        final DataStorePluginOptions pluginOptions,
         final ExpectedResults expectedResults) {
       super(pluginOptions);
       this.expectedResults = expectedResults;
@@ -339,8 +357,8 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
       for (final Long hashedCentroid : expectedResults.hashedCentroids) {
         buf.putLong(hashedCentroid);
       }
-      conf.set(MapReduceTestUtils.EXPECTED_RESULTS_KEY,
-          ByteArrayUtils.byteArrayToString(buf.array()));
+      conf.set(
+          MapReduceTestUtils.EXPECTED_RESULTS_KEY, ByteArrayUtils.byteArrayToString(buf.array()));
 
       GeoWaveInputFormat.setStoreOptions(conf, dataStoreOptions);
       job.setJarByClass(this.getClass());
@@ -377,7 +395,9 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
     private Set<Long> expectedHashedCentroids = new HashSet<>();
 
     @Override
-    protected void mapNativeValue(final GeoWaveInputKey key, final Object value,
+    protected void mapNativeValue(
+        final GeoWaveInputKey key,
+        final Object value,
         final Mapper<GeoWaveInputKey, ObjectWritable, NullWritable, NullWritable>.Context context)
         throws IOException, InterruptedException {
       ResultCounterType resultType = ResultCounterType.ERROR;
@@ -385,9 +405,10 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
         final SimpleFeature result = (SimpleFeature) value;
         final Geometry geometry = (Geometry) result.getDefaultGeometry();
         if (!geometry.isEmpty()) {
-          resultType = expectedHashedCentroids.contains(TestUtils.hashCentroid(geometry))
-              ? ResultCounterType.EXPECTED
-              : ResultCounterType.UNEXPECTED;
+          resultType =
+              expectedHashedCentroids.contains(TestUtils.hashCentroid(geometry))
+                  ? ResultCounterType.EXPECTED
+                  : ResultCounterType.UNEXPECTED;
         }
       }
       context.getCounter(resultType).increment(1);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -77,7 +76,9 @@ public class SpatialQueryExample {
     log.info("Point data ingested");
   }
 
-  private void ingest(final FeatureDataAdapter adapter, final Index index,
+  private void ingest(
+      final FeatureDataAdapter adapter,
+      final Index index,
       final List<SimpleFeature> features) {
     dataStore.addType(adapter, index);
     try (Writer<SimpleFeature> indexWriter = dataStore.createWriter(adapter.getTypeName())) {
@@ -112,15 +113,17 @@ public class SpatialQueryExample {
     // Now we build the actual features. We'll create two points.
     // First point
     final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(sfType);
-    sfBuilder.set("geometry", GeometryUtils.GEOMETRY_FACTORY
-        .createPoint(new Coordinate(-80.211181640625, 25.848101000701597)));
+    sfBuilder.set(
+        "geometry", GeometryUtils.GEOMETRY_FACTORY
+            .createPoint(new Coordinate(-80.211181640625, 25.848101000701597)));
     sfBuilder.set("filter", "Basic-Stadium");
     // When calling buildFeature, we need to pass an unique id for that
     // feature, or it will be overwritten.
     final SimpleFeature basicPoint1 = sfBuilder.buildFeature("1");
 
     // Construct the second feature.
-    sfBuilder.set("geometry",
+    sfBuilder.set(
+        "geometry",
         GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(-80.191360, 25.777804)));
     sfBuilder.set("filter", "Basic-College");
     final SimpleFeature basicPoint2 = sfBuilder.buildFeature("2");
@@ -164,7 +167,8 @@ public class SpatialQueryExample {
     // Now we build the actual features. We'll create two more points.
     // First point
     final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(sfType);
-    sfBuilder.set("geometry",
+    sfBuilder.set(
+        "geometry",
         GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(-80.193388, 25.780538)));
     sfBuilder.set("filter", "Complex-Station");
     sfBuilder.set("latitude", 25.780538);
@@ -174,8 +178,9 @@ public class SpatialQueryExample {
     final SimpleFeature basicPoint1 = sfBuilder.buildFeature("1");
 
     // Construct the second feature.
-    sfBuilder.set("geometry", GeometryUtils.GEOMETRY_FACTORY
-        .createPoint(new Coordinate(-118.26713562011719, 33.988349152677955)));
+    sfBuilder.set(
+        "geometry", GeometryUtils.GEOMETRY_FACTORY
+            .createPoint(new Coordinate(-118.26713562011719, 33.988349152677955)));
     sfBuilder.set("filter", "Complex-LA");
     sfBuilder.set("latitude", 33.988349152677955);
     sfBuilder.set("longitude", -118.26713562011719);
@@ -213,10 +218,14 @@ public class SpatialQueryExample {
 
     // Define the geometry to query. We'll find all points that fall inside
     // that geometry.
-    final String queryPolygonDefinition = "POLYGON (( " + "-118.50059509277344 33.75688594085081, "
-        + "-118.50059509277344 34.1521587488017, " + "-117.80502319335938 34.1521587488017, "
-        + "-117.80502319335938 33.75688594085081, " + "-118.50059509277344 33.75688594085081"
-        + "))";
+    final String queryPolygonDefinition =
+        "POLYGON (( "
+            + "-118.50059509277344 33.75688594085081, "
+            + "-118.50059509277344 34.1521587488017, "
+            + "-117.80502319335938 34.1521587488017, "
+            + "-117.80502319335938 33.75688594085081, "
+            + "-118.50059509277344 33.75688594085081"
+            + "))";
 
     final Geometry queryPolygon =
         new WKTReader(JTSFactoryFinder.getGeometryFactory()).read(queryPolygonDefinition);
@@ -232,17 +241,21 @@ public class SpatialQueryExample {
     int count = 0;
 
     final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
-    try (
-        final CloseableIterator<SimpleFeature> iterator =
-            dataStore.query(bldr.addTypeName(typeName).indexName("SPATIAL_IDX")
-                .addAuthorization("root").constraints(bldr.constraintsFactory()
-                    .spatialTemporalConstraints().spatialConstraints(queryPolygon).build())
+    try (final CloseableIterator<SimpleFeature> iterator =
+        dataStore.query(
+            bldr.addTypeName(typeName).indexName("SPATIAL_IDX").addAuthorization("root")
+                .constraints(
+                    bldr.constraintsFactory().spatialTemporalConstraints()
+                        .spatialConstraints(queryPolygon).build())
                 .build())) {
 
       while (iterator.hasNext()) {
         final SimpleFeature sf = iterator.next();
-        log.info("Obtained SimpleFeature " + sf.getName().toString() + " - "
-            + sf.getAttribute("filter"));
+        log.info(
+            "Obtained SimpleFeature "
+                + sf.getName().toString()
+                + " - "
+                + sf.getAttribute("filter"));
         count++;
         System.out.println("Query match: " + sf.getID());
       }
@@ -288,9 +301,14 @@ public class SpatialQueryExample {
     final SimpleFeatureBuilder sfBuilder = new SimpleFeatureBuilder(sfType);
 
     // For ease of use, we'll create the polygon geometry with WKT format.
-    final String polygonDefinition = "POLYGON (( " + "-80.3045654296875 25.852426562716428, "
-        + "-80.123291015625 25.808545671771615, " + "-80.19195556640625 25.7244467526159, "
-        + "-80.34233093261719 25.772068899816585, " + "-80.3045654296875 25.852426562716428" + "))";
+    final String polygonDefinition =
+        "POLYGON (( "
+            + "-80.3045654296875 25.852426562716428, "
+            + "-80.123291015625 25.808545671771615, "
+            + "-80.19195556640625 25.7244467526159, "
+            + "-80.34233093261719 25.772068899816585, "
+            + "-80.3045654296875 25.852426562716428"
+            + "))";
     final Geometry geom =
         new WKTReader(JTSFactoryFinder.getGeometryFactory()).read(polygonDefinition);
     sfBuilder.set("geometry", geom);
@@ -319,9 +337,14 @@ public class SpatialQueryExample {
     final String typeName = "polygon-feature";
     // Define the geometry to query. We'll find all polygons that intersect
     // with this geometry.
-    final String queryPolygonDefinition = "POLYGON (( " + "-80.4037857055664 25.81596330265488, "
-        + "-80.27915954589844 25.788144792391982, " + "-80.34370422363281 25.8814655232439, "
-        + "-80.44567108154297 25.896291175546626, " + "-80.4037857055664  25.81596330265488" + "))";
+    final String queryPolygonDefinition =
+        "POLYGON (( "
+            + "-80.4037857055664 25.81596330265488, "
+            + "-80.27915954589844 25.788144792391982, "
+            + "-80.34370422363281 25.8814655232439, "
+            + "-80.44567108154297 25.896291175546626, "
+            + "-80.4037857055664  25.81596330265488"
+            + "))";
 
     final Geometry queryPolygon =
         new WKTReader(JTSFactoryFinder.getGeometryFactory()).read(queryPolygonDefinition);
@@ -337,17 +360,21 @@ public class SpatialQueryExample {
     int count = 0;
 
     final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
-    try (
-        final CloseableIterator<SimpleFeature> iterator =
-            dataStore.query(bldr.addTypeName(typeName).indexName("SPATIAL_IDX")
-                .addAuthorization("root").constraints(bldr.constraintsFactory()
-                    .spatialTemporalConstraints().spatialConstraints(queryPolygon).build())
+    try (final CloseableIterator<SimpleFeature> iterator =
+        dataStore.query(
+            bldr.addTypeName(typeName).indexName("SPATIAL_IDX").addAuthorization("root")
+                .constraints(
+                    bldr.constraintsFactory().spatialTemporalConstraints()
+                        .spatialConstraints(queryPolygon).build())
                 .build())) {
 
       while (iterator.hasNext()) {
         final SimpleFeature sf = iterator.next();
-        log.info("Obtained SimpleFeature " + sf.getName().toString() + " - "
-            + sf.getAttribute("filter"));
+        log.info(
+            "Obtained SimpleFeature "
+                + sf.getName().toString()
+                + " - "
+                + sf.getAttribute("filter"));
         count++;
         System.out.println("Query match: " + sf.getID());
       }

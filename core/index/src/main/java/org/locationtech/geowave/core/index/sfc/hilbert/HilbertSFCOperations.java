@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,7 +37,9 @@ public interface HilbertSFCOperations {
    * @param dimensionDefinitions a set of dimension definitions to use to normalize the raw values
    * @return the Hilbert SFC value
    */
-  public byte[] convertToHilbert(double[] values, CompactHilbertCurve compactHilbertCurve,
+  public byte[] convertToHilbert(
+      double[] values,
+      CompactHilbertCurve compactHilbertCurve,
       SFCDimensionDefinition[] dimensionDefinitions);
 
   /**
@@ -50,8 +51,10 @@ public interface HilbertSFCOperations {
    * @return the ranges of values that the hilbert represents, inclusive on start and exclusive on
    *         end for each range
    */
-  public MultiDimensionalNumericData convertFromHilbert(byte[] hilbertValue,
-      CompactHilbertCurve compactHilbertCurve, SFCDimensionDefinition[] dimensionDefinitions);
+  public MultiDimensionalNumericData convertFromHilbert(
+      byte[] hilbertValue,
+      CompactHilbertCurve compactHilbertCurve,
+      SFCDimensionDefinition[] dimensionDefinitions);
 
   /**
    * Convert the single SFC value to the per dimension SFC coordinates that it represents
@@ -63,7 +66,9 @@ public interface HilbertSFCOperations {
    *        precision per dimension that is expected in the compact hilbert curve
    * @return the integer coordinate value per dimension that the given hilbert value represents
    */
-  public long[] indicesFromHilbert(byte[] hilbertValue, CompactHilbertCurve compactHilbertCurve,
+  public long[] indicesFromHilbert(
+      byte[] hilbertValue,
+      CompactHilbertCurve compactHilbertCurve,
       SFCDimensionDefinition[] dimensionDefinitions);
 
   /**
@@ -77,9 +82,13 @@ public interface HilbertSFCOperations {
    * @param removeVacuum a flag to pass to the compact hilbert curve range decomposition
    * @return the optimal SFC range decomposition for the raw-valued ranges
    */
-  public RangeDecomposition decomposeRange(NumericData[] rangePerDimension,
-      CompactHilbertCurve compactHilbertCurve, SFCDimensionDefinition[] dimensionDefinitions,
-      int totalPrecision, int maxFilteredIndexedRanges, boolean removeVacuum,
+  public RangeDecomposition decomposeRange(
+      NumericData[] rangePerDimension,
+      CompactHilbertCurve compactHilbertCurve,
+      SFCDimensionDefinition[] dimensionDefinitions,
+      int totalPrecision,
+      int maxFilteredIndexedRanges,
+      boolean removeVacuum,
       boolean overInclusiveOnEdge);
 
   /**
@@ -90,7 +99,8 @@ public interface HilbertSFCOperations {
    * @param dimensionDefinitions a set of dimension definitions to use to normalize the raw values
    * @return the total estimated row IDs the data would require to fully cover with SFC values
    */
-  public BigInteger getEstimatedIdCount(MultiDimensionalNumericData data,
+  public BigInteger getEstimatedIdCount(
+      MultiDimensionalNumericData data,
       SFCDimensionDefinition[] dimensionDefinitions);
 
   /**
@@ -104,7 +114,10 @@ public interface HilbertSFCOperations {
    * @return the range of coordinates in each dimension (ie. [0][0] would be the min coordinate of
    *         the first dimension and [0][1] would be the max coordinate of the first dimension)
    */
-  public long[] normalizeRange(double minValue, double maxValue, int dimension,
+  public long[] normalizeRange(
+      double minValue,
+      double maxValue,
+      int dimension,
       final SFCDimensionDefinition boundedDimensionDefinition) throws IllegalArgumentException;
 
   /**

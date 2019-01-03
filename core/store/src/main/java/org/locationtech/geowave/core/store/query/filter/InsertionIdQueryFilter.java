@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,7 +22,9 @@ public class InsertionIdQueryFilter implements QueryFilter {
 
   public InsertionIdQueryFilter() {}
 
-  public InsertionIdQueryFilter(final ByteArray partitionKey, final ByteArray sortKey,
+  public InsertionIdQueryFilter(
+      final ByteArray partitionKey,
+      final ByteArray sortKey,
       final ByteArray dataId) {
     this.partitionKey = partitionKey != null ? partitionKey.getBytes() : new byte[] {};
     this.sortKey = sortKey != null ? sortKey.getBytes() : new byte[] {};
@@ -31,26 +32,34 @@ public class InsertionIdQueryFilter implements QueryFilter {
   }
 
   @Override
-  public boolean accept(final CommonIndexModel indexModel,
+  public boolean accept(
+      final CommonIndexModel indexModel,
       final IndexedPersistenceEncoding persistenceEncoding) {
-    return Objects.deepEquals(partitionKey,
+    return Objects.deepEquals(
+        partitionKey,
         persistenceEncoding.getInsertionPartitionKey() != null
             ? persistenceEncoding.getInsertionPartitionKey().getBytes()
             : new byte[] {})
-        && Objects.deepEquals(sortKey,
+        && Objects.deepEquals(
+            sortKey,
             persistenceEncoding.getInsertionSortKey() != null
                 ? persistenceEncoding.getInsertionSortKey().getBytes()
                 : new byte[] {})
-        && Objects.deepEquals(dataId,
+        && Objects.deepEquals(
+            dataId,
             persistenceEncoding.getDataId() != null ? persistenceEncoding.getDataId().getBytes()
                 : new byte[] {});
   }
 
   @Override
   public byte[] toBinary() {
-    final ByteBuffer buf = ByteBuffer.allocate(partitionKey.length + sortKey.length + dataId.length
-        + VarintUtils.unsignedIntByteLength(partitionKey.length)
-        + VarintUtils.unsignedIntByteLength(sortKey.length));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            partitionKey.length
+                + sortKey.length
+                + dataId.length
+                + VarintUtils.unsignedIntByteLength(partitionKey.length)
+                + VarintUtils.unsignedIntByteLength(sortKey.length));
     VarintUtils.writeUnsignedInt(partitionKey.length, buf);
     buf.put(partitionKey);
     VarintUtils.writeUnsignedInt(sortKey.length, buf);

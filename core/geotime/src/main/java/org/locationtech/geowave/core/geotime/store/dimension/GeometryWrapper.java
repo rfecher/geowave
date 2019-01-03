@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,7 +30,8 @@ public class GeometryWrapper implements CommonIndexValue {
     this.geometry = geometry;
   }
 
-  public GeometryWrapper(final org.locationtech.jts.geom.Geometry geometry,
+  public GeometryWrapper(
+      final org.locationtech.jts.geom.Geometry geometry,
       final byte[] visibility) {
     this.visibility = visibility;
     this.geometry = geometry;
@@ -59,25 +59,27 @@ public class GeometryWrapper implements CommonIndexValue {
     final int longPosition = fields[0] instanceof LatitudeField ? 1 : 0;
     if (fields.length == 1) {
       final Envelope env = geometry.getEnvelopeInternal();
-      final NumericRange r = latPosition == 0 ? new NumericRange(env.getMinY(), env.getMaxY())
-          : new NumericRange(env.getMinX(), env.getMaxX());
+      final NumericRange r =
+          latPosition == 0 ? new NumericRange(env.getMinY(), env.getMaxY())
+              : new NumericRange(env.getMinX(), env.getMaxX());
       return ((rangeData[0].getMin() < r.getMax())
           || DoubleMath.fuzzyEquals(rangeData[0].getMin(), r.getMax(), DOUBLE_TOLERANCE))
           && ((rangeData[0].getMax() > r.getMin())
               || DoubleMath.fuzzyEquals(rangeData[0].getMax(), r.getMin(), DOUBLE_TOLERANCE));
     }
     return geometry.getFactory()
-        .createPolygon(new Coordinate[] {
-            new Coordinate(rangeData[longPosition].getMin() - DOUBLE_TOLERANCE,
-                rangeData[latPosition].getMin() - DOUBLE_TOLERANCE),
-            new Coordinate(rangeData[longPosition].getMin() - DOUBLE_TOLERANCE,
-                rangeData[latPosition].getMax() + DOUBLE_TOLERANCE),
-            new Coordinate(rangeData[longPosition].getMax() + DOUBLE_TOLERANCE,
-                rangeData[latPosition].getMax() + DOUBLE_TOLERANCE),
-            new Coordinate(rangeData[longPosition].getMax() + DOUBLE_TOLERANCE,
-                rangeData[latPosition].getMin() - DOUBLE_TOLERANCE),
-            new Coordinate(rangeData[longPosition].getMin() - DOUBLE_TOLERANCE,
-                rangeData[latPosition].getMin() - DOUBLE_TOLERANCE)})
+        .createPolygon(
+            new Coordinate[] {
+                new Coordinate(rangeData[longPosition].getMin() - DOUBLE_TOLERANCE,
+                    rangeData[latPosition].getMin() - DOUBLE_TOLERANCE),
+                new Coordinate(rangeData[longPosition].getMin() - DOUBLE_TOLERANCE,
+                    rangeData[latPosition].getMax() + DOUBLE_TOLERANCE),
+                new Coordinate(rangeData[longPosition].getMax() + DOUBLE_TOLERANCE,
+                    rangeData[latPosition].getMax() + DOUBLE_TOLERANCE),
+                new Coordinate(rangeData[longPosition].getMax() + DOUBLE_TOLERANCE,
+                    rangeData[latPosition].getMin() - DOUBLE_TOLERANCE),
+                new Coordinate(rangeData[longPosition].getMin() - DOUBLE_TOLERANCE,
+                    rangeData[latPosition].getMin() - DOUBLE_TOLERANCE)})
         .intersects(geometry);
   }
 }

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,14 +32,18 @@ public class NoDataMetadataFactory {
 
   private static final int MAX_LIST_NO_DATA = 20;
 
-  public static NoDataMetadata createMetadata(final double[][] allNoDataValues,
-      final Geometry shape, final Raster data) {
+  public static NoDataMetadata createMetadata(
+      final double[][] allNoDataValues,
+      final Geometry shape,
+      final Raster data) {
     final NoDataSummary noDataSummary = getNoDataSummary(allNoDataValues, shape, data);
     return createMetadata(noDataSummary, new Geometry[] {shape}, data.getWidth(), data.getHeight());
   }
 
-  public static NoDataMetadata mergeMetadata(final NoDataMetadata noDataMetadata1,
-      final WritableRaster raster1, final NoDataMetadata noDataMetadata2,
+  public static NoDataMetadata mergeMetadata(
+      final NoDataMetadata noDataMetadata1,
+      final WritableRaster raster1,
+      final NoDataMetadata noDataMetadata2,
       final WritableRaster raster2) {
     if ((noDataMetadata1 == null) || (noDataMetadata2 == null)) {
       // this implies that there is no nodata values in one of the rasters
@@ -90,8 +93,8 @@ public class NoDataMetadataFactory {
           allNoDataValues[b][i++] = it.next();
         }
       }
-      return mergeMetadataBySummary(allNoDataValues, noDataByFilter1, raster1, noDataByFilter2,
-          raster2);
+      return mergeMetadataBySummary(
+          allNoDataValues, noDataByFilter1, raster1, noDataByFilter2, raster2);
     } else {
       // this should never happen because the only implementations of
       // metadata are by index or by filter but just in case iteratively
@@ -101,8 +104,11 @@ public class NoDataMetadataFactory {
     }
   }
 
-  private static NoDataMetadata createMetadata(final NoDataSummary noDataSummary,
-      final Geometry[] shapes, final int width, final int height) {
+  private static NoDataMetadata createMetadata(
+      final NoDataSummary noDataSummary,
+      final Geometry[] shapes,
+      final int width,
+      final int height) {
     if (noDataSummary.indices.size() > MAX_LIST_NO_DATA) {
       Geometry finalShape;
       if ((shapes == null) || (shapes.length == 0)) {
@@ -120,8 +126,9 @@ public class NoDataMetadataFactory {
           }
         }
       }
-      if ((finalShape != null) && finalShape
-          .covers(new GeometryFactory().toGeometry(new Envelope(0, width, 0, height)))) {
+      if ((finalShape != null)
+          && finalShape
+              .covers(new GeometryFactory().toGeometry(new Envelope(0, width, 0, height)))) {
         // if the coverage of this geometric union ever gets to the
         // point that it fully covers the raster, stop storing it and
         // just set the geometry to null
@@ -139,21 +146,25 @@ public class NoDataMetadataFactory {
     }
   }
 
-  private static NoDataMetadata mergeMetadataBySummary(final Set<SampleIndex> noDataIndices,
-      final NoDataMetadata noDataMetadata, final WritableRaster raster) {
+  private static NoDataMetadata mergeMetadataBySummary(
+      final Set<SampleIndex> noDataIndices,
+      final NoDataMetadata noDataMetadata,
+      final WritableRaster raster) {
     final Iterator<SampleIndex> indices = noDataIndices.iterator();
     while (indices.hasNext()) {
       final SampleIndex index = indices.next();
-      if (!noDataMetadata.isNoData(index,
-          raster.getSampleDouble(index.getX(), index.getY(), index.getBand()))) {
+      if (!noDataMetadata
+          .isNoData(index, raster.getSampleDouble(index.getX(), index.getY(), index.getBand()))) {
         indices.remove();
       }
     }
     return new NoDataBySampleIndex(noDataIndices);
   }
 
-  private static NoDataMetadata exhaustiveMergeMetadata(final NoDataMetadata noDataMetadata1,
-      final WritableRaster raster1, final NoDataMetadata noDataMetadata2,
+  private static NoDataMetadata exhaustiveMergeMetadata(
+      final NoDataMetadata noDataMetadata1,
+      final WritableRaster raster1,
+      final NoDataMetadata noDataMetadata2,
       final WritableRaster raster2) {
     final int width = Math.min(raster1.getWidth(), raster2.getWidth());
     final int height = Math.min(raster1.getHeight(), raster2.getHeight());
@@ -173,13 +184,17 @@ public class NoDataMetadataFactory {
     return new NoDataBySampleIndex(indices);
   }
 
-  private static NoDataMetadata mergeMetadataBySummary(final double[][] allNoDataValues,
-      final NoDataByFilter noDataMetadata1, final WritableRaster raster1,
-      final NoDataByFilter noDataMetadata2, final WritableRaster raster2) {
+  private static NoDataMetadata mergeMetadataBySummary(
+      final double[][] allNoDataValues,
+      final NoDataByFilter noDataMetadata1,
+      final WritableRaster raster1,
+      final NoDataByFilter noDataMetadata2,
+      final WritableRaster raster2) {
     final NoDataSummary noDataSummary =
         getNoDataSummary(allNoDataValues, noDataMetadata1, raster1, noDataMetadata2, raster2);
-    return createMetadata(noDataSummary,
-        new Geometry[] {noDataMetadata1.getShape(), noDataMetadata2.getShape()}, raster2.getWidth(), // both
+    return createMetadata(
+        noDataSummary, new Geometry[] {noDataMetadata1.getShape(), noDataMetadata2.getShape()},
+        raster2.getWidth(), // both
         // rasters
         // better
         // be
@@ -189,25 +204,36 @@ public class NoDataMetadataFactory {
         raster2.getHeight());
   }
 
-  private static NoDataSummary getNoDataSummary(final double[][] allNoDataValues,
-      final NoDataByFilter noDataMetadata1, final WritableRaster raster1,
-      final NoDataByFilter noDataMetadata2, final WritableRaster raster2) {
+  private static NoDataSummary getNoDataSummary(
+      final double[][] allNoDataValues,
+      final NoDataByFilter noDataMetadata1,
+      final WritableRaster raster1,
+      final NoDataByFilter noDataMetadata2,
+      final WritableRaster raster2) {
     final int width = Math.min(raster1.getWidth(), raster2.getWidth());
     final int height = Math.min(raster1.getHeight(), raster2.getHeight());
     final int numBands = Math.min(raster1.getNumBands(), raster2.getNumBands());
-    return getNoDataSummary(allNoDataValues,
+    return getNoDataSummary(
+        allNoDataValues,
         new MultiShape(new Geometry[] {noDataMetadata1.getShape(), noDataMetadata2.getShape()}),
         new MultiRaster(new Raster[] {raster1, raster2}), width, height, numBands);
   }
 
-  private static NoDataSummary getNoDataSummary(final double[][] allNoDataValues,
-      final Geometry shape, final Raster data) {
-    return getNoDataSummary(allNoDataValues, new SingleShape(shape), new SingleRaster(data),
-        data.getWidth(), data.getHeight(), data.getNumBands());
+  private static NoDataSummary getNoDataSummary(
+      final double[][] allNoDataValues,
+      final Geometry shape,
+      final Raster data) {
+    return getNoDataSummary(
+        allNoDataValues, new SingleShape(shape), new SingleRaster(data), data.getWidth(),
+        data.getHeight(), data.getNumBands());
   }
 
-  private static NoDataSummary getNoDataSummary(final double[][] allNoDataValues,
-      final NoDataByCoordinate shape, final NoDataBySample data, final int width, final int height,
+  private static NoDataSummary getNoDataSummary(
+      final double[][] allNoDataValues,
+      final NoDataByCoordinate shape,
+      final NoDataBySample data,
+      final int width,
+      final int height,
       final int numBands) {
 
     final Set<Double>[] noDataValuesPerBand;

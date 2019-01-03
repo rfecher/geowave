@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -82,10 +81,12 @@ public class CQLQueryExample {
     System.out.println("Executing query, expecting to match two points...");
     final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
     try (final CloseableIterator<SimpleFeature> iterator =
-        dataStore.query(bldr.indexName(index.getName()).addTypeName(ADAPTER.getTypeName())
-            .constraints(bldr.constraintsFactory().cqlConstraints(
-                "BBOX(geometry,-77.6167,38.6833,-76.6,38.9200) and locationName like 'W%'"))
-            .build())) {
+        dataStore.query(
+            bldr.indexName(index.getName()).addTypeName(ADAPTER.getTypeName())
+                .constraints(
+                    bldr.constraintsFactory().cqlConstraints(
+                        "BBOX(geometry,-77.6167,38.6833,-76.6,38.9200) and locationName like 'W%'"))
+                .build())) {
 
       while (iterator.hasNext()) {
         System.out.println("Query match: " + iterator.next().getID());
@@ -127,12 +128,13 @@ public class CQLQueryExample {
 
     // TURN ON SECONDARY INDEXING
     final SimpleFeatureType type = sftBuilder.buildFeatureType();
-    type.getDescriptor("locationName").getUserData().put(TextSecondaryIndexConfiguration.INDEX_KEY,
-        "FULL");
+    type.getDescriptor("locationName").getUserData()
+        .put(TextSecondaryIndexConfiguration.INDEX_KEY, "FULL");
     return type;
   }
 
-  private static SimpleFeature buildSimpleFeature(final String locationName,
+  private static SimpleFeature buildSimpleFeature(
+      final String locationName,
       final Coordinate coordinate) {
 
     final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(getPointSimpleFeatureType());

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -56,8 +55,10 @@ public class AggregationIterator extends Filter {
   private SortedKeyValueIterator<Key, Value> parent = new SortedKeyValueIterator<Key, Value>() {
 
     @Override
-    public void init(final SortedKeyValueIterator<Key, Value> source,
-        final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+    public void init(
+        final SortedKeyValueIterator<Key, Value> source,
+        final Map<String, String> options,
+        final IteratorEnvironment env) throws IOException {
       AggregationIterator.super.init(source, options, env);
     }
 
@@ -72,7 +73,9 @@ public class AggregationIterator extends Filter {
     }
 
     @Override
-    public void seek(final Range range, final Collection<ByteSequence> columnFamilies,
+    public void seek(
+        final Range range,
+        final Collection<ByteSequence> columnFamilies,
         final boolean inclusive) throws IOException {
       AggregationIterator.super.seek(range, columnFamilies, inclusive);
     }
@@ -101,8 +104,9 @@ public class AggregationIterator extends Filter {
       key.getRow(currentRow);
       final FlattenedUnreadData unreadData =
           queryFilterIterator.aggregateFieldData(key, value, commonData);
-      final CommonIndexedPersistenceEncoding encoding = QueryFilterIterator.getEncoding(currentRow,
-          queryFilterIterator.partitionKeyLength, commonData, unreadData);
+      final CommonIndexedPersistenceEncoding encoding =
+          QueryFilterIterator.getEncoding(
+              currentRow, queryFilterIterator.partitionKeyLength, commonData, unreadData);
 
       boolean queryFilterResult = true;
       if (queryFilterIterator.isSet()) {
@@ -120,7 +124,9 @@ public class AggregationIterator extends Filter {
     this.parent = parent;
   }
 
-  protected void aggregateRow(final Text currentRow, final CommonIndexModel model,
+  protected void aggregateRow(
+      final Text currentRow,
+      final CommonIndexModel model,
       final CommonIndexedPersistenceEncoding persistenceEncoding) {
     if (adapter == null) {
       aggregationFunction.aggregate(persistenceEncoding);
@@ -131,8 +137,8 @@ public class AggregationIterator extends Filter {
         .equals((Short) (adapter.getAdapterId()))) {
       final PersistentDataset<Object> adapterExtendedValues = new PersistentDataset<Object>();
       if (persistenceEncoding instanceof AbstractAdapterPersistenceEncoding) {
-        ((AbstractAdapterPersistenceEncoding) persistenceEncoding).convertUnknownValues(adapter,
-            model);
+        ((AbstractAdapterPersistenceEncoding) persistenceEncoding)
+            .convertUnknownValues(adapter, model);
         final PersistentDataset<Object> existingExtValues =
             ((AbstractAdapterPersistenceEncoding) persistenceEncoding).getAdapterExtendedData();
         if (existingExtValues != null) {
@@ -140,11 +146,12 @@ public class AggregationIterator extends Filter {
         }
       }
 
-      final IndexedAdapterPersistenceEncoding encoding = new IndexedAdapterPersistenceEncoding(
-          persistenceEncoding.getInternalAdapterId(), persistenceEncoding.getDataId(),
-          persistenceEncoding.getInsertionPartitionKey(), persistenceEncoding.getInsertionSortKey(),
-          persistenceEncoding.getDuplicateCount(), persistenceEncoding.getCommonData(),
-          new PersistentDataset<byte[]>(), adapterExtendedValues);
+      final IndexedAdapterPersistenceEncoding encoding =
+          new IndexedAdapterPersistenceEncoding(persistenceEncoding.getInternalAdapterId(),
+              persistenceEncoding.getDataId(), persistenceEncoding.getInsertionPartitionKey(),
+              persistenceEncoding.getInsertionSortKey(), persistenceEncoding.getDuplicateCount(),
+              persistenceEncoding.getCommonData(), new PersistentDataset<byte[]>(),
+              adapterExtendedValues);
       // the data adapter can't use the numeric index strategy and only
       // the common index model to decode which is the case for feature
       // data, we pass along a null strategy to eliminate the necessity to
@@ -165,8 +172,9 @@ public class AggregationIterator extends Filter {
   public void setOptions(final Map<String, String> options) {
     try {
       final String aggregrationBytes = options.get(AGGREGATION_OPTION_NAME);
-      aggregationFunction = (Aggregation) PersistenceUtils
-          .fromClassId(ByteArrayUtils.byteArrayFromString(aggregrationBytes));
+      aggregationFunction =
+          (Aggregation) PersistenceUtils
+              .fromClassId(ByteArrayUtils.byteArrayFromString(aggregrationBytes));
       final String parameterStr = options.get(PARAMETER_OPTION_NAME);
       if ((parameterStr != null) && !parameterStr.isEmpty()) {
         final byte[] parameterBytes = ByteArrayUtils.byteArrayFromString(parameterStr);
@@ -225,8 +233,10 @@ public class AggregationIterator extends Filter {
   }
 
   @Override
-  public void init(final SortedKeyValueIterator<Key, Value> source,
-      final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+  public void init(
+      final SortedKeyValueIterator<Key, Value> source,
+      final Map<String, String> options,
+      final IteratorEnvironment env) throws IOException {
     setOptions(options);
     queryFilterIterator = new QueryFilterIterator();
     queryFilterIterator.setOptions(options);
@@ -290,8 +300,10 @@ public class AggregationIterator extends Filter {
     QueryFilterIterator.findTopEnhanced(getSource(), this);
   }
 
-  protected static void findEnd(final Iterator<Range> rangeIt,
-      final Collection<Range> internalRanges, final Range seekRange) {
+  protected static void findEnd(
+      final Iterator<Range> rangeIt,
+      final Collection<Range> internalRanges,
+      final Range seekRange) {
     // find the first range in the set whose end key is after this
     // range's end key, clip its end to this range end if its start
     // is not also greater than this end, and stop
@@ -313,8 +325,10 @@ public class AggregationIterator extends Filter {
     }
   }
 
-  protected static void findStart(final Iterator<Range> rangeIt,
-      final Collection<Range> internalRanges, final Range seekRange) {
+  protected static void findStart(
+      final Iterator<Range> rangeIt,
+      final Collection<Range> internalRanges,
+      final Range seekRange) {
     // find the first range whose end key is after this range's start key
     // and clip its start to this range start key, and start on that
     while (rangeIt.hasNext()) {
@@ -334,7 +348,9 @@ public class AggregationIterator extends Filter {
   }
 
   @Override
-  public void seek(final Range seekRange, final Collection<ByteSequence> columnFamilies,
+  public void seek(
+      final Range seekRange,
+      final Collection<ByteSequence> columnFamilies,
       final boolean inclusive) throws IOException {
     aggregationReturned = false;
     aggregationFunction.clearResult();

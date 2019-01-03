@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -119,8 +118,8 @@ public class GPXConsumerTest {
       }
     });
 
-    expectedResults.put("123_12_ROUT135ASP_2_rtename2_0422446460_-0714685390",
-        new ValidateObject<SimpleFeature>() {
+    expectedResults.put(
+        "123_12_ROUT135ASP_2_rtename2_0422446460_-0714685390", new ValidateObject<SimpleFeature>() {
           @Override
           public boolean validate(final SimpleFeature feature) {
             return (feature.getAttribute("Longitude") != null)
@@ -136,8 +135,9 @@ public class GPXConsumerTest {
     try (final InputStream is =
         this.getClass().getClassLoader().getResourceAsStream("sample_gpx.xml");) {
 
-      final GPXConsumer consumer = new GPXConsumer(is, new String[] {"123"}, "123",
-          new HashMap<String, Map<String, String>>(), true, "", Double.MAX_VALUE);
+      final GPXConsumer consumer =
+          new GPXConsumer(is, new String[] {"123"}, "123",
+              new HashMap<String, Map<String, String>>(), true, "", Double.MAX_VALUE);
       int totalCount = 0;
 
       while (consumer.hasNext()) {
@@ -159,7 +159,8 @@ public class GPXConsumerTest {
       System.out.println("Failed matches:");
       System.out.println(expectedSet);
     }
-    assertEquals("All expected data set should be matched; zero unmatched data expected", 0,
+    assertEquals(
+        "All expected data set should be matched; zero unmatched data expected", 0,
         expectedSet.size());
   }
 
@@ -189,8 +190,9 @@ public class GPXConsumerTest {
 
     } else if (dir.getName().endsWith("gpx")) {
       try (final InputStream is = new FileInputStream(dir);) {
-        try (final GPXConsumer consumer = new GPXConsumer(is, new String[] {"123"}, "",
-            new HashMap<String, Map<String, String>>(), false, "", Double.MAX_VALUE)) {
+        try (final GPXConsumer consumer =
+            new GPXConsumer(is, new String[] {"123"}, "",
+                new HashMap<String, Map<String, String>>(), false, "", Double.MAX_VALUE)) {
           final Set<String> ids = new HashSet<>();
           while (consumer.hasNext()) {
             final String id = consumer.next().getValue().getID();

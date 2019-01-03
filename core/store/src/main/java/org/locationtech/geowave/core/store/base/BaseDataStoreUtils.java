@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -72,8 +71,11 @@ import org.slf4j.LoggerFactory;
 public class BaseDataStoreUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseDataStoreUtils.class);
 
-  public static <T> GeoWaveRow[] getGeoWaveRows(final T entry, final InternalDataAdapter<T> adapter,
-      final Index index, final VisibilityWriter<T> customFieldVisibilityWriter) {
+  public static <T> GeoWaveRow[] getGeoWaveRows(
+      final T entry,
+      final InternalDataAdapter<T> adapter,
+      final Index index,
+      final VisibilityWriter<T> customFieldVisibilityWriter) {
     return getWriteInfo(entry, adapter, index, customFieldVisibilityWriter).getRows();
   }
 
@@ -81,14 +83,18 @@ public class BaseDataStoreUtils {
    * Basic method that decodes a native row Currently overridden by Accumulo and HBase; Unification
    * in progress
    *
-   * <p>
-   * Override this method if you can't pass in a GeoWaveRow!
+   * <p> Override this method if you can't pass in a GeoWaveRow!
    *
    * @throws AdapterException
    */
-  public static <T> Object decodeRow(final GeoWaveRow geowaveRow, final QueryFilter clientFilter,
-      final InternalDataAdapter<T> adapter, final PersistentAdapterStore adapterStore,
-      final Index index, final ScanCallback scanCallback, final byte[] fieldSubsetBitmask,
+  public static <T> Object decodeRow(
+      final GeoWaveRow geowaveRow,
+      final QueryFilter clientFilter,
+      final InternalDataAdapter<T> adapter,
+      final PersistentAdapterStore adapterStore,
+      final Index index,
+      final ScanCallback scanCallback,
+      final byte[] fieldSubsetBitmask,
       final boolean decodeRow) throws AdapterException {
     final short internalAdapterId = geowaveRow.getAdapterId();
 
@@ -133,7 +139,8 @@ public class BaseDataStoreUtils {
     return getDecodedRow(geowaveRow, decodePackage, clientFilter, scanCallback);
   }
 
-  public static CloseableIterator<Object> aggregate(final CloseableIterator<Object> it,
+  public static CloseableIterator<Object> aggregate(
+      final CloseableIterator<Object> it,
       final Aggregation<?, ?, Object> aggregationFunction) {
     if ((it != null) && it.hasNext()) {
       try {
@@ -158,14 +165,17 @@ public class BaseDataStoreUtils {
    * build a persistence encoding object first, pass it through the client filters and if its
    * accepted, use the data adapter to decode the persistence model into the native data type
    */
-  private static <T> Object getDecodedRow(final GeoWaveRow row,
-      final IntermediaryReadEntryInfo<T> decodePackage, final QueryFilter clientFilter,
+  private static <T> Object getDecodedRow(
+      final GeoWaveRow row,
+      final IntermediaryReadEntryInfo<T> decodePackage,
+      final QueryFilter clientFilter,
       final ScanCallback<T, GeoWaveRow> scanCallback) {
-    final IndexedAdapterPersistenceEncoding encodedRow = new IndexedAdapterPersistenceEncoding(
-        decodePackage.getDataAdapter().getAdapterId(), new ByteArray(row.getDataId()),
-        new ByteArray(row.getPartitionKey()), new ByteArray(row.getSortKey()),
-        row.getNumberOfDuplicates(), decodePackage.getIndexData(), decodePackage.getUnknownData(),
-        decodePackage.getExtendedData());
+    final IndexedAdapterPersistenceEncoding encodedRow =
+        new IndexedAdapterPersistenceEncoding(decodePackage.getDataAdapter().getAdapterId(),
+            new ByteArray(row.getDataId()), new ByteArray(row.getPartitionKey()),
+            new ByteArray(row.getSortKey()), row.getNumberOfDuplicates(),
+            decodePackage.getIndexData(), decodePackage.getUnknownData(),
+            decodePackage.getExtendedData());
 
     if ((clientFilter == null)
         || clientFilter.accept(decodePackage.getIndex().getIndexModel(), encodedRow)) {
@@ -187,14 +197,16 @@ public class BaseDataStoreUtils {
   }
 
   /** Generic field reader - updates fieldInfoList from field input data */
-  private static void readValue(final IntermediaryReadEntryInfo decodePackage,
+  private static void readValue(
+      final IntermediaryReadEntryInfo decodePackage,
       final GeoWaveValue value) {
-    final List<FlattenedFieldInfo> fieldInfos = DataStoreUtils
-        .decomposeFlattenedFields(value.getFieldMask(), value.getValue(), value.getVisibility(), -1)
-        .getFieldsRead();
+    final List<FlattenedFieldInfo> fieldInfos =
+        DataStoreUtils.decomposeFlattenedFields(
+            value.getFieldMask(), value.getValue(), value.getVisibility(), -1).getFieldsRead();
     for (final FlattenedFieldInfo fieldInfo : fieldInfos) {
-      final String fieldName = decodePackage.getDataAdapter().getFieldNameForPosition(
-          decodePackage.getIndex().getIndexModel(), fieldInfo.getFieldPosition());
+      final String fieldName =
+          decodePackage.getDataAdapter().getFieldNameForPosition(
+              decodePackage.getIndex().getIndexModel(), fieldInfo.getFieldPosition());
       final FieldReader<? extends CommonIndexValue> indexFieldReader =
           decodePackage.getIndex().getIndexModel().getReader(fieldName);
       if (indexFieldReader != null) {
@@ -215,8 +227,10 @@ public class BaseDataStoreUtils {
     }
   }
 
-  protected static <T> IntermediaryWriteEntryInfo getWriteInfo(final T entry,
-      final InternalDataAdapter<T> adapter, final Index index,
+  protected static <T> IntermediaryWriteEntryInfo getWriteInfo(
+      final T entry,
+      final InternalDataAdapter<T> adapter,
+      final Index index,
       final VisibilityWriter<T> customFieldVisibilityWriter) {
     final CommonIndexModel indexModel = index.getIndexModel();
 
@@ -230,8 +244,10 @@ public class BaseDataStoreUtils {
     if (!insertionIds.isEmpty()) {
       for (final Entry<String, CommonIndexValue> fieldValue : encodedData.getCommonData()
           .getValues().entrySet()) {
-        final FieldInfo<?> fieldInfo = getFieldInfo(indexModel, fieldValue.getKey(),
-            fieldValue.getValue(), entry, customFieldVisibilityWriter);
+        final FieldInfo<?> fieldInfo =
+            getFieldInfo(
+                indexModel, fieldValue.getKey(), fieldValue.getValue(), entry,
+                customFieldVisibilityWriter);
         if (fieldInfo != null) {
           fieldInfoList.add(fieldInfo);
         }
@@ -239,16 +255,20 @@ public class BaseDataStoreUtils {
       for (final Entry<String, Object> fieldValue : encodedData.getAdapterExtendedData().getValues()
           .entrySet()) {
         if (fieldValue.getValue() != null) {
-          final FieldInfo<?> fieldInfo = getFieldInfo(adapter, fieldValue.getKey(),
-              fieldValue.getValue(), entry, customFieldVisibilityWriter);
+          final FieldInfo<?> fieldInfo =
+              getFieldInfo(
+                  adapter, fieldValue.getKey(), fieldValue.getValue(), entry,
+                  customFieldVisibilityWriter);
           if (fieldInfo != null) {
             fieldInfoList.add(fieldInfo);
           }
         }
       }
     } else {
-      LOGGER.warn("Indexing failed to produce insertion ids; entry ["
-          + adapter.getDataId(entry).getString() + "] not saved.");
+      LOGGER.warn(
+          "Indexing failed to produce insertion ids; entry ["
+              + adapter.getDataId(entry).getString()
+              + "] not saved.");
     }
 
     return new IntermediaryWriteEntryInfo(dataId, internalAdapterId, insertionIds,
@@ -261,8 +281,10 @@ public class BaseDataStoreUtils {
    * @param originalList
    * @return a new list of composite FieldInfos
    */
-  private static <T> GeoWaveValue[] composeFlattenedFields(final List<FieldInfo<?>> originalList,
-      final CommonIndexModel model, final DataTypeAdapter<?> writableAdapter) {
+  private static <T> GeoWaveValue[] composeFlattenedFields(
+      final List<FieldInfo<?>> originalList,
+      final CommonIndexModel model,
+      final DataTypeAdapter<?> writableAdapter) {
     final List<GeoWaveValue> retVal = new ArrayList<>();
     final Map<ByteArray, List<Pair<Integer, FieldInfo<?>>>> vizToFieldMap = new LinkedHashMap<>();
     boolean sharedVisibility = false;
@@ -325,8 +347,11 @@ public class BaseDataStoreUtils {
     return retVal.toArray(new GeoWaveValue[0]);
   }
 
-  private static <T> FieldInfo<?> getFieldInfo(final DataWriter dataWriter, final String fieldName,
-      final Object fieldValue, final T entry,
+  private static <T> FieldInfo<?> getFieldInfo(
+      final DataWriter dataWriter,
+      final String fieldName,
+      final Object fieldValue,
+      final T entry,
       final VisibilityWriter<T> customFieldVisibilityWriter) {
     final FieldWriter fieldWriter = dataWriter.getWriter(fieldName);
     final FieldVisibilityHandler<T, Object> customVisibilityHandler =
@@ -337,8 +362,11 @@ public class BaseDataStoreUtils {
               customVisibilityHandler.getVisibility(entry, fieldName, fieldValue),
               fieldWriter.getVisibility(entry, fieldName, fieldValue)));
     } else if (fieldValue != null) {
-      LOGGER.warn("Data writer of class " + dataWriter.getClass() + " does not support field for "
-          + fieldValue);
+      LOGGER.warn(
+          "Data writer of class "
+              + dataWriter.getClass()
+              + " does not support field for "
+              + fieldValue);
     }
     return null;
   }
@@ -374,27 +402,35 @@ public class BaseDataStoreUtils {
   }
 
   public static List<Pair<Index, List<Short>>> getAdaptersWithMinimalSetOfIndices(
-      final @Nullable String[] typeNames, final @Nullable String indexName,
-      final TransientAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore, final IndexStore indexStore)
-      throws IOException {
-    return reduceIndicesAndGroupByIndex(compileIndicesForAdapters(typeNames, indexName,
-        adapterStore, internalAdapterStore, adapterIndexMappingStore, indexStore));
+      final @Nullable String[] typeNames,
+      final @Nullable String indexName,
+      final TransientAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
+      final AdapterIndexMappingStore adapterIndexMappingStore,
+      final IndexStore indexStore) throws IOException {
+    return reduceIndicesAndGroupByIndex(
+        compileIndicesForAdapters(
+            typeNames, indexName, adapterStore, internalAdapterStore, adapterIndexMappingStore,
+            indexStore));
   }
 
   private static List<Pair<Index, Short>> compileIndicesForAdapters(
-      final @Nullable String[] typeNames, final @Nullable String indexName,
-      final TransientAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore, final IndexStore indexStore)
-      throws IOException {
+      final @Nullable String[] typeNames,
+      final @Nullable String indexName,
+      final TransientAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
+      final AdapterIndexMappingStore adapterIndexMappingStore,
+      final IndexStore indexStore) throws IOException {
     Collection<Short> adapterIds;
     if ((typeNames == null) || (typeNames.length == 0)) {
       adapterIds = Arrays.asList(ArrayUtils.toObject(internalAdapterStore.getAdapterIds()));
     } else {
-      adapterIds = Collections2.filter(
-          Lists.transform(Arrays.asList(typeNames),
-              typeName -> internalAdapterStore.getAdapterId(typeName)),
-          adapterId -> adapterId != null);
+      adapterIds =
+          Collections2.filter(
+              Lists.transform(
+                  Arrays.asList(typeNames),
+                  typeName -> internalAdapterStore.getAdapterId(typeName)),
+              adapterId -> adapterId != null);
     }
     final List<Pair<Index, Short>> result = new ArrayList<>();
     for (final Short adapterId : adapterIds) {

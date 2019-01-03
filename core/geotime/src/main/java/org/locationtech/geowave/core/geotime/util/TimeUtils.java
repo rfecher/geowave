@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -64,8 +63,12 @@ public class TimeUtils {
       } else if (timeObj instanceof Number) {
         return ((Number) timeObj).longValue();
       } else {
-        LOGGER.warn("Time value '" + timeObj + "' of type '" + timeObj.getClass()
-            + "' is not of expected temporal type");
+        LOGGER.warn(
+            "Time value '"
+                + timeObj
+                + "' of type '"
+                + timeObj.getClass()
+                + "' is not of expected temporal type");
       }
     }
     return -1;
@@ -109,13 +112,18 @@ public class TimeUtils {
     } else if (Long.class.isAssignableFrom(bindingClass)) {
       return Long.valueOf(longVal);
     }
-    LOGGER.warn("Numeric value '" + longVal + "' of type '" + bindingClass
-        + "' is not of expected temporal type");
+    LOGGER.warn(
+        "Numeric value '"
+            + longVal
+            + "' of type '"
+            + bindingClass
+            + "' is not of expected temporal type");
     return null;
   }
 
   public static TemporalConstraints getTemporalConstraintsForDescriptors(
-      final TimeDescriptors timeDescriptors, final TemporalConstraintsSet timeBoundsSet) {
+      final TimeDescriptors timeDescriptors,
+      final TemporalConstraintsSet timeBoundsSet) {
     if ((timeBoundsSet == null) || timeBoundsSet.isEmpty()) {
       return new TemporalConstraints();
     }
@@ -138,7 +146,8 @@ public class TimeUtils {
    * @return null if the constraints does not have the fields required by the time descriptors
    */
   public static TemporalConstraints composeRangeTemporalConstraints(
-      final TimeDescriptors timeDescriptors, final TemporalConstraintsSet constraintsSet) {
+      final TimeDescriptors timeDescriptors,
+      final TemporalConstraintsSet constraintsSet) {
 
     if ((timeDescriptors.getEndRange() != null) && (timeDescriptors.getStartRange() != null)) {
       final String ename = timeDescriptors.getEndRange().getLocalName();

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -57,7 +56,8 @@ public class GeometryDataSetGenerator {
   private CoordinateSystem coordSystem;
   private boolean includePolygons = true;
 
-  public GeometryDataSetGenerator(final DistanceFn<SimpleFeature> distanceFunction,
+  public GeometryDataSetGenerator(
+      final DistanceFn<SimpleFeature> distanceFunction,
       final SimpleFeatureBuilder builder) {
     super();
     this.distanceFunction = distanceFunction;
@@ -106,7 +106,9 @@ public class GeometryDataSetGenerator {
    * @param maxAxis
    * @return
    */
-  private double[] createRange(final double factor, final double[] minAxis,
+  private double[] createRange(
+      final double factor,
+      final double[] minAxis,
       final double[] maxAxis) {
     final double[] range = new double[minAxis.length];
     for (int i = 0; i < minAxis.length; i++) {
@@ -122,8 +124,10 @@ public class GeometryDataSetGenerator {
    * @param minCenterDistanceFactor
    * @return
    */
-  private Pair<double[], double[]> gridCellBounds(final double minCenterDistanceFactor,
-      final double[] minAxis, final double[] maxAxis) {
+  private Pair<double[], double[]> gridCellBounds(
+      final double minCenterDistanceFactor,
+      final double[] minAxis,
+      final double[] maxAxis) {
     final double[] range = createRange(1.0, minAxis, maxAxis);
     final double[] min = new double[range.length];
     final double[] max = new double[range.length];
@@ -131,10 +135,12 @@ public class GeometryDataSetGenerator {
       // HP Fortify "Insecure Randomness" false positive
       // This random number is not used for any purpose
       // related to security or cryptography
-      min[i] = Math.max(
-          minAxis[i] + (minCenterDistanceFactor
-              * (rand.nextInt(Integer.MAX_VALUE) % (range[i] / minCenterDistanceFactor))),
-          minAxis[i]);
+      min[i] =
+          Math.max(
+              minAxis[i]
+                  + (minCenterDistanceFactor
+                      * (rand.nextInt(Integer.MAX_VALUE) % (range[i] / minCenterDistanceFactor))),
+              minAxis[i]);
       max[i] = Math.min(min[i] + (minCenterDistanceFactor * range[i]), maxAxis[i]);
     }
     return Pair.of(min, max);
@@ -159,25 +165,34 @@ public class GeometryDataSetGenerator {
     }
   }
 
-  public List<SimpleFeature> generatePointSet(final double minCenterDistanceFactor,
-      final double outlierFactor, final int numberOfCenters, final int minSetSize) {
-    return this.generatePointSet(minCenterDistanceFactor, outlierFactor, numberOfCenters,
-        minSetSize, minAxis, maxAxis);
+  public List<SimpleFeature> generatePointSet(
+      final double minCenterDistanceFactor,
+      final double outlierFactor,
+      final int numberOfCenters,
+      final int minSetSize) {
+    return this.generatePointSet(
+        minCenterDistanceFactor, outlierFactor, numberOfCenters, minSetSize, minAxis, maxAxis);
   }
 
-  public List<SimpleFeature> generatePointSet(final LineString line, final double distanceFactor,
+  public List<SimpleFeature> generatePointSet(
+      final LineString line,
+      final double distanceFactor,
       final int points) {
     final List<SimpleFeature> pointSet = new ArrayList<>();
-    for (final Point point : CurvedDensityDataGeneratorTool.generatePoints(line, distanceFactor,
-        points)) {
+    for (final Point point : CurvedDensityDataGeneratorTool
+        .generatePoints(line, distanceFactor, points)) {
       pointSet.add(createFeatureWithGeometry(point));
     }
     return pointSet;
   }
 
-  public List<SimpleFeature> generatePointSet(final double minCenterDistanceFactor,
-      final double outlierFactor, final int numberOfCenters, final int minSetSize,
-      final double[] minAxis, final double[] maxAxis) {
+  public List<SimpleFeature> generatePointSet(
+      final double minCenterDistanceFactor,
+      final double outlierFactor,
+      final int numberOfCenters,
+      final int minSetSize,
+      final double[] minAxis,
+      final double[] maxAxis) {
 
     final List<SimpleFeature> pointSet = new ArrayList<>();
     final List<double[]> minForCenter = new ArrayList<>();
@@ -240,8 +255,11 @@ public class GeometryDataSetGenerator {
     return pointSet;
   }
 
-  public List<SimpleFeature> addRandomNoisePoints(final List<SimpleFeature> pointSet,
-      final int minSetSize, final double[] minAxis, final double[] maxAxis) {
+  public List<SimpleFeature> addRandomNoisePoints(
+      final List<SimpleFeature> pointSet,
+      final int minSetSize,
+      final double[] minAxis,
+      final double[] maxAxis) {
     while (pointSet.size() < minSetSize) {
       pointSet.add(createNewFeature(minAxis, maxAxis));
     }
@@ -267,7 +285,9 @@ public class GeometryDataSetGenerator {
     minFeature = createFeatureWithGeometry(geoFactory.createPoint(coordinate));
   }
 
-  private boolean isFarEnough(final SimpleFeature feature, final List<SimpleFeature> set,
+  private boolean isFarEnough(
+      final SimpleFeature feature,
+      final List<SimpleFeature> set,
       final double minDistance) {
     for (final SimpleFeature setItem : set) {
       if (distanceFunction.measure(feature, setItem) < minDistance) {
@@ -284,7 +304,9 @@ public class GeometryDataSetGenerator {
    * @param minCenterDistanceFactor
    * @return
    */
-  private double computeMinDistance(final double minCenterDistanceFactor, final double[] minAxis,
+  private double computeMinDistance(
+      final double minCenterDistanceFactor,
+      final double[] minAxis,
       final double[] maxAxis) {
     assert minCenterDistanceFactor < 0.75;
 
@@ -323,8 +345,9 @@ public class GeometryDataSetGenerator {
         // HP Fortify "Insecure Randomness" false positive
         // This random number is not used for any purpose
         // related to security or cryptography
-        coordinate.setOrdinate(i, constrainedMinAxis[i]
-            + (rand.nextDouble() * (constrainedMaxAxis[i] - constrainedMinAxis[i])));
+        coordinate.setOrdinate(
+            i, constrainedMinAxis[i]
+                + (rand.nextDouble() * (constrainedMaxAxis[i] - constrainedMinAxis[i])));
       }
       shape[s] = coordinate;
       if (s == 0) {
@@ -352,7 +375,9 @@ public class GeometryDataSetGenerator {
    * @param constrainedMaxAxis
    * @param constrainedMinAxis
    */
-  private void constrain(final Coordinate coordinate, final double[] constrainedMaxAxis,
+  private void constrain(
+      final Coordinate coordinate,
+      final double[] constrainedMaxAxis,
       final double[] constrainedMinAxis) {
     for (int i = 0; i < constrainedMaxAxis.length; i++) {
       final double range = (constrainedMaxAxis[i] - constrainedMinAxis[i]) * 0.001;
@@ -486,8 +511,10 @@ public class GeometryDataSetGenerator {
 
     private CurvedDensityDataGeneratorTool() {}
 
-    public static final List<Point> generatePoints(final LineString line,
-        final double distanceFactor, final int points) {
+    public static final List<Point> generatePoints(
+        final LineString line,
+        final double distanceFactor,
+        final int points) {
       final List<Point> results = new ArrayList<>();
       Coordinate lastCoor = null;
       double distanceTotal = 0.0;
@@ -504,8 +531,10 @@ public class GeometryDataSetGenerator {
       i = 0;
       for (final Coordinate coor : line.getCoordinates()) {
         if (lastCoor != null) {
-          results.addAll(generatePoints(line.getFactory(), toVec(coor), toVec(lastCoor),
-              distanceFactor, (int) ((points) * (distancesBetweenCoords[i++] / distanceTotal))));
+          results.addAll(
+              generatePoints(
+                  line.getFactory(), toVec(coor), toVec(lastCoor), distanceFactor,
+                  (int) ((points) * (distancesBetweenCoords[i++] / distanceTotal))));
         }
         lastCoor = coor;
       }
@@ -513,8 +542,11 @@ public class GeometryDataSetGenerator {
       return results;
     }
 
-    private static final List<Point> generatePoints(final GeometryFactory factory,
-        final Vector2D coordinateOne, final Vector2D coordinateTwo, final double distanceFactor,
+    private static final List<Point> generatePoints(
+        final GeometryFactory factory,
+        final Vector2D coordinateOne,
+        final Vector2D coordinateTwo,
+        final double distanceFactor,
         final int points) {
       final List<Point> results = new ArrayList<>();
       final Random rand = new Random();
@@ -528,8 +560,10 @@ public class GeometryDataSetGenerator {
         final double direction = rand.nextGaussian() * distanceFactor;
         final Vector2D orthogonal = new Vector2D(originVec.getY(), -originVec.getX());
 
-        results.add(factory.createPoint(toCoordinate(
-            orthogonal.scalarMultiply(direction).add(projectionPoint).add(coordinateOne))));
+        results.add(
+            factory.createPoint(
+                toCoordinate(
+                    orthogonal.scalarMultiply(direction).add(projectionPoint).add(coordinateOne))));
       }
       return results;
     }

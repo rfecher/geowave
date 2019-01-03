@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,7 +28,10 @@ public class TranslationEntry {
   private final String[] prefixedNames;
   private final AnnotatedElement member;
 
-  protected TranslationEntry(Parameterized param, Object object, String prefix,
+  protected TranslationEntry(
+      Parameterized param,
+      Object object,
+      String prefix,
       AnnotatedElement member) {
     this.param = param;
     this.object = object;
@@ -80,7 +82,8 @@ public class TranslationEntry {
         descriptionKey = descriptionKey.trim();
         description = getDescriptionFromResourceBundle(descriptionKey);
       }
-    } else if (getParam().isDynamicParameter() && getParam().getWrappedParameter() != null
+    } else if (getParam().isDynamicParameter()
+        && getParam().getWrappedParameter() != null
         && getParam().getWrappedParameter().getDynamicParameter() != null) {
       String descriptionKey =
           getParam().getWrappedParameter().getDynamicParameter().descriptionKey();
@@ -123,8 +126,10 @@ public class TranslationEntry {
       // properties (GeoWaveLabels.properties) and a
       // default-locale-specific properties
       // (GeoWaveLabels_en_US.properties)
-      ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName, locale,
-          ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES));
+      ResourceBundle resourceBundle =
+          ResourceBundle.getBundle(
+              bundleName, locale, ResourceBundle.Control
+                  .getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES));
       if (resourceBundle != null) {
         if (resourceBundle.containsKey(descriptionKey)) {
           description = resourceBundle.getString(descriptionKey);
@@ -145,8 +150,9 @@ public class TranslationEntry {
     // GeoWaveBaseConverter instance, check the isPassword value of the
     // converter
     isPassword = isPassword || JCommanderParameterUtils.isPassword(getParam().getParameter());
-    isPassword = isPassword
-        || JCommanderParameterUtils.isPassword(getParam().getWrappedParameter().getParameter());
+    isPassword =
+        isPassword
+            || JCommanderParameterUtils.isPassword(getParam().getWrappedParameter().getParameter());
     return isPassword;
   }
 
@@ -172,8 +178,9 @@ public class TranslationEntry {
   public boolean isRequired() {
     boolean isRequired = false;
     isRequired = isRequired || JCommanderParameterUtils.isRequired(getParam().getParameter());
-    isRequired = isRequired
-        || JCommanderParameterUtils.isRequired(getParam().getWrappedParameter().getParameter());
+    isRequired =
+        isRequired
+            || JCommanderParameterUtils.isRequired(getParam().getWrappedParameter().getParameter());
     return isRequired;
   }
 
@@ -221,8 +228,9 @@ public class TranslationEntry {
       }
       String prePrefix = item.substring(0, j);
       item = item.substring(j);
-      newNames[i] = String.format("%s%s%s%s", prePrefix, prefix,
-          JCommanderTranslationMap.PREFIX_SEPARATOR, item);
+      newNames[i] =
+          String.format(
+              "%s%s%s%s", prePrefix, prefix, JCommanderTranslationMap.PREFIX_SEPARATOR, item);
     }
     return newNames;
   }

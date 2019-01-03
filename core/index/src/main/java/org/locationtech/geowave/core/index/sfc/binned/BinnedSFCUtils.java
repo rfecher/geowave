@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,8 +35,10 @@ import org.locationtech.geowave.core.index.sfc.data.NumericRange;
 public class BinnedSFCUtils {
 
   public static List<SinglePartitionQueryRanges> getQueryRanges(
-      final List<BinnedNumericDataset> binnedQueries, final SpaceFillingCurve sfc,
-      final int maxRanges, final byte tier) {
+      final List<BinnedNumericDataset> binnedQueries,
+      final SpaceFillingCurve sfc,
+      final int maxRanges,
+      final byte tier) {
     final List<SinglePartitionQueryRanges> queryRanges =
         new ArrayList<SinglePartitionQueryRanges>();
 
@@ -54,21 +55,26 @@ public class BinnedSFCUtils {
           // value)
       }, binnedQuery.getBinId());
 
-      queryRanges.add(new SinglePartitionQueryRanges(new ByteArray(tierAndBinId),
-          Arrays.asList(rangeDecomp.getRanges())));
+      queryRanges.add(
+          new SinglePartitionQueryRanges(new ByteArray(tierAndBinId),
+              Arrays.asList(rangeDecomp.getRanges())));
     }
     return queryRanges;
   }
 
   public static MultiDimensionalCoordinateRanges getCoordinateRanges(
-      final BinRange[][] binRangesPerDimension, final SpaceFillingCurve sfc,
-      final int numDimensions, final byte tier) {
+      final BinRange[][] binRangesPerDimension,
+      final SpaceFillingCurve sfc,
+      final int numDimensions,
+      final byte tier) {
     final CoordinateRange[][] coordinateRangesPerDimension = new CoordinateRange[numDimensions][];
     for (int d = 0; d < coordinateRangesPerDimension.length; d++) {
       coordinateRangesPerDimension[d] = new CoordinateRange[binRangesPerDimension[d].length];
       for (int i = 0; i < binRangesPerDimension[d].length; i++) {
-        final long[] range = sfc.normalizeRange(binRangesPerDimension[d][i].getNormalizedMin(),
-            binRangesPerDimension[d][i].getNormalizedMax(), d);
+        final long[] range =
+            sfc.normalizeRange(
+                binRangesPerDimension[d][i].getNormalizedMin(),
+                binRangesPerDimension[d][i].getNormalizedMax(), d);
         coordinateRangesPerDimension[d][i] =
             new CoordinateRange(range[0], range[1], binRangesPerDimension[d][i].getBinId());
       }
@@ -76,8 +82,10 @@ public class BinnedSFCUtils {
     return new MultiDimensionalCoordinateRanges(new byte[] {tier}, coordinateRangesPerDimension);
   }
 
-  public static SinglePartitionInsertionIds getSingleBinnedInsertionId(final BigInteger rowCount,
-      final byte multiDimensionalId, final BinnedNumericDataset index,
+  public static SinglePartitionInsertionIds getSingleBinnedInsertionId(
+      final BigInteger rowCount,
+      final byte multiDimensionalId,
+      final BinnedNumericDataset index,
       final SpaceFillingCurve sfc) {
     if (rowCount.equals(BigInteger.ONE)) {
       final byte[] tierAndBinId =
@@ -103,8 +111,10 @@ public class BinnedSFCUtils {
     return null;
   }
 
-  public static Coordinate[] getCoordinatesForId(final byte[] rowId,
-      final NumericDimensionDefinition[] baseDefinitions, final SpaceFillingCurve sfc) {
+  public static Coordinate[] getCoordinatesForId(
+      final byte[] rowId,
+      final NumericDimensionDefinition[] baseDefinitions,
+      final SpaceFillingCurve sfc) {
     final SFCIdAndBinInfo sfcIdAndBinInfo = getSFCIdAndBinInfo(rowId, baseDefinitions);
     final long[] coordinateValues = sfc.getCoordinates(sfcIdAndBinInfo.sfcId);
     final Coordinate[] retVal = new Coordinate[coordinateValues.length];
@@ -115,8 +125,10 @@ public class BinnedSFCUtils {
     return retVal;
   }
 
-  public static MultiDimensionalNumericData getRangeForId(final byte[] rowId,
-      final NumericDimensionDefinition[] baseDefinitions, final SpaceFillingCurve sfc) {
+  public static MultiDimensionalNumericData getRangeForId(
+      final byte[] rowId,
+      final NumericDimensionDefinition[] baseDefinitions,
+      final SpaceFillingCurve sfc) {
     final SFCIdAndBinInfo sfcIdAndBinInfo = getSFCIdAndBinInfo(rowId, baseDefinitions);
     final MultiDimensionalNumericData numericData = sfc.getRanges(sfcIdAndBinInfo.sfcId);
     // now we need to unapply the bins to the data, denormalizing the
@@ -126,8 +138,9 @@ public class BinnedSFCUtils {
       for (final Entry<Integer, byte[]> entry : sfcIdAndBinInfo.binIds.entrySet()) {
         final int dimension = entry.getKey();
         final NumericRange range =
-            baseDefinitions[dimension].getDenormalizedRange(new BinRange(entry.getValue(),
-                data[dimension].getMin(), data[dimension].getMax(), false));
+            baseDefinitions[dimension].getDenormalizedRange(
+                new BinRange(entry.getValue(), data[dimension].getMin(), data[dimension].getMax(),
+                    false));
         data[dimension] = range;
       }
       return new BasicNumericDataset(data);
@@ -135,7 +148,8 @@ public class BinnedSFCUtils {
     return numericData;
   }
 
-  private static SFCIdAndBinInfo getSFCIdAndBinInfo(final byte[] rowId,
+  private static SFCIdAndBinInfo getSFCIdAndBinInfo(
+      final byte[] rowId,
       final NumericDimensionDefinition[] baseDefinitions) {
 
     final Map<Integer, byte[]> binIds = new HashMap<Integer, byte[]>();
@@ -157,7 +171,9 @@ public class BinnedSFCUtils {
     private final Map<Integer, byte[]> binIds;
     private final int rowIdOffset;
 
-    public SFCIdAndBinInfo(final byte[] sfcId, final Map<Integer, byte[]> binIds,
+    public SFCIdAndBinInfo(
+        final byte[] sfcId,
+        final Map<Integer, byte[]> binIds,
         final int rowIdOffset) {
       super();
       this.sfcId = sfcId;

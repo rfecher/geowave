@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,8 +23,12 @@ public class LazyPaginatedEntryRange<V> extends LazyIteratorChain<ScoredEntry<V>
   private Collection<ScoredEntry<V>> currentResult;
   private int currentOffset = 0;
 
-  public LazyPaginatedEntryRange(double startScore, boolean startScoreInclusive, double endScore,
-      boolean endScoreInclusive, RScoredSortedSet<V> set,
+  public LazyPaginatedEntryRange(
+      double startScore,
+      boolean startScoreInclusive,
+      double endScore,
+      boolean endScoreInclusive,
+      RScoredSortedSet<V> set,
       Collection<ScoredEntry<V>> currentResult) {
     super();
     this.startScore = startScore;
@@ -48,8 +51,10 @@ public class LazyPaginatedEntryRange<V> extends LazyIteratorChain<ScoredEntry<V>
       return null;
     } else {
       currentOffset += RedisUtils.MAX_ROWS_FOR_PAGINATION;
-      currentResult = set.entryRange(startScore, startScoreInclusive, endScore, endScoreInclusive,
-          currentOffset, RedisUtils.MAX_ROWS_FOR_PAGINATION);
+      currentResult =
+          set.entryRange(
+              startScore, startScoreInclusive, endScore, endScoreInclusive, currentOffset,
+              RedisUtils.MAX_ROWS_FOR_PAGINATION);
       return currentResult.iterator();
     }
   }

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -142,15 +141,16 @@ public class OsmXmlLoader implements Sink {
   // print helpers
 
   public static void print(Node node) {
-    System.out.format("%s: %10s (%-10s, %-10s), version %2s by %s%n", "Node", node.getId(),
-        node.getLatitude(), node.getLongitude(), String.valueOf(node.getVersion()),
-        node.getUser().getName());
+    System.out.format(
+        "%s: %10s (%-10s, %-10s), version %2s by %s%n", "Node", node.getId(), node.getLatitude(),
+        node.getLongitude(), String.valueOf(node.getVersion()), node.getUser().getName());
     printTags(node.getTags());
   }
 
   public static void print(Way way) {
-    System.out.format("%s: %10s, version %2s by %s with %s waypoints%n", "Way", way.getId(),
-        way.getVersion(), way.getUser().getName(), way.getWayNodes().size());
+    System.out.format(
+        "%s: %10s, version %2s by %s with %s waypoints%n", "Way", way.getId(), way.getVersion(),
+        way.getUser().getName(), way.getWayNodes().size());
     printTags(way.getTags());
   }
 

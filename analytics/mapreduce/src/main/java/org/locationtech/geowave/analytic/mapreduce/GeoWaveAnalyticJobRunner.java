@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -110,21 +109,24 @@ public abstract class GeoWaveAnalyticJobRunner extends Configured
 
   public PersistentAdapterStore getAdapterStore(final PropertyManagement runTimeProperties)
       throws Exception {
-    final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE
-        .getHelper().getValue(runTimeProperties);
+    final PersistableStore store =
+        (PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper()
+            .getValue(runTimeProperties);
     return store.getDataStoreOptions().createAdapterStore();
   }
 
   public InternalAdapterStore getInternalAdapterStore(final PropertyManagement runTimeProperties)
       throws Exception {
-    final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE
-        .getHelper().getValue(runTimeProperties);
+    final PersistableStore store =
+        (PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper()
+            .getValue(runTimeProperties);
     return store.getDataStoreOptions().createInternalAdapterStore();
   }
 
   public IndexStore getIndexStore(final PropertyManagement runTimeProperties) throws Exception {
-    final PersistableStore store = (PersistableStore) StoreParameters.StoreParam.INPUT_STORE
-        .getHelper().getValue(runTimeProperties);
+    final PersistableStore store =
+        (PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper()
+            .getValue(runTimeProperties);
     return store.getDataStoreOptions().createIndexStore();
   }
 
@@ -134,39 +136,43 @@ public abstract class GeoWaveAnalyticJobRunner extends Configured
 
     if ((inputFormat == null)
         && runTimeProperties.hasProperty(InputParameters.Input.INPUT_FORMAT)) {
-      inputFormat = runTimeProperties.getClassInstance(InputParameters.Input.INPUT_FORMAT,
-          FormatConfiguration.class, null);
+      inputFormat =
+          runTimeProperties.getClassInstance(
+              InputParameters.Input.INPUT_FORMAT, FormatConfiguration.class, null);
     }
     if (inputFormat != null) {
-      InputParameters.Input.INPUT_FORMAT.getHelper().setValue(configuration, getScope(),
-          inputFormat.getClass());
+      InputParameters.Input.INPUT_FORMAT.getHelper()
+          .setValue(configuration, getScope(), inputFormat.getClass());
       inputFormat.setup(runTimeProperties, configuration);
     }
     if ((outputFormat == null)
         && runTimeProperties.hasProperty(OutputParameters.Output.OUTPUT_FORMAT)) {
-      outputFormat = runTimeProperties.getClassInstance(OutputParameters.Output.OUTPUT_FORMAT,
-          FormatConfiguration.class, null);
+      outputFormat =
+          runTimeProperties.getClassInstance(
+              OutputParameters.Output.OUTPUT_FORMAT, FormatConfiguration.class, null);
     }
 
     if (outputFormat != null) {
-      OutputParameters.Output.OUTPUT_FORMAT.getHelper().setValue(configuration, getScope(),
-          outputFormat.getClass());
+      OutputParameters.Output.OUTPUT_FORMAT.getHelper()
+          .setValue(configuration, getScope(), outputFormat.getClass());
       outputFormat.setup(runTimeProperties, configuration);
     }
 
-    runTimeProperties.setConfig(new ParameterEnum[] {StoreParam.INPUT_STORE}, configuration,
-        getScope());
+    runTimeProperties
+        .setConfig(new ParameterEnum[] {StoreParam.INPUT_STORE}, configuration, getScope());
 
-    OutputParameters.Output.REDUCER_COUNT.getHelper().setValue(configuration, getScope(),
+    OutputParameters.Output.REDUCER_COUNT.getHelper().setValue(
+        configuration, getScope(),
         runTimeProperties.getPropertyAsInt(OutputParameters.Output.REDUCER_COUNT, reducerCount));
     return mapReduceIntegrater.submit(configuration, runTimeProperties, this);
   }
 
-  public static void addDataAdapter(final Configuration config,
+  public static void addDataAdapter(
+      final Configuration config,
       final InternalDataAdapter<?> adapter) {
     JobContextAdapterStore.addDataAdapter(config, adapter.getAdapter());
-    JobContextInternalAdapterStore.addTypeName(config, adapter.getTypeName(),
-        adapter.getAdapterId());
+    JobContextInternalAdapterStore
+        .addTypeName(config, adapter.getTypeName(), adapter.getAdapterId());
   }
 
   public static void addIndex(final Configuration config, final Index index) {
@@ -183,15 +189,17 @@ public abstract class GeoWaveAnalyticJobRunner extends Configured
     final ScopedJobConfiguration configWrapper =
         new ScopedJobConfiguration(job.getConfiguration(), getScope());
 
-    final FormatConfiguration inputFormat = configWrapper
-        .getInstance(InputParameters.Input.INPUT_FORMAT, FormatConfiguration.class, null);
+    final FormatConfiguration inputFormat =
+        configWrapper
+            .getInstance(InputParameters.Input.INPUT_FORMAT, FormatConfiguration.class, null);
 
     if (inputFormat != null) {
       job.setInputFormatClass((Class<? extends InputFormat>) inputFormat.getFormatClass());
     }
 
-    final FormatConfiguration outputFormat = configWrapper
-        .getInstance(OutputParameters.Output.OUTPUT_FORMAT, FormatConfiguration.class, null);
+    final FormatConfiguration outputFormat =
+        configWrapper
+            .getInstance(OutputParameters.Output.OUTPUT_FORMAT, FormatConfiguration.class, null);
 
     if (outputFormat != null) {
       job.setOutputFormatClass((Class<? extends OutputFormat>) outputFormat.getFormatClass());
@@ -224,8 +232,10 @@ public abstract class GeoWaveAnalyticJobRunner extends Configured
     if (outputFormat != null) {
       params.addAll(outputFormat.getParameters());
     }
-    params.addAll(Arrays.asList(new ParameterEnum<?>[] {StoreParam.INPUT_STORE,
-        Output.REDUCER_COUNT, Output.OUTPUT_FORMAT}));
+    params.addAll(
+        Arrays.asList(
+            new ParameterEnum<?>[] {StoreParam.INPUT_STORE, Output.REDUCER_COUNT,
+                Output.OUTPUT_FORMAT}));
     return params;
   }
 
@@ -234,8 +244,10 @@ public abstract class GeoWaveAnalyticJobRunner extends Configured
     return this.run(mapReduceIntegrater.getConfiguration(runTimeProperties), runTimeProperties);
   }
 
-  protected InternalDataAdapter<?> getAdapter(final PropertyManagement runTimeProperties,
-      final ParameterEnum dataTypeEnum, final ParameterEnum dataNameSpaceEnum) throws Exception {
+  protected InternalDataAdapter<?> getAdapter(
+      final PropertyManagement runTimeProperties,
+      final ParameterEnum dataTypeEnum,
+      final ParameterEnum dataNameSpaceEnum) throws Exception {
 
     final String projectionDataTypeId =
         runTimeProperties.storeIfEmpty(dataTypeEnum, "convex_hull").toString();
@@ -245,10 +257,12 @@ public abstract class GeoWaveAnalyticJobRunner extends Configured
     final Short convexHullInternalAdapterId =
         internalAdapterStore.getAdapterId(projectionDataTypeId);
     if (convexHullInternalAdapterId == null) {
-      final String namespaceURI = runTimeProperties
-          .storeIfEmpty(dataNameSpaceEnum, BasicFeatureTypes.DEFAULT_NAMESPACE).toString();
-      final FeatureDataAdapter adapter = AnalyticFeature.createGeometryFeatureAdapter(
-          projectionDataTypeId, new String[0], namespaceURI, ClusteringUtils.CLUSTERING_CRS);
+      final String namespaceURI =
+          runTimeProperties.storeIfEmpty(dataNameSpaceEnum, BasicFeatureTypes.DEFAULT_NAMESPACE)
+              .toString();
+      final FeatureDataAdapter adapter =
+          AnalyticFeature.createGeometryFeatureAdapter(
+              projectionDataTypeId, new String[0], namespaceURI, ClusteringUtils.CLUSTERING_CRS);
       final short internalAdapterId = internalAdapterStore.addTypeName(adapter.getTypeName());
       final InternalDataAdapter<?> internalAdapter =
           new InternalDataAdapterWrapper<>(adapter, internalAdapterId);
@@ -258,8 +272,10 @@ public abstract class GeoWaveAnalyticJobRunner extends Configured
     return adapterStore.getAdapter(convexHullInternalAdapterId);
   }
 
-  protected String checkIndex(final PropertyManagement runTimeProperties,
-      final ParameterEnum indexIdEnum, final String defaultIdxName) throws Exception {
+  protected String checkIndex(
+      final PropertyManagement runTimeProperties,
+      final ParameterEnum indexIdEnum,
+      final String defaultIdxName) throws Exception {
 
     final String indexName = runTimeProperties.getPropertyAsString(indexIdEnum, defaultIdxName);
 
@@ -269,8 +285,9 @@ public abstract class GeoWaveAnalyticJobRunner extends Configured
     if (index == null) {
       final Index defaultSpatialIndex =
           new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
-      index = new CustomNameIndex(defaultSpatialIndex.getIndexStrategy(),
-          defaultSpatialIndex.getIndexModel(), indexName);
+      index =
+          new CustomNameIndex(defaultSpatialIndex.getIndexStrategy(),
+              defaultSpatialIndex.getIndexModel(), indexName);
       indexStore.addIndex(index);
     }
     return indexName;

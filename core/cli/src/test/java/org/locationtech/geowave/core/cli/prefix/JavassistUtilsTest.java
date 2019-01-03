@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,11 +32,13 @@ public class JavassistUtilsTest {
     CtMethod ctmethod = addNewMethod(clz, "origMethod");
     AnnotationsAttribute attr = annotateMethod(ctmethod, "origAnno", 135);
 
-    AnnotationsAttribute clonedAttr = JavassistUtils.cloneAnnotationsAttribute(
-        ctmethod.getMethodInfo().getConstPool(), attr, java.lang.annotation.ElementType.METHOD);
+    AnnotationsAttribute clonedAttr =
+        JavassistUtils.cloneAnnotationsAttribute(
+            ctmethod.getMethodInfo().getConstPool(), attr, java.lang.annotation.ElementType.METHOD);
 
-    Assert.assertEquals(135, ((IntegerMemberValue) clonedAttr.getAnnotation("java.lang.Integer")
-        .getMemberValue("origAnno")).getValue());
+    Assert.assertEquals(
+        135, ((IntegerMemberValue) clonedAttr.getAnnotation("java.lang.Integer")
+            .getMemberValue("origAnno")).getValue());
   }
 
   private static class FindMethodTest {
@@ -88,11 +89,12 @@ public class JavassistUtilsTest {
 
     JavassistUtils.copyClassAnnotations(fromClass, toClass);
 
-    Annotation toAnno = ((AnnotationsAttribute) toClass.getClassFile()
-        .getAttribute(AnnotationsAttribute.visibleTag)).getAnnotation("java.lang.Integer");
+    Annotation toAnno =
+        ((AnnotationsAttribute) toClass.getClassFile()
+            .getAttribute(AnnotationsAttribute.visibleTag)).getAnnotation("java.lang.Integer");
 
-    Assert.assertEquals(246,
-        ((IntegerMemberValue) toAnno.getMemberValue("copyClassName")).getValue());
+    Assert.assertEquals(
+        246, ((IntegerMemberValue) toAnno.getMemberValue("copyClassName")).getValue());
   }
 
   @Test
@@ -149,12 +151,14 @@ public class JavassistUtilsTest {
     CtField field = addNewField(emptyClass, "d");
     annotateField(field, "def", 9);
 
-    Assert.assertEquals(7,
+    Assert.assertEquals(
+        7,
         ((IntegerMemberValue) ((AnnotationsAttribute) method.getMethodInfo()
             .getAttribute(AnnotationsAttribute.visibleTag)).getAnnotation("java.lang.Integer")
                 .getMemberValue("abc")).getValue());
 
-    Assert.assertEquals(9,
+    Assert.assertEquals(
+        9,
         ((IntegerMemberValue) ((AnnotationsAttribute) field.getFieldInfo()
             .getAttribute(AnnotationsAttribute.visibleTag)).getAnnotation("java.lang.Integer")
                 .getMemberValue("def")).getValue());
@@ -184,12 +188,16 @@ public class JavassistUtilsTest {
     return ctmethod;
   }
 
-  private AnnotationsAttribute annotateMethod(CtMethod ctmethod, String annotationName,
+  private AnnotationsAttribute annotateMethod(
+      CtMethod ctmethod,
+      String annotationName,
       int annotationValue) {
-    AnnotationsAttribute attr = new AnnotationsAttribute(ctmethod.getMethodInfo().getConstPool(),
-        AnnotationsAttribute.visibleTag);
+    AnnotationsAttribute attr =
+        new AnnotationsAttribute(ctmethod.getMethodInfo().getConstPool(),
+            AnnotationsAttribute.visibleTag);
     Annotation anno = new Annotation("java.lang.Integer", ctmethod.getMethodInfo().getConstPool());
-    anno.addMemberValue(annotationName,
+    anno.addMemberValue(
+        annotationName,
         new IntegerMemberValue(ctmethod.getMethodInfo().getConstPool(), annotationValue));
     attr.addAnnotation(anno);
 
@@ -214,10 +222,12 @@ public class JavassistUtilsTest {
   }
 
   private void annotateField(CtField ctfield, String annotationName, int annotationValue) {
-    AnnotationsAttribute attr = new AnnotationsAttribute(ctfield.getFieldInfo().getConstPool(),
-        AnnotationsAttribute.visibleTag);
+    AnnotationsAttribute attr =
+        new AnnotationsAttribute(ctfield.getFieldInfo().getConstPool(),
+            AnnotationsAttribute.visibleTag);
     Annotation anno = new Annotation("java.lang.Integer", ctfield.getFieldInfo().getConstPool());
-    anno.addMemberValue(annotationName,
+    anno.addMemberValue(
+        annotationName,
         new IntegerMemberValue(ctfield.getFieldInfo().getConstPool(), annotationValue));
     attr.addAnnotation(anno);
 

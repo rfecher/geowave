@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -88,13 +87,15 @@ public class RemoteIT extends BaseServiceIT {
         writer.write(feat);
         ingestedFeatures++;
         if ((ingestedFeatures % featuresPer5Percent) == 0) {
-          LOGGER.info(String.format("Ingested %d percent of features",
-              (ingestedFeatures / featuresPer5Percent) * 5));
+          LOGGER.info(
+              String.format(
+                  "Ingested %d percent of features", (ingestedFeatures / featuresPer5Percent) * 5));
         }
       }
     }
-    configServiceClient.addStoreReRoute(store_name, dataStoreOptions.getType(),
-        dataStoreOptions.getGeoWaveNamespace(), dataStoreOptions.getOptionsAsMap());
+    configServiceClient.addStoreReRoute(
+        store_name, dataStoreOptions.getType(), dataStoreOptions.getGeoWaveNamespace(),
+        dataStoreOptions.getOptionsAsMap());
   }
 
   @After
@@ -130,51 +131,59 @@ public class RemoteIT extends BaseServiceIT {
 
   @Test
   public void testClear() {
-    TestUtils.assertStatusCode("Should successfully clear for existent store", 200,
-        remoteServiceClient.clear(store_name));
+    TestUtils.assertStatusCode(
+        "Should successfully clear for existent store", 200, remoteServiceClient.clear(store_name));
 
     muteLogging();
-    TestUtils.assertStatusCode("Should fail to clear for nonexistent store", 400,
+    TestUtils.assertStatusCode(
+        "Should fail to clear for nonexistent store", 400,
         remoteServiceClient.clear("nonexistent-store"));
     unmuteLogging();
   }
 
   @Test
   public void testListTypes() {
-    TestUtils.assertStatusCode("Should successfully list types for existent store", 200,
+    TestUtils.assertStatusCode(
+        "Should successfully list types for existent store", 200,
         remoteServiceClient.listTypes(store_name));
 
     muteLogging();
-    TestUtils.assertStatusCode("Should fail to list types for nonexistent store", 400,
+    TestUtils.assertStatusCode(
+        "Should fail to list types for nonexistent store", 400,
         remoteServiceClient.listTypes("nonexistent-store"));
     unmuteLogging();
   }
 
   @Test
   public void testListIndex() {
-    TestUtils.assertStatusCode("Should successfully list indices for existent store", 200,
+    TestUtils.assertStatusCode(
+        "Should successfully list indices for existent store", 200,
         remoteServiceClient.listIndices(store_name));
 
     muteLogging();
-    TestUtils.assertStatusCode("Should fail to list indices for nonexistent store", 400,
+    TestUtils.assertStatusCode(
+        "Should fail to list indices for nonexistent store", 400,
         remoteServiceClient.listIndices("nonexistent-store"));
     unmuteLogging();
   }
 
   @Test
   public void testListStats() {
-    TestUtils.assertStatusCode("Should successfully liststats for existent store", 200,
+    TestUtils.assertStatusCode(
+        "Should successfully liststats for existent store", 200,
         remoteServiceClient.listStats(store_name));
 
     muteLogging();
-    TestUtils.assertStatusCode("Should fail to liststats for nonexistent store", 400,
+    TestUtils.assertStatusCode(
+        "Should fail to liststats for nonexistent store", 400,
         remoteServiceClient.listStats("nonexistent-store"));
     unmuteLogging();
   }
 
   @Test
   public void testRecalcStats() {
-    TestUtils.assertStatusCode("Should successfully recalc stats for existent store", 200,
+    TestUtils.assertStatusCode(
+        "Should successfully recalc stats for existent store", 200,
         remoteServiceClient.recalcStats(store_name));
 
     TestUtils.assertStatusCode(
@@ -188,7 +197,8 @@ public class RemoteIT extends BaseServiceIT {
         200, remoteServiceClient.recalcStats(store_name, "nonexistent-adapter", null, null));
 
     muteLogging();
-    TestUtils.assertStatusCode("Should fail to recalc stats for nonexistent store", 400,
+    TestUtils.assertStatusCode(
+        "Should fail to recalc stats for nonexistent store", 400,
         remoteServiceClient.recalcStats("nonexistent-store"));
     unmuteLogging();
   }
@@ -212,7 +222,8 @@ public class RemoteIT extends BaseServiceIT {
         200, remoteServiceClient.removeType(store_name, "nonexistent-adapter"));
 
     muteLogging();
-    TestUtils.assertStatusCode("Should fail to remove type for nonexistent store", 400,
+    TestUtils.assertStatusCode(
+        "Should fail to remove type for nonexistent store", 400,
         remoteServiceClient.removeType("nonexistent-store", "GridPoint"));
     unmuteLogging();
   }
@@ -244,11 +255,13 @@ public class RemoteIT extends BaseServiceIT {
 
   @Test
   public void testVersion() {
-    TestUtils.assertStatusCode("Should successfully return version for existent store", 200,
+    TestUtils.assertStatusCode(
+        "Should successfully return version for existent store", 200,
         remoteServiceClient.version(store_name));
 
     muteLogging();
-    TestUtils.assertStatusCode("Should fail to return version for nonexistent store", 400,
+    TestUtils.assertStatusCode(
+        "Should fail to return version for nonexistent store", 400,
         remoteServiceClient.version("nonexistent-store"));
     unmuteLogging();
   }

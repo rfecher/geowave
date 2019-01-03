@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,8 +43,9 @@ public class JsonFileAuthorizationAdapterTest {
     };
     SecurityContextHolder.setContext(context);
     final File cwd = new File(".");
-    final AuthorizationSPI authProvider = new JsonFileAuthorizationFactory().create(
-        new URL("file://" + cwd.getAbsolutePath() + "/src/test/resources/jsonAuthfile.json"));
+    final AuthorizationSPI authProvider =
+        new JsonFileAuthorizationFactory().create(
+            new URL("file://" + cwd.getAbsolutePath() + "/src/test/resources/jsonAuthfile.json"));
     assertTrue(Arrays.equals(new String[] {"1", "2", "3"}, authProvider.getAuthorizations()));
   }
 
@@ -68,8 +68,9 @@ public class JsonFileAuthorizationAdapterTest {
     };
     SecurityContextHolder.setContext(context);
     final File cwd = new File(".");
-    final AuthorizationSPI authProvider = new JsonFileAuthorizationFactory().create(
-        new URL("file://" + cwd.getAbsolutePath() + "/src/test/resources/jsonAuthfile.json"));
+    final AuthorizationSPI authProvider =
+        new JsonFileAuthorizationFactory().create(
+            new URL("file://" + cwd.getAbsolutePath() + "/src/test/resources/jsonAuthfile.json"));
     assertTrue(Arrays.equals(new String[] {"1", "2", "3"}, authProvider.getAuthorizations()));
   }
 }

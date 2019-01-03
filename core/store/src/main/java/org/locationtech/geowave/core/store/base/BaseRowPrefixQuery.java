@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,10 +25,14 @@ import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 class BaseRowPrefixQuery<T> extends AbstractBaseRowQuery<T> {
   final QueryRanges queryRanges;
 
-  public BaseRowPrefixQuery(final Index index, final ByteArray partitionKey,
-      final ByteArray sortKeyPrefix, final ScanCallback<T, ?> scanCallback,
+  public BaseRowPrefixQuery(
+      final Index index,
+      final ByteArray partitionKey,
+      final ByteArray sortKeyPrefix,
+      final ScanCallback<T, ?> scanCallback,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
-      final FieldVisibilityCount visibilityCounts, final String[] authorizations) {
+      final FieldVisibilityCount visibilityCounts,
+      final String[] authorizations) {
     super(index, authorizations, scanCallback, differingVisibilityCounts, visibilityCounts);
 
     final ByteArrayRange sortKeyPrefixRange =
@@ -41,7 +44,8 @@ class BaseRowPrefixQuery<T> extends AbstractBaseRowQuery<T> {
   }
 
   @Override
-  protected QueryRanges getRanges(final int maxRangeDecomposition,
+  protected QueryRanges getRanges(
+      final int maxRangeDecomposition,
       final double[] targetResolutionPerDimensionForHierarchicalIndex) {
     return queryRanges;
   }

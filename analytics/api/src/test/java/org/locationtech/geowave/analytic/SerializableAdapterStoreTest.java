@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,10 +29,9 @@ public class SerializableAdapterStoreTest {
   @Test
   public void testSerialization() throws ClassNotFoundException, IOException {
     final SimpleFeatureType ftype =
-        AnalyticFeature
-            .createGeometryFeatureAdapter("centroid", new String[] {"extra1"},
-                BasicFeatureTypes.DEFAULT_NAMESPACE, ClusteringUtils.CLUSTERING_CRS)
-            .getFeatureType();
+        AnalyticFeature.createGeometryFeatureAdapter(
+            "centroid", new String[] {"extra1"}, BasicFeatureTypes.DEFAULT_NAMESPACE,
+            ClusteringUtils.CLUSTERING_CRS).getFeatureType();
 
     final Index index = new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions());
     final FeatureDataAdapter adapter = new FeatureDataAdapter(ftype);

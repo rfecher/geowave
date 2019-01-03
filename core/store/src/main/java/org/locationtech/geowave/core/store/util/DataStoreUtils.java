@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -97,7 +96,8 @@ public class DataStoreUtils {
 
   public static final byte[] EMTPY_VISIBILITY = new byte[] {};
 
-  public static DataTypeAdapter getDataAdapter(final DataStorePluginOptions dataStore,
+  public static DataTypeAdapter getDataAdapter(
+      final DataStorePluginOptions dataStore,
       final String typeName) {
     final Short adapterId = dataStore.createInternalAdapterStore().getAdapterId(typeName);
     if (adapterId == null) {
@@ -112,13 +112,17 @@ public class DataStoreUtils {
     return adapter;
   }
 
-  public static FlattenedUnreadData aggregateFieldData(final GeoWaveKey key,
-      final GeoWaveValue value, final PersistentDataset<CommonIndexValue> commonData,
-      final CommonIndexModel model, final List<String> commonIndexFieldIds) {
+  public static FlattenedUnreadData aggregateFieldData(
+      final GeoWaveKey key,
+      final GeoWaveValue value,
+      final PersistentDataset<CommonIndexValue> commonData,
+      final CommonIndexModel model,
+      final List<String> commonIndexFieldIds) {
     final byte[] fieldMask = value.getFieldMask();
     final byte[] valueBytes = value.getValue();
-    final FlattenedDataSet dataSet = DataStoreUtils.decomposeFlattenedFields(fieldMask, valueBytes,
-        value.getVisibility(), commonIndexFieldIds.size() - 1);
+    final FlattenedDataSet dataSet =
+        DataStoreUtils.decomposeFlattenedFields(
+            fieldMask, valueBytes, value.getVisibility(), commonIndexFieldIds.size() - 1);
     final List<FlattenedFieldInfo> fieldInfos = dataSet.getFieldsRead();
 
     for (final FlattenedFieldInfo fieldInfo : fieldInfos) {
@@ -150,15 +154,18 @@ public class DataStoreUtils {
     return dimensionFieldIds;
   }
 
-  public static <T> long cardinality(final Index index,
+  public static <T> long cardinality(
+      final Index index,
       final Map<StatisticsId, InternalDataStatistics<T, ?, ?>> stats,
       final QueryRanges queryRanges) {
 
     long count = 0;
     for (final SinglePartitionQueryRanges partitionRange : queryRanges.getPartitionQueryRanges()) {
-      final RowRangeHistogramStatistics rangeStats = (RowRangeHistogramStatistics) stats.get(
-          StatisticsQueryBuilder.newBuilder().factory().rowHistogram().indexName(index.getName())
-              .partition(partitionRange.getPartitionKey()).build().getId());
+      final RowRangeHistogramStatistics rangeStats =
+          (RowRangeHistogramStatistics) stats.get(
+              StatisticsQueryBuilder.newBuilder().factory().rowHistogram()
+                  .indexName(index.getName()).partition(partitionRange.getPartitionKey()).build()
+                  .getId());
       if (rangeStats == null) {
         return Long.MAX_VALUE - 1;
       }
@@ -170,7 +177,9 @@ public class DataStoreUtils {
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static <T> InsertionIds getInsertionIdsForEntry(T entry, final InternalDataAdapter adapter,
+  public static <T> InsertionIds getInsertionIdsForEntry(
+      T entry,
+      final InternalDataAdapter adapter,
       final Index index) {
     AdapterPersistenceEncoding encoding = adapter.encode(entry, index.getIndexModel());
     return encoding.getInsertionIds(index);
@@ -235,8 +244,11 @@ public class DataStoreUtils {
    *        position
    * @return the dataset that has been read
    */
-  public static <T> FlattenedDataSet decomposeFlattenedFields(final byte[] bitmask,
-      final byte[] flattenedValue, final byte[] commonVisibility, final int maxFieldPosition) {
+  public static <T> FlattenedDataSet decomposeFlattenedFields(
+      final byte[] bitmask,
+      final byte[] flattenedValue,
+      final byte[] commonVisibility,
+      final int maxFieldPosition) {
     final List<FlattenedFieldInfo> fieldInfoList = new LinkedList<>();
     final List<Integer> fieldPositions = BitmaskUtils.getFieldPositions(bitmask);
 
@@ -261,8 +273,10 @@ public class DataStoreUtils {
   }
 
   public static QueryRanges constraintsToQueryRanges(
-      final List<MultiDimensionalNumericData> constraints, NumericIndexStrategy indexStrategy,
-      final double[] targetResolutionPerDimensionForHierarchicalIndex, final int maxRanges,
+      final List<MultiDimensionalNumericData> constraints,
+      NumericIndexStrategy indexStrategy,
+      final double[] targetResolutionPerDimensionForHierarchicalIndex,
+      final int maxRanges,
       final IndexMetaData... hints) {
     SubStrategy targetIndexStrategy = null;
     if ((targetResolutionPerDimensionForHierarchicalIndex != null)
@@ -326,7 +340,8 @@ public class DataStoreUtils {
     }
   }
 
-  public static String getQualifiedTableName(final String tableNamespace,
+  public static String getQualifiedTableName(
+      final String tableNamespace,
       final String unqualifiedTableName) {
     return ((tableNamespace == null) || tableNamespace.isEmpty()) ? unqualifiedTableName
         : tableNamespace + "_" + unqualifiedTableName;
@@ -394,7 +409,8 @@ public class DataStoreUtils {
     return buffer.array();
   }
 
-  public static boolean mergeStats(final DataStatisticsStore statsStore,
+  public static boolean mergeStats(
+      final DataStatisticsStore statsStore,
       final InternalAdapterStore internalAdapterStore) {
     // Get all statistics, remove all statistics, then re-add
     for (final short adapterId : internalAdapterStore.getAdapterIds()) {
@@ -413,8 +429,11 @@ public class DataStoreUtils {
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static boolean mergeData(final DataStoreOperations operations,
-      final DataStoreOptions options, final Index index, final PersistentAdapterStore adapterStore,
+  public static boolean mergeData(
+      final DataStoreOperations operations,
+      final DataStoreOptions options,
+      final Index index,
+      final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final AdapterIndexMappingStore adapterIndexMappingStore) {
     final RowDeleter deleter =

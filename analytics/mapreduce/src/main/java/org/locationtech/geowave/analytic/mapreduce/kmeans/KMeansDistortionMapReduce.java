@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -89,8 +88,9 @@ public class KMeansDistortionMapReduce {
         for (int i = 0; i < extraCentroid.length; i++) {
           expectation += Math.pow(extraFromItem[i] - extraCentroid[i], 2);
         }
-        expectation += (Math.pow(p.getCoordinate().x - centroid.getCoordinate().x, 2)
-            + Math.pow(p.getCoordinate().y - centroid.getCoordinate().y, 2));
+        expectation +=
+            (Math.pow(p.getCoordinate().x - centroid.getCoordinate().x, 2)
+                + Math.pow(p.getCoordinate().y - centroid.getCoordinate().y, 2));
         // + Math.pow(
         // p.getCoordinate().z - centroid.getCoordinate().z,
         // 2));
@@ -99,11 +99,13 @@ public class KMeansDistortionMapReduce {
     };
 
     @Override
-    protected void mapNativeValue(final GeoWaveInputKey key, final Object value,
+    protected void mapNativeValue(
+        final GeoWaveInputKey key,
+        final Object value,
         final org.apache.hadoop.mapreduce.Mapper<GeoWaveInputKey, ObjectWritable, Text, CountofDoubleWritable>.Context context)
         throws IOException, InterruptedException {
-      nestedGroupCentroidAssigner.findCentroidForLevel(itemWrapperFactory.create(value),
-          centroidAssociationFn);
+      nestedGroupCentroidAssigner
+          .findCentroidForLevel(itemWrapperFactory.create(value), centroidAssociationFn);
       context.write(outputKeyWritable, outputValWritable);
     }
 
@@ -113,26 +115,32 @@ public class KMeansDistortionMapReduce {
         final Mapper<GeoWaveInputKey, ObjectWritable, Text, CountofDoubleWritable>.Context context)
         throws IOException, InterruptedException {
       super.setup(context);
-      final ScopedJobConfiguration config = new ScopedJobConfiguration(context.getConfiguration(),
-          KMeansDistortionMapReduce.class, KMeansDistortionMapReduce.LOGGER);
+      final ScopedJobConfiguration config =
+          new ScopedJobConfiguration(context.getConfiguration(), KMeansDistortionMapReduce.class,
+              KMeansDistortionMapReduce.LOGGER);
 
       try {
-        nestedGroupCentroidAssigner = new NestedGroupCentroidAssignment<Object>(context,
-            KMeansDistortionMapReduce.class, KMeansDistortionMapReduce.LOGGER);
+        nestedGroupCentroidAssigner =
+            new NestedGroupCentroidAssignment<Object>(context, KMeansDistortionMapReduce.class,
+                KMeansDistortionMapReduce.LOGGER);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
 
       try {
-        centroidExtractor = config.getInstance(CentroidParameters.Centroid.EXTRACTOR_CLASS,
-            CentroidExtractor.class, SimpleFeatureCentroidExtractor.class);
+        centroidExtractor =
+            config.getInstance(
+                CentroidParameters.Centroid.EXTRACTOR_CLASS, CentroidExtractor.class,
+                SimpleFeatureCentroidExtractor.class);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
 
       try {
-        itemWrapperFactory = config.getInstance(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-            AnalyticItemWrapperFactory.class, SimpleFeatureItemWrapperFactory.class);
+        itemWrapperFactory =
+            config.getInstance(
+                CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS, AnalyticItemWrapperFactory.class,
+                SimpleFeatureItemWrapperFactory.class);
       } catch (final Exception e1) {
         throw new IOException(e1);
       }
@@ -144,7 +152,9 @@ public class KMeansDistortionMapReduce {
     final CountofDoubleWritable outputValue = new CountofDoubleWritable();
 
     @Override
-    public void reduce(final Text key, final Iterable<CountofDoubleWritable> values,
+    public void reduce(
+        final Text key,
+        final Iterable<CountofDoubleWritable> values,
         final Reducer<Text, CountofDoubleWritable, Text, CountofDoubleWritable>.Context context)
         throws IOException, InterruptedException {
 
@@ -167,7 +177,9 @@ public class KMeansDistortionMapReduce {
     private String batchId;
 
     @Override
-    public void reduce(final Text key, final Iterable<CountofDoubleWritable> values,
+    public void reduce(
+        final Text key,
+        final Iterable<CountofDoubleWritable> values,
         final Reducer<Text, CountofDoubleWritable, GeoWaveOutputKey, DistortionEntry>.Context context)
         throws IOException, InterruptedException {
       double expectation = 0.0;
@@ -200,8 +212,10 @@ public class KMeansDistortionMapReduce {
         final DistortionEntry entry =
             new DistortionEntry(key.toString(), batchId, kCount, distortion);
 
-        context.write(new GeoWaveOutputKey(DistortionDataAdapter.ADAPTER_TYPE_NAME,
-            DistortionGroupManagement.DISTORTIONS_INDEX_ARRAY), entry);
+        context.write(
+            new GeoWaveOutputKey(DistortionDataAdapter.ADAPTER_TYPE_NAME,
+                DistortionGroupManagement.DISTORTIONS_INDEX_ARRAY),
+            entry);
       }
     }
 
@@ -210,8 +224,9 @@ public class KMeansDistortionMapReduce {
         final Reducer<Text, CountofDoubleWritable, GeoWaveOutputKey, DistortionEntry>.Context context)
         throws IOException, InterruptedException {
       super.setup(context);
-      final ScopedJobConfiguration config = new ScopedJobConfiguration(context.getConfiguration(),
-          KMeansDistortionMapReduce.class, KMeansDistortionMapReduce.LOGGER);
+      final ScopedJobConfiguration config =
+          new ScopedJobConfiguration(context.getConfiguration(), KMeansDistortionMapReduce.class,
+              KMeansDistortionMapReduce.LOGGER);
 
       final int k = config.getInt(JumpParameters.Jump.COUNT_OF_CENTROIDS, -1);
       if (k > 0) {
@@ -219,8 +234,9 @@ public class KMeansDistortionMapReduce {
       }
 
       try {
-        centroidManager = new CentroidManagerGeoWave<Object>(context,
-            KMeansDistortionMapReduce.class, KMeansDistortionMapReduce.LOGGER);
+        centroidManager =
+            new CentroidManagerGeoWave<Object>(context, KMeansDistortionMapReduce.class,
+                KMeansDistortionMapReduce.LOGGER);
       } catch (final Exception e) {
         KMeansDistortionMapReduce.LOGGER.warn("Unable to initialize centroid manager", e);
         throw new IOException("Unable to initialize centroid manager", e);

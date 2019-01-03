@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -45,7 +44,9 @@ public abstract class AbstractLocalIngestWithMapper<T> extends AbstractStageWhol
   }
 
   @Override
-  public CloseableIterator<GeoWaveData<T>> toGeoWaveData(final URL input, final String[] indexNames,
+  public CloseableIterator<GeoWaveData<T>> toGeoWaveData(
+      final URL input,
+      final String[] indexNames,
       final String globalVisibility) {
     try (final InputStream inputStream = input.openStream()) {
       return toGeoWaveDataInternal(inputStream, indexNames, globalVisibility);
@@ -55,8 +56,10 @@ public abstract class AbstractLocalIngestWithMapper<T> extends AbstractStageWhol
     return new CloseableIterator.Wrapper(Collections.emptyIterator());
   }
 
-  protected abstract CloseableIterator<GeoWaveData<T>> toGeoWaveDataInternal(final InputStream file,
-      final String[] indexNames, final String globalVisibility);
+  protected abstract CloseableIterator<GeoWaveData<T>> toGeoWaveDataInternal(
+      final InputStream file,
+      final String[] indexNames,
+      final String globalVisibility);
 
   @Override
   public IngestWithReducer<AvroWholeFile, ?, ?, T> ingestWithReducer() {
@@ -78,8 +81,10 @@ public abstract class AbstractLocalIngestWithMapper<T> extends AbstractStageWhol
     }
 
     @Override
-    public CloseableIterator<GeoWaveData<T>> toGeoWaveData(final AvroWholeFile input,
-        final String[] indexNames, final String globalVisibility) {
+    public CloseableIterator<GeoWaveData<T>> toGeoWaveData(
+        final AvroWholeFile input,
+        final String[] indexNames,
+        final String globalVisibility) {
       final InputStream inputStream = new ByteBufferBackedInputStream(input.getOriginalFile());
       return parentPlugin.toGeoWaveDataInternal(inputStream, indexNames, globalVisibility);
     }

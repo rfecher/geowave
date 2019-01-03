@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,7 +31,8 @@ public class RocksDBUtils {
   public static int ROCKSDB_DEFAULT_MAX_RANGE_DECOMPOSITION = 250;
   public static int ROCKSDB_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION = 250;
 
-  public static RocksDBMetadataTable getMetadataTable(final RocksDBClient client,
+  public static RocksDBMetadataTable getMetadataTable(
+      final RocksDBClient client,
       final MetadataType metadataType) {
     // stats also store a timestamp because stats can be the exact same but
     // need to still be unique (consider multiple count statistics that are
@@ -44,15 +44,21 @@ public class RocksDBUtils {
     return typeName + "_" + indexName;
   }
 
-  public static RocksDBIndexTable getIndexTableFromPrefix(final RocksDBClient client,
-      final String namePrefix, final short adapterId, final byte[] partitionKey,
+  public static RocksDBIndexTable getIndexTableFromPrefix(
+      final RocksDBClient client,
+      final String namePrefix,
+      final short adapterId,
+      final byte[] partitionKey,
       final boolean requiresTimestamp) {
-    return getIndexTable(client, getTableName(namePrefix, partitionKey), adapterId, partitionKey,
-        requiresTimestamp);
+    return getIndexTable(
+        client, getTableName(namePrefix, partitionKey), adapterId, partitionKey, requiresTimestamp);
   }
 
-  public static String getTableName(final String typeName, final String indexName,
-      final short adapterId, final byte[] partitionKey) {
+  public static String getTableName(
+      final String typeName,
+      final String indexName,
+      final short adapterId,
+      final byte[] partitionKey) {
     return getTableName(getTablePrefix(typeName, indexName), partitionKey);
   }
 
@@ -66,24 +72,33 @@ public class RocksDBUtils {
     return setNamePrefix + partitionStr;
   }
 
-  public static RocksDBIndexTable getIndexTable(final RocksDBClient client, final String tableName,
-      final short adapterId, final byte[] partitionKey, final boolean requiresTimestamp) {
+  public static RocksDBIndexTable getIndexTable(
+      final RocksDBClient client,
+      final String tableName,
+      final short adapterId,
+      final byte[] partitionKey,
+      final boolean requiresTimestamp) {
     return client.getIndexTable(tableName, adapterId, partitionKey, requiresTimestamp);
   }
 
-  public static RocksDBIndexTable getIndexTable(final RocksDBClient client, final String typeName,
-      final String indexName, final short adapterId, final byte[] partitionKey,
+  public static RocksDBIndexTable getIndexTable(
+      final RocksDBClient client,
+      final String typeName,
+      final String indexName,
+      final short adapterId,
+      final byte[] partitionKey,
       final boolean requiresTimestamp) {
-    return getIndexTable(client, getTablePrefix(typeName, indexName), adapterId, partitionKey,
-        requiresTimestamp);
+    return getIndexTable(
+        client, getTablePrefix(typeName, indexName), adapterId, partitionKey, requiresTimestamp);
   }
 
   public static Set<ByteArray> getPartitions(final String directory, final String tableNamePrefix) {
     return Arrays.stream(new File(directory).list((dir, name) -> name.startsWith(tableNamePrefix)))
-        .map(str -> str.length() > (tableNamePrefix.length() + 1)
-            ? new ByteArray(
-                ByteArrayUtils.byteArrayFromString(str.substring(tableNamePrefix.length() + 1)))
-            : new ByteArray())
+        .map(
+            str -> str.length() > (tableNamePrefix.length() + 1)
+                ? new ByteArray(
+                    ByteArrayUtils.byteArrayFromString(str.substring(tableNamePrefix.length() + 1)))
+                : new ByteArray())
         .collect(Collectors.toSet());
   }
 
@@ -102,7 +117,8 @@ public class RocksDBUtils {
   }
 
   public static Pair<Boolean, Boolean> isGroupByRowAndIsSortByTime(
-      final BaseReaderParams<?> readerParams, final short adapterId) {
+      final BaseReaderParams<?> readerParams,
+      final short adapterId) {
     final boolean sortByTime = isSortByTime(readerParams.getAdapterStore().getAdapter(adapterId));
     return Pair.of(readerParams.isMixedVisibility() || sortByTime, sortByTime);
   }

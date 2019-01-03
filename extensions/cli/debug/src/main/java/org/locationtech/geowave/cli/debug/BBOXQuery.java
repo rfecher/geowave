@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,8 +53,12 @@ public class BBOXQuery extends AbstractGeoWaveQuery {
   }
 
   @Override
-  protected long runQuery(final GeotoolsFeatureDataAdapter adapter, final String typeName,
-      final String indexName, final DataStore dataStore, final boolean debug,
+  protected long runQuery(
+      final GeotoolsFeatureDataAdapter adapter,
+      final String typeName,
+      final String indexName,
+      final DataStore dataStore,
+      final boolean debug,
       DataStorePluginOptions pluginOptions) {
     final StopWatch stopWatch = new StopWatch();
 
@@ -67,9 +70,12 @@ public class BBOXQuery extends AbstractGeoWaveQuery {
       final VectorAggregationQueryBuilder<Persistable, Long> bldr =
           (VectorAggregationQueryBuilder) VectorAggregationQueryBuilder.newBuilder().count(typeName)
               .indexName(indexName);
-      final Long countResult = dataStore.aggregate(bldr.constraints(
-          bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(geom).build())
-          .build());
+      final Long countResult =
+          dataStore.aggregate(
+              bldr.constraints(
+                  bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(geom)
+                      .build())
+                  .build());
 
       if (countResult != null) {
         count += countResult;
@@ -80,9 +86,12 @@ public class BBOXQuery extends AbstractGeoWaveQuery {
           VectorQueryBuilder.newBuilder().addTypeName(typeName).indexName(indexName);
       stopWatch.start();
 
-      try (final CloseableIterator<SimpleFeature> it = dataStore.query(bldr.constraints(
-          bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(geom).build())
-          .build())) {
+      try (final CloseableIterator<SimpleFeature> it =
+          dataStore.query(
+              bldr.constraints(
+                  bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(geom)
+                      .build())
+                  .build())) {
 
         stopWatch.stop();
         System.out.println("Ran BBOX query in " + stopWatch.toString());

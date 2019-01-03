@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -68,8 +67,8 @@ public class AddStoreCommand extends ServiceEnabledCommand<String> {
       // Load the default index.
       if (defaultStore != null) {
         try {
-          if (pluginOptions.load(existingProps,
-              DataStorePluginOptions.getStoreNamespace(defaultStore))) {
+          if (pluginOptions
+              .load(existingProps, DataStorePluginOptions.getStoreNamespace(defaultStore))) {
             // Set the required type option.
             this.storeType = pluginOptions.getType();
             requiredOptions = pluginOptions.getFactoryOptions();
@@ -119,8 +118,8 @@ public class AddStoreCommand extends ServiceEnabledCommand<String> {
     }
 
     // Write properties file
-    ConfigOptions.writeProperties(getGeoWaveConfigFile(), existingProps,
-        pluginOptions.getFactoryOptions().getClass(),
+    ConfigOptions.writeProperties(
+        getGeoWaveConfigFile(), existingProps, pluginOptions.getFactoryOptions().getClass(),
         getNamespace() + "." + DataStorePluginOptions.OPTS);
 
     StringBuilder builder = new StringBuilder();

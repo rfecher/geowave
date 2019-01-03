@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,15 +30,16 @@ public class GeoWaveTransactionManagementState implements GeoWaveTransactionStat
   /**
    * Map of differences by typeName.
    *
-   * <p>
-   * Differences are stored as a Map of Feature by fid, and are reset during a commit() or
+   * <p> Differences are stored as a Map of Feature by fid, and are reset during a commit() or
    * rollback().
    */
   private final Map<String, GeoWaveTransactionManagement> typeNameDiff =
       new HashMap<String, GeoWaveTransactionManagement>();
 
-  public GeoWaveTransactionManagementState(final int transactionBufferSize,
-      final GeoWaveDataStoreComponents components, final Transaction transaction,
+  public GeoWaveTransactionManagementState(
+      final int transactionBufferSize,
+      final GeoWaveDataStoreComponents components,
+      final Transaction transaction,
       final LockingManagement lockingManager) throws IOException {
     this.transactionBufferSize = transactionBufferSize;
     this.components = components;
@@ -78,8 +78,9 @@ public class GeoWaveTransactionManagementState implements GeoWaveTransactionStat
     if (typeNameDiff.containsKey(typeName)) {
       return typeNameDiff.get(typeName);
     } else {
-      final GeoWaveTransactionManagement transX = new GeoWaveTransactionManagement(
-          transactionBufferSize, components, typeName, transaction, lockingManager, txID);
+      final GeoWaveTransactionManagement transX =
+          new GeoWaveTransactionManagement(transactionBufferSize, components, typeName, transaction,
+              lockingManager, txID);
       typeNameDiff.put(typeName, transX);
 
       return transX;
@@ -126,21 +127,15 @@ public class GeoWaveTransactionManagementState implements GeoWaveTransactionStat
   /**
    * Called by commit() to apply one set of diff
    *
-   * <p>
-   * The provided <code> will be modified as the differences are applied, If the operations are all
-   * successful diff will be empty at the end of this process.
-   * </p>
+   * <p> The provided <code> will be modified as the differences are applied, If the operations are
+   * all successful diff will be empty at the end of this process. </p>
    *
-   * <p>
-   * diff can be used to represent the following operations:
-   * </p>
+   * <p> diff can be used to represent the following operations: </p>
    *
-   * <ul>
-   * <li>fid|null: represents a fid being removed</li>
+   * <ul> <li>fid|null: represents a fid being removed</li>
    *
-   * <li>fid|feature: where fid exists, represents feature modification</li>
-   * <li>fid|feature: where fid does not exist, represents feature being modified</li>
-   * </ul>
+   * <li>fid|feature: where fid exists, represents feature modification</li> <li>fid|feature: where
+   * fid does not exist, represents feature being modified</li> </ul>
    *
    *
    * @param typeName typeName being updated
@@ -199,8 +194,16 @@ public class GeoWaveTransactionManagementState implements GeoWaveTransactionStat
 
   @Override
   public String toString() {
-    return "GeoWaveTransactionManagementState [components=" + components + ", lockingManager="
-        + lockingManager + ", transaction=" + transaction + ", txID=" + txID + ", typeNameDiff="
-        + typeNameDiff + "]";
+    return "GeoWaveTransactionManagementState [components="
+        + components
+        + ", lockingManager="
+        + lockingManager
+        + ", transaction="
+        + transaction
+        + ", txID="
+        + txID
+        + ", typeNameDiff="
+        + typeNameDiff
+        + "]";
   }
 }

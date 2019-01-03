@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,7 +31,9 @@ public class GeoWaveAvroFeatureWriter implements FieldWriter<SimpleFeature, Obje
   private final SpecificDatumWriter<AvroSimpleFeature> datumWriter = new SpecificDatumWriter<>();
 
   @Override
-  public byte[] getVisibility(final SimpleFeature rowValue, final String fieldName,
+  public byte[] getVisibility(
+      final SimpleFeature rowValue,
+      final String fieldName,
       final Object fieldValue) {
     return new byte[] {};
   }
@@ -44,8 +45,11 @@ public class GeoWaveAvroFeatureWriter implements FieldWriter<SimpleFeature, Obje
       serializedAttributes = serializeAvroSimpleFeature((SimpleFeature) fieldValue, null, null, "");
     } catch (final IOException e) {
       e.printStackTrace();
-      LOGGER.error("Error, failed to serialize SimpleFeature with id '"
-          + ((SimpleFeature) fieldValue).getID() + "'", e);
+      LOGGER.error(
+          "Error, failed to serialize SimpleFeature with id '"
+              + ((SimpleFeature) fieldValue).getID()
+              + "'",
+          e);
     }
 
     // there is no need to preface the payload with the class name and a
@@ -85,8 +89,10 @@ public class GeoWaveAvroFeatureWriter implements FieldWriter<SimpleFeature, Obje
    * @return
    * @throws IOException
    */
-  public byte[] serializeAvroSimpleFeature(final SimpleFeature sf,
-      AvroSimpleFeature avroObjectToReuse, final Map<String, String> defaultClassifications,
+  public byte[] serializeAvroSimpleFeature(
+      final SimpleFeature sf,
+      AvroSimpleFeature avroObjectToReuse,
+      final Map<String, String> defaultClassifications,
       final String defaultClassification) throws IOException {
     if (sf == null) {
       throw new IOException("Feature cannot be null");
@@ -102,8 +108,9 @@ public class GeoWaveAvroFeatureWriter implements FieldWriter<SimpleFeature, Obje
       avroObjectToReuse = new AvroSimpleFeature();
     }
 
-    final AvroFeatureDefinition fd = GeoWaveAvroFeatureUtils.buildFeatureDefinition(
-        avroObjectToReuse.getFeatureType(), sft, defaultClassifications, defaultClassification);
+    final AvroFeatureDefinition fd =
+        GeoWaveAvroFeatureUtils.buildFeatureDefinition(
+            avroObjectToReuse.getFeatureType(), sft, defaultClassifications, defaultClassification);
     avroObjectToReuse.setFeatureType(fd);
 
     final AvroAttributeValues av = GeoWaveAvroFeatureUtils.buildAttributeValue(sf, sft);

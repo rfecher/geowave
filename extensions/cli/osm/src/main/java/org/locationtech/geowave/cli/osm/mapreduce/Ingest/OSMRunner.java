@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -68,7 +67,8 @@ public class OSMRunner extends Configured implements Tool {
     System.exit(params.getSuccessCode());
   }
 
-  public OSMRunner(final OSMIngestCommandArgs ingestOptions,
+  public OSMRunner(
+      final OSMIngestCommandArgs ingestOptions,
       final DataStorePluginOptions inputStoreOptions) {
     this.ingestOptions = ingestOptions;
     if (!inputStoreOptions.getType().equals(new AccumuloStoreFactoryFamily().getType())) {
@@ -83,9 +83,10 @@ public class OSMRunner extends Configured implements Tool {
 
   private void enableLocalityGroups(final OSMIngestCommandArgs argv)
       throws AccumuloSecurityException, AccumuloException, TableNotFoundException {
-    final AccumuloOperations bao = new AccumuloOperations(accumuloOptions.getZookeeper(),
-        accumuloOptions.getInstance(), accumuloOptions.getUser(), accumuloOptions.getPassword(),
-        accumuloOptions.getGeoWaveNamespace(), new AccumuloOptions());
+    final AccumuloOperations bao =
+        new AccumuloOperations(accumuloOptions.getZookeeper(), accumuloOptions.getInstance(),
+            accumuloOptions.getUser(), accumuloOptions.getPassword(),
+            accumuloOptions.getGeoWaveNamespace(), new AccumuloOptions());
     bao.createTable(argv.getOsmTableName(), true, true);
   }
 
@@ -139,12 +140,13 @@ public class OSMRunner extends Configured implements Tool {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Mutation.class);
     job.setOutputFormatClass(AccumuloOutputFormat.class);
-    AccumuloOutputFormat.setConnectorInfo(job, accumuloOptions.getUser(),
-        new PasswordToken(accumuloOptions.getPassword()));
+    AccumuloOutputFormat.setConnectorInfo(
+        job, accumuloOptions.getUser(), new PasswordToken(accumuloOptions.getPassword()));
     AccumuloOutputFormat.setCreateTables(job, true);
     AccumuloOutputFormat.setDefaultTableName(job, ingestOptions.getQualifiedTableName());
-    AccumuloOutputFormat.setZooKeeperInstance(job, new ClientConfiguration()
-        .withInstance(accumuloOptions.getInstance()).withZkHosts(accumuloOptions.getZookeeper()));
+    AccumuloOutputFormat.setZooKeeperInstance(
+        job, new ClientConfiguration().withInstance(accumuloOptions.getInstance())
+            .withZkHosts(accumuloOptions.getZookeeper()));
 
     // reducer
     job.setNumReduceTasks(0);

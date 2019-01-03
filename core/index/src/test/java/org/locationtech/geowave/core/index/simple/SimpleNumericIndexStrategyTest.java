@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,7 +39,8 @@ public class SimpleNumericIndexStrategyTest {
 
   @Parameters
   public static Collection<Object[]> instancesToTest() {
-    return Arrays.asList(new Object[] {new SimpleShortIndexStrategy()},
+    return Arrays.asList(
+        new Object[] {new SimpleShortIndexStrategy()},
         new Object[] {new SimpleIntegerIndexStrategy()},
         new Object[] {new SimpleLongIndexStrategy()});
   }
@@ -102,10 +102,10 @@ public class SimpleNumericIndexStrategyTest {
     final ByteArrayRange range = ranges.get(0);
     final ByteArray start = range.getStart();
     final ByteArray end = range.getEnd();
-    Assert.assertEquals(castToLong(strategy.getLexicoder().fromByteArray(start.getBytes())),
-        startValue);
-    Assert.assertEquals(castToLong(strategy.getLexicoder().fromByteArray(end.getBytes())),
-        endValue);
+    Assert.assertEquals(
+        castToLong(strategy.getLexicoder().fromByteArray(start.getBytes())), startValue);
+    Assert
+        .assertEquals(castToLong(strategy.getLexicoder().fromByteArray(end.getBytes())), endValue);
   }
 
   /**
@@ -138,8 +138,8 @@ public class SimpleNumericIndexStrategyTest {
         strategy.getInsertionIds(indexedData).getCompositeInsertionIds();
     Assert.assertEquals(insertionIds.size(), 1);
     final ByteArray insertionId = insertionIds.get(0);
-    Assert.assertEquals(castToLong(strategy.getLexicoder().fromByteArray(insertionId.getBytes())),
-        pointValue);
+    Assert.assertEquals(
+        castToLong(strategy.getLexicoder().fromByteArray(insertionId.getBytes())), pointValue);
   }
 
   @Test
@@ -152,7 +152,8 @@ public class SimpleNumericIndexStrategyTest {
     Assert.assertEquals(insertionIds.size(), (int) ((endValue - startValue) + 1));
     int i = 0;
     for (final ByteArray insertionId : insertionIds) {
-      Assert.assertEquals(castToLong(strategy.getLexicoder().fromByteArray(insertionId.getBytes())),
+      Assert.assertEquals(
+          castToLong(strategy.getLexicoder().fromByteArray(insertionId.getBytes())),
           startValue + i++);
     }
   }

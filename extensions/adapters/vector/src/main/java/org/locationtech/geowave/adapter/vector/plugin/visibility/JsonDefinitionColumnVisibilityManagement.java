@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,19 +21,15 @@ import org.slf4j.LoggerFactory;
  * Object defining visibility is a json structure where each attribute defines the visibility for a
  * field with the same name (as the attribute).
  *
- * <p>
- * Example: { "geometry" : "S", "eventName": "TS"}
+ * <p> Example: { "geometry" : "S", "eventName": "TS"}
  *
- * <p>
- * Json attributes can also be regular expressions, matching more than one field name.
+ * <p> Json attributes can also be regular expressions, matching more than one field name.
  *
- * <p>
- * Example: { "geo.*" : "S", ".*" : "TS"}.
+ * <p> Example: { "geo.*" : "S", ".*" : "TS"}.
  *
- * <p>
- * The order of the expression must be considered if one expression is more general than another, as
- * shown in the example. The expression ".*" matches all attributes. The more specific expression
- * "geo.*" must be ordered first.
+ * <p> The order of the expression must be considered if one expression is more general than
+ * another, as shown in the example. The expression ".*" matches all attributes. The more specific
+ * expression "geo.*" must be ordered first.
  */
 public class JsonDefinitionColumnVisibilityManagement<T>
     implements ColumnVisibilityManagementSpi<T> {
@@ -44,8 +39,10 @@ public class JsonDefinitionColumnVisibilityManagement<T>
 
   private static class JsonDefinitionFieldLevelVisibilityHandler<T, CommonIndexValue>
       extends FieldLevelVisibilityHandler<T, CommonIndexValue> {
-    public JsonDefinitionFieldLevelVisibilityHandler(String fieldName,
-        FieldVisibilityHandler<T, Object> fieldVisiblityHandler, String visibilityAttribute) {
+    public JsonDefinitionFieldLevelVisibilityHandler(
+        String fieldName,
+        FieldVisibilityHandler<T, Object> fieldVisiblityHandler,
+        String visibilityAttribute) {
       super(fieldName, fieldVisiblityHandler, visibilityAttribute);
     }
 
@@ -68,8 +65,10 @@ public class JsonDefinitionColumnVisibilityManagement<T>
           if (fieldName.matches(attName)) {
             final JsonNode attNode = attributeMap.get(attName);
             if (attNode == null) {
-              LOGGER.error("Cannot parse visibility expression, JsonNode for attribute " + attName
-                  + " was null");
+              LOGGER.error(
+                  "Cannot parse visibility expression, JsonNode for attribute "
+                      + attName
+                      + " was null");
               return null;
             }
             return validate(attNode.textValue());
@@ -102,7 +101,8 @@ public class JsonDefinitionColumnVisibilityManagement<T>
   }
 
   @Override
-  public FieldVisibilityHandler<T, Object> createVisibilityHandler(final String fieldName,
+  public FieldVisibilityHandler<T, Object> createVisibilityHandler(
+      final String fieldName,
       final FieldVisibilityHandler<T, Object> defaultHandler,
       final String visibilityAttributeName) {
     return new JsonDefinitionFieldLevelVisibilityHandler<T, Object>(fieldName, defaultHandler,

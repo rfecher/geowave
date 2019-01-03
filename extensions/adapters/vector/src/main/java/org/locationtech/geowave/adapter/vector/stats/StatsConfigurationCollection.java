@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -118,8 +117,11 @@ public class StatsConfigurationCollection implements java.io.Serializable, Persi
       for (final Entry<String, StatsConfigurationCollection> e : attConfig.entrySet()) {
         final byte[] keyBytes = StringUtils.stringToBinary(e.getKey());
         final byte[] confBytes = PersistenceUtils.toBinary(e.getValue());
-        int entrySize = VarintUtils.unsignedIntByteLength(keyBytes.length) + keyBytes.length
-            + VarintUtils.unsignedIntByteLength(confBytes.length) + confBytes.length;
+        int entrySize =
+            VarintUtils.unsignedIntByteLength(keyBytes.length)
+                + keyBytes.length
+                + VarintUtils.unsignedIntByteLength(confBytes.length)
+                + confBytes.length;
         size += entrySize;
         final ByteBuffer buf = ByteBuffer.allocate(entrySize);
         VarintUtils.writeUnsignedInt(keyBytes.length, buf);
@@ -150,8 +152,8 @@ public class StatsConfigurationCollection implements java.io.Serializable, Persi
         final byte[] entryBytes = new byte[VarintUtils.readUnsignedInt(buf)];
         buf.get(entryBytes);
 
-        internalAttConfig.put(key,
-            (StatsConfigurationCollection) PersistenceUtils.fromBinary(entryBytes));
+        internalAttConfig
+            .put(key, (StatsConfigurationCollection) PersistenceUtils.fromBinary(entryBytes));
       }
       attConfig = internalAttConfig;
     }

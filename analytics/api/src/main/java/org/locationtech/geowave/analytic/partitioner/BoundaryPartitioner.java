@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,8 +35,11 @@ public class BoundaryPartitioner extends OrthodromicDistancePartitioner<Object> 
     super();
   }
 
-  public BoundaryPartitioner(CoordinateReferenceSystem crs, CommonIndexModel indexModel,
-      final DimensionExtractor<Object> dimensionExtractor, double[] distancePerDimension,
+  public BoundaryPartitioner(
+      CoordinateReferenceSystem crs,
+      CommonIndexModel indexModel,
+      final DimensionExtractor<Object> dimensionExtractor,
+      double[] distancePerDimension,
       Unit<Length> geometricDistanceUnit) {
     super(crs, indexModel, new EchoExtractor(), distancePerDimension, geometricDistanceUnit);
   }
@@ -69,8 +71,9 @@ public class BoundaryPartitioner extends OrthodromicDistancePartitioner<Object> 
     else {
       List<PartitionData> r = new ArrayList<PartitionData>();
       for (int i = 0; i < (coords.length - 1); i++) {
-        r.addAll(super.getCubeIdentifiers(
-            geom.getFactory().createLineString(new Coordinate[] {coords[i], coords[i + 1]})));
+        r.addAll(
+            super.getCubeIdentifiers(
+                geom.getFactory().createLineString(new Coordinate[] {coords[i], coords[i + 1]})));
       }
       return r;
     }

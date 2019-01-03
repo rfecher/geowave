@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -25,12 +24,10 @@ import org.opengis.feature.simple.SimpleFeature;
 /**
  * Maintains an estimate of how may of each attribute value occurs in a set of data.
  *
- * <p>
- * Default values:
+ * <p> Default values:
  *
- * <p>
- * Error factor of 0.001 with probability 0.98 of retrieving a correct estimate. The Algorithm does
- * not under-state the estimate.
+ * <p> Error factor of 0.001 with probability 0.98 of retrieving a correct estimate. The Algorithm
+ * does not under-state the estimate.
  */
 public class FeatureCountMinSketchStatistics extends
     AbstractDataStatistics<SimpleFeature, CountMinSketch, FieldStatisticsQueryBuilder<CountMinSketch>>
@@ -49,8 +46,11 @@ public class FeatureCountMinSketchStatistics extends
     sketch = new CountMinSketch(0.001, 0.98, 7364181);
   }
 
-  public FeatureCountMinSketchStatistics(final Short adapterId, final String fieldName,
-      final double errorFactor, final double probabilityOfCorrectness) {
+  public FeatureCountMinSketchStatistics(
+      final Short adapterId,
+      final String fieldName,
+      final double errorFactor,
+      final double probabilityOfCorrectness) {
     super(adapterId, STATS_TYPE, fieldName);
     sketch = new CountMinSketch(errorFactor, probabilityOfCorrectness, 7364181);
   }
@@ -145,7 +145,8 @@ public class FeatureCountMinSketchStatistics extends
 
     public FeatureCountMinSketchConfig() {}
 
-    public FeatureCountMinSketchConfig(final double errorFactor,
+    public FeatureCountMinSketchConfig(
+        final double errorFactor,
         final double probabilityOfCorrectness) {
       super();
       this.errorFactor = errorFactor;
@@ -170,7 +171,8 @@ public class FeatureCountMinSketchStatistics extends
 
     @Override
     public InternalDataStatistics<SimpleFeature, CountMinSketch, FieldStatisticsQueryBuilder<CountMinSketch>> create(
-        final Short internalDataAdapterId, final String fieldName) {
+        final Short internalDataAdapterId,
+        final String fieldName) {
       return new FeatureCountMinSketchStatistics(internalDataAdapterId, fieldName, errorFactor,
           probabilityOfCorrectness);
     }

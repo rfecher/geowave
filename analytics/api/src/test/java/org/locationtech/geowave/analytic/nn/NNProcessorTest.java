@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -60,12 +59,14 @@ public class NNProcessorTest {
       @Override
       public List<org.locationtech.geowave.analytic.partitioner.Partitioner.PartitionData> getCubeIdentifiers(
           final Object entry) {
-        return Collections.singletonList(new PartitionData(new ByteArray(new byte[] {}),
-            NNProcessorTest.partition((Integer) entry), true));
+        return Collections.singletonList(
+            new PartitionData(new ByteArray(new byte[] {}),
+                NNProcessorTest.partition((Integer) entry), true));
       }
 
       @Override
-      public void partition(final Object entry,
+      public void partition(
+          final Object entry,
           final org.locationtech.geowave.analytic.partitioner.Partitioner.PartitionDataCallback callback)
           throws Exception {
         for (final PartitionData pd : getCubeIdentifiers(entry)) {
@@ -79,7 +80,9 @@ public class NNProcessorTest {
       }
 
       @Override
-      public void setup(final PropertyManagement runTimeProperties, final Class<?> scope,
+      public void setup(
+          final PropertyManagement runTimeProperties,
+          final Class<?> scope,
           final Configuration configuration) {}
     }, new TypeConverter<Integer>() {
       @Override
@@ -102,7 +105,9 @@ public class NNProcessorTest {
     runProcess(buildProcessor(), new CompleteNotifier<Integer>() {
 
       @Override
-      public void complete(final ByteArray id, final Integer value,
+      public void complete(
+          final ByteArray id,
+          final Integer value,
           final NeighborList<Integer> list) throws IOException, InterruptedException {
         final Iterator<Entry<ByteArray, Integer>> it = list.iterator();
         final List<Integer> expectedResultSet = new ArrayList<Integer>(expectedResults.get(value));
@@ -122,7 +127,9 @@ public class NNProcessorTest {
     runProcess(processor, new CompleteNotifier<Integer>() {
 
       @Override
-      public void complete(final ByteArray id, final Integer value,
+      public void complete(
+          final ByteArray id,
+          final Integer value,
           final NeighborList<Integer> list) throws IOException, InterruptedException {
         processor.remove(id);
       }
@@ -144,21 +151,25 @@ public class NNProcessorTest {
     processor.process(new NeighborListFactory<Integer>() {
 
       @Override
-      public NeighborList<Integer> buildNeighborList(final ByteArray cnterId,
+      public NeighborList<Integer> buildNeighborList(
+          final ByteArray cnterId,
           final Integer center) {
         return new DefaultNeighborList<Integer>();
       }
     }, new CompleteNotifier<Integer>() {
 
       @Override
-      public void complete(final ByteArray id, final Integer value,
+      public void complete(
+          final ByteArray id,
+          final Integer value,
           final NeighborList<Integer> list) throws IOException, InterruptedException {
         fail("Should not get here");
       }
     });
   }
 
-  private void runProcess(final NNProcessor<Integer, Integer> processor,
+  private void runProcess(
+      final NNProcessor<Integer, Integer> processor,
       final CompleteNotifier<Integer> notifier) throws IOException, InterruptedException {
 
     addToProcess(processor, 293);
@@ -173,7 +184,8 @@ public class NNProcessorTest {
     processor.process(new NeighborListFactory<Integer>() {
 
       @Override
-      public NeighborList<Integer> buildNeighborList(final ByteArray cnterId,
+      public NeighborList<Integer> buildNeighborList(
+          final ByteArray cnterId,
           final Integer center) {
         return new DefaultNeighborList<Integer>();
       }

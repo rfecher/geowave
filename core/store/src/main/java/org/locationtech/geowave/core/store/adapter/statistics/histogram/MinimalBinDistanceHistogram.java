@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -16,14 +15,12 @@ package org.locationtech.geowave.core.store.adapter.statistics.histogram;
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  *
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p> http://www.apache.org/licenses/LICENSE-2.0
  *
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * <p> Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -34,17 +31,14 @@ import org.locationtech.geowave.core.index.VarintUtils;
 /**
  * Dynamic Histogram:
  *
- * <p>
- * Derived from work for Hive and based on Yael Ben-Haim and Elad Tom-Tov, "A streaming parallel
+ * <p> Derived from work for Hive and based on Yael Ben-Haim and Elad Tom-Tov, "A streaming parallel
  * decision tree algorithm", J. Machine Learning Research 11 (2010), pp. 849--872.
  *
- * <p>
- * Note: the paper refers to a bins as a pair (p,m) where p = lower bound and m = count. Some of the
- * interpolation treats the pair as a coordinate.
+ * <p> Note: the paper refers to a bins as a pair (p,m) where p = lower bound and m = count. Some of
+ * the interpolation treats the pair as a coordinate.
  *
- * <p>
- * Although there are no approximation guarantees, it appears to work well with adequate data and a
- * large number of histogram bins.
+ * <p> Although there are no approximation guarantees, it appears to work well with adequate data
+ * and a large number of histogram bins.
  */
 public class MinimalBinDistanceHistogram implements NumericHistogram {
 
@@ -272,9 +266,10 @@ public class MinimalBinDistanceHistogram implements NumericHistogram {
         }
 
         csum -= bins.get(b).count;
-        final double r = bins.get(b - 1).lowerBound
-            + ((((q * totalCount) - csum) * (bins.get(b).lowerBound - bins.get(b - 1).lowerBound))
-                / (bins.get(b).count));
+        final double r =
+            bins.get(b - 1).lowerBound
+                + ((((q * totalCount) - csum)
+                    * (bins.get(b).lowerBound - bins.get(b - 1).lowerBound)) / (bins.get(b).count));
         return r;
       }
     }
@@ -324,8 +319,10 @@ public class MinimalBinDistanceHistogram implements NumericHistogram {
     // (lowerBoundary,0) (lowerBoundary,lowerCount)
     // (upperBoundary,upperCount) (upperBoundary,0)
     // divided by (upperBoundary - lowerBoundary).
-    final double mb = lowerCount
-        + (((upperCount - lowerCount) / (upperBoundary - lowerBoundary)) * (val - lowerBoundary));
+    final double mb =
+        lowerCount
+            + (((upperCount - lowerCount) / (upperBoundary - lowerBoundary))
+                * (val - lowerBoundary));
     final double s =
         (((lowerCount + mb) / 2.0) * (val - lowerBoundary)) / (upperBoundary - lowerBoundary);
     final double r = foundCount + s + (lowerCount / 2.0);
@@ -354,8 +351,11 @@ public class MinimalBinDistanceHistogram implements NumericHistogram {
 
   @Override
   public int bufferSize() {
-    return VarintUtils.unsignedLongByteLength(totalCount) + VarintUtils.unsignedIntByteLength(nbins)
-        + VarintUtils.unsignedIntByteLength(bins.size()) + (bins.size() * Bin.bufferSize()) + 8;
+    return VarintUtils.unsignedLongByteLength(totalCount)
+        + VarintUtils.unsignedIntByteLength(nbins)
+        + VarintUtils.unsignedIntByteLength(bins.size())
+        + (bins.size() * Bin.bufferSize())
+        + 8;
   }
 
   @Override

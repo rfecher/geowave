@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,7 +43,8 @@ public class SimpleFeatureGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SimpleFeatureGenerator.class);
 
-  public List<SimpleFeature> mapOSMtoSimpleFeature(final Map<Key, Value> items,
+  public List<SimpleFeature> mapOSMtoSimpleFeature(
+      final Map<Key, Value> items,
       final OsmProvider osmProvider) {
 
     final List<SimpleFeature> features = new ArrayList<>();
@@ -93,7 +93,8 @@ public class SimpleFeatureGenerator {
         } else if (ad.type.equals("geometry") || ad.type.equals("validated_geometry")) {
           final Geometry geom = getGeometry(osmunion, osmProvider, fd);
           if (geom == null) {
-            LOGGER.error("Unable to generate geometry for {} of type {}", osmunion.Id,
+            LOGGER.error(
+                "Unable to generate geometry for {} of type {}", osmunion.Id,
                 osmunion.OsmType.toString());
             return null;
           }
@@ -104,7 +105,8 @@ public class SimpleFeatureGenerator {
           sfb.set(FeatureDefinitionSet.normalizeOsmNames(ad.name), ad.convert(mappingKey));
         } else if ((ad.key != null) && !ad.key.equals("null")) {
           if (osmunion.tags.containsKey(ad.key)) {
-            sfb.set(FeatureDefinitionSet.normalizeOsmNames(ad.name),
+            sfb.set(
+                FeatureDefinitionSet.normalizeOsmNames(ad.name),
                 ad.convert(osmunion.tags.get(ad.key)));
           }
         }
@@ -114,7 +116,9 @@ public class SimpleFeatureGenerator {
     return features;
   }
 
-  private static Geometry getGeometry(final OSMUnion osm, final OsmProvider provider,
+  private static Geometry getGeometry(
+      final OSMUnion osm,
+      final OsmProvider provider,
       final FeatureDefinition fd) {
     switch (osm.OsmType) {
       case NODE: {
@@ -216,8 +220,8 @@ public class SimpleFeatureGenerator {
           } catch (final IOException e) {
             LOGGER.error("Error deserializing Avro encoded Relation member set", e);
           }
-        } else if (Schema.startsWith(CQ,
-            ColumnQualifier.REFERENCE_MEMID_PREFIX.getBytes(Constants.CHARSET))) {
+        } else if (Schema
+            .startsWith(CQ, ColumnQualifier.REFERENCE_MEMID_PREFIX.getBytes(Constants.CHARSET))) {
           final String s = new String(CQ.toArray(), Constants.CHARSET);
           final Integer id = Integer.valueOf(s.split("_")[1]);
           if (relationSets == null) {
@@ -227,8 +231,8 @@ public class SimpleFeatureGenerator {
             relationSets.put(id, new RelationSet());
           }
           relationSets.get(id).memId = longReader.readField(item.getValue().get());
-        } else if (Schema.startsWith(CQ,
-            ColumnQualifier.REFERENCE_ROLEID_PREFIX.getBytes(Constants.CHARSET))) {
+        } else if (Schema
+            .startsWith(CQ, ColumnQualifier.REFERENCE_ROLEID_PREFIX.getBytes(Constants.CHARSET))) {
           final String s = new String(CQ.toArray(), Constants.CHARSET);
           final Integer id = Integer.valueOf(s.split("_")[1]);
           if (relationSets == null) {
@@ -238,8 +242,8 @@ public class SimpleFeatureGenerator {
             relationSets.put(id, new RelationSet());
           }
           relationSets.get(id).roleId = stringReader.readField(item.getValue().get());
-        } else if (Schema.startsWith(CQ,
-            ColumnQualifier.REFERENCE_TYPE_PREFIX.getBytes(Constants.CHARSET))) {
+        } else if (Schema
+            .startsWith(CQ, ColumnQualifier.REFERENCE_TYPE_PREFIX.getBytes(Constants.CHARSET))) {
           final String s = new String(CQ.toArray(), Constants.CHARSET);
           final Integer id = Integer.valueOf(s.split("_")[1]);
           if (relationSets == null) {

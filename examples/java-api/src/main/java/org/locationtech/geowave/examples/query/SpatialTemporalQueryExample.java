@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,9 +43,9 @@ import org.slf4j.LoggerFactory;
  * This class is intended to provide a self-contained, easy-to-follow example of a few GeoTools
  * queries against GeoWave using Spatial Temporal Data.
  *
- * <p>
- * For simplicity, a MiniAccumuloCluster is spun up and a few points from the DC area are ingested
- * (Washington Monument, White House, FedEx Field). Two queries are executed against this data set.
+ * <p> For simplicity, a MiniAccumuloCluster is spun up and a few points from the DC area are
+ * ingested (Washington Monument, White House, FedEx Field). Two queries are executed against this
+ * data set.
  */
 public class SpatialTemporalQueryExample {
   private static final Logger LOGGER = LoggerFactory.getLogger(SpatialTemporalQueryExample.class);
@@ -89,33 +88,42 @@ public class SpatialTemporalQueryExample {
     System.out.println("Building SimpleFeatures from canned data set...");
 
     try {
-      points.add(buildSimpleFeature("Washington Monument 1", washingtonMonument,
-          DateUtilities.parseISO("2005-05-15T20:32:56Z"),
-          DateUtilities.parseISO("2005-05-15T21:32:56Z")));
-
-      points.add(buildSimpleFeature("Washington Monument 2", washingtonMonument,
-          DateUtilities.parseISO("2005-05-17T20:32:56Z"),
-          DateUtilities.parseISO("2005-05-17T21:32:56Z")));
-
-      points.add(buildSimpleFeature("White House 1", whiteHouse,
-          DateUtilities.parseISO("2005-05-17T20:32:56Z"),
-          DateUtilities.parseISO("2005-05-17T21:32:56Z")));
-
-      points.add(buildSimpleFeature("White House 2", whiteHouse,
-          DateUtilities.parseISO("2005-05-17T19:32:56Z"),
-          DateUtilities.parseISO("2005-05-17T20:45:56Z")));
+      points.add(
+          buildSimpleFeature(
+              "Washington Monument 1", washingtonMonument,
+              DateUtilities.parseISO("2005-05-15T20:32:56Z"),
+              DateUtilities.parseISO("2005-05-15T21:32:56Z")));
 
       points.add(
-          buildSimpleFeature("Fedex 1", fedexField, DateUtilities.parseISO("2005-05-17T20:32:56Z"),
+          buildSimpleFeature(
+              "Washington Monument 2", washingtonMonument,
+              DateUtilities.parseISO("2005-05-17T20:32:56Z"),
               DateUtilities.parseISO("2005-05-17T21:32:56Z")));
 
       points.add(
-          buildSimpleFeature("Fedex 2", fedexField, DateUtilities.parseISO("2005-05-18T19:32:56Z"),
+          buildSimpleFeature(
+              "White House 1", whiteHouse, DateUtilities.parseISO("2005-05-17T20:32:56Z"),
+              DateUtilities.parseISO("2005-05-17T21:32:56Z")));
+
+      points.add(
+          buildSimpleFeature(
+              "White House 2", whiteHouse, DateUtilities.parseISO("2005-05-17T19:32:56Z"),
+              DateUtilities.parseISO("2005-05-17T20:45:56Z")));
+
+      points.add(
+          buildSimpleFeature(
+              "Fedex 1", fedexField, DateUtilities.parseISO("2005-05-17T20:32:56Z"),
+              DateUtilities.parseISO("2005-05-17T21:32:56Z")));
+
+      points.add(
+          buildSimpleFeature(
+              "Fedex 2", fedexField, DateUtilities.parseISO("2005-05-18T19:32:56Z"),
               DateUtilities.parseISO("2005-05-18T20:45:56Z")));
 
-      points.add(buildSimpleFeature("White House 3", whiteHouse,
-          DateUtilities.parseISO("2005-05-19T19:32:56Z"),
-          DateUtilities.parseISO("2005-05-19T20:45:56Z")));
+      points.add(
+          buildSimpleFeature(
+              "White House 3", whiteHouse, DateUtilities.parseISO("2005-05-19T19:32:56Z"),
+              DateUtilities.parseISO("2005-05-19T20:45:56Z")));
 
     } catch (final Exception ex) {
       LOGGER.warn("Could not add points", ex);
@@ -157,20 +165,22 @@ public class SpatialTemporalQueryExample {
     // the centroid moves closer the poles.
     final CloseableIterator<SimpleFeature> iterator =
         dataStore
-            .query(bldr
-                .constraints(
+            .query(
+                bldr.constraints(
                     bldr.constraintsFactory().spatialTemporalConstraints()
-                        .addTimeRange(DateUtilities.parseISO("2005-05-17T19:32:56Z"),
+                        .addTimeRange(
+                            DateUtilities.parseISO("2005-05-17T19:32:56Z"),
                             DateUtilities.parseISO("2005-05-17T22:32:56Z"))
                         .spatialConstraints(
                             GeometryUtils
-                                .buffer(GeometryUtils.getDefaultCRS(),
+                                .buffer(
+                                    GeometryUtils.getDefaultCRS(),
                                     GeometryUtils.GEOMETRY_FACTORY.createPoint(
                                         new Coordinate(-77.03521, 38.8895)),
                                     "meter", 13700)
                                 .getKey())
                         .spatialConstraintsCompareOperation(CompareOperation.CONTAINS).build())
-                .build());
+                    .build());
 
     while (iterator.hasNext()) {
       System.out.println("Query match: " + iterator.next().getID());
@@ -182,22 +192,25 @@ public class SpatialTemporalQueryExample {
         "Executing query # 2 with multiple time ranges, expecting to match four points...");
     bldr = VectorQueryBuilder.newBuilder();
     final CloseableIterator<SimpleFeature> iterator2 =
-        dataStore
-            .query(bldr
-                .addTypeName(adapter.getTypeName()).indexName(
-                    index.getName())
-                .constraints(bldr.constraintsFactory().spatialTemporalConstraints()
-                    .addTimeRange(DateUtilities.parseISO("2005-05-17T19:32:56Z"),
-                        DateUtilities.parseISO("2005-05-17T22:32:56Z"))
-                    .addTimeRange(DateUtilities.parseISO("2005-05-19T19:32:56Z"),
-                        DateUtilities.parseISO("2005-05-19T22:32:56Z"))
-                    .spatialConstraints(GeometryUtils
-                        .buffer(GeometryUtils.getDefaultCRS(),
-                            GeometryUtils.GEOMETRY_FACTORY
-                                .createPoint(new Coordinate(-77.03521, 38.8895)),
-                            "meter", 13700)
-                        .getKey())
-                    .spatialConstraintsCompareOperation(CompareOperation.CONTAINS).build())
+        dataStore.query(
+            bldr.addTypeName(adapter.getTypeName()).indexName(index.getName())
+                .constraints(
+                    bldr.constraintsFactory().spatialTemporalConstraints()
+                        .addTimeRange(
+                            DateUtilities.parseISO("2005-05-17T19:32:56Z"),
+                            DateUtilities.parseISO("2005-05-17T22:32:56Z"))
+                        .addTimeRange(
+                            DateUtilities.parseISO("2005-05-19T19:32:56Z"),
+                            DateUtilities.parseISO("2005-05-19T22:32:56Z"))
+                        .spatialConstraints(
+                            GeometryUtils
+                                .buffer(
+                                    GeometryUtils.getDefaultCRS(),
+                                    GeometryUtils.GEOMETRY_FACTORY.createPoint(
+                                        new Coordinate(-77.03521, 38.8895)),
+                                    "meter", 13700)
+                                .getKey())
+                        .spatialConstraintsCompareOperation(CompareOperation.CONTAINS).build())
                 .build());
 
     while (iterator2.hasNext()) {
@@ -220,8 +233,11 @@ public class SpatialTemporalQueryExample {
     return sftBuilder.buildFeatureType();
   }
 
-  private static SimpleFeature buildSimpleFeature(final String locationName,
-      final Coordinate coordinate, final Date startTime, final Date endTime) {
+  private static SimpleFeature buildSimpleFeature(
+      final String locationName,
+      final Coordinate coordinate,
+      final Date startTime,
+      final Date endTime) {
 
     final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(getPointSimpleFeatureType());
     builder.set("locationName", locationName);

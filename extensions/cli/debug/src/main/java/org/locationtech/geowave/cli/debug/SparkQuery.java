@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -46,13 +45,18 @@ public class SparkQuery extends AbstractGeoWaveQuery {
   private String host = "localhost";
 
   @Override
-  protected long runQuery(final GeotoolsFeatureDataAdapter adapter, final String typeName,
-      final String indexName, final DataStore dataStore, final boolean debug,
+  protected long runQuery(
+      final GeotoolsFeatureDataAdapter adapter,
+      final String typeName,
+      final String indexName,
+      final DataStore dataStore,
+      final boolean debug,
       DataStorePluginOptions pluginOptions) {
     String jar = "";
     try {
-      jar = SpatialJoinRunner.class.getProtectionDomain().getCodeSource().getLocation().toURI()
-          .getPath();
+      jar =
+          SpatialJoinRunner.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+              .getPath();
     } catch (final URISyntaxException e) {
       LOGGER.error("Unable to set jar location in spark configuration", e);
     }
@@ -75,8 +79,9 @@ public class SparkQuery extends AbstractGeoWaveQuery {
     RDDOptions rddOptions = new RDDOptions();
     rddOptions.setQuery(bldr.constraints(bldr.constraintsFactory().cqlConstraints(cqlStr)).build());
     try {
-      count = GeoWaveRDDLoader.loadRDD(session.sparkContext(), pluginOptions, rddOptions)
-          .getRawRDD().count();
+      count =
+          GeoWaveRDDLoader.loadRDD(session.sparkContext(), pluginOptions, rddOptions).getRawRDD()
+              .count();
     } catch (IOException e) {
       LOGGER.warn("Unable to load RDD", e);
     }

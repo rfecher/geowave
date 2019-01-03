@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,7 +43,9 @@ public class ComparisonAccumuloStatsReducer
   protected String[] indexNames;
 
   @Override
-  protected void reduce(final ComparisonCellData key, final Iterable<LongWritable> values,
+  protected void reduce(
+      final ComparisonCellData key,
+      final Iterable<LongWritable> values,
       final Context context) throws IOException, InterruptedException {
     // for consistency give all cells with matching weight the same
     // percentile
@@ -59,9 +60,11 @@ public class ComparisonAccumuloStatsReducer
       raster.setSample(0, 0, 2, key.getCombinedPercentile());
       raster.setSample(0, 0, 3, percentile);
 
-      context.write(new GeoWaveOutputKey(coverageName, indexNames),
-          RasterUtils.createCoverageTypeDouble(coverageName, bbox[0].x, bbox[1].x, bbox[0].y,
-              bbox[1].y, MINS_PER_BAND, MAXES_PER_BAND, NAME_PER_BAND, raster));
+      context.write(
+          new GeoWaveOutputKey(coverageName, indexNames),
+          RasterUtils.createCoverageTypeDouble(
+              coverageName, bbox[0].x, bbox[1].x, bbox[0].y, bbox[1].y, MINS_PER_BAND,
+              MAXES_PER_BAND, NAME_PER_BAND, raster));
       currentKey++;
     }
   }
@@ -91,8 +94,9 @@ public class ComparisonAccumuloStatsReducer
     if ((indices != null) && (indices.length > 0)) {
       indexNames = Arrays.stream(indices).map(i -> i.getName()).toArray(i -> new String[i]);
     } else {
-      indexNames = new String[] {
-          new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName()};
+      indexNames =
+          new String[] {
+              new SpatialDimensionalityTypeProvider.SpatialIndexBuilder().createIndex().getName()};
     }
   }
 }

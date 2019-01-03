@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,15 +50,23 @@ public class BandFeatureIterator implements SimpleFeatureIterator {
   private Iterator<SimpleFeature> iterator;
   private final SceneFeatureIterator sceneIterator;
 
-  public BandFeatureIterator(final boolean onlyScenesSinceLastRun, final boolean useCachedScenes,
-      final boolean nBestScenesByPathRow, final int nBestScenes, final int nBestBands,
-      final Filter cqlFilter, final String workspaceDir) throws MalformedURLException, IOException {
+  public BandFeatureIterator(
+      final boolean onlyScenesSinceLastRun,
+      final boolean useCachedScenes,
+      final boolean nBestScenesByPathRow,
+      final int nBestScenes,
+      final int nBestBands,
+      final Filter cqlFilter,
+      final String workspaceDir) throws MalformedURLException, IOException {
     this(new SceneFeatureIterator(onlyScenesSinceLastRun, useCachedScenes, nBestScenesByPathRow,
         nBestScenes, cqlFilter, workspaceDir), nBestScenesByPathRow, nBestBands, cqlFilter);
   }
 
-  public BandFeatureIterator(final SceneFeatureIterator sceneIterator,
-      final boolean nBestScenesByPathRow, final int nBestBands, final Filter cqlFilter) {
+  public BandFeatureIterator(
+      final SceneFeatureIterator sceneIterator,
+      final boolean nBestScenesByPathRow,
+      final int nBestBands,
+      final Filter cqlFilter) {
     this.sceneIterator = sceneIterator;
     init(nBestScenesByPathRow, nBestBands, cqlFilter);
   }
@@ -76,14 +83,18 @@ public class BandFeatureIterator implements SimpleFeatureIterator {
     return bandType;
   }
 
-  private void init(final boolean nBestScenesByPathRow, final int nBestBands,
+  private void init(
+      final boolean nBestScenesByPathRow,
+      final int nBestBands,
       final Filter cqlFilter) {
     // wrap the iterator with a feature conversion and a filter (if
     // provided)
     final SimpleFeatureType bandType = createFeatureType(sceneIterator.getFeatureType());
-    iterator = Iterators
-        .concat(Iterators.transform(new FeatureIteratorIterator<SimpleFeature>(sceneIterator),
-            new SceneToBandFeatureTransform(bandType)));
+    iterator =
+        Iterators.concat(
+            Iterators.transform(
+                new FeatureIteratorIterator<SimpleFeature>(sceneIterator),
+                new SceneToBandFeatureTransform(bandType)));
     if (cqlFilter != null) {
       final String[] attributes = DataUtilities.attributeNames(cqlFilter, bandType);
       // we can rely on the scene filtering if we don't have to check any
@@ -177,8 +188,8 @@ public class BandFeatureIterator implements SimpleFeatureIterator {
               }
               featureBuilder.set(SIZE_ATTRIBUTE_NAME, mb);
               featureBuilder.set(BAND_ATTRIBUTE_NAME, bandId);
-              featureBuilder.set(BAND_DOWNLOAD_ATTRIBUTE_NAME,
-                  getDownloadImage(entityId, path, row, bandId));
+              featureBuilder
+                  .set(BAND_DOWNLOAD_ATTRIBUTE_NAME, getDownloadImage(entityId, path, row, bandId));
               bands.add(featureBuilder.buildFeature(entityId + "_" + bandId));
             }
           }
@@ -191,16 +202,26 @@ public class BandFeatureIterator implements SimpleFeatureIterator {
   }
 
   protected static String getDownloadPath(final String entityId, final int path, final int row) {
-    return DOWNLOAD_PREFIX + "/" + PATH_ROW_FORMATTER.format(path) + "/"
-        + PATH_ROW_FORMATTER.format(row) + "/" + entityId;
+    return DOWNLOAD_PREFIX
+        + "/"
+        + PATH_ROW_FORMATTER.format(path)
+        + "/"
+        + PATH_ROW_FORMATTER.format(row)
+        + "/"
+        + entityId;
   }
 
-  protected static String getDownloadIndexHtml(final String entityId, final int path,
+  protected static String getDownloadIndexHtml(
+      final String entityId,
+      final int path,
       final int row) {
     return getDownloadPath(entityId, path, row) + "/index.html";
   }
 
-  protected static String getDownloadImage(final String entityId, final int path, final int row,
+  protected static String getDownloadImage(
+      final String entityId,
+      final int path,
+      final int row,
       final String bandId) {
     return getDownloadPath(entityId, path, row) + "/" + entityId + "_" + bandId + ".TIF";
   }

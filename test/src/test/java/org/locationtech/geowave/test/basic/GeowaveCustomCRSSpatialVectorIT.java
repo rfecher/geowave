@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -56,8 +55,10 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
     LOGGER.warn("---------------------------------------------");
     LOGGER.warn("*                                           *");
     LOGGER.warn("* FINISHED GeoWaveCustomCRSSpatialVectorIT  *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                            *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                            *");
     LOGGER.warn("*                                           *");
     LOGGER.warn("---------------------------------------------");
   }
@@ -73,15 +74,17 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
     LOGGER.debug("Testing DataStore Type: " + dataStore.getType());
 
     // ingest both lines and points
-    TestUtils.testLocalIngest(dataStore, DimensionalityType.SPATIAL, TestUtils.CUSTOM_CRSCODE,
-        HAIL_SHAPEFILE_FILE, "geotools-vector", nthreads);
+    TestUtils.testLocalIngest(
+        dataStore, DimensionalityType.SPATIAL, TestUtils.CUSTOM_CRSCODE, HAIL_SHAPEFILE_FILE,
+        "geotools-vector", nthreads);
 
     long dur = (System.currentTimeMillis() - mark);
     LOGGER.debug("Ingest (points) duration = " + dur + " ms with " + nthreads + " thread(s).");
 
     mark = System.currentTimeMillis();
 
-    TestUtils.testLocalIngest(dataStore, DimensionalityType.SPATIAL, TestUtils.CUSTOM_CRSCODE,
+    TestUtils.testLocalIngest(
+        dataStore, DimensionalityType.SPATIAL, TestUtils.CUSTOM_CRSCODE,
         TORNADO_TRACKS_SHAPEFILE_FILE, "geotools-vector", nthreads);
 
     dur = (System.currentTimeMillis() - mark);
@@ -90,7 +93,8 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
       CoordinateReferenceSystem crs = CRS.decode(TestUtils.CUSTOM_CRSCODE);
       mark = System.currentTimeMillis();
 
-      testQuery(new File(TEST_BOX_FILTER_FILE).toURI().toURL(),
+      testQuery(
+          new File(TEST_BOX_FILTER_FILE).toURI().toURL(),
           new URL[] {new File(HAIL_EXPECTED_BOX_FILTER_RESULTS_FILE).toURI().toURL(),
               new File(TORNADO_TRACKS_EXPECTED_BOX_FILTER_RESULTS_FILE).toURI().toURL()},
           TestUtils.createWebMercatorSpatialIndex(), "bounding box constraint only", crs, true);
@@ -99,7 +103,8 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
       LOGGER.debug("BBOX query duration = " + dur + " ms.");
       mark = System.currentTimeMillis();
 
-      testQuery(new File(TEST_POLYGON_FILTER_FILE).toURI().toURL(),
+      testQuery(
+          new File(TEST_POLYGON_FILTER_FILE).toURI().toURL(),
           new URL[] {new File(HAIL_EXPECTED_POLYGON_FILTER_RESULTS_FILE).toURI().toURL(),
               new File(TORNADO_TRACKS_EXPECTED_POLYGON_FILTER_RESULTS_FILE).toURI().toURL()},
           TestUtils.createWebMercatorSpatialIndex(), "polygon constraint only", crs, true);
@@ -109,8 +114,10 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail("Error occurred while testing a polygon query of spatial index: '"
-          + e.getLocalizedMessage() + "'");
+      Assert.fail(
+          "Error occurred while testing a polygon query of spatial index: '"
+              + e.getLocalizedMessage()
+              + "'");
     }
 
     try {
@@ -121,8 +128,10 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail("Error occurred while testing a bounding box stats on spatial index: '"
-          + e.getLocalizedMessage() + "'");
+      Assert.fail(
+          "Error occurred while testing a bounding box stats on spatial index: '"
+              + e.getLocalizedMessage()
+              + "'");
     }
 
     try {
@@ -130,18 +139,23 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail("Error occurred while testing deletion of an entry using spatial index: '"
-          + e.getLocalizedMessage() + "'");
+      Assert.fail(
+          "Error occurred while testing deletion of an entry using spatial index: '"
+              + e.getLocalizedMessage()
+              + "'");
     }
 
     try {
-      testDeleteSpatial(new File(TEST_POLYGON_FILTER_FILE).toURI().toURL(),
+      testDeleteSpatial(
+          new File(TEST_POLYGON_FILTER_FILE).toURI().toURL(),
           TestUtils.createWebMercatorSpatialIndex());
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail("Error occurred while testing deletion of an entry using spatial index: '"
-          + e.getLocalizedMessage() + "'");
+      Assert.fail(
+          "Error occurred while testing deletion of an entry using spatial index: '"
+              + e.getLocalizedMessage()
+              + "'");
     }
 
     TestUtils.deleteAll(dataStore);

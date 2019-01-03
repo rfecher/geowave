@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,8 +40,12 @@ public class RocksDBIndexTable {
   private final short adapterId;
   private final byte[] partition;
 
-  public RocksDBIndexTable(final Options writeOptions, final Options readOptions,
-      final String subDirectory, final short adapterId, final byte[] partition,
+  public RocksDBIndexTable(
+      final Options writeOptions,
+      final Options readOptions,
+      final String subDirectory,
+      final short adapterId,
+      final byte[] partition,
       final boolean requiresTimestamp) {
     super();
     this.writeOptions = writeOptions;
@@ -54,7 +57,10 @@ public class RocksDBIndexTable {
     exists = new File(subDirectory).exists();
   }
 
-  public synchronized void add(final byte[] sortKey, final byte[] dataId, final short numDuplicates,
+  public synchronized void add(
+      final byte[] sortKey,
+      final byte[] dataId,
+      final short numDuplicates,
       final GeoWaveValue value) {
     byte[] key;
     if (requiresTimestamp) {
@@ -68,14 +74,17 @@ public class RocksDBIndexTable {
         time = prevTime - 1;
       }
       prevTime = time;
-      key = Bytes.concat(sortKey, dataId, Longs.toByteArray(time), value.getFieldMask(),
-          value.getVisibility(), ByteArrayUtils.shortToByteArray(numDuplicates),
-          new byte[] {(byte) sortKey.length, (byte) value.getFieldMask().length,
-              (byte) value.getVisibility().length});
+      key =
+          Bytes.concat(
+              sortKey, dataId, Longs.toByteArray(time), value.getFieldMask(), value.getVisibility(),
+              ByteArrayUtils.shortToByteArray(numDuplicates), new byte[] {(byte) sortKey.length,
+                  (byte) value.getFieldMask().length, (byte) value.getVisibility().length});
     } else {
-      key = Bytes.concat(sortKey, dataId, value.getFieldMask(), value.getVisibility(),
-          ByteArrayUtils.shortToByteArray(numDuplicates), new byte[] {(byte) sortKey.length,
-              (byte) value.getFieldMask().length, (byte) value.getVisibility().length,});
+      key =
+          Bytes.concat(
+              sortKey, dataId, value.getFieldMask(), value.getVisibility(),
+              ByteArrayUtils.shortToByteArray(numDuplicates), new byte[] {(byte) sortKey.length,
+                  (byte) value.getFieldMask().length, (byte) value.getVisibility().length,});
     }
     put(key, value.getValue());
   }

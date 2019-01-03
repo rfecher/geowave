@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,11 +23,14 @@ public interface GeoWaveKey {
   public int getNumberOfDuplicates();
 
   public static byte[] getCompositeId(GeoWaveKey key) {
-    final ByteBuffer buffer = ByteBuffer
-        .allocate(key.getPartitionKey().length + key.getSortKey().length + key.getDataId().length
-            + VarintUtils.unsignedIntByteLength(key.getAdapterId() & 0xFFFF)
-            + VarintUtils.unsignedIntByteLength(key.getDataId().length)
-            + VarintUtils.unsignedIntByteLength(key.getNumberOfDuplicates()));
+    final ByteBuffer buffer =
+        ByteBuffer.allocate(
+            key.getPartitionKey().length
+                + key.getSortKey().length
+                + key.getDataId().length
+                + VarintUtils.unsignedIntByteLength(key.getAdapterId() & 0xFFFF)
+                + VarintUtils.unsignedIntByteLength(key.getDataId().length)
+                + VarintUtils.unsignedIntByteLength(key.getNumberOfDuplicates()));
     buffer.put(key.getPartitionKey());
     buffer.put(key.getSortKey());
     VarintUtils.writeUnsignedIntReversed(key.getAdapterId() & 0xFFFF, buffer);

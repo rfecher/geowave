@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,7 +28,8 @@ public class SimpleParallelDecoder<T> extends ParallelDecoder<T> {
   private volatile boolean isTerminating = false;
   private static final int CONSUMED_ROW_BUFFER_SIZE = 10000;
 
-  public SimpleParallelDecoder(GeoWaveRowIteratorTransformer<T> rowTransformer,
+  public SimpleParallelDecoder(
+      GeoWaveRowIteratorTransformer<T> rowTransformer,
       Iterator<GeoWaveRow> sourceIterator) {
     super(rowTransformer);
     consumedRows = new ArrayBlockingQueue<GeoWaveRow>(CONSUMED_ROW_BUFFER_SIZE);

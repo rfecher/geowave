@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,7 +25,8 @@ public class DynamoDBMetadataDeleter implements MetadataDeleter {
   private final DynamoDBOperations operations;
   private final MetadataType metadataType;
 
-  public DynamoDBMetadataDeleter(final DynamoDBOperations operations,
+  public DynamoDBMetadataDeleter(
+      final DynamoDBOperations operations,
       final MetadataType metadataType) {
     super();
     this.operations = operations;
@@ -45,20 +45,22 @@ public class DynamoDBMetadataDeleter implements MetadataDeleter {
 
     if (metadata.hasSecondaryId()) {
       queryRequest.withFilterExpression(DynamoDBOperations.METADATA_SECONDARY_ID_KEY + " = :secVal")
-          .addExpressionAttributeValuesEntry(":secVal",
-              new AttributeValue().withB(ByteBuffer.wrap(metadata.getSecondaryId())));
+          .addExpressionAttributeValuesEntry(
+              ":secVal", new AttributeValue().withB(ByteBuffer.wrap(metadata.getSecondaryId())));
     }
     queryRequest
         .withKeyConditionExpression(DynamoDBOperations.METADATA_PRIMARY_ID_KEY + " = :priVal")
-        .addExpressionAttributeValuesEntry(":priVal",
-            new AttributeValue().withB(ByteBuffer.wrap(metadata.getPrimaryId())));
+        .addExpressionAttributeValuesEntry(
+            ":priVal", new AttributeValue().withB(ByteBuffer.wrap(metadata.getPrimaryId())));
 
     final QueryResult queryResult = operations.getClient().query(queryRequest);
     for (Map<String, AttributeValue> entry : queryResult.getItems()) {
       Map<String, AttributeValue> key = new HashMap<>();
-      key.put(DynamoDBOperations.METADATA_PRIMARY_ID_KEY,
+      key.put(
+          DynamoDBOperations.METADATA_PRIMARY_ID_KEY,
           entry.get(DynamoDBOperations.METADATA_PRIMARY_ID_KEY));
-      key.put(DynamoDBOperations.METADATA_TIMESTAMP_KEY,
+      key.put(
+          DynamoDBOperations.METADATA_TIMESTAMP_KEY,
           entry.get(DynamoDBOperations.METADATA_TIMESTAMP_KEY));
       operations.getClient().deleteItem(tableName, key);
     }

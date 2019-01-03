@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,8 +27,10 @@ public class MergingCombiner extends Combiner {
   private static final String COLUMNS_OPTION = "columns";
 
   @Override
-  public void init(final SortedKeyValueIterator<Key, Value> source,
-      final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+  public void init(
+      final SortedKeyValueIterator<Key, Value> source,
+      final Map<String, String> options,
+      final IteratorEnvironment env) throws IOException {
     // the original may be unmodifiable so we need to create a modifiable
     // clone
     Map<String, String> modifiableOptions = new HashMap<>(options);

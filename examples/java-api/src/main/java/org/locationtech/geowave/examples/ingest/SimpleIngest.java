@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -75,7 +74,8 @@ public class SimpleIngest {
     }
   }
 
-  public static List<SimpleFeature> getGriddedFeatures(final SimpleFeatureBuilder pointBuilder,
+  public static List<SimpleFeature> getGriddedFeatures(
+      final SimpleFeatureBuilder pointBuilder,
       final int firstFeatureId) {
 
     // features require a featureID - this should be uniqiue per data type
@@ -87,7 +87,8 @@ public class SimpleIngest {
     final List<SimpleFeature> feats = new ArrayList<>();
     for (int longitude = -180; longitude <= 180; longitude += 5) {
       for (int latitude = -90; latitude <= 90; latitude += 5) {
-        pointBuilder.set("geometry",
+        pointBuilder.set(
+            "geometry",
             GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(longitude, latitude)));
         pointBuilder.set("TimeStamp", new Date());
         pointBuilder.set("Latitude", latitude);

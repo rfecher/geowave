@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -79,8 +78,9 @@ public class VectorLocalExportCommand extends DefaultOperation implements Comman
     final InternalAdapterStore internalAdapterStore =
         inputStoreOptions.createInternalAdapterStore();
 
-    try (final DataFileWriter<AvroSimpleFeatureCollection> dfw = new DataFileWriter<>(
-        new GenericDatumWriter<AvroSimpleFeatureCollection>(AvroSimpleFeatureCollection.SCHEMA$))) {
+    try (final DataFileWriter<AvroSimpleFeatureCollection> dfw =
+        new DataFileWriter<>(new GenericDatumWriter<AvroSimpleFeatureCollection>(
+            AvroSimpleFeatureCollection.SCHEMA$))) {
       dfw.setCodec(CodecFactory.snappyCodec());
       dfw.create(AvroSimpleFeatureCollection.SCHEMA$, options.getOutputFile());
       // get appropriate feature adapters
@@ -93,8 +93,10 @@ public class VectorLocalExportCommand extends DefaultOperation implements Comman
             JCommander.getConsole().println("Type '" + typeName + "' not found");
             continue;
           } else if (!(internalDataAdapter.getAdapter() instanceof GeotoolsFeatureDataAdapter)) {
-            JCommander.getConsole()
-                .println("Type '" + typeName + "' does not support vector export. Instance of "
+            JCommander.getConsole().println(
+                "Type '"
+                    + typeName
+                    + "' does not support vector export. Instance of "
                     + internalDataAdapter.getAdapter().getClass());
             continue;
           }
@@ -152,9 +154,12 @@ public class VectorLocalExportCommand extends DefaultOperation implements Comman
               avList.add(av);
             }
           }
-          JCommander.getConsole()
-              .println("Exported " + (avList.size() + (iteration * options.getBatchSize()))
-                  + " features from '" + sft.getTypeName() + "'");
+          JCommander.getConsole().println(
+              "Exported "
+                  + (avList.size() + (iteration * options.getBatchSize()))
+                  + " features from '"
+                  + sft.getTypeName()
+                  + "'");
           iteration++;
           simpleFeatureCollection.setSimpleFeatureCollection(avList);
           dfw.append(simpleFeatureCollection);

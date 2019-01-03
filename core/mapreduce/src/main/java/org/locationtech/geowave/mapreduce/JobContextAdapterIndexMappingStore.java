@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,7 +26,8 @@ public class JobContextAdapterIndexMappingStore implements AdapterIndexMappingSt
   private final AdapterIndexMappingStore persistentAdapterIndexMappingStore;
   private final Map<Short, AdapterToIndexMapping> adapterCache = new HashMap<>();
 
-  public JobContextAdapterIndexMappingStore(final JobContext context,
+  public JobContextAdapterIndexMappingStore(
+      final JobContext context,
       final AdapterIndexMappingStore persistentAdapterIndexMappingStore) {
     this.context = context;
     this.persistentAdapterIndexMappingStore = persistentAdapterIndexMappingStore;
@@ -52,12 +52,14 @@ public class JobContextAdapterIndexMappingStore implements AdapterIndexMappingSt
     adapterCache.clear();
   }
 
-  protected static AdapterToIndexMapping getAdapterToIndexMapping(final JobContext context,
+  protected static AdapterToIndexMapping getAdapterToIndexMapping(
+      final JobContext context,
       final short internalAdapterId) {
     return GeoWaveConfiguratorBase.getAdapterToIndexMapping(CLASS, context, internalAdapterId);
   }
 
-  public static void addAdapterToIndexMapping(final Configuration configuration,
+  public static void addAdapterToIndexMapping(
+      final Configuration configuration,
       final AdapterToIndexMapping adapter) {
     GeoWaveConfiguratorBase.addAdapterToIndexMapping(CLASS, configuration, adapter);
   }
@@ -115,8 +117,8 @@ public class JobContextAdapterIndexMappingStore implements AdapterIndexMappingSt
         }
       }
       adapterCache.remove(internalAdapterId);
-      adapterCache.put(mapping.getAdapterId(),
-          new AdapterToIndexMapping(internalAdapterId, newIndices));
+      adapterCache
+          .put(mapping.getAdapterId(), new AdapterToIndexMapping(internalAdapterId, newIndices));
     } else {
       // otherwise just remove the mapping
       adapterCache.remove(internalAdapterId);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -80,9 +79,11 @@ public class MemoryStoreUtils {
       return null;
     }
 
-    VisibilityExpression processTerm(final int start, final int end,
-        final VisibilityExpression expr, final byte[] expression)
-        throws UnsupportedEncodingException {
+    VisibilityExpression processTerm(
+        final int start,
+        final int end,
+        final VisibilityExpression expr,
+        final byte[] expression) throws UnsupportedEncodingException {
       if (start != end) {
         if (expr != null) {
           badArgumentException("expression needs | or &", expression, start);
@@ -258,7 +259,9 @@ public class MemoryStoreUtils {
     }
   }
 
-  private static final void badArgumentException(final String msg, final byte[] expression,
+  private static final void badArgumentException(
+      final String msg,
+      final byte[] expression,
       final int place) {
     throw new IllegalArgumentException(
         msg + " for " + Arrays.toString(expression) + " at " + place);

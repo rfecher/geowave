@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -70,32 +69,45 @@ public class BaseQueryOptions {
   private Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair;
   private boolean nullId = false;
 
-  public BaseQueryOptions(final Query<?> query, final PersistentAdapterStore adapterStore,
+  public BaseQueryOptions(
+      final Query<?> query,
+      final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore) {
     this(query, adapterStore, internalAdapterStore, null);
   }
 
-  public BaseQueryOptions(final AggregationQuery<?, ?, ?> query,
-      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore) {
+  public BaseQueryOptions(
+      final AggregationQuery<?, ?, ?> query,
+      final PersistentAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore) {
     this(query.getCommonQueryOptions(), query.getDataTypeQueryOptions(),
         query.getIndexQueryOptions(), adapterStore, internalAdapterStore, null);
   }
 
-  public BaseQueryOptions(final Query<?> query, final PersistentAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore, final ScanCallback<?, ?> scanCallback) {
+  public BaseQueryOptions(
+      final Query<?> query,
+      final PersistentAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
+      final ScanCallback<?, ?> scanCallback) {
     this(query.getCommonQueryOptions(), query.getDataTypeQueryOptions(),
         query.getIndexQueryOptions(), adapterStore, internalAdapterStore, scanCallback);
   }
 
-  public BaseQueryOptions(final CommonQueryOptions commonOptions,
-      final DataTypeQueryOptions<?> typeOptions, final IndexQueryOptions indexOptions,
-      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore) {
+  public BaseQueryOptions(
+      final CommonQueryOptions commonOptions,
+      final DataTypeQueryOptions<?> typeOptions,
+      final IndexQueryOptions indexOptions,
+      final PersistentAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore) {
     this(commonOptions, typeOptions, indexOptions, adapterStore, internalAdapterStore, null);
   }
 
-  public BaseQueryOptions(final CommonQueryOptions commonOptions,
-      final DataTypeQueryOptions<?> typeOptions, final IndexQueryOptions indexOptions,
-      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
+  public BaseQueryOptions(
+      final CommonQueryOptions commonOptions,
+      final DataTypeQueryOptions<?> typeOptions,
+      final IndexQueryOptions indexOptions,
+      final PersistentAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
       final ScanCallback<?, ?> scanCallback) {
     if (scanCallback != null) {
       this.scanCallback = scanCallback;
@@ -104,10 +116,12 @@ public class BaseQueryOptions {
     limit = commonOptions.getLimit();
     maxRangeDecomposition =
         (Integer) commonOptions.getHints().get(DataStoreUtils.MAX_RANGE_DECOMPOSITION);
-    maxResolutionSubsamplingPerDimension = (double[]) commonOptions.getHints()
-        .get(DataStoreUtils.MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION);
-    targetResolutionPerDimensionForHierarchicalIndex = (double[]) commonOptions.getHints()
-        .get(DataStoreUtils.TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX);
+    maxResolutionSubsamplingPerDimension =
+        (double[]) commonOptions.getHints()
+            .get(DataStoreUtils.MAX_RESOLUTION_SUBSAMPLING_PER_DIMENSION);
+    targetResolutionPerDimensionForHierarchicalIndex =
+        (double[]) commonOptions.getHints()
+            .get(DataStoreUtils.TARGET_RESOLUTION_PER_DIMENSION_FOR_HIERARCHICAL_INDEX);
     authorizations = commonOptions.getAuthorizations();
 
     if ((typeOptions instanceof AggregateTypeQueryOptions)
@@ -160,24 +174,29 @@ public class BaseQueryOptions {
       }
     }
 
-    if ((typeOptions != null) && (typeOptions.getTypeNames() != null)
+    if ((typeOptions != null)
+        && (typeOptions.getTypeNames() != null)
         && (typeOptions.getTypeNames().length > 0)) {
-      adapterIds = ArrayUtils.toPrimitive(Collections2.filter(
-          Lists.transform(Arrays.asList(typeOptions.getTypeNames()), new Function<String, Short>() {
-            @Override
-            public Short apply(final String input) {
-              return internalAdapterStore.getAdapterId(input);
-            }
-          }), new Predicate<Short>() {
-            @Override
-            public boolean apply(final Short input) {
-              if (input == null) {
-                nullId = true;
-                return false;
-              }
-              return true;
-            }
-          }).toArray(new Short[0]));
+      adapterIds =
+          ArrayUtils.toPrimitive(
+              Collections2.filter(
+                  Lists.transform(
+                      Arrays.asList(typeOptions.getTypeNames()), new Function<String, Short>() {
+                        @Override
+                        public Short apply(final String input) {
+                          return internalAdapterStore.getAdapterId(input);
+                        }
+                      }),
+                  new Predicate<Short>() {
+                    @Override
+                    public boolean apply(final Short input) {
+                      if (input == null) {
+                        nullId = true;
+                        return false;
+                      }
+                      return true;
+                    }
+                  }).toArray(new Short[0]));
     }
   }
 
@@ -191,9 +210,8 @@ public class BaseQueryOptions {
    * Return the set of adapter/index associations. If the adapters are not provided, then look up
    * all of them. If the index is not provided, then look up all of them.
    *
-   * <p>
-   * DataStores are responsible for selecting a single adapter/index per query. For deletions, the
-   * Data Stores are interested in all the associations.
+   * <p> DataStores are responsible for selecting a single adapter/index per query. For deletions,
+   * the Data Stores are interested in all the associations.
    *
    * @param adapterStore
    * @param
@@ -203,8 +221,8 @@ public class BaseQueryOptions {
    */
   public List<Pair<Index, List<InternalDataAdapter<?>>>> getIndicesForAdapters(
       final PersistentAdapterStore adapterStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore, final IndexStore indexStore)
-      throws IOException {
+      final AdapterIndexMappingStore adapterIndexMappingStore,
+      final IndexStore indexStore) throws IOException {
     return BaseDataStoreUtils.combineByIndex(
         compileIndicesForAdapters(adapterStore, adapterIndexMappingStore, indexStore));
   }
@@ -257,8 +275,8 @@ public class BaseQueryOptions {
 
   private List<Pair<Index, InternalDataAdapter<?>>> compileIndicesForAdapters(
       final PersistentAdapterStore adapterStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore, final IndexStore indexStore)
-      throws IOException {
+      final AdapterIndexMappingStore adapterIndexMappingStore,
+      final IndexStore indexStore) throws IOException {
     if ((adapterIds != null) && (adapterIds.length != 0)) {
       if ((adapters == null) || adapters.isEmpty()) {
         adapters = new ArrayList<>();
@@ -378,7 +396,8 @@ public class BaseQueryOptions {
     return aggregationAdapterPair;
   }
 
-  public void setAggregation(final Aggregation<?, ?, ?> aggregation,
+  public void setAggregation(
+      final Aggregation<?, ?, ?> aggregation,
       final InternalDataAdapter<?> adapter) {
     aggregationAdapterPair = new ImmutablePair<>(adapter, aggregation);
   }
@@ -389,9 +408,8 @@ public class BaseQueryOptions {
    * adapter/index associations is reduced so that a single index is queried per adapter and the
    * number indices queried is minimized.
    *
-   * <p>
-   * DataStores are responsible for selecting a single adapter/index per query. For deletions, the
-   * Data Stores are interested in all the associations.
+   * <p> DataStores are responsible for selecting a single adapter/index per query. For deletions,
+   * the Data Stores are interested in all the associations.
    *
    * @param adapterStore
    * @param adapterIndexMappingStore
@@ -401,8 +419,8 @@ public class BaseQueryOptions {
    */
   public List<Pair<Index, List<InternalDataAdapter<?>>>> getAdaptersWithMinimalSetOfIndices(
       final PersistentAdapterStore adapterStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore, final IndexStore indexStore)
-      throws IOException {
+      final AdapterIndexMappingStore adapterIndexMappingStore,
+      final IndexStore indexStore) throws IOException {
     // TODO this probably doesn't have to use PrimaryIndex and should be
     // sufficient to use index IDs
     return BaseDataStoreUtils.reduceIndicesAndGroupByIndex(
@@ -416,7 +434,8 @@ public class BaseQueryOptions {
     return fieldIdsAdapterPair;
   }
 
-  public short[] getValidAdapterIds(final InternalAdapterStore adapterStore,
+  public short[] getValidAdapterIds(
+      final InternalAdapterStore adapterStore,
       final AdapterIndexMappingStore adapterIndexMappingStore) throws IOException {
     // Grab the list of adapter ids, either from the query (if included),
     // Or the whole list from the adapter store...

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -60,8 +59,9 @@ public class S3URLConnection extends URLConnection {
     final String protocol = System.getProperty(PROP_S3_HANDLER_PROTOCOL, "https");
     final String signerOverride = System.getProperty(PROP_S3_HANDLER_SIGNER_OVERRIDE, null);
 
-    final ClientConfiguration clientConfig = new ClientConfiguration()
-        .withProtocol("https".equalsIgnoreCase(protocol) ? Protocol.HTTPS : Protocol.HTTP);
+    final ClientConfiguration clientConfig =
+        new ClientConfiguration()
+            .withProtocol("https".equalsIgnoreCase(protocol) ? Protocol.HTTPS : Protocol.HTTP);
 
     if (userAgent != null) {
       clientConfig.setUserAgent(userAgent);

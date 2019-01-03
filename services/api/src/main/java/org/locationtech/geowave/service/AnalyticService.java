@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,7 +23,8 @@ public interface AnalyticService {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Path("/dbscan")
-  public Response dbScan(@QueryParam("storename") String storename,
+  public Response dbScan(
+      @QueryParam("storename") String storename,
       @QueryParam("mapReduceHdfsBaseDir") String mapReduceHdfsBaseDir,
       @QueryParam("extractMaxInputSplit") String extractMaxInputSplit,
       @QueryParam("extractMinInputSplit") String extractMinInputSplit,
@@ -64,28 +64,41 @@ public interface AnalyticService {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Path("/kde")
-  public Response kde(@QueryParam("input_storename") String input_storename,
+  public Response kde(
+      @QueryParam("input_storename") String input_storename,
       @QueryParam("output_storename") String output_storename,
-      @QueryParam("featuretype") String featuretype, @QueryParam("minLevel") Integer minLevel,
-      @QueryParam("maxLevel") Integer maxLevel, @QueryParam("coverageName") String coverageName,
+      @QueryParam("featuretype") String featuretype,
+      @QueryParam("minLevel") Integer minLevel,
+      @QueryParam("maxLevel") Integer maxLevel,
+      @QueryParam("coverageName") String coverageName,
       @QueryParam("jobTrackerOrResourceManHostPort") String jobTrackerOrResourceManHostPort,
-      @QueryParam("indexId") String indexId, @QueryParam("minSplits") Integer minSplits,
-      @QueryParam("maxSplits") Integer maxSplits, @QueryParam("hdfsHostPort") String hdfsHostPort,
-      @QueryParam("tileSize") Integer tileSize, @QueryParam("cqlFilter") String cqlFilter);
+      @QueryParam("indexId") String indexId,
+      @QueryParam("minSplits") Integer minSplits,
+      @QueryParam("maxSplits") Integer maxSplits,
+      @QueryParam("hdfsHostPort") String hdfsHostPort,
+      @QueryParam("tileSize") Integer tileSize,
+      @QueryParam("cqlFilter") String cqlFilter);
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Path("/kmeansspark")
-  public Response kmeansSpark(@QueryParam("input_storename") String input_storename,
+  public Response kmeansSpark(
+      @QueryParam("input_storename") String input_storename,
       @QueryParam("output_storename") String output_storename,
-      @QueryParam("appName") String appName, @QueryParam("host") String host,
-      @QueryParam("master") String master, @QueryParam("numClusters") Integer numClusters,
-      @QueryParam("numIterations") Integer numIterations, @QueryParam("epsilon") String epsilon,
-      @QueryParam("useTime") Boolean useTime, @QueryParam("generateHulls") Boolean generateHulls,
+      @QueryParam("appName") String appName,
+      @QueryParam("host") String host,
+      @QueryParam("master") String master,
+      @QueryParam("numClusters") Integer numClusters,
+      @QueryParam("numIterations") Integer numIterations,
+      @QueryParam("epsilon") String epsilon,
+      @QueryParam("useTime") Boolean useTime,
+      @QueryParam("generateHulls") Boolean generateHulls,
       @QueryParam("computeHullData") Boolean computeHullData,
-      @QueryParam("cqlFilter") String cqlFilter, @QueryParam("adapterId") String adapterId,
-      @QueryParam("minSplits") Integer minSplits, @QueryParam("maxSplits") Integer maxSplits,
+      @QueryParam("cqlFilter") String cqlFilter,
+      @QueryParam("adapterId") String adapterId,
+      @QueryParam("minSplits") Integer minSplits,
+      @QueryParam("maxSplits") Integer maxSplits,
       @QueryParam("centroidTypeName") String centroidTypeName,
       @QueryParam("hullTypeName") String hullTypeName);
 
@@ -93,7 +106,8 @@ public interface AnalyticService {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Path("/nn")
-  public Response nearestNeighbor(@QueryParam("storename") String storename,
+  public Response nearestNeighbor(
+      @QueryParam("storename") String storename,
       @QueryParam("mapReduceHdfsBaseDir") String mapReduceHdfsBaseDir,
       @QueryParam("extractMaxInputSplit") String extractMaxInputSplit,
       @QueryParam("extractMinInputSplit") String extractMinInputSplit,
@@ -124,7 +138,8 @@ public interface AnalyticService {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Path("/sql")
-  public Response sql(@QueryParam("parameters") String parameters, // Array of strings
+  public Response sql(
+      @QueryParam("parameters") String parameters, // Array of strings
       @QueryParam("csvOutputFile") String csvOutputFile,
       @QueryParam("outputStoreName") String outputStoreName,
       @QueryParam("outputTypeName") String outputTypeName,

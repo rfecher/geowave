@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -153,7 +152,8 @@ public class GeoWaveGTDataStore extends ContentDataStore {
     return unfiltered;
   }
 
-  protected Index[] getIndicesForAdapter(final GeotoolsFeatureDataAdapter adapter,
+  protected Index[] getIndicesForAdapter(
+      final GeotoolsFeatureDataAdapter adapter,
       final boolean spatialOnly) {
     Index[] currentSelections = preferredIndexes.get(adapter.getFeatureType().getName().toString());
     if (currentSelections != null) {
@@ -282,7 +282,8 @@ public class GeoWaveGTDataStore extends ContentDataStore {
    * @return GeoWaveTransactionState or null if subclass is handling differences
    * @throws IOException
    */
-  protected GeoWaveTransactionState getMyTransactionState(final Transaction transaction,
+  protected GeoWaveTransactionState getMyTransactionState(
+      final Transaction transaction,
       final GeoWaveFeatureSource source) throws IOException {
     synchronized (transaction) {
       GeoWaveTransactionState state = null;
@@ -291,8 +292,9 @@ public class GeoWaveGTDataStore extends ContentDataStore {
       } else {
         state = (GeoWaveTransactionState) transaction.getState(this);
         if (state == null) {
-          state = new GeoWaveTransactionManagementState(transactionBufferSize,
-              source.getComponents(), transaction, (LockingManagement) lockingManager);
+          state =
+              new GeoWaveTransactionManagementState(transactionBufferSize, source.getComponents(),
+                  transaction, (LockingManagement) lockingManager);
           transaction.putState(this, state);
         }
       }

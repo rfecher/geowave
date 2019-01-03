@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,8 +43,10 @@ public class StoreCopyJobRunner extends Configured implements Tool {
   private final CopyCommandOptions options;
   private final String jobName;
 
-  public StoreCopyJobRunner(final DataStorePluginOptions inputStoreOptions,
-      final DataStorePluginOptions outputStoreOptions, final CopyCommandOptions options,
+  public StoreCopyJobRunner(
+      final DataStorePluginOptions inputStoreOptions,
+      final DataStorePluginOptions outputStoreOptions,
+      final CopyCommandOptions options,
       final String jobName) {
     this.inputStoreOptions = inputStoreOptions;
     this.outputStoreOptions = outputStoreOptions;
@@ -61,8 +62,8 @@ public class StoreCopyJobRunner extends Configured implements Tool {
       setConf(conf);
     }
 
-    GeoWaveConfiguratorBase.setRemoteInvocationParams(options.getHdfsHostPort(),
-        options.getJobTrackerOrResourceManHostPort(), conf);
+    GeoWaveConfiguratorBase.setRemoteInvocationParams(
+        options.getHdfsHostPort(), options.getJobTrackerOrResourceManHostPort(), conf);
 
     final Job job = Job.getInstance(conf);
 
@@ -103,10 +104,10 @@ public class StoreCopyJobRunner extends Configured implements Tool {
         final AdapterToIndexMapping mapping =
             adapterIndexMappingStore.getIndicesForAdapter(dataAdapter.getAdapterId());
 
-        JobContextAdapterIndexMappingStore.addAdapterToIndexMapping(job.getConfiguration(),
-            mapping);
-        JobContextInternalAdapterStore.addTypeName(job.getConfiguration(),
-            dataAdapter.getTypeName(), dataAdapter.getAdapterId());
+        JobContextAdapterIndexMappingStore
+            .addAdapterToIndexMapping(job.getConfiguration(), mapping);
+        JobContextInternalAdapterStore.addTypeName(
+            job.getConfiguration(), dataAdapter.getTypeName(), dataAdapter.getAdapterId());
       }
     }
 

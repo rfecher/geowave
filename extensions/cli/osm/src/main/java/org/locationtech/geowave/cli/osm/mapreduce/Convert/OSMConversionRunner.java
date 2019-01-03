@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -70,7 +69,8 @@ public class OSMConversionRunner extends Configured implements Tool {
     System.exit(params.getSuccessCode());
   }
 
-  public OSMConversionRunner(final OSMIngestCommandArgs ingestOptions,
+  public OSMConversionRunner(
+      final OSMIngestCommandArgs ingestOptions,
       final DataStorePluginOptions inputStoreOptions) {
 
     this.ingestOptions = ingestOptions;
@@ -96,19 +96,21 @@ public class OSMConversionRunner extends Configured implements Tool {
     job.getConfiguration().set("arguments", ingestOptions.serializeToString());
 
     if (ingestOptions.getVisibilityOptions().getVisibility() != null) {
-      job.getConfiguration().set(AbstractMapReduceIngest.GLOBAL_VISIBILITY_KEY,
+      job.getConfiguration().set(
+          AbstractMapReduceIngest.GLOBAL_VISIBILITY_KEY,
           ingestOptions.getVisibilityOptions().getVisibility());
     }
 
     // input format
 
-    AbstractInputFormat.setConnectorInfo(job, accumuloOptions.getUser(),
-        new PasswordToken(accumuloOptions.getPassword()));
+    AbstractInputFormat.setConnectorInfo(
+        job, accumuloOptions.getUser(), new PasswordToken(accumuloOptions.getPassword()));
     InputFormatBase.setInputTableName(job, ingestOptions.getQualifiedTableName());
-    AbstractInputFormat.setZooKeeperInstance(job, new ClientConfiguration()
-        .withInstance(accumuloOptions.getInstance()).withZkHosts(accumuloOptions.getZookeeper()));
-    AbstractInputFormat.setScanAuthorizations(job,
-        new Authorizations(ingestOptions.getVisibilityOptions().getVisibility()));
+    AbstractInputFormat.setZooKeeperInstance(
+        job, new ClientConfiguration().withInstance(accumuloOptions.getInstance())
+            .withZkHosts(accumuloOptions.getZookeeper()));
+    AbstractInputFormat.setScanAuthorizations(
+        job, new Authorizations(ingestOptions.getVisibilityOptions().getVisibility()));
 
     final IteratorSetting is = new IteratorSetting(50, "WholeRow", WholeRowIterator.class);
     InputFormatBase.addIterator(job, is);

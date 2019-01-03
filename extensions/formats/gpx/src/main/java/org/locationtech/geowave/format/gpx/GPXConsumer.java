@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -42,15 +41,13 @@ import org.slf4j.LoggerFactory;
  * Consumes a GPX file. The consumer is an iterator, parsing the input stream and returning results
  * as the stream is parsed. Data is emitted for each element at the 'end' tag.
  *
- * <p>
- * Caution: Developers should maintain the cohesiveness of attribute names associated with each
+ * <p> Caution: Developers should maintain the cohesiveness of attribute names associated with each
  * feature type defined in {@link GpxUtils}.
  *
- * <p>
- * Route way points and way points are treated similarly except way points do not include the parent
- * ID information in their ID. The assumption is that the name, lat and lon attributes are globally
- * unique. In contrast, Route way points include the file name and parent route name as part of
- * their ID. Routes are not assumed to be global.
+ * <p> Route way points and way points are treated similarly except way points do not include the
+ * parent ID information in their ID. The assumption is that the name, lat and lon attributes are
+ * globally unique. In contrast, Route way points include the file name and parent route name as
+ * part of their ID. Routes are not assumed to be global.
  */
 public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>> {
 
@@ -94,9 +91,14 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
    *        file and should have inputID and other components added to the identifier
    * @param globalVisibility
    */
-  public GPXConsumer(final InputStream fileStream, final String[] indexNames, final String inputID,
-      final Map<String, Map<String, String>> additionalData, final boolean uniqueWayPoints,
-      final String globalVisibility, final double maxLength) {
+  public GPXConsumer(
+      final InputStream fileStream,
+      final String[] indexNames,
+      final String inputID,
+      final Map<String, Map<String, String>> additionalData,
+      final boolean uniqueWayPoints,
+      final String globalVisibility,
+      final double maxLength) {
     super();
     this.fileStream = fileStream;
     this.indexNames = indexNames;
@@ -411,7 +413,9 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
       child.id = ++childIdCounter;
     }
 
-    public String composeID(final String prefix, final boolean includeLatLong,
+    public String composeID(
+        final String prefix,
+        final boolean includeLatLong,
         final boolean includeParent) {
       // /top?
       if (parent == null) {
@@ -543,8 +547,9 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
           return false;
         }
 
-        final LineString geom = GeometryUtils.GEOMETRY_FACTORY
-            .createLineString(childSequence.toArray(new Coordinate[childSequence.size()]));
+        final LineString geom =
+            GeometryUtils.GEOMETRY_FACTORY
+                .createLineString(childSequence.toArray(new Coordinate[childSequence.size()]));
 
         // Filter gpx track based on maxExtent
         if (geom.isEmpty() || (geom.getEnvelopeInternal().maxExtent() > maxLineLength)) {
@@ -580,19 +585,21 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
     switch (element.elementType) {
       case "trk": {
         if ((element.children != null) && element.build(trackBuilder)) {
-          trackBuilder.set("TrackId",
-              inputID.length() > 0 ? inputID : element.composeID("", false, true));
-          return buildGeoWaveDataInstance(element.composeID(inputID, false, true), indexNames,
-              GpxUtils.GPX_TRACK_FEATURE, trackBuilder, additionalData.get(element.getPath()));
+          trackBuilder
+              .set("TrackId", inputID.length() > 0 ? inputID : element.composeID("", false, true));
+          return buildGeoWaveDataInstance(
+              element.composeID(inputID, false, true), indexNames, GpxUtils.GPX_TRACK_FEATURE,
+              trackBuilder, additionalData.get(element.getPath()));
         }
         break;
       }
       case "rte": {
         if ((element.children != null) && element.build(routeBuilder)) {
-          trackBuilder.set("TrackId",
-              inputID.length() > 0 ? inputID : element.composeID("", false, true));
-          return buildGeoWaveDataInstance(element.composeID(inputID, false, true), indexNames,
-              GpxUtils.GPX_ROUTE_FEATURE, routeBuilder, additionalData.get(element.getPath()));
+          trackBuilder
+              .set("TrackId", inputID.length() > 0 ? inputID : element.composeID("", false, true));
+          return buildGeoWaveDataInstance(
+              element.composeID(inputID, false, true), indexNames, GpxUtils.GPX_ROUTE_FEATURE,
+              routeBuilder, additionalData.get(element.getPath()));
         }
         break;
       }
@@ -607,9 +614,9 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
       }
       case "rtept": {
         if (element.build(waypointBuilder)) {
-          return buildGeoWaveDataInstance(element.composeID(inputID, true, true), indexNames,
-              GpxUtils.GPX_WAYPOINT_FEATURE, waypointBuilder,
-              additionalData.get(element.getPath()));
+          return buildGeoWaveDataInstance(
+              element.composeID(inputID, true, true), indexNames, GpxUtils.GPX_WAYPOINT_FEATURE,
+              waypointBuilder, additionalData.get(element.getPath()));
         }
         break;
       }
@@ -621,8 +628,9 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
           if (element.timestamp == null) {
             pointBuilder.set("Timestamp", null);
           }
-          return buildGeoWaveDataInstance(element.composeID(inputID, false, true), indexNames,
-              GpxUtils.GPX_POINT_FEATURE, pointBuilder, additionalData.get(element.getPath()));
+          return buildGeoWaveDataInstance(
+              element.composeID(inputID, false, true), indexNames, GpxUtils.GPX_POINT_FEATURE,
+              pointBuilder, additionalData.get(element.getPath()));
         }
         break;
       }
@@ -630,15 +638,20 @@ public class GPXConsumer implements CloseableIterator<GeoWaveData<SimpleFeature>
     return null;
   }
 
-  private static void setAttribute(final SimpleFeatureBuilder builder, final String name,
+  private static void setAttribute(
+      final SimpleFeatureBuilder builder,
+      final String name,
       final Object obj) {
     if ((builder.getFeatureType().getDescriptor(name) != null) && (obj != null)) {
       builder.set(name, obj);
     }
   }
 
-  private static GeoWaveData<SimpleFeature> buildGeoWaveDataInstance(final String id,
-      final String[] indexNames, final String key, final SimpleFeatureBuilder builder,
+  private static GeoWaveData<SimpleFeature> buildGeoWaveDataInstance(
+      final String id,
+      final String[] indexNames,
+      final String key,
+      final SimpleFeatureBuilder builder,
       final Map<String, String> additionalDataSet) {
 
     if (additionalDataSet != null) {

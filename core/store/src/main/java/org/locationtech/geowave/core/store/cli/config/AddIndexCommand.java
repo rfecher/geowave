@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -69,8 +68,8 @@ public class AddIndexCommand extends ServiceEnabledCommand<String> {
       // Load the default index.
       if (defaultIndex != null) {
         try {
-          if (pluginOptions.load(existingProps,
-              IndexPluginOptions.getIndexNamespace(defaultIndex))) {
+          if (pluginOptions
+              .load(existingProps, IndexPluginOptions.getIndexNamespace(defaultIndex))) {
             // Set the required type option.
             this.type = pluginOptions.getType();
             opts = pluginOptions.getDimensionalityOptions();

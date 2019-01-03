@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,29 +25,23 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is designed to support secondary partitioning.
  *
- * <p>
- * (1) Partition added data using a partitioner.
+ * <p> (1) Partition added data using a partitioner.
  *
- * <p>
- * (2) Process data, perform the O(N^2) (e.g. ~ n^2/2) comparisons within those partitions.
+ * <p> (2) Process data, perform the O(N^2) (e.g. ~ n^2/2) comparisons within those partitions.
  *
- * <p>
- * Custom plug-ins include (1) A factory for the neighbor list to track those pairings of data whose
- * distance feel under the provided minimum. (2) A complete notification callback callback for each
- * primary data.
+ * <p> Custom plug-ins include (1) A factory for the neighbor list to track those pairings of data
+ * whose distance feel under the provided minimum. (2) A complete notification callback callback for
+ * each primary data.
  *
- * <p>
- * The loop algorithms is For each primary compare to all remaining primary and all secondary data
- * items
+ * <p> The loop algorithms is For each primary compare to all remaining primary and all secondary
+ * data items
  *
- * <p>
- * A powerful performance enhancing tool is the inference mechanism associated with the neighborhood
- * lists. A list can have intelligence to decide that a particular neighbor can be inferred and,
- * therefore, can be removed from the set of primaries to be inspected. This has no effect on
- * secondaries.
+ * <p> A powerful performance enhancing tool is the inference mechanism associated with the
+ * neighborhood lists. A list can have intelligence to decide that a particular neighbor can be
+ * inferred and, therefore, can be removed from the set of primaries to be inspected. This has no
+ * effect on secondaries.
  *
- * <p>
- * The processor can be called multiple times, as the 'process' algorithm does not alter its
+ * <p> The processor can be called multiple times, as the 'process' algorithm does not alter its
  * internal state. The notification callback can be used to alter the internal state (e.g. calling
  * 'add' or 'remove' methods). Caution should used to alter internal state within the neighbor list.
  *
@@ -82,8 +75,11 @@ public class NNProcessor<PARTITION_VALUE, STORE_VALUE> {
 
   protected NeighborIndex<STORE_VALUE> index;
 
-  public NNProcessor(Partitioner<Object> partitioner, TypeConverter<STORE_VALUE> typeConverter,
-      DistanceProfileGenerateFn<?, STORE_VALUE> distanceProfileFn, double maxDistance,
+  public NNProcessor(
+      Partitioner<Object> partitioner,
+      TypeConverter<STORE_VALUE> typeConverter,
+      DistanceProfileGenerateFn<?, STORE_VALUE> distanceProfileFn,
+      double maxDistance,
       PartitionData parentPartition) {
     super();
     this.partitioner = partitioner;
@@ -203,13 +199,22 @@ public class NNProcessor<PARTITION_VALUE, STORE_VALUE> {
     return partitionsToIds.isEmpty();
   }
 
-  public void process(NeighborListFactory<STORE_VALUE> listFactory,
+  public void process(
+      NeighborListFactory<STORE_VALUE> listFactory,
       final CompleteNotifier<STORE_VALUE> notification) throws IOException, InterruptedException {
 
-    LOGGER.info("Processing " + parentPartition.toString() + " with primary = " + primaries.size()
-        + " and other = " + others.size());
-    LOGGER.info("Processing " + parentPartition.toString() + " with sub-partitions = "
-        + uniqueSetOfPartitions.size());
+    LOGGER.info(
+        "Processing "
+            + parentPartition.toString()
+            + " with primary = "
+            + primaries.size()
+            + " and other = "
+            + others.size());
+    LOGGER.info(
+        "Processing "
+            + parentPartition.toString()
+            + " with sub-partitions = "
+            + uniqueSetOfPartitions.size());
 
     index = new NeighborIndex<STORE_VALUE>(listFactory);
 

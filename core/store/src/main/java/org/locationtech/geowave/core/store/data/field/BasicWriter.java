@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -18,14 +17,17 @@ public class BasicWriter<RowType, FieldType> implements FieldWriter<RowType, Fie
     this(writer, null);
   }
 
-  public BasicWriter(final FieldWriter<?, FieldType> writer,
+  public BasicWriter(
+      final FieldWriter<?, FieldType> writer,
       final FieldVisibilityHandler<RowType, Object> visibilityHandler) {
     this.writer = writer;
     this.visibilityHandler = visibilityHandler;
   }
 
   @Override
-  public byte[] getVisibility(final RowType rowValue, final String fieldName,
+  public byte[] getVisibility(
+      final RowType rowValue,
+      final String fieldName,
       final FieldType fieldValue) {
     if (visibilityHandler != null) {
       return visibilityHandler.getVisibility(rowValue, fieldName, fieldValue);

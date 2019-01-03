@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,7 +30,8 @@ public class DistributedRenderResult implements Mergeable {
 
     public CompositeGroupResult() {}
 
-    public CompositeGroupResult(final PersistableComposite composite,
+    public CompositeGroupResult(
+        final PersistableComposite composite,
         final List<Pair<PersistableRenderedImage, PersistableComposite>> orderedStyles) {
       this.composite = composite;
       this.orderedStyles = orderedStyles;
@@ -43,15 +43,17 @@ public class DistributedRenderResult implements Mergeable {
       if ((composite != null) && (composite.getComposite() != null)) {
         // this will render to a back buffer so that
 
-        compositeGroupImage = parentGraphics.getDeviceConfiguration().createCompatibleImage(width,
-            height, Transparency.TRANSLUCENT);
+        compositeGroupImage =
+            parentGraphics.getDeviceConfiguration()
+                .createCompatibleImage(width, height, Transparency.TRANSLUCENT);
         graphics = compositeGroupImage.createGraphics();
         graphics.setRenderingHints(parentGraphics.getRenderingHints());
       } else {
         graphics = parentGraphics;
       }
       for (final Pair<PersistableRenderedImage, PersistableComposite> currentStyle : orderedStyles) {
-        if ((currentStyle == null) || (currentStyle.getKey() == null)
+        if ((currentStyle == null)
+            || (currentStyle.getKey() == null)
             || (currentStyle.getKey().image == null)) {
           continue;
         }
@@ -100,8 +102,10 @@ public class DistributedRenderResult implements Mergeable {
             styleImageBinary = new byte[] {};
           }
           final ByteBuffer styleBuf =
-              ByteBuffer.allocate(styleCompositeBinary.length + styleImageBinary.length
-                  + VarintUtils.unsignedIntByteLength(styleCompositeBinary.length));
+              ByteBuffer.allocate(
+                  styleCompositeBinary.length
+                      + styleImageBinary.length
+                      + VarintUtils.unsignedIntByteLength(styleCompositeBinary.length));
           VarintUtils.writeUnsignedInt(styleCompositeBinary.length, styleBuf);
           if (styleCompositeBinary.length > 0) {
             styleBuf.put(styleCompositeBinary);
@@ -204,8 +208,9 @@ public class DistributedRenderResult implements Mergeable {
               // render the images together and just arbitrarily
               // grab "this" composite as they both should be the
               // same
-              newOrderedStyles.add(Pair.of(mergeImage(thisStyle.getLeft(), otherStyle.getLeft()),
-                  thisStyle.getRight()));
+              newOrderedStyles.add(
+                  Pair.of(
+                      mergeImage(thisStyle.getLeft(), otherStyle.getLeft()), thisStyle.getRight()));
             } else {
               newOrderedStyles.add(thisStyle);
             }
@@ -237,18 +242,21 @@ public class DistributedRenderResult implements Mergeable {
 
   public DistributedRenderResult() {}
 
-  public DistributedRenderResult(final PersistableRenderedImage parentImage,
+  public DistributedRenderResult(
+      final PersistableRenderedImage parentImage,
       final List<CompositeGroupResult> orderedComposites) {
     this.parentImage = parentImage;
     this.orderedComposites = orderedComposites;
   }
 
   public BufferedImage renderComposite(final DistributedRenderOptions renderOptions) {
-    final BufferedImage image = ImageUtils.createImage(renderOptions.getMapWidth(),
-        renderOptions.getMapHeight(), renderOptions.getPalette(),
-        renderOptions.isTransparent() || renderOptions.isMetatile());
-    final Graphics2D graphics = ImageUtils.prepareTransparency(renderOptions.isTransparent(),
-        renderOptions.getBgColor(), image, null);
+    final BufferedImage image =
+        ImageUtils.createImage(
+            renderOptions.getMapWidth(), renderOptions.getMapHeight(), renderOptions.getPalette(),
+            renderOptions.isTransparent() || renderOptions.isMetatile());
+    final Graphics2D graphics =
+        ImageUtils.prepareTransparency(
+            renderOptions.isTransparent(), renderOptions.getBgColor(), image, null);
     for (final CompositeGroupResult compositeGroup : orderedComposites) {
       compositeGroup.render(graphics, renderOptions.getMapWidth(), renderOptions.getMapHeight());
     }
@@ -263,13 +271,16 @@ public class DistributedRenderResult implements Mergeable {
     // 4 bytes for the length as an int, and 4 bytes for the size of
     // parentImage
     final byte[] parentImageBinary = parentImage.toBinary();
-    int byteSize = VarintUtils.unsignedIntByteLength(parentImageBinary.length)
-        + parentImageBinary.length + VarintUtils.unsignedIntByteLength(orderedComposites.size());
+    int byteSize =
+        VarintUtils.unsignedIntByteLength(parentImageBinary.length)
+            + parentImageBinary.length
+            + VarintUtils.unsignedIntByteLength(orderedComposites.size());
     final List<byte[]> compositeBinaries = new ArrayList<>(orderedComposites.size());
     for (final CompositeGroupResult compositeGroup : orderedComposites) {
       final byte[] compositeGroupBinary = compositeGroup.toBinary();
-      byteSize += (compositeGroupBinary.length
-          + VarintUtils.unsignedIntByteLength(compositeGroupBinary.length));
+      byteSize +=
+          (compositeGroupBinary.length
+              + VarintUtils.unsignedIntByteLength(compositeGroupBinary.length));
       compositeBinaries.add(compositeGroupBinary);
     }
     final ByteBuffer buf = ByteBuffer.allocate(byteSize);
@@ -338,7 +349,8 @@ public class DistributedRenderResult implements Mergeable {
     }
   }
 
-  private static PersistableRenderedImage mergeImage(final PersistableRenderedImage image1,
+  private static PersistableRenderedImage mergeImage(
+      final PersistableRenderedImage image1,
       final PersistableRenderedImage image2) {
     final Graphics2D graphics = image1.image.createGraphics();
     graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));

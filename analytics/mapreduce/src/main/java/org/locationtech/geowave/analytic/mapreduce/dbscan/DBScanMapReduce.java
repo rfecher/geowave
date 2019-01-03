@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -57,31 +56,26 @@ import org.slf4j.LoggerFactory;
  * https://en.wikipedia.org/wiki/DBSCAN). This approach does not maintain a queue of viable
  * neighbors to navigate.
  *
- * <p>
- * Clusters are merged if they share neighbors in common and both clusters meet the minimum size
+ * <p> Clusters are merged if they share neighbors in common and both clusters meet the minimum size
  * constraints.
  *
- * <p>
- * Clusters may be made up of points or geometries. When processing geometries, the closest two
+ * <p> Clusters may be made up of points or geometries. When processing geometries, the closest two
  * points are included in the cluster, not the entire geometry. The reason for this is that
  * geometries may span large areas. This technique has a disadvantage of mis-representing dense
  * segments as a dense set of points.
  *
- * <p>
- * The design uses two level partitioning, working within the confines of @{link NNProcessor}.
+ * <p> The design uses two level partitioning, working within the confines of @{link NNProcessor}.
  * Performance gains and memory constraints are accomplished through a pre-processing step.
  *
- * <p>
- * Pre-processing first finds dense clusters, replacing each dense cluster with a concave polygon.
- * Although not very scientific, the condensing process the minimum condensed cluster size is
- * between 50 and 200, depending on the setting of the minimum owners. The choice is some what
+ * <p> Pre-processing first finds dense clusters, replacing each dense cluster with a concave
+ * polygon. Although not very scientific, the condensing process the minimum condensed cluster size
+ * is between 50 and 200, depending on the setting of the minimum owners. The choice is some what
  * arbitrary. Retaining individual points for clusters larger than 200 often creates memory
  * concerns. However, there is little value in condensing below 50 as that indicates a fairly small
  * cluster, which does not contribute to a performance concern. Override 'calculateCondensingMinimum
  * ()' to come up with a different approach.
  *
- * <p>
- * Pre-processing also finds cluster centers that have less than the minimum and tosses those
+ * <p> Pre-processing also finds cluster centers that have less than the minimum and tosses those
  * centers. There is a caution here. Clusters of this type can fall on the 'edge' of dense clusters,
  * thus 'tightening' the dense regions. It does effectively remove outliers. Alter the approach by
  * over-riding 'calculateTossMinimum()' (e.g. make it a smaller number like 0 or 1).
@@ -99,8 +93,11 @@ public class DBScanMapReduce {
     }
 
     @Override
-    protected void processNeighbors(final PartitionData partitionData, final ByteArray primaryId,
-        final ClusterItem primary, final NeighborList<ClusterItem> neighbors,
+    protected void processNeighbors(
+        final PartitionData partitionData,
+        final ByteArray primaryId,
+        final ClusterItem primary,
+        final NeighborList<ClusterItem> neighbors,
         final Reducer<PartitionDataWritable, AdapterWithObjectWritable, KEYOUT, VALUEOUT>.Context context,
         final Map<ByteArray, Cluster> index) throws IOException, InterruptedException {
       if (LOGGER.isTraceEnabled()) {
@@ -184,8 +181,8 @@ public class DBScanMapReduce {
     @Override
     protected void preprocess(
         final Reducer<PartitionDataWritable, AdapterWithObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context,
-        final NNProcessor<Object, ClusterItem> processor, final Map<ByteArray, Cluster> index)
-        throws IOException, InterruptedException {
+        final NNProcessor<Object, ClusterItem> processor,
+        final Map<ByteArray, Cluster> index) throws IOException, InterruptedException {
       if (!firstIteration) {
         return;
       }
@@ -206,7 +203,9 @@ public class DBScanMapReduce {
             final int tossSize = calculateTossMinimum();
 
             @Override
-            public void complete(final ByteArray id, final ClusterItem value,
+            public void complete(
+                final ByteArray id,
+                final ClusterItem value,
                 final NeighborList<ClusterItem> list) {
               final Cluster cluster = ((ClusterNeighborList) list).getCluster();
               // this basically excludes points that cannot
@@ -237,7 +236,8 @@ public class DBScanMapReduce {
     }
 
     @Override
-    protected void processSummary(final PartitionData partitionData,
+    protected void processSummary(
+        final PartitionData partitionData,
         final Map<ByteArray, Cluster> summary,
         final Reducer<PartitionDataWritable, AdapterWithObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
         throws IOException, InterruptedException {
@@ -251,8 +251,9 @@ public class DBScanMapReduce {
         if (cluster.isCompressed() && !processed.contains(cluster)) {
           processed.add(cluster);
           final SimpleFeature newPolygonFeature =
-              AnalyticFeature.createGeometryFeature(outputAdapter.getFeatureType(), batchID,
-                  UUID.randomUUID().toString(), cluster.getId().getString(), // name
+              AnalyticFeature.createGeometryFeature(
+                  outputAdapter.getFeatureType(), batchID, UUID.randomUUID().toString(),
+                  cluster.getId().getString(), // name
                   partitionData.getGroupId() != null ? partitionData.getGroupId().toString()
                       : cluster.getId().getString(), // group
                   0.0, cluster.getGeometry(), new String[0], new double[0], zoomLevel, iteration,
@@ -269,15 +270,17 @@ public class DBScanMapReduce {
           // new Geometry[] {
           // (Geometry) cluster.get()
           // });
-          context.write(new GeoWaveInputKey(
-              // TODO this is a bit of a hack, but the
-              // adapter is seemingly completely transient
-              // and never actually persisted - it seems
-              // unlikely that the value for internal
-              // adapter ID even matters, but if it does
-              // this is the best effort
-              InternalAdapterStoreImpl.getLazyInitialAdapterId(outputAdapter.getTypeName()),
-              new ByteArray(newPolygonFeature.getID())), output);
+          context.write(
+              new GeoWaveInputKey(
+                  // TODO this is a bit of a hack, but the
+                  // adapter is seemingly completely transient
+                  // and never actually persisted - it seems
+                  // unlikely that the value for internal
+                  // adapter ID even matters, but if it does
+                  // this is the best effort
+                  InternalAdapterStoreImpl.getLazyInitialAdapterId(outputAdapter.getTypeName()),
+                  new ByteArray(newPolygonFeature.getID())),
+              output);
         }
       }
     }
@@ -316,15 +319,19 @@ public class DBScanMapReduce {
       final String polygonDataTypeId =
           config.getString(HullParameters.Hull.DATA_TYPE_ID, "concave_hull");
 
-      outputAdapter = AnalyticFeature.createGeometryFeatureAdapter(polygonDataTypeId, new String[0],
-          config.getString(HullParameters.Hull.DATA_NAMESPACE_URI,
-              BasicFeatureTypes.DEFAULT_NAMESPACE),
-          ClusteringUtils.CLUSTERING_CRS);
+      outputAdapter =
+          AnalyticFeature.createGeometryFeatureAdapter(
+              polygonDataTypeId, new String[0],
+              config.getString(
+                  HullParameters.Hull.DATA_NAMESPACE_URI, BasicFeatureTypes.DEFAULT_NAMESPACE),
+              ClusteringUtils.CLUSTERING_CRS);
 
       Projection<SimpleFeature> projectionFunction;
       try {
-        projectionFunction = config.getInstance(HullParameters.Hull.PROJECTION_CLASS,
-            Projection.class, SimpleFeatureProjection.class);
+        projectionFunction =
+            config.getInstance(
+                HullParameters.Hull.PROJECTION_CLASS, Projection.class,
+                SimpleFeatureProjection.class);
       } catch (InstantiationException | IllegalAccessException e) {
         throw new IOException(e);
       }

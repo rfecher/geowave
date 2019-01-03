@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -57,7 +56,9 @@ public class BatchedRangeRead<T> {
     double startScore;
     double endScore;
 
-    public RangeReadInfo(final byte[] partitionKey, final double startScore,
+    public RangeReadInfo(
+        final byte[] partitionKey,
+        final double startScore,
         final double endScore) {
       this.partitionKey = partitionKey;
       this.startScore = startScore;
@@ -106,11 +107,16 @@ public class BatchedRangeRead<T> {
   private final boolean isSortFinalResultsBySortKey;
   private final Compression compression;
 
-  protected BatchedRangeRead(final RedissonClient client, final Compression compression,
-      final String setNamePrefix, final short adapterId,
+  protected BatchedRangeRead(
+      final RedissonClient client,
+      final Compression compression,
+      final String setNamePrefix,
+      final short adapterId,
       final Collection<SinglePartitionQueryRanges> ranges,
-      final GeoWaveRowIteratorTransformer<T> rowTransformer, final Predicate<GeoWaveRow> filter,
-      final boolean async, final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
+      final GeoWaveRowIteratorTransformer<T> rowTransformer,
+      final Predicate<GeoWaveRow> filter,
+      final boolean async,
+      final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
       final boolean isSortFinalResultsBySortKey) {
     this.client = client;
     this.compression = compression;
@@ -126,8 +132,8 @@ public class BatchedRangeRead<T> {
   }
 
   private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(final byte[] partitionKey) {
-    return RedisUtils.getRowSet(client, compression, setNamePrefix, partitionKey,
-        groupByRowAndSortByTimePair.getRight());
+    return RedisUtils.getRowSet(
+        client, compression, setNamePrefix, partitionKey, groupByRowAndSortByTimePair.getRight());
   }
 
   public CloseableIterator<T> results() {
@@ -165,8 +171,10 @@ public class BatchedRangeRead<T> {
       // if we don't have enough
       // precision we need to make
       // sure the end is inclusive
-      return transformAndFilter(setCache.get(partitionKey).entryRange(r.startScore, true,
-          r.endScore, r.endScore <= r.startScore), r.partitionKey);
+      return transformAndFilter(
+          setCache.get(partitionKey).entryRange(
+              r.startScore, true, r.endScore, r.endScore <= r.startScore),
+          r.partitionKey);
     }).iterator()));
   }
 
@@ -191,7 +199,8 @@ public class BatchedRangeRead<T> {
             }
             readSemaphore.acquire();
             final RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>> f =
-                setCache.get(partitionKey).entryRangeAsync(r.startScore, true, r.endScore,
+                setCache.get(partitionKey).entryRangeAsync(
+                    r.startScore, true, r.endScore,
                     // if we don't have enough
                     // precision we need to make
                     // sure the end is inclusive
@@ -257,16 +266,18 @@ public class BatchedRangeRead<T> {
   }
 
   private Iterator<T> transformAndFilter(
-      final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result, final byte[] partitionKey) {
-    return rowTransformer
-        .apply(sortByKeyIfRequired(isSortFinalResultsBySortKey,
+      final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result,
+      final byte[] partitionKey) {
+    return rowTransformer.apply(
+        sortByKeyIfRequired(
+            isSortFinalResultsBySortKey,
             (Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
                 Iterators
                     .filter(
                         Iterators.transform(
                             groupByRowAndSortByTimePair.getLeft()
-                                ? RedisUtils.groupByRow(result,
-                                    groupByRowAndSortByTimePair.getRight())
+                                ? RedisUtils
+                                    .groupByRow(result, groupByRowAndSortByTimePair.getRight())
                                 : result,
                             new Function<ScoredEntry<GeoWaveRedisPersistedRow>, GeoWaveRedisRow>() {
 
@@ -283,7 +294,8 @@ public class BatchedRangeRead<T> {
                         filter))));
   }
 
-  private static Iterator<GeoWaveRow> sortByKeyIfRequired(final boolean isRequired,
+  private static Iterator<GeoWaveRow> sortByKeyIfRequired(
+      final boolean isRequired,
       final Iterator<GeoWaveRow> it) {
     if (isRequired) {
       return RedisUtils.sortBySortKey(it);
@@ -291,8 +303,10 @@ public class BatchedRangeRead<T> {
     return it;
   }
 
-  private static void checkFinalize(final Semaphore semaphore,
-      final BlockingQueue<Object> resultQueue, final AtomicInteger queryCount) {
+  private static void checkFinalize(
+      final Semaphore semaphore,
+      final BlockingQueue<Object> resultQueue,
+      final AtomicInteger queryCount) {
     semaphore.release();
     if (queryCount.decrementAndGet() <= 0) {
       try {

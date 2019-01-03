@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -87,8 +86,10 @@ public class GeoWaveNNIT extends AbstractGeoWaveIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*      FINISHED GeoWaveNNIT             *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                 *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -156,25 +157,33 @@ public class GeoWaveNNIT extends AbstractGeoWaveIT {
     // GeoWaveInputFormatConfiguration.class.toString(),
     // "foo"
     // });
-    final int res = jobRunner.run(MapReduceTestUtils.getConfiguration(),
-        new PropertyManagement(new ParameterEnum[] {ExtractParameters.Extract.QUERY,
-            ExtractParameters.Extract.MIN_INPUT_SPLIT, ExtractParameters.Extract.MAX_INPUT_SPLIT,
-            PartitionParameters.Partition.MAX_DISTANCE,
-            PartitionParameters.Partition.DISTANCE_THRESHOLDS,
-            PartitionParameters.Partition.PARTITIONER_CLASS, StoreParam.INPUT_STORE,
-            OutputParameters.Output.HDFS_OUTPUT_PATH, MapReduceParameters.MRConfig.HDFS_BASE_DIR,
-            OutputParameters.Output.REDUCER_COUNT, OutputParameters.Output.OUTPUT_FORMAT,
-            InputParameters.Input.INPUT_FORMAT},
-            new Object[] {QueryBuilder.newBuilder().constraints(query).build(),
-                Integer.toString(MapReduceTestUtils.MIN_INPUT_SPLITS),
-                Integer.toString(MapReduceTestUtils.MAX_INPUT_SPLITS), 0.2, "0.2,0.2",
-                OrthodromicDistancePartitioner.class, new PersistableStore(dataStorePluginOptions),
-                TestUtils.TEMP_DIR + File.separator + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
-                    + "/t1/pairs",
-                TestUtils.TEMP_DIR + File.separator + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
-                    + "/t1",
-                3, SequenceFileOutputFormatConfiguration.class,
-                GeoWaveInputFormatConfiguration.class}));
+    final int res =
+        jobRunner.run(
+            MapReduceTestUtils.getConfiguration(),
+            new PropertyManagement(new ParameterEnum[] {ExtractParameters.Extract.QUERY,
+                ExtractParameters.Extract.MIN_INPUT_SPLIT,
+                ExtractParameters.Extract.MAX_INPUT_SPLIT,
+                PartitionParameters.Partition.MAX_DISTANCE,
+                PartitionParameters.Partition.DISTANCE_THRESHOLDS,
+                PartitionParameters.Partition.PARTITIONER_CLASS, StoreParam.INPUT_STORE,
+                OutputParameters.Output.HDFS_OUTPUT_PATH,
+                MapReduceParameters.MRConfig.HDFS_BASE_DIR, OutputParameters.Output.REDUCER_COUNT,
+                OutputParameters.Output.OUTPUT_FORMAT, InputParameters.Input.INPUT_FORMAT},
+                new Object[] {QueryBuilder.newBuilder().constraints(query).build(),
+                    Integer.toString(MapReduceTestUtils.MIN_INPUT_SPLITS),
+                    Integer.toString(MapReduceTestUtils.MAX_INPUT_SPLITS), 0.2, "0.2,0.2",
+                    OrthodromicDistancePartitioner.class,
+                    new PersistableStore(dataStorePluginOptions),
+                    TestUtils.TEMP_DIR
+                        + File.separator
+                        + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
+                        + "/t1/pairs",
+                    TestUtils.TEMP_DIR
+                        + File.separator
+                        + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
+                        + "/t1",
+                    3, SequenceFileOutputFormatConfiguration.class,
+                    GeoWaveInputFormatConfiguration.class}));
 
     Assert.assertEquals(0, res);
 
@@ -186,12 +195,17 @@ public class GeoWaveNNIT extends AbstractGeoWaveIT {
   private int readFile() throws IllegalArgumentException, IOException {
     int count = 0;
     final FileSystem fs = FileSystem.get(MapReduceTestUtils.getConfiguration());
-    final FileStatus[] fss = fs.listStatus(new Path(TestUtils.TEMP_DIR + File.separator
-        + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY + "/t1/pairs"));
+    final FileStatus[] fss =
+        fs.listStatus(
+            new Path(TestUtils.TEMP_DIR
+                + File.separator
+                + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
+                + "/t1/pairs"));
     for (final FileStatus ifs : fss) {
       if (ifs.isFile() && ifs.getPath().toString().matches(".*part-r-0000[0-9]")) {
-        try (SequenceFile.Reader reader = new SequenceFile.Reader(
-            MapReduceTestUtils.getConfiguration(), Reader.file(ifs.getPath()))) {
+        try (SequenceFile.Reader reader =
+            new SequenceFile.Reader(MapReduceTestUtils.getConfiguration(),
+                Reader.file(ifs.getPath()))) {
 
           final Text key = new Text();
           final Text val = new Text();
@@ -207,7 +221,8 @@ public class GeoWaveNNIT extends AbstractGeoWaveIT {
 
   private void ingest(final DataStore dataStore) throws IOException {
 
-    dataGenerator.writeToGeoWave(dataStore, dataGenerator.generatePointSet(0.00002, 0.02, 3, 800,
-        new double[] {-92, -37}, new double[] {-90, -35}));
+    dataGenerator.writeToGeoWave(
+        dataStore, dataGenerator.generatePointSet(
+            0.00002, 0.02, 3, 800, new double[] {-92, -37}, new double[] {-90, -35}));
   }
 }

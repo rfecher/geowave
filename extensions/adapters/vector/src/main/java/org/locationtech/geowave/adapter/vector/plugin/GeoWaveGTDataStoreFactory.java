@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -94,7 +93,8 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
     return createNewDataStore(params);
   }
 
-  private boolean paramsEqual(final Map<String, Serializable> params1,
+  private boolean paramsEqual(
+      final Map<String, Serializable> params1,
       final Map<String, Serializable> params2) {
     if (params1.size() == params2.size()) {
       for (final Entry<String, Serializable> entry : params1.entrySet()) {
@@ -134,7 +134,9 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
   @Override
   public String getDescription() {
     return "A datastore that uses the GeoWave API for spatial data persistence in "
-        + geowaveStoreFactoryFamily.getType() + ". " + geowaveStoreFactoryFamily.getDescription();
+        + geowaveStoreFactoryFamily.getType()
+        + ". "
+        + geowaveStoreFactoryFamily.getDescription();
   }
 
   @Override
@@ -146,16 +148,21 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
   @Override
   public boolean canProcess(final Map<String, Serializable> params) {
     try {
-      final Map<String, String> dataStoreParams = params.entrySet().stream()
-          .filter(e -> !GeoWavePluginConfig.BASE_GEOWAVE_PLUGIN_PARAM_KEYS.contains(e.getKey()))
-          .collect(Collectors.toMap(e -> e.getKey() == null ? null : e.getKey().toString(),
-              e -> e.getValue() == null ? null : e.getValue().toString()));
+      final Map<String, String> dataStoreParams =
+          params.entrySet().stream()
+              .filter(e -> !GeoWavePluginConfig.BASE_GEOWAVE_PLUGIN_PARAM_KEYS.contains(e.getKey()))
+              .collect(
+                  Collectors.toMap(
+                      e -> e.getKey() == null ? null : e.getKey().toString(),
+                      e -> e.getValue() == null ? null : e.getValue().toString()));
 
-      final Map<String, String> originalParams = params.entrySet().stream()
-          .collect(Collectors.toMap(e -> e.getKey() == null ? null : e.getKey().toString(),
-              e -> e.getValue() == null ? null : e.getValue().toString()));
-      return GeoWaveStoreFinder.exactMatch(geowaveStoreFactoryFamily, dataStoreParams,
-          originalParams);
+      final Map<String, String> originalParams =
+          params.entrySet().stream().collect(
+              Collectors.toMap(
+                  e -> e.getKey() == null ? null : e.getKey().toString(),
+                  e -> e.getValue() == null ? null : e.getValue().toString()));
+      return GeoWaveStoreFinder
+          .exactMatch(geowaveStoreFactoryFamily, dataStoreParams, originalParams);
     } catch (Exception e) {
       LOGGER.info("unable to process params as GeoWave datastore", e);
       return false;

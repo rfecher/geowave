@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,8 +40,11 @@ public class AccumuloSecondaryIndexUtils {
    * @param indexModel
    * @return
    */
-  public static <T> T decodeRow(final Key key, final Value value,
-      final InternalDataAdapter<T> adapter, final Index index) {
+  public static <T> T decodeRow(
+      final Key key,
+      final Value value,
+      final InternalDataAdapter<T> adapter,
+      final Index index) {
     Map<Key, Value> rowMapping;
     try {
       rowMapping = WholeRowIterator.decodeRow(key, value);
@@ -84,8 +86,9 @@ public class AccumuloSecondaryIndexUtils {
         }
       }
     }
-    final IndexedAdapterPersistenceEncoding encodedData = new IndexedAdapterPersistenceEncoding(
-        adapter.getAdapterId(), dataId, null, null, 0, commonData, unknownData, extendedData);
+    final IndexedAdapterPersistenceEncoding encodedData =
+        new IndexedAdapterPersistenceEncoding(adapter.getAdapterId(), dataId, null, null, 0,
+            commonData, unknownData, extendedData);
     return adapter.decode(encodedData, index);
   }
 }

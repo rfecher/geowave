@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -39,7 +38,9 @@ public class RowRangeHistogramStatistics<T> extends
     this(null, indexName, partitionKey);
   }
 
-  public RowRangeHistogramStatistics(final Short internalDataAdapterId, final String indexName,
+  public RowRangeHistogramStatistics(
+      final Short internalDataAdapterId,
+      final String indexName,
       final ByteArray partitionKey) {
     super(internalDataAdapterId, STATS_TYPE,
         PartitionStatisticsQueryBuilder.composeId(indexName, partitionKey));
@@ -140,7 +141,8 @@ public class RowRangeHistogramStatistics<T> extends
     final Pair<String, ByteArray> indexAndPartition =
         PartitionStatisticsQueryBuilder.decomposeIndexAndPartitionFromId(extendedId);
     buffer.append("histogram[index=").append(indexAndPartition.getLeft());
-    if ((indexAndPartition.getRight() != null) && (indexAndPartition.getRight().getBytes() != null)
+    if ((indexAndPartition.getRight() != null)
+        && (indexAndPartition.getRight().getBytes() != null)
         && (indexAndPartition.getRight().getBytes().length > 0)) {
       buffer.append(", partitionAsHex=").append(indexAndPartition.getRight().getHexString());
     }

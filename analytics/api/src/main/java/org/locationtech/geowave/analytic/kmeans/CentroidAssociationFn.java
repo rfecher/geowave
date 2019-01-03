@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,7 +27,8 @@ public class CentroidAssociationFn<T> {
     this.distanceFunction = distanceFunction;
   }
 
-  public double compute(final AnalyticItemWrapper<T> point,
+  public double compute(
+      final AnalyticItemWrapper<T> point,
       final Iterable<AnalyticItemWrapper<T>> targetSet,
       final AssociationNotification<T> associationNotification) {
     final CentroidPairing<T> pairing =
@@ -44,7 +44,8 @@ public class CentroidAssociationFn<T> {
     return pairing.getDistance();
   }
 
-  public double compute(final Iterable<AnalyticItemWrapper<T>> pointSet,
+  public double compute(
+      final Iterable<AnalyticItemWrapper<T>> pointSet,
       final Iterable<AnalyticItemWrapper<T>> targetSet,
       final AssociationNotification<T> associationNotification) {
     double sum = 0.0;

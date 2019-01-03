@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,7 +37,9 @@ class ProtocolConvertor implements IStringConverter<Protocol> {
   public Protocol convert(final String protocolName) {
     final String protocolLowerCase = protocolName.toLowerCase();
     if (!protocolLowerCase.equals("http") && !protocolLowerCase.equals("https")) {
-      throw new ParameterException("Value " + protocolName + "can not be converted to Protocol. "
+      throw new ParameterException("Value "
+          + protocolName
+          + "can not be converted to Protocol. "
           + "Available values are: http and https.");
     }
 
@@ -89,9 +90,16 @@ public class DynamoDBOptions extends StoreFactoryOptions {
 
   public DynamoDBOptions() {}
 
-  public DynamoDBOptions(String endpoint, Regions region, long writeCapacity, long readCapacity,
-      int maxConnections, Protocol protocol, boolean enableCacheResponseMetadata,
-      String gwNamespace, BaseDataStoreOptions baseOptions) {
+  public DynamoDBOptions(
+      String endpoint,
+      Regions region,
+      long writeCapacity,
+      long readCapacity,
+      int maxConnections,
+      Protocol protocol,
+      boolean enableCacheResponseMetadata,
+      String gwNamespace,
+      BaseDataStoreOptions baseOptions) {
     super(gwNamespace);
     this.endpoint = endpoint;
     this.region = region;

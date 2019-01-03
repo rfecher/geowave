@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -44,11 +43,14 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
   protected List<QueryFilter> clientFilters;
   private static final Logger LOGGER = Logger.getLogger(BaseFilteredIndexQuery.class);
 
-  public BaseFilteredIndexQuery(final short[] adapterIds, final Index index,
+  public BaseFilteredIndexQuery(
+      final short[] adapterIds,
+      final Index index,
       final ScanCallback<?, ?> scanCallback,
       final Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
-      final FieldVisibilityCount visibilityCounts, final String... authorizations) {
+      final FieldVisibilityCount visibilityCounts,
+      final String... authorizations) {
     super(adapterIds, index, fieldIdsAdapterPair, scanCallback, differingVisibilityCounts,
         visibilityCounts, authorizations);
   }
@@ -58,17 +60,24 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public CloseableIterator<Object> query(final DataStoreOperations datastoreOperations,
-      final DataStoreOptions options, final PersistentAdapterStore adapterStore,
+  public CloseableIterator<Object> query(
+      final DataStoreOperations datastoreOperations,
+      final DataStoreOptions options,
+      final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final double[] maxResolutionSubsamplingPerDimension,
-      final double[] targetResolutionPerDimensionForHierarchicalIndex, final Integer limit,
-      final Integer queryMaxRangeDecomposition, final boolean delete) {
+      final double[] targetResolutionPerDimensionForHierarchicalIndex,
+      final Integer limit,
+      final Integer queryMaxRangeDecomposition,
+      final boolean delete) {
     final RowReader<?> reader =
-        getReader(datastoreOperations, options, adapterStore, internalAdapterStore,
+        getReader(
+            datastoreOperations, options, adapterStore, internalAdapterStore,
             maxResolutionSubsamplingPerDimension, targetResolutionPerDimensionForHierarchicalIndex,
-            limit, queryMaxRangeDecomposition, getRowTransformer(options, adapterStore,
-                maxResolutionSubsamplingPerDimension, !isCommonIndexAggregation()),
+            limit, queryMaxRangeDecomposition,
+            getRowTransformer(
+                options, adapterStore, maxResolutionSubsamplingPerDimension,
+                !isCommonIndexAggregation()),
             delete);
     if (reader == null) {
       return new CloseableIterator.Empty();
@@ -81,13 +90,17 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
   }
 
   @Override
-  protected <C> RowReader<C> getReader(final DataStoreOperations datastoreOperations,
-      final DataStoreOptions options, final PersistentAdapterStore adapterStore,
+  protected <C> RowReader<C> getReader(
+      final DataStoreOperations datastoreOperations,
+      final DataStoreOptions options,
+      final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final double[] maxResolutionSubsamplingPerDimension,
-      final double[] targetResolutionPerDimensionForHierarchicalIndex, final Integer limit,
+      final double[] targetResolutionPerDimensionForHierarchicalIndex,
+      final Integer limit,
       final Integer queryMaxRangeDecomposition,
-      final GeoWaveRowIteratorTransformer<C> rowTransformer, final boolean delete) {
+      final GeoWaveRowIteratorTransformer<C> rowTransformer,
+      final boolean delete) {
     boolean exists = false;
     try {
       exists = datastoreOperations.indexExists(index.getName());
@@ -99,7 +112,8 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
       return null;
     }
 
-    return super.getReader(datastoreOperations, options, adapterStore, internalAdapterStore,
+    return super.getReader(
+        datastoreOperations, options, adapterStore, internalAdapterStore,
         maxResolutionSubsamplingPerDimension, targetResolutionPerDimensionForHierarchicalIndex,
         limit, queryMaxRangeDecomposition, rowTransformer, delete);
   }
@@ -118,7 +132,8 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
     return mergingAdapters;
   }
 
-  private <T> GeoWaveRowIteratorTransformer<T> getRowTransformer(final DataStoreOptions options,
+  private <T> GeoWaveRowIteratorTransformer<T> getRowTransformer(
+      final DataStoreOptions options,
       final PersistentAdapterStore adapterStore,
       final double[] maxResolutionSubsamplingPerDimension,
       final boolean decodePersistenceEncoding) {

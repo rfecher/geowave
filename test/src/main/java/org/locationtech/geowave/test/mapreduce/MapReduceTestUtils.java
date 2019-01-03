@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,14 +33,18 @@ public class MapReduceTestUtils {
   public static final int MIN_INPUT_SPLITS = 3;
   public static final int MAX_INPUT_SPLITS = 5;
 
-  protected static void testMapReduceIngest(final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType, final String ingestFilePath) throws Exception {
+  protected static void testMapReduceIngest(
+      final DataStorePluginOptions dataStore,
+      final DimensionalityType dimensionalityType,
+      final String ingestFilePath) throws Exception {
     testMapReduceIngest(dataStore, dimensionalityType, "gpx", ingestFilePath);
   }
 
-  protected static void testMapReduceIngest(final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType, final String format, final String ingestFilePath)
-      throws Exception {
+  protected static void testMapReduceIngest(
+      final DataStorePluginOptions dataStore,
+      final DimensionalityType dimensionalityType,
+      final String format,
+      final String ingestFilePath) throws Exception {
     // ingest gpx data directly into GeoWave using the
     // ingest framework's main method and pre-defined commandline arguments
     LOGGER.warn("Ingesting '" + ingestFilePath + "' - this may take several minutes...");
@@ -89,8 +92,8 @@ public class MapReduceTestUtils {
     }
 
     mrGw.setPluginFormats(ingestFormatOptions);
-    mrGw.setParameters(ingestFilePath, env.getHdfsBaseDirectory(), "test-store",
-        indexParam.toString());
+    mrGw.setParameters(
+        ingestFilePath, env.getHdfsBaseDirectory(), "test-store", indexParam.toString());
     mrGw.getMapReduceOptions().setJobTrackerHostPort(env.getJobtracker());
 
     mrGw.execute(operationParams);

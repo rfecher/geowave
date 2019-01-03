@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,15 +32,19 @@ public class GeoWaveRDDLoader {
     return GeoWaveRDDLoader.loadRDD(sc, storeOptions, defaultOptions);
   }
 
-  public static GeoWaveRDD loadRDD(final SparkContext sc, final DataStorePluginOptions storeOptions,
+  public static GeoWaveRDD loadRDD(
+      final SparkContext sc,
+      final DataStorePluginOptions storeOptions,
       final RDDOptions rddOpts) throws IOException {
     final JavaPairRDD<GeoWaveInputKey, SimpleFeature> rawRDD =
         GeoWaveRDDLoader.loadRawRDD(sc, storeOptions, rddOpts);
     return new GeoWaveRDD(rawRDD);
   }
 
-  public static GeoWaveIndexedRDD loadIndexedRDD(final SparkContext sc,
-      final DataStorePluginOptions storeOptions, final RDDOptions rddOpts,
+  public static GeoWaveIndexedRDD loadIndexedRDD(
+      final SparkContext sc,
+      final DataStorePluginOptions storeOptions,
+      final RDDOptions rddOpts,
       final NumericIndexStrategy indexStrategy) throws IOException {
     final GeoWaveRDD wrappedRDD = GeoWaveRDDLoader.loadRDD(sc, storeOptions, rddOpts);
     if (wrappedRDD == null) {
@@ -58,7 +61,9 @@ public class GeoWaveRDDLoader {
     return returnRDD;
   }
 
-  public static GeoWaveIndexedRDD loadIndexedRDD(final SparkContext sc, final GeoWaveRDD inputRDD,
+  public static GeoWaveIndexedRDD loadIndexedRDD(
+      final SparkContext sc,
+      final GeoWaveRDD inputRDD,
       final NumericIndexStrategy indexStrategy) throws IOException {
     if ((inputRDD == null) || !inputRDD.isLoaded()) {
       return null;
@@ -74,8 +79,10 @@ public class GeoWaveRDDLoader {
     return returnRDD;
   }
 
-  public static JavaPairRDD<GeoWaveInputKey, SimpleFeature> loadRawRDD(final SparkContext sc,
-      final DataStorePluginOptions storeOptions, final RDDOptions rddOpts) throws IOException {
+  public static JavaPairRDD<GeoWaveInputKey, SimpleFeature> loadRawRDD(
+      final SparkContext sc,
+      final DataStorePluginOptions storeOptions,
+      final RDDOptions rddOpts) throws IOException {
     if (sc == null) {
       LOGGER.error("Must supply a valid Spark Context. Please set SparkContext and try again.");
       return null;
@@ -96,7 +103,8 @@ public class GeoWaveRDDLoader {
     GeoWaveInputFormat.setStoreOptions(conf, storeOptions);
 
     if (rddOpts.getQuery() != null) {
-      GeoWaveInputFormat.setQuery(conf, rddOpts.getQuery(), storeOptions.createAdapterStore(),
+      GeoWaveInputFormat.setQuery(
+          conf, rddOpts.getQuery(), storeOptions.createAdapterStore(),
           storeOptions.createInternalAdapterStore(), storeOptions.createIndexStore());
     }
 
@@ -114,8 +122,9 @@ public class GeoWaveRDDLoader {
       }
     }
 
-    final RDD<Tuple2<GeoWaveInputKey, SimpleFeature>> rdd = sc.newAPIHadoopRDD(conf,
-        GeoWaveInputFormat.class, GeoWaveInputKey.class, SimpleFeature.class);
+    final RDD<Tuple2<GeoWaveInputKey, SimpleFeature>> rdd =
+        sc.newAPIHadoopRDD(
+            conf, GeoWaveInputFormat.class, GeoWaveInputKey.class, SimpleFeature.class);
 
     final JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd =
         JavaPairRDD.fromJavaRDD(rdd.toJavaRDD());

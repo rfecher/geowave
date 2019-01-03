@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -68,11 +67,12 @@ public class PolygonDataIdQueryIT extends AbstractGeoWaveIT {
 
   @Test
   public void testPolygonDataIdQueryResults() {
-    final CloseableIterator<SimpleFeature> matches = (CloseableIterator) dataStore.createDataStore()
-        .query(QueryBuilder.newBuilder().addTypeName(dataAdapter.getTypeName())
-            .indexName(TestUtils.DEFAULT_SPATIAL_INDEX.getName())
-            .constraints(new DataIdQuery(new ByteArray(StringUtils.stringToBinary(DATA_ID))))
-            .build());
+    final CloseableIterator<SimpleFeature> matches =
+        (CloseableIterator) dataStore.createDataStore().query(
+            QueryBuilder.newBuilder().addTypeName(dataAdapter.getTypeName())
+                .indexName(TestUtils.DEFAULT_SPATIAL_INDEX.getName())
+                .constraints(new DataIdQuery(new ByteArray(StringUtils.stringToBinary(DATA_ID))))
+                .build());
     int numResults = 0;
     while (matches.hasNext()) {
       matches.next();
@@ -100,8 +100,10 @@ public class PolygonDataIdQueryIT extends AbstractGeoWaveIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*      FINISHED PolygonDataIdQueryIT    *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                 *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -112,10 +114,12 @@ public class PolygonDataIdQueryIT extends AbstractGeoWaveIT {
     store.addType(dataAdapter, TestUtils.DEFAULT_SPATIAL_INDEX);
     try (@SuppressWarnings("unchecked")
     Writer writer = store.createWriter(dataAdapter.getTypeName())) {
-      writer.write(buildSimpleFeature(DATA_ID,
-          GeometryUtils.GEOMETRY_FACTORY.createPolygon(
-              new Coordinate[] {new Coordinate(1.0249, 1.0319), new Coordinate(1.0261, 1.0319),
-                  new Coordinate(1.0261, 1.0323), new Coordinate(1.0249, 1.0319)})));
+      writer.write(
+          buildSimpleFeature(
+              DATA_ID,
+              GeometryUtils.GEOMETRY_FACTORY.createPolygon(
+                  new Coordinate[] {new Coordinate(1.0249, 1.0319), new Coordinate(1.0261, 1.0319),
+                      new Coordinate(1.0261, 1.0323), new Coordinate(1.0249, 1.0319)})));
     }
   }
 

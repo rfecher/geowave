@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -66,7 +65,9 @@ public class SimpleFeatureOutputReducer extends GeoWaveReducer {
   protected static final Logger LOGGER = LoggerFactory.getLogger(SimpleFeatureOutputReducer.class);
 
   @Override
-  protected void reduceNativeValues(final GeoWaveInputKey key, final Iterable<Object> values,
+  protected void reduceNativeValues(
+      final GeoWaveInputKey key,
+      final Iterable<Object> values,
       final ReduceContext<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, Object> context)
       throws IOException, InterruptedException {
     final Iterator<Object> valIt = values.iterator();
@@ -90,8 +91,9 @@ public class SimpleFeatureOutputReducer extends GeoWaveReducer {
 
     final String inputID = StringUtils.stringFromBinary(key.getDataId().getBytes());
     final SimpleFeature pointFeature =
-        AnalyticFeature.createGeometryFeature(outputAdapter.getFeatureType(), batchID, inputID,
-            inputID, groupID, 0.0, geometry, dimExtractor.getDimensionNames(), extraDims, 1, 1, 0);
+        AnalyticFeature.createGeometryFeature(
+            outputAdapter.getFeatureType(), batchID, inputID, inputID, groupID, 0.0, geometry,
+            dimExtractor.getDimensionNames(), extraDims, 1, 1, 0);
 
     return pointFeature;
   }
@@ -113,21 +115,27 @@ public class SimpleFeatureOutputReducer extends GeoWaveReducer {
     groupID = config.getString(ExtractParameters.Extract.GROUP_ID, UUID.randomUUID().toString());
 
     try {
-      dimExtractor = config.getInstance(ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-          DimensionExtractor.class, EmptyDimensionExtractor.class);
+      dimExtractor =
+          config.getInstance(
+              ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS, DimensionExtractor.class,
+              EmptyDimensionExtractor.class);
     } catch (final Exception e1) {
       LOGGER.warn(
-          "Failed to instantiate " + GeoWaveConfiguratorBase.enumToConfKey(
-              SimpleFeatureOutputReducer.class, ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS),
+          "Failed to instantiate "
+              + GeoWaveConfiguratorBase.enumToConfKey(
+                  SimpleFeatureOutputReducer.class,
+                  ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS),
           e1);
-      throw new IOException("Invalid configuration for " + GeoWaveConfiguratorBase.enumToConfKey(
-          SimpleFeatureOutputReducer.class, ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS));
+      throw new IOException("Invalid configuration for "
+          + GeoWaveConfiguratorBase.enumToConfKey(
+              SimpleFeatureOutputReducer.class, ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS));
     }
 
-    outputAdapter = AnalyticFeature.createGeometryFeatureAdapter(outputDataTypeID,
-        dimExtractor.getDimensionNames(),
-        config.getString(ExtractParameters.Extract.DATA_NAMESPACE_URI,
-            BasicFeatureTypes.DEFAULT_NAMESPACE),
-        ClusteringUtils.CLUSTERING_CRS);
+    outputAdapter =
+        AnalyticFeature.createGeometryFeatureAdapter(
+            outputDataTypeID, dimExtractor.getDimensionNames(),
+            config.getString(
+                ExtractParameters.Extract.DATA_NAMESPACE_URI, BasicFeatureTypes.DEFAULT_NAMESPACE),
+            ClusteringUtils.CLUSTERING_CRS);
   }
 }

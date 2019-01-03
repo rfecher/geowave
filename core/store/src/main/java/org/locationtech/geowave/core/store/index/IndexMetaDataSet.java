@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,13 +37,17 @@ public class IndexMetaDataSet<T> extends
 
   public IndexMetaDataSet() {}
 
-  private IndexMetaDataSet(final short internalDataAdapterId, final String indexName,
+  private IndexMetaDataSet(
+      final short internalDataAdapterId,
+      final String indexName,
       final List<IndexMetaData> metaData) {
     super(internalDataAdapterId, STATS_TYPE, indexName);
     this.metaData = metaData;
   }
 
-  public IndexMetaDataSet(final short internalDataAdapterId, final String indexName,
+  public IndexMetaDataSet(
+      final short internalDataAdapterId,
+      final String indexName,
       final SortedIndexStrategy<?, ?> indexStrategy) {
     this(internalDataAdapterId, indexName, indexStrategy.createMetaData());
   }
@@ -111,14 +114,16 @@ public class IndexMetaDataSet<T> extends
     }
   }
 
-  public static IndexMetaData[] getIndexMetadata(final Index index,
-      final List<Short> adapterIdsToQuery, final DataStatisticsStore statisticsStore,
+  public static IndexMetaData[] getIndexMetadata(
+      final Index index,
+      final List<Short> adapterIdsToQuery,
+      final DataStatisticsStore statisticsStore,
       final String... authorizations) {
     IndexMetaDataSet combinedMetaData = null;
     for (final short adapterId : adapterIdsToQuery) {
       try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> adapterMetadataIt =
-          statisticsStore.getDataStatistics(adapterId, index.getName(), STATS_TYPE,
-              authorizations)) {
+          statisticsStore
+              .getDataStatistics(adapterId, index.getName(), STATS_TYPE, authorizations)) {
         if (adapterMetadataIt.hasNext()) {
           final IndexMetaDataSet adapterMetadata = (IndexMetaDataSet) adapterMetadataIt.next();
           if (combinedMetaData == null) {

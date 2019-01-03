@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -29,8 +28,12 @@ public class RocksDBWriter implements RowWriter {
       Caffeine.newBuilder().build(partitionKey -> getTable(partitionKey.getBytes()));
   boolean isTimestampRequired;
 
-  public RocksDBWriter(final RocksDBClient client, final short adapterId, final String typeName,
-      final String indexName, final boolean isTimestampRequired) {
+  public RocksDBWriter(
+      final RocksDBClient client,
+      final short adapterId,
+      final String typeName,
+      final String indexName,
+      final boolean isTimestampRequired) {
     this.client = client;
     this.adapterId = adapterId;
     indexNamePrefix = RocksDBUtils.getTablePrefix(typeName, indexName);
@@ -38,8 +41,8 @@ public class RocksDBWriter implements RowWriter {
   }
 
   private RocksDBIndexTable getTable(final byte[] partitionKey) {
-    return RocksDBUtils.getIndexTableFromPrefix(client, indexNamePrefix, adapterId, partitionKey,
-        isTimestampRequired);
+    return RocksDBUtils.getIndexTableFromPrefix(
+        client, indexNamePrefix, adapterId, partitionKey, isTimestampRequired);
   }
 
   @Override
@@ -58,8 +61,8 @@ public class RocksDBWriter implements RowWriter {
       partitionKey = new ByteArray(row.getPartitionKey());
     }
     for (final GeoWaveValue value : row.getFieldValues()) {
-      tableCache.get(partitionKey).add(row.getSortKey(), row.getDataId(),
-          (short) row.getNumberOfDuplicates(), value);
+      tableCache.get(partitionKey)
+          .add(row.getSortKey(), row.getDataId(), (short) row.getNumberOfDuplicates(), value);
     }
   }
 

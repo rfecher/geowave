@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -46,9 +45,8 @@ import org.slf4j.LoggerFactory;
  * The Basic Query class represent a hyper-cube(s) query across all dimensions that match the
  * Constraints passed into the constructor
  *
- * <p>
- * NOTE: query to an index that requires a constraint and the constraint is missing within the query
- * equates to an unconstrained index scan. The query filter is still applied.
+ * <p> NOTE: query to an index that requires a constraint and the constraint is missing within the
+ * query equates to an unconstrained index scan. The query filter is still applied.
  */
 public class BasicQuery implements QueryConstraints {
   private static final double DOUBLE_TOLERANCE = 1E-12d;
@@ -68,13 +66,15 @@ public class BasicQuery implements QueryConstraints {
       this.constraintsPerTypeOfDimensionDefinition = constraintsPerTypeOfDimensionDefinition;
     }
 
-    public ConstraintSet(final Class<? extends NumericDimensionDefinition> dimDefinition,
+    public ConstraintSet(
+        final Class<? extends NumericDimensionDefinition> dimDefinition,
         final ConstraintData constraintData) {
       this();
       addConstraint(dimDefinition, constraintData);
     }
 
-    public void addConstraint(final Class<? extends NumericDimensionDefinition> dimDefinition,
+    public void addConstraint(
+        final Class<? extends NumericDimensionDefinition> dimDefinition,
         final ConstraintData constraintData) {
       final ConstraintData myCd = constraintsPerTypeOfDimensionDefinition.get(dimDefinition);
       if (myCd != null) {
@@ -181,13 +181,15 @@ public class BasicQuery implements QueryConstraints {
       // constraints
       final Set<Integer> fieldsToTrim = new HashSet<>();
       for (int d = 0; d < dimensionFields.length; d++) {
-        final ConstraintData nd = constraintsPerTypeOfDimensionDefinition
-            .get(dimensionFields[d].getBaseDefinition().getClass());
+        final ConstraintData nd =
+            constraintsPerTypeOfDimensionDefinition
+                .get(dimensionFields[d].getBaseDefinition().getClass());
         if (nd == null) {
           fieldsToTrim.add(d);
         } else {
-          orderedConstraintsPerDimension[d] = constraintsPerTypeOfDimensionDefinition
-              .get(dimensionFields[d].getBaseDefinition().getClass()).range;
+          orderedConstraintsPerDimension[d] =
+              constraintsPerTypeOfDimensionDefinition
+                  .get(dimensionFields[d].getBaseDefinition().getClass()).range;
         }
       }
       if (!fieldsToTrim.isEmpty()) {
@@ -213,7 +215,8 @@ public class BasicQuery implements QueryConstraints {
       } else {
         unconstrainedDimensionFields = new NumericDimensionField[] {};
       }
-      return basicQuery.createQueryFilter(new BasicNumericDataset(orderedConstraintsPerDimension),
+      return basicQuery.createQueryFilter(
+          new BasicNumericDataset(orderedConstraintsPerDimension),
           orderedConstrainedDimensionFields, unconstrainedDimensionFields, index);
     }
 
@@ -262,8 +265,8 @@ public class BasicQuery implements QueryConstraints {
         try {
           final Class<? extends NumericDimensionDefinition> cls =
               (Class<? extends NumericDimensionDefinition>) Class.forName(classNameStr);
-          constraintsPerTypeOfDimensionDefinition.put(cls,
-              new ConstraintData(new NumericRange(min, max), isDefault));
+          constraintsPerTypeOfDimensionDefinition
+              .put(cls, new ConstraintData(new NumericRange(min, max), isDefault));
         } catch (final ClassNotFoundException e) {
           // HP Fortify "Improper Output Neutralization" false
           // positive
@@ -398,8 +401,10 @@ public class BasicQuery implements QueryConstraints {
       return new Constraints(newSets);
     }
 
-    private static void add(final List<ConstraintSet> newSets,
-        final List<ConstraintSet> currentSets, final ConstraintSet newSet) {
+    private static void add(
+        final List<ConstraintSet> newSets,
+        final List<ConstraintSet> currentSets,
+        final ConstraintSet newSet) {
       for (final ConstraintSet cs : currentSets) {
         newSets.add(cs.merge(newSet));
       }
@@ -486,12 +491,15 @@ public class BasicQuery implements QueryConstraints {
     this(constraints, compareOp, Collections.emptyMap());
   }
 
-  public BasicQuery(final Constraints constraints,
+  public BasicQuery(
+      final Constraints constraints,
       final Map<String, FilterableConstraints> additionalConstraints) {
     this(constraints, BasicQueryCompareOperation.INTERSECTS, additionalConstraints);
   }
 
-  protected BasicQuery(final Constraints constraints, final BasicQueryCompareOperation compareOp,
+  protected BasicQuery(
+      final Constraints constraints,
+      final BasicQueryCompareOperation compareOp,
       final Map<String, FilterableConstraints> additionalConstraints) {
     super();
     this.constraints = constraints;
@@ -515,9 +523,11 @@ public class BasicQuery implements QueryConstraints {
     return Collections.emptyList();
   }
 
-  protected QueryFilter createQueryFilter(final MultiDimensionalNumericData constraints,
+  protected QueryFilter createQueryFilter(
+      final MultiDimensionalNumericData constraints,
       final NumericDimensionField<?>[] orderedConstrainedDimensionFields,
-      final NumericDimensionField<?>[] unconstrainedDimensionFields, final Index index) {
+      final NumericDimensionField<?>[] unconstrainedDimensionFields,
+      final Index index) {
     return new BasicQueryFilter(constraints, orderedConstrainedDimensionFields, compareOp);
   }
 

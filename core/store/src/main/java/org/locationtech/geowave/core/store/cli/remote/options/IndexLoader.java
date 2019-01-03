@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -71,7 +70,8 @@ public class IndexLoader {
 
       if ((indexGroupOptions != null) && (indexOptions != null)) {
         throw new ParameterException("Aborting because there is both an index group "
-            + "and index with the name: " + indexName);
+            + "and index with the name: "
+            + indexName);
       } else if (indexOptions != null) {
         loadedIndices.put(index, indexOptions);
       } else if (indexGroupOptions != null) {
@@ -82,7 +82,8 @@ public class IndexLoader {
     return loadedIndices.size() != 0;
   }
 
-  private static IndexGroupPluginOptions loadIndexGroupPluginOptions(final Properties props,
+  private static IndexGroupPluginOptions loadIndexGroupPluginOptions(
+      final Properties props,
       final String name) {
     final IndexGroupPluginOptions indexGroupPlugin = new IndexGroupPluginOptions();
     final String indexGroupNamespace = IndexGroupPluginOptions.getIndexGroupNamespace(name);
@@ -92,7 +93,8 @@ public class IndexLoader {
     return indexGroupPlugin;
   }
 
-  private static IndexPluginOptions loadIndexPluginOptions(final Properties props,
+  private static IndexPluginOptions loadIndexPluginOptions(
+      final Properties props,
       final String name) {
     final IndexPluginOptions indexPlugin = new IndexPluginOptions();
     final String indexNamespace = IndexPluginOptions.getIndexNamespace(name);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -81,8 +80,10 @@ public class GeoWaveSparkSpatialJoinIT extends AbstractGeoWaveBasicVectorIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED GeoWaveSparkSpatialJoinIT  *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                 *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -178,8 +179,8 @@ public class GeoWaveSparkSpatialJoinIT extends AbstractGeoWaveBasicVectorIT {
 
     mark = System.currentTimeMillis();
 
-    TestUtils.testLocalIngest(tornadoStore, DimensionalityType.SPATIAL,
-        TORNADO_TRACKS_SHAPEFILE_FILE, 1);
+    TestUtils.testLocalIngest(
+        tornadoStore, DimensionalityType.SPATIAL, TORNADO_TRACKS_SHAPEFILE_FILE, 1);
 
     dur = (System.currentTimeMillis() - mark);
     LOGGER.debug("Ingest (lines) duration = " + dur + " ms with " + 1 + " thread(s).");
@@ -214,8 +215,11 @@ public class GeoWaveSparkSpatialJoinIT extends AbstractGeoWaveBasicVectorIT {
     }
   }
 
-  private long runBruteForceJoin(final String hail_adapter, final String tornado_adapter,
-      final String sqlHail, final String sqlTornado) {
+  private long runBruteForceJoin(
+      final String hail_adapter,
+      final String tornado_adapter,
+      final String sqlHail,
+      final String sqlTornado) {
     final long mark = System.currentTimeMillis();
     final SimpleFeatureDataFrame hailFrame = new SimpleFeatureDataFrame(session);
     final SimpleFeatureDataFrame tornadoFrame = new SimpleFeatureDataFrame(session);

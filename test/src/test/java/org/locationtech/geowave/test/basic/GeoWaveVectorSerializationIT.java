@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -76,8 +75,10 @@ public class GeoWaveVectorSerializationIT extends AbstractGeoWaveIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED GeoWaveVectorSerializationIT *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                 *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -86,7 +87,8 @@ public class GeoWaveVectorSerializationIT extends AbstractGeoWaveIT {
   public void testFeatureSerialization() throws IOException {
 
     final Map<Class, Object> args = new HashMap<>();
-    args.put(Geometry.class,
+    args.put(
+        Geometry.class,
         GeometryUtils.GEOMETRY_FACTORY.createPoint(new Coordinate(123.4, 567.8)).buffer(1));
     args.put(Integer.class, 23);
     args.put(Long.class, 473874387l);
@@ -101,8 +103,9 @@ public class GeoWaveVectorSerializationIT extends AbstractGeoWaveIT {
     args.put(BigInteger.class, BigInteger.valueOf(893489348343423l));
     args.put(BigDecimal.class, new BigDecimal("939384.93840238409237483617837483"));
     args.put(Calendar.class, Calendar.getInstance());
-    args.put(String.class, "This is my string. There are many like it, but this one is mine.\n"
-        + "My string is my best friend. It is my life. I must master it as I must master my life.");
+    args.put(
+        String.class, "This is my string. There are many like it, but this one is mine.\n"
+            + "My string is my best friend. It is my life. I must master it as I must master my life.");
     args.put(long[].class, new long[] {12345l, 6789l, 1011l, 1213111111111111l});
     args.put(int[].class, new int[] {-55, -44, -33, -934839, 55});
     args.put(double[].class, new double[] {1.125d, 2.25d});
@@ -114,8 +117,9 @@ public class GeoWaveVectorSerializationIT extends AbstractGeoWaveIT {
     builder.setName("featureserializationtest");
 
     for (final Map.Entry<Class, Object> arg : args.entrySet()) {
-      builder.add(ab.binding(arg.getKey()).nillable(false)
-          .buildDescriptor(arg.getKey().getName().toString()));
+      builder.add(
+          ab.binding(arg.getKey()).nillable(false)
+              .buildDescriptor(arg.getKey().getName().toString()));
     }
 
     final SimpleFeatureType serTestType = builder.buildFeatureType();
@@ -140,7 +144,8 @@ public class GeoWaveVectorSerializationIT extends AbstractGeoWaveIT {
       boolean foundFeat = false;
       while (iter.hasNext()) {
         final Object maybeFeat = iter.next();
-        Assert.assertTrue("Iterator should return simple feature in this test",
+        Assert.assertTrue(
+            "Iterator should return simple feature in this test",
             maybeFeat instanceof SimpleFeature);
         foundFeat = true;
         final SimpleFeature isFeat = (SimpleFeature) maybeFeat;
@@ -170,7 +175,8 @@ public class GeoWaveVectorSerializationIT extends AbstractGeoWaveIT {
           } else if (before instanceof short[]) {
             Assert.assertArrayEquals((short[]) before, (short[]) after);
           } else if (before.getClass().isArray()) {
-            Assert.assertArrayEquals(returnArray(p.getType().getBinding(), before),
+            Assert.assertArrayEquals(
+                returnArray(p.getType().getBinding(), before),
                 returnArray(p.getType().getBinding(), after));
           } else if (before instanceof Geometry) {
             Assert.assertTrue(((Geometry) before).equalsExact((Geometry) after, 1e-7));

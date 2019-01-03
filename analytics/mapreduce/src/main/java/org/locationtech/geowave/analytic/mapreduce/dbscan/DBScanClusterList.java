@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,8 +31,7 @@ import org.slf4j.LoggerFactory;
  * counts contributed by components of this cluster. Supports merging with other clusters,
  * incrementing the count by only those components different from the other cluster.
  *
- * <p>
- * Intended to run in a single thread. Not Thread Safe.
+ * <p> Intended to run in a single thread. Not Thread Safe.
  */
 public abstract class DBScanClusterList implements Cluster {
   protected static final Logger LOGGER = LoggerFactory.getLogger(DBScanClusterList.class);
@@ -61,7 +59,10 @@ public abstract class DBScanClusterList implements Cluster {
     mergeSize = size;
   }
 
-  public DBScanClusterList(final Geometry clusterGeo, final int itemCount, final ByteArray centerId,
+  public DBScanClusterList(
+      final Geometry clusterGeo,
+      final int itemCount,
+      final ByteArray centerId,
       final Map<ByteArray, Cluster> index) {
     super();
     this.clusterGeo = clusterGeo;
@@ -70,11 +71,15 @@ public abstract class DBScanClusterList implements Cluster {
     id = centerId;
   }
 
-  protected abstract long addAndFetchCount(final ByteArray newId, final ClusterItem newInstance,
+  protected abstract long addAndFetchCount(
+      final ByteArray newId,
+      final ClusterItem newInstance,
       final DistanceProfile<?> distanceProfile);
 
   @Override
-  public final boolean add(final DistanceProfile<?> distanceProfile, final ByteArray newId,
+  public final boolean add(
+      final DistanceProfile<?> distanceProfile,
+      final ByteArray newId,
       final ClusterItem newInstance) {
 
     LOGGER.trace("link {} to {}", newId, id);
@@ -124,7 +129,8 @@ public abstract class DBScanClusterList implements Cluster {
   public void invalidate() {
     for (ByteArray linkedId : getLinkedClusters(true)) {
       Cluster linkedCluster = index.get(linkedId);
-      if (linkedCluster != null && linkedCluster != this
+      if (linkedCluster != null
+          && linkedCluster != this
           && linkedCluster instanceof DBScanClusterList) {
         ((DBScanClusterList) linkedCluster).getLinkedClusters(false).remove(id);
       }
@@ -225,8 +231,9 @@ public abstract class DBScanClusterList implements Cluster {
       }
 
       if (isCompressed() && ((DBScanClusterList) cluster).isCompressed()) {
-        incrementItemCount((long) (interpolateFactor(((DBScanClusterList) cluster).clusterGeo)
-            * ((DBScanClusterList) cluster).itemCount));
+        incrementItemCount(
+            (long) (interpolateFactor(((DBScanClusterList) cluster).clusterGeo)
+                * ((DBScanClusterList) cluster).itemCount));
       } else if (!removedLinked) {
         incrementItemCount(1);
       }
@@ -284,8 +291,9 @@ public abstract class DBScanClusterList implements Cluster {
     } catch (TopologyException ex) {
 
       LOGGER.error("Union failed due to non-simple geometries", ex);
-      clusterGeo = connectGeometryTool.createHullFromGeometry(clusterGeo,
-          Arrays.asList(otherGeo.getCoordinates()), false);
+      clusterGeo =
+          connectGeometryTool
+              .createHullFromGeometry(clusterGeo, Arrays.asList(otherGeo.getCoordinates()), false);
     }
   }
 
@@ -306,7 +314,9 @@ public abstract class DBScanClusterList implements Cluster {
     }
   }
 
-  private void buildClusterLists(final Set<Cluster> readyClusters, final DBScanClusterList cluster,
+  private void buildClusterLists(
+      final Set<Cluster> readyClusters,
+      final DBScanClusterList cluster,
       final boolean deleteNonLinks) {
     for (final ByteArray linkedClusterId : cluster.getLinkedClusters()) {
       final Cluster linkedCluster = index.get(linkedClusterId);
@@ -318,7 +328,10 @@ public abstract class DBScanClusterList implements Cluster {
 
   @Override
   public String toString() {
-    return "DBScanClusterList [clusterGeo=" + (clusterGeo == null ? "null" : clusterGeo.toString())
-        + ", id=" + id + "]";
+    return "DBScanClusterList [clusterGeo="
+        + (clusterGeo == null ? "null" : clusterGeo.toString())
+        + ", id="
+        + id
+        + "]";
   }
 }

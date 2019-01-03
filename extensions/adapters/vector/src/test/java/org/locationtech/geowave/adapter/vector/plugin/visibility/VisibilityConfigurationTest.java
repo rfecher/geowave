@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,8 +22,10 @@ public class VisibilityConfigurationTest {
 
   @Before
   public void setup() throws SchemaException, CQLException, ParseException {
-    schema = DataUtilities.createType("sp.geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,whennot:Date,pid:String"); // typeBuilder.buildFeatureType();
+    schema =
+        DataUtilities.createType(
+            "sp.geostuff",
+            "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,whennot:Date,pid:String"); // typeBuilder.buildFeatureType();
   }
 
   public static class TestExtension extends JsonDefinitionColumnVisibilityManagement {
@@ -48,7 +49,8 @@ public class VisibilityConfigurationTest {
     assertEquals(Boolean.TRUE, schema.getDescriptor("pop").getUserData().get("visibility"));
 
     assertFalse(schema.getDescriptor("pid").getUserData().containsKey("visibility"));
-    assertEquals(JsonDefinitionColumnVisibilityManagement.class.getName(),
+    assertEquals(
+        JsonDefinitionColumnVisibilityManagement.class.getName(),
         schema.getUserData().get("visibilityManagerClass"));
   }
 }

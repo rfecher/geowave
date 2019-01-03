@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,8 +33,7 @@ import org.locationtech.geowave.core.store.operations.MetadataType;
  * This class will persist Index objects within an Accumulo table for GeoWave metadata. The adapters
  * will be persisted in an "INDEX" column family.
  *
- * <p>
- * There is an LRU cache associated with it so staying in sync with external updates is not
+ * <p> There is an LRU cache associated with it so staying in sync with external updates is not
  * practical - it assumes the objects are not updated often or at all. The objects are stored in
  * their own table.
  */
@@ -48,15 +46,17 @@ public class DataStatisticsStoreImpl extends
 
   private static final long STATISTICS_CACHE_TIMEOUT = 60 * 1000; // 1 Minute
 
-  public DataStatisticsStoreImpl(final DataStoreOperations operations,
+  public DataStatisticsStoreImpl(
+      final DataStoreOperations operations,
       final DataStoreOptions options) {
     super(operations, options, MetadataType.STATS);
   }
 
   @Override
   protected void buildCache() {
-    final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
-        .maximumSize(MAX_ENTRIES).expireAfterWrite(STATISTICS_CACHE_TIMEOUT, TimeUnit.MILLISECONDS);
+    final CacheBuilder<Object, Object> cacheBuilder =
+        CacheBuilder.newBuilder().maximumSize(MAX_ENTRIES)
+            .expireAfterWrite(STATISTICS_CACHE_TIMEOUT, TimeUnit.MILLISECONDS);
     cache = cacheBuilder.<ByteArray, Map<String, InternalDataStatistics<?, ?, ?>>>build();
   }
 
@@ -84,8 +84,11 @@ public class DataStatisticsStoreImpl extends
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void addObjectToCache(final ByteArray primaryId, final ByteArray secondaryId,
-      final InternalDataStatistics<?, ?, ?> object, final String... authorizations) {
+  protected void addObjectToCache(
+      final ByteArray primaryId,
+      final ByteArray secondaryId,
+      final InternalDataStatistics<?, ?, ?> object,
+      final String... authorizations) {
     final ByteArray combinedId = getCombinedId(primaryId, secondaryId);
 
     Map<String, InternalDataStatistics<?, ?, ?>> cached =
@@ -99,7 +102,9 @@ public class DataStatisticsStoreImpl extends
 
   @SuppressWarnings("unchecked")
   @Override
-  protected Object getObjectFromCache(final ByteArray primaryId, final ByteArray secondaryId,
+  protected Object getObjectFromCache(
+      final ByteArray primaryId,
+      final ByteArray secondaryId,
       final String... authorizations) {
     final ByteArray combinedId = getCombinedId(primaryId, secondaryId);
     final Map<String, InternalDataStatistics<?, ?, ?>> cached =
@@ -119,13 +124,17 @@ public class DataStatisticsStoreImpl extends
   }
 
   @Override
-  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(final short adapterId,
-      final StatisticsType<?, ?> statisticsType, final String... authorizations) {
+  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
+      final short adapterId,
+      final StatisticsType<?, ?> statisticsType,
+      final String... authorizations) {
     return internalGetDataStatistics(adapterId, statisticsType, authorizations);
   }
 
   protected CloseableIterator<InternalDataStatistics<?, ?, ?>> internalGetDataStatistics(
-      final Short adapterId, final ByteArray primaryId, final String... authorizations) {
+      final Short adapterId,
+      final ByteArray primaryId,
+      final String... authorizations) {
 
     final ByteArray secondaryId = adapterId == null ? null : shortToByteArrayId(adapterId);
     final Object cacheResult = getObjectFromCache(primaryId, secondaryId, authorizations);
@@ -138,12 +147,14 @@ public class DataStatisticsStoreImpl extends
 
     // otherwise scan
     // TODO issue 1443 will enable prefix scans on the primary ID
-    return internalGetObjects(new MetadataQuery(primaryId.getBytes(),
-        secondaryId == null ? null : secondaryId.getBytes(), authorizations));
+    return internalGetObjects(
+        new MetadataQuery(primaryId.getBytes(), secondaryId == null ? null : secondaryId.getBytes(),
+            authorizations));
   }
 
   @Override
-  protected InternalDataStatistics<?, ?, ?> entryToValue(final GeoWaveMetadata entry,
+  protected InternalDataStatistics<?, ?, ?> entryToValue(
+      final GeoWaveMetadata entry,
       final String... authorizations) {
     final InternalDataStatistics<?, ?, ?> stats = super.entryToValue(entry, authorizations);
     if (stats != null) {
@@ -152,8 +163,10 @@ public class DataStatisticsStoreImpl extends
     return null;
   }
 
-  public static InternalDataStatistics<?, ?, ?> setFields(final GeoWaveMetadata entry,
-      final InternalDataStatistics<?, ?, ?> basicStats, final short adapterId) {
+  public static InternalDataStatistics<?, ?, ?> setFields(
+      final GeoWaveMetadata entry,
+      final InternalDataStatistics<?, ?, ?> basicStats,
+      final short adapterId) {
     if (basicStats != null) {
       basicStats.setAdapterId(adapterId);
       final int index = Bytes.indexOf(entry.getPrimaryId(), (byte) 0);
@@ -161,8 +174,9 @@ public class DataStatisticsStoreImpl extends
         basicStats
             .setType(new BaseStatisticsType(Arrays.copyOfRange(entry.getPrimaryId(), 0, index)));
 
-        basicStats.setExtendedId(StringUtils.stringFromBinary(
-            Arrays.copyOfRange(entry.getPrimaryId(), index + 1, entry.getPrimaryId().length)));
+        basicStats.setExtendedId(
+            StringUtils.stringFromBinary(
+                Arrays.copyOfRange(entry.getPrimaryId(), index + 1, entry.getPrimaryId().length)));
       } else {
         basicStats.setType(new BaseStatisticsType(entry.getPrimaryId()));
       }
@@ -181,8 +195,8 @@ public class DataStatisticsStoreImpl extends
 
   public static ByteArray getPrimaryId(final StatisticsType<?, ?> type, final String extendedId) {
     if ((extendedId != null) && (extendedId.length() > 0)) {
-      return new ByteArray(Bytes.concat(type.getBytes(), new byte[] {(byte) 0},
-          StringUtils.stringToBinary(extendedId)));
+      return new ByteArray(Bytes
+          .concat(type.getBytes(), new byte[] {(byte) 0}, StringUtils.stringToBinary(extendedId)));
     }
     return type;
   }
@@ -205,13 +219,16 @@ public class DataStatisticsStoreImpl extends
   }
 
   @Override
-  public boolean removeStatistics(final short adapterId, final StatisticsType<?, ?> statisticsType,
+  public boolean removeStatistics(
+      final short adapterId,
+      final StatisticsType<?, ?> statisticsType,
       final String... authorizations) {
     return deleteObject(statisticsType, shortToByteArrayId(adapterId), authorizations);
   }
 
   @Override
-  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(final short adapterId,
+  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
+      final short adapterId,
       final String... authorizations) {
     return getAllObjectsWithSecondaryId(shortToByteArrayId(adapterId), authorizations);
   }
@@ -227,31 +244,38 @@ public class DataStatisticsStoreImpl extends
   }
 
   @Override
-  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(final short adapterId,
-      final String extendedId, final StatisticsType<?, ?> statisticsType,
+  public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
+      final short adapterId,
+      final String extendedId,
+      final StatisticsType<?, ?> statisticsType,
       final String... authorizations) {
-    return internalGetDataStatistics(adapterId, getPrimaryId(statisticsType, extendedId),
-        authorizations);
+    return internalGetDataStatistics(
+        adapterId, getPrimaryId(statisticsType, extendedId), authorizations);
   }
 
   @Override
-  public boolean removeStatistics(final short adapterId, final String extendedId,
-      final StatisticsType<?, ?> statisticsType, final String... authorizations) {
-    return deleteObject(getPrimaryId(statisticsType, extendedId), shortToByteArrayId(adapterId),
-        authorizations);
+  public boolean removeStatistics(
+      final short adapterId,
+      final String extendedId,
+      final StatisticsType<?, ?> statisticsType,
+      final String... authorizations) {
+    return deleteObject(
+        getPrimaryId(statisticsType, extendedId), shortToByteArrayId(adapterId), authorizations);
   }
 
   @Override
   public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
-      final StatisticsType<?, ?> statisticsType, final String... authorizations) {
+      final StatisticsType<?, ?> statisticsType,
+      final String... authorizations) {
     return internalGetDataStatistics(null, statisticsType, authorizations);
   }
 
   @Override
   public CloseableIterator<InternalDataStatistics<?, ?, ?>> getDataStatistics(
-      final String extendedIdPrefix, final StatisticsType<?, ?> statisticsType,
+      final String extendedIdPrefix,
+      final StatisticsType<?, ?> statisticsType,
       final String... authorizations) {
-    return internalGetDataStatistics(null, getPrimaryId(statisticsType, extendedIdPrefix),
-        authorizations);
+    return internalGetDataStatistics(
+        null, getPrimaryId(statisticsType, extendedIdPrefix), authorizations);
   }
 }

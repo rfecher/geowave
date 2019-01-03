@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -74,8 +73,10 @@ public class GeoWaveSparkKMeansIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("* FINISHED GeoWaveSparkKMeansIT     *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                 *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -134,7 +135,8 @@ public class GeoWaveSparkKMeansIT {
     final JavaPairRDD<Integer, Geometry> hullsRDD =
         KMeansHullGenerator.generateHullsRDD(groupByRDD);
 
-    Assert.assertTrue("centroids from the model should match the hull count",
+    Assert.assertTrue(
+        "centroids from the model should match the hull count",
         clusterModel.clusterCenters().length == hullsRDD.count());
 
     System.out.println("KMeans cluster hulls:");
@@ -164,12 +166,14 @@ public class GeoWaveSparkKMeansIT {
     int count = 0;
 
     try (final CloseableIterator<?> iter =
-        featureStore.query(QueryBuilder.newBuilder().addTypeName(dataAdapter.getTypeName())
-            .indexName(TestUtils.DEFAULT_SPATIAL_INDEX.getName()).build())) {
+        featureStore.query(
+            QueryBuilder.newBuilder().addTypeName(dataAdapter.getTypeName())
+                .indexName(TestUtils.DEFAULT_SPATIAL_INDEX.getName()).build())) {
 
       while (iter.hasNext()) {
         final Object maybeFeat = iter.next();
-        Assert.assertTrue("Iterator should return simple feature in this test",
+        Assert.assertTrue(
+            "Iterator should return simple feature in this test",
             maybeFeat instanceof SimpleFeature);
 
         final SimpleFeature isFeat = (SimpleFeature) maybeFeat;
@@ -198,7 +202,8 @@ public class GeoWaveSparkKMeansIT {
       e.printStackTrace();
     }
 
-    Assert.assertTrue("Iterator should return " + expectedCount + " features in this test",
+    Assert.assertTrue(
+        "Iterator should return " + expectedCount + " features in this test",
         count == expectedCount);
   }
 }

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -50,7 +49,8 @@ public class CassandraReader<T> implements RowReader<T> {
     initScanner();
   }
 
-  public CassandraReader(final RecordReaderParams<T> recordReaderParams,
+  public CassandraReader(
+      final RecordReaderParams<T> recordReaderParams,
       final CassandraOperations operations) {
     readerParams = null;
     this.recordReaderParams = recordReaderParams;
@@ -62,7 +62,8 @@ public class CassandraReader<T> implements RowReader<T> {
   }
 
   @SuppressWarnings("unchecked")
-  private CloseableIterator<T> wrapResults(final CloseableIterator<CassandraRow> results,
+  private CloseableIterator<T> wrapResults(
+      final CloseableIterator<CassandraRow> results,
       final Set<String> authorizations) {
     return new CloseableIteratorWrapper<>(results,
         rowTransformer.apply(
@@ -76,10 +77,10 @@ public class CassandraReader<T> implements RowReader<T> {
 
     final Set<String> authorizations = Sets.newHashSet(readerParams.getAdditionalAuthorizations());
     if ((ranges != null) && !ranges.isEmpty()) {
-      iterator = operations
-          .getBatchedRangeRead(readerParams.getIndex().getName(), readerParams.getAdapterIds(),
-              ranges, rowTransformer, new ClientVisibilityFilter(authorizations))
-          .results();
+      iterator =
+          operations.getBatchedRangeRead(
+              readerParams.getIndex().getName(), readerParams.getAdapterIds(), ranges,
+              rowTransformer, new ClientVisibilityFilter(authorizations)).results();
     } else {
       // TODO figure out the query select by adapter IDs here
       final Select select = operations.getSelect(readerParams.getIndex().getName());
@@ -87,13 +88,14 @@ public class CassandraReader<T> implements RowReader<T> {
       if ((readerParams.getAdapterIds() != null) && (readerParams.getAdapterIds().length > 0)) {
         // TODO because we aren't filtering server-side by adapter ID,
         // we will need to filter here on the client
-        results = new CloseableIteratorWrapper<>(results,
-            Iterators.filter(results, new Predicate<CassandraRow>() {
-              @Override
-              public boolean apply(final CassandraRow input) {
-                return Arrays.contains(readerParams.getAdapterIds(), input.getAdapterId());
-              }
-            }));
+        results =
+            new CloseableIteratorWrapper<>(results,
+                Iterators.filter(results, new Predicate<CassandraRow>() {
+                  @Override
+                  public boolean apply(final CassandraRow input) {
+                    return Arrays.contains(readerParams.getAdapterIds(), input.getAdapterId());
+                  }
+                }));
       }
       iterator = wrapResults(results, authorizations);
     }
@@ -114,9 +116,11 @@ public class CassandraReader<T> implements RowReader<T> {
             Collections.singleton(new ByteArrayRange(startKey, stopKey)));
     final Set<String> authorizations =
         Sets.newHashSet(recordReaderParams.getAdditionalAuthorizations());
-    iterator = operations.getBatchedRangeRead(recordReaderParams.getIndex().getName(), adapterIds,
-        Collections.singleton(partitionRange), rowTransformer,
-        new ClientVisibilityFilter(authorizations)).results();
+    iterator =
+        operations.getBatchedRangeRead(
+            recordReaderParams.getIndex().getName(), adapterIds,
+            Collections.singleton(partitionRange), rowTransformer,
+            new ClientVisibilityFilter(authorizations)).results();
   }
 
   @Override

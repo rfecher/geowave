@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,8 +29,12 @@ public class GeometryGenerator {
    * @param env
    * @return
    */
-  public static Iterator<Geometry> generate(final int count, final List<Double> distanceactors,
-      final DistortationFn distortationFn, final double delta, final Envelope env) {
+  public static Iterator<Geometry> generate(
+      final int count,
+      final List<Double> distanceactors,
+      final DistortationFn distortationFn,
+      final double delta,
+      final Envelope env) {
     // Create the star-ellipses for intersections later on
     return new Iterator<Geometry>() {
       int currentCount = 0;
@@ -59,8 +62,9 @@ public class GeometryGenerator {
           double a = distanceactors.get(i % distanceactors.size()) * dx * distortationFn.distort();
           // double b = distanceactors.get(i % distanceactors.size())
           // * dy * distortationFn.distort();
-          clist.add(new Coordinate(cx + a * Math.sin(Math.toRadians(angle)),
-              cy + a * Math.cos(Math.toRadians(angle))));
+          clist.add(
+              new Coordinate(cx + a * Math.sin(Math.toRadians(angle)),
+                  cy + a * Math.cos(Math.toRadians(angle))));
         }
 
         clist.add(clist.get(0));

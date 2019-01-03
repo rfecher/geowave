@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -31,12 +30,15 @@ public abstract class AbstractDataStatistics<T, R, B extends StatisticsQueryBuil
 
   protected AbstractDataStatistics() {}
 
-  public AbstractDataStatistics(final Short internalDataAdapterId,
+  public AbstractDataStatistics(
+      final Short internalDataAdapterId,
       final StatisticsType<R, B> statisticsType) {
     this(internalDataAdapterId, statisticsType, "");
   }
 
-  public AbstractDataStatistics(final Short adapterId, final StatisticsType<R, B> statisticsType,
+  public AbstractDataStatistics(
+      final Short adapterId,
+      final StatisticsType<R, B> statisticsType,
       final String extendedId) {
     this.adapterId = adapterId;
     this.statisticsType = statisticsType;
@@ -86,10 +88,14 @@ public abstract class AbstractDataStatistics<T, R, B extends StatisticsQueryBuil
   protected ByteBuffer binaryBuffer(final int size) {
     final byte stypeBytes[] = statisticsType.toBinary();
     final byte sidBytes[] = StringUtils.stringToBinary(extendedId);
-    final ByteBuffer buffer = ByteBuffer.allocate(size
-        + VarintUtils.unsignedShortByteLength(adapterId)
-        + VarintUtils.unsignedIntByteLength(stypeBytes.length)
-        + VarintUtils.unsignedIntByteLength(sidBytes.length) + stypeBytes.length + sidBytes.length);
+    final ByteBuffer buffer =
+        ByteBuffer.allocate(
+            size
+                + VarintUtils.unsignedShortByteLength(adapterId)
+                + VarintUtils.unsignedIntByteLength(stypeBytes.length)
+                + VarintUtils.unsignedIntByteLength(sidBytes.length)
+                + stypeBytes.length
+                + sidBytes.length);
     VarintUtils.writeUnsignedShort(adapterId, buffer);
     VarintUtils.writeUnsignedInt(stypeBytes.length, buffer);
     VarintUtils.writeUnsignedInt(sidBytes.length, buffer);
@@ -137,7 +143,10 @@ public abstract class AbstractDataStatistics<T, R, B extends StatisticsQueryBuil
 
   @Override
   public String toString() {
-    return "AbstractDataStatistics [adapterId=" + adapterId + ", statisticsType="
-        + statisticsType.getString() + "]";
+    return "AbstractDataStatistics [adapterId="
+        + adapterId
+        + ", statisticsType="
+        + statisticsType.getString()
+        + "]";
   }
 }

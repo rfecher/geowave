@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -95,8 +94,10 @@ public class DBScanIT extends AbstractGeoWaveIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*      FINISHED DBScanIT                *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                 *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -149,23 +150,29 @@ public class DBScanIT extends AbstractGeoWaveIT {
 
     final DBScanIterationsJobRunner jobRunner = new DBScanIterationsJobRunner();
     final Configuration conf = MapReduceTestUtils.getConfiguration();
-    final int res = jobRunner.run(conf,
-        new PropertyManagement(new ParameterEnum[] {ExtractParameters.Extract.QUERY,
-            ExtractParameters.Extract.MIN_INPUT_SPLIT, ExtractParameters.Extract.MAX_INPUT_SPLIT,
-            PartitionParameters.Partition.MAX_DISTANCE,
-            PartitionParameters.Partition.PARTITIONER_CLASS,
-            ClusteringParameters.Clustering.MINIMUM_SIZE, StoreParam.INPUT_STORE,
-            MapReduceParameters.MRConfig.HDFS_BASE_DIR, OutputParameters.Output.REDUCER_COUNT,
-            InputParameters.Input.INPUT_FORMAT, GlobalParameters.Global.BATCH_ID,
-            PartitionParameters.Partition.PARTITION_DECREASE_RATE,
-            PartitionParameters.Partition.PARTITION_PRECISION},
-            new Object[] {QueryBuilder.newBuilder().constraints(query).build(),
-                Integer.toString(MapReduceTestUtils.MIN_INPUT_SPLITS),
-                Integer.toString(MapReduceTestUtils.MAX_INPUT_SPLITS), 10000.0,
-                OrthodromicDistancePartitioner.class, 10,
-                new PersistableStore(dataStorePluginOptions), TestUtils.TEMP_DIR + File.separator
-                    + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY + "/t1",
-                2, GeoWaveInputFormatConfiguration.class, "bx5", 0.15, 0.95}));
+    final int res =
+        jobRunner.run(
+            conf,
+            new PropertyManagement(new ParameterEnum[] {ExtractParameters.Extract.QUERY,
+                ExtractParameters.Extract.MIN_INPUT_SPLIT,
+                ExtractParameters.Extract.MAX_INPUT_SPLIT,
+                PartitionParameters.Partition.MAX_DISTANCE,
+                PartitionParameters.Partition.PARTITIONER_CLASS,
+                ClusteringParameters.Clustering.MINIMUM_SIZE, StoreParam.INPUT_STORE,
+                MapReduceParameters.MRConfig.HDFS_BASE_DIR, OutputParameters.Output.REDUCER_COUNT,
+                InputParameters.Input.INPUT_FORMAT, GlobalParameters.Global.BATCH_ID,
+                PartitionParameters.Partition.PARTITION_DECREASE_RATE,
+                PartitionParameters.Partition.PARTITION_PRECISION},
+                new Object[] {QueryBuilder.newBuilder().constraints(query).build(),
+                    Integer.toString(MapReduceTestUtils.MIN_INPUT_SPLITS),
+                    Integer.toString(MapReduceTestUtils.MAX_INPUT_SPLITS), 10000.0,
+                    OrthodromicDistancePartitioner.class, 10,
+                    new PersistableStore(dataStorePluginOptions),
+                    TestUtils.TEMP_DIR
+                        + File.separator
+                        + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
+                        + "/t1",
+                    2, GeoWaveInputFormatConfiguration.class, "bx5", 0.15, 0.95}));
 
     Assert.assertEquals(0, res);
 
@@ -187,8 +194,8 @@ public class DBScanIT extends AbstractGeoWaveIT {
     for (final String grp : centroidManager.getAllCentroidGroups()) {
       for (final AnalyticItemWrapper<SimpleFeature> feature : centroidManager
           .getCentroidsForGroup(grp)) {
-        ShapefileTool.writeShape(feature.getName(),
-            new File("./target/test_final_" + feature.getName()),
+        ShapefileTool.writeShape(
+            feature.getName(), new File("./target/test_final_" + feature.getName()),
             new Geometry[] {feature.getGeometry()});
         count++;
       }
@@ -197,17 +204,16 @@ public class DBScanIT extends AbstractGeoWaveIT {
   }
 
   private void ingest(final DataStore dataStore) throws IOException {
-    final List<SimpleFeature> features = dataGenerator.generatePointSet(0.05, 0.5, 4, 800,
-        new double[] {-86, -30}, new double[] {-90, -34});
+    final List<SimpleFeature> features =
+        dataGenerator
+            .generatePointSet(0.05, 0.5, 4, 800, new double[] {-86, -30}, new double[] {-90, -34});
 
-    features
-        .addAll(
-            dataGenerator
-                .generatePointSet(
-                    dataGenerator.getFactory()
-                        .createLineString(new Coordinate[] {new Coordinate(-87, -32),
-                            new Coordinate(-87.5, -32.3), new Coordinate(-87.2, -32.7)}),
-                    0.2, 500));
+    features.addAll(
+        dataGenerator.generatePointSet(
+            dataGenerator.getFactory().createLineString(
+                new Coordinate[] {new Coordinate(-87, -32), new Coordinate(-87.5, -32.3),
+                    new Coordinate(-87.2, -32.7)}),
+            0.2, 500));
 
     ShapefileTool.writeShape(new File("./target/test_in"), features);
     dataGenerator.writeToGeoWave(dataStore, features);

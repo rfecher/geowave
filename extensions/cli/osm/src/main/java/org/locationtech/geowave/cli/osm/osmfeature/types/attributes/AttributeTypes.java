@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -192,15 +191,17 @@ public class AttributeTypes {
       }
       String val = String.valueOf(source).toLowerCase(Locale.ENGLISH).trim();
 
-      if (val.equals("1") || val.equals("true") || val.equals("t") || val.equals("y")
-          || val.equals("yes")) {
+      if (val.equals(
+          "1") || val.equals("true") || val.equals("t") || val.equals("y") || val.equals("yes")) {
         return true;
-      } else if (val.equals("0") || val.equals("false") || val.equals("f") || val.equals("n")
-          || val.equals("no")) {
+      } else if (val.equals(
+          "0") || val.equals("false") || val.equals("f") || val.equals("n") || val.equals("no")) {
         return false;
       }
-      log.warn("Unable to parse value: " + val
-          + " as boolean, defaulting to true based on presence of value");
+      log.warn(
+          "Unable to parse value: "
+              + val
+              + " as boolean, defaulting to true based on presence of value");
       return true;
     }
 

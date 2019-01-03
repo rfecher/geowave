@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,10 +25,12 @@ public class VectorAggregationQueryBuilderImpl<P extends Persistable, R>
   }
 
   @Override
-  public VectorAggregationQueryBuilder<P, R> bboxOfResultsForGeometryField(final String typeName,
+  public VectorAggregationQueryBuilder<P, R> bboxOfResultsForGeometryField(
+      final String typeName,
       final String geomFieldName) {
-    options = new AggregateTypeQueryOptions(
-        new OptimalVectorBoundingBoxAggregation<>(new FieldNameParam(geomFieldName)), typeName);
+    options =
+        new AggregateTypeQueryOptions(
+            new OptimalVectorBoundingBoxAggregation<>(new FieldNameParam(geomFieldName)), typeName);
     return this;
   }
 
@@ -40,10 +41,12 @@ public class VectorAggregationQueryBuilderImpl<P extends Persistable, R>
   }
 
   @Override
-  public VectorAggregationQueryBuilder<P, R> timeRangeOfResultsForTimeField(final String typeName,
+  public VectorAggregationQueryBuilder<P, R> timeRangeOfResultsForTimeField(
+      final String typeName,
       final String timeFieldName) {
-    options = new AggregateTypeQueryOptions(
-        new VectorBoundingBoxAggregation(new FieldNameParam(timeFieldName)), typeName);
+    options =
+        new AggregateTypeQueryOptions(
+            new VectorBoundingBoxAggregation(new FieldNameParam(timeFieldName)), typeName);
     return this;
   }
 }

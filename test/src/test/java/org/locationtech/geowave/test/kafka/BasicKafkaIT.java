@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -95,8 +94,10 @@ public class BasicKafkaIT extends AbstractGeoWaveIT {
     LOGGER.warn("-----------------------------------------");
     LOGGER.warn("*                                       *");
     LOGGER.warn("*      FINISHED BasicKafkaIT            *");
-    LOGGER.warn("*         " + ((System.currentTimeMillis() - startMillis) / 1000)
-        + "s elapsed.                 *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                 *");
     LOGGER.warn("*                                       *");
     LOGGER.warn("-----------------------------------------");
   }
@@ -115,35 +116,43 @@ public class BasicKafkaIT extends AbstractGeoWaveIT {
       while (adapterIterator.hasNext()) {
         final InternalDataAdapter<?> internalDataAdapter = adapterIterator.next();
         final FeatureDataAdapter adapter = (FeatureDataAdapter) internalDataAdapter.getAdapter();
-        final StatisticsId statsId = VectorStatisticsQueryBuilder.newBuilder().factory().bbox()
-            .fieldName(adapter.getFeatureType().getGeometryDescriptor().getLocalName()).build()
-            .getId();
+        final StatisticsId statsId =
+            VectorStatisticsQueryBuilder.newBuilder().factory().bbox()
+                .fieldName(adapter.getFeatureType().getGeometryDescriptor().getLocalName()).build()
+                .getId();
         // query by the full bounding box, make sure there is more than
         // 0 count and make sure the count matches the number of results
         try (final CloseableIterator<BoundingBoxDataStatistics<?>> bboxStatIt =
-            (CloseableIterator) statsStore.getDataStatistics(internalDataAdapter.getAdapterId(),
-                statsId.getExtendedId(), statsId.getType())) {
+            (CloseableIterator) statsStore.getDataStatistics(
+                internalDataAdapter.getAdapterId(), statsId.getExtendedId(), statsId.getType())) {
           final BoundingBoxDataStatistics<?> bboxStat = bboxStatIt.next();
           try (final CloseableIterator<CountDataStatistics<SimpleFeature>> countStatIt =
-              (CloseableIterator) statsStore.getDataStatistics(internalDataAdapter.getAdapterId(),
-                  CountDataStatistics.STATS_TYPE)) {
+              (CloseableIterator) statsStore.getDataStatistics(
+                  internalDataAdapter.getAdapterId(), CountDataStatistics.STATS_TYPE)) {
             final CountDataStatistics<?> countStat = countStatIt.next();
             // then query it
             final GeometryFactory factory = new GeometryFactory();
-            final Envelope env = new Envelope(bboxStat.getMinX(), bboxStat.getMaxX(),
-                bboxStat.getMinY(), bboxStat.getMaxY());
+            final Envelope env =
+                new Envelope(bboxStat.getMinX(), bboxStat.getMaxX(), bboxStat.getMinY(),
+                    bboxStat.getMaxY());
             final Geometry spatialFilter = factory.toGeometry(env);
             final QueryConstraints query = new SpatialQuery(spatialFilter);
             final int resultCount = testQuery(adapter, query);
             assertTrue(
-                "'" + adapter.getTypeName()
+                "'"
+                    + adapter.getTypeName()
                     + "' adapter must have at least one element in its statistic",
                 countStat.getCount() > 0);
-            assertEquals("'" + adapter.getTypeName()
-                + "' adapter should have the same results from a spatial query of '" + env
-                + "' as its total count statistic", countStat.getCount(), resultCount);
             assertEquals(
-                "'" + adapter.getTypeName()
+                "'"
+                    + adapter.getTypeName()
+                    + "' adapter should have the same results from a spatial query of '"
+                    + env
+                    + "' as its total count statistic",
+                countStat.getCount(), resultCount);
+            assertEquals(
+                "'"
+                    + adapter.getTypeName()
                     + "' adapter entries ingested does not match expected count",
                 EXPECTED_COUNT_PER_ADAPTER_ID.get(adapter.getTypeName()), new Integer(resultCount));
             adapterCount++;
@@ -160,8 +169,9 @@ public class BasicKafkaIT extends AbstractGeoWaveIT {
         dataStorePluginOptions.createDataStore();
 
     final CloseableIterator<?> accumuloResults =
-        geowaveStore.query(QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
-            .indexName(TestUtils.DEFAULT_SPATIAL_INDEX.getName()).build());
+        geowaveStore.query(
+            QueryBuilder.newBuilder().addTypeName(adapter.getTypeName())
+                .indexName(TestUtils.DEFAULT_SPATIAL_INDEX.getName()).build());
 
     int resultCount = 0;
     while (accumuloResults.hasNext()) {

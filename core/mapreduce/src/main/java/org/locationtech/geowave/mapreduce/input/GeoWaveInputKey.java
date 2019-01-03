@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -37,7 +36,8 @@ public class GeoWaveInputKey implements WritableComparable<GeoWaveInputKey>, jav
 
   public GeoWaveInputKey() {}
 
-  public GeoWaveInputKey(final org.locationtech.geowave.core.store.entities.GeoWaveKey key,
+  public GeoWaveInputKey(
+      final org.locationtech.geowave.core.store.entities.GeoWaveKey key,
       final String indexName) {
     this(key.getAdapterId(), key, indexName);
   }
@@ -47,8 +47,10 @@ public class GeoWaveInputKey implements WritableComparable<GeoWaveInputKey>, jav
     this.dataId = dataId;
   }
 
-  public GeoWaveInputKey(final short internalAdapterId,
-      final org.locationtech.geowave.core.store.entities.GeoWaveKey key, final String indexName) {
+  public GeoWaveInputKey(
+      final short internalAdapterId,
+      final org.locationtech.geowave.core.store.entities.GeoWaveKey key,
+      final String indexName) {
     this.internalAdapterId = internalAdapterId;
     if (key.getNumberOfDuplicates() > 0) {
       dataId = new ByteArray(key.getDataId());
@@ -57,8 +59,9 @@ public class GeoWaveInputKey implements WritableComparable<GeoWaveInputKey>, jav
       // ID with the index ID concatenated with the insertion
       // ID to gaurantee uniqueness and effectively disable
       // aggregating by only the data ID
-      dataId = new ByteArray(
-          Bytes.concat(indexName == null ? new byte[0] : StringUtils.stringToBinary(indexName),
+      dataId =
+          new ByteArray(Bytes.concat(
+              indexName == null ? new byte[0] : StringUtils.stringToBinary(indexName),
               key.getPartitionKey() == null ? new byte[0] : key.getPartitionKey(),
               key.getSortKey() == null ? new byte[0] : key.getSortKey(), key.getDataId()));
     }
@@ -73,8 +76,9 @@ public class GeoWaveInputKey implements WritableComparable<GeoWaveInputKey>, jav
     } else {
       final byte[] partitionKey =
           Arrays.copyOfRange(dataId.getBytes(), indexIdLength, indexIdLength + partitionKeyLength);
-      final byte[] sortKey = Arrays.copyOfRange(dataId.getBytes(),
-          indexIdLength + partitionKeyLength, dataId.getBytes().length);
+      final byte[] sortKey =
+          Arrays.copyOfRange(
+              dataId.getBytes(), indexIdLength + partitionKeyLength, dataId.getBytes().length);
       return ImmutablePair.of(partitionKey, sortKey);
     }
   }
@@ -106,16 +110,19 @@ public class GeoWaveInputKey implements WritableComparable<GeoWaveInputKey>, jav
   @Override
   public int compareTo(final GeoWaveInputKey o) {
     final byte[] internalAdapterIdBytes = ByteArrayUtils.shortToByteArray(internalAdapterId);
-    final int adapterCompare = WritableComparator.compareBytes(internalAdapterIdBytes, 0,
-        internalAdapterIdBytes.length, ByteArrayUtils.shortToByteArray(o.internalAdapterId), 0,
-        ByteArrayUtils.shortToByteArray(o.internalAdapterId).length);
+    final int adapterCompare =
+        WritableComparator.compareBytes(
+            internalAdapterIdBytes, 0, internalAdapterIdBytes.length,
+            ByteArrayUtils.shortToByteArray(o.internalAdapterId), 0,
+            ByteArrayUtils.shortToByteArray(o.internalAdapterId).length);
 
     if (adapterCompare != 0) {
       return adapterCompare;
     }
     final GeoWaveInputKey other = o;
-    return WritableComparator.compareBytes(dataId.getBytes(), 0, dataId.getBytes().length,
-        other.dataId.getBytes(), 0, other.dataId.getBytes().length);
+    return WritableComparator.compareBytes(
+        dataId.getBytes(), 0, dataId.getBytes().length, other.dataId.getBytes(), 0,
+        other.dataId.getBytes().length);
   }
 
   @Override

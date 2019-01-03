@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -67,7 +66,8 @@ public class AggregationEndpoint extends AggregationProtosServer.AggregationServ
   }
 
   @Override
-  public void aggregate(final RpcController controller,
+  public void aggregate(
+      final RpcController controller,
       final AggregationProtosServer.AggregationRequest request,
       final RpcCallback<AggregationProtosServer.AggregationResponse> done) {
     FilterList filterList = null;
@@ -77,8 +77,9 @@ public class AggregationEndpoint extends AggregationProtosServer.AggregationServ
     ByteString value = ByteString.EMPTY;
 
     // Get the aggregation type
-    final Aggregation aggregation = (Aggregation) URLClassloaderUtils
-        .fromClassId(request.getAggregation().getClassId().toByteArray());
+    final Aggregation aggregation =
+        (Aggregation) URLClassloaderUtils
+            .fromClassId(request.getAggregation().getClassId().toByteArray());
 
     // Handle aggregation params
     if (request.getAggregation().hasParams()) {
@@ -175,8 +176,10 @@ public class AggregationEndpoint extends AggregationProtosServer.AggregationServ
       }
 
       try {
-        final Object result = getValue(aggregation, filterList, dataAdapter, internalAdapterId,
-            hdFilter, request.getBlockCaching(), request.getCacheSize(), authorizations);
+        final Object result =
+            getValue(
+                aggregation, filterList, dataAdapter, internalAdapterId, hdFilter,
+                request.getBlockCaching(), request.getCacheSize(), authorizations);
 
         URLClassloaderUtils.initClassLoader();
         final byte[] bvalue = aggregation.resultToBinary(result);
@@ -197,9 +200,14 @@ public class AggregationEndpoint extends AggregationProtosServer.AggregationServ
     done.run(response);
   }
 
-  private Object getValue(final Aggregation aggregation, final Filter filter,
-      final DataTypeAdapter dataAdapter, final Short internalAdapterId,
-      final HBaseDistributableFilter hdFilter, final boolean blockCaching, final int scanCacheSize,
+  private Object getValue(
+      final Aggregation aggregation,
+      final Filter filter,
+      final DataTypeAdapter dataAdapter,
+      final Short internalAdapterId,
+      final HBaseDistributableFilter hdFilter,
+      final boolean blockCaching,
+      final int scanCacheSize,
       final String[] authorizations) throws IOException {
     final Scan scan = new Scan();
     scan.setMaxVersions(1);

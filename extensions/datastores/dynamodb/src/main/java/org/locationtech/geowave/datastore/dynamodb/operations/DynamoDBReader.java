@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -73,7 +72,8 @@ public class DynamoDBReader<T> implements RowReader<T> {
     initScanner();
   }
 
-  public DynamoDBReader(final RecordReaderParams<T> recordReaderParams,
+  public DynamoDBReader(
+      final RecordReaderParams<T> recordReaderParams,
       final DynamoDBOperations operations) {
     readerParams = null;
     this.recordReaderParams = recordReaderParams;
@@ -84,7 +84,8 @@ public class DynamoDBReader<T> implements RowReader<T> {
     initRecordScanner();
   }
 
-  private void processAuthorizations(final String[] authorizations,
+  private void processAuthorizations(
+      final String[] authorizations,
       final BaseReaderParams<T> params) {
     visibilityFilter = new ClientVisibilityFilter(Sets.newHashSet(authorizations));
   }
@@ -103,8 +104,11 @@ public class DynamoDBReader<T> implements RowReader<T> {
         readerParams.getQueryRanges().getPartitionQueryRanges();
 
     if ((ranges != null) && !ranges.isEmpty()) {
-      ranges.forEach((queryRequest -> requests.addAll(addQueryRanges(tableName, queryRequest,
-          readerParams.getAdapterIds(), readerParams.getInternalAdapterStore()))));
+      ranges.forEach(
+          (queryRequest -> requests.addAll(
+              addQueryRanges(
+                  tableName, queryRequest, readerParams.getAdapterIds(),
+                  readerParams.getInternalAdapterStore()))));
     }
     // else if ((readerParams.getAdapterIds() != null) &&
     // !readerParams.getAdapterIds().isEmpty()) {
@@ -139,13 +143,17 @@ public class DynamoDBReader<T> implements RowReader<T> {
           range.isInfiniteStartSortKey() ? null : new ByteArray(range.getStartSortKey());
       final ByteArray stopKey =
           range.isInfiniteStopSortKey() ? null : new ByteArray(range.getEndSortKey());
-      requests.add(getQuery(tableName, range.getPartitionKey(),
-          new ByteArrayRange(startKey, stopKey), adapterId));
+      requests.add(
+          getQuery(
+              tableName, range.getPartitionKey(), new ByteArrayRange(startKey, stopKey),
+              adapterId));
     }
     startRead(requests, tableName, false);
   }
 
-  private void startRead(final List<QueryRequest> requests, final String tableName,
+  private void startRead(
+      final List<QueryRequest> requests,
+      final String tableName,
       final boolean parallelDecode) {
     Iterator<Map<String, AttributeValue>> rawIterator;
     Predicate<DynamoDBRow> adapterIdFilter = null;
@@ -163,8 +171,9 @@ public class DynamoDBReader<T> implements RowReader<T> {
 
     if (!requests.isEmpty()) {
       if (ASYNC) {
-        rawIterator = Iterators
-            .concat(requests.parallelStream().map(this::executeAsyncQueryRequest).iterator());
+        rawIterator =
+            Iterators
+                .concat(requests.parallelStream().map(this::executeAsyncQueryRequest).iterator());
       } else {
         rawIterator =
             Iterators.concat(requests.parallelStream().map(this::executeQueryRequest).iterator());
@@ -199,8 +208,9 @@ public class DynamoDBReader<T> implements RowReader<T> {
       rowIter = Iterators.filter(rowIter, adapterIdFilter);
     }
     if (parallelDecode) {
-      final ParallelDecoder<T> decoder = new SimpleParallelDecoder<>(rowTransformer,
-          Iterators.transform(rowIter, r -> (GeoWaveRow) r));
+      final ParallelDecoder<T> decoder =
+          new SimpleParallelDecoder<>(rowTransformer,
+              Iterators.transform(rowIter, r -> (GeoWaveRow) r));
       try {
         decoder.startDecode();
       } catch (final Exception e) {
@@ -232,7 +242,8 @@ public class DynamoDBReader<T> implements RowReader<T> {
     return iterator.next();
   }
 
-  private List<QueryRequest> getAdapterOnlyQueryRequests(final String tableName,
+  private List<QueryRequest> getAdapterOnlyQueryRequests(
+      final String tableName,
       final ArrayList<Short> internalAdapterIds) {
     final List<QueryRequest> allQueries = new ArrayList<>();
 
@@ -241,7 +252,8 @@ public class DynamoDBReader<T> implements RowReader<T> {
 
       final byte[] start = ByteArrayUtils.shortToByteArray(internalAdapterId);
       final byte[] end = new ByteArray(start).getNextPrefix();
-      singleAdapterQuery.addKeyConditionsEntry(DynamoDBRow.GW_RANGE_KEY,
+      singleAdapterQuery.addKeyConditionsEntry(
+          DynamoDBRow.GW_RANGE_KEY,
           new Condition().withComparisonOperator(ComparisonOperator.BETWEEN).withAttributeValueList(
               new AttributeValue().withB(ByteBuffer.wrap(start)),
               new AttributeValue().withB(ByteBuffer.wrap(end))));
@@ -252,51 +264,67 @@ public class DynamoDBReader<T> implements RowReader<T> {
     return allQueries;
   }
 
-  private QueryRequest getQuery(final String tableName, final byte[] partitionId,
-      final ByteArrayRange sortRange, final short internalAdapterId) {
+  private QueryRequest getQuery(
+      final String tableName,
+      final byte[] partitionId,
+      final ByteArrayRange sortRange,
+      final short internalAdapterId) {
     final byte[] start;
     final byte[] end;
     final QueryRequest query =
-        new QueryRequest(tableName).addKeyConditionsEntry(DynamoDBRow.GW_PARTITION_ID_KEY,
+        new QueryRequest(tableName).addKeyConditionsEntry(
+            DynamoDBRow.GW_PARTITION_ID_KEY,
             new Condition().withComparisonOperator(ComparisonOperator.EQ)
                 .withAttributeValueList(new AttributeValue().withB(ByteBuffer.wrap(partitionId))));
     if (sortRange == null) {
       start = ByteArrayUtils.shortToByteArray(internalAdapterId);
       end = new ByteArray(start).getNextPrefix();
     } else if (sortRange.isSingleValue()) {
-      start = ByteArrayUtils.combineArrays(ByteArrayUtils.shortToByteArray(internalAdapterId),
-          DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getBytes()));
-      end = ByteArrayUtils.combineArrays(ByteArrayUtils.shortToByteArray(internalAdapterId),
-          DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getNextPrefix()));
+      start =
+          ByteArrayUtils.combineArrays(
+              ByteArrayUtils.shortToByteArray(internalAdapterId),
+              DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getBytes()));
+      end =
+          ByteArrayUtils.combineArrays(
+              ByteArrayUtils.shortToByteArray(internalAdapterId),
+              DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getNextPrefix()));
     } else {
       if (sortRange.getStart() == null) {
         start = ByteArrayUtils.shortToByteArray(internalAdapterId);
       } else {
-        start = ByteArrayUtils.combineArrays(ByteArrayUtils.shortToByteArray(internalAdapterId),
-            DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getBytes()));
+        start =
+            ByteArrayUtils.combineArrays(
+                ByteArrayUtils.shortToByteArray(internalAdapterId),
+                DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getBytes()));
       }
       if (sortRange.getEnd() == null) {
         end = new ByteArray(ByteArrayUtils.shortToByteArray(internalAdapterId)).getNextPrefix();
       } else {
-        end = ByteArrayUtils.combineArrays(ByteArrayUtils.shortToByteArray(internalAdapterId),
-            DynamoDBUtils.encodeSortableBase64(sortRange.getEndAsNextPrefix().getBytes()));
+        end =
+            ByteArrayUtils.combineArrays(
+                ByteArrayUtils.shortToByteArray(internalAdapterId),
+                DynamoDBUtils.encodeSortableBase64(sortRange.getEndAsNextPrefix().getBytes()));
       }
     }
-    query.addKeyConditionsEntry(DynamoDBRow.GW_RANGE_KEY,
+    query.addKeyConditionsEntry(
+        DynamoDBRow.GW_RANGE_KEY,
         new Condition().withComparisonOperator(ComparisonOperator.BETWEEN).withAttributeValueList(
             new AttributeValue().withB(ByteBuffer.wrap(start)),
             new AttributeValue().withB(ByteBuffer.wrap(end))));
     return query;
   }
 
-  private List<QueryRequest> addQueryRanges(final String tableName,
-      final SinglePartitionQueryRanges r, short[] adapterIds,
+  private List<QueryRequest> addQueryRanges(
+      final String tableName,
+      final SinglePartitionQueryRanges r,
+      short[] adapterIds,
       final InternalAdapterStore adapterStore) {
     final List<QueryRequest> retVal = new ArrayList<>();
     final ByteArray partitionKey = r.getPartitionKey();
-    final byte[] partitionId = ((partitionKey == null) || (partitionKey.getBytes().length == 0))
-        ? DynamoDBWriter.EMPTY_PARTITION_KEY
-        : partitionKey.getBytes();
+    final byte[] partitionId =
+        ((partitionKey == null) || (partitionKey.getBytes().length == 0))
+            ? DynamoDBWriter.EMPTY_PARTITION_KEY
+            : partitionKey.getBytes();
     if (((adapterIds == null) || (adapterIds.length == 0)) && (adapterStore != null)) {
       adapterIds = adapterStore.getAdapterIds();
     }
@@ -304,8 +332,9 @@ public class DynamoDBReader<T> implements RowReader<T> {
     for (final Short adapterId : adapterIds) {
       final Collection<ByteArrayRange> sortKeyRanges = r.getSortKeyRanges();
       if ((sortKeyRanges != null) && !sortKeyRanges.isEmpty()) {
-        sortKeyRanges.forEach((sortKeyRange -> retVal
-            .add(getQuery(tableName, partitionId, sortKeyRange, adapterId))));
+        sortKeyRanges.forEach(
+            (sortKeyRange -> retVal
+                .add(getQuery(tableName, partitionId, sortKeyRange, adapterId))));
       } else {
         retVal.add(getQuery(tableName, partitionId, null, adapterId));
       }

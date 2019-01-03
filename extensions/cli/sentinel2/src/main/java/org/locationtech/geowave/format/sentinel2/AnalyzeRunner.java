@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,11 +34,12 @@ public class AnalyzeRunner {
 
   protected void runInternal(final OperationParams params) throws Exception {
     try {
-      try (BandFeatureIterator bands = new BandFeatureIterator(sentinel2Options.providerName(),
-          sentinel2Options.collection(), sentinel2Options.platform(), sentinel2Options.location(),
-          sentinel2Options.startDate(), sentinel2Options.endDate(), sentinel2Options.orbitNumber(),
-          sentinel2Options.relativeOrbitNumber(), sentinel2Options.getCqlFilter(),
-          sentinel2Options.getWorkspaceDir())) {
+      try (BandFeatureIterator bands =
+          new BandFeatureIterator(sentinel2Options.providerName(), sentinel2Options.collection(),
+              sentinel2Options.platform(), sentinel2Options.location(),
+              sentinel2Options.startDate(), sentinel2Options.endDate(),
+              sentinel2Options.orbitNumber(), sentinel2Options.relativeOrbitNumber(),
+              sentinel2Options.getCqlFilter(), sentinel2Options.getWorkspaceDir())) {
         final AnalysisInfo info = new AnalysisInfo();
         String prevEntityId = null;
 
@@ -141,38 +141,56 @@ public class AnalyzeRunner {
             }
 
             // print scene info
-            System.out.println("\n<--   "
-                + feature.getAttribute(SceneFeatureIterator.PRODUCT_ID_ATTRIBUTE_NAME) + "   -->");
-            System.out.println("Provider Name: "
-                + feature.getAttribute(SceneFeatureIterator.PROVIDER_NAME_ATTRIBUTE_NAME));
-            System.out.println("Acquisition Date: " + sdf.format(
-                feature.getAttribute(SceneFeatureIterator.ACQUISITION_DATE_ATTRIBUTE_NAME)));
+            System.out.println(
+                "\n<--   "
+                    + feature.getAttribute(SceneFeatureIterator.PRODUCT_ID_ATTRIBUTE_NAME)
+                    + "   -->");
+            System.out.println(
+                "Provider Name: "
+                    + feature.getAttribute(SceneFeatureIterator.PROVIDER_NAME_ATTRIBUTE_NAME));
+            System.out.println(
+                "Acquisition Date: "
+                    + sdf.format(
+                        feature
+                            .getAttribute(SceneFeatureIterator.ACQUISITION_DATE_ATTRIBUTE_NAME)));
             System.out.println(
                 "Location: " + feature.getAttribute(SceneFeatureIterator.LOCATION_ATTRIBUTE_NAME));
-            System.out.println("Product Identifier: "
-                + feature.getAttribute(SceneFeatureIterator.PRODUCT_ID_ATTRIBUTE_NAME));
-            System.out.println("Product Type: "
-                + feature.getAttribute(SceneFeatureIterator.PRODUCT_TYPE_ATTRIBUTE_NAME));
-            System.out.println("Collection: "
-                + feature.getAttribute(SceneFeatureIterator.COLLECTION_ATTRIBUTE_NAME));
+            System.out.println(
+                "Product Identifier: "
+                    + feature.getAttribute(SceneFeatureIterator.PRODUCT_ID_ATTRIBUTE_NAME));
+            System.out.println(
+                "Product Type: "
+                    + feature.getAttribute(SceneFeatureIterator.PRODUCT_TYPE_ATTRIBUTE_NAME));
+            System.out.println(
+                "Collection: "
+                    + feature.getAttribute(SceneFeatureIterator.COLLECTION_ATTRIBUTE_NAME));
             System.out.println(
                 "Platform: " + feature.getAttribute(SceneFeatureIterator.PLATFORM_ATTRIBUTE_NAME));
-            System.out.println("Processing Level: "
-                + feature.getAttribute(SceneFeatureIterator.PROCESSING_LEVEL_ATTRIBUTE_NAME));
-            System.out.println("Quicklook: "
-                + feature.getAttribute(SceneFeatureIterator.QUICKLOOK_ATTRIBUTE_NAME));
-            System.out.println("Thumbnail: "
-                + feature.getAttribute(SceneFeatureIterator.THUMBNAIL_ATTRIBUTE_NAME));
-            System.out.println("Cloud Cover: "
-                + feature.getAttribute(SceneFeatureIterator.CLOUD_COVER_ATTRIBUTE_NAME));
-            System.out.println("Snow Cover: "
-                + feature.getAttribute(SceneFeatureIterator.SNOW_COVER_ATTRIBUTE_NAME));
-            System.out.println("Water Cover: "
-                + feature.getAttribute(SceneFeatureIterator.WATER_COVER_ATTRIBUTE_NAME));
-            System.out.println("Orbit Number: "
-                + feature.getAttribute(SceneFeatureIterator.ORBIT_NUMBER_ATTRIBUTE_NAME));
-            System.out.println("Relative Orbit Number: "
-                + feature.getAttribute(SceneFeatureIterator.RELATIVE_ORBIT_NUMBER_ATTRIBUTE_NAME));
+            System.out.println(
+                "Processing Level: "
+                    + feature.getAttribute(SceneFeatureIterator.PROCESSING_LEVEL_ATTRIBUTE_NAME));
+            System.out.println(
+                "Quicklook: "
+                    + feature.getAttribute(SceneFeatureIterator.QUICKLOOK_ATTRIBUTE_NAME));
+            System.out.println(
+                "Thumbnail: "
+                    + feature.getAttribute(SceneFeatureIterator.THUMBNAIL_ATTRIBUTE_NAME));
+            System.out.println(
+                "Cloud Cover: "
+                    + feature.getAttribute(SceneFeatureIterator.CLOUD_COVER_ATTRIBUTE_NAME));
+            System.out.println(
+                "Snow Cover: "
+                    + feature.getAttribute(SceneFeatureIterator.SNOW_COVER_ATTRIBUTE_NAME));
+            System.out.println(
+                "Water Cover: "
+                    + feature.getAttribute(SceneFeatureIterator.WATER_COVER_ATTRIBUTE_NAME));
+            System.out.println(
+                "Orbit Number: "
+                    + feature.getAttribute(SceneFeatureIterator.ORBIT_NUMBER_ATTRIBUTE_NAME));
+            System.out.println(
+                "Relative Orbit Number: "
+                    + feature
+                        .getAttribute(SceneFeatureIterator.RELATIVE_ORBIT_NUMBER_ATTRIBUTE_NAME));
             first = false;
           }
           // print band info
@@ -188,8 +206,12 @@ public class AnalyzeRunner {
       if (sceneCount > 0) {
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-        System.out.println("Date Range: [" + sdf.format(new Date(startDate)) + ", "
-            + sdf.format(new Date(endDate)) + "]");
+        System.out.println(
+            "Date Range: ["
+                + sdf.format(new Date(startDate))
+                + ", "
+                + sdf.format(new Date(endDate))
+                + "]");
         System.out.println("Cloud Cover Range: [" + minCloudCover + ", " + maxCloudCover + "]");
         System.out.println("Average Cloud Cover: " + (totalCloudCover / sceneCount));
         System.out.println("Latitude Range: [" + minLat + ", " + maxLat + "]");

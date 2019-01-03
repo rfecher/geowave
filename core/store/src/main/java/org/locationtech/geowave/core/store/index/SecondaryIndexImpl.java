@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -22,16 +21,11 @@ import org.locationtech.geowave.core.store.data.PersistentValue;
 
 /**
  * This class fully describes everything necessary to index data within GeoWave using secondary
- * indexing. <br>
- * The key components are the indexing strategy and the common index model. <br>
- * <br>
- * Attributes for SecondaryIndex include:<br>
- * indexStrategy = array of fieldIndexStrategy (numeric, temporal or text)<br>
- * fieldId<br>
- * associatedStatistics <br>
- * secondaryIndexType - (join, full, partial)<br>
- * secondaryIndexId - <br>
- * partialFieldIds - list of fields that are part of the ...<br>
+ * indexing. <br> The key components are the indexing strategy and the common index model. <br> <br>
+ * Attributes for SecondaryIndex include:<br> indexStrategy = array of fieldIndexStrategy (numeric,
+ * temporal or text)<br> fieldId<br> associatedStatistics <br> secondaryIndexType - (join, full,
+ * partial)<br> secondaryIndexId - <br> partialFieldIds - list of fields that are part of the
+ * ...<br>
  */
 public class SecondaryIndexImpl<T>
     implements SecondaryIndex<FilterableConstraints, List<PersistentValue<?>>> {
@@ -45,16 +39,21 @@ public class SecondaryIndexImpl<T>
 
   public SecondaryIndexImpl() {}
 
-  public SecondaryIndexImpl(final FieldIndexStrategy<?, ?> indexStrategy, final String fieldName,
+  public SecondaryIndexImpl(
+      final FieldIndexStrategy<?, ?> indexStrategy,
+      final String fieldName,
       final List<InternalDataStatistics<T, ?, ?>> associatedStatistics,
       final SecondaryIndexType secondaryIndexType) {
     this(indexStrategy, fieldName, associatedStatistics, secondaryIndexType,
         Collections.<String>emptyList());
   }
 
-  public SecondaryIndexImpl(final FieldIndexStrategy<?, ?> indexStrategy, final String fieldName,
+  public SecondaryIndexImpl(
+      final FieldIndexStrategy<?, ?> indexStrategy,
+      final String fieldName,
       final List<InternalDataStatistics<T, ?, ?>> associatedStatistics,
-      final SecondaryIndexType secondaryIndexType, final List<String> partialFieldNames) {
+      final SecondaryIndexType secondaryIndexType,
+      final List<String> partialFieldNames) {
     super();
     this.indexStrategy = indexStrategy;
     this.fieldName = fieldName;
@@ -146,14 +145,19 @@ public class SecondaryIndexImpl<T>
       partialsLength = allPartials.array().length;
       partialsBinary = allPartials.array();
     }
-    final ByteBuffer buf = ByteBuffer.allocate(indexStrategyBinary.length + fieldIdBinary.length
-        + secondaryIndexTypeBinary.length + persistablesBinary.length + partialsLength
-        + (partialsLength > 0 ? VarintUtils.unsignedIntByteLength(partialsLength) : 0)
-        + VarintUtils.unsignedIntByteLength(indexStrategyBinary.length)
-        + VarintUtils.unsignedIntByteLength(fieldIdBinary.length)
-        + VarintUtils.unsignedIntByteLength(secondaryIndexTypeBinary.length)
-        + VarintUtils.unsignedIntByteLength(persistablesBinary.length)
-        + VarintUtils.unsignedIntByteLength(handlePartials ? partialFieldNames.size() : 0));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            indexStrategyBinary.length
+                + fieldIdBinary.length
+                + secondaryIndexTypeBinary.length
+                + persistablesBinary.length
+                + partialsLength
+                + (partialsLength > 0 ? VarintUtils.unsignedIntByteLength(partialsLength) : 0)
+                + VarintUtils.unsignedIntByteLength(indexStrategyBinary.length)
+                + VarintUtils.unsignedIntByteLength(fieldIdBinary.length)
+                + VarintUtils.unsignedIntByteLength(secondaryIndexTypeBinary.length)
+                + VarintUtils.unsignedIntByteLength(persistablesBinary.length)
+                + VarintUtils.unsignedIntByteLength(handlePartials ? partialFieldNames.size() : 0));
     VarintUtils.writeUnsignedInt(indexStrategyBinary.length, buf);
     VarintUtils.writeUnsignedInt(fieldIdBinary.length, buf);
     VarintUtils.writeUnsignedInt(secondaryIndexTypeBinary.length, buf);

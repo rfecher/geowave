@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,9 +27,13 @@ public class NativeEntryIteratorWrapper<T> extends EntryIteratorWrapper<T> {
   private boolean reachedEnd = false;
   private boolean adapterValid = true;
 
-  public NativeEntryIteratorWrapper(final PersistentAdapterStore adapterStore, final Index index,
-      final Iterator<GeoWaveRow> scannerIt, final QueryFilter clientFilter,
-      final ScanCallback<T, ? extends GeoWaveRow> scanCallback, final byte[] fieldSubsetBitmask,
+  public NativeEntryIteratorWrapper(
+      final PersistentAdapterStore adapterStore,
+      final Index index,
+      final Iterator<GeoWaveRow> scannerIt,
+      final QueryFilter clientFilter,
+      final ScanCallback<T, ? extends GeoWaveRow> scanCallback,
+      final byte[] fieldSubsetBitmask,
       final double[] maxResolutionSubsamplingPerDimension,
       final boolean decodePersistenceEncoding) {
     super(adapterStore, index, scannerIt, clientFilter, scanCallback);
@@ -46,8 +49,10 @@ public class NativeEntryIteratorWrapper<T> extends EntryIteratorWrapper<T> {
     Object decodedRow = null;
     if (adapterValid && ((bitPosition == null) || passesSkipFilter(row))) {
       try {
-        decodedRow = BaseDataStoreUtils.decodeRow(row, clientFilter, null, adapterStore, index,
-            scanCallback, fieldSubsetBitmask, decodePersistenceEncoding);
+        decodedRow =
+            BaseDataStoreUtils.decodeRow(
+                row, clientFilter, null, adapterStore, index, scanCallback, fieldSubsetBitmask,
+                decodePersistenceEncoding);
 
         if (decodedRow != null) {
           incrementSkipRow(row);
@@ -64,8 +69,9 @@ public class NativeEntryIteratorWrapper<T> extends EntryIteratorWrapper<T> {
   boolean first = false;
 
   private boolean passesSkipFilter(final GeoWaveRow row) {
-    if ((reachedEnd == true) || ((skipUntilRow != null)
-        && ((skipUntilRow.compareTo(new ByteArray(row.getSortKey()))) > 0))) {
+    if ((reachedEnd == true)
+        || ((skipUntilRow != null)
+            && ((skipUntilRow.compareTo(new ByteArray(row.getSortKey()))) > 0))) {
       return false;
     }
 
@@ -86,8 +92,9 @@ public class NativeEntryIteratorWrapper<T> extends EntryIteratorWrapper<T> {
   private void initializeBitPosition(final double[] maxResolutionSubsamplingPerDimension) {
     if ((maxResolutionSubsamplingPerDimension != null)
         && (maxResolutionSubsamplingPerDimension.length > 0)) {
-      bitPosition = IndexUtils.getBitPositionOnSortKeyFromSubsamplingArray(index.getIndexStrategy(),
-          maxResolutionSubsamplingPerDimension);
+      bitPosition =
+          IndexUtils.getBitPositionOnSortKeyFromSubsamplingArray(
+              index.getIndexStrategy(), maxResolutionSubsamplingPerDimension);
     }
   }
 }

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -59,7 +58,8 @@ public class FileUtils {
     char nextChar;
     for (int index = 0; index < variable.length(); index++) {
       nextChar = variable.charAt(index);
-      if (nextChar == '$' || Character.isLetterOrDigit(nextChar)
+      if (nextChar == '$'
+          || Character.isLetterOrDigit(nextChar)
           || (nextChar != File.separatorChar)) {
         sb.append(nextChar);
       } else {

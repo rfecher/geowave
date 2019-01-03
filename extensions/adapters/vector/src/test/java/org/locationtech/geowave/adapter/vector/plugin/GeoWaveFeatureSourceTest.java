@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -57,8 +56,10 @@ public class GeoWaveFeatureSourceTest extends BaseDataStoreTest {
   }
 
   public void testEmpty() throws Exception {
-    final SimpleFeatureType type = DataUtilities.createType("GeoWaveFeatureSourceTest_e",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
+    final SimpleFeatureType type =
+        DataUtilities.createType(
+            "GeoWaveFeatureSourceTest_e",
+            "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
     final DataStore dataStore = createDataStore();
     dataStore.createSchema(type);
     final SimpleFeatureSource source = dataStore.getFeatureSource("GeoWaveFeatureSourceTest_e");
@@ -71,8 +72,9 @@ public class GeoWaveFeatureSourceTest extends BaseDataStoreTest {
 
   public void testFull(final Populater populater, final String ext) throws Exception {
     final String typeName = "GeoWaveFeatureSourceTest_full" + ext;
-    final SimpleFeatureType type = DataUtilities.createType(typeName,
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
+    final SimpleFeatureType type =
+        DataUtilities.createType(
+            typeName, "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
     final DataStore dataStore = createDataStore();
     populater.populate(type, dataStore);
     final SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
@@ -114,9 +116,11 @@ public class GeoWaveFeatureSourceTest extends BaseDataStoreTest {
 
       assertEquals(66, popStats.getMin(), 0.001);
       assertEquals(100, popStats.getMax(), 0.001);
-      assertEquals(DateUtilities.parseISO("2005-05-17T20:32:56Z"),
+      assertEquals(
+          DateUtilities.parseISO("2005-05-17T20:32:56Z"),
           timeRangeStats.asTemporalRange().getStartTime());
-      assertEquals(DateUtilities.parseISO("2005-05-19T20:32:56Z"),
+      assertEquals(
+          DateUtilities.parseISO("2005-05-19T20:32:56Z"),
           timeRangeStats.asTemporalRange().getEndTime());
       assertEquals(43.454, bboxStats.getMaxX(), 0.0001);
       assertEquals(27.232, bboxStats.getMinY(), 0.0001);
@@ -127,16 +131,17 @@ public class GeoWaveFeatureSourceTest extends BaseDataStoreTest {
   public void testPartial(final Populater populater, final String ext)
       throws CQLException, Exception {
     final String typeName = "GeoWaveFeatureSourceTest_p" + ext;
-    final SimpleFeatureType type = DataUtilities.createType(typeName,
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
+    final SimpleFeatureType type =
+        DataUtilities.createType(
+            typeName, "geometry:Geometry:srid=4326,pop:java.lang.Long,pid:String,when:Date");
     final DataStore dataStore = createDataStore();
     populater.populate(type, dataStore);
     final SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
 
-    final Query query = new Query(typeName,
-        CQL.toFilter(
+    final Query query =
+        new Query(typeName, CQL.toFilter(
             "BBOX(geometry,42,28,44,30) and when during 2005-05-01T20:32:56Z/2005-05-29T21:32:56Z"),
-        new String[] {"geometry", "when", "pid"});
+            new String[] {"geometry", "when", "pid"});
     final ReferencedEnvelope env = source.getBounds(query);
     assertEquals(43.454, env.getMaxX(), 0.0001);
     assertEquals(28.232, env.getMinY(), 0.0001);

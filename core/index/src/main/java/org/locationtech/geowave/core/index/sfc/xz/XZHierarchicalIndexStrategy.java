@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -70,8 +69,10 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
    *
    * @param maxBitsPerDimension
    */
-  public XZHierarchicalIndexStrategy(final NumericDimensionDefinition[] baseDefinitions,
-      final TieredSFCIndexStrategy rasterStrategy, final int[] maxBitsPerDimension) {
+  public XZHierarchicalIndexStrategy(
+      final NumericDimensionDefinition[] baseDefinitions,
+      final TieredSFCIndexStrategy rasterStrategy,
+      final int[] maxBitsPerDimension) {
     this.rasterStrategy = rasterStrategy;
     this.maxBitsPerDimension = maxBitsPerDimension;
     init(baseDefinitions);
@@ -110,14 +111,17 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
   }
 
   @Override
-  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
+  public QueryRanges getQueryRanges(
+      final MultiDimensionalNumericData indexedRange,
       final IndexMetaData... hints) {
     return getQueryRanges(indexedRange, DEFAULT_MAX_RANGES, hints);
   }
 
   @Override
-  public QueryRanges getQueryRanges(final MultiDimensionalNumericData indexedRange,
-      final int maxEstimatedRangeDecomposition, final IndexMetaData... hints) {
+  public QueryRanges getQueryRanges(
+      final MultiDimensionalNumericData indexedRange,
+      final int maxEstimatedRangeDecomposition,
+      final IndexMetaData... hints) {
 
     // TODO don't just pass max ranges along to the SFC, take tiering and
     // binning into account to limit the number of ranges correctly
@@ -136,7 +140,8 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
     final List<SinglePartitionQueryRanges> partitionedRanges = new ArrayList<>();
     if ((xzHints == null) || (xzHints.pointCurveCount > 0)) {
       partitionedRanges.addAll(
-          BinnedSFCUtils.getQueryRanges(binnedQueries, pointCurve, maxEstimatedRangeDecomposition, // for
+          BinnedSFCUtils.getQueryRanges(
+              binnedQueries, pointCurve, maxEstimatedRangeDecomposition, // for
               // now
               // we're
               // doing this
@@ -149,7 +154,8 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
 
     if ((xzHints == null) || (xzHints.xzCurveCount > 0)) {
       partitionedRanges.addAll(
-          BinnedSFCUtils.getQueryRanges(binnedQueries, xzCurve, maxEstimatedRangeDecomposition, // for
+          BinnedSFCUtils.getQueryRanges(
+              binnedQueries, xzCurve, maxEstimatedRangeDecomposition, // for
               // now
               // we're
               // doing this
@@ -177,8 +183,9 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
 
     for (final BinnedNumericDataset range : ranges) {
       final BigInteger pointIds = pointCurve.getEstimatedIdCount(range);
-      final SinglePartitionInsertionIds pointCurveId = BinnedSFCUtils
-          .getSingleBinnedInsertionId(pointIds, pointCurveMultiDimensionalId, range, pointCurve);
+      final SinglePartitionInsertionIds pointCurveId =
+          BinnedSFCUtils.getSingleBinnedInsertionId(
+              pointIds, pointCurveMultiDimensionalId, range, pointCurve);
       if (pointCurveId != null) {
         partitionIds.add(pointCurveId);
       } else {
@@ -194,12 +201,11 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
 
         final byte[] xzId = xzCurve.getId(values);
 
-        partitionIds
-            .add(
-                new SinglePartitionInsertionIds(
-                    new ByteArray(ByteArrayUtils
-                        .combineArrays(new byte[] {xzCurveMultiDimensionalId}, range.getBinId())),
-                    new ByteArray(xzId)));
+        partitionIds.add(
+            new SinglePartitionInsertionIds(
+                new ByteArray(ByteArrayUtils
+                    .combineArrays(new byte[] {xzCurveMultiDimensionalId}, range.getBinId())),
+                new ByteArray(xzId)));
       }
     }
 
@@ -207,13 +213,15 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
   }
 
   @Override
-  public InsertionIds getInsertionIds(final MultiDimensionalNumericData indexedData,
+  public InsertionIds getInsertionIds(
+      final MultiDimensionalNumericData indexedData,
       final int maxEstimatedDuplicateIds) {
     return getInsertionIds(indexedData);
   }
 
   @Override
-  public MultiDimensionalNumericData getRangeForId(final ByteArray partitionKey,
+  public MultiDimensionalNumericData getRangeForId(
+      final ByteArray partitionKey,
       final ByteArray sortKey) {
     // select curve based on first byte
     final byte first = partitionKey.getBytes()[0];
@@ -262,14 +270,16 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
     int bufferLength = VarintUtils.unsignedIntByteLength(baseDefinitions.length);
     for (final NumericDimensionDefinition dimension : baseDefinitions) {
       final byte[] sfcDimensionBinary = PersistenceUtils.toBinary(dimension);
-      bufferLength += (sfcDimensionBinary.length
-          + VarintUtils.unsignedIntByteLength(sfcDimensionBinary.length));
+      bufferLength +=
+          (sfcDimensionBinary.length
+              + VarintUtils.unsignedIntByteLength(sfcDimensionBinary.length));
       dimensionDefBinaries.add(sfcDimensionBinary);
     }
 
     final byte[] rasterStrategyBinary = PersistenceUtils.toBinary(rasterStrategy);
-    bufferLength += VarintUtils.unsignedIntByteLength(rasterStrategyBinary.length)
-        + rasterStrategyBinary.length;
+    bufferLength +=
+        VarintUtils.unsignedIntByteLength(rasterStrategyBinary.length)
+            + rasterStrategyBinary.length;
 
     bufferLength += VarintUtils.unsignedIntByteLength(maxBitsPerDimension.length);
     bufferLength += maxBitsPerDimension.length * 4;
@@ -322,7 +332,8 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
   }
 
   @Override
-  public MultiDimensionalCoordinates getCoordinatesPerDimension(final ByteArray partitionKey,
+  public MultiDimensionalCoordinates getCoordinatesPerDimension(
+      final ByteArray partitionKey,
       final ByteArray sortKey) {
 
     // select curve based on first byte
@@ -331,12 +342,16 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
 
     if (first == pointCurveMultiDimensionalId) {
       coordinates =
-          BinnedSFCUtils.getCoordinatesForId(ByteArrayUtils.combineArrays(partitionKey.getBytes(),
-              sortKey == null ? null : sortKey.getBytes()), baseDefinitions, pointCurve);
+          BinnedSFCUtils.getCoordinatesForId(
+              ByteArrayUtils.combineArrays(
+                  partitionKey.getBytes(), sortKey == null ? null : sortKey.getBytes()),
+              baseDefinitions, pointCurve);
     } else if (first == xzCurveMultiDimensionalId) {
       coordinates =
-          BinnedSFCUtils.getCoordinatesForId(ByteArrayUtils.combineArrays(partitionKey.getBytes(),
-              sortKey == null ? null : sortKey.getBytes()), baseDefinitions, xzCurve);
+          BinnedSFCUtils.getCoordinatesForId(
+              ByteArrayUtils.combineArrays(
+                  partitionKey.getBytes(), sortKey == null ? null : sortKey.getBytes()),
+              baseDefinitions, xzCurve);
     } else {
       return rasterStrategy.getCoordinatesPerDimension(partitionKey, sortKey);
     }
@@ -346,7 +361,8 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
 
   @Override
   public MultiDimensionalCoordinateRanges[] getCoordinateRangesPerDimension(
-      final MultiDimensionalNumericData dataRange, final IndexMetaData... hints) {
+      final MultiDimensionalNumericData dataRange,
+      final IndexMetaData... hints) {
     final MultiDimensionalCoordinateRanges[] rasterRanges =
         rasterStrategy.getCoordinateRangesPerDimension(dataRange, hints);
 
@@ -394,7 +410,8 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
 
     public XZHierarchicalIndexMetaData() {}
 
-    public XZHierarchicalIndexMetaData(final byte pointCurveMultiDimensionalId,
+    public XZHierarchicalIndexMetaData(
+        final byte pointCurveMultiDimensionalId,
         final byte xzCurveMultiDimensionalId) {
       super();
       this.pointCurveMultiDimensionalId = pointCurveMultiDimensionalId;
@@ -404,8 +421,10 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
     @Override
     public byte[] toBinary() {
       final ByteBuffer buffer =
-          ByteBuffer.allocate(2 + VarintUtils.unsignedIntByteLength(pointCurveCount)
-              + VarintUtils.unsignedIntByteLength(xzCurveCount));
+          ByteBuffer.allocate(
+              2
+                  + VarintUtils.unsignedIntByteLength(pointCurveCount)
+                  + VarintUtils.unsignedIntByteLength(xzCurveCount));
       buffer.put(pointCurveMultiDimensionalId);
       buffer.put(xzCurveMultiDimensionalId);
       VarintUtils.writeUnsignedInt(pointCurveCount, buffer);
@@ -476,7 +495,8 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
   }
 
   @Override
-  public Set<ByteArray> getQueryPartitionKeys(final MultiDimensionalNumericData queryData,
+  public Set<ByteArray> getQueryPartitionKeys(
+      final MultiDimensionalNumericData queryData,
       final IndexMetaData... hints) {
     return IndexUtils.getQueryPartitionKeys(this, queryData, hints);
   }

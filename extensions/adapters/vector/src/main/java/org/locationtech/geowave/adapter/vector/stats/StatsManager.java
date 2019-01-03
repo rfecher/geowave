@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -57,7 +56,8 @@ public class StatsManager {
    * @param dataAdapter - adapter to be associated with this manager
    * @param persistedType - the feature type to be associated with the given adapter
    */
-  public StatsManager(final DataTypeAdapter<SimpleFeature> dataAdapter,
+  public StatsManager(
+      final DataTypeAdapter<SimpleFeature> dataAdapter,
       final SimpleFeatureType persistedType) {
     this(dataAdapter, persistedType, null, null);
   }
@@ -76,8 +76,10 @@ public class StatsManager {
    * @param transform - type of transform applied to persisted type. Used if stats object is a
    *        Feature Bounding Box.
    */
-  public StatsManager(final DataTypeAdapter<SimpleFeature> dataAdapter,
-      final SimpleFeatureType persistedType, final SimpleFeatureType reprojectedType,
+  public StatsManager(
+      final DataTypeAdapter<SimpleFeature> dataAdapter,
+      final SimpleFeatureType persistedType,
+      final SimpleFeatureType reprojectedType,
       final MathTransform transform) {
     // For all the attribute descriptors listed in the persisted
     // featuretype,
@@ -92,8 +94,8 @@ public class StatsManager {
 
       if (TimeUtils.isTemporal(descriptor.getType().getBinding())) {
 
-        addStats(new FeatureTimeRangeStatistics(descriptor.getLocalName()),
-            descriptor.getLocalName());
+        addStats(
+            new FeatureTimeRangeStatistics(descriptor.getLocalName()), descriptor.getLocalName());
       } else if (Geometry.class.isAssignableFrom(descriptor.getType().getBinding())) {
         addStats(
             new FeatureBoundingBoxStatistics(descriptor.getLocalName(), reprojectedType, transform),
@@ -122,10 +124,12 @@ public class StatsManager {
       // If this numeric, then add two stats objects that relate
 
       else if (Number.class.isAssignableFrom(descriptor.getType().getBinding())) {
-        addStats(new FeatureNumericRangeStatistics(descriptor.getLocalName()),
+        addStats(
+            new FeatureNumericRangeStatistics(descriptor.getLocalName()),
             descriptor.getLocalName());
 
-        addStats(new FeatureFixedBinNumericStatistics(descriptor.getLocalName()),
+        addStats(
+            new FeatureFixedBinNumericStatistics(descriptor.getLocalName()),
             descriptor.getLocalName());
       }
     }
@@ -162,8 +166,12 @@ public class StatsManager {
     // What Fortify considers "user input" comes only
     // from users with OS-level access anyway
 
-    LOGGER.warn("Unrecognized statistics ID of type '" + statisticsId.getType().getString()
-        + "' with field name '" + statisticsId.getExtendedId() + "', using count statistic.");
+    LOGGER.warn(
+        "Unrecognized statistics ID of type '"
+            + statisticsId.getType().getString()
+            + "' with field name '"
+            + statisticsId.getExtendedId()
+            + "', using count statistic.");
     return new CountDataStatistics<>();
   }
 
@@ -177,7 +185,8 @@ public class StatsManager {
    * @return - visibility handler for given stats object
    */
   public EntryVisibilityHandler<SimpleFeature> getVisibilityHandler(
-      final CommonIndexModel indexModel, final DataTypeAdapter<SimpleFeature> adapter,
+      final CommonIndexModel indexModel,
+      final DataTypeAdapter<SimpleFeature> adapter,
       final StatisticsId statisticsId) {
     // If the statistics object is of type CountDataStats or there is no
     // visibility handler, then return the default visibility handler
@@ -194,13 +203,13 @@ public class StatsManager {
   // -----------------------------------------------------------------------------------
 
   /**
-   * Adds/Replaces a stats object for the given adapter <br>
-   * Supports object replacement.
+   * Adds/Replaces a stats object for the given adapter <br> Supports object replacement.
    *
    * @param statsObj - data stats object to be tracked by adding or replacement
    * @param visibilityHandler - type of visibility required to access the stats object
    */
-  public void addStats(final InternalDataStatistics<SimpleFeature, ?, ?> statsObj,
+  public void addStats(
+      final InternalDataStatistics<SimpleFeature, ?, ?> statsObj,
       final String fieldName) {
     int replaceStat = 0;
 
@@ -217,8 +226,8 @@ public class StatsManager {
     }
 
     statsObjList.add(statsObj);
-    statisticsIdToFieldNameMap.put(new StatisticsId(statsObj.getType(), statsObj.getExtendedId()),
-        fieldName);
+    statisticsIdToFieldNameMap
+        .put(new StatisticsId(statsObj.getType(), statsObj.getExtendedId()), fieldName);
   }
 
   // -----------------------------------------------------------------------------------

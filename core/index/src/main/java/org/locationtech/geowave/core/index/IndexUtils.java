@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -53,7 +52,8 @@ public class IndexUtils {
     return new BasicNumericDataset(boundsPerDimension);
   }
 
-  public static final double getDimensionalBitsUsed(final NumericIndexStrategy indexStrategy,
+  public static final double getDimensionalBitsUsed(
+      final NumericIndexStrategy indexStrategy,
       final double[] dataRangePerDimension) {
     double result = Long.MAX_VALUE;
     if (dataRangePerDimension.length == 0) {
@@ -109,7 +109,8 @@ public class IndexUtils {
     return result * cellRangePerDimension.length;
   }
 
-  public static double[] inflateRange(final double[] cellRangePerDimension,
+  public static double[] inflateRange(
+      final double[] cellRangePerDimension,
       final double[] dataRangePerDimension) {
     final double[] result = new double[cellRangePerDimension.length];
     for (int d = 0; d < result.length; d++) {
@@ -119,7 +120,8 @@ public class IndexUtils {
     return result;
   }
 
-  public static double[][] getBitsFromTheRightPerDimension(final BinRange[][] binsPerDimension,
+  public static double[][] getBitsFromTheRightPerDimension(
+      final BinRange[][] binsPerDimension,
       final double[] cellRangePerDimension) {
     int numBinnedQueries = 1;
     for (int d = 0; d < binsPerDimension.length; d++) {
@@ -138,8 +140,12 @@ public class IndexUtils {
               - binsPerDimension[d][b].getNormalizedMin()) <= 0.000000001) {
             binnedQueries[i][d] = 0;
           } else {
-            binnedQueries[i][d] = log2(Math.ceil((binsPerDimension[d][b].getNormalizedMax()
-                - binsPerDimension[d][b].getNormalizedMin()) / cellRangePerDimension[d]));
+            binnedQueries[i][d] =
+                log2(
+                    Math.ceil(
+                        (binsPerDimension[d][b].getNormalizedMax()
+                            - binsPerDimension[d][b].getNormalizedMin())
+                            / cellRangePerDimension[d]));
           }
         }
       }
@@ -154,10 +160,12 @@ public class IndexUtils {
         .round(getDimensionalBitsUsed(indexStrategy, maxResolutionSubsamplingPerDimension));
   }
 
-  public static int getBitPositionFromSubsamplingArray(final NumericIndexStrategy indexStrategy,
+  public static int getBitPositionFromSubsamplingArray(
+      final NumericIndexStrategy indexStrategy,
       final double[] maxResolutionSubsamplingPerDimension) {
-    return getBitPositionOnSortKeyFromSubsamplingArray(indexStrategy,
-        maxResolutionSubsamplingPerDimension) + (8 * indexStrategy.getPartitionKeyLength());
+    return getBitPositionOnSortKeyFromSubsamplingArray(
+        indexStrategy, maxResolutionSubsamplingPerDimension)
+        + (8 * indexStrategy.getPartitionKeyLength());
   }
 
   public static byte[] getNextRowForSkip(final byte[] row, final int bitPosition) {
@@ -195,7 +203,8 @@ public class IndexUtils {
     return null;
   }
 
-  private static final double[] getBitsPerDimension(final NumericIndexStrategy indexStrategy,
+  private static final double[] getBitsPerDimension(
+      final NumericIndexStrategy indexStrategy,
       final double[] rangePerDimension) {
     final NumericDimensionDefinition dim[] = indexStrategy.getOrderedDimensionDefinitions();
     final double result[] = new double[rangePerDimension.length];
@@ -205,7 +214,8 @@ public class IndexUtils {
     return result;
   }
 
-  private static final BinRange[][] getBinsPerDimension(final NumericIndexStrategy indexStrategy,
+  private static final BinRange[][] getBinsPerDimension(
+      final NumericIndexStrategy indexStrategy,
       final double[] rangePerDimension) {
 
     final NumericDimensionDefinition dim[] = indexStrategy.getOrderedDimensionDefinitions();
@@ -222,27 +232,34 @@ public class IndexUtils {
     return Math.log(v) / Math.log(2);
   }
 
-  public static Set<ByteArray> getQueryPartitionKeys(final NumericIndexStrategy strategy,
-      final MultiDimensionalNumericData queryData, final IndexMetaData... hints) {
+  public static Set<ByteArray> getQueryPartitionKeys(
+      final NumericIndexStrategy strategy,
+      final MultiDimensionalNumericData queryData,
+      final IndexMetaData... hints) {
     final QueryRanges queryRanges = strategy.getQueryRanges(queryData, hints);
-    return Sets.newHashSet(Collections2.transform(queryRanges.getPartitionQueryRanges(),
-        new Function<SinglePartitionQueryRanges, ByteArray>() {
-          @Override
-          public ByteArray apply(@Nonnull final SinglePartitionQueryRanges input) {
-            return input.getPartitionKey();
-          }
-        }));
+    return Sets.newHashSet(
+        Collections2.transform(
+            queryRanges.getPartitionQueryRanges(),
+            new Function<SinglePartitionQueryRanges, ByteArray>() {
+              @Override
+              public ByteArray apply(@Nonnull final SinglePartitionQueryRanges input) {
+                return input.getPartitionKey();
+              }
+            }));
   }
 
-  public static Set<ByteArray> getInsertionPartitionKeys(final NumericIndexStrategy strategy,
+  public static Set<ByteArray> getInsertionPartitionKeys(
+      final NumericIndexStrategy strategy,
       final MultiDimensionalNumericData insertionData) {
     final InsertionIds insertionIds = strategy.getInsertionIds(insertionData);
-    return Sets.newHashSet(Collections2.transform(insertionIds.getPartitionKeys(),
-        new Function<SinglePartitionInsertionIds, ByteArray>() {
-          @Override
-          public ByteArray apply(@Nonnull final SinglePartitionInsertionIds input) {
-            return input.getPartitionKey();
-          }
-        }));
+    return Sets.newHashSet(
+        Collections2.transform(
+            insertionIds.getPartitionKeys(),
+            new Function<SinglePartitionInsertionIds, ByteArray>() {
+              @Override
+              public ByteArray apply(@Nonnull final SinglePartitionInsertionIds input) {
+                return input.getPartitionKey();
+              }
+            }));
   }
 }

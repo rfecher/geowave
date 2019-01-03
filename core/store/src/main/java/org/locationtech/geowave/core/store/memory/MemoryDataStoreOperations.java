@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -110,8 +109,11 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
   }
 
   @Override
-  public boolean deleteAll(final String tableName, final String typeName,
-      final Short internalAdapterId, final String... additionalAuthorizations) {
+  public boolean deleteAll(
+      final String tableName,
+      final String typeName,
+      final Short internalAdapterId,
+      final String... additionalAuthorizations) {
     return false;
   }
 
@@ -126,8 +128,10 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
   }
 
   @Override
-  public RowDeleter createRowDeleter(final String indexName,
-      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
+  public RowDeleter createRowDeleter(
+      final String indexName,
+      final PersistentAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
       final String... authorizations) {
     return new MyIndexDeleter(indexName, authorizations);
   }
@@ -158,7 +162,8 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
           it.remove();
         }
       }
-      if ((readerParams.getLimit() != null) && (readerParams.getLimit() > 0)
+      if ((readerParams.getLimit() != null)
+          && (readerParams.getLimit() > 0)
           && (retVal.size() > readerParams.getLimit())) {
         retVal = retVal.subList(0, readerParams.getLimit());
       }
@@ -167,12 +172,14 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
         for (final ByteArrayRange r : p.getSortKeyRanges()) {
           final SortedSet<MemoryStoreEntry> set;
           if (r.isSingleValue()) {
-            set = internalData.subSet(new MemoryStoreEntry(p.getPartitionKey(), r.getStart()),
-                new MemoryStoreEntry(p.getPartitionKey(),
-                    new ByteArray(r.getStart().getNextPrefix())));
+            set =
+                internalData.subSet(
+                    new MemoryStoreEntry(p.getPartitionKey(), r.getStart()), new MemoryStoreEntry(
+                        p.getPartitionKey(), new ByteArray(r.getStart().getNextPrefix())));
           } else {
-            set = internalData.tailSet(new MemoryStoreEntry(p.getPartitionKey(), r.getStart()))
-                .headSet(new MemoryStoreEntry(p.getPartitionKey(), r.getEndAsNextPrefix()));
+            set =
+                internalData.tailSet(new MemoryStoreEntry(p.getPartitionKey(), r.getStart()))
+                    .headSet(new MemoryStoreEntry(p.getPartitionKey(), r.getEndAsNextPrefix()));
           }
           // remove unauthorized
           final Iterator<MemoryStoreEntry> it = set.iterator();
@@ -181,7 +188,8 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
               it.remove();
             }
           }
-          if ((readerParams.getLimit() != null) && (readerParams.getLimit() > 0)
+          if ((readerParams.getLimit() != null)
+              && (readerParams.getLimit() > 0)
               && ((counter + set.size()) > readerParams.getLimit())) {
             final List<MemoryStoreEntry> subset = new ArrayList<>(set);
             retVal.addAll(subset.subList(0, readerParams.getLimit() - counter));
@@ -189,7 +197,8 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
           } else {
             retVal.addAll(set);
             counter += set.size();
-            if ((readerParams.getLimit() != null) && (readerParams.getLimit() > 0)
+            if ((readerParams.getLimit() != null)
+                && (readerParams.getLimit() > 0)
                 && (counter >= readerParams.getLimit())) {
               break;
             }
@@ -206,10 +215,13 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
           final List<String> commonIndexFieldNames =
               DataStoreUtils.getUniqueDimensionFields(readerParams.getIndex().getIndexModel());
           for (final GeoWaveValue v : input.getRow().getFieldValues()) {
-            unreadData.add(DataStoreUtils.aggregateFieldData(input.getRow(), v, commonData,
-                readerParams.getIndex().getIndexModel(), commonIndexFieldNames));
+            unreadData.add(
+                DataStoreUtils.aggregateFieldData(
+                    input.getRow(), v, commonData, readerParams.getIndex().getIndexModel(),
+                    commonIndexFieldNames));
           }
-          return readerParams.getFilter().accept(readerParams.getIndex().getIndexModel(),
+          return readerParams.getFilter().accept(
+              readerParams.getIndex().getIndexModel(),
               new DeferredReadCommonIndexedPersistenceEncoding(input.getRow().getAdapterId(),
                   new ByteArray(input.getRow().getDataId()),
                   new ByteArray(input.getRow().getPartitionKey()),
@@ -234,7 +246,8 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
   private static class MyIndexReader<T> implements RowReader<T> {
     private final Iterator<T> it;
 
-    public MyIndexReader(final Iterator<MemoryStoreEntry> it,
+    public MyIndexReader(
+        final Iterator<MemoryStoreEntry> it,
         final GeoWaveRowIteratorTransformer<T> rowTransformer) {
       super();
       this.it = rowTransformer.apply(Iterators.transform(it, e -> e.row));
@@ -331,10 +344,12 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
   public static class MemoryStoreEntry implements Comparable<MemoryStoreEntry> {
     private final GeoWaveRow row;
 
-    public MemoryStoreEntry(final ByteArray comparisonPartitionKey,
+    public MemoryStoreEntry(
+        final ByteArray comparisonPartitionKey,
         final ByteArray comparisonSortKey) {
-      row = new GeoWaveRowImpl(new GeoWaveKeyImpl(new byte[] {0}, (short) 0, // new byte[] {},
-          comparisonPartitionKey.getBytes(), comparisonSortKey.getBytes(), 0), null);
+      row =
+          new GeoWaveRowImpl(new GeoWaveKeyImpl(new byte[] {0}, (short) 0, // new byte[] {},
+              comparisonPartitionKey.getBytes(), comparisonSortKey.getBytes(), 0), null);
     }
 
     public MemoryStoreEntry(final GeoWaveRow row) {
@@ -351,19 +366,22 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
 
     @Override
     public int compareTo(final MemoryStoreEntry other) {
-      final int indexIdCompare = UnsignedBytes.lexicographicalComparator()
-          .compare(getCompositeInsertionId(), other.getCompositeInsertionId());
+      final int indexIdCompare =
+          UnsignedBytes.lexicographicalComparator()
+              .compare(getCompositeInsertionId(), other.getCompositeInsertionId());
       if (indexIdCompare != 0) {
         return indexIdCompare;
       }
-      final int dataIdCompare = UnsignedBytes.lexicographicalComparator().compare(row.getDataId(),
-          other.getRow().getDataId());
+      final int dataIdCompare =
+          UnsignedBytes.lexicographicalComparator()
+              .compare(row.getDataId(), other.getRow().getDataId());
       if (dataIdCompare != 0) {
         return dataIdCompare;
       }
-      final int adapterIdCompare = UnsignedBytes.lexicographicalComparator().compare(
-          ByteArrayUtils.shortToByteArray(row.getAdapterId()),
-          ByteArrayUtils.shortToByteArray(other.getRow().getAdapterId()));
+      final int adapterIdCompare =
+          UnsignedBytes.lexicographicalComparator().compare(
+              ByteArrayUtils.shortToByteArray(row.getAdapterId()),
+              ByteArrayUtils.shortToByteArray(other.getRow().getAdapterId()));
       if (adapterIdCompare != 0) {
         return adapterIdCompare;
       }
@@ -451,8 +469,8 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
         it = Iterators.filter(it, new Predicate<MemoryMetadataEntry>() {
           @Override
           public boolean apply(final MemoryMetadataEntry input) {
-            return MemoryStoreUtils.isAuthorized(input.getMetadata().getVisibility(),
-                query.getAuthorizations());
+            return MemoryStoreUtils
+                .isAuthorized(input.getMetadata().getVisibility(), query.getAuthorizations());
           }
         });
       }
@@ -488,8 +506,9 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
               if (Objects.deepEquals(currentMetadata.getPrimaryId(), next.getPrimaryId())
                   && Objects.deepEquals(currentMetadata.getSecondaryId(), next.getSecondaryId())) {
                 if (currentStat == null) {
-                  currentStat = (InternalDataStatistics) PersistenceUtils
-                      .fromBinary(currentMetadata.getValue());
+                  currentStat =
+                      (InternalDataStatistics) PersistenceUtils
+                          .fromBinary(currentMetadata.getValue());
                 }
                 currentStat.merge((Mergeable) PersistenceUtils.fromBinary(next.getValue()));
                 vis = combineVisibilities(vis, next.getVisibility());
@@ -670,17 +689,20 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
   }
 
   @Override
-  public boolean mergeData(final Index index, final PersistentAdapterStore adapterStore,
+  public boolean mergeData(
+      final Index index,
+      final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final AdapterIndexMappingStore adapterIndexMappingStore) {
     // considering memory data store is for test purposes, this
     // implementation is unnecessary
-    return DataStoreUtils.mergeData(this, options, index, adapterStore, internalAdapterStore,
-        adapterIndexMappingStore);
+    return DataStoreUtils.mergeData(
+        this, options, index, adapterStore, internalAdapterStore, adapterIndexMappingStore);
   }
 
   @Override
-  public boolean mergeStats(final DataStatisticsStore statsStore,
+  public boolean mergeStats(
+      final DataStatisticsStore statsStore,
       final InternalAdapterStore internalAdapterStore) {
     return DataStoreUtils.mergeStats(statsStore, internalAdapterStore);
   }
@@ -693,7 +715,8 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
   @Override
   public <T> Deleter<T> createDeleter(final ReaderParams<T> readerParams) {
     return new QueryAndDeleteByRow<>(
-        createRowDeleter(readerParams.getIndex().getName(), readerParams.getAdapterStore(),
+        createRowDeleter(
+            readerParams.getIndex().getName(), readerParams.getAdapterStore(),
             readerParams.getInternalAdapterStore(), readerParams.getAdditionalAuthorizations()),
         createReader(readerParams));
   }

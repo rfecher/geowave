@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,7 +42,9 @@ public class FieldVisibilityCount<T> extends
     countsPerVisibility = new HashMap<>();
   }
 
-  private FieldVisibilityCount(final short internalDataAdapterId, final String indexName,
+  private FieldVisibilityCount(
+      final short internalDataAdapterId,
+      final String indexName,
       final Map<ByteArray, Long> countsPerVisibility) {
     super(internalDataAdapterId, STATS_TYPE, indexName);
     this.countsPerVisibility = countsPerVisibility;
@@ -129,7 +130,9 @@ public class FieldVisibilityCount<T> extends
   public boolean isAuthorizationsLimiting(final String... authorizations) {
     final Set<String> set = Sets.newHashSet(authorizations);
     for (final Entry<ByteArray, Long> vis : countsPerVisibility.entrySet()) {
-      if ((vis.getValue() > 0) && (vis.getKey() != null) && (vis.getKey().getBytes().length > 0)
+      if ((vis.getValue() > 0)
+          && (vis.getKey() != null)
+          && (vis.getKey().getBytes().length > 0)
           && !VisibilityExpression.evaluate(vis.getKey().getString(), set)) {
         return true;
       }
@@ -151,14 +154,16 @@ public class FieldVisibilityCount<T> extends
     }
   }
 
-  public static FieldVisibilityCount getVisibilityCounts(final Index index,
-      final Collection<Short> adapterIdsToQuery, final DataStatisticsStore statisticsStore,
+  public static FieldVisibilityCount getVisibilityCounts(
+      final Index index,
+      final Collection<Short> adapterIdsToQuery,
+      final DataStatisticsStore statisticsStore,
       final String... authorizations) {
     FieldVisibilityCount combinedVisibilityCount = null;
     for (final short adapterId : adapterIdsToQuery) {
       try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> adapterVisibilityCountIt =
-          statisticsStore.getDataStatistics(adapterId, index.getName(), STATS_TYPE,
-              authorizations)) {
+          statisticsStore
+              .getDataStatistics(adapterId, index.getName(), STATS_TYPE, authorizations)) {
         if (adapterVisibilityCountIt.hasNext()) {
           final FieldVisibilityCount adapterVisibilityCount =
               (FieldVisibilityCount) adapterVisibilityCountIt.next();

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,9 +26,8 @@ import org.locationtech.geowave.mapreduce.input.GeoWaveInputFormat;
  * By the nature of holding single instances of Writable instances by the serializers, this class
  * and its contents may be only accessed by one 'worker' (at a time).
  *
- * <p>
- * The helper methods assume all Writable instances are wrapped in an ObjectWritable. The reason for
- * this approach, consistent with other support classes in this package, is to allow mappers and
+ * <p> The helper methods assume all Writable instances are wrapped in an ObjectWritable. The reason
+ * for this approach, consistent with other support classes in this package, is to allow mappers and
  * reducers to use the generic ObjectWritable since entry inputs maybe be associated with different
  * adapters, and thus have different associated Writable instances. Configuration of Hadoop Mappers
  * and Reducers requires a specific type.
@@ -46,7 +44,8 @@ public class HadoopWritableSerializationTool {
         GeoWaveInputFormat.getJobContextInternalAdapterStore(jobContext));
   }
 
-  public HadoopWritableSerializationTool(final TransientAdapterStore adapterStore,
+  public HadoopWritableSerializationTool(
+      final TransientAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore) {
     super();
     this.adapterStore = adapterStore;

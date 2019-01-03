@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,7 +34,8 @@ public abstract class ArrayWriter<RowType, FieldType> implements FieldWriter<Row
     this(writer, null);
   }
 
-  public ArrayWriter(final FieldWriter<RowType, FieldType> writer,
+  public ArrayWriter(
+      final FieldWriter<RowType, FieldType> writer,
       final FieldVisibilityHandler<RowType, Object> visibilityHandler) {
     this.writer = writer;
     this.visibilityHandler = visibilityHandler;
@@ -56,8 +56,12 @@ public abstract class ArrayWriter<RowType, FieldType> implements FieldWriter<Row
       }
     }
 
-    final ByteBuffer buf = ByteBuffer.allocate(1 + VarintUtils.unsignedIntByteLength(bytesPerEntry)
-        + (int) Math.ceil(fieldValue.length / 8.0) + getLength(byteData));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            1
+                + VarintUtils.unsignedIntByteLength(bytesPerEntry)
+                + (int) Math.ceil(fieldValue.length / 8.0)
+                + getLength(byteData));
 
     // this is a header value to indicate how data should be read/written
     buf.put(Encoding.FIXED_SIZE_ENCODING.getByteEncoding());
@@ -115,7 +119,9 @@ public abstract class ArrayWriter<RowType, FieldType> implements FieldWriter<Row
   }
 
   @Override
-  public byte[] getVisibility(final RowType rowValue, final String fieldName,
+  public byte[] getVisibility(
+      final RowType rowValue,
+      final String fieldName,
       final FieldType[] fieldValue) {
     if (visibilityHandler != null) {
       return visibilityHandler.getVisibility(rowValue, fieldName, fieldValue);
@@ -150,7 +156,8 @@ public abstract class ArrayWriter<RowType, FieldType> implements FieldWriter<Row
       super(writer);
     }
 
-    public FixedSizeObjectArrayWriter(final FieldWriter<RowType, FieldType> writer,
+    public FixedSizeObjectArrayWriter(
+        final FieldWriter<RowType, FieldType> writer,
         final FieldVisibilityHandler<RowType, Object> visibilityHandler) {
       super(writer, visibilityHandler);
     }
@@ -167,7 +174,8 @@ public abstract class ArrayWriter<RowType, FieldType> implements FieldWriter<Row
       super(writer);
     }
 
-    public VariableSizeObjectArrayWriter(final FieldWriter<RowType, FieldType> writer,
+    public VariableSizeObjectArrayWriter(
+        final FieldWriter<RowType, FieldType> writer,
         final FieldVisibilityHandler<RowType, Object> visibilityHandler) {
       super(writer, visibilityHandler);
     }

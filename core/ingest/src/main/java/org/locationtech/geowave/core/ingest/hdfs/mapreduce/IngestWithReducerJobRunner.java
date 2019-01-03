@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,9 +22,13 @@ import org.locationtech.geowave.core.store.util.GenericTypeResolver;
  */
 public class IngestWithReducerJobRunner
     extends AbstractMapReduceIngest<IngestWithReducer<?, ?, ?, ?>> {
-  public IngestWithReducerJobRunner(final DataStorePluginOptions storeOptions,
-      final List<IndexPluginOptions> indexOptions, final VisibilityOptions ingestOptions,
-      final Path inputFile, final String typeName, final IngestFromHdfsPlugin parentPlugin,
+  public IngestWithReducerJobRunner(
+      final DataStorePluginOptions storeOptions,
+      final List<IndexPluginOptions> indexOptions,
+      final VisibilityOptions ingestOptions,
+      final Path inputFile,
+      final String typeName,
+      final IngestFromHdfsPlugin parentPlugin,
       final IngestWithReducer ingestPlugin) {
     super(storeOptions, indexOptions, ingestOptions, inputFile, typeName, parentPlugin,
         ingestPlugin);

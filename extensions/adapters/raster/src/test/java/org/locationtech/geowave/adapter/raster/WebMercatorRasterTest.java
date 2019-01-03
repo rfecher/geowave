@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,19 +42,22 @@ public class WebMercatorRasterTest {
   public void testStoreRetrieve() throws MismatchedIndexToAdapterMapping, IOException,
       MismatchedDimensionException, NoSuchAuthorityCodeException, FactoryException {
 
-    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put("memory",
-        new MemoryStoreFactoryFamily());
+    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies()
+        .put("memory", new MemoryStoreFactoryFamily());
     final DataStore dataStore = GeoWaveStoreFinder.createDataStore(Collections.EMPTY_MAP);
     final int xTiles = 8;
     final int yTiles = 8;
     final double[] minsPerBand = new double[] {0, 0, 0};
-    final double[] maxesPerBand = new double[] {(xTiles * 3) + (yTiles * 24),
-        (xTiles * 3) + (yTiles * 24), (xTiles * 3) + (yTiles * 24)};
+    final double[] maxesPerBand =
+        new double[] {(xTiles * 3) + (yTiles * 24), (xTiles * 3) + (yTiles * 24),
+            (xTiles * 3) + (yTiles * 24)};
     final String[] namesPerBand = new String[] {"b1", "b2", "b3"};
-    final RasterDataAdapter adapter = RasterUtils.createDataAdapterTypeDouble("test", 3, 64,
-        minsPerBand, maxesPerBand, namesPerBand, new NoDataMergeStrategy());
-    final Index index = new SpatialIndexBuilder().setCrs(CRS_STR) // 3857
-        .createIndex();
+    final RasterDataAdapter adapter =
+        RasterUtils.createDataAdapterTypeDouble(
+            "test", 3, 64, minsPerBand, maxesPerBand, namesPerBand, new NoDataMergeStrategy());
+    final Index index =
+        new SpatialIndexBuilder().setCrs(CRS_STR) // 3857
+            .createIndex();
     double bounds = CRS.decode(CRS_STR).getCoordinateSystem().getAxis(0).getMaximumValue();
     if (!Double.isFinite(bounds)) {
       bounds = SpatialDimensionalityTypeProvider.DEFAULT_UNBOUNDED_CRS_INTERVAL;
@@ -66,11 +68,13 @@ public class WebMercatorRasterTest {
       for (double yTile = 0; yTile < yTiles; yTile++) {
         try (Writer<GridCoverage> writer = dataStore.createWriter(adapter.getTypeName())) {
           final WritableRaster raster = RasterUtils.createRasterTypeDouble(3, 64);
-          RasterUtils.fillWithNoDataValues(raster, new double[][] {{(xTile * 3) + (yTile * 24)},
-              {(xTile * 3) + (yTile * 24) + 1}, {(xTile * 3) + (yTile * 24) + 2}});
-          writer.write(RasterUtils.createCoverageTypeDouble("test", xTile * bounds,
-              (xTile + 1) * bounds, yTile * bounds, (yTile + 1) * bounds, minsPerBand, maxesPerBand,
-              namesPerBand, raster, CRS_STR));
+          RasterUtils.fillWithNoDataValues(
+              raster, new double[][] {{(xTile * 3) + (yTile * 24)},
+                  {(xTile * 3) + (yTile * 24) + 1}, {(xTile * 3) + (yTile * 24) + 2}});
+          writer.write(
+              RasterUtils.createCoverageTypeDouble(
+                  "test", xTile * bounds, (xTile + 1) * bounds, yTile * bounds,
+                  (yTile + 1) * bounds, minsPerBand, maxesPerBand, namesPerBand, raster, CRS_STR));
         }
       }
     }
@@ -79,20 +83,22 @@ public class WebMercatorRasterTest {
         new GeoWaveRasterReader(GeoWaveRasterConfig.createConfig(Collections.EMPTY_MAP, ""));
     for (int xTile = 1; xTile < xTiles; xTile++) {
       for (int yTile = 1; yTile < yTiles; yTile++) {
-        final GeneralEnvelope queryEnvelope = new GeneralEnvelope(new double[] {
-            // this is exactly on a tile boundary, so there
-            // will be no
-            // scaling on the tile composition/rendering
+        final GeneralEnvelope queryEnvelope =
+            new GeneralEnvelope(new double[] {
+                // this is exactly on a tile boundary, so there
+                // will be no
+                // scaling on the tile composition/rendering
 
-            (xTile - (15 / 64.0)) * bounds, (yTile - (15 / 64.0)) * bounds},
-            new double[] {
-                // these values are also on a tile boundary, to
-                // avoid
-                // scaling
-                (xTile + (15 / 64.0)) * bounds, (yTile + (15 / 64.0)) * bounds});
+                (xTile - (15 / 64.0)) * bounds, (yTile - (15 / 64.0)) * bounds},
+                new double[] {
+                    // these values are also on a tile boundary, to
+                    // avoid
+                    // scaling
+                    (xTile + (15 / 64.0)) * bounds, (yTile + (15 / 64.0)) * bounds});
         queryEnvelope.setCoordinateReferenceSystem(CRS.decode(CRS_STR));
-        final GridCoverage gridCoverage = reader.renderGridCoverage("test", new Rectangle(32, 32),
-            queryEnvelope, null, null, null);
+        final GridCoverage gridCoverage =
+            reader
+                .renderGridCoverage("test", new Rectangle(32, 32), queryEnvelope, null, null, null);
         final Raster img = gridCoverage.getRenderedImage().getData();
 
         grid[xTile - 1][yTile - 1] = img.getSample(0, 16, 0);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -41,7 +40,8 @@ public class GeoWaveGrpcAnalyticSparkService extends AnalyticSparkGrpc.AnalyticS
   }
 
   @Override
-  public void kmeansSparkCommand(KmeansSparkCommandParametersProtos request,
+  public void kmeansSparkCommand(
+      KmeansSparkCommandParametersProtos request,
       StreamObserver<VoidResponseProtos> responseObserver) {
     KmeansSparkCommand cmd = new KmeansSparkCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -65,7 +65,8 @@ public class GeoWaveGrpcAnalyticSparkService extends AnalyticSparkGrpc.AnalyticS
   }
 
   @Override
-  public void sparkSqlCommand(SparkSqlCommandParametersProtos request,
+  public void sparkSqlCommand(
+      SparkSqlCommandParametersProtos request,
       StreamObserver<VoidResponseProtos> responseObserver) {
     SparkSqlCommand cmd = new SparkSqlCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();
@@ -89,7 +90,8 @@ public class GeoWaveGrpcAnalyticSparkService extends AnalyticSparkGrpc.AnalyticS
   }
 
   @Override
-  public void spatialJoinCommand(SpatialJoinCommandParametersProtos request,
+  public void spatialJoinCommand(
+      SpatialJoinCommandParametersProtos request,
       StreamObserver<VoidResponseProtos> responseObserver) {
     SpatialJoinCommand cmd = new SpatialJoinCommand();
     Map<FieldDescriptor, Object> m = request.getAllFields();

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,8 +34,10 @@ public class MergingVisibilityCombiner extends TransformingIterator {
   private final Key workKey = new Key();
 
   @Override
-  public void init(final SortedKeyValueIterator<Key, Value> source,
-      final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+  public void init(
+      final SortedKeyValueIterator<Key, Value> source,
+      final Map<String, String> options,
+      final IteratorEnvironment env) throws IOException {
     super.init(source, options, env);
     final String encodedColumns = getColumnOptionValue(options);
     if (encodedColumns.length() == 0) {
@@ -66,7 +67,8 @@ public class MergingVisibilityCombiner extends TransformingIterator {
   }
 
   @Override
-  protected void transformRange(final SortedKeyValueIterator<Key, Value> input,
+  protected void transformRange(
+      final SortedKeyValueIterator<Key, Value> input,
       final KVBuffer output) throws IOException {
     Mergeable currentMergeable = null;
     Key outputKey = null;
@@ -96,7 +98,8 @@ public class MergingVisibilityCombiner extends TransformingIterator {
         continue;
       } else {
         final Text combinedVisibility =
-            new Text(combineVisibilities(currentKey.getColumnVisibility().getBytes(),
+            new Text(combineVisibilities(
+                currentKey.getColumnVisibility().getBytes(),
                 outputKey.getColumnVisibility().getBytes()));
         outputKey = replaceColumnVisibility(outputKey, combinedVisibility);
       }

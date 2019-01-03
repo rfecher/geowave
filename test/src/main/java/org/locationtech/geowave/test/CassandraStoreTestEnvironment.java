@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -95,18 +94,26 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     }
 
     @Override
-    protected CommandLine newServiceCommandLine(final File cassandraDir, final String listenAddress,
-        final String rpcAddress, final BigInteger initialToken, final String[] seeds,
-        final boolean jmxRemoteEnabled, final int jmxPort) throws IOException {
-      return super.newServiceCommandLine(cassandraDir, listenAddress, rpcAddress,
-          BigInteger.valueOf(initialToken.longValue()), seeds, false, jmxPort);
+    protected CommandLine newServiceCommandLine(
+        final File cassandraDir,
+        final String listenAddress,
+        final String rpcAddress,
+        final BigInteger initialToken,
+        final String[] seeds,
+        final boolean jmxRemoteEnabled,
+        final int jmxPort) throws IOException {
+      return super.newServiceCommandLine(
+          cassandraDir, listenAddress, rpcAddress, BigInteger.valueOf(initialToken.longValue()),
+          seeds, false, jmxPort);
     }
 
     @Override
-    protected void createCassandraJar(final File jarFile, final String mainClass,
+    protected void createCassandraJar(
+        final File jarFile,
+        final String mainClass,
         final File cassandraDir) throws IOException {
-      ClasspathUtils.setupPathingJarClassPath(jarFile, mainClass, this.getClass(),
-          new File(cassandraDir, "conf").toURI().toURL());
+      ClasspathUtils.setupPathingJarClassPath(
+          jarFile, mainClass, this.getClass(), new File(cassandraDir, "conf").toURI().toURL());
     }
 
     public void start() {
@@ -187,10 +194,12 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     }
 
     @Override
-    protected void createCassandraJar(final File jarFile, final String mainClass,
+    protected void createCassandraJar(
+        final File jarFile,
+        final String mainClass,
         final File cassandraDir) throws IOException {
-      ClasspathUtils.setupPathingJarClassPath(jarFile, mainClass, this.getClass(),
-          new File(cassandraDir, "conf").toURI().toURL());
+      ClasspathUtils.setupPathingJarClassPath(
+          jarFile, mainClass, this.getClass(), new File(cassandraDir, "conf").toURI().toURL());
     }
 
     public void start() {

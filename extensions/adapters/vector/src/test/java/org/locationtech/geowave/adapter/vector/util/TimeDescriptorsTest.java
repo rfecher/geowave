@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -23,8 +22,10 @@ public class TimeDescriptorsTest {
 
   @Test
   public void testOneTime() throws SchemaException {
-    SimpleFeatureType schema = DataUtilities.createType("sp.geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,whennot:Date,pid:String");
+    SimpleFeatureType schema =
+        DataUtilities.createType(
+            "sp.geostuff",
+            "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,whennot:Date,pid:String");
 
     final TimeDescriptorConfiguration timeConfig = new TimeDescriptorConfiguration();
     timeConfig.configureFromType(schema);
@@ -38,8 +39,10 @@ public class TimeDescriptorsTest {
 
   @Test
   public void testRangeTime() throws SchemaException {
-    SimpleFeatureType schema = DataUtilities.createType("sp.geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,start:Date,end:Date,pid:String");
+    SimpleFeatureType schema =
+        DataUtilities.createType(
+            "sp.geostuff",
+            "geometry:Geometry:srid=4326,pop:java.lang.Long,start:Date,end:Date,pid:String");
     final TimeDescriptorConfiguration timeConfig = new TimeDescriptorConfiguration();
     timeConfig.configureFromType(schema);
 
@@ -52,8 +55,10 @@ public class TimeDescriptorsTest {
 
   @Test
   public void testMixedTime() throws SchemaException {
-    SimpleFeatureType schema = DataUtilities.createType("sp.geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,start:Date,end:Date,pid:String");
+    SimpleFeatureType schema =
+        DataUtilities.createType(
+            "sp.geostuff",
+            "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,start:Date,end:Date,pid:String");
     final TimeDescriptorConfiguration timeConfig = new TimeDescriptorConfiguration();
     timeConfig.configureFromType(schema);
     TimeDescriptors td = new TimeDescriptors(schema, timeConfig);
@@ -65,8 +70,9 @@ public class TimeDescriptorsTest {
 
   @Test
   public void testJustStartTime() throws SchemaException {
-    SimpleFeatureType schema = DataUtilities.createType("sp.geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,start:Date,pid:String");
+    SimpleFeatureType schema =
+        DataUtilities.createType(
+            "sp.geostuff", "geometry:Geometry:srid=4326,pop:java.lang.Long,start:Date,pid:String");
     final TimeDescriptorConfiguration timeConfig = new TimeDescriptorConfiguration();
     timeConfig.configureFromType(schema);
     TimeDescriptors td = new TimeDescriptors(schema, timeConfig);
@@ -78,8 +84,9 @@ public class TimeDescriptorsTest {
 
   @Test
   public void testJustEndTime() throws SchemaException {
-    SimpleFeatureType schema = DataUtilities.createType("sp.geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,end:Date,pid:String");
+    SimpleFeatureType schema =
+        DataUtilities.createType(
+            "sp.geostuff", "geometry:Geometry:srid=4326,pop:java.lang.Long,end:Date,pid:String");
     final TimeDescriptorConfiguration timeConfig = new TimeDescriptorConfiguration();
     timeConfig.configureFromType(schema);
     TimeDescriptors td = new TimeDescriptors(schema, timeConfig);
@@ -91,8 +98,10 @@ public class TimeDescriptorsTest {
 
   @Test
   public void testWhenAndEndTime() throws SchemaException {
-    SimpleFeatureType schema = DataUtilities.createType("sp.geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,end:Date,pid:String");
+    SimpleFeatureType schema =
+        DataUtilities.createType(
+            "sp.geostuff",
+            "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,end:Date,pid:String");
     final TimeDescriptorConfiguration timeConfig = new TimeDescriptorConfiguration();
     timeConfig.configureFromType(schema);
     TimeDescriptors td = new TimeDescriptors(schema, timeConfig);
@@ -104,8 +113,10 @@ public class TimeDescriptorsTest {
 
   @Test
   public void testWhenAndStartTime() throws SchemaException {
-    SimpleFeatureType schema = DataUtilities.createType("sp.geostuff",
-        "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,start:Date,pid:String");
+    SimpleFeatureType schema =
+        DataUtilities.createType(
+            "sp.geostuff",
+            "geometry:Geometry:srid=4326,pop:java.lang.Long,when:Date,start:Date,pid:String");
     final TimeDescriptorConfiguration timeConfig = new TimeDescriptorConfiguration();
     timeConfig.configureFromType(schema);
     TimeDescriptors td = new TimeDescriptors(schema, timeConfig);

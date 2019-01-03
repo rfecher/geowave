@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -50,13 +49,11 @@ import org.slf4j.LoggerFactory;
  * different types of data entries, the assumption is that each object decode by the adapter
  * provides the fields required according to the supplied model.
  *
- * <p>
- * The user provides the distances per dimension. It us up to the user to convert geographic
+ * <p> The user provides the distances per dimension. It us up to the user to convert geographic
  * distance into distance in degrees per longitude and latitude.
  *
- * <p>
- * This class depends on an AdapterStore. Since an AdapterStore is not Serializable, the dependency
- * is transient requiring initialization after serialization
+ * <p> This class depends on an AdapterStore. Since an AdapterStore is not Serializable, the
+ * dependency is transient requiring initialization after serialization
  * {@link AdapterBasedPartitioner#initialize(ConfigurationWrapper)}
  */
 public class AdapterBasedPartitioner extends AbstractPartitioner<AdapterDataEntry>
@@ -72,8 +69,10 @@ public class AdapterBasedPartitioner extends AbstractPartitioner<AdapterDataEntr
 
   public AdapterBasedPartitioner() {}
 
-  public AdapterBasedPartitioner(final CommonIndexModel indexModel,
-      final double[] distancesPerDimension, final TransientAdapterStore adapterStore) {
+  public AdapterBasedPartitioner(
+      final CommonIndexModel indexModel,
+      final double[] distancesPerDimension,
+      final TransientAdapterStore adapterStore) {
     super(indexModel, distancesPerDimension);
     this.adapterStore = new SerializableAdapterStore(adapterStore);
     init();
@@ -118,30 +117,35 @@ public class AdapterBasedPartitioner extends AbstractPartitioner<AdapterDataEntr
     wrapsAroundBoundary = new boolean[definitions.length];
     for (int i = 0; i < definitions.length; i++) {
       fullRangesPerDimension[i] = definitions[i].getFullRange();
-      wrapsAroundBoundary[i] = getIndex().getIndexModel().getDimensions()[i]
-          .getBaseDefinition() instanceof LongitudeDefinition;
+      wrapsAroundBoundary[i] =
+          getIndex().getIndexModel().getDimensions()[i]
+              .getBaseDefinition() instanceof LongitudeDefinition;
     }
   }
 
   @Override
   public void initialize(final JobContext context, final Class<?> scope) throws IOException {
     super.initialize(context, scope);
-    adapterStore = new SerializableAdapterStore(new PersistentAdapterStoreAsTransient(
-        ((PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper().getValue(context,
-            scope, null)).getDataStoreOptions()));
+    adapterStore =
+        new SerializableAdapterStore(new PersistentAdapterStoreAsTransient(
+            ((PersistableStore) StoreParameters.StoreParam.INPUT_STORE.getHelper()
+                .getValue(context, scope, null)).getDataStoreOptions()));
 
     init();
   }
 
   @Override
-  public void setup(final PropertyManagement runTimeProperties, final Class<?> scope,
+  public void setup(
+      final PropertyManagement runTimeProperties,
+      final Class<?> scope,
       final Configuration configuration) {
     super.setup(runTimeProperties, scope, configuration);
     final ParameterEnum[] params = new ParameterEnum[] {StoreParameters.StoreParam.INPUT_STORE};
     runTimeProperties.setConfig(params, configuration, scope);
   }
 
-  protected MultiDimensionalNumericData[] querySet(final MultiDimensionalNumericData dimensionsData,
+  protected MultiDimensionalNumericData[] querySet(
+      final MultiDimensionalNumericData dimensionsData,
       final double[] distances) {
 
     final List<NumericRange[]> resultList = new ArrayList<>();
@@ -156,8 +160,12 @@ public class AdapterBasedPartitioner extends AbstractPartitioner<AdapterDataEntr
     return finalSet;
   }
 
-  private void addToList(final List<NumericRange[]> resultList, final NumericRange[] currentData,
-      final double[] distances, final MultiDimensionalNumericData dimensionsData, final int d) {
+  private void addToList(
+      final List<NumericRange[]> resultList,
+      final NumericRange[] currentData,
+      final double[] distances,
+      final MultiDimensionalNumericData dimensionsData,
+      final int d) {
     if (d == currentData.length) {
       resultList.add(Arrays.copyOf(currentData, currentData.length));
       return;
@@ -170,16 +178,18 @@ public class AdapterBasedPartitioner extends AbstractPartitioner<AdapterDataEntr
     final double mindiff = lowerBound - fullRangesPerDimension[d].getMin();
     final double maxdiff = upperBound - fullRangesPerDimension[d].getMax();
     if (wrapsAroundBoundary[d] && (mindiff < 0)) {
-      currentData[d] = new NumericRange(fullRangesPerDimension[d].getMax() + mindiff,
-          fullRangesPerDimension[d].getMax());
+      currentData[d] =
+          new NumericRange(fullRangesPerDimension[d].getMax() + mindiff,
+              fullRangesPerDimension[d].getMax());
       addToList(resultList, currentData, distances, dimensionsData, d + 1);
       currentData[d] = new NumericRange(fullRangesPerDimension[d].getMin(), upperBound);
       addToList(resultList, currentData, distances, dimensionsData, d + 1);
     } else if (wrapsAroundBoundary[d] && (maxdiff > 0)) {
       currentData[d] = new NumericRange(lowerBound, fullRangesPerDimension[d].getMax());
       addToList(resultList, currentData, distances, dimensionsData, d + 1);
-      currentData[d] = new NumericRange(fullRangesPerDimension[d].getMin(),
-          fullRangesPerDimension[d].getMin() + maxdiff);
+      currentData[d] =
+          new NumericRange(fullRangesPerDimension[d].getMin(),
+              fullRangesPerDimension[d].getMin() + maxdiff);
       addToList(resultList, currentData, distances, dimensionsData, d + 1);
     } else {
       currentData[d] = new NumericRange(lowerBound, upperBound);
@@ -195,7 +205,8 @@ public class AdapterBasedPartitioner extends AbstractPartitioner<AdapterDataEntr
       this(dataStoreOptions.createAdapterStore(), dataStoreOptions.createInternalAdapterStore());
     }
 
-    private PersistentAdapterStoreAsTransient(final PersistentAdapterStore adapterStore,
+    private PersistentAdapterStoreAsTransient(
+        final PersistentAdapterStore adapterStore,
         final InternalAdapterStore internalAdapterStore) {
       this.adapterStore = adapterStore;
       this.internalAdapterStore = internalAdapterStore;
@@ -203,8 +214,9 @@ public class AdapterBasedPartitioner extends AbstractPartitioner<AdapterDataEntr
 
     @Override
     public void addAdapter(final DataTypeAdapter<?> adapter) {
-      adapterStore.addAdapter(new InternalDataAdapterWrapper(adapter,
-          internalAdapterStore.addTypeName(adapter.getTypeName())));
+      adapterStore.addAdapter(
+          new InternalDataAdapterWrapper(adapter,
+              internalAdapterStore.addTypeName(adapter.getTypeName())));
     }
 
     @Override

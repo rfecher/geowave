@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,17 +33,23 @@ public class GeowaveOperationGrpcGenerator {
       LoggerFactory.getLogger(GeowaveOperationGrpcGenerator.class.getName());
   private static final String protobufPackage =
       "option java_package = \"org.locationtech.geowave.service.grpc.protobuf\";\n";
-  private static final String header = "/**\n"
-      + " * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation\n" + " *\n"
-      + " * See the NOTICE file distributed with this work for additional\n"
-      + " * information regarding copyright ownership.\n"
-      + " * All rights reserved. This program and the accompanying materials\n"
-      + " * are made available under the terms of the Apache License\n"
-      + " * Version 2.0 which accompanies this distribution and is available at\n"
-      + " * http://www.apache.org/licenses/LICENSE-2.0.txt\n" + "*/\n" + "syntax = \"proto3\";\n";
+  private static final String header =
+      "/**\n"
+          + " * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation\n"
+          + " *\n"
+          + " * See the NOTICE file distributed with this work for additional\n"
+          + " * information regarding copyright ownership.\n"
+          + " * All rights reserved. This program and the accompanying materials\n"
+          + " * are made available under the terms of the Apache License\n"
+          + " * Version 2.0 which accompanies this distribution and is available at\n"
+          + " * http://www.apache.org/licenses/LICENSE-2.0.txt\n"
+          + "*/\n"
+          + "syntax = \"proto3\";\n";
 
-  private static final String options = "option java_multiple_files = true;\n" + protobufPackage
-      + "option java_outer_classname = \"&OUTER_CLASSNAME&\";\n";
+  private static final String options =
+      "option java_multiple_files = true;\n"
+          + protobufPackage
+          + "option java_outer_classname = \"&OUTER_CLASSNAME&\";\n";
 
   private static String outputBasePath = "";
 
@@ -103,8 +108,9 @@ public class GeowaveOperationGrpcGenerator {
             if (packageToks[i + 2].equalsIgnoreCase("operations"))
               serviceName = "Core" + WordUtils.capitalize(packageToks[i + 1]);
             else
-              serviceName = WordUtils.capitalize(packageToks[i + 1])
-                  + WordUtils.capitalize(packageToks[i + 2]);
+              serviceName =
+                  WordUtils.capitalize(packageToks[i + 1])
+                      + WordUtils.capitalize(packageToks[i + 2]);
             if (!rpcs.containsKey(serviceName)) {
               rpcs.put(serviceName, new ArrayList<String>());
               rpcInputMessages.put(serviceName, new ArrayList<String>());
@@ -129,8 +135,9 @@ public class GeowaveOperationGrpcGenerator {
         while (parentClass != null) {
 
           try {
-            paramType = ((ParameterizedType) parentClass.getGenericSuperclass())
-                .getActualTypeArguments()[0];
+            paramType =
+                ((ParameterizedType) parentClass.getGenericSuperclass())
+                    .getActualTypeArguments()[0];
             success = true;
           } catch (final Exception e) {
             continue;
@@ -155,8 +162,14 @@ public class GeowaveOperationGrpcGenerator {
           retMessages.put(retType, retType);
         }
 
-        final String rpc = "\t rpc " + rpcName + "(" + rpcName + "ParametersProtos) returns ("
-            + responseName + ") {} \n";
+        final String rpc =
+            "\t rpc "
+                + rpcName
+                + "("
+                + rpcName
+                + "ParametersProtos) returns ("
+                + responseName
+                + ") {} \n";
         rpcs.get(serviceName).add(rpc);
         final ProcessOperationResult pr = new ProcessOperationResult();
         pr.message = "\nmessage " + rpcName + "ParametersProtos {";
@@ -195,8 +208,10 @@ public class GeowaveOperationGrpcGenerator {
       }
 
       // first write header
-      final String serviceHeader = header + "import \"GeoWaveReturnTypesProtos.proto\";\n"
-          + options.replace("&OUTER_CLASSNAME&", currServiceName + "ServiceProtos");
+      final String serviceHeader =
+          header
+              + "import \"GeoWaveReturnTypesProtos.proto\";\n"
+              + options.replace("&OUTER_CLASSNAME&", currServiceName + "ServiceProtos");
       try {
         if (serviceWriter != null) {
           serviceWriter.write(serviceHeader + "\n");

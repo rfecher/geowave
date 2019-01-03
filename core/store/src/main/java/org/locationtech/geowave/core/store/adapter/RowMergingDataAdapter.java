@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,13 +18,16 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 public interface RowMergingDataAdapter<T, M extends Mergeable> extends DataTypeAdapter<T> {
   public RowTransform<M> getTransform();
 
-  public Map<String, String> getOptions(short internalAdapterId,
+  public Map<String, String> getOptions(
+      short internalAdapterId,
       Map<String, String> existingOptions);
 
   public static interface RowTransform<M extends Mergeable> extends Persistable {
     public void initOptions(final Map<String, String> options) throws IOException;
 
-    public M getRowAsMergeableObject(final short internalAdapterId, final ByteArray fieldId,
+    public M getRowAsMergeableObject(
+        final short internalAdapterId,
+        final ByteArray fieldId,
         final byte[] rowValueBinary);
 
     public byte[] getBinaryFromMergedObject(final M rowObject);

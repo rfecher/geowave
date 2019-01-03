@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -58,10 +57,14 @@ public abstract class AbstractMapReduceIngest<T extends Persistable & DataAdapte
   protected final IngestFromHdfsPlugin<?, ?> parentPlugin;
   protected final T ingestPlugin;
 
-  public AbstractMapReduceIngest(final DataStorePluginOptions dataStoreOptions,
-      final List<IndexPluginOptions> indexOptions, final VisibilityOptions ingestOptions,
-      final Path inputFile, final String formatPluginName,
-      final IngestFromHdfsPlugin<?, ?> parentPlugin, final T ingestPlugin) {
+  public AbstractMapReduceIngest(
+      final DataStorePluginOptions dataStoreOptions,
+      final List<IndexPluginOptions> indexOptions,
+      final VisibilityOptions ingestOptions,
+      final Path inputFile,
+      final String formatPluginName,
+      final IngestFromHdfsPlugin<?, ?> parentPlugin,
+      final T ingestPlugin) {
     this.dataStoreOptions = dataStoreOptions;
     this.indexOptions = indexOptions;
     this.ingestOptions = ingestOptions;
@@ -72,8 +75,9 @@ public abstract class AbstractMapReduceIngest<T extends Persistable & DataAdapte
   }
 
   public String getJobName() {
-    return String.format(JOB_NAME, formatPluginName, inputFile.toString(),
-        dataStoreOptions.getGeoWaveNamespace(), getIngestDescription());
+    return String.format(
+        JOB_NAME, formatPluginName, inputFile.toString(), dataStoreOptions.getGeoWaveNamespace(),
+        getIngestDescription());
   }
 
   protected abstract String getIngestDescription();
@@ -89,7 +93,8 @@ public abstract class AbstractMapReduceIngest<T extends Persistable & DataAdapte
   @Override
   public int run(final String[] args) throws Exception {
     final Configuration conf = getConf();
-    conf.set(INGEST_PLUGIN_KEY,
+    conf.set(
+        INGEST_PLUGIN_KEY,
         ByteArrayUtils.byteArrayToString(PersistenceUtils.toBinary(ingestPlugin)));
     if (ingestOptions.getVisibility() != null) {
       conf.set(GLOBAL_VISIBILITY_KEY, ingestOptions.getVisibility());

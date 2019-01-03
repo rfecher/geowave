@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -76,13 +75,17 @@ public class ConfigServicesIT extends BaseServiceIT {
 
   @Test
   public void testAddStoreReRoute() {
-    TestUtils.assertStatusCode("Should Create Store", 201,
-        configServiceClient.addStoreReRoute(storeName, dataStorePluginOptions.getType(), null,
+    TestUtils.assertStatusCode(
+        "Should Create Store", 201,
+        configServiceClient.addStoreReRoute(
+            storeName, dataStorePluginOptions.getType(), null,
             dataStorePluginOptions.getOptionsAsMap()));
 
     muteLogging();
-    TestUtils.assertStatusCode("Should fail to create duplicate store", 400,
-        configServiceClient.addStoreReRoute(storeName, dataStorePluginOptions.getType(), null,
+    TestUtils.assertStatusCode(
+        "Should fail to create duplicate store", 400,
+        configServiceClient.addStoreReRoute(
+            storeName, dataStorePluginOptions.getType(), null,
             dataStorePluginOptions.getOptionsAsMap()));
     unmuteLogging();
   }
@@ -154,13 +157,14 @@ public class ConfigServicesIT extends BaseServiceIT {
         configServiceClient.addIndexGroup(indexGroupName + "-bad", badIndexes);
     unmuteLogging();
 
-    TestUtils.assertStatusCode("This should return 404, one of the indexes listed does not exist",
-        404, thirdAdd);
+    TestUtils.assertStatusCode(
+        "This should return 404, one of the indexes listed does not exist", 404, thirdAdd);
   }
 
   @Test
   public void testRemoveStore() {
-    configServiceClient.addStoreReRoute("test_remove_store", dataStorePluginOptions.getType(), null,
+    configServiceClient.addStoreReRoute(
+        "test_remove_store", dataStorePluginOptions.getType(), null,
         dataStorePluginOptions.getOptionsAsMap());
 
     final Response firstRemove = configServiceClient.removeStore("test_remove_store");
@@ -170,8 +174,8 @@ public class ConfigServicesIT extends BaseServiceIT {
     final Response secondRemove = configServiceClient.removeStore("test_remove_store");
     unmuteLogging();
 
-    TestUtils.assertStatusCode("This should return 404, that store does not exist", 404,
-        secondRemove);
+    TestUtils
+        .assertStatusCode("This should return 404, that store does not exist", 404, secondRemove);
   }
 
   @Test
@@ -186,8 +190,8 @@ public class ConfigServicesIT extends BaseServiceIT {
     final Response secondRemove = configServiceClient.removeIndex("test_remove_index");
     unmuteLogging();
 
-    TestUtils.assertStatusCode("This should return 404, that index does not exist", 404,
-        secondRemove);
+    TestUtils
+        .assertStatusCode("This should return 404, that index does not exist", 404, secondRemove);
   }
 
   @Test
@@ -208,8 +212,8 @@ public class ConfigServicesIT extends BaseServiceIT {
     final Response secondRemove = configServiceClient.removeIndexGroup("test_remove_index_group");
     unmuteLogging();
 
-    TestUtils.assertStatusCode("This should return 404, that index group does not exist", 404,
-        secondRemove);
+    TestUtils.assertStatusCode(
+        "This should return 404, that index group does not exist", 404, secondRemove);
   }
 
   @Test

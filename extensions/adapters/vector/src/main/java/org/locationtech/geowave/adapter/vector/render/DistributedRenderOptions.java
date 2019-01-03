@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -80,7 +79,9 @@ public class DistributedRenderOptions implements Persistable {
 
   public DistributedRenderOptions() {}
 
-  public DistributedRenderOptions(final WMS wms, final WMSMapContent mapContent,
+  public DistributedRenderOptions(
+      final WMS wms,
+      final WMSMapContent mapContent,
       final Style style) {
     optimizeLineWidth = DefaultWebMapService.isLineWidthOptimizationEnabled();
     maxFilters = DefaultWebMapService.getMaxFilterRules();
@@ -378,8 +379,9 @@ public class DistributedRenderOptions implements Persistable {
     bitSet.set(12, buffer > 0);
     bitSet.set(13, bgColor != null);
     bitSet.set(14, style != null);
-    final boolean storeCRS = !((envelope.getCoordinateReferenceSystem() == null)
-        || GeometryUtils.getDefaultCRS().equals(envelope.getCoordinateReferenceSystem()));
+    final boolean storeCRS =
+        !((envelope.getCoordinateReferenceSystem() == null)
+            || GeometryUtils.getDefaultCRS().equals(envelope.getCoordinateReferenceSystem()));
     bitSet.set(15, storeCRS);
 
     final double minX = envelope.getMinX();
@@ -388,8 +390,11 @@ public class DistributedRenderOptions implements Persistable {
     final double maxY = envelope.getMaxY();
     // required bytes include 32 for envelope doubles,
     // 8 for map width and height ints, and 2 for the bitset
-    int bufferSize = 32 + 2 + VarintUtils.unsignedIntByteLength(mapWidth)
-        + VarintUtils.unsignedIntByteLength(mapHeight);
+    int bufferSize =
+        32
+            + 2
+            + VarintUtils.unsignedIntByteLength(mapWidth)
+            + VarintUtils.unsignedIntByteLength(mapHeight);
     final byte[] wktBinary;
     if (storeCRS) {
       final String wkt = envelope.getCoordinateReferenceSystem().toWKT();
@@ -595,8 +600,9 @@ public class DistributedRenderOptions implements Persistable {
     if (styleStored) {
       final byte[] styleBinary = new byte[VarintUtils.readUnsignedInt(buf)];
       buf.get(styleBinary);
-      final SLDParser parser = new SLDParser(CommonFactoryFinder.getStyleFactory(null),
-          new ByteArrayInputStream(styleBinary));
+      final SLDParser parser =
+          new SLDParser(CommonFactoryFinder.getStyleFactory(null),
+              new ByteArrayInputStream(styleBinary));
       final Style[] styles = parser.readXML();
       if ((styles != null) && (styles.length > 0)) {
         style = styles[0];

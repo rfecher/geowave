@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,8 +23,13 @@ public class BasicParameterHelper implements ParameterHelper<Object> {
   private final Class<Object> baseClass;
   private final boolean isClass;
 
-  public BasicParameterHelper(final ParameterEnum<?> parent, final Class<Object> baseClass,
-      final String name, final String description, final boolean isClass, final boolean hasArg) {
+  public BasicParameterHelper(
+      final ParameterEnum<?> parent,
+      final Class<Object> baseClass,
+      final String name,
+      final String description,
+      final boolean isClass,
+      final boolean hasArg) {
     this.baseClass = baseClass;
     this.parent = parent;
     this.isClass = isClass;
@@ -41,26 +45,31 @@ public class BasicParameterHelper implements ParameterHelper<Object> {
     setParameter(config, scope, value, parent);
   }
 
-  private static final void setParameter(final Configuration config, final Class<?> scope,
-      final Object val, final ParameterEnum configItem) {
+  private static final void setParameter(
+      final Configuration config,
+      final Class<?> scope,
+      final Object val,
+      final ParameterEnum configItem) {
     if (val != null) {
       if (val instanceof Long) {
-        config.setLong(GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()),
-            ((Long) val));
+        config
+            .setLong(GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()), ((Long) val));
       } else if (val instanceof Double) {
-        config.setDouble(GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()),
-            ((Double) val));
+        config.setDouble(
+            GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()), ((Double) val));
       } else if (val instanceof Boolean) {
-        config.setBoolean(GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()),
-            ((Boolean) val));
+        config.setBoolean(
+            GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()), ((Boolean) val));
       } else if (val instanceof Integer) {
-        config.setInt(GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()),
-            ((Integer) val));
+        config.setInt(
+            GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()), ((Integer) val));
       } else if (val instanceof Class) {
-        config.setClass(GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()),
-            ((Class) val), ((Class) val));
+        config.setClass(
+            GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()), ((Class) val),
+            ((Class) val));
       } else if (val instanceof byte[]) {
-        config.set(GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()),
+        config.set(
+            GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()),
             ByteArrayUtils.byteArrayToString((byte[]) val));
       } else {
         config.set(GeoWaveConfiguratorBase.enumToConfKey(scope, configItem.self()), val.toString());
@@ -69,7 +78,9 @@ public class BasicParameterHelper implements ParameterHelper<Object> {
   }
 
   @Override
-  public Object getValue(final JobContext context, final Class<?> scope,
+  public Object getValue(
+      final JobContext context,
+      final Class<?> scope,
       final Object defaultValue) {
     final ScopedJobConfiguration scopedConfig =
         new ScopedJobConfiguration(context.getConfiguration(), scope);

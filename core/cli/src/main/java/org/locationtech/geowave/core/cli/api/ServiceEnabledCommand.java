@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -42,11 +41,10 @@ public abstract class ServiceEnabledCommand<T> extends DefaultOperation implemen
   /**
    * Get the status code to return if execution was success.
    *
-   * <p>
-   * By default: POST -> 201 OTHER -> 200
+   * <p> By default: POST -> 201 OTHER -> 200
    *
-   * <p>
-   * Should be overridden in subclasses as needed (i.e., for a POST that does not create anything).
+   * <p> Should be overridden in subclasses as needed (i.e., for a POST that does not create
+   * anything).
    *
    * @return The potential status if REST call is successful.
    */
@@ -123,7 +121,8 @@ public abstract class ServiceEnabledCommand<T> extends DefaultOperation implemen
     }
 
     final GeowaveOperation operationInfo = operation.getAnnotation(GeowaveOperation.class);
-    return pathFor(operationInfo.parentOperation(), null) + "/"
+    return pathFor(operationInfo.parentOperation(), null)
+        + "/"
         + resolveName(operationInfo.name(), resourcePathOverride);
   }
 

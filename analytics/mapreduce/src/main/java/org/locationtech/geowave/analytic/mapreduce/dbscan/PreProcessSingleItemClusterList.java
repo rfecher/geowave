@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -18,13 +17,15 @@ import org.locationtech.geowave.core.index.ByteArray;
 /**
  * Maintains a single hull around a set of points.
  *
- * <p>
- * Intended to run in a single thread. Not Thread Safe.
+ * <p> Intended to run in a single thread. Not Thread Safe.
  */
 public class PreProcessSingleItemClusterList extends SingleItemClusterList implements Cluster {
 
-  public PreProcessSingleItemClusterList(ByteArray centerId, ClusterItem center,
-      NeighborListFactory<ClusterItem> factory, Map<ByteArray, Cluster> index) {
+  public PreProcessSingleItemClusterList(
+      ByteArray centerId,
+      ClusterItem center,
+      NeighborListFactory<ClusterItem> factory,
+      Map<ByteArray, Cluster> index) {
     super(centerId, center, factory, index);
   }
 
@@ -51,7 +52,8 @@ public class PreProcessSingleItemClusterList extends SingleItemClusterList imple
     }
 
     @Override
-    public NeighborList<ClusterItem> buildNeighborList(final ByteArray centerId,
+    public NeighborList<ClusterItem> buildNeighborList(
+        final ByteArray centerId,
         final ClusterItem center) {
       Cluster list = index.get(centerId);
       if (list == null) {

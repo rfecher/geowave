@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -52,9 +51,10 @@ public class NNJobRunnerTest {
   public void init() {
     jjJobRunner.setMapReduceIntegrater(new MapReduceIntegration() {
       @Override
-      public int submit(final Configuration configuration,
-          final PropertyManagement runTimeProperties, final GeoWaveAnalyticJobRunner tool)
-          throws Exception {
+      public int submit(
+          final Configuration configuration,
+          final PropertyManagement runTimeProperties,
+          final GeoWaveAnalyticJobRunner tool) throws Exception {
         tool.setConf(configuration);
         return ToolRunner.run(configuration, tool, new String[] {});
       }
@@ -79,14 +79,16 @@ public class NNJobRunnerTest {
 
           Assert.assertEquals(OrthodromicDistancePartitioner.class, wrapper.getClass());
 
-          final Partitioner<?> secondary = configWrapper
-              .getInstance(Partition.SECONDARY_PARTITIONER_CLASS, Partitioner.class, null);
+          final Partitioner<?> secondary =
+              configWrapper
+                  .getInstance(Partition.SECONDARY_PARTITIONER_CLASS, Partitioner.class, null);
 
           Assert.assertEquals(OrthodromicDistancePartitioner.class, secondary.getClass());
 
           final DistanceFn<?> distancFn =
-              configWrapper.getInstance(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-                  DistanceFn.class, GeometryCentroidDistanceFn.class);
+              configWrapper.getInstance(
+                  CommonParameters.Common.DISTANCE_FUNCTION_CLASS, DistanceFn.class,
+                  GeometryCentroidDistanceFn.class);
 
           Assert.assertEquals(FeatureCentroidDistanceFn.class, distancFn.getClass());
 
@@ -120,8 +122,8 @@ public class NNJobRunnerTest {
     runTimeProperties.store(MRConfig.HDFS_BASE_DIR, "/");
 
     DataStorePluginOptions pluginOptions = new DataStorePluginOptions();
-    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().put("memory",
-        new MemoryStoreFactoryFamily());
+    GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies()
+        .put("memory", new MemoryStoreFactoryFamily());
     pluginOptions.selectPlugin("memory");
     MemoryRequiredOptions opts = (MemoryRequiredOptions) pluginOptions.getFactoryOptions();
     final String namespace = "test_" + getClass().getName() + "_" + name.getMethodName();
@@ -130,13 +132,13 @@ public class NNJobRunnerTest {
 
     runTimeProperties.store(StoreParam.INPUT_STORE, store);
 
-    runTimeProperties.store(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-        FeatureCentroidDistanceFn.class);
+    runTimeProperties
+        .store(CommonParameters.Common.DISTANCE_FUNCTION_CLASS, FeatureCentroidDistanceFn.class);
 
     runTimeProperties.store(Partition.PARTITIONER_CLASS, OrthodromicDistancePartitioner.class);
 
-    runTimeProperties.store(Partition.SECONDARY_PARTITIONER_CLASS,
-        OrthodromicDistancePartitioner.class);
+    runTimeProperties
+        .store(Partition.SECONDARY_PARTITIONER_CLASS, OrthodromicDistancePartitioner.class);
 
     runTimeProperties.store(Partition.MAX_DISTANCE, Double.valueOf(0.4));
 

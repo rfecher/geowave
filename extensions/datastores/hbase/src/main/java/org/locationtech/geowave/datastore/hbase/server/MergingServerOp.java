@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -83,8 +82,9 @@ public class MergingServerOp implements HBaseServerOp {
             final byte[] familyBytes = CellUtil.cloneFamily(cell);
             GeowaveColumnId familyId = null;
             if (columnFamilyIds.iterator().next() instanceof ShortColumnId) {
-              familyId = new ShortColumnId(
-                  ByteArrayUtils.shortFromString(StringUtils.stringFromBinary(familyBytes)));
+              familyId =
+                  new ShortColumnId(
+                      ByteArrayUtils.shortFromString(StringUtils.stringFromBinary(familyBytes)));
             } else if (columnFamilyIds.iterator().next() instanceof ByteArrayColumnId) {
               familyId = new ByteArrayColumnId(new ByteArray(familyBytes));
             }
@@ -154,12 +154,14 @@ public class MergingServerOp implements HBaseServerOp {
       Mergeable currentMergeable = null;
       final Cell firstCell = cells.get(0);
       for (final Cell cell : cells) {
-        final Mergeable mergeable = getMergeable(cell,
-            // TODO consider avoiding extra byte array
-            // allocations (which would require
-            // persistence utils to be able to use
-            // bytebuffer instead of byte[])
-            CellUtil.cloneValue(cell));
+        final Mergeable mergeable =
+            getMergeable(
+                cell,
+                // TODO consider avoiding extra byte array
+                // allocations (which would require
+                // persistence utils to be able to use
+                // bytebuffer instead of byte[])
+                CellUtil.cloneValue(cell));
         if (mergeable != null) {
           if (currentMergeable == null) {
             currentMergeable = mergeable;
@@ -189,14 +191,16 @@ public class MergingServerOp implements HBaseServerOp {
     if (columnStr.length() == 0) {
       throw new IllegalArgumentException("The column must not be empty");
     }
-    columnFamilyIds = Sets.newHashSet(Iterables.transform(Splitter.on(",").split(columnStr),
-        new Function<String, GeowaveColumnId>() {
+    columnFamilyIds =
+        Sets.newHashSet(
+            Iterables.transform(
+                Splitter.on(",").split(columnStr), new Function<String, GeowaveColumnId>() {
 
-          @Override
-          public GeowaveColumnId apply(final String input) {
-            return new ByteArrayColumnId(new ByteArray(input));
-          }
-        }));
+                  @Override
+                  public GeowaveColumnId apply(final String input) {
+                    return new ByteArrayColumnId(new ByteArray(input));
+                  }
+                }));
   }
 
   protected String getColumnOptionValue(final Map<String, String> options) {

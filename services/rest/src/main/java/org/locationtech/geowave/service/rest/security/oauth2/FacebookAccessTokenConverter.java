@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -42,8 +41,9 @@ public class FacebookAccessTokenConverter extends DefaultAccessTokenConverter {
   public final void setUserTokenConverter(UserAuthenticationConverter userTokenConverter) {}
 
   public void setDefaultAuthorities(String[] defaultAuthorities) {
-    this.defaultAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(
-        StringUtils.arrayToCommaDelimitedString(defaultAuthorities));
+    this.defaultAuthorities =
+        AuthorityUtils.commaSeparatedStringToAuthorityList(
+            StringUtils.arrayToCommaDelimitedString(defaultAuthorities));
   }
 
   public OAuth2Authentication extractAuthentication(Map<String, ?> map) {
@@ -54,8 +54,9 @@ public class FacebookAccessTokenConverter extends DefaultAccessTokenConverter {
         new UsernamePasswordAuthenticationToken(principal, "N/A", defaultAuthorities);
     String clientId = (String) map.get(CLIENT_ID);
     parameters.put(CLIENT_ID, clientId);
-    Set<String> resourceIds = new LinkedHashSet<>(
-        map.containsKey(AUD) ? (Collection<String>) map.get(AUD) : Collections.<String>emptySet());
+    Set<String> resourceIds =
+        new LinkedHashSet<>(map.containsKey(AUD) ? (Collection<String>) map.get(AUD)
+            : Collections.<String>emptySet());
     OAuth2Request request =
         new OAuth2Request(parameters, clientId, null, true, scope, resourceIds, null, null, null);
     return new OAuth2Authentication(request, user);

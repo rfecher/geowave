@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -104,8 +103,11 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
     return getQualifiedTableName(tableName);
   }
 
-  protected Iterator<DynamoDBRow> getRows(final String tableName, final byte[][] dataIds,
-      final byte[] adapterId, final String... additionalAuthorizations) {
+  protected Iterator<DynamoDBRow> getRows(
+      final String tableName,
+      final byte[][] dataIds,
+      final byte[] adapterId,
+      final String... additionalAuthorizations) {
     final String qName = getQualifiedTableName(tableName);
     final Short adapterIdObj = ByteArrayUtils.byteArrayToShort(adapterId);
     final Set<ByteArray> dataIdsSet = new HashSet<>(dataIds.length);
@@ -114,8 +116,9 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
     }
     final ScanRequest request = new ScanRequest(qName);
     final ScanResult scanResult = client.scan(request);
-    final Iterator<DynamoDBRow> everything = new GeoWaveRowMergingIterator<>(
-        Iterators.transform(new LazyPaginatedScan(scanResult, request, client),
+    final Iterator<DynamoDBRow> everything =
+        new GeoWaveRowMergingIterator<>(Iterators.transform(
+            new LazyPaginatedScan(scanResult, request, client),
             new DynamoDBRow.GuavaRowTranslationHelper()));
     return Iterators.filter(everything, new Predicate<DynamoDBRow>() {
 
@@ -150,7 +153,10 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public boolean deleteAll(final String indexName, final String typeName, final Short adapterId,
+  public boolean deleteAll(
+      final String indexName,
+      final String typeName,
+      final Short adapterId,
       final String... additionalAuthorizations) {
     // TODO Auto-generated method stub
     return false;
@@ -175,16 +181,20 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
     synchronized (tableExistsCache) {
       final Boolean tableExists = tableExistsCache.get(qName);
       if ((tableExists == null) || !tableExists) {
-        final boolean tableCreated = TableUtils.createTableIfNotExists(client,
-            new CreateTableRequest().withTableName(qName)
-                .withAttributeDefinitions(
-                    new AttributeDefinition(DynamoDBRow.GW_PARTITION_ID_KEY, ScalarAttributeType.B),
-                    new AttributeDefinition(DynamoDBRow.GW_RANGE_KEY, ScalarAttributeType.B))
-                .withKeySchema(new KeySchemaElement(DynamoDBRow.GW_PARTITION_ID_KEY, KeyType.HASH),
-                    new KeySchemaElement(DynamoDBRow.GW_RANGE_KEY, KeyType.RANGE))
-                .withProvisionedThroughput(
-                    new ProvisionedThroughput(Long.valueOf(options.getReadCapacity()),
-                        Long.valueOf(options.getWriteCapacity()))));
+        final boolean tableCreated =
+            TableUtils.createTableIfNotExists(
+                client,
+                new CreateTableRequest().withTableName(qName)
+                    .withAttributeDefinitions(
+                        new AttributeDefinition(DynamoDBRow.GW_PARTITION_ID_KEY,
+                            ScalarAttributeType.B),
+                        new AttributeDefinition(DynamoDBRow.GW_RANGE_KEY, ScalarAttributeType.B))
+                    .withKeySchema(
+                        new KeySchemaElement(DynamoDBRow.GW_PARTITION_ID_KEY, KeyType.HASH),
+                        new KeySchemaElement(DynamoDBRow.GW_RANGE_KEY, KeyType.RANGE))
+                    .withProvisionedThroughput(
+                        new ProvisionedThroughput(Long.valueOf(options.getReadCapacity()),
+                            Long.valueOf(options.getWriteCapacity()))));
         if (tableCreated) {
           try {
             TableUtils.waitUntilActive(client, qName);
@@ -206,16 +216,18 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
     synchronized (DynamoDBOperations.tableExistsCache) {
       final Boolean tableExists = DynamoDBOperations.tableExistsCache.get(tableName);
       if ((tableExists == null) || !tableExists) {
-        final boolean tableCreated = TableUtils.createTableIfNotExists(client,
-            new CreateTableRequest().withTableName(tableName)
-                .withAttributeDefinitions(
-                    new AttributeDefinition(METADATA_PRIMARY_ID_KEY, ScalarAttributeType.B))
-                .withKeySchema(new KeySchemaElement(METADATA_PRIMARY_ID_KEY, KeyType.HASH))
-                .withAttributeDefinitions(
-                    new AttributeDefinition(METADATA_TIMESTAMP_KEY, ScalarAttributeType.N))
-                .withKeySchema(new KeySchemaElement(METADATA_TIMESTAMP_KEY, KeyType.RANGE))
-                .withProvisionedThroughput(
-                    new ProvisionedThroughput(Long.valueOf(5), Long.valueOf(5))));
+        final boolean tableCreated =
+            TableUtils.createTableIfNotExists(
+                client,
+                new CreateTableRequest().withTableName(tableName)
+                    .withAttributeDefinitions(
+                        new AttributeDefinition(METADATA_PRIMARY_ID_KEY, ScalarAttributeType.B))
+                    .withKeySchema(new KeySchemaElement(METADATA_PRIMARY_ID_KEY, KeyType.HASH))
+                    .withAttributeDefinitions(
+                        new AttributeDefinition(METADATA_TIMESTAMP_KEY, ScalarAttributeType.N))
+                    .withKeySchema(new KeySchemaElement(METADATA_TIMESTAMP_KEY, KeyType.RANGE))
+                    .withProvisionedThroughput(
+                        new ProvisionedThroughput(Long.valueOf(5), Long.valueOf(5))));
         if (tableCreated) {
           try {
             TableUtils.waitUntilActive(client, tableName);
@@ -251,22 +263,28 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public RowDeleter createRowDeleter(final String indexName,
-      final PersistentAdapterStore adapterStore, final InternalAdapterStore internalAdapterStore,
+  public RowDeleter createRowDeleter(
+      final String indexName,
+      final PersistentAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
       final String... authorizations) {
     return new DynamoDBDeleter(this, getQualifiedTableName(indexName));
   }
 
   @Override
-  public boolean mergeData(final Index index, PersistentAdapterStore adapterStore,
+  public boolean mergeData(
+      final Index index,
+      PersistentAdapterStore adapterStore,
       InternalAdapterStore internalAdapterStore,
       final AdapterIndexMappingStore adapterIndexMappingStore) {
-    return DataStoreUtils.mergeData(this, options.getStoreOptions(), index, adapterStore,
-        internalAdapterStore, adapterIndexMappingStore);
+    return DataStoreUtils.mergeData(
+        this, options.getStoreOptions(), index, adapterStore, internalAdapterStore,
+        adapterIndexMappingStore);
   }
 
   @Override
-  public boolean mergeStats(final DataStatisticsStore statsStore,
+  public boolean mergeStats(
+      final DataStatisticsStore statsStore,
       final InternalAdapterStore internalAdapterStore) {
     return DataStoreUtils.mergeStats(statsStore, internalAdapterStore);
   }
@@ -289,7 +307,8 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
   @Override
   public <T> Deleter<T> createDeleter(final ReaderParams<T> readerParams) {
     return new QueryAndDeleteByRow<>(
-        createRowDeleter(readerParams.getIndex().getName(), readerParams.getAdapterStore(),
+        createRowDeleter(
+            readerParams.getIndex().getName(), readerParams.getAdapterStore(),
             readerParams.getInternalAdapterStore(), readerParams.getAdditionalAuthorizations()),
         createReader(readerParams));
   }

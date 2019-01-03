@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -165,7 +164,8 @@ public class GeoServerRestClient {
    *        GeoServer
    * @param gsConfigProperties Properties object with applicable GeoServer connection properties
    */
-  private void loadSSLConfigurations(final SslConfigurator sslConfig,
+  private void loadSSLConfigurations(
+      final SslConfigurator sslConfig,
       final Properties gsConfigProperties) {
     if ((gsConfigProperties != null) && (sslConfig != null)) {
       // default to TLS for geoserver ssl security protocol
@@ -182,9 +182,12 @@ public class GeoServerRestClient {
           try {
             sslConfig.trustStoreFile(trustStoreFile.getCanonicalPath());
           } catch (final IOException e) {
-            LOGGER.error("An error occurred loading the truststore at the specified path ["
-                + getPropertyValue(gsConfigProperties, GEOSERVER_SSL_TRUSTSTORE_FILE) + "]:"
-                + e.getLocalizedMessage(), e);
+            LOGGER.error(
+                "An error occurred loading the truststore at the specified path ["
+                    + getPropertyValue(gsConfigProperties, GEOSERVER_SSL_TRUSTSTORE_FILE)
+                    + "]:"
+                    + e.getLocalizedMessage(),
+                e);
           }
         }
       }
@@ -216,15 +219,19 @@ public class GeoServerRestClient {
         // HP Fortify "Path Traversal" false positive
         // What Fortify considers "user input" comes only
         // from users with OS-level access anyway
-        final File keyStoreFile = new File(FileUtils
-            .formatFilePath(getPropertyValue(gsConfigProperties, GEOSERVER_SSL_KEYSTORE_FILE)));
+        final File keyStoreFile =
+            new File(FileUtils
+                .formatFilePath(getPropertyValue(gsConfigProperties, GEOSERVER_SSL_KEYSTORE_FILE)));
         if (keyStoreFile != null) {
           try {
             sslConfig.keyStoreFile(keyStoreFile.getCanonicalPath());
           } catch (final IOException e) {
-            LOGGER.error("An error occurred loading the keystore at the specified path ["
-                + getPropertyValue(gsConfigProperties, GEOSERVER_SSL_KEYSTORE_FILE) + "]:"
-                + e.getLocalizedMessage(), e);
+            LOGGER.error(
+                "An error occurred loading the keystore at the specified path ["
+                    + getPropertyValue(gsConfigProperties, GEOSERVER_SSL_KEYSTORE_FILE)
+                    + "]:"
+                    + e.getLocalizedMessage(),
+                e);
           }
         }
       }
@@ -257,7 +264,9 @@ public class GeoServerRestClient {
     return getPropertyValue(configProps, configKey, null);
   }
 
-  private String getPropertyValue(final Properties configProps, final String configKey,
+  private String getPropertyValue(
+      final Properties configProps,
+      final String configKey,
       final String defaultValue) {
     String configValue = defaultValue;
     if (configProps != null) {
@@ -268,8 +277,9 @@ public class GeoServerRestClient {
               SecurityUtils.getFormattedTokenKeyFileForConfig(getConfig().getPropFile());
           // if password in config props is encrypted, need to decrypt
           // it
-          configValue = SecurityUtils.decryptHexEncodedValue(configValue,
-              resourceTokenFile.getCanonicalPath());
+          configValue =
+              SecurityUtils
+                  .decryptHexEncodedValue(configValue, resourceTokenFile.getCanonicalPath());
           return configValue;
         } catch (final Exception e) {
           LOGGER.error("An error occurred decrypting password: " + e.getLocalizedMessage(), e);
@@ -289,8 +299,11 @@ public class GeoServerRestClient {
    * @param defaultStyle
    * @return
    */
-  public Response addLayer(final String workspaceName, final String storeName,
-      final String adapterId, final String defaultStyle) {
+  public Response addLayer(
+      final String workspaceName,
+      final String storeName,
+      final String adapterId,
+      final String defaultStyle) {
     // retrieve the adapter info list for the store
     boolean layerAdded = false;
     int retStatus = -1;
@@ -336,9 +349,13 @@ public class GeoServerRestClient {
 
           if (addCsResponse.getStatus() != Status.CREATED.getStatusCode()) {
             final String ret =
-                "{ \"Adapter\":\"" + adapterId + "\",\"Status\":" + addCsResponse.getStatus()
+                "{ \"Adapter\":\""
+                    + adapterId
+                    + "\",\"Status\":"
+                    + addCsResponse.getStatus()
                     + ",\"Message\":\"Adding coverage store returned error: "
-                    + addCsResponse.readEntity(String.class) + "\"},";
+                    + addCsResponse.readEntity(String.class)
+                    + "\"},";
             buf.append(ret);
             if (retStatus == -1) {
               retStatus = addCsResponse.getStatus();
@@ -353,9 +370,13 @@ public class GeoServerRestClient {
           // GeoServer get commands will almost always return a 200 or
           // 404 unless there is a sever error
           final String ret =
-              "{ \"Adapter\":\"" + adapterId + "\",\"Status\":" + getCsResponse.getStatus()
+              "{ \"Adapter\":\""
+                  + adapterId
+                  + "\",\"Status\":"
+                  + getCsResponse.getStatus()
                   + ",\"Message\":\"Checking Existence of coverage store returned error: "
-                  + getCsResponse.readEntity(String.class) + "\"},";
+                  + getCsResponse.readEntity(String.class)
+                  + "\"},";
           buf.append(ret);
           if (retStatus == -1) {
             retStatus = getCsResponse.getStatus();
@@ -371,8 +392,10 @@ public class GeoServerRestClient {
         if (getCvResponse.getStatus() == Status.OK.getStatusCode()) {
           LOGGER.debug(dataAdapterInfo.typeName + " layer already exists");
           retStatus = 400;
-          final String ret = "{ \"Adapter\":\"" + adapterId
-              + "\",\"Status\":400,\"Message\":\"Coverage already exists\"},";
+          final String ret =
+              "{ \"Adapter\":\""
+                  + adapterId
+                  + "\",\"Status\":400,\"Message\":\"Coverage already exists\"},";
           buf.append(ret);
           continue;
         }
@@ -382,14 +405,23 @@ public class GeoServerRestClient {
             addCoverage(workspaceName, cvgStoreName, dataAdapterInfo.typeName);
         // If any layers get added, we will return a 200
         if (addCvResponse.getStatus() == Status.CREATED.getStatusCode()) {
-          final String ret = "{ \"Adapter\":\"" + adapterId + "\",\"Status\":"
-              + addCvResponse.getStatus() + ",\"Message\":\"Coverage added successfully\"},";
+          final String ret =
+              "{ \"Adapter\":\""
+                  + adapterId
+                  + "\",\"Status\":"
+                  + addCvResponse.getStatus()
+                  + ",\"Message\":\"Coverage added successfully\"},";
           buf.append(ret);
           layerAdded = true;
         } else {
-          final String ret = "{ \"Adapter\":\"" + adapterId + "\",\"Status\":"
-              + addCvResponse.getStatus() + ",\"Message\":\"Adding coverage returned error: "
-              + addCvResponse.readEntity(String.class) + "\"},";
+          final String ret =
+              "{ \"Adapter\":\""
+                  + adapterId
+                  + "\",\"Status\":"
+                  + addCvResponse.getStatus()
+                  + ",\"Message\":\"Adding coverage returned error: "
+                  + addCvResponse.readEntity(String.class)
+                  + "\"},";
           buf.append(ret);
           // If there are multiple different error codes, just return
           // a 400
@@ -407,9 +439,14 @@ public class GeoServerRestClient {
         if (getDsResponse.getStatus() == Status.NOT_FOUND.getStatusCode()) {
           final Response addDsResponse = addDatastore(workspaceName, dataStoreName, storeName);
           if (addDsResponse.getStatus() != Status.CREATED.getStatusCode()) {
-            final String ret = "{ \"Adapter\":\"" + adapterId + "\",\"Status\":"
-                + addDsResponse.getStatus() + ",\"Message\":\"Adding data store returned error: "
-                + addDsResponse.readEntity(String.class) + "\"},";
+            final String ret =
+                "{ \"Adapter\":\""
+                    + adapterId
+                    + "\",\"Status\":"
+                    + addDsResponse.getStatus()
+                    + ",\"Message\":\"Adding data store returned error: "
+                    + addDsResponse.readEntity(String.class)
+                    + "\"},";
             buf.append(ret);
             if (retStatus == -1) {
               retStatus = addDsResponse.getStatus();
@@ -422,9 +459,13 @@ public class GeoServerRestClient {
           // GeoServer get commands will almost always return a 200 or
           // 404 unless there is a sever error
           final String ret =
-              "{ \"Adapter\":\"" + adapterId + "\",\"Status\":" + getDsResponse.getStatus()
+              "{ \"Adapter\":\""
+                  + adapterId
+                  + "\",\"Status\":"
+                  + getDsResponse.getStatus()
                   + ",\"Message\":\"Checking Existence of data store returned error: "
-                  + getDsResponse.readEntity(String.class) + "\"},";
+                  + getDsResponse.readEntity(String.class)
+                  + "\"},";
           buf.append(ret);
           if (retStatus == -1) {
             retStatus = getDsResponse.getStatus();
@@ -441,28 +482,42 @@ public class GeoServerRestClient {
         if (getFlResponse.getStatus() == Status.OK.getStatusCode()) {
           LOGGER.debug(dataAdapterInfo.typeName + " layer already exists");
           retStatus = 400;
-          final String ret = "{ \"Adapter\":\"" + adapterId
-              + "\",\"Status\":400,\"Message\":\"Feature Layer already exists\"},";
+          final String ret =
+              "{ \"Adapter\":\""
+                  + adapterId
+                  + "\",\"Status\":400,\"Message\":\"Feature Layer already exists\"},";
           buf.append(ret);
           continue;
         }
 
-        LOGGER.debug("Get feature layer: " + dataAdapterInfo.typeName + " returned "
-            + getFlResponse.getStatus());
+        LOGGER.debug(
+            "Get feature layer: "
+                + dataAdapterInfo.typeName
+                + " returned "
+                + getFlResponse.getStatus());
 
         // We have a datastore. Add the layer per the adapter ID
         final Response addFlResponse =
             addFeatureLayer(workspaceName, dataStoreName, dataAdapterInfo.typeName, defaultStyle);
         // If any layers get added, we will return a 200
         if (addFlResponse.getStatus() == Status.CREATED.getStatusCode()) {
-          final String ret = "{ \"Adapter\":\"" + adapterId + "\",\"Status\":"
-              + addFlResponse.getStatus() + ",\"Message\":\"Feature Layer added successfully\"},";
+          final String ret =
+              "{ \"Adapter\":\""
+                  + adapterId
+                  + "\",\"Status\":"
+                  + addFlResponse.getStatus()
+                  + ",\"Message\":\"Feature Layer added successfully\"},";
           buf.append(ret);
           layerAdded = true;
         } else {
-          final String ret = "{ \"Adapter\":\"" + adapterId + "\",\"Status\":"
-              + addFlResponse.getStatus() + ",\"Message\":\"Adding data store error: "
-              + addFlResponse.readEntity(String.class) + "\"},";
+          final String ret =
+              "{ \"Adapter\":\""
+                  + adapterId
+                  + "\",\"Status\":"
+                  + addFlResponse.getStatus()
+                  + ",\"Message\":\"Adding data store error: "
+                  + addFlResponse.readEntity(String.class)
+                  + "\"},";
           buf.append(ret);
           // If there are multiple different error codes, just return
           // a 400
@@ -496,7 +551,8 @@ public class GeoServerRestClient {
    * @param description
    * @return JSONObject
    */
-  private JSONObject getJsonFromAdapters(final ArrayList<DataAdapterInfo> adapterInfoList,
+  private JSONObject getJsonFromAdapters(
+      final ArrayList<DataAdapterInfo> adapterInfoList,
       final String description) {
     final StringBuffer buf = new StringBuffer();
 
@@ -563,8 +619,9 @@ public class GeoServerRestClient {
       resp.bufferEntity();
 
       // get the workspace names
-      final JSONArray workspaceArray = getArrayEntryNames(
-          JSONObject.fromObject(resp.readEntity(String.class)), "workspaces", "workspace");
+      final JSONArray workspaceArray =
+          getArrayEntryNames(
+              JSONObject.fromObject(resp.readEntity(String.class)), "workspaces", "workspace");
 
       final JSONObject workspacesObj = new JSONObject();
       workspacesObj.put("workspaces", workspaceArray);
@@ -604,11 +661,14 @@ public class GeoServerRestClient {
    * @param datastoreName
    * @return
    */
-  public Response getDatastore(final String workspaceName, final String datastoreName,
+  public Response getDatastore(
+      final String workspaceName,
+      final String datastoreName,
       final boolean quietOnNotFound) {
-    final Response resp = getWebTarget()
-        .path("rest/workspaces/" + workspaceName + "/datastores/" + datastoreName + ".json")
-        .queryParam("quietOnNotFound", quietOnNotFound).request().get();
+    final Response resp =
+        getWebTarget()
+            .path("rest/workspaces/" + workspaceName + "/datastores/" + datastoreName + ".json")
+            .queryParam("quietOnNotFound", quietOnNotFound).request().get();
 
     if (resp.getStatus() == Status.OK.getStatusCode()) {
       resp.bufferEntity();
@@ -630,15 +690,17 @@ public class GeoServerRestClient {
    * @return
    */
   public Response getDatastores(final String workspaceName) {
-    final Response resp = getWebTarget()
-        .path("rest/workspaces/" + workspaceName + "/datastores.json").request().get();
+    final Response resp =
+        getWebTarget().path("rest/workspaces/" + workspaceName + "/datastores.json").request()
+            .get();
 
     if (resp.getStatus() == Status.OK.getStatusCode()) {
       resp.bufferEntity();
 
       // get the datastore names
-      final JSONArray datastoreArray = getArrayEntryNames(
-          JSONObject.fromObject(resp.readEntity(String.class)), "dataStores", "dataStore");
+      final JSONArray datastoreArray =
+          getArrayEntryNames(
+              JSONObject.fromObject(resp.readEntity(String.class)), "dataStores", "dataStore");
 
       final JSONObject dsObj = new JSONObject();
       dsObj.put("dataStores", datastoreArray);
@@ -657,7 +719,9 @@ public class GeoServerRestClient {
    * @param gwStoreName
    * @return
    */
-  public Response addDatastore(final String workspaceName, String datastoreName,
+  public Response addDatastore(
+      final String workspaceName,
+      String datastoreName,
       final String gwStoreName) {
     final DataStorePluginOptions inputStoreOptions = getStorePlugin(gwStoreName);
 
@@ -671,8 +735,9 @@ public class GeoServerRestClient {
     final String queryIndexStrategy = GeoWavePluginConfig.DEFAULT_QUERY_INDEX_STRATEGY;
 
     final String dataStoreJson =
-        createDatastoreJson(inputStoreOptions.getType(), inputStoreOptions.getOptionsAsMap(),
-            datastoreName, lockMgmt, authMgmtPrvdr, authDataUrl, queryIndexStrategy, true);
+        createDatastoreJson(
+            inputStoreOptions.getType(), inputStoreOptions.getOptionsAsMap(), datastoreName,
+            lockMgmt, authMgmtPrvdr, authDataUrl, queryIndexStrategy, true);
 
     // create a new geoserver style
     return getWebTarget().path("rest/workspaces/" + workspaceName + "/datastores").request()
@@ -698,8 +763,9 @@ public class GeoServerRestClient {
    * @return
    */
   public Response getFeatureLayer(final String layerName, final boolean quietOnNotFound) {
-    final Response resp = getWebTarget().path("rest/layers/" + layerName + ".json")
-        .queryParam("quietOnNotFound", quietOnNotFound).request().get();
+    final Response resp =
+        getWebTarget().path("rest/layers/" + layerName + ".json")
+            .queryParam("quietOnNotFound", quietOnNotFound).request().get();
 
     if (resp.getStatus() == Status.OK.getStatusCode()) {
       final JSONObject layer = JSONObject.fromObject(resp.readEntity(String.class));
@@ -720,7 +786,9 @@ public class GeoServerRestClient {
    * @param geowaveOnly : if true, only return geowave layers
    * @return
    */
-  public Response getFeatureLayers(final String workspaceName, final String datastoreName,
+  public Response getFeatureLayers(
+      final String workspaceName,
+      final String datastoreName,
       final boolean geowaveOnly) {
     final boolean wsFilter = ((workspaceName != null) && !workspaceName.isEmpty());
     final boolean dsFilter = ((datastoreName != null) && !datastoreName.isEmpty());
@@ -731,8 +799,9 @@ public class GeoServerRestClient {
       resp.bufferEntity();
 
       // get the datastore names
-      final JSONArray layerArray = getArrayEntryNames(
-          JSONObject.fromObject(resp.readEntity(String.class)), "layers", "layer");
+      final JSONArray layerArray =
+          getArrayEntryNames(
+              JSONObject.fromObject(resp.readEntity(String.class)), "layers", "layer");
 
       // holder for simple layer info (when geowaveOnly = false)
       final JSONArray layerInfoArray = new JSONArray();
@@ -773,12 +842,14 @@ public class GeoServerRestClient {
 
           // filter on workspace?
           if (!wsFilter || ((ws != null) && ws.equals(workspaceName))) {
-            final JSONObject datastore = JSONObject
-                .fromObject(getDatastore(ds, ws, false).getEntity()).getJSONObject("dataStore");
+            final JSONObject datastore =
+                JSONObject.fromObject(getDatastore(ds, ws, false).getEntity())
+                    .getJSONObject("dataStore");
 
             // only process GeoWave layers
             if (geowaveOnly) {
-              if ((datastore != null) && datastore.containsKey("type")
+              if ((datastore != null)
+                  && datastore.containsKey("type")
                   && datastore.getString("type").startsWith("GeoWave Datastore")) {
 
                 JSONArray entryArray = null;
@@ -786,8 +857,9 @@ public class GeoServerRestClient {
                   entryArray =
                       datastore.getJSONObject("connectionParameters").getJSONArray("entry");
                 } else if (datastore.get("connectionParameters") instanceof JSONArray) {
-                  entryArray = datastore.getJSONArray("connectionParameters").getJSONObject(0)
-                      .getJSONArray("entry");
+                  entryArray =
+                      datastore.getJSONArray("connectionParameters").getJSONObject(0)
+                          .getJSONArray("entry");
                 }
 
                 if (entryArray == null) {
@@ -864,18 +936,23 @@ public class GeoServerRestClient {
    * @param defaultStyle
    * @return
    */
-  public Response addFeatureLayer(final String workspaceName, final String datastoreName,
-      final String layerName, final String defaultStyle) {
+  public Response addFeatureLayer(
+      final String workspaceName,
+      final String datastoreName,
+      final String layerName,
+      final String defaultStyle) {
     if (defaultStyle != null) {
-      getWebTarget().path("rest/layers/" + layerName + ".json").request()
-          .put(Entity.entity("{'layer':{'defaultStyle':{'name':'" + defaultStyle + "'}}}",
+      getWebTarget().path("rest/layers/" + layerName + ".json").request().put(
+          Entity.entity(
+              "{'layer':{'defaultStyle':{'name':'" + defaultStyle + "'}}}",
               MediaType.APPLICATION_JSON));
     }
 
     return getWebTarget()
         .path("rest/workspaces/" + workspaceName + "/datastores/" + datastoreName + "/featuretypes")
-        .request().post(Entity.entity("{'featureType':{'name':'" + layerName + "'}}",
-            MediaType.APPLICATION_JSON));
+        .request().post(
+            Entity.entity(
+                "{'featureType':{'name':'" + layerName + "'}}", MediaType.APPLICATION_JSON));
   }
 
   /**
@@ -897,8 +974,9 @@ public class GeoServerRestClient {
    */
   public Response setLayerStyle(final String layerName, final String styleName) {
 
-    return getWebTarget().path("rest/layers/" + layerName + ".json").request().put(Entity.entity(
-        "{'layer':{'defaultStyle':{'name':'" + styleName + "'}}}", MediaType.APPLICATION_JSON));
+    return getWebTarget().path("rest/layers/" + layerName + ".json").request().put(
+        Entity.entity(
+            "{'layer':{'defaultStyle':{'name':'" + styleName + "'}}}", MediaType.APPLICATION_JSON));
   }
 
   /**
@@ -907,11 +985,13 @@ public class GeoServerRestClient {
    * @param styleName
    * @return
    */
-  public Response getStyle(@PathParam("styleName") final String styleName,
+  public Response getStyle(
+      @PathParam("styleName") final String styleName,
       final boolean quietOnNotFound) {
 
-    final Response resp = getWebTarget().path("rest/styles/" + styleName + ".sld")
-        .queryParam("quietOnNotFound", quietOnNotFound).request().get();
+    final Response resp =
+        getWebTarget().path("rest/styles/" + styleName + ".sld")
+            .queryParam("quietOnNotFound", quietOnNotFound).request().get();
 
     if (resp.getStatus() == Status.OK.getStatusCode()) {
       final InputStream inStream = (InputStream) resp.getEntity();
@@ -936,8 +1016,9 @@ public class GeoServerRestClient {
       resp.bufferEntity();
 
       // get the style names
-      final JSONArray styleArray = getArrayEntryNames(
-          JSONObject.fromObject(resp.readEntity(String.class)), "styles", "style");
+      final JSONArray styleArray =
+          getArrayEntryNames(
+              JSONObject.fromObject(resp.readEntity(String.class)), "styles", "style");
 
       final JSONObject stylesObj = new JSONObject();
       stylesObj.put("styles", styleArray);
@@ -957,10 +1038,11 @@ public class GeoServerRestClient {
    */
   public Response addStyle(final String styleName, final InputStream fileInStream) {
 
-    final Response addStyleResponse = getWebTarget().path("rest/styles").request()
-        .post(Entity.entity(
-            "{'style':{'name':'" + styleName + "','filename':'" + styleName + ".sld'}}",
-            MediaType.APPLICATION_JSON));
+    final Response addStyleResponse =
+        getWebTarget().path("rest/styles").request().post(
+            Entity.entity(
+                "{'style':{'name':'" + styleName + "','filename':'" + styleName + ".sld'}}",
+                MediaType.APPLICATION_JSON));
     // Return the reponse if this style is not correctly created. This
     // method actually makes 2 rest calls to GeoServer
     if (addStyleResponse.getStatus() != Status.CREATED.getStatusCode()) {
@@ -988,11 +1070,14 @@ public class GeoServerRestClient {
    * @param coverageName
    * @return
    */
-  public Response getCoverageStore(final String workspaceName, final String coverageName,
+  public Response getCoverageStore(
+      final String workspaceName,
+      final String coverageName,
       final boolean quietOnNotFound) {
-    final Response resp = getWebTarget()
-        .path("rest/workspaces/" + workspaceName + "/coveragestores/" + coverageName + ".json")
-        .queryParam("quietOnNotFound", quietOnNotFound).request().get();
+    final Response resp =
+        getWebTarget()
+            .path("rest/workspaces/" + workspaceName + "/coveragestores/" + coverageName + ".json")
+            .queryParam("quietOnNotFound", quietOnNotFound).request().get();
 
     if (resp.getStatus() == Status.OK.getStatusCode()) {
       resp.bufferEntity();
@@ -1014,15 +1099,18 @@ public class GeoServerRestClient {
    * @return
    */
   public Response getCoverageStores(final String workspaceName) {
-    final Response resp = getWebTarget()
-        .path("rest/workspaces/" + workspaceName + "/coveragestores.json").request().get();
+    final Response resp =
+        getWebTarget().path("rest/workspaces/" + workspaceName + "/coveragestores.json").request()
+            .get();
 
     if (resp.getStatus() == Status.OK.getStatusCode()) {
       resp.bufferEntity();
 
       // get the datastore names
-      final JSONArray coveragesArray = getArrayEntryNames(
-          JSONObject.fromObject(resp.readEntity(String.class)), "coverageStores", "coverageStore");
+      final JSONArray coveragesArray =
+          getArrayEntryNames(
+              JSONObject.fromObject(resp.readEntity(String.class)), "coverageStores",
+              "coverageStore");
 
       final JSONObject dsObj = new JSONObject();
       dsObj.put("coverageStores", coveragesArray);
@@ -1044,9 +1132,13 @@ public class GeoServerRestClient {
    * @param scaleTo8Bit
    * @return
    */
-  public Response addCoverageStore(final String workspaceName, String cvgStoreName,
-      final String gwStoreName, final Boolean equalizeHistogramOverride,
-      final String interpolationOverride, final Boolean scaleTo8Bit) {
+  public Response addCoverageStore(
+      final String workspaceName,
+      String cvgStoreName,
+      final String gwStoreName,
+      final Boolean equalizeHistogramOverride,
+      final String interpolationOverride,
+      final Boolean scaleTo8Bit) {
     final DataStorePluginOptions inputStoreOptions = getStorePlugin(gwStoreName);
 
     if ((cvgStoreName == null) || cvgStoreName.isEmpty()) {
@@ -1058,8 +1150,10 @@ public class GeoServerRestClient {
 
     storeConfigMap.put("gwNamespace", inputStoreOptions.getGeoWaveNamespace());
 
-    final String cvgStoreXml = createCoverageXml(storeConfigMap, equalizeHistogramOverride,
-        interpolationOverride, scaleTo8Bit, workspaceName, cvgStoreName);
+    final String cvgStoreXml =
+        createCoverageXml(
+            storeConfigMap, equalizeHistogramOverride, interpolationOverride, scaleTo8Bit,
+            workspaceName, cvgStoreName);
 
     LOGGER.debug("Add coverage store - xml params:\n" + cvgStoreXml);
 
@@ -1089,16 +1183,22 @@ public class GeoServerRestClient {
    * @return
    */
   public Response getCoverages(final String workspaceName, final String cvsstoreName) {
-    final Response resp = getWebTarget().path(
-        "rest/workspaces/" + workspaceName + "/coveragestores/" + cvsstoreName + "/coverages.json")
-        .request().get();
+    final Response resp =
+        getWebTarget().path(
+            "rest/workspaces/"
+                + workspaceName
+                + "/coveragestores/"
+                + cvsstoreName
+                + "/coverages.json")
+            .request().get();
 
     if (resp.getStatus() == Status.OK.getStatusCode()) {
       resp.bufferEntity();
 
       // get the datastore names
-      final JSONArray coveragesArray = getArrayEntryNames(
-          JSONObject.fromObject(resp.readEntity(String.class)), "coverages", "coverage");
+      final JSONArray coveragesArray =
+          getArrayEntryNames(
+              JSONObject.fromObject(resp.readEntity(String.class)), "coverages", "coverage");
 
       final JSONObject dsObj = new JSONObject();
       dsObj.put("coverages", coveragesArray);
@@ -1117,12 +1217,21 @@ public class GeoServerRestClient {
    * @param coverageName
    * @return
    */
-  public Response getCoverage(final String workspaceName, final String cvgStoreName,
-      final String coverageName, final boolean quietOnNotFound) {
-    final Response resp = getWebTarget()
-        .path("rest/workspaces/" + workspaceName + "/coveragestores/" + cvgStoreName + "/coverages/"
-            + coverageName + ".json")
-        .queryParam("quietOnNotFound", quietOnNotFound).request().get();
+  public Response getCoverage(
+      final String workspaceName,
+      final String cvgStoreName,
+      final String coverageName,
+      final boolean quietOnNotFound) {
+    final Response resp =
+        getWebTarget().path(
+            "rest/workspaces/"
+                + workspaceName
+                + "/coveragestores/"
+                + cvgStoreName
+                + "/coverages/"
+                + coverageName
+                + ".json")
+            .queryParam("quietOnNotFound", quietOnNotFound).request().get();
 
     if (resp.getStatus() == Status.OK.getStatusCode()) {
       resp.bufferEntity();
@@ -1145,10 +1254,18 @@ public class GeoServerRestClient {
    * @param coverageName
    * @return
    */
-  public Response addCoverage(final String workspaceName, final String cvgStoreName,
+  public Response addCoverage(
+      final String workspaceName,
+      final String cvgStoreName,
       final String coverageName) {
-    final String jsonString = "{'coverage':" + "{'name':'" + coverageName + "',"
-        + "'nativeCoverageName':'" + coverageName + "'}}";
+    final String jsonString =
+        "{'coverage':"
+            + "{'name':'"
+            + coverageName
+            + "',"
+            + "'nativeCoverageName':'"
+            + coverageName
+            + "'}}";
     LOGGER.debug("Posting JSON: " + jsonString + " to " + workspaceName + "/" + cvgStoreName);
 
     return getWebTarget()
@@ -1164,11 +1281,18 @@ public class GeoServerRestClient {
    * @param coverageName
    * @return
    */
-  public Response deleteCoverage(final String workspaceName, final String cvgstoreName,
+  public Response deleteCoverage(
+      final String workspaceName,
+      final String cvgstoreName,
       final String coverageName) {
-    return getWebTarget().path("rest/workspaces/" + workspaceName + "/coveragestores/"
-        + cvgstoreName + "/coverages/" + coverageName).queryParam("recurse", "true").request()
-        .delete();
+    return getWebTarget().path(
+        "rest/workspaces/"
+            + workspaceName
+            + "/coveragestores/"
+            + cvgstoreName
+            + "/coverages/"
+            + coverageName)
+        .queryParam("recurse", "true").request().delete();
   }
 
   // Internal methods
@@ -1183,7 +1307,9 @@ public class GeoServerRestClient {
     return jsonObj.toString();
   }
 
-  protected JSONArray getArrayEntryNames(JSONObject jsonObj, final String firstKey,
+  protected JSONArray getArrayEntryNames(
+      JSONObject jsonObj,
+      final String firstKey,
       final String secondKey) {
     // get the top level object/array
     if (jsonObj.get(firstKey) instanceof JSONObject) {
@@ -1217,9 +1343,14 @@ public class GeoServerRestClient {
     return entryArray;
   }
 
-  protected String createDatastoreJson(final String geowaveStoreType,
-      final Map<String, String> geowaveStoreConfig, final String name, final String lockMgmt,
-      final String authMgmtProvider, final String authDataUrl, final String queryIndexStrategy,
+  protected String createDatastoreJson(
+      final String geowaveStoreType,
+      final Map<String, String> geowaveStoreConfig,
+      final String name,
+      final String lockMgmt,
+      final String authMgmtProvider,
+      final String authDataUrl,
+      final String queryIndexStrategy,
       final boolean enabled) {
     final JSONObject dataStore = new JSONObject();
     dataStore.put("name", name);
@@ -1250,9 +1381,13 @@ public class GeoServerRestClient {
     return jsonObj.toString();
   }
 
-  private String createCoverageXml(final Map<String, String> geowaveStoreConfig,
-      final Boolean equalizeHistogramOverride, final String interpolationOverride,
-      final Boolean scaleTo8Bit, final String workspace, final String cvgstoreName) {
+  private String createCoverageXml(
+      final Map<String, String> geowaveStoreConfig,
+      final Boolean equalizeHistogramOverride,
+      final String interpolationOverride,
+      final Boolean scaleTo8Bit,
+      final String workspace,
+      final String cvgstoreName) {
     String coverageXml = null;
 
     StreamResult result = null;
@@ -1289,8 +1424,9 @@ public class GeoServerRestClient {
       rootEl.appendChild(configEl);
 
       // Method using custom URL & handler:
-      final String storeConfigUrl = createParamUrl(geowaveStoreConfig, equalizeHistogramOverride,
-          interpolationOverride, scaleTo8Bit);
+      final String storeConfigUrl =
+          createParamUrl(
+              geowaveStoreConfig, equalizeHistogramOverride, interpolationOverride, scaleTo8Bit);
 
       final Element urlEl = xmlDoc.createElement("url");
       urlEl.appendChild(xmlDoc.createTextNode(storeConfigUrl));
@@ -1334,8 +1470,10 @@ public class GeoServerRestClient {
     return coverageXml;
   }
 
-  private String createParamUrl(final Map<String, String> geowaveStoreConfig,
-      final Boolean equalizeHistogramOverride, final String interpolationOverride,
+  private String createParamUrl(
+      final Map<String, String> geowaveStoreConfig,
+      final Boolean equalizeHistogramOverride,
+      final String interpolationOverride,
       final Boolean scaleTo8Bit) {
     // Create the custom geowave url w/ params
     final StringBuffer buf = new StringBuffer();
@@ -1385,7 +1523,8 @@ public class GeoServerRestClient {
     return adapterIdList;
   }
 
-  private ArrayList<DataAdapterInfo> getStoreAdapterInfo(final String storeName,
+  private ArrayList<DataAdapterInfo> getStoreAdapterInfo(
+      final String storeName,
       final String adapterId) {
     final DataStorePluginOptions dsPlugin = getStorePlugin(storeName);
 
@@ -1421,8 +1560,9 @@ public class GeoServerRestClient {
     info.typeName = adapter.getTypeName();
     info.isRaster = false;
 
-    if ((adapter instanceof RasterDataAdapter) || ((adapter instanceof InternalDataAdapter)
-        && (((InternalDataAdapter) adapter).getAdapter() instanceof RasterDataAdapter))) {
+    if ((adapter instanceof RasterDataAdapter)
+        || ((adapter instanceof InternalDataAdapter)
+            && (((InternalDataAdapter) adapter).getAdapter() instanceof RasterDataAdapter))) {
       info.isRaster = true;
     }
 
@@ -1440,15 +1580,18 @@ public class GeoServerRestClient {
     }
 
     if (typeName.equals(AddOption.RASTER.name())
-        && ((adapter instanceof RasterDataAdapter) || ((adapter instanceof InternalDataAdapter)
-            && (((InternalDataAdapter) adapter).getAdapter() instanceof RasterDataAdapter)))) {
+        && ((adapter instanceof RasterDataAdapter)
+            || ((adapter instanceof InternalDataAdapter)
+                && (((InternalDataAdapter) adapter).getAdapter() instanceof RasterDataAdapter)))) {
       LOGGER.debug("id is all-raster and adapter is raster type");
       return info;
     }
 
-    if (typeName.equals(AddOption.VECTOR.name()) && ((adapter instanceof GeotoolsFeatureDataAdapter)
-        || ((adapter instanceof InternalDataAdapter) && (((InternalDataAdapter) adapter)
-            .getAdapter() instanceof GeotoolsFeatureDataAdapter)))) {
+    if (typeName.equals(AddOption.VECTOR.name())
+        && ((adapter instanceof GeotoolsFeatureDataAdapter)
+            || ((adapter instanceof InternalDataAdapter)
+                && (((InternalDataAdapter) adapter)
+                    .getAdapter() instanceof GeotoolsFeatureDataAdapter)))) {
       LOGGER.debug("id is all-vector and adapter is vector type");
       return info;
     }

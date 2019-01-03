@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,10 +53,12 @@ public class IngestFromKafkaDriver {
   private final VisibilityOptions ingestOptions;
   private final List<Future<?>> futures = new ArrayList<>();
 
-  public IngestFromKafkaDriver(final DataStorePluginOptions storeOptions,
+  public IngestFromKafkaDriver(
+      final DataStorePluginOptions storeOptions,
       final List<IndexPluginOptions> indexOptions,
       final Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins,
-      final KafkaConsumerCommandLineOptions kafkaOptions, final VisibilityOptions ingestOptions) {
+      final KafkaConsumerCommandLineOptions kafkaOptions,
+      final VisibilityOptions ingestOptions) {
     this.storeOptions = storeOptions;
     this.indexOptions = indexOptions;
     this.ingestPlugins = ingestPlugins;
@@ -102,13 +103,16 @@ public class IngestFromKafkaDriver {
     return true;
   }
 
-  private void addPluginsToQueue(final Map<String, GeoWaveAvroFormatPlugin<?, ?>> pluginProviders,
+  private void addPluginsToQueue(
+      final Map<String, GeoWaveAvroFormatPlugin<?, ?>> pluginProviders,
       final List<String> queue) {
     queue.addAll(pluginProviders.keySet());
   }
 
-  private void configureAndLaunchPlugins(final DataStore dataStore,
-      final Map<String, GeoWaveAvroFormatPlugin<?, ?>> pluginProviders, final List<String> queue) {
+  private void configureAndLaunchPlugins(
+      final DataStore dataStore,
+      final Map<String, GeoWaveAvroFormatPlugin<?, ?>> pluginProviders,
+      final List<String> queue) {
     try {
       for (final Entry<String, GeoWaveAvroFormatPlugin<?, ?>> pluginProvider : pluginProviders
           .entrySet()) {
@@ -128,8 +132,11 @@ public class IngestFromKafkaDriver {
           futures
               .add(launchTopicConsumer(pluginProvider.getKey(), avroFormatPlugin, runData, queue));
         } catch (final UnsupportedOperationException e) {
-          LOGGER.warn("Plugin provider '" + pluginProvider.getKey()
-              + "' does not support ingest from Kafka", e);
+          LOGGER.warn(
+              "Plugin provider '"
+                  + pluginProvider.getKey()
+                  + "' does not support ingest from Kafka",
+              e);
           continue;
         }
       }
@@ -148,8 +155,10 @@ public class IngestFromKafkaDriver {
     return consumer;
   }
 
-  private Future<?> launchTopicConsumer(final String formatPluginName,
-      final GeoWaveAvroFormatPlugin<?, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
+  private Future<?> launchTopicConsumer(
+      final String formatPluginName,
+      final GeoWaveAvroFormatPlugin<?, ?> avroFormatPlugin,
+      final KafkaIngestRunData ingestRunData,
       final List<String> queue) throws IllegalArgumentException {
     final ExecutorService executorService = Executors.newFixedThreadPool(queue.size());
     return executorService.submit(new Runnable() {
@@ -165,8 +174,10 @@ public class IngestFromKafkaDriver {
     });
   }
 
-  public <T> void consumeFromTopic(final String formatPluginName,
-      final GeoWaveAvroFormatPlugin<T, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
+  public <T> void consumeFromTopic(
+      final String formatPluginName,
+      final GeoWaveAvroFormatPlugin<T, ?> avroFormatPlugin,
+      final KafkaIngestRunData ingestRunData,
       final List<String> queue) {
 
     final ConsumerConnector consumer = buildKafkaConsumer();
@@ -175,8 +186,12 @@ public class IngestFromKafkaDriver {
           "Kafka consumer connector is null, unable to create message streams");
     }
     try {
-      LOGGER.debug("Kafka consumer setup for format [" + formatPluginName + "] against topic ["
-          + formatPluginName + "]");
+      LOGGER.debug(
+          "Kafka consumer setup for format ["
+              + formatPluginName
+              + "] against topic ["
+              + formatPluginName
+              + "]");
       final Map<String, Integer> topicCount = new HashMap<>();
       topicCount.put(formatPluginName, 1);
 
@@ -191,8 +206,10 @@ public class IngestFromKafkaDriver {
     }
   }
 
-  protected <T> void consumeMessages(final String formatPluginName,
-      final GeoWaveAvroFormatPlugin<T, ?> avroFormatPlugin, final KafkaIngestRunData ingestRunData,
+  protected <T> void consumeMessages(
+      final String formatPluginName,
+      final GeoWaveAvroFormatPlugin<T, ?> avroFormatPlugin,
+      final KafkaIngestRunData ingestRunData,
       final KafkaStream<byte[], byte[]> stream) {
     int currentBatchId = 0;
     final int batchSize = kafkaOptions.getBatchSize();
@@ -241,9 +258,10 @@ public class IngestFromKafkaDriver {
     }
   }
 
-  protected synchronized <T> void processMessage(final T dataRecord,
-      final KafkaIngestRunData ingestRunData, final GeoWaveAvroFormatPlugin<T, ?> plugin)
-      throws IOException {
+  protected synchronized <T> void processMessage(
+      final T dataRecord,
+      final KafkaIngestRunData ingestRunData,
+      final GeoWaveAvroFormatPlugin<T, ?> plugin) throws IOException {
 
     final IngestPluginBase<T, ?> ingestPlugin = plugin.getIngestWithAvroPlugin();
     final IndexProvider indexProvider = plugin;
@@ -267,8 +285,9 @@ public class IngestFromKafkaDriver {
       }
     }
 
-    try (CloseableIterator<?> geowaveDataIt = ingestPlugin.toGeoWaveData(dataRecord,
-        indexMap.keySet().toArray(new String[0]), ingestOptions.getVisibility())) {
+    try (CloseableIterator<?> geowaveDataIt =
+        ingestPlugin.toGeoWaveData(
+            dataRecord, indexMap.keySet().toArray(new String[0]), ingestOptions.getVisibility())) {
       while (geowaveDataIt.hasNext()) {
         final GeoWaveData<?> geowaveData = (GeoWaveData<?>) geowaveDataIt.next();
         final DataTypeAdapter adapter = ingestRunData.getDataAdapter(geowaveData);

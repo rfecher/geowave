@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -51,7 +50,8 @@ public class ConfigUtils {
    * This method will use the parameter descriptions from JCommander to create/populate an
    * AbstractConfigOptions map.
    */
-  public static ConfigOption[] createConfigOptionsFromJCommander(final Object createOptionsInstance,
+  public static ConfigOption[] createConfigOptionsFromJCommander(
+      final Object createOptionsInstance,
       boolean includeHidden) {
     ConfigOption[] opts = null;
     if (createOptionsInstance != null) {
@@ -62,8 +62,9 @@ public class ConfigUtils {
       final List<ConfigOption> options = new ArrayList<ConfigOption>();
       for (final TranslationEntry entry : entries) {
         if (includeHidden || !entry.isHidden()) {
-          final ConfigOption opt = new ConfigOption(entry.getAsPropertyName(),
-              entry.getDescription(), !entry.isRequired(), entry.getParam().getType());
+          final ConfigOption opt =
+              new ConfigOption(entry.getAsPropertyName(), entry.getDescription(),
+                  !entry.isRequired(), entry.getParam().getType());
           opt.setPassword(entry.isPassword());
           options.add(opt);
         }
@@ -76,7 +77,8 @@ public class ConfigUtils {
   }
 
   /** Take the given options and populate the given options list. This is JCommander specific. */
-  public static <T extends StoreFactoryOptions> T populateOptionsFromList(final T optionsObject,
+  public static <T extends StoreFactoryOptions> T populateOptionsFromList(
+      final T optionsObject,
       final Map<String, String> optionList) {
     if (optionsObject != null) {
       final JCommanderPropertiesTransformer translator = new JCommanderPropertiesTransformer();

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -30,8 +29,10 @@ public class GeoServerServiceClient {
     // password);
     // bldr.register(feature);
     // }
-    geoServerService = WebResourceFactory.newResource(GeoServerService.class,
-        ClientBuilder.newClient().register(MultiPartFeature.class).target(baseUrl));
+    geoServerService =
+        WebResourceFactory.newResource(
+            GeoServerService.class,
+            ClientBuilder.newClient().register(MultiPartFeature.class).target(baseUrl));
   }
 
   public Response getCoverageStore(final String coverage_store_name, final String workspace) {
@@ -44,7 +45,9 @@ public class GeoServerServiceClient {
     return getCoverageStore(coverage_store_name, null);
   }
 
-  public Response getCoverage(final String cvgstore, final String coverage_name,
+  public Response getCoverage(
+      final String cvgstore,
+      final String coverage_name,
       final String workspace) {
 
     final Response resp = geoServerService.getCoverage(cvgstore, coverage_name, workspace);
@@ -110,7 +113,9 @@ public class GeoServerServiceClient {
     return listDataStores(null);
   }
 
-  public Response listFeatureLayers(final String workspace, final String datastore,
+  public Response listFeatureLayers(
+      final String workspace,
+      final String datastore,
       final Boolean geowaveOnly) {
 
     final Response resp = geoServerService.listFeatureLayers(workspace, datastore, geowaveOnly);
@@ -130,12 +135,17 @@ public class GeoServerServiceClient {
   }
 
   // POST Requests
-  public Response addCoverageStore(final String GeoWave_store_name, final String workspace,
-      final Boolean equalizerHistogramOverride, final String interpolationOverride,
+  public Response addCoverageStore(
+      final String GeoWave_store_name,
+      final String workspace,
+      final Boolean equalizerHistogramOverride,
+      final String interpolationOverride,
       final Boolean scaleTo8Bit) {
 
-    final Response resp = geoServerService.addCoverageStore(GeoWave_store_name, workspace,
-        equalizerHistogramOverride, interpolationOverride, scaleTo8Bit);
+    final Response resp =
+        geoServerService.addCoverageStore(
+            GeoWave_store_name, workspace, equalizerHistogramOverride, interpolationOverride,
+            scaleTo8Bit);
     return resp;
   }
 
@@ -143,7 +153,9 @@ public class GeoServerServiceClient {
     return addCoverageStore(GeoWave_store_name, null, null, null, null);
   }
 
-  public Response addCoverage(final String cvgstore, final String coverage_name,
+  public Response addCoverage(
+      final String cvgstore,
+      final String coverage_name,
       final String workspace) {
 
     final Response resp = geoServerService.addCoverage(cvgstore, coverage_name, workspace);
@@ -154,7 +166,9 @@ public class GeoServerServiceClient {
     return addCoverage(cvgstore, coverage_name, null);
   }
 
-  public Response addDataStore(final String GeoWave_store_name, final String workspace,
+  public Response addDataStore(
+      final String GeoWave_store_name,
+      final String workspace,
       final String datastore) {
 
     final Response resp = geoServerService.addDataStore(GeoWave_store_name, workspace, datastore);
@@ -165,7 +179,9 @@ public class GeoServerServiceClient {
     return addDataStore(GeoWave_store_name, null, null);
   }
 
-  public Response addFeatureLayer(final String datastore, final String layer_name,
+  public Response addFeatureLayer(
+      final String datastore,
+      final String layer_name,
       final String workspace) {
 
     final Response resp = geoServerService.addFeatureLayer(datastore, layer_name, workspace);
@@ -176,8 +192,12 @@ public class GeoServerServiceClient {
     return addFeatureLayer(datastore, layer_name, null);
   }
 
-  public Response addLayer(final String GeoWave_store_name, final String workspace,
-      final String addOption, final String adapterId, final String style) {
+  public Response addLayer(
+      final String GeoWave_store_name,
+      final String workspace,
+      final String addOption,
+      final String adapterId,
+      final String style) {
 
     final Response resp =
         geoServerService.addLayer(GeoWave_store_name, workspace, addOption, adapterId, style);
@@ -210,7 +230,9 @@ public class GeoServerServiceClient {
     return removeCoverageStore(coverage_store_name, null);
   }
 
-  public Response removeCoverage(final String cvgstore, final String coverage_name,
+  public Response removeCoverage(
+      final String cvgstore,
+      final String coverage_name,
       final String workspace) {
 
     final Response resp = geoServerService.removeCoverage(cvgstore, coverage_name, workspace);

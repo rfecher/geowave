@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -42,8 +41,11 @@ public class IngestTask implements Runnable {
   private Map<String, Writer> indexWriters;
   private Map<String, AdapterToIndexMapping> adapterMappings;
 
-  public IngestTask(String id, LocalIngestRunData runData,
-      Map<String, Index> specifiedPrimaryIndexes, Map<String, Index> requiredIndexMap,
+  public IngestTask(
+      String id,
+      LocalIngestRunData runData,
+      Map<String, Index> specifiedPrimaryIndexes,
+      Map<String, Index> requiredIndexMap,
       BlockingQueue<GeoWaveData<?>> queue) {
     this.id = id;
     this.runData = runData;
@@ -107,8 +109,9 @@ public class IngestTask implements Runnable {
 
         final DataTypeAdapter adapter = runData.getDataAdapter(geowaveData);
         if (adapter == null) {
-          LOGGER.warn(String.format("Adapter not found for [%s] worker [%s]",
-              geowaveData.getValue(), this.getId()));
+          LOGGER.warn(
+              String.format(
+                  "Adapter not found for [%s] worker [%s]", geowaveData.getValue(), this.getId()));
           continue;
         }
 
@@ -128,13 +131,15 @@ public class IngestTask implements Runnable {
         try {
           runData.releaseIndexWriter(writerEntry.getKey(), writerEntry.getValue());
         } catch (Exception e) {
-          LOGGER.warn(String.format("Could not return index writer: [%s]", writerEntry.getKey()),
-              e);
+          LOGGER
+              .warn(String.format("Could not return index writer: [%s]", writerEntry.getKey()), e);
         }
       }
 
-      LOGGER.debug(String.format("Worker exited for plugin [%s]; Ingested %d items in %d seconds",
-          this.getId(), count, (int) dbWriteMs / 1000));
+      LOGGER.debug(
+          String.format(
+              "Worker exited for plugin [%s]; Ingested %d items in %d seconds", this.getId(), count,
+              (int) dbWriteMs / 1000));
 
       isFinished = true;
     }
@@ -153,8 +158,10 @@ public class IngestTask implements Runnable {
         if (index == null) {
           index = requiredIndexMap.get(indexName);
           if (index == null) {
-            LOGGER.warn(String.format("Index '%s' not found for %s; worker [%s]", indexName,
-                geowaveData.getValue(), this.getId()));
+            LOGGER.warn(
+                String.format(
+                    "Index '%s' not found for %s; worker [%s]", indexName, geowaveData.getValue(),
+                    this.getId()));
             continue;
           }
         }

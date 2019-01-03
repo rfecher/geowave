@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -60,10 +59,9 @@ public class DistortionGroupManagementTest {
 
   public DistortionGroupManagementTest() throws MismatchedIndexToAdapterMapping, IOException {
     ftype =
-        AnalyticFeature
-            .createGeometryFeatureAdapter("centroid", new String[] {"extra1"},
-                BasicFeatureTypes.DEFAULT_NAMESPACE, ClusteringUtils.CLUSTERING_CRS)
-            .getFeatureType();
+        AnalyticFeature.createGeometryFeatureAdapter(
+            "centroid", new String[] {"extra1"}, BasicFeatureTypes.DEFAULT_NAMESPACE,
+            ClusteringUtils.CLUSTERING_CRS).getFeatureType();
     adapter = new FeatureDataAdapter(ftype);
     adapter.init(index);
     final String namespace = "test_" + getClass().getName() + "_" + name.getMethodName();
@@ -76,9 +74,13 @@ public class DistortionGroupManagementTest {
     store.addType(adapter, index);
   }
 
-  private void addDistortion(final String grp, final String batchId, final int count,
+  private void addDistortion(
+      final String grp,
+      final String batchId,
+      final int count,
       final Double distortion) throws IOException {
-    ingest(new DistortionDataAdapter(), DistortionGroupManagement.DISTORTIONS_INDEX,
+    ingest(
+        new DistortionDataAdapter(), DistortionGroupManagement.DISTORTIONS_INDEX,
         new DistortionEntry(grp, batchId, count, distortion));
   }
 
@@ -100,63 +102,87 @@ public class DistortionGroupManagementTest {
     // another batch to catch wrong batch error case
     addDistortion("grp1", "b2", 3, 0.05);
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_1", "123", "fred", "grp1", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_1", "123", "fred", "grp1", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_1", "124", "barney", "grp1", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_1", "124", "barney", "grp1", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_1", "125", "wilma", "grp2", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_1", "125", "wilma", "grp2", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_1", "126", "betty", "grp2", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_1", "126", "betty", "grp2", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_2", "130", "dusty", "grp1", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_2", "130", "dusty", "grp1", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_2", "131", "dino", "grp1", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_2", "131", "dino", "grp1", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_2", "127", "bamm-bamm", "grp2", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_2", "127", "bamm-bamm", "grp2", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_2", "128", "chip", "grp2", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_2", "128", "chip", "grp2", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_3", "140", "pearl", "grp1", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_3", "140", "pearl", "grp1", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_3", "141", "roxy", "grp1", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_3", "141", "roxy", "grp1", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_3", "142", "giggles", "grp2", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_3", "142", "giggles", "grp2", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
 
-    ingest(adapter, index,
-        AnalyticFeature.createGeometryFeature(ftype, "b1_3", "143", "gazoo", "grp2", 20.30203,
+    ingest(
+        adapter, index,
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1_3", "143", "gazoo", "grp2", 20.30203,
             factory.createPoint(new Coordinate(02.33, 0.23)), new String[] {"extra1"},
             new double[] {0.022}, 1, 1, 0));
   }
@@ -165,8 +191,8 @@ public class DistortionGroupManagementTest {
   public void test() throws IOException {
     final DistortionGroupManagement distortionGroupManagement =
         new DistortionGroupManagement(storePluginOptions);
-    distortionGroupManagement.retainBestGroups(new SimpleFeatureItemWrapperFactory(),
-        adapter.getTypeName(), index.getName(), "b1", 1);
+    distortionGroupManagement.retainBestGroups(
+        new SimpleFeatureItemWrapperFactory(), adapter.getTypeName(), index.getName(), "b1", 1);
     final CentroidManagerGeoWave<SimpleFeature> centroidManager =
         new CentroidManagerGeoWave<>(storePluginOptions.createDataStore(),
             storePluginOptions.createIndexStore(), storePluginOptions.createAdapterStore(),

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -28,7 +27,8 @@ public class AccumuloSecondaryIndexJoinEntryIteratorWrapper<T>
       LoggerFactory.getLogger(AccumuloSecondaryIndexJoinEntryIteratorWrapper.class);
   private final Scanner scanner;
 
-  public AccumuloSecondaryIndexJoinEntryIteratorWrapper(final Scanner scanner,
+  public AccumuloSecondaryIndexJoinEntryIteratorWrapper(
+      final Scanner scanner,
       final InternalDataAdapter<T> adapter) {
     super(scanner.iterator(), adapter);
     this.scanner = scanner;
@@ -45,8 +45,8 @@ public class AccumuloSecondaryIndexJoinEntryIteratorWrapper<T>
       return null;
     }
     final byte[] cqBytes = entry.getKey().getColumnQualifierData().getBackingArray();
-    return Pair.of(SecondaryIndexUtils.getIndexName(cqBytes),
-        SecondaryIndexUtils.getPrimaryRowId(cqBytes));
+    return Pair.of(
+        SecondaryIndexUtils.getIndexName(cqBytes), SecondaryIndexUtils.getPrimaryRowId(cqBytes));
   }
 
   @Override

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -34,7 +33,8 @@ public class StageToKafkaDriver<T extends SpecificRecordBase>
   private final Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins;
   private final KafkaProducerCommandLineOptions kafkaOptions;
 
-  public StageToKafkaDriver(KafkaProducerCommandLineOptions kafkaOptions,
+  public StageToKafkaDriver(
+      KafkaProducerCommandLineOptions kafkaOptions,
       Map<String, GeoWaveAvroFormatPlugin<?, ?>> ingestPlugins,
       LocalInputCommandLineOptions localOptions) {
     super(localOptions);
@@ -43,8 +43,11 @@ public class StageToKafkaDriver<T extends SpecificRecordBase>
   }
 
   @Override
-  protected void processFile(final URL file, final String typeName,
-      final GeoWaveAvroFormatPlugin<?, ?> plugin, final StageKafkaData<?> runData) {
+  protected void processFile(
+      final URL file,
+      final String typeName,
+      final GeoWaveAvroFormatPlugin<?, ?> plugin,
+      final StageKafkaData<?> runData) {
 
     try {
       final Producer<String, Object> producer =
@@ -58,8 +61,8 @@ public class StageToKafkaDriver<T extends SpecificRecordBase>
         }
       }
     } catch (final Exception e) {
-      LOGGER.info("Unable to send file [" + file.getPath() + "] to Kafka topic: " + e.getMessage(),
-          e);
+      LOGGER.info(
+          "Unable to send file [" + file.getPath() + "] to Kafka topic: " + e.getMessage(), e);
     }
   }
 

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -55,23 +54,23 @@ public class OrthodromicDistancePartitionerTest {
   public void test() throws IOException, ClassNotFoundException {
 
     final SimpleFeatureType ftype =
-        AnalyticFeature
-            .createGeometryFeatureAdapter("centroid", new String[] {"extra1"},
-                BasicFeatureTypes.DEFAULT_NAMESPACE, ClusteringUtils.CLUSTERING_CRS)
-            .getFeatureType();
+        AnalyticFeature.createGeometryFeatureAdapter(
+            "centroid", new String[] {"extra1"}, BasicFeatureTypes.DEFAULT_NAMESPACE,
+            ClusteringUtils.CLUSTERING_CRS).getFeatureType();
     final GeometryFactory factory = new GeometryFactory();
-    SimpleFeature feature = AnalyticFeature.createGeometryFeature(ftype, "b1", "123", "fred", "NA",
-        20.30203, factory.createPoint(new Coordinate(0, 0)), new String[] {"extra1"},
-        new double[] {0.022}, 1, 1, 0);
+    SimpleFeature feature =
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1", "123", "fred", "NA", 20.30203, factory.createPoint(new Coordinate(0, 0)),
+            new String[] {"extra1"}, new double[] {0.022}, 1, 1, 0);
 
     final PropertyManagement propertyManagement = new PropertyManagement();
 
     propertyManagement.store(PartitionParameters.Partition.DISTANCE_THRESHOLDS, "10000");
-    propertyManagement.store(CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
-        SpatialIndexModelBuilder.class);
+    propertyManagement
+        .store(CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS, SpatialIndexModelBuilder.class);
 
-    propertyManagement.store(ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS,
-        SimpleFeatureGeometryExtractor.class);
+    propertyManagement.store(
+        ExtractParameters.Extract.DIMENSION_EXTRACT_CLASS, SimpleFeatureGeometryExtractor.class);
     propertyManagement.store(GlobalParameters.Global.CRS_ID, "EPSG:4326");
     propertyManagement.store(PartitionParameters.Partition.GEOMETRIC_DISTANCE_UNIT, "m");
 
@@ -94,17 +93,20 @@ public class OrthodromicDistancePartitionerTest {
       assertTrue(ranges.getDataPerDimension()[1].getMax() > -0.0000000001);
     }
 
-    feature = AnalyticFeature.createGeometryFeature(ftype, "b1", "123", "fred", "NA", 20.30203,
-        factory.createPoint(new Coordinate(-179.99999996, 0)), new String[] {"extra1"},
-        new double[] {0.022}, 1, 1, 0);
+    feature =
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1", "123", "fred", "NA", 20.30203,
+            factory.createPoint(new Coordinate(-179.99999996, 0)), new String[] {"extra1"},
+            new double[] {0.022}, 1, 1, 0);
 
     partitions = partitioner.getCubeIdentifiers(feature);
     assertEquals(4, partitions.size());
     assertTrue(hasOnePrimary(partitions));
 
-    feature = AnalyticFeature.createGeometryFeature(ftype, "b1", "123", "fred", "NA", 20.30203,
-        factory.createPoint(new Coordinate(88, 0)), new String[] {"extra1"}, new double[] {0.022},
-        1, 1, 0);
+    feature =
+        AnalyticFeature.createGeometryFeature(
+            ftype, "b1", "123", "fred", "NA", 20.30203, factory.createPoint(new Coordinate(88, 0)),
+            new String[] {"extra1"}, new double[] {0.022}, 1, 1, 0);
 
     partitions = partitioner.getCubeIdentifiers(feature);
     assertEquals(2, partitions.size());

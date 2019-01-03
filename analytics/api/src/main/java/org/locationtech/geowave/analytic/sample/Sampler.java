@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -43,8 +42,10 @@ public class Sampler<T> {
     this.putLimit = putLimit;
   }
 
-  public void sample(final Iterable<CentroidPairing<T>> pairings,
-      final SampleNotification<T> notification, final double normalizingConstant) {
+  public void sample(
+      final Iterable<CentroidPairing<T>> pairings,
+      final SampleNotification<T> notification,
+      final double normalizingConstant) {
     int putCounter = 0;
 
     final SortedMap<Double, T> reservoir = Maps.newTreeMap();
@@ -74,7 +75,9 @@ public class Sampler<T> {
     notifyAll(notification, reservoir.values(), false);
   }
 
-  private void notifyAll(final SampleNotification<T> notification, final Collection<T> items,
+  private void notifyAll(
+      final SampleNotification<T> notification,
+      final Collection<T> items,
       final boolean partial) {
     for (final T item : items) {
       notification.notify(item, partial);

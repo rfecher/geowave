@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -78,9 +77,8 @@ import org.opengis.temporal.Position;
  * This class can be used to get Time range from an OpenGIS filter object. GeoWave then uses this
  * time range to perform a spatial intersection query.
  *
- * <p>
- * Only those time elements associated with an index are extracted. At the moment, the adapter only
- * supports temporal indexing on a single attribute or a pair of attributes representing a time
+ * <p> Only those time elements associated with an index are extracted. At the moment, the adapter
+ * only supports temporal indexing on a single attribute or a pair of attributes representing a time
  * range.
  */
 public class ExtractTimeFilterVisitor extends NullFilterVisitor {
@@ -91,9 +89,11 @@ public class ExtractTimeFilterVisitor extends NullFilterVisitor {
   public ExtractTimeFilterVisitor() {}
 
   public ExtractTimeFilterVisitor(final TimeDescriptors timeDescriptors) {
-    if (timeDescriptors.hasTime() && (timeDescriptors.getStartRange() != null)
+    if (timeDescriptors.hasTime()
+        && (timeDescriptors.getStartRange() != null)
         && (timeDescriptors.getEndRange() != null)) {
-      addRangeVariables(timeDescriptors.getStartRange().getLocalName(),
+      addRangeVariables(
+          timeDescriptors.getStartRange().getLocalName(),
           timeDescriptors.getEndRange().getLocalName());
     }
   }
@@ -122,9 +122,9 @@ public class ExtractTimeFilterVisitor extends NullFilterVisitor {
         constrainsSet.removeConstraints(range[0], range[1]);
         final TemporalConstraints constraintsForRange =
             constrainsSet.getConstraintsForRange(range[0], range[1]);
-        constraintsForRange.replaceWithIntersections(new TemporalConstraints(
-            new TemporalRange(start.getStartRange().getStartTime(), end.getEndRange().getEndTime()),
-            constraintsForRange.getName()));
+        constraintsForRange.replaceWithIntersections(
+            new TemporalConstraints(new TemporalRange(start.getStartRange().getStartTime(),
+                end.getEndRange().getEndTime()), constraintsForRange.getName()));
       }
     }
     return constrainsSet;
@@ -264,15 +264,17 @@ public class ExtractTimeFilterVisitor extends NullFilterVisitor {
         constraints.removeConstraints(range[0], range[1]);
         // TODO: make this logic more robust
         if (start.getEndRange().getEndTime().after(end.getStartRange().getStartTime())) {
-          constraints.getConstraintsForRange(range[0], range[1]).add(new TemporalRange(
-              end.getStartRange().getStartTime(), start.getEndRange().getEndTime()));
+          constraints.getConstraintsForRange(range[0], range[1]).add(
+              new TemporalRange(end.getStartRange().getStartTime(),
+                  start.getEndRange().getEndTime()));
         } else {
           // if there are multiple non-instersecting ranges, this is
           // an approximation
           approximation |= start.getRanges().size() > 1 || end.getRanges().size() > 1;
 
-          constraints.getConstraintsForRange(range[0], range[1]).add(new TemporalRange(
-              start.getStartRange().getStartTime(), end.getEndRange().getEndTime()));
+          constraints.getConstraintsForRange(range[0], range[1]).add(
+              new TemporalRange(start.getStartRange().getStartTime(),
+                  end.getEndRange().getEndTime()));
         }
       }
     }
@@ -733,16 +735,16 @@ public class ExtractTimeFilterVisitor extends NullFilterVisitor {
       return new TemporalConstraints();
     }
     if (leftResult instanceof ParameterTimeConstraint) {
-      final ParameterTimeConstraint constraints = new ParameterTimeConstraint(
-          new TemporalRange(TemporalRange.START_TIME, rightResult.getStartRange().getStartTime()),
-          leftResult.getName());
+      final ParameterTimeConstraint constraints =
+          new ParameterTimeConstraint(new TemporalRange(TemporalRange.START_TIME,
+              rightResult.getStartRange().getStartTime()), leftResult.getName());
       constraints
           .add(new TemporalRange(rightResult.getEndRange().getEndTime(), TemporalRange.END_TIME));
       return constraints;
     } else {
-      final ParameterTimeConstraint constraints = new ParameterTimeConstraint(
-          new TemporalRange(TemporalRange.START_TIME, leftResult.getStartRange().getStartTime()),
-          rightResult.getName());
+      final ParameterTimeConstraint constraints =
+          new ParameterTimeConstraint(new TemporalRange(TemporalRange.START_TIME,
+              leftResult.getStartRange().getStartTime()), rightResult.getName());
       constraints
           .add(new TemporalRange(leftResult.getEndRange().getEndTime(), TemporalRange.END_TIME));
       return constraints;

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,9 +39,11 @@ public class ByteArrayRangeTest {
 
     assertEquals(l1, l2);
 
-    assertEquals(new ByteArrayRange(new ByteArray("232"), new ByteArray("340")),
+    assertEquals(
+        new ByteArrayRange(new ByteArray("232"), new ByteArray("340")),
         ((ArrayList<ByteArrayRange>) l1).get(0));
-    assertEquals(new ByteArrayRange(new ByteArray("392"), new ByteArray("410")),
+    assertEquals(
+        new ByteArrayRange(new ByteArray("392"), new ByteArray("410")),
         ((ArrayList<ByteArrayRange>) l1).get(1));
   }
 
@@ -65,9 +66,11 @@ public class ByteArrayRangeTest {
 
     assertEquals(l1, l2);
 
-    assertEquals(new ByteArrayRange(new ByteArray("282"), new ByteArray("300")),
+    assertEquals(
+        new ByteArrayRange(new ByteArray("282"), new ByteArray("300")),
         ((ArrayList<ByteArrayRange>) l1).get(0));
-    assertEquals(new ByteArrayRange(new ByteArray("392"), new ByteArray("410")),
+    assertEquals(
+        new ByteArrayRange(new ByteArray("392"), new ByteArray("410")),
         ((ArrayList<ByteArrayRange>) l1).get(1));
   }
 

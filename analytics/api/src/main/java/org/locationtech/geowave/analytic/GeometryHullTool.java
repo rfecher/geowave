@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -138,8 +137,11 @@ public class GeometryHullTool {
     }
   }
 
-  private Edge createEdgeWithSideEffects(final Coordinate start, final Coordinate end,
-      final Set<Coordinate> innerPoints, final TreeSet<Edge> edges) {
+  private Edge createEdgeWithSideEffects(
+      final Coordinate start,
+      final Coordinate end,
+      final Set<Coordinate> innerPoints,
+      final TreeSet<Edge> edges) {
     final Edge newEdge = new Edge(start, end, distanceFnForCoordinate.measure(start, end));
     innerPoints.remove(newEdge.start);
     innerPoints.remove(newEdge.end);
@@ -153,8 +155,10 @@ public class GeometryHullTool {
    * @param fast expedite processing allowing for some outliers.
    */
 
-  public Geometry createHullFromGeometry(Geometry clusterGeometry,
-      Collection<Coordinate> additionalPoints, boolean fast) {
+  public Geometry createHullFromGeometry(
+      Geometry clusterGeometry,
+      Collection<Coordinate> additionalPoints,
+      boolean fast) {
 
     if (additionalPoints.isEmpty())
       return clusterGeometry;
@@ -185,8 +189,9 @@ public class GeometryHullTool {
       // does this shape benefit from concave hulling?
       // it cannot be a line string
       if (batchCoords.size() > 5 && convexHullGeo.getArea() > 0.0) {
-        final Geometry concaveHull = fast ? concaveHull(convexHullGeo, batchCoords)
-            : this.concaveHullParkOhMethod(convexHullGeo, batchCoords);
+        final Geometry concaveHull =
+            fast ? concaveHull(convexHullGeo, batchCoords)
+                : this.concaveHullParkOhMethod(convexHullGeo, batchCoords);
         if (fast && !concaveHull.isSimple()) {
 
           LOGGER.warn("Produced non simple hull", concaveHull.toText());
@@ -217,14 +222,14 @@ public class GeometryHullTool {
    * Concaveness Measure for n-dimensional Datasets" . Department of Nanobiomedical Science. Dankook
    * University". 2010.
    *
-   * <p>
-   * Per the paper, N = concaveThreshold
+   * <p> Per the paper, N = concaveThreshold
    *
    * @param geometry
    * @param providedInnerPoints
    * @return
    */
-  public Geometry concaveHullParkOhMethod(final Geometry geometry,
+  public Geometry concaveHullParkOhMethod(
+      final Geometry geometry,
       final Collection<Coordinate> providedInnerPoints) {
 
     final Set<Coordinate> innerPoints = new HashSet<Coordinate>(providedInnerPoints);
@@ -235,8 +240,9 @@ public class GeometryHullTool {
         createEdgeWithSideEffects(geoCoordinateList[0], geoCoordinateList[1], innerPoints, edges);
     Edge lastEdge = firstEdge;
     for (int i = 1; i < s; i++) {
-      final Edge newEdge = createEdgeWithSideEffects(geoCoordinateList[i], geoCoordinateList[i + 1],
-          innerPoints, edges);
+      final Edge newEdge =
+          createEdgeWithSideEffects(
+              geoCoordinateList[i], geoCoordinateList[i + 1], innerPoints, edges);
       newEdge.connectLast(lastEdge);
       lastEdge = newEdge;
     }
@@ -288,7 +294,8 @@ public class GeometryHullTool {
         // occurs in cases of sharp angles. An angular approach may also
         // work
         // look for an angle to flip in the reverse direction.
-        if (!intersectAnotherEdge(newEdge1, edge) && !intersectAnotherEdge(newEdge2, edge)
+        if (!intersectAnotherEdge(newEdge1, edge)
+            && !intersectAnotherEdge(newEdge2, edge)
             && !intersectAnotherEdge(newEdge1, edge.last)
             && !intersectAnotherEdge(newEdge2, edge.next)) {
           edges.add(newEdge2);
@@ -310,12 +317,10 @@ public class GeometryHullTool {
    * Concaveness Measure for n-dimensional Datasets" . Department of Nanobiomedical Science. Dankook
    * University". 2010.
    *
-   * <p>
-   * Per the paper, N = concaveThreshold.
+   * <p> Per the paper, N = concaveThreshold.
    *
-   * <p>
-   * This algorithm evaluates remarkably faster than Park and Oh, but the quality of the result is
-   * marginally less. If it is acceptable to have some small number of points fall outside of the
+   * <p> This algorithm evaluates remarkably faster than Park and Oh, but the quality of the result
+   * is marginally less. If it is acceptable to have some small number of points fall outside of the
    * hull and speed is critical, use this method. The measure of error is difficult to calculate
    * since it is not directly calculated based on the number of inner points. Rather, the measure is
    * based on some number of points in proximity the optimal concave hull.
@@ -324,7 +329,8 @@ public class GeometryHullTool {
    * @param providedInnerPoints
    * @return
    */
-  public Geometry concaveHull(final Geometry geometry,
+  public Geometry concaveHull(
+      final Geometry geometry,
       final Collection<Coordinate> providedInnerPoints) {
     final Set<Coordinate> innerPoints =
         (providedInnerPoints instanceof Set) ? (Set<Coordinate>) providedInnerPoints
@@ -336,8 +342,9 @@ public class GeometryHullTool {
         createEdgeWithSideEffects(geoCoordinateList[0], geoCoordinateList[1], innerPoints, edges);
     Edge lastEdge = firstEdge;
     for (int i = 1; i < s; i++) {
-      final Edge newEdge = createEdgeWithSideEffects(geoCoordinateList[i], geoCoordinateList[i + 1],
-          innerPoints, edges);
+      final Edge newEdge =
+          createEdgeWithSideEffects(
+              geoCoordinateList[i], geoCoordinateList[i + 1], innerPoints, edges);
       newEdge.connectLast(lastEdge);
       lastEdge = newEdge;
     }
@@ -385,7 +392,8 @@ public class GeometryHullTool {
               final double[] distProfile2 =
                   calcDistanceSegment(newEdge2.start, newEdge2.end, otherPoint.getElement());
               if (distProfile1[0] >= 0.0 && distProfile1[0] <= 1.0) {
-                if (distProfile1[0] < 0.0 || distProfile1[0] > 1.0
+                if (distProfile1[0] < 0.0
+                    || distProfile1[0] > 1.0
                     || distProfile2[1] > distProfile1[1]) {
                   otherPoint.setDistance(distProfile1[1]);
                   newEdge1.getPoints().add(otherPoint);
@@ -424,8 +432,10 @@ public class GeometryHullTool {
     return CGAlgorithms.distanceLineLine(e1.start, e1.end, e2.start, e2.end) <= 0.0;
   }
 
-  private static boolean isCandidateCloserToAnotherEdge(final double distanceToBeat,
-      final Edge selectedEdgeToBeat, final Collection<Edge> edges,
+  private static boolean isCandidateCloserToAnotherEdge(
+      final double distanceToBeat,
+      final Edge selectedEdgeToBeat,
+      final Collection<Edge> edges,
       final Coordinate selectedCandidate) {
     for (final Edge edge : edges) {
       if (selectedEdgeToBeat.equals(edge)) {
@@ -464,8 +474,7 @@ public class GeometryHullTool {
   /**
    * Forms create edges between two shapes maintaining convexity.
    *
-   * <p>
-   * Does not currently work if the shapes intersect
+   * <p> Does not currently work if the shapes intersect
    *
    * @param shape1
    * @param shape2
@@ -483,7 +492,9 @@ public class GeometryHullTool {
     return createHullFromGeometry(shape1, Arrays.asList(shape2.getCoordinates()), false);
   }
 
-  protected Geometry connect(final Geometry shape1, final Geometry shape2,
+  protected Geometry connect(
+      final Geometry shape1,
+      final Geometry shape2,
       final Pair<Integer, Integer> closestCoordinates) {
     Coordinate[] leftCoords = shape1.getCoordinates(), rightCoords = shape2.getCoordinates();
     int startLeft, startRight;
@@ -538,19 +549,22 @@ public class GeometryHullTool {
         });
 
     final List<Coordinate> newCoordinateSet = new ArrayList<Coordinate>();
-    final Direction leftSet = leftClockwise
-        ? new IncreaseDirection(upperCoords.getLeft(), lowerCoords.getLeft() + 1, leftCoords.length)
-        : new DecreaseDirection(upperCoords.getLeft(), lowerCoords.getLeft() - 1,
-            leftCoords.length);
+    final Direction leftSet =
+        leftClockwise
+            ? new IncreaseDirection(upperCoords.getLeft(), lowerCoords.getLeft() + 1,
+                leftCoords.length)
+            : new DecreaseDirection(upperCoords.getLeft(), lowerCoords.getLeft() - 1,
+                leftCoords.length);
     newCoordinateSet.add(leftCoords[upperCoords.getLeft()]);
     while (leftSet.hasNext()) {
       newCoordinateSet.add(leftCoords[leftSet.next()]);
     }
-    final Direction rightSet = rightClockwise
-        ? new IncreaseDirection(lowerCoords.getRight(), upperCoords.getRight() + 1,
-            rightCoords.length)
-        : new DecreaseDirection(lowerCoords.getRight(), upperCoords.getRight() - 1,
-            rightCoords.length);
+    final Direction rightSet =
+        rightClockwise
+            ? new IncreaseDirection(lowerCoords.getRight(), upperCoords.getRight() + 1,
+                rightCoords.length)
+            : new DecreaseDirection(lowerCoords.getRight(), upperCoords.getRight() - 1,
+                rightCoords.length);
     newCoordinateSet.add(rightCoords[lowerCoords.getRight()]);
     while (rightSet.hasNext()) {
       newCoordinateSet.add(rightCoords[rightSet.next()]);
@@ -560,16 +574,24 @@ public class GeometryHullTool {
         .createPolygon(newCoordinateSet.toArray(new Coordinate[newCoordinateSet.size()]));
   }
 
-  private Pair<Integer, Integer> walk(final Set<Coordinate> visited,
-      final Coordinate[] shape1Coords, final Coordinate[] shape2Coords, final int start1,
-      final int start2, final DirectionFactory factory) {
+  private Pair<Integer, Integer> walk(
+      final Set<Coordinate> visited,
+      final Coordinate[] shape1Coords,
+      final Coordinate[] shape2Coords,
+      final int start1,
+      final int start2,
+      final DirectionFactory factory) {
 
-    final int upPos = takeBiggestStep(visited, shape2Coords[start2], shape1Coords,
-        factory.createLeftFootDirection(start1, shape1Coords.length));
+    final int upPos =
+        takeBiggestStep(
+            visited, shape2Coords[start2], shape1Coords,
+            factory.createLeftFootDirection(start1, shape1Coords.length));
 
     // even if the left foot was stationary, try to move the right foot
-    final int downPos = takeBiggestStep(visited, shape1Coords[upPos], shape2Coords,
-        factory.createRightFootDirection(start2, shape2Coords.length));
+    final int downPos =
+        takeBiggestStep(
+            visited, shape1Coords[upPos], shape2Coords,
+            factory.createRightFootDirection(start2, shape2Coords.length));
 
     // if the right step moved, then see if another l/r step can be taken
     if (downPos != start2) {
@@ -592,7 +614,9 @@ public class GeometryHullTool {
     return sum > 0.0;
   }
 
-  public static double calcSmallestAngle(final Coordinate one, final Coordinate vertex,
+  public static double calcSmallestAngle(
+      final Coordinate one,
+      final Coordinate vertex,
       final Coordinate two) {
     final double angle = Math.abs(calcAngle(one, vertex, two));
     return (angle > 180.0) ? angle - 180.0 : angle;
@@ -606,7 +630,9 @@ public class GeometryHullTool {
    * @param two
    * @return
    */
-  public static double calcAngle(final Coordinate one, final Coordinate vertex,
+  public static double calcAngle(
+      final Coordinate one,
+      final Coordinate vertex,
       final Coordinate two) {
 
     final double p1x = one.x - vertex.x;
@@ -629,7 +655,9 @@ public class GeometryHullTool {
    *         the segment(start to end) double[1] = distance to the segment double[2] = distance to
    *         the line containing the segment(start to end)
    */
-  public static double[] calcDistanceSegment(final Coordinate start, final Coordinate end,
+  public static double[] calcDistanceSegment(
+      final Coordinate start,
+      final Coordinate end,
       final Coordinate point) {
 
     final Vector<Euclidean2D> vOne = new Vector2D(start.x, start.y);
@@ -646,20 +674,25 @@ public class GeometryHullTool {
     final double lengthVOneSq = E1.getNormSq();
     final double projectionLength = distOneTwo / lengthVOneSq;
     final Vector<Euclidean2D> projection = E1.scalarMultiply(projectionLength).add(vOne);
-    final double o = ((projectionLength < 0.0) ? vOne.distance(vVertex)
-        : ((projectionLength > 1.0) ? vTwo.distance(vVertex) : vVertex.distance(projection)));
+    final double o =
+        ((projectionLength < 0.0) ? vOne.distance(vVertex)
+            : ((projectionLength > 1.0) ? vTwo.distance(vVertex) : vVertex.distance(projection)));
 
     return new double[] {projectionLength, o, vVertex.distance(projection)};
   }
 
-  public static double calcDistance(final Coordinate start, final Coordinate end,
+  public static double calcDistance(
+      final Coordinate start,
+      final Coordinate end,
       final Coordinate point) {
     double[] p = calcDistanceSegment(start, end, point);
     return (p[0] < 0.0 || p[0] > 1.0) ? -1 : p[1];
   }
 
-  public static Pair<Integer, Integer> getClosestPoints(final Geometry shape1,
-      final Geometry shape2, final DistanceFn<Coordinate> distanceFnForCoordinate) {
+  public static Pair<Integer, Integer> getClosestPoints(
+      final Geometry shape1,
+      final Geometry shape2,
+      final DistanceFn<Coordinate> distanceFnForCoordinate) {
     int bestShape1Position = 0;
     int bestShape2Position = 0;
     double minDist = Double.MAX_VALUE;
@@ -680,8 +713,11 @@ public class GeometryHullTool {
     return Pair.of(bestShape1Position, bestShape2Position);
   }
 
-  private int takeBiggestStep(final Set<Coordinate> visited, final Coordinate station,
-      final Coordinate[] shapeCoords, final Direction legIncrement) {
+  private int takeBiggestStep(
+      final Set<Coordinate> visited,
+      final Coordinate station,
+      final Coordinate[] shapeCoords,
+      final Direction legIncrement) {
     double angle = 0.0;
     final Coordinate startPoint = shapeCoords[legIncrement.getStart()];
     int last = legIncrement.getStart();

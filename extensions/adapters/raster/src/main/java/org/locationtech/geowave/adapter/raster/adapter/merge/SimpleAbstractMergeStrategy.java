@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,7 +26,9 @@ public abstract class SimpleAbstractMergeStrategy<T extends Persistable>
   private static final long serialVersionUID = 8937483748317L;
 
   @Override
-  public void merge(final RasterTile<T> thisTile, final RasterTile<T> nextTile,
+  public void merge(
+      final RasterTile<T> thisTile,
+      final RasterTile<T> nextTile,
       final SampleModel sampleModel) {
     // this strategy aims for latest tile
     // with data values, but where there
@@ -42,8 +43,11 @@ public abstract class SimpleAbstractMergeStrategy<T extends Persistable>
     }
   }
 
-  protected void mergeRasters(final RasterTile<T> thisTile, final RasterTile<T> nextTile,
-      final WritableRaster thisRaster, final WritableRaster nextRaster) {
+  protected void mergeRasters(
+      final RasterTile<T> thisTile,
+      final RasterTile<T> nextTile,
+      final WritableRaster thisRaster,
+      final WritableRaster nextRaster) {
     final int maxX = nextRaster.getMinX() + nextRaster.getWidth();
     final int maxY = nextRaster.getMinY() + nextRaster.getHeight();
     for (int b = 0; b < nextRaster.getNumBands(); b++) {

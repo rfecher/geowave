@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,15 +31,17 @@ public class BinRange {
   /**
    * Constructor used to create a new BinRange object.
    *
-   * <p>
-   * has a minimum and maximum value.
+   * <p> has a minimum and maximum value.
    *
    * @param binId a unique ID associated with the bin
    * @param normalizedMin the lower bounds of the bin
    * @param normalizedMax the upper bounds of the bin
    * @param fullExtent flag to indicate whether this is the full bin
    */
-  public BinRange(final byte[] binId, final double normalizedMin, final double normalizedMax,
+  public BinRange(
+      final byte[] binId,
+      final double normalizedMin,
+      final double normalizedMax,
       final boolean fullExtent) {
     this.binId = binId;
     this.normalizedMin = normalizedMin;

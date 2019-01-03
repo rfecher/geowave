@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,13 +31,16 @@ public abstract class GeoWaveReducer
   protected HadoopWritableSerializationTool serializationTool;
 
   @Override
-  protected void reduce(final GeoWaveInputKey key, final Iterable<ObjectWritable> values,
+  protected void reduce(
+      final GeoWaveInputKey key,
+      final Iterable<ObjectWritable> values,
       final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
       throws IOException, InterruptedException {
     reduceWritableValues(key, values, context);
   }
 
-  protected void reduceWritableValues(final GeoWaveInputKey key,
+  protected void reduceWritableValues(
+      final GeoWaveInputKey key,
       final Iterable<ObjectWritable> values,
       final Reducer<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, ObjectWritable>.Context context)
       throws IOException, InterruptedException {
@@ -56,7 +58,8 @@ public abstract class GeoWaveReducer
     reduceNativeValues(key, transformedValues, new NativeReduceContext(context, serializationTool));
   }
 
-  protected abstract void reduceNativeValues(final GeoWaveInputKey key,
+  protected abstract void reduceNativeValues(
+      final GeoWaveInputKey key,
       final Iterable<Object> values,
       final ReduceContext<GeoWaveInputKey, ObjectWritable, GeoWaveInputKey, Object> context)
       throws IOException, InterruptedException;

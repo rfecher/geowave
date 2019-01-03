@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -76,30 +75,21 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This data adapter will handle all reading/writing concerns for storing and retrieving GeoTools
- * SimpleFeature objects to and from a GeoWave persistent store in Accumulo. <br>
- * <br>
- * If the implementor needs to write rows with particular visibility, this can be done by providing
- * a FieldVisibilityHandler to a constructor or a VisibilityManagement to a constructor. When using
+ * SimpleFeature objects to and from a GeoWave persistent store in Accumulo. <br> <br> If the
+ * implementor needs to write rows with particular visibility, this can be done by providing a
+ * FieldVisibilityHandler to a constructor or a VisibilityManagement to a constructor. When using
  * VisibilityManagement, the feature attribute to contain the visibility meta-data is, by default,
  * called GEOWAVE_VISIBILITY. This can be overridden by setting the UserData property 'visibility'
  * to Boolean.TRUE for the feature attribute that describes the attribute that contains the
  * visibility meta-data. persistedType.getDescriptor("someAttributeName").getUserData().put(
- * "visibility", Boolean.TRUE)<br>
- * <br>
- * The adapter will use the SimpleFeature's default geometry for spatial indexing.<br>
- * <br>
- * The adaptor will use the first temporal attribute (a Calendar or Date object) as the timestamp of
- * a temporal index.<br>
- * <br>
- * If the feature type contains a UserData property 'time' for a specific time attribute with
- * Boolean.TRUE, then the attribute is used as the timestamp of a temporal index.<br>
- * <br>
- * If the feature type contains UserData properties 'start' and 'end' for two different time
- * attributes with value Boolean.TRUE, then the attributes are used for a range index.<br>
- * <br>
- * If the feature type contains a UserData property 'time' for *all* time attributes with
- * Boolean.FALSE, then a temporal index is not used.<br>
- * <br>
+ * "visibility", Boolean.TRUE)<br> <br> The adapter will use the SimpleFeature's default geometry
+ * for spatial indexing.<br> <br> The adaptor will use the first temporal attribute (a Calendar or
+ * Date object) as the timestamp of a temporal index.<br> <br> If the feature type contains a
+ * UserData property 'time' for a specific time attribute with Boolean.TRUE, then the attribute is
+ * used as the timestamp of a temporal index.<br> <br> If the feature type contains UserData
+ * properties 'start' and 'end' for two different time attributes with value Boolean.TRUE, then the
+ * attributes are used for a range index.<br> <br> If the feature type contains a UserData property
+ * 'time' for *all* time attributes with Boolean.FALSE, then a temporal index is not used.<br> <br>
  * Statistics configurations are maintained in UserData. Each attribute may have a UserData property
  * called 'stats'. The associated value is an instance of
  * {@link org.locationtech.geowave.adapter.vector.stats.StatsConfigurationCollection} . The
@@ -137,8 +127,7 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   // -----------------------------------------------------------------------------------
 
   /**
-   * Constructor<br>
-   * Creates a FeatureDataAdapter for the specified SimpleFeatureType
+   * Constructor<br> Creates a FeatureDataAdapter for the specified SimpleFeatureType
    *
    * @param featureType - feature type for this object
    */
@@ -152,14 +141,14 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   // -----------------------------------------------------------------------------------
 
   /**
-   * Constructor<br>
-   * Creates a FeatureDataAdapter for the specified SimpleFeatureType with the provided
-   * customIndexHandlers
+   * Constructor<br> Creates a FeatureDataAdapter for the specified SimpleFeatureType with the
+   * provided customIndexHandlers
    *
    * @param featureType - feature type for this object
    * @param customIndexHandlers - l
    */
-  public FeatureDataAdapter(final SimpleFeatureType featureType,
+  public FeatureDataAdapter(
+      final SimpleFeatureType featureType,
       final List<PersistentIndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> customIndexHandlers) {
     this(featureType, customIndexHandlers, null, null);
   }
@@ -168,14 +157,14 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   // -----------------------------------------------------------------------------------
 
   /**
-   * Constructor<br>
-   * Creates a FeatureDataAdapter for the specified SimpleFeatureType with the provided
-   * visibilityManagement
+   * Constructor<br> Creates a FeatureDataAdapter for the specified SimpleFeatureType with the
+   * provided visibilityManagement
    *
    * @param featureType - feature type for this object
    * @param visibilityManagement
    */
-  public FeatureDataAdapter(final SimpleFeatureType featureType,
+  public FeatureDataAdapter(
+      final SimpleFeatureType featureType,
       final VisibilityManagement<SimpleFeature> visibilityManagement) {
     this(featureType,
         new ArrayList<PersistentIndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>>(),
@@ -186,14 +175,14 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   // -----------------------------------------------------------------------------------
 
   /**
-   * Constructor<br>
-   * Creates a FeatureDataAdapter for the specified SimpleFeatureType with the provided
-   * fieldVisiblityHandler
+   * Constructor<br> Creates a FeatureDataAdapter for the specified SimpleFeatureType with the
+   * provided fieldVisiblityHandler
    *
    * @param featureType - feature type for this object
    * @param fieldVisiblityHandler
    */
-  public FeatureDataAdapter(final SimpleFeatureType featureType,
+  public FeatureDataAdapter(
+      final SimpleFeatureType featureType,
       final FieldVisibilityHandler<SimpleFeature, Object> fieldVisiblityHandler) {
     this(featureType,
         new ArrayList<PersistentIndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>>(),
@@ -203,16 +192,16 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   // -----------------------------------------------------------------------------------
   // -----------------------------------------------------------------------------------
   /**
-   * Constructor<br>
-   * Creates a FeatureDataAdapter for the specified SimpleFeatureType with the provided
-   * customIndexHandlers, fieldVisibilityHandler and defaultVisibilityManagement
+   * Constructor<br> Creates a FeatureDataAdapter for the specified SimpleFeatureType with the
+   * provided customIndexHandlers, fieldVisibilityHandler and defaultVisibilityManagement
    *
    * @param featureType - feature type for this object
    * @param customIndexHandlers
    * @param fieldVisiblityHandler
    * @param defaultVisibilityManagement
    */
-  public FeatureDataAdapter(final SimpleFeatureType featureType,
+  public FeatureDataAdapter(
+      final SimpleFeatureType featureType,
       final List<PersistentIndexFieldHandler<SimpleFeature, ? extends CommonIndexValue, Object>> customIndexHandlers,
       final FieldVisibilityHandler<SimpleFeature, Object> fieldVisiblityHandler,
       final VisibilityManagement<SimpleFeature> defaultVisibilityManagement) {
@@ -224,8 +213,9 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
 
   @Override
   public boolean init(final Index... indices) throws RuntimeException {
-    String indexCrsCode = reprojectedFeatureType == null ? null
-        : GeometryUtils.getCrsCode(reprojectedFeatureType.getCoordinateReferenceSystem());
+    String indexCrsCode =
+        reprojectedFeatureType == null ? null
+            : GeometryUtils.getCrsCode(reprojectedFeatureType.getCoordinateReferenceSystem());
     for (final Index primaryindx : indices) {
       // for first iteration
       if (indexCrsCode == null) {
@@ -288,7 +278,8 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   }
 
   /** Helper method for establishing a visibility manager in the constructor */
-  private static SimpleFeatureType updateVisibility(final SimpleFeatureType featureType,
+  private static SimpleFeatureType updateVisibility(
+      final SimpleFeatureType featureType,
       final VisibilityManagement<SimpleFeature> defaultVisibilityManagement) {
     final VisibilityConfiguration config = new VisibilityConfiguration(featureType);
     config.updateWithDefaultIfNeeded(featureType, defaultVisibilityManagement);
@@ -351,9 +342,10 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
           new FeatureAttributeHandler(timeDescriptors.getStartRange());
       final FeatureAttributeHandler fah_endRange =
           new FeatureAttributeHandler(timeDescriptors.getEndRange());
-      final FieldVisibilityHandler<SimpleFeature, Object> visibilityHandler = config.getManager()
-          .createVisibilityHandler(timeDescriptors.getStartRange().getLocalName(),
-              fieldVisiblityHandler, config.getAttributeName());
+      final FieldVisibilityHandler<SimpleFeature, Object> visibilityHandler =
+          config.getManager().createVisibilityHandler(
+              timeDescriptors.getStartRange().getLocalName(), fieldVisiblityHandler,
+              config.getAttributeName());
 
       final FeatureTimeRangeHandler ftrh =
           new FeatureTimeRangeHandler(fah_startRange, fah_endRange, visibilityHandler);
@@ -364,8 +356,9 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
       // just grab the first attribute and use it as a timestamp
 
       final FieldVisibilityHandler<SimpleFeature, Object> visibilityHandler =
-          config.getManager().createVisibilityHandler(timeDescriptors.getTime().getLocalName(),
-              fieldVisiblityHandler, config.getAttributeName());
+          config.getManager().createVisibilityHandler(
+              timeDescriptors.getTime().getLocalName(), fieldVisiblityHandler,
+              config.getAttributeName());
 
       final FeatureTimestampHandler fth =
           new FeatureTimestampHandler(timeDescriptors.getTime(), visibilityHandler);
@@ -486,8 +479,9 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
 
       final Class<?> bindingClass = descriptor.getType().getBinding();
       if (handler != null) {
-        writer = (FieldWriter<SimpleFeature, Object>) FieldUtils
-            .getDefaultWriterForClass(bindingClass, handler);
+        writer =
+            (FieldWriter<SimpleFeature, Object>) FieldUtils
+                .getDefaultWriterForClass(bindingClass, handler);
       } else {
         writer =
             (FieldWriter<SimpleFeature, Object>) FieldUtils.getDefaultWriterForClass(bindingClass);
@@ -517,8 +511,8 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     // Yes, then get the descriptor for the given field ID
     final AttributeDescriptor descriptor = reprojectedFeatureType.getDescriptor(fieldName);
 
-    return visConfig.getManager().createVisibilityHandler(descriptor.getLocalName(),
-        fieldVisiblityHandler, visConfig.getAttributeName());
+    return visConfig.getManager().createVisibilityHandler(
+        descriptor.getLocalName(), fieldVisiblityHandler, visConfig.getAttributeName());
   }
 
   // ----------------------------------------------------------------------------------
@@ -543,12 +537,12 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     //
     final SimpleFeatureUserDataConfigurationSet userDataConfiguration =
         new SimpleFeatureUserDataConfigurationSet();
-    userDataConfiguration.addConfigurations(typeName,
-        new TimeDescriptorConfiguration(persistedFeatureType));
-    userDataConfiguration.addConfigurations(typeName,
-        new SimpleFeatureStatsConfigurationCollection(persistedFeatureType));
-    userDataConfiguration.addConfigurations(typeName,
-        new VisibilityConfiguration(persistedFeatureType));
+    userDataConfiguration
+        .addConfigurations(typeName, new TimeDescriptorConfiguration(persistedFeatureType));
+    userDataConfiguration.addConfigurations(
+        typeName, new SimpleFeatureStatsConfigurationCollection(persistedFeatureType));
+    userDataConfiguration
+        .addConfigurations(typeName, new VisibilityConfiguration(persistedFeatureType));
     final byte[] attrBytes = userDataConfiguration.toBinary();
     final String namespace = reprojectedFeatureType.getName().getNamespaceURI();
 
@@ -569,14 +563,22 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     final byte[] secondaryIndexBytes = PersistenceUtils.toBinary(secondaryIndexManager);
     // 21 bytes is the 7 four byte length fields and one byte for the
     // version
-    final ByteBuffer buf = ByteBuffer.allocate(encodedTypeBytes.length + indexCrsBytes.length
-        + typeNameBytes.length + namespaceBytes.length + attrBytes.length + axisBytes.length
-        + secondaryIndexBytes.length + VarintUtils.unsignedIntByteLength(typeNameBytes.length)
-        + VarintUtils.unsignedIntByteLength(indexCrsBytes.length)
-        + VarintUtils.unsignedIntByteLength(namespaceBytes.length)
-        + VarintUtils.unsignedIntByteLength(attrBytes.length)
-        + VarintUtils.unsignedIntByteLength(axisBytes.length)
-        + VarintUtils.unsignedIntByteLength(encodedTypeBytes.length) + 1);
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            encodedTypeBytes.length
+                + indexCrsBytes.length
+                + typeNameBytes.length
+                + namespaceBytes.length
+                + attrBytes.length
+                + axisBytes.length
+                + secondaryIndexBytes.length
+                + VarintUtils.unsignedIntByteLength(typeNameBytes.length)
+                + VarintUtils.unsignedIntByteLength(indexCrsBytes.length)
+                + VarintUtils.unsignedIntByteLength(namespaceBytes.length)
+                + VarintUtils.unsignedIntByteLength(attrBytes.length)
+                + VarintUtils.unsignedIntByteLength(axisBytes.length)
+                + VarintUtils.unsignedIntByteLength(encodedTypeBytes.length)
+                + 1);
 
     // TODO we will mess with serialization but "version" is definitely
     // better done by simply registering a different persistable constructor
@@ -645,14 +647,15 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
 
     final String encodedType = StringUtils.stringFromBinary(encodedTypeBytes);
     try {
-      final SimpleFeatureType myType = FeatureDataUtils.decodeType(namespace, typeName, encodedType,
-          StringUtils.stringFromBinary(axisBytes));
+      final SimpleFeatureType myType =
+          FeatureDataUtils.decodeType(
+              namespace, typeName, encodedType, StringUtils.stringFromBinary(axisBytes));
 
       final SimpleFeatureUserDataConfigurationSet userDataConfiguration =
           new SimpleFeatureUserDataConfigurationSet();
       userDataConfiguration.addConfigurations(typeName, new TimeDescriptorConfiguration(myType));
-      userDataConfiguration.addConfigurations(typeName,
-          new SimpleFeatureStatsConfigurationCollection(myType));
+      userDataConfiguration
+          .addConfigurations(typeName, new SimpleFeatureStatsConfigurationCollection(myType));
       userDataConfiguration.addConfigurations(typeName, new VisibilityConfiguration(myType));
       userDataConfiguration.fromBinary(attrBytes);
       userDataConfiguration.updateType(myType);
@@ -704,12 +707,13 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   }
 
   @Override
-  public AdapterPersistenceEncoding encode(final SimpleFeature entry,
+  public AdapterPersistenceEncoding encode(
+      final SimpleFeature entry,
       final CommonIndexModel indexModel) {
 
     if (transform != null) {
-      return super.encode(GeometryUtils.crsTransform(entry, reprojectedFeatureType, transform),
-          indexModel);
+      return super.encode(
+          GeometryUtils.crsTransform(entry, reprojectedFeatureType, transform), indexModel);
     }
     return super.encode(entry, indexModel);
   }
@@ -728,7 +732,8 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
 
   @Override
   public EntryVisibilityHandler<SimpleFeature> getVisibilityHandler(
-      final CommonIndexModel indexModel, final DataTypeAdapter<SimpleFeature> adapter,
+      final CommonIndexModel indexModel,
+      final DataTypeAdapter<SimpleFeature> adapter,
       final StatisticsId statisticsId) {
     return statsManager.getVisibilityHandler(indexModel, adapter, statisticsId);
   }

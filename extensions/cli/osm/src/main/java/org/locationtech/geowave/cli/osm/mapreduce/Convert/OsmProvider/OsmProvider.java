@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -62,18 +61,24 @@ public class OsmProvider {
 
   public OsmProvider(final OSMIngestCommandArgs args, final AccumuloRequiredOptions store)
       throws AccumuloSecurityException, AccumuloException, TableNotFoundException {
-    conn = new ZooKeeperInstance(store.getInstance(), store.getZookeeper())
-        .getConnector(store.getUser(), new PasswordToken(store.getPassword()));
-    bs = conn.createBatchScanner(args.getQualifiedTableName(),
-        new Authorizations(args.getVisibilityOptions().getVisibility()), 1);
+    conn =
+        new ZooKeeperInstance(store.getInstance(), store.getZookeeper())
+            .getConnector(store.getUser(), new PasswordToken(store.getPassword()));
+    bs =
+        conn.createBatchScanner(
+            args.getQualifiedTableName(),
+            new Authorizations(args.getVisibilityOptions().getVisibility()), 1);
   }
 
-  public Geometry processRelation(final SimpleFeatureGenerator.OSMUnion osmunion,
+  public Geometry processRelation(
+      final SimpleFeatureGenerator.OSMUnion osmunion,
       final FeatureDefinition fd) {
 
     // multipolygon type
-    if ((osmunion.relationSets != null) && (osmunion.relationSets.size() > 0)
-        && (osmunion.tags != null) && "multipolygon".equals(osmunion.tags.get("type"))) {
+    if ((osmunion.relationSets != null)
+        && (osmunion.relationSets.size() > 0)
+        && (osmunion.tags != null)
+        && "multipolygon".equals(osmunion.tags.get("type"))) {
 
       final Map<String, List<LinearRing>> rings = waysFromAccumulo(osmunion.relationSets, osmunion);
 
@@ -99,8 +104,9 @@ public class OsmProvider {
             tempInner.add(i);
           }
         }
-        polygons.add(GeometryUtils.GEOMETRY_FACTORY.createPolygon(lr,
-            tempInner.toArray(new LinearRing[tempInner.size()])));
+        polygons.add(
+            GeometryUtils.GEOMETRY_FACTORY
+                .createPolygon(lr, tempInner.toArray(new LinearRing[tempInner.size()])));
       }
 
       if (polygons.size() == 0) {
@@ -121,7 +127,8 @@ public class OsmProvider {
     return null;
   }
 
-  public Geometry processWay(final SimpleFeatureGenerator.OSMUnion osmunion,
+  public Geometry processWay(
+      final SimpleFeatureGenerator.OSMUnion osmunion,
       final FeatureDefinition fd) {
 
     if ((osmunion.Nodes == null) || (osmunion.Nodes.size() == 0)) {
@@ -148,8 +155,12 @@ public class OsmProvider {
     // if we are missing portions geometry is invalid; log it and return
     // null
     if (missingNodes.size() != 0) {
-      LOGGER.error("Some of the nodes for Way: " + osmunion.Id
-          + " were not present.  Nodes missing were: (" + Joiner.on(",").join(missingNodes) + ")");
+      LOGGER.error(
+          "Some of the nodes for Way: "
+              + osmunion.Id
+              + " were not present.  Nodes missing were: ("
+              + Joiner.on(",").join(missingNodes)
+              + ")");
       return null;
     }
 
@@ -207,8 +218,10 @@ public class OsmProvider {
     }
 
     // default case, shouldn't be hit;
-    LOGGER.error("Way: " + osmunion.Id
-        + " did not parse correctly; geometry generation was not caught and fell through");
+    LOGGER.error(
+        "Way: "
+            + osmunion.Id
+            + " did not parse correctly; geometry generation was not caught and fell through");
     return null;
   }
 
@@ -281,10 +294,11 @@ public class OsmProvider {
         lastkey = row.getKey().getRowData();
       }
 
-      if (Schema.arraysEqual(row.getKey().getColumnQualifierData(),
-          StringUtils.stringToBinary(ColumnQualifier.ID))) {
+      if (Schema.arraysEqual(
+          row.getKey().getColumnQualifierData(), StringUtils.stringToBinary(ColumnQualifier.ID))) {
         id = longReader.readField(row.getValue().get());
-      } else if (Schema.arraysEqual(row.getKey().getColumnQualifierData(),
+      } else if (Schema.arraysEqual(
+          row.getKey().getColumnQualifierData(),
           StringUtils.stringToBinary(ColumnQualifier.REFERENCES))) {
         try {
           tvals = TypeUtils.deserializeLongArray(row.getValue().get(), null).getIds();
@@ -319,8 +333,12 @@ public class OsmProvider {
         i++;
       }
       if (missingIds.size() != 0) {
-        LOGGER.error("Error building ring relation for relation: " + osmunion.Id
-            + " missing values were: (" + Joiner.on(",").join(missingIds) + ")");
+        LOGGER.error(
+            "Error building ring relation for relation: "
+                + osmunion.Id
+                + " missing values were: ("
+                + Joiner.on(",").join(missingIds)
+                + ")");
         return null;
       }
 
@@ -379,14 +397,16 @@ public class OsmProvider {
         lastkey = row.getKey().getRowData();
       }
 
-      if (Schema.arraysEqual(row.getKey().getColumnQualifierData(),
+      if (Schema.arraysEqual(
+          row.getKey().getColumnQualifierData(),
           StringUtils.stringToBinary(ColumnQualifier.LONGITUDE))) {
         crd.x = doubleReader.readField(row.getValue().get());
-      } else if (Schema.arraysEqual(row.getKey().getColumnQualifierData(),
+      } else if (Schema.arraysEqual(
+          row.getKey().getColumnQualifierData(),
           StringUtils.stringToBinary(ColumnQualifier.LATITUDE))) {
         crd.y = doubleReader.readField(row.getValue().get());
-      } else if (Schema.arraysEqual(row.getKey().getColumnQualifierData(),
-          StringUtils.stringToBinary(ColumnQualifier.ID))) {
+      } else if (Schema.arraysEqual(
+          row.getKey().getColumnQualifierData(), StringUtils.stringToBinary(ColumnQualifier.ID))) {
         id = longReader.readField(row.getValue().get());
       }
 

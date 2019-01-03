@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -40,9 +39,12 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
   private Entry<GeoWaveInputKey, T> nextEntry;
   private final Index index;
 
-  public InputFormatIteratorWrapper(final RowReader<GeoWaveRow> reader,
-      final QueryFilter queryFilter, final TransientAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore, final Index index,
+  public InputFormatIteratorWrapper(
+      final RowReader<GeoWaveRow> reader,
+      final QueryFilter queryFilter,
+      final TransientAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
+      final Index index,
       final boolean isOutputWritable) {
     this.reader = reader;
     this.queryFilter = queryFilter;
@@ -56,9 +58,11 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
     while ((this.nextEntry == null) && reader.hasNext()) {
       final GeoWaveRow nextRow = reader.next();
       if (nextRow != null) {
-        final Entry<GeoWaveInputKey, T> decodedValue = decodeRow(nextRow, queryFilter,
-            (InternalDataAdapter<T>) serializationTool.getInternalAdapter(nextRow.getAdapterId()),
-            index);
+        final Entry<GeoWaveInputKey, T> decodedValue =
+            decodeRow(
+                nextRow, queryFilter, (InternalDataAdapter<T>) serializationTool
+                    .getInternalAdapter(nextRow.getAdapterId()),
+                index);
         if (decodedValue != null) {
           nextEntry = decodedValue;
           return;
@@ -68,8 +72,11 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
   }
 
   @SuppressWarnings("unchecked")
-  private Entry<GeoWaveInputKey, T> decodeRow(final GeoWaveRow row, final QueryFilter clientFilter,
-      final InternalDataAdapter<T> adapter, final Index index) {
+  private Entry<GeoWaveInputKey, T> decodeRow(
+      final GeoWaveRow row,
+      final QueryFilter clientFilter,
+      final InternalDataAdapter<T> adapter,
+      final Index index) {
     Object value = null;
     try {
       value =
@@ -81,9 +88,10 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
       return null;
     }
     final short adapterId = row.getAdapterId();
-    final T result = (T) (isOutputWritable
-        ? serializationTool.getHadoopWritableSerializerForAdapter(adapterId).toWritable(value)
-        : value);
+    final T result =
+        (T) (isOutputWritable
+            ? serializationTool.getHadoopWritableSerializerForAdapter(adapterId).toWritable(value)
+            : value);
     final GeoWaveInputKey key = new GeoWaveInputKey(row, index.getName());
     return new GeoWaveInputFormatEntry(key, result);
   }

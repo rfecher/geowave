@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -52,18 +51,24 @@ abstract class BaseQuery {
   protected final String[] authorizations;
   protected final ScanCallbackList<?, ?> scanCallback;
 
-  public BaseQuery(final Index index, final ScanCallback<?, ?> scanCallback,
+  public BaseQuery(
+      final Index index,
+      final ScanCallback<?, ?> scanCallback,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
-      final FieldVisibilityCount visibilityCounts, final String... authorizations) {
+      final FieldVisibilityCount visibilityCounts,
+      final String... authorizations) {
     this(null, index, null, scanCallback, differingVisibilityCounts, visibilityCounts,
         authorizations);
   }
 
-  public BaseQuery(final short[] adapterIds, final Index index,
+  public BaseQuery(
+      final short[] adapterIds,
+      final Index index,
       final Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair,
       final ScanCallback<?, ?> scanCallback,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
-      final FieldVisibilityCount visibilityCounts, final String... authorizations) {
+      final FieldVisibilityCount visibilityCounts,
+      final String... authorizations) {
     this.adapterIds = adapterIds;
     this.index = index;
     this.fieldIdsAdapterPair = fieldIdsAdapterPair;
@@ -78,19 +83,24 @@ abstract class BaseQuery {
     this.scanCallback = new ScanCallbackList(callbacks);
   }
 
-  protected <C> RowReader<C> getReader(final DataStoreOperations operations,
-      final DataStoreOptions options, final PersistentAdapterStore adapterStore,
+  protected <C> RowReader<C> getReader(
+      final DataStoreOperations operations,
+      final DataStoreOptions options,
+      final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final double[] maxResolutionSubsamplingPerDimension,
-      final double[] targetResolutionPerDimensionForHierarchicalIndex, final Integer limit,
+      final double[] targetResolutionPerDimensionForHierarchicalIndex,
+      final Integer limit,
       final Integer queryMaxRangeDecomposition,
-      final GeoWaveRowIteratorTransformer<C> rowTransformer, final boolean delete) {
+      final GeoWaveRowIteratorTransformer<C> rowTransformer,
+      final boolean delete) {
     final int maxRangeDecomposition;
     if (queryMaxRangeDecomposition != null) {
       maxRangeDecomposition = queryMaxRangeDecomposition;
     } else {
-      maxRangeDecomposition = isAggregation() ? options.getAggregationMaxRangeDecomposition()
-          : options.getMaxRangeDecomposition();
+      maxRangeDecomposition =
+          isAggregation() ? options.getAggregationMaxRangeDecomposition()
+              : options.getMaxRangeDecomposition();
     }
 
     ReaderParams<C> readerParams =
@@ -154,7 +164,8 @@ abstract class BaseQuery {
     return null;
   }
 
-  protected abstract QueryRanges getRanges(int maxRangeDecomposition,
+  protected abstract QueryRanges getRanges(
+      int maxRangeDecomposition,
       double[] targetResolutionPerDimensionForHierarchicalIndex);
 
   protected Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> getAggregation() {
@@ -167,8 +178,8 @@ abstract class BaseQuery {
 
   protected byte[] getFieldBitmask() {
     if ((fieldIdsAdapterPair != null) && (fieldIdsAdapterPair.getLeft() != null)) {
-      return BitmaskUtils.generateFieldSubsetBitmask(index.getIndexModel(),
-          fieldIdsAdapterPair.getLeft(), fieldIdsAdapterPair.getRight());
+      return BitmaskUtils.generateFieldSubsetBitmask(
+          index.getIndexModel(), fieldIdsAdapterPair.getLeft(), fieldIdsAdapterPair.getRight());
     }
 
     return null;

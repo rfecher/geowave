@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -21,22 +20,25 @@ import org.slf4j.LoggerFactory;
 /**
  * A cluster represented by a hull.
  *
- * <p>
- * Intended to run in a single thread. Not Thread Safe.
+ * <p> Intended to run in a single thread. Not Thread Safe.
  *
- * <p>
- * TODO: connectGeometryTool.connect(
+ * <p> TODO: connectGeometryTool.connect(
  */
 public class ClusterUnionList extends DBScanClusterList implements Cluster {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(ClusterUnionList.class);
 
-  public ClusterUnionList(final ByteArray centerId, final ClusterItem center,
-      final NeighborListFactory<ClusterItem> factory, final Map<ByteArray, Cluster> index) {
+  public ClusterUnionList(
+      final ByteArray centerId,
+      final ClusterItem center,
+      final NeighborListFactory<ClusterItem> factory,
+      final Map<ByteArray, Cluster> index) {
     super(center.getGeometry(), (int) center.getCount(), centerId, index);
   }
 
-  protected long addAndFetchCount(final ByteArray id, final ClusterItem newInstance,
+  protected long addAndFetchCount(
+      final ByteArray id,
+      final ClusterItem newInstance,
       final DistanceProfile<?> distanceProfile) {
     return 0;
   }
@@ -65,7 +67,8 @@ public class ClusterUnionList extends DBScanClusterList implements Cluster {
       this.index = index;
     }
 
-    public NeighborList<ClusterItem> buildNeighborList(final ByteArray centerId,
+    public NeighborList<ClusterItem> buildNeighborList(
+        final ByteArray centerId,
         final ClusterItem center) {
       Cluster list = index.get(centerId);
       if (list == null) {

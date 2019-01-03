@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -32,7 +31,8 @@ public class SFCDimensionDefinition implements NumericDimensionDefinition {
    *        curve
    * @param bitsOfPrecision the number of bits associated with the specified dimension object
    */
-  public SFCDimensionDefinition(final NumericDimensionDefinition dimensionDefinition,
+  public SFCDimensionDefinition(
+      final NumericDimensionDefinition dimensionDefinition,
       final int bitsOfPrecision) {
     this.bitsOfPrecision = bitsOfPrecision;
     this.dimensionDefinition = dimensionDefinition;
@@ -94,8 +94,9 @@ public class SFCDimensionDefinition implements NumericDimensionDefinition {
   @Override
   public byte[] toBinary() {
     final byte[] dimensionBinary = PersistenceUtils.toBinary(dimensionDefinition);
-    final ByteBuffer buf = ByteBuffer
-        .allocate(dimensionBinary.length + VarintUtils.unsignedIntByteLength(bitsOfPrecision));
+    final ByteBuffer buf =
+        ByteBuffer
+            .allocate(dimensionBinary.length + VarintUtils.unsignedIntByteLength(bitsOfPrecision));
     VarintUtils.writeUnsignedInt(bitsOfPrecision, buf);
     buf.put(dimensionBinary);
     return buf.array();

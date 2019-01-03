@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -67,11 +66,13 @@ public class ConvexHullJobRunner extends GeoWaveAnalyticJobRunner {
   public int run(final Configuration config, final PropertyManagement runTimeProperties)
       throws Exception {
 
-    runTimeProperties.storeIfEmpty(HullParameters.Hull.PROJECTION_CLASS,
-        SimpleFeatureProjection.class);
-    runTimeProperties.setConfig(new ParameterEnum<?>[] {HullParameters.Hull.WRAPPER_FACTORY_CLASS,
-        HullParameters.Hull.PROJECTION_CLASS, HullParameters.Hull.DATA_TYPE_ID,
-        HullParameters.Hull.INDEX_NAME}, config, getScope());
+    runTimeProperties
+        .storeIfEmpty(HullParameters.Hull.PROJECTION_CLASS, SimpleFeatureProjection.class);
+    runTimeProperties.setConfig(
+        new ParameterEnum<?>[] {HullParameters.Hull.WRAPPER_FACTORY_CLASS,
+            HullParameters.Hull.PROJECTION_CLASS, HullParameters.Hull.DATA_TYPE_ID,
+            HullParameters.Hull.INDEX_NAME},
+        config, getScope());
     setReducerCount(runTimeProperties.getPropertyAsInt(HullParameters.Hull.REDUCER_COUNT, 4));
     CentroidManagerGeoWave.setParameters(config, getScope(), runTimeProperties);
     NestedGroupCentroidAssignment.setParameters(config, getScope(), runTimeProperties);
@@ -81,9 +82,13 @@ public class ConvexHullJobRunner extends GeoWaveAnalyticJobRunner {
     // getting group from next level, now that the prior level is complete
     NestedGroupCentroidAssignment.setZoomLevel(config, getScope(), localZoomLevel + 1);
 
-    addDataAdapter(config, getAdapter(runTimeProperties, HullParameters.Hull.DATA_TYPE_ID,
-        HullParameters.Hull.DATA_NAMESPACE_URI));
-    checkIndex(runTimeProperties, HullParameters.Hull.INDEX_NAME,
+    addDataAdapter(
+        config,
+        getAdapter(
+            runTimeProperties, HullParameters.Hull.DATA_TYPE_ID,
+            HullParameters.Hull.DATA_NAMESPACE_URI));
+    checkIndex(
+        runTimeProperties, HullParameters.Hull.INDEX_NAME,
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()).getName());
     // HP Fortify "Command Injection" false positive
     // What Fortify considers "externally-influenced input"
@@ -96,16 +101,20 @@ public class ConvexHullJobRunner extends GeoWaveAnalyticJobRunner {
     final Set<ParameterEnum<?>> params = new HashSet<ParameterEnum<?>>();
     params.addAll(super.getParameters());
 
-    params.addAll(Arrays.asList(new ParameterEnum<?>[] {StoreParameters.StoreParam.INPUT_STORE,
-        StoreParameters.StoreParam.OUTPUT_STORE, GlobalParameters.Global.BATCH_ID}));
+    params.addAll(
+        Arrays.asList(
+            new ParameterEnum<?>[] {StoreParameters.StoreParam.INPUT_STORE,
+                StoreParameters.StoreParam.OUTPUT_STORE, GlobalParameters.Global.BATCH_ID}));
 
     params.addAll(MapReduceParameters.getParameters());
     params.addAll(NestedGroupCentroidAssignment.getParameters());
 
-    params.addAll(Arrays.asList(new ParameterEnum<?>[] {HullParameters.Hull.WRAPPER_FACTORY_CLASS,
-        HullParameters.Hull.PROJECTION_CLASS, HullParameters.Hull.REDUCER_COUNT,
-        HullParameters.Hull.DATA_TYPE_ID, HullParameters.Hull.DATA_NAMESPACE_URI,
-        HullParameters.Hull.INDEX_NAME}));
+    params.addAll(
+        Arrays.asList(
+            new ParameterEnum<?>[] {HullParameters.Hull.WRAPPER_FACTORY_CLASS,
+                HullParameters.Hull.PROJECTION_CLASS, HullParameters.Hull.REDUCER_COUNT,
+                HullParameters.Hull.DATA_TYPE_ID, HullParameters.Hull.DATA_NAMESPACE_URI,
+                HullParameters.Hull.INDEX_NAME}));
     return params;
   }
 

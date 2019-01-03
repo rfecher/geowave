@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -101,8 +100,8 @@ public class ServicesTestEnvironment implements TestEnvironment {
     if (jettyServer == null) {
       try {
         // Prevent "Unauthorized class found" error
-        System.setProperty("GEOSERVER_XSTREAM_WHITELIST",
-            "org.geoserver.wfs.**;org.geoserver.wms.**");
+        System.setProperty(
+            "GEOSERVER_XSTREAM_WHITELIST", "org.geoserver.wfs.**;org.geoserver.wms.**");
 
         // delete old workspace configuration if it's still there
         jettyServer = new Server();
@@ -113,10 +112,10 @@ public class ServicesTestEnvironment implements TestEnvironment {
         conn.setIdleTimeout(MAX_IDLE_TIME);
         conn.setSoLingerTime(SO_LINGER_TIME);
         jettyServer.setConnectors(new Connector[] {conn});
-        FileUtils.copyFile(new File(TEST_GEOSERVER_LOGGING_PATH),
-            new File(EXISTING_GEOSERVER_LOGGING_PATH));
-        FileUtils.copyFile(new File(TEST_LOG_PROPERTIES_PATH),
-            new File(TEST_GEOSERVER_LOG_PROPERTIES_PATH));
+        FileUtils.copyFile(
+            new File(TEST_GEOSERVER_LOGGING_PATH), new File(EXISTING_GEOSERVER_LOGGING_PATH));
+        FileUtils.copyFile(
+            new File(TEST_LOG_PROPERTIES_PATH), new File(TEST_GEOSERVER_LOG_PROPERTIES_PATH));
         final WebAppContext gsWebapp = new WebAppContext();
         gsWebapp.setContextPath(GEOSERVER_CONTEXT_PATH);
         gsWebapp.setResourceBase(GEOSERVER_WAR_DIR);

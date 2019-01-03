@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -59,8 +58,10 @@ public class GeoToolsVectorDataStoreIngestPlugin implements LocalFileIngestPlugi
     this(null, filter, new ArrayList<String>());
   }
 
-  public GeoToolsVectorDataStoreIngestPlugin(final RetypingVectorDataPlugin retypingPlugin,
-      final Filter filter, List<String> featureTypeNames) {
+  public GeoToolsVectorDataStoreIngestPlugin(
+      final RetypingVectorDataPlugin retypingPlugin,
+      final Filter filter,
+      List<String> featureTypeNames) {
     // this constructor can be used directly as an extension point for
     // retyping the original feature data, if the retyping plugin is null,
     // the data will be ingested as the original type
@@ -95,7 +96,8 @@ public class GeoToolsVectorDataStoreIngestPlugin implements LocalFileIngestPlugi
     }
     map.put("url", file);
     if (System.getProperty(StringUtils.GEOWAVE_CHARSET_PROPERTY_NAME) != null) {
-      map.put("charset",
+      map.put(
+          "charset",
           Charset.forName(System.getProperty(StringUtils.GEOWAVE_CHARSET_PROPERTY_NAME)));
     }
     final DataStore dataStore = DataStoreFinder.getDataStore(map);
@@ -122,8 +124,10 @@ public class GeoToolsVectorDataStoreIngestPlugin implements LocalFileIngestPlugi
   }
 
   @Override
-  public CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveData(final URL input,
-      final String[] indexNames, final String visibility) {
+  public CloseableIterator<GeoWaveData<SimpleFeature>> toGeoWaveData(
+      final URL input,
+      final String[] indexNames,
+      final String visibility) {
     DataStore dataStore = null;
     try {
       dataStore = getDataStore(input);
@@ -145,7 +149,8 @@ public class GeoToolsVectorDataStoreIngestPlugin implements LocalFileIngestPlugi
           new ArrayList<SimpleFeatureCollection>();
       for (final Name name : names) {
         try {
-          if (featureTypeNames != null && !featureTypeNames.isEmpty()
+          if (featureTypeNames != null
+              && !featureTypeNames.isEmpty()
               && !featureTypeNames.contains(name.getLocalPart())) {
             continue;
           }

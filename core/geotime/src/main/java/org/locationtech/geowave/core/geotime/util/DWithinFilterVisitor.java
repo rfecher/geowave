@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -36,21 +35,26 @@ public class DWithinFilterVisitor extends DuplicatingFilterVisitor {
           && (filter.getExpression2() instanceof Literal)) {
         Pair<Geometry, Double> geometryAndDegrees;
 
-        geometryAndDegrees = GeometryUtils.buffer(GeometryUtils.getDefaultCRS(),
-            filter.getExpression2().evaluate(extraData, Geometry.class), filter.getDistanceUnits(),
-            filter.getDistance());
+        geometryAndDegrees =
+            GeometryUtils.buffer(
+                GeometryUtils.getDefaultCRS(),
+                filter.getExpression2().evaluate(extraData, Geometry.class),
+                filter.getDistanceUnits(), filter.getDistance());
 
-        newWithImpl = new IntersectsImpl(filter.getExpression1(),
-            new LiteralExpressionImpl(geometryAndDegrees.getLeft()));
+        newWithImpl =
+            new IntersectsImpl(filter.getExpression1(),
+                new LiteralExpressionImpl(geometryAndDegrees.getLeft()));
 
       } else if ((filter.getExpression2() instanceof PropertyName)
           && (filter.getExpression1() instanceof Literal)) {
         final Pair<Geometry, Double> geometryAndDegrees =
-            GeometryUtils.buffer(GeometryUtils.getDefaultCRS(),
+            GeometryUtils.buffer(
+                GeometryUtils.getDefaultCRS(),
                 filter.getExpression1().evaluate(extraData, Geometry.class),
                 filter.getDistanceUnits(), filter.getDistance());
-        newWithImpl = new IntersectsImpl(new LiteralExpressionImpl(geometryAndDegrees.getLeft()),
-            filter.getExpression2());
+        newWithImpl =
+            new IntersectsImpl(new LiteralExpressionImpl(geometryAndDegrees.getLeft()),
+                filter.getExpression2());
       }
     } catch (final TransformException e) {
       LOGGER.error("Cannot transform geoemetry to support provide distance", e);

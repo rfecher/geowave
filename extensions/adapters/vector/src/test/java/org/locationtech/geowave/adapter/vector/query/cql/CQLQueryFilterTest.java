@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -49,8 +48,9 @@ public class CQLQueryFilterTest {
 
   @Before
   public void setup() throws SchemaException, CQLException {
-    type = DataUtilities.createType("geostuff",
-        "geom:Geometry:srid=4326,pop:java.lang.Long,pid:String");
+    type =
+        DataUtilities
+            .createType("geostuff", "geom:Geometry:srid=4326,pop:java.lang.Long,pid:String");
 
     final List<AttributeDescriptor> descriptors = type.getAttributeDescriptors();
     defaults = new Object[descriptors.size()];
@@ -81,22 +81,27 @@ public class CQLQueryFilterTest {
 
     final FilterList dFilterList = new FilterList(dFilters);
 
-    assertTrue(dFilterList.accept(spatialIndex.getIndexModel(),
-        getEncodings(spatialIndex, adapter.encode(createFeature(), spatialIndex.getIndexModel()))
-            .get(0)));
+    assertTrue(
+        dFilterList.accept(
+            spatialIndex.getIndexModel(),
+            getEncodings(
+                spatialIndex, adapter.encode(createFeature(), spatialIndex.getIndexModel()))
+                    .get(0)));
   }
 
-  private static List<IndexedAdapterPersistenceEncoding> getEncodings(final Index index,
+  private static List<IndexedAdapterPersistenceEncoding> getEncodings(
+      final Index index,
       final AdapterPersistenceEncoding encoding) {
     final InsertionIds ids = encoding.getInsertionIds(index);
     final ArrayList<IndexedAdapterPersistenceEncoding> encodings = new ArrayList<>();
 
     for (final SinglePartitionInsertionIds partitionIds : ids.getPartitionKeys()) {
       for (final ByteArray sortKey : partitionIds.getSortKeys()) {
-        encodings.add(new IndexedAdapterPersistenceEncoding(encoding.getInternalAdapterId(),
-            encoding.getDataId(), partitionIds.getPartitionKey(), sortKey, ids.getSize(),
-            encoding.getCommonData(), encoding.getUnknownData(),
-            encoding.getAdapterExtendedData()));
+        encodings.add(
+            new IndexedAdapterPersistenceEncoding(encoding.getInternalAdapterId(),
+                encoding.getDataId(), partitionIds.getPartitionKey(), sortKey, ids.getSize(),
+                encoding.getCommonData(), encoding.getUnknownData(),
+                encoding.getAdapterExtendedData()));
       }
     }
     return encodings;

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -81,8 +80,9 @@ public class KMeansRunner {
     if (session == null) {
       String jar = "";
       try {
-        jar = KMeansRunner.class.getProtectionDomain().getCodeSource().getLocation().toURI()
-            .getPath();
+        jar =
+            KMeansRunner.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+                .getPath();
       } catch (final URISyntaxException e) {
         LOGGER.error("Unable to set jar location in spark configuration", e);
       }
@@ -156,20 +156,24 @@ public class KMeansRunner {
         final DataTypeAdapter<?> adapter = adapterStore.getAdapter(adapterId).getAdapter();
 
         if (adapter instanceof FeatureDataAdapter) {
-          final String geometryAttribute = ((FeatureDataAdapter) adapter).getFeatureType()
-              .getGeometryDescriptor().getLocalName();
+          final String geometryAttribute =
+              ((FeatureDataAdapter) adapter).getFeatureType().getGeometryDescriptor()
+                  .getLocalName();
           Filter filter;
           filter = ECQL.toFilter(cqlFilter);
 
           final ExtractGeometryFilterVisitorResult geoAndCompareOpData =
-              (ExtractGeometryFilterVisitorResult) filter.accept(new ExtractGeometryFilterVisitor(
-                  GeometryUtils.getDefaultCRS(), geometryAttribute), null);
+              (ExtractGeometryFilterVisitorResult) filter.accept(
+                  new ExtractGeometryFilterVisitor(GeometryUtils.getDefaultCRS(),
+                      geometryAttribute),
+                  null);
           bbox = geoAndCompareOpData.getGeometry();
         }
 
         if ((bbox != null) && !bbox.equals(GeometryUtils.infinity())) {
-          bldr.constraints(bldr.constraintsFactory().spatialTemporalConstraints()
-              .spatialConstraints(bbox).build());
+          bldr.constraints(
+              bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(bbox)
+                  .build());
         }
       }
     } catch (final CQLException e) {
@@ -211,12 +215,12 @@ public class KMeansRunner {
   public void writeToOutputStore() {
     if (outputDataStore != null) {
       // output cluster centroids (and hulls) to output datastore
-      KMeansUtils.writeClusterCentroids(outputModel, outputDataStore, centroidTypeName,
-          scaledRange);
+      KMeansUtils
+          .writeClusterCentroids(outputModel, outputDataStore, centroidTypeName, scaledRange);
 
       if (isGenerateHulls()) {
-        KMeansUtils.writeClusterHulls(centroidVectors, outputModel, outputDataStore, hullTypeName,
-            isComputeHullData());
+        KMeansUtils.writeClusterHulls(
+            centroidVectors, outputModel, outputDataStore, hullTypeName, isComputeHullData());
       }
     }
   }

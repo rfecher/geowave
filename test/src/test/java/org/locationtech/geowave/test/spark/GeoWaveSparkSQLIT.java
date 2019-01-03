@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -143,8 +142,10 @@ public class GeoWaveSparkSQLIT extends AbstractGeoWaveBasicVectorIT {
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail("Error occurred while testing a bounding box query of spatial index: '"
-          + e.getLocalizedMessage() + "'");
+      Assert.fail(
+          "Error occurred while testing a bounding box query of spatial index: '"
+              + e.getLocalizedMessage()
+              + "'");
     }
 
     // Clean up
@@ -163,8 +164,8 @@ public class GeoWaveSparkSQLIT extends AbstractGeoWaveBasicVectorIT {
     // ingest test points
     TestUtils.testLocalIngest(dataStore, DimensionalityType.SPATIAL, HAIL_SHAPEFILE_FILE, 1);
 
-    TestUtils.testLocalIngest(dataStore, DimensionalityType.SPATIAL, TORNADO_TRACKS_SHAPEFILE_FILE,
-        1);
+    TestUtils
+        .testLocalIngest(dataStore, DimensionalityType.SPATIAL, TORNADO_TRACKS_SHAPEFILE_FILE, 1);
 
     try {
       // Run a valid sql query that should do a optimized join
@@ -177,8 +178,10 @@ public class GeoWaveSparkSQLIT extends AbstractGeoWaveBasicVectorIT {
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
-      Assert.fail("Error occurred while attempting optimized join from sql query runner: '"
-          + e.getLocalizedMessage() + "'");
+      Assert.fail(
+          "Error occurred while attempting optimized join from sql query runner: '"
+              + e.getLocalizedMessage()
+              + "'");
     }
 
     // Clean up

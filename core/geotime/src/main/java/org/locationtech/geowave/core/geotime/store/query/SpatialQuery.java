@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -53,7 +52,8 @@ public class SpatialQuery extends BasicQuery {
     Geometry geometry;
     Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId;
 
-    public CrsCache(final Geometry geometry,
+    public CrsCache(
+        final Geometry geometry,
         final Map<String, List<MultiDimensionalNumericData>> constraintsPerIndexId) {
       this.geometry = geometry;
       this.constraintsPerIndexId = constraintsPerIndexId;
@@ -81,13 +81,16 @@ public class SpatialQuery extends BasicQuery {
     this(constraints, queryGeometry, Collections.emptyMap());
   }
 
-  public SpatialQuery(final Constraints constraints, final Geometry queryGeometry,
+  public SpatialQuery(
+      final Constraints constraints,
+      final Geometry queryGeometry,
       final String crsCode) {
     this(constraints, queryGeometry, Collections.emptyMap(), crsCode, CompareOperation.INTERSECTS,
         BasicQueryCompareOperation.INTERSECTS);
   }
 
-  public SpatialQuery(final Geometry queryGeometry,
+  public SpatialQuery(
+      final Geometry queryGeometry,
       final Map<String, FilterableConstraints> additionalConstraints) {
     this(GeometryUtils.basicConstraintsFromGeometry(queryGeometry), queryGeometry,
         additionalConstraints);
@@ -99,7 +102,9 @@ public class SpatialQuery extends BasicQuery {
         BasicQueryCompareOperation.INTERSECTS);
   }
 
-  private SpatialQuery(final Constraints constraints, final Geometry queryGeometry,
+  private SpatialQuery(
+      final Constraints constraints,
+      final Geometry queryGeometry,
       final Map<String, FilterableConstraints> additionalConstraints) {
     this(constraints, queryGeometry, additionalConstraints, null, CompareOperation.INTERSECTS,
         BasicQueryCompareOperation.INTERSECTS);
@@ -124,12 +129,16 @@ public class SpatialQuery extends BasicQuery {
    * @param queryGeometry spatial geometry of the query
    * @param compareOp predicate associated query geometry
    */
-  public SpatialQuery(final Constraints constraints, final Geometry queryGeometry,
+  public SpatialQuery(
+      final Constraints constraints,
+      final Geometry queryGeometry,
       final CompareOperation compareOp) {
     this(constraints, queryGeometry, compareOp, BasicQueryCompareOperation.INTERSECTS);
   }
 
-  public SpatialQuery(final Geometry queryGeometry, final String crsCode,
+  public SpatialQuery(
+      final Geometry queryGeometry,
+      final String crsCode,
       final CompareOperation compareOp) {
     this(GeometryUtils.basicConstraintsFromGeometry(queryGeometry), queryGeometry,
         Collections.emptyMap(), crsCode,
@@ -137,8 +146,11 @@ public class SpatialQuery extends BasicQuery {
         BasicQueryCompareOperation.INTERSECTS);
   }
 
-  public SpatialQuery(final Constraints constraints, final Geometry queryGeometry,
-      final String crsCode, final CompareOperation compareOp,
+  public SpatialQuery(
+      final Constraints constraints,
+      final Geometry queryGeometry,
+      final String crsCode,
+      final CompareOperation compareOp,
       final BasicQueryCompareOperation nonSpatialCompareOp) {
     this(constraints, queryGeometry, Collections.emptyMap(), crsCode,
         compareOp == null ? CompareOperation.INTERSECTS : compareOp, nonSpatialCompareOp);
@@ -153,15 +165,22 @@ public class SpatialQuery extends BasicQuery {
    * @param compareOp predicate associated query geometry
    * @param nonSpatialCompareOp predicate associated non-spatial fields (i.e Time)
    */
-  public SpatialQuery(final Constraints constraints, final Geometry queryGeometry,
-      final CompareOperation compareOp, final BasicQueryCompareOperation nonSpatialCompareOp) {
+  public SpatialQuery(
+      final Constraints constraints,
+      final Geometry queryGeometry,
+      final CompareOperation compareOp,
+      final BasicQueryCompareOperation nonSpatialCompareOp) {
     this(constraints, queryGeometry, Collections.emptyMap(), null,
         compareOp == null ? CompareOperation.INTERSECTS : compareOp, nonSpatialCompareOp);
   }
 
-  public SpatialQuery(final Constraints constraints, final Geometry queryGeometry,
-      final Map<String, FilterableConstraints> additionalConstraints, final String crsCode,
-      final CompareOperation compareOp, final BasicQueryCompareOperation nonSpatialCompareOp) {
+  public SpatialQuery(
+      final Constraints constraints,
+      final Geometry queryGeometry,
+      final Map<String, FilterableConstraints> additionalConstraints,
+      final String crsCode,
+      final CompareOperation compareOp,
+      final BasicQueryCompareOperation nonSpatialCompareOp) {
     super(constraints, nonSpatialCompareOp, additionalConstraints);
     this.crsCode = crsCode;
     this.queryGeometry = queryGeometry;
@@ -179,9 +198,11 @@ public class SpatialQuery extends BasicQuery {
   }
 
   @Override
-  protected QueryFilter createQueryFilter(final MultiDimensionalNumericData constraints,
+  protected QueryFilter createQueryFilter(
+      final MultiDimensionalNumericData constraints,
       final NumericDimensionField<?>[] orderedConstrainedDimensionFields,
-      final NumericDimensionField<?>[] unconstrainedDimensionDefinitions, final Index index) {
+      final NumericDimensionField<?>[] unconstrainedDimensionDefinitions,
+      final Index index) {
     return new SpatialQueryFilter(constraints, orderedConstrainedDimensionFields,
         unconstrainedDimensionDefinitions, internalGetGeometry(index), compareOp,
         nonSpatialCompareOp);
@@ -267,7 +288,8 @@ public class SpatialQuery extends BasicQuery {
     return new CrsCache(queryGeometry, constraintsPerIndexId);
   }
 
-  private static List<MultiDimensionalNumericData> indexConstraintsFromGeometry(final Geometry geom,
+  private static List<MultiDimensionalNumericData> indexConstraintsFromGeometry(
+      final Geometry geom,
       final Index index) {
     return GeometryUtils.basicConstraintsFromGeometry(geom)
         .getIndexConstraints(index.getIndexStrategy());
@@ -293,7 +315,8 @@ public class SpatialQuery extends BasicQuery {
   }
 
   private static boolean isDefaultCrs(final String crsCode) {
-    return (crsCode == null) || crsCode.isEmpty()
+    return (crsCode == null)
+        || crsCode.isEmpty()
         || crsCode.equalsIgnoreCase(GeometryUtils.DEFAULT_CRS_STR);
   }
 
@@ -303,11 +326,15 @@ public class SpatialQuery extends BasicQuery {
         isDefaultCrs(crsCode) ? new byte[0] : StringUtils.stringToBinary(crsCode);
     final byte[] superBinary = super.toBinary();
     final byte[] geometryBinary = new TWKBWriter().write(queryGeometry);
-    final ByteBuffer buf = ByteBuffer.allocate(superBinary.length + geometryBinary.length
-        + crsBinary.length + VarintUtils.unsignedIntByteLength(compareOp.ordinal())
-        + VarintUtils.unsignedIntByteLength(nonSpatialCompareOp.ordinal())
-        + VarintUtils.unsignedIntByteLength(crsBinary.length)
-        + VarintUtils.unsignedIntByteLength(superBinary.length));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            superBinary.length
+                + geometryBinary.length
+                + crsBinary.length
+                + VarintUtils.unsignedIntByteLength(compareOp.ordinal())
+                + VarintUtils.unsignedIntByteLength(nonSpatialCompareOp.ordinal())
+                + VarintUtils.unsignedIntByteLength(crsBinary.length)
+                + VarintUtils.unsignedIntByteLength(superBinary.length));
     VarintUtils.writeUnsignedInt(compareOp.ordinal(), buf);
     VarintUtils.writeUnsignedInt(nonSpatialCompareOp.ordinal(), buf);
     VarintUtils.writeUnsignedInt(crsBinary.length, buf);

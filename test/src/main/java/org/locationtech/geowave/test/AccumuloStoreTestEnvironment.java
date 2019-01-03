@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -78,13 +77,15 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
       }
     }
 
-    if (!TestUtils.isSet(accumuloInstance) || !TestUtils.isSet(accumuloUser)
+    if (!TestUtils.isSet(accumuloInstance)
+        || !TestUtils.isSet(accumuloUser)
         || !TestUtils.isSet(accumuloPassword)) {
 
       accumuloInstance = System.getProperty("instance");
       accumuloUser = System.getProperty("username");
       accumuloPassword = System.getProperty("password");
-      if (!TestUtils.isSet(accumuloInstance) || !TestUtils.isSet(accumuloUser)
+      if (!TestUtils.isSet(accumuloInstance)
+          || !TestUtils.isSet(accumuloUser)
           || !TestUtils.isSet(accumuloPassword)) {
         try {
           if (!TEMP_DIR.exists()) {
@@ -98,8 +99,9 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
           config.setZooKeeperPort(Integer.parseInt(zookeeper.split(":")[1]));
           config.setNumTservers(NUM_TABLET_SERVERS);
 
-          miniAccumulo = MiniAccumuloClusterFactory.newAccumuloCluster(config,
-              AccumuloStoreTestEnvironment.class);
+          miniAccumulo =
+              MiniAccumuloClusterFactory
+                  .newAccumuloCluster(config, AccumuloStoreTestEnvironment.class);
 
           startMiniAccumulo(config);
           accumuloUser = "root";
@@ -150,12 +152,18 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
 
     final int ret = initProcess.waitFor();
     if (ret != 0) {
-      throw new RuntimeException("Initialize process returned " + ret + ". Check the logs in "
-          + config.getLogDir() + " for errors.");
+      throw new RuntimeException("Initialize process returned "
+          + ret
+          + ". Check the logs in "
+          + config.getLogDir()
+          + " for errors.");
     }
 
-    LOGGER.info("Starting MAC against instance " + config.getInstanceName() + " and zookeeper(s)  "
-        + config.getZooKeepers());
+    LOGGER.info(
+        "Starting MAC against instance "
+            + config.getInstanceName()
+            + " and zookeeper(s)  "
+            + config.getZooKeepers());
 
     for (int i = 0; i < config.getNumTservers(); i++) {
       cleanup.add(miniAccumulo.exec(TabletServer.class, jvmArgs));

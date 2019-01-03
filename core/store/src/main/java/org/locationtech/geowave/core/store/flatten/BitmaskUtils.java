@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -54,8 +53,7 @@ public class BitmaskUtils {
    * Generates a composite bitmask given a list of field positions. The composite bitmask represents
    * a true bit for every positive field position
    *
-   * <p>
-   * For example, given field 0, field 1, and field 2 this method will return 00000111
+   * <p> For example, given field 0, field 1, and field 2 this method will return 00000111
    *
    * @param fieldPositions a list of field positions
    * @return a composite bitmask
@@ -74,8 +72,7 @@ public class BitmaskUtils {
    * Generates a composite bitmask given a single field position. The composite bitmask represents a
    * true bit for this field position
    *
-   * <p>
-   * For example, given field 2 this method will return 00000100
+   * <p> For example, given field 2 this method will return 00000100
    *
    * @param fieldPosition a field position
    * @return a composite bitmask
@@ -142,15 +139,18 @@ public class BitmaskUtils {
    * @param adapterAssociatedWithFieldIds the adapter for the type whose fields are being subsetted
    * @return the field subset bitmask
    */
-  public static byte[] generateFieldSubsetBitmask(final CommonIndexModel indexModel,
-      final String[] fieldNames, final DataTypeAdapter<?> adapterAssociatedWithFieldIds) {
+  public static byte[] generateFieldSubsetBitmask(
+      final CommonIndexModel indexModel,
+      final String[] fieldNames,
+      final DataTypeAdapter<?> adapterAssociatedWithFieldIds) {
     final SortedSet<Integer> fieldPositions = new TreeSet<Integer>();
 
     // dimension fields must also be included
     for (final NumericDimensionField<? extends CommonIndexValue> dimension : indexModel
         .getDimensions()) {
-      fieldPositions.add(adapterAssociatedWithFieldIds.getPositionOfOrderedField(indexModel,
-          dimension.getFieldName()));
+      fieldPositions.add(
+          adapterAssociatedWithFieldIds
+              .getPositionOfOrderedField(indexModel, dimension.getFieldName()));
     }
 
     for (final String fieldName : fieldNames) {
@@ -168,7 +168,9 @@ public class BitmaskUtils {
    * @param newBitmask the field subset bitmask
    * @return the subsetted value as a byte[]
    */
-  public static byte[] constructNewValue(final byte[] value, final byte[] originalBitmask,
+  public static byte[] constructNewValue(
+      final byte[] value,
+      final byte[] originalBitmask,
       final byte[] newBitmask) {
 
     final ByteBuffer originalBytes = ByteBuffer.wrap(value);

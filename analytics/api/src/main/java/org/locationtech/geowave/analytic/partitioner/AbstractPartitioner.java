@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -56,7 +55,8 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
 
   public AbstractPartitioner() {}
 
-  public AbstractPartitioner(final CommonIndexModel indexModel,
+  public AbstractPartitioner(
+      final CommonIndexModel indexModel,
       final double[] distancePerDimension) {
     super();
     this.distancePerDimension = distancePerDimension;
@@ -84,12 +84,12 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
     if (numericData == null) {
       return Collections.emptyList();
     }
-    addPartitions(partitionIdSet,
-        getIndex().getIndexStrategy().getInsertionIds(numericData.primary), true);
+    addPartitions(
+        partitionIdSet, getIndex().getIndexStrategy().getInsertionIds(numericData.primary), true);
 
     for (final MultiDimensionalNumericData expansionData : numericData.expansion) {
-      addPartitions(partitionIdSet, getIndex().getIndexStrategy().getInsertionIds(expansionData),
-          false);
+      addPartitions(
+          partitionIdSet, getIndex().getIndexStrategy().getInsertionIds(expansionData), false);
     }
     return new ArrayList<PartitionData>(partitionIdSet);
   }
@@ -130,11 +130,13 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
   protected abstract NumericDataHolder getNumericData(final T entry);
 
   public MultiDimensionalNumericData getRangesForPartition(final PartitionData partitionData) {
-    return index.getIndexStrategy().getRangeForId(partitionData.getPartitionKey(),
-        partitionData.getSortKey());
+    return index.getIndexStrategy()
+        .getRangeForId(partitionData.getPartitionKey(), partitionData.getSortKey());
   }
 
-  protected void addPartitions(final Set<PartitionData> masterList, final InsertionIds insertionIds,
+  protected void addPartitions(
+      final Set<PartitionData> masterList,
+      final InsertionIds insertionIds,
       final boolean isPrimary) {
     for (final SinglePartitionInsertionIds partitionInsertionIds : insertionIds
         .getPartitionKeys()) {
@@ -178,15 +180,17 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
 
     try {
       final IndexModelBuilder builder =
-          config.getInstance(CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
-              IndexModelBuilder.class, SpatialIndexModelBuilder.class);
+          config.getInstance(
+              CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS, IndexModelBuilder.class,
+              SpatialIndexModelBuilder.class);
 
       final CommonIndexModel model = builder.buildModel();
       if (model.getDimensions().length > distancePerDimension.length) {
         final double[] newDistancePerDimension = new double[model.getDimensions().length];
         for (int j = 0; j < newDistancePerDimension.length; j++) {
-          newDistancePerDimension[j] = distancePerDimension[j < distancePerDimension.length ? j
-              : (distancePerDimension.length - 1)];
+          newDistancePerDimension[j] =
+              distancePerDimension[j < distancePerDimension.length ? j
+                  : (distancePerDimension.length - 1)];
         }
         distancePerDimension = newDistancePerDimension;
       }
@@ -198,7 +202,9 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
   }
 
   @Override
-  public void setup(final PropertyManagement runTimeProperties, final Class<?> scope,
+  public void setup(
+      final PropertyManagement runTimeProperties,
+      final Class<?> scope,
       final Configuration configuration) {
     final ParameterEnum[] params =
         new ParameterEnum[] {CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
@@ -206,7 +212,8 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
     runTimeProperties.setConfig(params, configuration, scope);
   }
 
-  protected void initIndex(final CommonIndexModel indexModel,
+  protected void initIndex(
+      final CommonIndexModel indexModel,
       final double[] distancePerDimensionForIndex) {
 
     // truncating to lower precision
@@ -218,8 +225,9 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
       final double distance = distancePerDimensionForIndex[i] * 2.0; // total
       // width...(radius)
       // adjust by precision factory (0 to 1.0)
-      dimensionPrecision[i] = (int) (precisionFactor
-          * Math.abs((int) (Math.log(dimensions[i].getRange() / distance) / Math.log(2))));
+      dimensionPrecision[i] =
+          (int) (precisionFactor
+              * Math.abs((int) (Math.log(dimensions[i].getRange() / distance) / Math.log(2))));
 
       totalRequestedPrecision += dimensionPrecision[i];
     }
@@ -230,8 +238,9 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
       }
     }
 
-    final TieredSFCIndexStrategy indexStrategy = TieredSFCIndexFactory
-        .createSingleTierStrategy(indexModel.getDimensions(), dimensionPrecision, SFCType.HILBERT);
+    final TieredSFCIndexStrategy indexStrategy =
+        TieredSFCIndexFactory.createSingleTierStrategy(
+            indexModel.getDimensions(), dimensionPrecision, SFCType.HILBERT);
 
     // Not relevant since this is a single tier strategy.
     // For now, just setting to a non-zero reasonable value
@@ -242,8 +251,9 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
 
   @Override
   public Collection<ParameterEnum<?>> getParameters() {
-    return Arrays.asList(new ParameterEnum<?>[] {CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
-        PartitionParameters.Partition.DISTANCE_THRESHOLDS, Partition.PARTITION_PRECISION});
+    return Arrays.asList(
+        new ParameterEnum<?>[] {CommonParameters.Common.INDEX_MODEL_BUILDER_CLASS,
+            PartitionParameters.Partition.DISTANCE_THRESHOLDS, Partition.PARTITION_PRECISION});
   }
 
   private void writeObject(final ObjectOutputStream stream) throws IOException {

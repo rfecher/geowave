@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -35,21 +34,24 @@ public class MapReduceMemoryOperations extends MemoryDataStoreOperations
         new ByteArray(readerParams.getRowRange().getPartitionKey() == null ? new byte[0]
             : readerParams.getRowRange().getPartitionKey());
 
-    ByteArrayRange sortRange = new ByteArrayRange(
-        new ByteArray(readerParams.getRowRange().getStartSortKey() == null ? new byte[0]
-            : readerParams.getRowRange().getStartSortKey()),
-        new ByteArray(readerParams.getRowRange().getEndSortKey() == null ? new byte[0]
-            : readerParams.getRowRange().getEndSortKey()));
+    ByteArrayRange sortRange =
+        new ByteArrayRange(
+            new ByteArray(readerParams.getRowRange().getStartSortKey() == null ? new byte[0]
+                : readerParams.getRowRange().getStartSortKey()),
+            new ByteArray(readerParams.getRowRange().getEndSortKey() == null ? new byte[0]
+                : readerParams.getRowRange().getEndSortKey()));
 
-    return createReader((ReaderParams) new ReaderParams(readerParams.getIndex(),
-        readerParams.getAdapterStore(), readerParams.getInternalAdapterStore(),
-        readerParams.getAdapterIds(), readerParams.getMaxResolutionSubsamplingPerDimension(),
-        readerParams.getAggregation(), readerParams.getFieldSubsets(),
-        readerParams.isMixedVisibility(), readerParams.isServersideAggregation(), false, false,
-        new QueryRanges(Collections.singleton(
-            new SinglePartitionQueryRanges(partitionKey, Collections.singleton(sortRange)))),
-        readerParams.getFilter(), readerParams.getLimit(), readerParams.getMaxRangeDecomposition(),
-        readerParams.getCoordinateRanges(), readerParams.getConstraints(),
-        readerParams.getRowTransformer(), readerParams.getAdditionalAuthorizations()));
+    return createReader(
+        (ReaderParams) new ReaderParams(readerParams.getIndex(), readerParams.getAdapterStore(),
+            readerParams.getInternalAdapterStore(), readerParams.getAdapterIds(),
+            readerParams.getMaxResolutionSubsamplingPerDimension(), readerParams.getAggregation(),
+            readerParams.getFieldSubsets(), readerParams.isMixedVisibility(),
+            readerParams.isServersideAggregation(), false, false,
+            new QueryRanges(Collections.singleton(
+                new SinglePartitionQueryRanges(partitionKey, Collections.singleton(sortRange)))),
+            readerParams.getFilter(), readerParams.getLimit(),
+            readerParams.getMaxRangeDecomposition(), readerParams.getCoordinateRanges(),
+            readerParams.getConstraints(), readerParams.getRowTransformer(),
+            readerParams.getAdditionalAuthorizations()));
   }
 }

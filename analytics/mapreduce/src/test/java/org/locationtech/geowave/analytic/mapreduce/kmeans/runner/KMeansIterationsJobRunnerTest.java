@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -48,8 +47,9 @@ public class KMeansIterationsJobRunnerTest {
   private final KMeansIterationsJobRunnerForTest jobRunner = new KMeansIterationsJobRunnerForTest();
   private static final String[] grps = new String[] {"g1", "g2"};
   private static final FeatureDataAdapter adapter =
-      AnalyticFeature.createGeometryFeatureAdapter("centroid", new String[] {},
-          BasicFeatureTypes.DEFAULT_NAMESPACE, ClusteringUtils.CLUSTERING_CRS);
+      AnalyticFeature.createGeometryFeatureAdapter(
+          "centroid", new String[] {}, BasicFeatureTypes.DEFAULT_NAMESPACE,
+          ClusteringUtils.CLUSTERING_CRS);
 
   PropertyManagement propertyMgt = new PropertyManagement();
 
@@ -57,13 +57,14 @@ public class KMeansIterationsJobRunnerTest {
   public void setup() {
     propertyMgt.store(GlobalParameters.Global.BATCH_ID, "b1");
     propertyMgt.store(CentroidParameters.Centroid.DATA_TYPE_ID, "centroid");
-    propertyMgt.store(CentroidParameters.Centroid.INDEX_NAME,
+    propertyMgt.store(
+        CentroidParameters.Centroid.INDEX_NAME,
         new SpatialDimensionalityTypeProvider().createIndex(new SpatialOptions()).getName());
     propertyMgt.store(ClusteringParameters.Clustering.CONVERGANCE_TOLERANCE, new Double(0.0001));
-    propertyMgt.store(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-        FeatureCentroidDistanceFn.class);
-    propertyMgt.store(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-        SimpleFeatureItemWrapperFactory.class);
+    propertyMgt
+        .store(CommonParameters.Common.DISTANCE_FUNCTION_CLASS, FeatureCentroidDistanceFn.class);
+    propertyMgt.store(
+        CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS, SimpleFeatureItemWrapperFactory.class);
   }
 
   @Test
@@ -106,20 +107,22 @@ public class KMeansIterationsJobRunnerTest {
         new HashMap<>();
     private static SimpleFeatureItemWrapperFactory factory = new SimpleFeatureItemWrapperFactory();
     private static final GeometryFactory geoFactory = new GeometryFactory();
-    private static Point[] points = new Point[] {geoFactory.createPoint(new Coordinate(2.3, 2.3)),
-        geoFactory.createPoint(new Coordinate(2.31, 2.31)),
-        geoFactory.createPoint(new Coordinate(2.32, 2.31)),
-        geoFactory.createPoint(new Coordinate(2.31, 2.33)),
-        geoFactory.createPoint(new Coordinate(2.29, 2.31)),
-        geoFactory.createPoint(new Coordinate(2.3, 2.32)),
-        geoFactory.createPoint(new Coordinate(2.28, 2.3)),
-        geoFactory.createPoint(new Coordinate(2.28, 2.27)),
-        geoFactory.createPoint(new Coordinate(2.27, 2.31)),
-        geoFactory.createPoint(new Coordinate(2.33, 2.3)),
-        geoFactory.createPoint(new Coordinate(2.31, 2.35))};
+    private static Point[] points =
+        new Point[] {geoFactory.createPoint(new Coordinate(2.3, 2.3)),
+            geoFactory.createPoint(new Coordinate(2.31, 2.31)),
+            geoFactory.createPoint(new Coordinate(2.32, 2.31)),
+            geoFactory.createPoint(new Coordinate(2.31, 2.33)),
+            geoFactory.createPoint(new Coordinate(2.29, 2.31)),
+            geoFactory.createPoint(new Coordinate(2.3, 2.32)),
+            geoFactory.createPoint(new Coordinate(2.28, 2.3)),
+            geoFactory.createPoint(new Coordinate(2.28, 2.27)),
+            geoFactory.createPoint(new Coordinate(2.27, 2.31)),
+            geoFactory.createPoint(new Coordinate(2.33, 2.3)),
+            geoFactory.createPoint(new Coordinate(2.31, 2.35))};
 
     @Override
-    protected CentroidManager<SimpleFeature> constructCentroidManager(final Configuration config,
+    protected CentroidManager<SimpleFeature> constructCentroidManager(
+        final Configuration config,
         final PropertyManagement runTimeProperties) throws IOException {
       return new CentroidManager<SimpleFeature>() {
 
@@ -127,8 +130,11 @@ public class KMeansIterationsJobRunnerTest {
         public void clear() {}
 
         @Override
-        public AnalyticItemWrapper<SimpleFeature> createNextCentroid(final SimpleFeature feature,
-            final String groupID, final Coordinate coordinate, final String[] extraNames,
+        public AnalyticItemWrapper<SimpleFeature> createNextCentroid(
+            final SimpleFeature feature,
+            final String groupID,
+            final Coordinate coordinate,
+            final String[] extraNames,
             final double[] extraValues) {
           return factory.createNextItem(feature, groupID, coordinate, extraNames, extraValues);
         }
@@ -165,7 +171,8 @@ public class KMeansIterationsJobRunnerTest {
         }
 
         @Override
-        public List<AnalyticItemWrapper<SimpleFeature>> getCentroidsForGroup(final String batchID,
+        public List<AnalyticItemWrapper<SimpleFeature>> getCentroidsForGroup(
+            final String batchID,
             final String groupID) throws IOException {
           return groups.get(groupID);
         }
@@ -202,7 +209,8 @@ public class KMeansIterationsJobRunnerTest {
         }
 
         @Override
-        public AnalyticItemWrapper<SimpleFeature> getCentroidById(final String id,
+        public AnalyticItemWrapper<SimpleFeature> getCentroidById(
+            final String id,
             final String groupID) throws IOException, MatchingCentroidNotFoundException {
           final Iterator<AnalyticItemWrapper<SimpleFeature>> it =
               this.getCentroidsForGroup(groupID).iterator();
@@ -227,9 +235,10 @@ public class KMeansIterationsJobRunnerTest {
           deletedSet.put(grpID, new ArrayList<AnalyticItemWrapper<SimpleFeature>>());
         }
         for (int i = 0; i < 3; i++) {
-          final SimpleFeature nextFeature = AnalyticFeature.createGeometryFeature(
-              adapter.getFeatureType(), "b1", UUID.randomUUID().toString(), "nn" + i, grpID, 0.1,
-              points[j++], new String[0], new double[0], 1, iteration, 0);
+          final SimpleFeature nextFeature =
+              AnalyticFeature.createGeometryFeature(
+                  adapter.getFeatureType(), "b1", UUID.randomUUID().toString(), "nn" + i, grpID,
+                  0.1, points[j++], new String[0], new double[0], 1, iteration, 0);
           groups.get(grpID).add(factory.create(nextFeature));
         }
       }

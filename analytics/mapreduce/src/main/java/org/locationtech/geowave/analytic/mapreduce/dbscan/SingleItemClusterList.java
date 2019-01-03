@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -26,16 +25,18 @@ import org.locationtech.jts.geom.Point;
 /**
  * Maintains a single hull around a set of points.
  *
- * <p>
- * Intended to run in a single thread. Not Thread Safe.
+ * <p> Intended to run in a single thread. Not Thread Safe.
  */
 public class SingleItemClusterList extends DBScanClusterList implements Cluster {
 
   private boolean compressed = false;
   private Set<Coordinate> clusterPoints = null;
 
-  public SingleItemClusterList(final ByteArray centerId, final ClusterItem center,
-      final NeighborListFactory<ClusterItem> factory, final Map<ByteArray, Cluster> index) {
+  public SingleItemClusterList(
+      final ByteArray centerId,
+      final ClusterItem center,
+      final NeighborListFactory<ClusterItem> factory,
+      final Map<ByteArray, Cluster> index) {
     super(center.getGeometry() instanceof Point || center.isCompressed() ? center.getGeometry()
         : null, (int) center.getCount(), centerId, index);
 
@@ -61,7 +62,9 @@ public class SingleItemClusterList extends DBScanClusterList implements Cluster 
   }
 
   @Override
-  protected long addAndFetchCount(final ByteArray id, final ClusterItem newInstance,
+  protected long addAndFetchCount(
+      final ByteArray id,
+      final ClusterItem newInstance,
       final DistanceProfile<?> distanceProfile) {
     final ClusterProfileContext context = (ClusterProfileContext) distanceProfile.getContext();
 
@@ -135,8 +138,8 @@ public class SingleItemClusterList extends DBScanClusterList implements Cluster 
 
   protected Geometry compress() {
     if (getClusterPoints(false).size() > 0) {
-      return DBScanClusterList.getHullTool().createHullFromGeometry(clusterGeo, clusterPoints,
-          true);
+      return DBScanClusterList.getHullTool()
+          .createHullFromGeometry(clusterGeo, clusterPoints, true);
     }
     return clusterGeo;
   }
@@ -149,7 +152,8 @@ public class SingleItemClusterList extends DBScanClusterList implements Cluster 
       this.index = index;
     }
 
-    public NeighborList<ClusterItem> buildNeighborList(final ByteArray centerId,
+    public NeighborList<ClusterItem> buildNeighborList(
+        final ByteArray centerId,
         final ClusterItem center) {
       Cluster list = index.get(centerId);
       if (list == null) {

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -33,7 +32,8 @@ public class TieredSFCIndexFactory {
    * @return an Index Strategy object with a single tier
    */
   public static TieredSFCIndexStrategy createSingleTierStrategy(
-      final SFCDimensionDefinition[] dimensionDefs, final SFCType sfc) {
+      final SFCDimensionDefinition[] dimensionDefs,
+      final SFCType sfc) {
     final SpaceFillingCurve[] orderedSfcs =
         new SpaceFillingCurve[] {SFCFactory.createSpaceFillingCurve(dimensionDefs, sfc)};
     // unwrap SFC dimension definitions
@@ -57,7 +57,8 @@ public class TieredSFCIndexFactory {
    * @return an Index Strategy object with a single tier
    */
   public static TieredSFCIndexStrategy createSingleTierStrategy(
-      final NumericDimensionDefinition[] baseDefinitions, final int[] maxBitsPerDimension,
+      final NumericDimensionDefinition[] baseDefinitions,
+      final int[] maxBitsPerDimension,
       final SFCType sfc) {
     final SFCDimensionDefinition[] sfcDimensions =
         new SFCDimensionDefinition[baseDefinitions.length];
@@ -75,7 +76,8 @@ public class TieredSFCIndexFactory {
   }
 
   public static TieredSFCIndexStrategy createFullIncrementalTieredStrategy(
-      final NumericDimensionDefinition[] baseDefinitions, final int[] maxBitsPerDimension,
+      final NumericDimensionDefinition[] baseDefinitions,
+      final int[] maxBitsPerDimension,
       final SFCType sfcType) {
     return createFullIncrementalTieredStrategy(baseDefinitions, maxBitsPerDimension, sfcType, null);
   }
@@ -89,8 +91,10 @@ public class TieredSFCIndexFactory {
    *         lowest max bits of precision and 0
    */
   public static TieredSFCIndexStrategy createFullIncrementalTieredStrategy(
-      final NumericDimensionDefinition[] baseDefinitions, final int[] maxBitsPerDimension,
-      final SFCType sfcType, Long maxEstimatedDuplicatedIds) {
+      final NumericDimensionDefinition[] baseDefinitions,
+      final int[] maxBitsPerDimension,
+      final SFCType sfcType,
+      Long maxEstimatedDuplicatedIds) {
     if (maxBitsPerDimension.length == 0) {
       final ImmutableBiMap<Integer, Byte> emptyMap = ImmutableBiMap.of();
       return new TieredSFCIndexStrategy(baseDefinitions, new SpaceFillingCurve[] {}, emptyMap);
@@ -128,10 +132,11 @@ public class TieredSFCIndexFactory {
    * @return an Index Strategy object with a equal interval tiers
    */
   public static TieredSFCIndexStrategy createEqualIntervalPrecisionTieredStrategy(
-      final NumericDimensionDefinition[] baseDefinitions, final int[] maxBitsPerDimension,
+      final NumericDimensionDefinition[] baseDefinitions,
+      final int[] maxBitsPerDimension,
       final SFCType sfcType) {
-    return createEqualIntervalPrecisionTieredStrategy(baseDefinitions, maxBitsPerDimension, sfcType,
-        DEFAULT_NUM_TIERS);
+    return createEqualIntervalPrecisionTieredStrategy(
+        baseDefinitions, maxBitsPerDimension, sfcType, DEFAULT_NUM_TIERS);
   }
 
   /**
@@ -142,8 +147,10 @@ public class TieredSFCIndexFactory {
    * @return an Index Strategy object with a specified number of tiers
    */
   public static TieredSFCIndexStrategy createEqualIntervalPrecisionTieredStrategy(
-      final NumericDimensionDefinition[] baseDefinitions, final int[] maxBitsPerDimension,
-      final SFCType sfcType, final int numIndices) {
+      final NumericDimensionDefinition[] baseDefinitions,
+      final int[] maxBitsPerDimension,
+      final SFCType sfcType,
+      final int numIndices) {
     // Subtracting one from the number tiers prevents an extra tier. If
     // we decide to create a catch-all, then we can ignore the subtraction.
     final SpaceFillingCurve[] spaceFillingCurves = new SpaceFillingCurve[numIndices];
@@ -178,7 +185,8 @@ public class TieredSFCIndexFactory {
    */
   public static TieredSFCIndexStrategy createDefinedPrecisionTieredStrategy(
       final NumericDimensionDefinition[] orderedDimensionDefinitions,
-      final int[][] bitsPerDimensionPerLevel, final SFCType sfcType) {
+      final int[][] bitsPerDimensionPerLevel,
+      final SFCType sfcType) {
     Integer numLevels = null;
     for (final int[] element : bitsPerDimensionPerLevel) {
       if (numLevels == null) {
@@ -200,8 +208,9 @@ public class TieredSFCIndexFactory {
       final SFCDimensionDefinition[] sfcDimensions = new SFCDimensionDefinition[numDimensions];
       int maxBitsOfPrecision = Integer.MIN_VALUE;
       for (int d = 0; d < numDimensions; d++) {
-        sfcDimensions[d] = new SFCDimensionDefinition(orderedDimensionDefinitions[d],
-            bitsPerDimensionPerLevel[d][l]);
+        sfcDimensions[d] =
+            new SFCDimensionDefinition(orderedDimensionDefinitions[d],
+                bitsPerDimensionPerLevel[d][l]);
         maxBitsOfPrecision = Math.max(bitsPerDimensionPerLevel[d][l], maxBitsOfPrecision);
       }
       sfcIndexToTier.put(l, (byte) maxBitsOfPrecision);

@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -59,10 +58,11 @@ public class KMeansParallelJobRunner extends MapReduceJobController implements C
     setZoomLevel(1);
 
     // sts of child runners
-    init(new MapReduceJobRunner[] {sampleSetsRunner, stripWeakCentroidsRunner, // run this one more
-        // time with
-        // 'smaller' size
-        kmeansJobRunner},
+    init(
+        new MapReduceJobRunner[] {sampleSetsRunner, stripWeakCentroidsRunner, // run this one more
+            // time with
+            // 'smaller' size
+            kmeansJobRunner},
         new PostOperationTask[] {DoNothingTask, DoNothingTask, new PostOperationTask() {
 
           @Override
@@ -96,14 +96,14 @@ public class KMeansParallelJobRunner extends MapReduceJobController implements C
     propertyManagement.store(CentroidParameters.Centroid.ZOOM_LEVEL, currentZoomLevel);
     propertyManagement.storeIfEmpty(GlobalParameters.Global.BATCH_ID, UUID.randomUUID().toString());
 
-    propertyManagement.storeIfEmpty(CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS,
-        SimpleFeatureItemWrapperFactory.class);
-    propertyManagement.storeIfEmpty(CommonParameters.Common.DISTANCE_FUNCTION_CLASS,
-        FeatureCentroidDistanceFn.class);
-    propertyManagement.storeIfEmpty(CentroidParameters.Centroid.EXTRACTOR_CLASS,
-        SimpleFeatureCentroidExtractor.class);
-    propertyManagement.storeIfEmpty(CommonParameters.Common.DIMENSION_EXTRACT_CLASS,
-        SimpleFeatureGeometryExtractor.class);
+    propertyManagement.storeIfEmpty(
+        CentroidParameters.Centroid.WRAPPER_FACTORY_CLASS, SimpleFeatureItemWrapperFactory.class);
+    propertyManagement.storeIfEmpty(
+        CommonParameters.Common.DISTANCE_FUNCTION_CLASS, FeatureCentroidDistanceFn.class);
+    propertyManagement.storeIfEmpty(
+        CentroidParameters.Centroid.EXTRACTOR_CLASS, SimpleFeatureCentroidExtractor.class);
+    propertyManagement.storeIfEmpty(
+        CommonParameters.Common.DIMENSION_EXTRACT_CLASS, SimpleFeatureGeometryExtractor.class);
 
     stripWeakCentroidsRunner.setRange(
         propertyManagement.getPropertyAsInt(SampleParameters.Sample.MIN_SAMPLE_SIZE, 2),

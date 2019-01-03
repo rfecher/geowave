@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -38,8 +37,11 @@ public class TemporalQuery extends BasicQuery {
       final TemporalConstraints temporalConstraints) {
     final List<ConstraintSet> constraints = new ArrayList<>();
     for (final TemporalRange range : temporalConstraints.getRanges()) {
-      constraints.add(new ConstraintSet(TimeDefinition.class, new ConstraintData(
-          new NumericRange(range.getStartTime().getTime(), range.getEndTime().getTime()), false)));
+      constraints.add(
+          new ConstraintSet(TimeDefinition.class,
+              new ConstraintData(
+                  new NumericRange(range.getStartTime().getTime(), range.getEndTime().getTime()),
+                  false)));
     }
     return new Constraints(constraints);
   }
@@ -47,10 +49,11 @@ public class TemporalQuery extends BasicQuery {
   private static Constraints createTemporalConstraints(final Interval[] intervals) {
     final List<ConstraintSet> constraints = new ArrayList<>();
     for (final Interval range : intervals) {
-      constraints.add(new ConstraintSet(TimeDefinition.class,
-          new ConstraintData(
-              new NumericRange(range.getStart().toEpochMilli(), range.getEnd().toEpochMilli()),
-              false)));
+      constraints.add(
+          new ConstraintSet(TimeDefinition.class,
+              new ConstraintData(
+                  new NumericRange(range.getStart().toEpochMilli(), range.getEnd().toEpochMilli()),
+                  false)));
     }
     return new Constraints(constraints);
   }

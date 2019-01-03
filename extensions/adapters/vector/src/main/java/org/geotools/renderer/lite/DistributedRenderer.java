@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -127,7 +126,8 @@ public class DistributedRenderer extends StreamingRenderer {
           .entrySet()) {
         final Graphics2D compositeGroupGraphic = e.getKey();
         final List<Pair<PersistableRenderedImage, PersistableComposite>> orderedStyles =
-            Lists.transform(e.getValue(),
+            Lists.transform(
+                e.getValue(),
                 new Function<Pair<BufferedImage, Composite>, Pair<PersistableRenderedImage, PersistableComposite>>() {
 
                   @Override
@@ -136,7 +136,8 @@ public class DistributedRenderer extends StreamingRenderer {
                     if (input == null) {
                       return null;
                     }
-                    return Pair.of(new PersistableRenderedImage(input.getKey()),
+                    return Pair.of(
+                        new PersistableRenderedImage(input.getKey()),
                         input.getValue() == null ? null
                             : new PersistableComposite(input.getValue()));
                   }
@@ -146,8 +147,9 @@ public class DistributedRenderer extends StreamingRenderer {
               compositeGroupGraphicsToCompositeMapping.get(compositeGroupGraphic);
           // because mergelayers wasn't writing to the composite
           // image, their won't be an image to persist
-          final PersistableComposite persistableCGC = compositeGroupComposite == null ? null
-              : new PersistableComposite(compositeGroupComposite);
+          final PersistableComposite persistableCGC =
+              compositeGroupComposite == null ? null
+                  : new PersistableComposite(compositeGroupComposite);
           compositeGroups.add(new CompositeGroupResult(persistableCGC, orderedStyles));
         } else {
           // it must be the parent image

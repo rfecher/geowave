@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -72,7 +71,9 @@ public class CommonQueryOptions implements Persistable {
     this(limit, new HashMap<>(), authorizations);
   }
 
-  public CommonQueryOptions(final Integer limit, final Map<HintKey<?>, Object> hints,
+  public CommonQueryOptions(
+      final Integer limit,
+      final Map<HintKey<?>, Object> hints,
       final String... authorizations) {
     super();
     this.hints = hints;
@@ -109,8 +110,10 @@ public class CommonQueryOptions implements Persistable {
         ByteBuffer lengthBytes =
             ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(keyBinary.length));
         VarintUtils.writeUnsignedInt(keyBinary.length, lengthBytes);
-        hintsBinary[i] = Bytes.concat(lengthBytes.array(), keyBinary,
-            ((Function<Object, byte[]>) e.getKey().writer).apply(e.getValue()));
+        hintsBinary[i] =
+            Bytes.concat(
+                lengthBytes.array(), keyBinary,
+                ((Function<Object, byte[]>) e.getKey().writer).apply(e.getValue()));
         hintsLength +=
             hintsBinary[i].length + VarintUtils.unsignedIntByteLength(hintsBinary[i].length);
         i++;
@@ -122,9 +125,13 @@ public class CommonQueryOptions implements Persistable {
     } else {
       authsBinary = StringUtils.stringsToBinary(authorizations);
     }
-    final ByteBuffer buf = ByteBuffer.allocate(VarintUtils.unsignedIntByteLength(limitForBinary)
-        + VarintUtils.unsignedIntByteLength(authsBinary.length)
-        + VarintUtils.unsignedIntByteLength(hintsBinary.length) + authsBinary.length + hintsLength);
+    final ByteBuffer buf =
+        ByteBuffer.allocate(
+            VarintUtils.unsignedIntByteLength(limitForBinary)
+                + VarintUtils.unsignedIntByteLength(authsBinary.length)
+                + VarintUtils.unsignedIntByteLength(hintsBinary.length)
+                + authsBinary.length
+                + hintsLength);
     VarintUtils.writeUnsignedInt(limitForBinary, buf);
     VarintUtils.writeUnsignedInt(authsBinary.length, buf);
     buf.put(authsBinary);

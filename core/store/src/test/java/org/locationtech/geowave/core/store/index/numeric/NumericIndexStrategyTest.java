@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -27,8 +26,9 @@ public class NumericIndexStrategyTest {
   public void testInsertions() {
     final InsertionIds insertionIds = strategy.getInsertionIds(number);
     final List<ByteArray> compositieInsertionIds = insertionIds.getCompositeInsertionIds();
-    Assert.assertTrue(compositieInsertionIds
-        .contains(new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number))));
+    Assert.assertTrue(
+        compositieInsertionIds
+            .contains(new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number))));
     Assert.assertTrue(compositieInsertionIds.size() == 1);
   }
 
@@ -37,9 +37,10 @@ public class NumericIndexStrategyTest {
     final QueryRanges ranges =
         strategy.getQueryRanges(new NumericEqualsConstraint(fieldId, number));
     Assert.assertTrue(!ranges.isMultiRange());
-    Assert.assertTrue(ranges.getCompositeQueryRanges().get(0)
-        .equals(new ByteArrayRange(new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number)),
-            new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number)))));
+    Assert.assertTrue(
+        ranges.getCompositeQueryRanges().get(0).equals(
+            new ByteArrayRange(new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number)),
+                new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number)))));
   }
 
   @Test
@@ -47,10 +48,11 @@ public class NumericIndexStrategyTest {
     final QueryRanges ranges =
         strategy.getQueryRanges(new NumericGreaterThanOrEqualToConstraint(fieldId, number));
     Assert.assertTrue(!ranges.isMultiRange());
-    Assert.assertTrue(ranges.getCompositeQueryRanges().get(0)
-        .equals(new ByteArrayRange(new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number)),
-            new ByteArray(
-                Lexicoders.DOUBLE.toByteArray((double) Lexicoders.DOUBLE.getMaximumValue())))));
+    Assert.assertTrue(
+        ranges.getCompositeQueryRanges().get(0).equals(
+            new ByteArrayRange(new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number)),
+                new ByteArray(
+                    Lexicoders.DOUBLE.toByteArray((double) Lexicoders.DOUBLE.getMaximumValue())))));
   }
 
   @Test
@@ -60,10 +62,11 @@ public class NumericIndexStrategyTest {
         strategy.getQueryRanges(new NumericLessThanOrEqualToConstraint(fieldId, number));
     Assert.assertTrue(!ranges.isMultiRange());
 
-    Assert.assertTrue(ranges.getCompositeQueryRanges().get(0)
-        .equals(new ByteArrayRange(
-            new ByteArray(
-                Lexicoders.DOUBLE.toByteArray((double) Lexicoders.DOUBLE.getMinimumValue())),
-            new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number)))));
+    Assert.assertTrue(
+        ranges.getCompositeQueryRanges().get(0).equals(
+            new ByteArrayRange(
+                new ByteArray(
+                    Lexicoders.DOUBLE.toByteArray((double) Lexicoders.DOUBLE.getMinimumValue())),
+                new ByteArray(Lexicoders.DOUBLE.toByteArray((double) number)))));
   }
 }

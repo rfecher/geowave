@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -96,8 +95,8 @@ public class IngestIT extends BaseServiceIT {
 
   @Before
   public void initialize() {
-    configServiceClient.addStoreReRoute(storeName, dataStoreOptions.getType(), null,
-        dataStoreOptions.getOptionsAsMap());
+    configServiceClient.addStoreReRoute(
+        storeName, dataStoreOptions.getType(), null, dataStoreOptions.getOptionsAsMap());
     configServiceClient.addSpatialIndex(spatialIndex);
     configServiceClient.configHDFS(MapReduceTestEnvironment.getInstance().getHdfs());
   }
@@ -108,8 +107,11 @@ public class IngestIT extends BaseServiceIT {
     configServiceClient.removeIndex(spatialIndex);
   }
 
-  public static void assertFinalIngestStatus(final String msg, final String expectedStatus,
-      Response r, final int sleepTime /* in milliseconds */) {
+  public static void assertFinalIngestStatus(
+      final String msg,
+      final String expectedStatus,
+      Response r,
+      final int sleepTime /* in milliseconds */) {
 
     JSONObject json = null;
     String operationID = null;
@@ -161,15 +163,19 @@ public class IngestIT extends BaseServiceIT {
     Response r = ingestServiceClient.localToKafka(OSM_GPX_INPUT_DIR);
     assertFinalIngestStatus("Should successfully complete ingest", "COMPLETE", r, 500);
 
-    r = ingestServiceClient.kafkaToGW(storeName, spatialIndex, null, null, "testGroup",
-        ZookeeperTestEnvironment.getInstance().getZookeeper(), null, null, null, null, null, null,
-        "gpx");
+    r =
+        ingestServiceClient.kafkaToGW(
+            storeName, spatialIndex, null, null, "testGroup",
+            ZookeeperTestEnvironment.getInstance().getZookeeper(), null, null, null, null, null,
+            null, "gpx");
     assertFinalIngestStatus("Should successfully ingest from kafka to geowave", "COMPLETE", r, 50);
 
     muteLogging();
-    r = ingestServiceClient.kafkaToGW("nonexistent-store", spatialIndex, null, null, "testGroup",
-        ZookeeperTestEnvironment.getInstance().getZookeeper(), null, null, null, null, null, null,
-        "gpx");
+    r =
+        ingestServiceClient.kafkaToGW(
+            "nonexistent-store", spatialIndex, null, null, "testGroup",
+            ZookeeperTestEnvironment.getInstance().getZookeeper(), null, null, null, null, null,
+            null, "gpx");
     assertFinalIngestStatus("Should fail to ingest for nonexistent store", "ERROR", r, 500);
     unmuteLogging();
   }
@@ -177,8 +183,8 @@ public class IngestIT extends BaseServiceIT {
   @Test
   public void listplugins() {
     // should always return 200
-    TestUtils.assertStatusCode("Should successfully list plugins", 200,
-        ingestServiceClient.listPlugins());
+    TestUtils.assertStatusCode(
+        "Should successfully list plugins", 200, ingestServiceClient.listPlugins());
   }
 
   /**
@@ -194,8 +200,8 @@ public class IngestIT extends BaseServiceIT {
 
     muteLogging();
     r = ingestServiceClient.localToGW(OSM_GPX_INPUT_DIR, "nonexistent-store", spatialIndex);
-    assertFinalIngestStatus("Should fail to complete ingest for nonexistent store", "ERROR", r,
-        500);
+    assertFinalIngestStatus(
+        "Should fail to complete ingest for nonexistent store", "ERROR", r, 500);
     unmuteLogging();
   }
 
@@ -215,22 +221,29 @@ public class IngestIT extends BaseServiceIT {
     final String hdfsBaseDirectory = MapReduceTestEnvironment.getInstance().getHdfsBaseDirectory();
     final String hdfsJobTracker = MapReduceTestEnvironment.getInstance().getJobtracker();
 
-    Response r = ingestServiceClient.localToMrGW(OSM_GPX_INPUT_DIR, hdfsBaseDirectory, storeName,
-        spatialIndex, null, hdfsJobTracker, null, null, "gpx");
+    Response r =
+        ingestServiceClient.localToMrGW(
+            OSM_GPX_INPUT_DIR, hdfsBaseDirectory, storeName, spatialIndex, null, hdfsJobTracker,
+            null, null, "gpx");
     assertFinalIngestStatus("Should successfully complete ingest", "COMPLETE", r, 500);
 
-    r = ingestServiceClient.mrToGW(hdfsBaseDirectory, storeName, spatialIndex, null, hdfsJobTracker,
-        null, null, "gpx");
-    assertFinalIngestStatus("Should successfully ingest from MapReduce to geowave", "COMPLETE", r,
-        500);
+    r =
+        ingestServiceClient.mrToGW(
+            hdfsBaseDirectory, storeName, spatialIndex, null, hdfsJobTracker, null, null, "gpx");
+    assertFinalIngestStatus(
+        "Should successfully ingest from MapReduce to geowave", "COMPLETE", r, 500);
 
     muteLogging();
-    r = ingestServiceClient.localToMrGW(OSM_GPX_INPUT_DIR, hdfsBaseDirectory, storeName,
-        "nonexistent-index", null, hdfsJobTracker, null, null, "gpx");
+    r =
+        ingestServiceClient.localToMrGW(
+            OSM_GPX_INPUT_DIR, hdfsBaseDirectory, storeName, "nonexistent-index", null,
+            hdfsJobTracker, null, null, "gpx");
     assertFinalIngestStatus("Should fail to ingest for nonexistent index", "ERROR", r, 500);
 
-    r = ingestServiceClient.mrToGW(hdfsBaseDirectory, "nonexistent-store", spatialIndex, null,
-        hdfsJobTracker, null, null, "gpx");
+    r =
+        ingestServiceClient.mrToGW(
+            hdfsBaseDirectory, "nonexistent-store", spatialIndex, null, hdfsJobTracker, null, null,
+            "gpx");
     assertFinalIngestStatus("Should fail to ingest for nonexistent store", "ERROR", r, 500);
     unmuteLogging();
   }

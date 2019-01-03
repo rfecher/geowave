@@ -1,8 +1,7 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
  *
- * <p>
- * See the NOTICE file distributed with this work for additional information regarding copyright
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
  * available at http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -24,8 +23,7 @@ import org.slf4j.LoggerFactory;
  * Simplifies Lock management from the more complex Geotools approach which is used in several
  * different scenarios (e.g. directory management, wfs-t, etc.)
  *
- * <p>
- * Implementers implement three abstract methods. The Geotools still helps with management,
+ * <p> Implementers implement three abstract methods. The Geotools still helps with management,
  * providing a locking source.
  */
 public abstract class AbstractLockingManagement implements LockingManagement {
@@ -66,12 +64,16 @@ public abstract class AbstractLockingManagement implements LockingManagement {
 
   @Override
   public void lock(Transaction transaction, String featureID) {
-    lock(transaction, featureID,
+    lock(
+        transaction, featureID,
         transaction == Transaction.AUTO_COMMIT ? EMPTY_SET : transaction.getAuthorizations(),
         1 /* minutes */);
   }
 
-  private void lock(Transaction transaction, String featureID, Set<String> authorizations,
+  private void lock(
+      Transaction transaction,
+      String featureID,
+      Set<String> authorizations,
       long expiryInMinutes) {
     AuthorizedLock lock =
         transaction == Transaction.AUTO_COMMIT ? null : (AuthorizedLock) transaction.getState(this);
@@ -83,7 +85,10 @@ public abstract class AbstractLockingManagement implements LockingManagement {
     lock(lock, featureID);
   }
 
-  private void unlock(Transaction transaction, String featureID, Set<String> authorizations,
+  private void unlock(
+      Transaction transaction,
+      String featureID,
+      Set<String> authorizations,
       long expiryInMinutes) {
     AuthorizedLock lock =
         transaction == Transaction.AUTO_COMMIT ? null : (AuthorizedLock) transaction.getState(this);
@@ -96,7 +101,10 @@ public abstract class AbstractLockingManagement implements LockingManagement {
   }
 
   @Override
-  public void lockFeatureID(String typeName, String featureID, Transaction transaction,
+  public void lockFeatureID(
+      String typeName,
+      String featureID,
+      Transaction transaction,
       FeatureLock featureLock) {
     Set<String> set = new LinkedHashSet<String>();
     set.add(featureLock.getAuthorization());
@@ -104,7 +112,10 @@ public abstract class AbstractLockingManagement implements LockingManagement {
   }
 
   @Override
-  public void unLockFeatureID(String typeName, String featureID, Transaction transaction,
+  public void unLockFeatureID(
+      String typeName,
+      String featureID,
+      Transaction transaction,
       FeatureLock featureLock) throws IOException {
     Set<String> set = new LinkedHashSet<String>();
     set.add(featureLock.getAuthorization());
@@ -137,8 +148,7 @@ public abstract class AbstractLockingManagement implements LockingManagement {
    * does not have proper authorization, block until the lock is released or expired. If not already
    * locked, create the lock.
    *
-   * <p>
-   * Make sure there is some mechanism for expired locks to be discovered and released so that
+   * <p> Make sure there is some mechanism for expired locks to be discovered and released so that
    * clients are not blocked indefinitely.
    *
    * @param lock
