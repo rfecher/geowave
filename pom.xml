@@ -905,6 +905,25 @@
 										<execute />
 									</action>
 								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											net.revelc.code.formatter
+										</groupId>
+										<artifactId>
+											formatter-maven-plugin
+										</artifactId>
+										<versionRange>
+											[0.5.2,)
+										</versionRange>
+										<goals>
+											<goal>format</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
@@ -1200,13 +1219,19 @@
 					<tagNameFormat>v@{project.version}</tagNameFormat>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 				</configuration>
-			</plugin>			<plugin>
+			</plugin>
+			<plugin>
 				<groupId>net.revelc.code.formatter</groupId>
 				<artifactId>formatter-maven-plugin</artifactId>
 				<configuration>
 					<configFile>eclipse/eclipse-formatter.xml</configFile>
 					<lineEnding>KEEP</lineEnding>
-					<excludes><exclude>**/*Protos*.java</exclude><exclude>**/Avro*.java</exclude><exclude>**/*Grpc.java</exclude></excludes>
+					<skip>${fmt.skip}</skip>
+					<excludes>
+						<exclude>**/*Protos*.java</exclude>
+						<exclude>**/Avro*.java</exclude>
+						<exclude>**/*Grpc.java</exclude>
+					</excludes>
 				</configuration>
 				<executions>
 					<execution>
@@ -1223,7 +1248,7 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-			
+
 		</plugins>
 	</build>
 	<modules>
