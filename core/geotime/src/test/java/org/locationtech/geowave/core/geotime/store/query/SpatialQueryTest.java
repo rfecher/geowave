@@ -15,6 +15,7 @@ import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter.CompareOperation;
 import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.data.IndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
@@ -49,9 +50,9 @@ public class SpatialQueryTest {
 
     return new IndexedPersistenceEncoding(
         (short) 1,
-        new ByteArray("1"),
-        new ByteArray("1"),
-        new ByteArray("1"),
+        StringUtils.stringToBinary("1"),
+        StringUtils.stringToBinary("1"),
+        StringUtils.stringToBinary("1"),
         1,
         commonData,
         new PersistentDataset<byte[]>());

@@ -28,7 +28,6 @@ import org.locationtech.geowave.core.geotime.ingest.SpatialTemporalOptions;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.dimension.Time;
 import org.locationtech.geowave.core.geotime.store.dimension.TimeField;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
 import org.locationtech.geowave.core.index.dimension.NumericDimensionDefinition;
 import org.locationtech.geowave.core.index.sfc.SFCFactory.SFCType;
@@ -93,7 +92,7 @@ public class PersistenceEncodingTest {
 
     final GeoObj entry =
         new GeoObj(factory.createPoint(new Coordinate(43.454, 28.232)), start, end, "g1");
-    final List<ByteArray> ids =
+    final List<byte[]> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
 
     assertEquals(1, ids.size());
@@ -111,7 +110,7 @@ public class PersistenceEncodingTest {
             start,
             end,
             "g1");
-    final List<ByteArray> ids =
+    final List<byte[]> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
     assertEquals(7, ids.size());
   }
@@ -144,7 +143,7 @@ public class PersistenceEncodingTest {
             new Date(352771200000l),
             new Date(352771200000l),
             "g1");
-    final List<ByteArray> ids =
+    final List<byte[]> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
     assertEquals(4, ids.size());
   }
@@ -164,7 +163,7 @@ public class PersistenceEncodingTest {
             start,
             end,
             "g1");
-    final List<ByteArray> ids =
+    final List<byte[]> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
     assertEquals(18, ids.size());
   }
@@ -177,7 +176,7 @@ public class PersistenceEncodingTest {
 
     final GeoObj entry =
         new GeoObj(factory.createPoint(new Coordinate(43.454, 28.232)), start, end, "g1");
-    final List<ByteArray> ids =
+    final List<byte[]> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
 
     assertEquals(8, ids.size());
@@ -195,7 +194,7 @@ public class PersistenceEncodingTest {
             start,
             end,
             "g1");
-    final List<ByteArray> ids =
+    final List<byte[]> ids =
         adapter.encode(entry, model).getInsertionIds(index).getCompositeInsertionIds();
     assertTrue(ids.size() < 100);
   }
@@ -297,8 +296,8 @@ public class PersistenceEncodingTest {
     }
 
     @Override
-    public ByteArray getDataId(final GeoObj entry) {
-      return new ByteArray(entry.id.getBytes());
+    public byte[] getDataId(final GeoObj entry) {
+      return entry.id.getBytes();
     }
 
     @Override
@@ -367,7 +366,7 @@ public class PersistenceEncodingTest {
         }
 
         @Override
-        public GeoObj buildRow(final ByteArray dataId) {
+        public GeoObj buildRow(final byte[] dataId) {
           return new GeoObj(geom, stime, etime, id);
         }
       };

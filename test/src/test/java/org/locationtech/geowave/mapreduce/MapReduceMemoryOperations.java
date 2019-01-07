@@ -28,24 +28,21 @@ public class MapReduceMemoryOperations extends MemoryDataStoreOperations
       Collections.synchronizedMap(new HashMap<ByteArray, SortedSet<MemoryStoreEntry>>());
 
   @Override
-  public <T> RowReader<T> createReader(RecordReaderParams<T> readerParams) {
+  public <T> RowReader<T> createReader(final RecordReaderParams<T> readerParams) {
 
-    ByteArray partitionKey =
-        new ByteArray(
-            readerParams.getRowRange().getPartitionKey() == null ? new byte[0]
-                : readerParams.getRowRange().getPartitionKey());
+    final byte[] partitionKey =
+        readerParams.getRowRange().getPartitionKey() == null ? new byte[0]
+            : readerParams.getRowRange().getPartitionKey();
 
-    ByteArrayRange sortRange =
+    final ByteArrayRange sortRange =
         new ByteArrayRange(
-            new ByteArray(
-                readerParams.getRowRange().getStartSortKey() == null ? new byte[0]
-                    : readerParams.getRowRange().getStartSortKey()),
-            new ByteArray(
-                readerParams.getRowRange().getEndSortKey() == null ? new byte[0]
-                    : readerParams.getRowRange().getEndSortKey()));
+            readerParams.getRowRange().getStartSortKey() == null ? new byte[0]
+                : readerParams.getRowRange().getStartSortKey(),
+            readerParams.getRowRange().getEndSortKey() == null ? new byte[0]
+                : readerParams.getRowRange().getEndSortKey());
 
     return createReader(
-        (ReaderParams) new ReaderParams(
+        new ReaderParams(
             readerParams.getIndex(),
             readerParams.getAdapterStore(),
             readerParams.getInternalAdapterStore(),

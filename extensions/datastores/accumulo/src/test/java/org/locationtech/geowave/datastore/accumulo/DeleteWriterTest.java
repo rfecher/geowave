@@ -35,9 +35,9 @@ import org.locationtech.geowave.core.geotime.index.dimension.LongitudeDefinition
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.dimension.NumericDimensionDefinition;
 import org.locationtech.geowave.core.index.sfc.SFCFactory.SFCType;
 import org.locationtech.geowave.core.index.sfc.tiered.TieredSFCIndexFactory;
@@ -223,7 +223,7 @@ public class DeleteWriterTest {
     assertEquals(3, countStats.getCount());
     assertTrue(rowIds1.getSize() > 1);
 
-    final Pair<ByteArray, ByteArray> key = rowIds1.getFirstPartitionAndSortKeyPair();
+    final Pair<byte[], byte[]> key = rowIds1.getFirstPartitionAndSortKeyPair();
     try (final CloseableIterator it1 =
         mockDataStore.query(
             QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
@@ -231,13 +231,14 @@ public class DeleteWriterTest {
                     new InsertionIdQuery(
                         key.getLeft(),
                         key.getRight(),
-                        new ByteArray("test_line_1"))).build())) {
+                        StringUtils.stringToBinary("test_line_1"))).build())) {
       assertTrue(it1.hasNext());
     }
     assertTrue(
         mockDataStore.delete(
             QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
-                index.getName()).constraints(new DataIdQuery(new ByteArray("test_pt_1"))).build()));
+                index.getName()).constraints(
+                    new DataIdQuery(StringUtils.stringToBinary("test_pt_1"))).build()));
     try (final CloseableIterator it2 =
         mockDataStore.query(
             QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
@@ -245,7 +246,7 @@ public class DeleteWriterTest {
                     new InsertionIdQuery(
                         key.getLeft(),
                         key.getRight(),
-                        new ByteArray("test_pt_1"))).build())) {
+                        StringUtils.stringToBinary("test_pt_1"))).build())) {
       assertTrue(!it2.hasNext());
     }
     countStats =
@@ -268,7 +269,9 @@ public class DeleteWriterTest {
     try (final CloseableIterator it1 =
         mockDataStore.query(QueryBuilder.newBuilder().constraints(spatialQuery).build())) {
       assertTrue(it1.hasNext());
-      assertTrue(adapter.getDataId((TestGeometry) it1.next()).getString().equals("test_pt_1"));
+      assertTrue(
+          StringUtils.stringFromBinary(adapter.getDataId((TestGeometry) it1.next())).equals(
+              "test_pt_1"));
     }
     assertTrue(mockDataStore.delete(QueryBuilder.newBuilder().constraints(spatialQuery).build()));
     try (final CloseableIterator it2 =
@@ -290,17 +293,17 @@ public class DeleteWriterTest {
             internalAdapterId,
             CountDataStatistics.STATS_TYPE).next();
     assertEquals(3, countStats.getCount());
-    final Pair<ByteArray, ByteArray> rowId3 = rowIds3.getFirstPartitionAndSortKeyPair();
+    final Pair<byte[], byte[]> rowId3 = rowIds3.getFirstPartitionAndSortKeyPair();
     // just take the first half of the row ID as the prefix
-    final byte[] rowId3Prefix =
-        Arrays.copyOf(rowId3.getRight().getBytes(), rowId3.getRight().getBytes().length / 2);
+    final byte[] rowId3Prefix = Arrays.copyOf(rowId3.getRight(), rowId3.getRight().length / 2);
 
-    final PrefixIdQuery prefixIdQuery =
-        new PrefixIdQuery(rowId3.getLeft(), new ByteArray(rowId3Prefix));
+    final PrefixIdQuery prefixIdQuery = new PrefixIdQuery(rowId3.getLeft(), rowId3Prefix);
     try (final CloseableIterator it1 =
         mockDataStore.query(QueryBuilder.newBuilder().constraints(prefixIdQuery).build())) {
       assertTrue(it1.hasNext());
-      assertTrue(adapter.getDataId((TestGeometry) it1.next()).getString().equals("test_pt_1"));
+      assertTrue(
+          StringUtils.stringFromBinary(adapter.getDataId((TestGeometry) it1.next())).equals(
+              "test_pt_1"));
       assertFalse(it1.hasNext());
     }
     assertTrue(mockDataStore.delete(QueryBuilder.newBuilder().constraints(prefixIdQuery).build()));
@@ -328,18 +331,19 @@ public class DeleteWriterTest {
         mockDataStore.query(
             QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
                 index.getName()).constraints(
-                    new DataIdQuery(new ByteArray("test_pt_1"))).build())) {
+                    new DataIdQuery(StringUtils.stringToBinary("test_pt_1"))).build())) {
       assertTrue(it1.hasNext());
     }
     assertTrue(
         ((BaseDataStore) mockDataStore).delete(
             QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
-                index.getName()).constraints(new DataIdQuery(new ByteArray("test_pt_1"))).build()));
+                index.getName()).constraints(
+                    new DataIdQuery(StringUtils.stringToBinary("test_pt_1"))).build()));
     try (final CloseableIterator it2 =
         mockDataStore.query(
             QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
                 index.getName()).constraints(
-                    new DataIdQuery(new ByteArray("test_pt_1"))).build())) {
+                    new DataIdQuery(StringUtils.stringToBinary("test_pt_1"))).build())) {
 
       assertTrue(!it2.hasNext());
     }

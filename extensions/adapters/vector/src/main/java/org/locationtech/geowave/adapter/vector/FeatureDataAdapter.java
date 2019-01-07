@@ -8,8 +8,6 @@
  */
 package org.locationtech.geowave.adapter.vector;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -34,7 +32,6 @@ import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.geotime.util.TimeDescriptors;
 import org.locationtech.geowave.core.geotime.util.TimeDescriptors.TimeDescriptorConfiguration;
 import org.locationtech.geowave.core.geotime.util.TimeUtils;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.VarintUtils;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
@@ -72,6 +69,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 /**
  * This data adapter will handle all reading/writing concerns for storing and retrieving GeoTools
@@ -704,8 +703,8 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   }
 
   @Override
-  public ByteArray getDataId(final SimpleFeature entry) {
-    return new ByteArray(StringUtils.stringToBinary(entry.getID()));
+  public byte[] getDataId(final SimpleFeature entry) {
+    return StringUtils.stringToBinary(entry.getID());
   }
 
   private ThreadLocal<FeatureRowBuilder> builder = null;

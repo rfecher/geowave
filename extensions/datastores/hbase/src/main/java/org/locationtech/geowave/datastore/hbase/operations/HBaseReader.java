@@ -134,8 +134,7 @@ public class HBaseReader<T> implements RowReader<T> {
     // to be overly inclusive, but doesn't seem to produce extra results for
     // the other datastores within GeoWaveBasicSparkIT, however it does for
     // HBase
-    rscanner.setStartRow(range.getStart().getBytes()).setStopRow(
-        range.getEndAsNextPrefix().getBytes());
+    rscanner.setStartRow(range.getStart()).setStopRow(range.getEndAsNextPrefix());
 
     if (operations.isServerSideLibraryEnabled()) {
       // Add distributable filters if requested, this has to be last

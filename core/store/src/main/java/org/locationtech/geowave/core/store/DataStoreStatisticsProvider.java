@@ -54,13 +54,13 @@ public class DataStoreStatisticsProvider<T> implements StatisticsProvider<T> {
     if (index != null) {
       final StatisticsId[] newSet = Arrays.copyOf(idsFromAdapter, idsFromAdapter.length + 6);
       newSet[idsFromAdapter.length] =
-          RowRangeHistogramStatisticsSet.STATS_TYPE.newBuilder().indexName(index.getName()).build()
-              .getId();
+          RowRangeHistogramStatisticsSet.STATS_TYPE.newBuilder().indexName(
+              index.getName()).build().getId();
       newSet[idsFromAdapter.length + 1] =
           IndexMetaDataSet.STATS_TYPE.newBuilder().indexName(index.getName()).build().getId();
       newSet[idsFromAdapter.length + 2] =
-          DifferingFieldVisibilityEntryCount.STATS_TYPE.newBuilder().indexName(index.getName())
-              .build().getId();
+          DifferingFieldVisibilityEntryCount.STATS_TYPE.newBuilder().indexName(
+              index.getName()).build().getId();
       newSet[idsFromAdapter.length + 3] =
           FieldVisibilityCount.STATS_TYPE.newBuilder().indexName(index.getName()).build().getId();
       newSet[idsFromAdapter.length + 4] =
@@ -84,7 +84,9 @@ public class DataStoreStatisticsProvider<T> implements StatisticsProvider<T> {
         return new PartitionStatistics(adapter.getAdapterId(), index.getName());
       }
       if (statisticsType.equals(IndexMetaDataSet.STATS_TYPE)) {
-        return new IndexMetaDataSet(adapter.getAdapterId(), index.getName(),
+        return new IndexMetaDataSet(
+            adapter.getAdapterId(),
+            index.getName(),
             index.getIndexStrategy());
       }
       if (statisticsType.equals(DifferingFieldVisibilityEntryCount.STATS_TYPE)) {
@@ -115,7 +117,9 @@ public class DataStoreStatisticsProvider<T> implements StatisticsProvider<T> {
       final StatisticsId statisticsId) {
     return (adapter instanceof StatisticsProvider)
         ? ((StatisticsProvider) adapter).getVisibilityHandler(
-            index != null ? index.getIndexModel() : null, adapter, statisticsId)
+            index != null ? index.getIndexModel() : null,
+            adapter,
+            statisticsId)
         : new EmptyStatisticVisibility<>();
   }
 }

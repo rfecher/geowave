@@ -272,8 +272,7 @@ public class AccumuloSecondaryIndexDataStore extends BaseSecondaryIndexDataStore
     }
     final Collection<Range> scanRanges = new ArrayList<>();
     for (final ByteArrayRange range : ranges) {
-      scanRanges.add(
-          new Range(new Text(range.getStart().getBytes()), new Text(range.getEnd().getBytes())));
+      scanRanges.add(new Range(new Text(range.getStart()), new Text(range.getEnd())));
     }
     return scanRanges;
   }

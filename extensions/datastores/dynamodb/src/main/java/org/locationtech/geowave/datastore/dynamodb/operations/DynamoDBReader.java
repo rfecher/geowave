@@ -8,19 +8,6 @@
  */
 package org.locationtech.geowave.datastore.dynamodb.operations;
 
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
-import com.amazonaws.services.dynamodbv2.model.Condition;
-import com.amazonaws.services.dynamodbv2.model.QueryRequest;
-import com.amazonaws.services.dynamodbv2.model.QueryResult;
-import com.amazonaws.services.dynamodbv2.model.ScanRequest;
-import com.amazonaws.services.dynamodbv2.model.ScanResult;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -51,6 +38,19 @@ import org.locationtech.geowave.datastore.dynamodb.util.LazyPaginatedQuery;
 import org.locationtech.geowave.datastore.dynamodb.util.LazyPaginatedScan;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.amazonaws.services.dynamodbv2.model.QueryRequest;
+import com.amazonaws.services.dynamodbv2.model.QueryResult;
+import com.amazonaws.services.dynamodbv2.model.ScanRequest;
+import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class DynamoDBReader<T> implements RowReader<T> {
   private static final boolean ASYNC = false;
@@ -141,10 +141,8 @@ public class DynamoDBReader<T> implements RowReader<T> {
 
     final GeoWaveRowRange range = recordReaderParams.getRowRange();
     for (final Short adapterId : adapterIds) {
-      final ByteArray startKey =
-          range.isInfiniteStartSortKey() ? null : new ByteArray(range.getStartSortKey());
-      final ByteArray stopKey =
-          range.isInfiniteStopSortKey() ? null : new ByteArray(range.getEndSortKey());
+      final byte[] startKey = range.isInfiniteStartSortKey() ? null : range.getStartSortKey();
+      final byte[] stopKey = range.isInfiniteStopSortKey() ? null : range.getEndSortKey();
       requests.add(
           getQuery(
               tableName,
@@ -289,11 +287,12 @@ public class DynamoDBReader<T> implements RowReader<T> {
       start =
           ByteArrayUtils.combineArrays(
               ByteArrayUtils.shortToByteArray(internalAdapterId),
-              DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getBytes()));
+              DynamoDBUtils.encodeSortableBase64(sortRange.getStart()));
       end =
           ByteArrayUtils.combineArrays(
               ByteArrayUtils.shortToByteArray(internalAdapterId),
-              DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getNextPrefix()));
+              DynamoDBUtils.encodeSortableBase64(
+                  ByteArrayUtils.getNextPrefix(sortRange.getStart())));
     } else {
       if (sortRange.getStart() == null) {
         start = ByteArrayUtils.shortToByteArray(internalAdapterId);
@@ -301,7 +300,7 @@ public class DynamoDBReader<T> implements RowReader<T> {
         start =
             ByteArrayUtils.combineArrays(
                 ByteArrayUtils.shortToByteArray(internalAdapterId),
-                DynamoDBUtils.encodeSortableBase64(sortRange.getStart().getBytes()));
+                DynamoDBUtils.encodeSortableBase64(sortRange.getStart()));
       }
       if (sortRange.getEnd() == null) {
         end = new ByteArray(ByteArrayUtils.shortToByteArray(internalAdapterId)).getNextPrefix();
@@ -309,7 +308,7 @@ public class DynamoDBReader<T> implements RowReader<T> {
         end =
             ByteArrayUtils.combineArrays(
                 ByteArrayUtils.shortToByteArray(internalAdapterId),
-                DynamoDBUtils.encodeSortableBase64(sortRange.getEndAsNextPrefix().getBytes()));
+                DynamoDBUtils.encodeSortableBase64(sortRange.getEndAsNextPrefix()));
       }
     }
     query.addKeyConditionsEntry(
@@ -326,11 +325,10 @@ public class DynamoDBReader<T> implements RowReader<T> {
       short[] adapterIds,
       final InternalAdapterStore adapterStore) {
     final List<QueryRequest> retVal = new ArrayList<>();
-    final ByteArray partitionKey = r.getPartitionKey();
+    final byte[] partitionKey = r.getPartitionKey();
     final byte[] partitionId =
-        ((partitionKey == null) || (partitionKey.getBytes().length == 0))
-            ? DynamoDBWriter.EMPTY_PARTITION_KEY
-            : partitionKey.getBytes();
+        ((partitionKey == null) || (partitionKey.length == 0)) ? DynamoDBWriter.EMPTY_PARTITION_KEY
+            : partitionKey;
     if (((adapterIds == null) || (adapterIds.length == 0)) && (adapterStore != null)) {
       adapterIds = adapterStore.getAdapterIds();
     }

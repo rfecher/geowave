@@ -8,9 +8,6 @@
  */
 package org.locationtech.geowave.datastore.hbase.operations;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -123,6 +120,9 @@ import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 public class HBaseOperations implements MapReduceDataStoreOperations, ServerSideOperations {
   private static final Logger LOGGER = LoggerFactory.getLogger(HBaseOperations.class);
@@ -232,7 +232,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   protected void createTable(
-      final Set<ByteArray> preSplits,
+      final byte[][] preSplits,
       final Pair<GeoWaveColumnFamily, Boolean>[] columnFamiliesAndVersioningPairs,
       final GeoWaveColumnFamilyFactory columnFamilyFactory,
       final TableName tableName) throws IOException {
@@ -257,10 +257,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
           cfCache.put(tableName, cfSet);
 
           try {
-            if (!preSplits.isEmpty()) {
-              admin.createTable(
-                  desc,
-                  preSplits.stream().map(id -> id.getBytes()).toArray(i -> new byte[i][]));
+            if (preSplits.length > 0) {
+              admin.createTable(desc, preSplits);
             } else {
               admin.createTable(desc);
             }
@@ -276,7 +274,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   protected void createTable(
-      final Set<ByteArray> preSplits,
+      final byte[][] preSplits,
       final GeoWaveColumnFamily[] columnFamilies,
       final GeoWaveColumnFamilyFactory columnFamilyFactory,
       final boolean enableVersioning,
@@ -747,7 +745,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   public void createTable(
-      final Set<ByteArray> preSplits,
+      final byte[][] preSplits,
       final String indexName,
       final boolean enableVersioning,
       final short internalAdapterId) {
@@ -808,7 +806,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     final TableName tableName = getTableName(getMetadataTableName(metadataType));
     try {
       createTable(
-          Collections.EMPTY_SET,
+          new byte[0][],
           METADATA_CFS_VERSIONING,
           StringColumnFamilyFactory.getSingletonInstance(),
           tableName);
@@ -890,12 +888,12 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     } else {
       for (final ByteArrayRange range : ranges) {
         if (range.getStart() != null) {
-          final byte[] startRow = range.getStart().getBytes();
+          final byte[] startRow = range.getStart();
           byte[] stopRow;
           if (!range.isSingleValue()) {
-            stopRow = range.getEndAsNextPrefix().getBytes();
+            stopRow = range.getEndAsNextPrefix();
           } else {
-            stopRow = range.getStart().getNextPrefix();
+            stopRow = ByteArrayUtils.getNextPrefix(range.getStart());
           }
 
           final RowRange rowRange = new RowRange(startRow, true, stopRow, false);
@@ -1015,8 +1013,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       final List<ByteArrayRange> ranges = readerParams.getQueryRanges().getCompositeQueryRanges();
       if ((ranges != null) && !ranges.isEmpty()) {
         final ByteArrayRange aggRange = getSingleRange(ranges);
-        startRow = aggRange.getStart().getBytes();
-        endRow = aggRange.getEnd().getBytes();
+        startRow = aggRange.getStart();
+        endRow = aggRange.getEnd();
       }
 
       Map<byte[], ByteString> results = null;
@@ -1147,8 +1145,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       final List<ByteArrayRange> ranges = readerParams.getQueryRanges().getCompositeQueryRanges();
       if ((ranges != null) && !ranges.isEmpty()) {
         final ByteArrayRange aggRange = getSingleRange(ranges);
-        startRow = aggRange.getStart().getBytes();
-        endRow = aggRange.getEnd().getBytes();
+        startRow = aggRange.getStart();
+        endRow = aggRange.getEnd();
       }
       final Map<byte[], Long> results =
           table.coprocessorService(
@@ -1187,14 +1185,14 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   private ByteArrayRange getSingleRange(final List<ByteArrayRange> ranges) {
-    ByteArray start = null;
-    ByteArray end = null;
+    byte[] start = null;
+    byte[] end = null;
 
     for (final ByteArrayRange range : ranges) {
-      if ((start == null) || (range.getStart().compareTo(start) < 0)) {
+      if ((start == null) || (ByteArrayUtils.compare(range.getStart(), start) < 0)) {
         start = range.getStart();
       }
-      if ((end == null) || (range.getEnd().compareTo(end) > 0)) {
+      if ((end == null) || (ByteArrayUtils.compare(range.getEnd(), end) > 0)) {
         end = range.getEnd();
       }
     }
@@ -1429,7 +1427,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       final String tableName = getMetadataTableName(type);
       if (!indexExists(tableName)) {
         createTable(
-            Collections.EMPTY_SET,
+            new byte[0][],
             HBaseOperations.METADATA_CFS_VERSIONING,
             StringColumnFamilyFactory.getSingletonInstance(),
             getTableName(getQualifiedTableName(tableName)));

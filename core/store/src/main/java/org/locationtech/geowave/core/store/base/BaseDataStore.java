@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.AdapterToIndexMapping;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -64,6 +63,7 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.index.IndexMetaDataSet;
 import org.locationtech.geowave.core.store.index.IndexStore;
+import org.locationtech.geowave.core.store.index.NullIndex;
 import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.index.writer.IndependentAdapterIndexWriter;
 import org.locationtech.geowave.core.store.index.writer.IndexCompositeWriter;
@@ -159,7 +159,12 @@ public class BaseDataStore implements DataStore {
       final IngestCallbackList<T> callbacksList = new IngestCallbackList<>(callbacks);
       writers[i++] =
           createIndexWriter(
-              adapter, null, baseOperations, baseOptions, callbacksList, callbacksList);
+              adapter,
+              new NullIndex("DATA"),
+              baseOperations,
+              baseOptions,
+              callbacksList,
+              callbacksList);
     }
     for (final Index index : indices) {
       final DataStoreCallbackManager callbackManager =
@@ -440,7 +445,6 @@ public class BaseDataStore implements DataStore {
   }
 
   private Short[] getAdaptersForIndex(final String indexName) {
-
     final ArrayList<Short> markedAdapters = new ArrayList<>();
     // remove the given index for all types
     try (final CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters()) {
@@ -623,8 +627,8 @@ public class BaseDataStore implements DataStore {
 
   protected CloseableIterator<Object> queryRowPrefix(
       final Index index,
-      final ByteArray partitionKey,
-      final ByteArray sortPrefix,
+      final byte[] partitionKey,
+      final byte[] sortPrefix,
       final BaseQueryOptions sanitizedQueryOptions,
       final List<InternalDataAdapter<?>> adapters,
       final PersistentAdapterStore tempAdapterStore,

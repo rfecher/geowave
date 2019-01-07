@@ -20,7 +20,7 @@ public class BaseDataStoreOptions implements DataStoreOptions {
   @Parameter(names = "--enableServerSideLibrary", arity = 1)
   protected boolean enableServerSideLibrary = true;
 
-  @Parameter(names = "--enableSecondaryIndex", arity = 1)
+  @Parameter(names = "--enableSecondaryIndex")
   protected boolean enableSecondaryIndex = false;
 
   @Parameter(names = "--maxRangeDecomposition", arity = 1)
@@ -58,7 +58,7 @@ public class BaseDataStoreOptions implements DataStoreOptions {
 
   @Override
   public boolean isServerSideLibraryEnabled() {
-    return enableServerSideLibrary;
+    return enableServerSideLibrary && !enableSecondaryIndex;
   }
 
   public void setServerSideLibraryEnabled(final boolean enableServerSideLibrary) {
@@ -76,7 +76,7 @@ public class BaseDataStoreOptions implements DataStoreOptions {
   }
 
   public void setMaxRangeDecomposition(final int maxRangeDecomposition) {
-    this.configuredMaxRangeDecomposition = maxRangeDecomposition;
+    configuredMaxRangeDecomposition = maxRangeDecomposition;
   }
 
   @Override
@@ -91,6 +91,6 @@ public class BaseDataStoreOptions implements DataStoreOptions {
   }
 
   public void setAggregationMaxRangeDecomposition(final int aggregationMaxRangeDecomposition) {
-    this.configuredAggregationMaxRangeDecomposition = aggregationMaxRangeDecomposition;
+    configuredAggregationMaxRangeDecomposition = aggregationMaxRangeDecomposition;
   }
 }

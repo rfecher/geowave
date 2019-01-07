@@ -821,7 +821,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
         }
         final ByteArrayRange r = ranges.get(0);
         if (r.isSingleValue()) {
-          ((Scanner) scanner).setRange(Range.exact(new Text(r.getStart().getBytes())));
+          ((Scanner) scanner).setRange(Range.exact(new Text(r.getStart())));
         } else {
           ((Scanner) scanner).setRange(AccumuloUtils.byteArrayRangeToAccumuloRange(r));
         }

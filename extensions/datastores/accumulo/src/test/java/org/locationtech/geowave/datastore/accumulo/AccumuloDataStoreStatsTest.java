@@ -169,22 +169,25 @@ public class AccumuloDataStoreStatsTest {
     mockDataStore.addType(adapter, index);
     try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {
       partitionKey =
-          indexWriter.write(
-              new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt"),
-              visWriterAAA).getPartitionKeys().iterator().next().getPartitionKey();
+          new ByteArray(
+              indexWriter.write(
+                  new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt"),
+                  visWriterAAA).getPartitionKeys().iterator().next().getPartitionKey());
       ByteArray testPartitionKey =
-          indexWriter.write(
-              new TestGeometry(factory.createPoint(new Coordinate(26, 32)), "test_pt_1"),
-              visWriterAAA).getPartitionKeys().iterator().next().getPartitionKey();
+          new ByteArray(
+              indexWriter.write(
+                  new TestGeometry(factory.createPoint(new Coordinate(26, 32)), "test_pt_1"),
+                  visWriterAAA).getPartitionKeys().iterator().next().getPartitionKey());
       // they should all be the same partition key, let's just make sure
       Assert.assertEquals(
           "test_pt_1 should have the same partition key as test_pt",
           partitionKey,
           testPartitionKey);
       testPartitionKey =
-          indexWriter.write(
-              new TestGeometry(factory.createPoint(new Coordinate(27, 32)), "test_pt_2"),
-              visWriterBBB).getPartitionKeys().iterator().next().getPartitionKey();
+          new ByteArray(
+              indexWriter.write(
+                  new TestGeometry(factory.createPoint(new Coordinate(27, 32)), "test_pt_2"),
+                  visWriterBBB).getPartitionKeys().iterator().next().getPartitionKey());
       Assert.assertEquals(
           "test_pt_2 should have the same partition key as test_pt",
           partitionKey,
@@ -262,8 +265,7 @@ public class AccumuloDataStoreStatsTest {
     ((BaseDataStore) mockDataStore).delete(
         (Query) QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
             index.getName()).setAuthorizations(new String[] {"aaa"}).constraints(
-                new DataIdQuery(
-                    new ByteArray("test_pt_2".getBytes(StringUtils.getGeoWaveCharset())))).build(),
+                new DataIdQuery("test_pt_2".getBytes(StringUtils.getGeoWaveCharset()))).build(),
         new ScanCallback<TestGeometry, GeoWaveRow>() {
 
           @Override
@@ -293,8 +295,7 @@ public class AccumuloDataStoreStatsTest {
     mockDataStore.delete(
         QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
             index.getName()).setAuthorizations(new String[] {"aaa"}).constraints(
-                new DataIdQuery(
-                    new ByteArray("test_pt".getBytes(StringUtils.getGeoWaveCharset())))).build());
+                new DataIdQuery("test_pt".getBytes(StringUtils.getGeoWaveCharset()))).build());
 
     try (CloseableIterator<?> it1 =
         mockDataStore.query(
@@ -414,7 +415,7 @@ public class AccumuloDataStoreStatsTest {
 
     final StatisticsId id =
         StatisticsQueryBuilder.newBuilder().factory().rowHistogram().indexName(
-            index.getName()).partition(partitionKey).build().getId();
+            index.getName()).partition(partitionKey.getBytes()).build().getId();
     RowRangeHistogramStatistics<?> histogramStats;
     try (CloseableIterator<InternalDataStatistics<?, ?, ?>> it =
         statsStore.getDataStatistics(
@@ -524,8 +525,8 @@ public class AccumuloDataStoreStatsTest {
     }
 
     @Override
-    public ByteArray getDataId(final TestGeometry entry) {
-      return new ByteArray(entry.id);
+    public byte[] getDataId(final TestGeometry entry) {
+      return StringUtils.stringToBinary(entry.id);
     }
 
     @SuppressWarnings("unchecked")
@@ -571,7 +572,7 @@ public class AccumuloDataStoreStatsTest {
         private Geometry geom;
 
         @Override
-        public TestGeometry buildRow(final ByteArray dataId) {
+        public TestGeometry buildRow(final byte[] dataId) {
           return new TestGeometry(geom, id);
         }
 

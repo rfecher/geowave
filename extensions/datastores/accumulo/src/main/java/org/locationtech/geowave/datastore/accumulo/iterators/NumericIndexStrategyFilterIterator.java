@@ -146,9 +146,7 @@ public class NumericIndexStrategyFilterIterator implements SortedKeyValueIterato
     k.getRow(row);
     final GeoWaveKeyImpl key = new GeoWaveKeyImpl(row.getBytes(), partitionKeyLength);
     final MultiDimensionalCoordinates coordinates =
-        indexStrategy.getCoordinatesPerDimension(
-            new ByteArray(key.getPartitionKey()),
-            new ByteArray(key.getSortKey()));
+        indexStrategy.getCoordinatesPerDimension(key.getPartitionKey(), key.getSortKey());
     return rangeCache.inBounds(coordinates);
   }
 }

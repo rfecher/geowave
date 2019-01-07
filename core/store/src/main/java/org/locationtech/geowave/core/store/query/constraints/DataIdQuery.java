@@ -14,26 +14,25 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.query.filter.DataIdQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 public class DataIdQuery implements QueryConstraints {
-  private ByteArray[] dataIds;
+  private byte[][] dataIds;
 
   public DataIdQuery() {}
 
-  public DataIdQuery(final ByteArray dataId) {
-    dataIds = new ByteArray[] {dataId};
+  public DataIdQuery(final byte[] dataId) {
+    dataIds = new byte[][] {dataId};
   }
 
-  public DataIdQuery(final ByteArray[] dataIds) {
+  public DataIdQuery(final byte[][] dataIds) {
     this.dataIds = dataIds;
   }
 
-  public ByteArray[] getDataIds() {
+  public byte[][] getDataIds() {
     return dataIds;
   }
 
@@ -51,7 +50,7 @@ public class DataIdQuery implements QueryConstraints {
 
   @Override
   public byte[] toBinary() {
-    final Stream<byte[]> arrays = Arrays.stream(dataIds).map(i -> i.getBytes());
+    final Stream<byte[]> arrays = Arrays.stream(dataIds);
     final int length = arrays.map(i -> i.length).reduce(4, Integer::sum);
     final ByteBuffer buf = ByteBuffer.allocate(length);
     arrays.forEach(i -> buf.putInt(i.length).put(i));
@@ -62,12 +61,12 @@ public class DataIdQuery implements QueryConstraints {
   public void fromBinary(final byte[] bytes) {
     final ByteBuffer buf = ByteBuffer.wrap(bytes);
     final int length = buf.getInt();
-    final ByteArray[] dataIds = new ByteArray[length];
+    final byte[][] dataIds = new byte[length][];
     for (int i = 0; i < length; i++) {
       final int iLength = buf.getInt();
       final byte[] dataIdBinary = new byte[iLength];
       buf.get(dataIdBinary);
-      dataIds[i] = new ByteArray(dataIdBinary);
+      dataIds[i] = dataIdBinary;
     }
     this.dataIds = dataIds;
   }

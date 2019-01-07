@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -79,7 +80,6 @@ import org.locationtech.geowave.core.store.index.temporal.TemporalQueryConstrain
 import org.locationtech.geowave.core.store.index.text.TextQueryConstraint;
 import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
-import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.datastore.accumulo.cli.config.AccumuloRequiredOptions;
 import org.locationtech.geowave.datastore.accumulo.index.secondary.AccumuloSecondaryIndexDataStore;
 import org.locationtech.geowave.datastore.accumulo.util.ConnectorPool;
@@ -87,11 +87,11 @@ import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Point;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 @RunWith(GeoWaveITRunner.class)
 public class SecondaryIndexIT {
@@ -239,7 +239,8 @@ public class SecondaryIndexIT {
     }
 
     // test delete
-    final QueryConstraints deleteQuery = new DataIdQuery(new ByteArray(expectedDataId));
+    final QueryConstraints deleteQuery =
+        new DataIdQuery(StringUtils.stringToBinary(expectedDataId));
     dataStore.delete(
         QueryBuilder.newBuilder().addTypeName(dataAdapter.getTypeName()).indexName(
             index.getName()).constraints(deleteQuery).build());
@@ -398,7 +399,9 @@ public class SecondaryIndexIT {
     try (@SuppressWarnings("unchecked")
     final Writer<SimpleFeature> writer = dataStore.createWriter(dataAdapter.getTypeName())) {
       for (final SimpleFeature aFeature : features) {
-        allIndexIds.addAll(writer.write(aFeature).getCompositeInsertionIds());
+        allIndexIds.addAll(
+            writer.write(aFeature).getCompositeInsertionIds().stream().map(
+                i -> new ByteArray(i)).collect(Collectors.toList()));
       }
     }
 

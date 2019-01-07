@@ -8,11 +8,6 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterators;
-import com.google.common.primitives.UnsignedBytes;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +28,11 @@ import org.locationtech.geowave.datastore.rocksdb.util.RocksDBIndexTable;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+import com.google.common.primitives.UnsignedBytes;
 
 public class BatchedRangeRead<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(BatchedRangeRead.class);
@@ -55,15 +55,15 @@ public class BatchedRangeRead<T> {
     public int compare(final RangeReadInfo o1, final RangeReadInfo o2) {
       int comp =
           UnsignedBytes.lexicographicalComparator().compare(
-              o1.sortKeyRange.getStart().getBytes(),
-              o2.sortKeyRange.getStart().getBytes());
+              o1.sortKeyRange.getStart(),
+              o2.sortKeyRange.getStart());
       if (comp != 0) {
         return comp;
       }
       comp =
           UnsignedBytes.lexicographicalComparator().compare(
-              o1.sortKeyRange.getEnd().getBytes(),
-              o2.sortKeyRange.getEnd().getBytes());
+              o1.sortKeyRange.getEnd(),
+              o2.sortKeyRange.getEnd());
       if (comp != 0) {
         return comp;
       }
@@ -120,7 +120,7 @@ public class BatchedRangeRead<T> {
     final List<RangeReadInfo> reads = new ArrayList<>();
     for (final SinglePartitionQueryRanges r : ranges) {
       for (final ByteArrayRange range : r.getSortKeyRanges()) {
-        reads.add(new RangeReadInfo(r.getPartitionKey().getBytes(), range));
+        reads.add(new RangeReadInfo(r.getPartitionKey(), range));
       }
     }
     return executeQuery(reads);

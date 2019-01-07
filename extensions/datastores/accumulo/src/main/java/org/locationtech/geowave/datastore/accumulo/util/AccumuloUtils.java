@@ -69,14 +69,11 @@ public class AccumuloUtils {
 
   public static Range byteArrayRangeToAccumuloRange(final ByteArrayRange byteArrayRange) {
     if (byteArrayRange.isSingleValue()) {
-      return Range.exact(new Text(byteArrayRange.getStart().getBytes()));
+      return Range.exact(new Text(byteArrayRange.getStart()));
     }
     final Text start =
-        byteArrayRange.getStart().getBytes() == null ? null
-            : new Text(byteArrayRange.getStart().getBytes());
-    final Text end =
-        byteArrayRange.getEnd().getBytes() == null ? null
-            : new Text(byteArrayRange.getEnd().getBytes());
+        byteArrayRange.getStart() == null ? null : new Text(byteArrayRange.getStart());
+    final Text end = byteArrayRange.getEnd() == null ? null : new Text(byteArrayRange.getEnd());
     if ((start != null) && (end != null) && (start.compareTo(end) > 0)) {
       return null;
     }
@@ -197,8 +194,8 @@ public class AccumuloUtils {
     final RoundRobinKeyIndexStrategy partitions = new RoundRobinKeyIndexStrategy(randomPartitions);
 
     operations.createTable(index.getName(), true, true);
-    for (final ByteArray p : partitions.getPartitionKeys()) {
-      operations.ensurePartition(p, index.getName());
+    for (final byte[] p : partitions.getPartitionKeys()) {
+      operations.ensurePartition(new ByteArray(p), index.getName());
     }
   }
 

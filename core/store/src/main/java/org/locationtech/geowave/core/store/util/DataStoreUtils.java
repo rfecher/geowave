@@ -8,12 +8,9 @@
  */
 package org.locationtech.geowave.core.store.util;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Maps;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -75,6 +72,8 @@ import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.query.options.CommonQueryOptions.HintKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Maps;
 
 /*
  */
@@ -171,7 +170,7 @@ public class DataStoreUtils {
         return Long.MAX_VALUE - 1;
       }
       for (final ByteArrayRange range : partitionRange.getSortKeyRanges()) {
-        count += rangeStats.cardinality(range.getStart().getBytes(), range.getEnd().getBytes());
+        count += rangeStats.cardinality(range.getStart(), range.getEnd());
       }
     }
     return count;
@@ -179,27 +178,27 @@ public class DataStoreUtils {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static <T> InsertionIds getInsertionIdsForEntry(
-      T entry,
+      final T entry,
       final InternalDataAdapter adapter,
       final Index index) {
-    AdapterPersistenceEncoding encoding = adapter.encode(entry, index.getIndexModel());
+    final AdapterPersistenceEncoding encoding = adapter.encode(entry, index.getIndexModel());
     return encoding.getInsertionIds(index);
   }
 
   public static InsertionIds keysToInsertionIds(final GeoWaveKey... geoWaveKeys) {
-    final Map<ByteArray, List<ByteArray>> sortKeysPerPartition = new HashMap<>();
+    final Map<ByteArray, List<byte[]>> sortKeysPerPartition = new HashMap<>();
     for (final GeoWaveKey key : geoWaveKeys) {
       final ByteArray partitionKey = new ByteArray(key.getPartitionKey());
-      List<ByteArray> sortKeys = sortKeysPerPartition.get(partitionKey);
+      List<byte[]> sortKeys = sortKeysPerPartition.get(partitionKey);
       if (sortKeys == null) {
         sortKeys = new ArrayList<>();
         sortKeysPerPartition.put(partitionKey, sortKeys);
       }
-      sortKeys.add(new ByteArray(key.getSortKey()));
+      sortKeys.add(key.getSortKey());
     }
     final Set<SinglePartitionInsertionIds> insertionIds = new HashSet<>();
-    for (final Entry<ByteArray, List<ByteArray>> e : sortKeysPerPartition.entrySet()) {
-      insertionIds.add(new SinglePartitionInsertionIds(e.getKey(), e.getValue()));
+    for (final Entry<ByteArray, List<byte[]>> e : sortKeysPerPartition.entrySet()) {
+      insertionIds.add(new SinglePartitionInsertionIds(e.getKey().getBytes(), e.getValue()));
     }
     return new InsertionIds(insertionIds);
   }
@@ -327,8 +326,7 @@ public class DataStoreUtils {
     if ((constraints == null) || constraints.isEmpty()) {
       if (targetIndexStrategy != null) {
         // at least use the prefix of a substrategy if chosen
-        return new QueryRanges(
-            Collections.singleton(new ByteArray(targetIndexStrategy.getPrefix())));
+        return new QueryRanges(new byte[][] {targetIndexStrategy.getPrefix()});
       }
       return new QueryRanges(); // implies in negative and
       // positive infinity
@@ -397,6 +395,8 @@ public class DataStoreUtils {
     if ((vis1 == null) || (vis1.length == 0)) {
       return vis2;
     } else if ((vis2 == null) || (vis2.length == 0)) {
+      return vis1;
+    } else if (Arrays.equals(vis1, vis2)) {
       return vis1;
     }
 

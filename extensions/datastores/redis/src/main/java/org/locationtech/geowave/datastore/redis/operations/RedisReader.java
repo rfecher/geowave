@@ -8,8 +8,6 @@
  */
 package org.locationtech.geowave.datastore.redis.operations;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,6 +39,8 @@ import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.protocol.ScoredEntry;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 
 public class RedisReader<T> implements RowReader<T> {
   private final CloseableIterator<T> iterator;
@@ -171,13 +171,11 @@ public class RedisReader<T> implements RowReader<T> {
       final RecordReaderParams<T> recordReaderParams,
       final String namespace) {
     final GeoWaveRowRange range = recordReaderParams.getRowRange();
-    final ByteArray startKey =
-        range.isInfiniteStartSortKey() ? null : new ByteArray(range.getStartSortKey());
-    final ByteArray stopKey =
-        range.isInfiniteStopSortKey() ? null : new ByteArray(range.getEndSortKey());
+    final byte[] startKey = range.isInfiniteStartSortKey() ? null : range.getStartSortKey();
+    final byte[] stopKey = range.isInfiniteStopSortKey() ? null : range.getEndSortKey();
     final SinglePartitionQueryRanges partitionRange =
         new SinglePartitionQueryRanges(
-            new ByteArray(range.getPartitionKey()),
+            range.getPartitionKey(),
             Collections.singleton(new ByteArrayRange(startKey, stopKey)));
     final Set<String> authorizations =
         Sets.newHashSet(recordReaderParams.getAdditionalAuthorizations());

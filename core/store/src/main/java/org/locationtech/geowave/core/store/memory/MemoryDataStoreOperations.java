@@ -8,12 +8,6 @@
  */
 package org.locationtech.geowave.core.store.memory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.PeekingIterator;
-import com.google.common.primitives.UnsignedBytes;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +66,12 @@ import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.PeekingIterator;
+import com.google.common.primitives.UnsignedBytes;
 
 public class MemoryDataStoreOperations implements DataStoreOperations {
   private static final Logger LOGGER = Logger.getLogger(MemoryDataStoreOperations.class);
@@ -177,7 +177,7 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
                     new MemoryStoreEntry(p.getPartitionKey(), r.getStart()),
                     new MemoryStoreEntry(
                         p.getPartitionKey(),
-                        new ByteArray(r.getStart().getNextPrefix())));
+                        ByteArrayUtils.getNextPrefix(r.getStart())));
           } else {
             set =
                 internalData.tailSet(
@@ -230,9 +230,9 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
               readerParams.getIndex().getIndexModel(),
               new DeferredReadCommonIndexedPersistenceEncoding(
                   input.getRow().getAdapterId(),
-                  new ByteArray(input.getRow().getDataId()),
-                  new ByteArray(input.getRow().getPartitionKey()),
-                  new ByteArray(input.getRow().getSortKey()),
+                  input.getRow().getDataId(),
+                  input.getRow().getPartitionKey(),
+                  input.getRow().getSortKey(),
                   input.getRow().getNumberOfDuplicates(),
                   commonData,
                   unreadData.isEmpty() ? null : new UnreadFieldDataList(unreadData)));
@@ -352,16 +352,14 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
   public static class MemoryStoreEntry implements Comparable<MemoryStoreEntry> {
     private final GeoWaveRow row;
 
-    public MemoryStoreEntry(
-        final ByteArray comparisonPartitionKey,
-        final ByteArray comparisonSortKey) {
+    public MemoryStoreEntry(final byte[] comparisonPartitionKey, final byte[] comparisonSortKey) {
       row =
           new GeoWaveRowImpl(
               new GeoWaveKeyImpl(
                   new byte[] {0},
                   (short) 0, // new byte[] {},
-                  comparisonPartitionKey.getBytes(),
-                  comparisonSortKey.getBytes(),
+                  comparisonPartitionKey,
+                  comparisonSortKey,
                   0),
               null);
     }

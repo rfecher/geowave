@@ -8,13 +8,6 @@
  */
 package org.locationtech.geowave.datastore.redis.operations;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
@@ -47,6 +40,13 @@ import org.redisson.api.RedissonClient;
 import org.redisson.client.protocol.ScoredEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
 
 public class BatchedRangeRead<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(BatchedRangeRead.class);
@@ -145,12 +145,12 @@ public class BatchedRangeRead<T> {
     for (final SinglePartitionQueryRanges r : ranges) {
       for (final ByteArrayRange range : r.getSortKeyRanges()) {
         final double start =
-            range.getStart() != null ? RedisUtils.getScore(range.getStart().getBytes())
+            range.getStart() != null ? RedisUtils.getScore(range.getStart())
                 : Double.NEGATIVE_INFINITY;
         final double end =
-            range.getEnd() != null ? RedisUtils.getScore(range.getEndAsNextPrefix().getBytes())
+            range.getEnd() != null ? RedisUtils.getScore(range.getEndAsNextPrefix())
                 : Double.POSITIVE_INFINITY;
-        reads.add(new RangeReadInfo(r.getPartitionKey().getBytes(), start, end));
+        reads.add(new RangeReadInfo(r.getPartitionKey(), start, end));
       }
     }
     if (async) {

@@ -27,6 +27,7 @@ import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.EntryVisibilityHandler;
 import org.locationtech.geowave.core.store.adapter.AbstractDataAdapter;
@@ -302,8 +303,8 @@ public class AccumuloRangeQueryTest {
     }
 
     @Override
-    public ByteArray getDataId(final TestGeometry entry) {
-      return new ByteArray(entry.id);
+    public byte[] getDataId(final TestGeometry entry) {
+      return StringUtils.stringToBinary(entry.id);
     }
 
     @Override
@@ -352,7 +353,7 @@ public class AccumuloRangeQueryTest {
         }
 
         @Override
-        public TestGeometry buildRow(final ByteArray dataId) {
+        public TestGeometry buildRow(final byte[] dataId) {
           return new TestGeometry(geom, id);
         }
       };

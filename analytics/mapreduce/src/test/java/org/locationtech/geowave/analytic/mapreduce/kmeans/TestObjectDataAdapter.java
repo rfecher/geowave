@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
-import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.adapter.AbstractDataAdapter;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler.RowBuilder;
@@ -111,8 +111,8 @@ public class TestObjectDataAdapter extends AbstractDataAdapter<TestObject>
   }
 
   @Override
-  public ByteArray getDataId(final TestObject entry) {
-    return new ByteArray(entry.id);
+  public byte[] getDataId(final TestObject entry) {
+    return StringUtils.stringToBinary(entry.id);
   }
 
   @Override
@@ -171,7 +171,7 @@ public class TestObjectDataAdapter extends AbstractDataAdapter<TestObject>
       }
 
       @Override
-      public TestObject buildRow(final ByteArray dataId) {
+      public TestObject buildRow(final byte[] dataId) {
         return new TestObject(geom, id, groupID);
       }
     };

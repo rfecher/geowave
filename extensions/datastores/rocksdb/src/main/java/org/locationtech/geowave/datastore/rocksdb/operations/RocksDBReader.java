@@ -8,8 +8,6 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -39,6 +36,8 @@ import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 
 public class RocksDBReader<T> implements RowReader<T> {
   private final CloseableIterator<T> iterator;
@@ -135,13 +134,11 @@ public class RocksDBReader<T> implements RowReader<T> {
       final RocksDBClient client,
       final RecordReaderParams<T> recordReaderParams) {
     final GeoWaveRowRange range = recordReaderParams.getRowRange();
-    final ByteArray startKey =
-        range.isInfiniteStartSortKey() ? null : new ByteArray(range.getStartSortKey());
-    final ByteArray stopKey =
-        range.isInfiniteStopSortKey() ? null : new ByteArray(range.getEndSortKey());
+    final byte[] startKey = range.isInfiniteStartSortKey() ? null : range.getStartSortKey();
+    final byte[] stopKey = range.isInfiniteStopSortKey() ? null : range.getEndSortKey();
     final SinglePartitionQueryRanges partitionRange =
         new SinglePartitionQueryRanges(
-            new ByteArray(range.getPartitionKey()),
+            range.getPartitionKey(),
             Collections.singleton(new ByteArrayRange(startKey, stopKey)));
     final Set<String> authorizations =
         Sets.newHashSet(recordReaderParams.getAdditionalAuthorizations());

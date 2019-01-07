@@ -235,11 +235,11 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
       if (!entry.isDuplicated()) {
         return;
       }
-      if (visitedDataIds.contains(entry.getDataId())) {
+      if (visitedDataIds.contains(new ByteArray(entry.getDataId()))) {
         // only aggregate when you find a duplicate entry
         count++;
       }
-      visitedDataIds.add(entry.getDataId());
+      visitedDataIds.add(new ByteArray(entry.getDataId()));
     }
 
     @Override
@@ -365,14 +365,15 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
       if (geowaveStore.delete(
           QueryBuilder.newBuilder().addTypeName(
               testFeature.getFeatureType().getTypeName()).indexName(index.getName()).constraints(
-                  new DataIdQuery(dataId)).build())) {
+                  new DataIdQuery(dataId.getBytes())).build())) {
 
         success =
             !hasAtLeastOne(
                 geowaveStore.query(
                     QueryBuilder.newBuilder().addTypeName(
                         testFeature.getFeatureType().getTypeName()).indexName(
-                            index.getName()).constraints(new DataIdQuery(dataId)).build()));
+                            index.getName()).constraints(
+                                new DataIdQuery(dataId.getBytes())).build()));
       }
     }
     Assert.assertTrue("Unable to delete entry by data ID and adapter ID", success);

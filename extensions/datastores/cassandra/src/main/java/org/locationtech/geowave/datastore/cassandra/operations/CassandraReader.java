@@ -112,13 +112,11 @@ public class CassandraReader<T> implements RowReader<T> {
             : new short[0];
 
     final GeoWaveRowRange range = recordReaderParams.getRowRange();
-    final ByteArray startKey =
-        range.isInfiniteStartSortKey() ? null : new ByteArray(range.getStartSortKey());
-    final ByteArray stopKey =
-        range.isInfiniteStopSortKey() ? null : new ByteArray(range.getEndSortKey());
+    final byte[] startKey = range.isInfiniteStartSortKey() ? null : range.getStartSortKey();
+    final byte[] stopKey = range.isInfiniteStopSortKey() ? null : range.getEndSortKey();
     final SinglePartitionQueryRanges partitionRange =
         new SinglePartitionQueryRanges(
-            new ByteArray(range.getPartitionKey()),
+            range.getPartitionKey(),
             Collections.singleton(new ByteArrayRange(startKey, stopKey)));
     final Set<String> authorizations =
         Sets.newHashSet(recordReaderParams.getAdditionalAuthorizations());

@@ -8,9 +8,6 @@
  */
 package org.locationtech.geowave.core.store.base;
 
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -33,6 +30,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.InsertionIds;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.AdapterToIndexMapping;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIterator.Wrapper;
@@ -63,10 +61,14 @@ import org.locationtech.geowave.core.store.flatten.FlattenedFieldInfo;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.index.IndexStore;
+import org.locationtech.geowave.core.store.index.NullIndex;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 public class BaseDataStoreUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseDataStoreUtils.class);
@@ -173,9 +175,9 @@ public class BaseDataStoreUtils {
     final IndexedAdapterPersistenceEncoding encodedRow =
         new IndexedAdapterPersistenceEncoding(
             decodePackage.getDataAdapter().getAdapterId(),
-            new ByteArray(row.getDataId()),
-            new ByteArray(row.getPartitionKey()),
-            new ByteArray(row.getSortKey()),
+            row.getDataId(),
+            row.getPartitionKey(),
+            row.getSortKey(),
             row.getNumberOfDuplicates(),
             decodePackage.getIndexData(),
             decodePackage.getUnknownData(),
@@ -240,56 +242,82 @@ public class BaseDataStoreUtils {
       final InternalDataAdapter<T> adapter,
       final Index index,
       final VisibilityWriter<T> customFieldVisibilityWriter,
-      boolean secondaryIndex) {
+      final boolean secondaryIndex) {
+    final boolean dataIdIndex = (secondaryIndex && (index instanceof NullIndex));
     final CommonIndexModel indexModel = index.getIndexModel();
-
     final AdapterPersistenceEncoding encodedData = adapter.encode(entry, indexModel);
-    final InsertionIds insertionIds = encodedData.getInsertionIds(index);
+    final InsertionIds insertionIds = dataIdIndex ? null : encodedData.getInsertionIds(index);
 
-    final List<FieldInfo<?>> fieldInfoList = new ArrayList<>();
-
-    final byte[] dataId = adapter.getDataId(entry).getBytes();
     final short internalAdapterId = adapter.getAdapterId();
 
+    final byte[] dataId = adapter.getDataId(entry);
     if (!insertionIds.isEmpty()) {
-      if (!secondaryIndex) {
-        for (final Entry<String, CommonIndexValue> fieldValue : encodedData.getCommonData()
-            .getValues().entrySet()) {
+      if (secondaryIndex) {
+        byte[] indexModelVisibility = new byte[0];
+        for (final Entry<String, CommonIndexValue> fieldValue : encodedData.getCommonData().getValues().entrySet()) {
+          indexModelVisibility =
+              DataStoreUtils.mergeVisibilities(
+                  indexModelVisibility,
+                  customFieldVisibilityWriter.getFieldVisibilityHandler(
+                      fieldValue.getKey()).getVisibility(
+                          entry,
+                          fieldValue.getKey(),
+                          fieldValue.getValue()));
+        }
+        return new IntermediaryWriteEntryInfo(
+            dataId,
+            internalAdapterId,
+            insertionIds,
+            new GeoWaveValue[] {new GeoWaveValueImpl(new byte[0], indexModelVisibility, dataId)});
+      } else {
+        final List<FieldInfo<?>> fieldInfoList = new ArrayList<>();
+        for (final Entry<String, CommonIndexValue> fieldValue : encodedData.getCommonData().getValues().entrySet()) {
           final FieldInfo<?> fieldInfo =
               getFieldInfo(
-                  indexModel, fieldValue.getKey(), fieldValue.getValue(), entry,
+                  indexModel,
+                  fieldValue.getKey(),
+                  fieldValue.getValue(),
+                  entry,
                   customFieldVisibilityWriter);
           if (fieldInfo != null) {
             fieldInfoList.add(fieldInfo);
           }
         }
-        for (final Entry<String, Object> fieldValue : encodedData.getAdapterExtendedData()
-            .getValues().entrySet()) {
+        for (final Entry<String, Object> fieldValue : encodedData.getAdapterExtendedData().getValues().entrySet()) {
           if (fieldValue.getValue() != null) {
             final FieldInfo<?> fieldInfo =
                 getFieldInfo(
-                    adapter, fieldValue.getKey(), fieldValue.getValue(), entry,
+                    adapter,
+                    fieldValue.getKey(),
+                    fieldValue.getValue(),
+                    entry,
                     customFieldVisibilityWriter);
             if (fieldInfo != null) {
               fieldInfoList.add(fieldInfo);
             }
           }
         }
+
+        return new IntermediaryWriteEntryInfo(
+            dataId,
+            internalAdapterId,
+            insertionIds,
+            BaseDataStoreUtils.composeFlattenedFields(fieldInfoList, indexModel, adapter));
       }
     } else {
       LOGGER.warn(
           "Indexing failed to produce insertion ids; entry ["
-              + adapter.getDataId(entry).getString()
+              + StringUtils.stringFromBinary(adapter.getDataId(entry))
               + "] not saved for index '"
               + index.getName()
               + "'.");
-    }
 
-    return new IntermediaryWriteEntryInfo(
-        dataId,
-        internalAdapterId,
-        insertionIds,
-        BaseDataStoreUtils.composeFlattenedFields(fieldInfoList, index.getIndexModel(), adapter));
+      return new IntermediaryWriteEntryInfo(
+          dataId,
+          internalAdapterId,
+          insertionIds,
+          new GeoWaveValueImpl[0]);
+    }
   }
 
   /**

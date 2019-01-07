@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.user.WholeRowIterator;
-import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.adapter.IndexedAdapterPersistenceEncoding;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.api.Index;
@@ -56,13 +56,13 @@ public class AccumuloSecondaryIndexUtils {
     final PersistentDataset<CommonIndexValue> commonData = new PersistentDataset<>();
     final PersistentDataset<Object> extendedData = new PersistentDataset<>();
     final PersistentDataset<byte[]> unknownData = new PersistentDataset<>();
-    ByteArray dataId = null;
+    byte[] dataId = null;
     final Map<String, byte[]> fieldIdToValueMap = new HashMap<>();
     for (final Entry<Key, Value> entry : rowMapping.entrySet()) {
       final byte[] cqBytes = entry.getKey().getColumnQualifierData().getBackingArray();
       final String dataIdString = SecondaryIndexUtils.getDataId(cqBytes);
       if (dataId == null) {
-        dataId = new ByteArray(dataIdString);
+        dataId = StringUtils.stringToBinary(dataIdString);
       }
       final String fieldId = SecondaryIndexUtils.getFieldName(cqBytes);
       final byte[] fieldValue = entry.getValue().get();

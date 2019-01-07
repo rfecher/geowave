@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
@@ -34,25 +33,25 @@ public abstract class BaseSecondaryIndexDataStore implements SecondaryIndexDataS
   @Override
   public void storeJoinEntry(
       final String secondaryIndexName,
-      final ByteArray indexedAttributeValue,
+      final byte[] indexedAttributeValue,
       final String typeName,
       final String indexedAttributeFieldName,
       final String primaryIndexName,
-      final ByteArray primaryPartitionKey,
-      final ByteArray primarySortKey,
-      final ByteArray attributeVisibility) {
+      final byte[] primaryPartitionKey,
+      final byte[] primarySortKey,
+      final byte[] attributeVisibility) {
     try {
       final RowWriter writer = getWriter(secondaryIndexName);
       if (writer != null) {
         writer.write(
             buildJoinMutation(
-                indexedAttributeValue.getBytes(),
+                indexedAttributeValue,
                 StringUtils.stringToBinary(typeName),
                 StringUtils.stringToBinary(indexedAttributeFieldName),
                 StringUtils.stringToBinary(primaryIndexName),
-                primaryPartitionKey.getBytes(),
-                primarySortKey.getBytes(),
-                attributeVisibility.getBytes()));
+                primaryPartitionKey,
+                primarySortKey,
+                attributeVisibility));
       }
     } catch (final Exception e) {
       LOGGER.error("Unable to build secondary index row mutation.", e);
@@ -62,10 +61,10 @@ public abstract class BaseSecondaryIndexDataStore implements SecondaryIndexDataS
   @Override
   public void storeEntry(
       final String secondaryIndexName,
-      final ByteArray indexedAttributeValue,
+      final byte[] indexedAttributeValue,
       final String typeName,
       final String indexedAttributeFieldName,
-      final ByteArray dataId,
+      final byte[] dataId,
       final GeoWaveValue... values) {
     try {
       final RowWriter writer = getWriter(secondaryIndexName);
@@ -73,10 +72,10 @@ public abstract class BaseSecondaryIndexDataStore implements SecondaryIndexDataS
         for (final GeoWaveValue v : values) {
           writer.write(
               buildMutation(
-                  indexedAttributeValue.getBytes(),
+                  indexedAttributeValue,
                   StringUtils.stringToBinary(typeName),
                   StringUtils.stringToBinary(indexedAttributeFieldName),
-                  dataId.getBytes(),
+                  dataId,
                   v.getFieldMask(),
                   v.getValue(),
                   v.getVisibility()));
@@ -102,24 +101,24 @@ public abstract class BaseSecondaryIndexDataStore implements SecondaryIndexDataS
   @Override
   public void deleteJoinEntry(
       final String secondaryIndexName,
-      final ByteArray indexedAttributeValue,
+      final byte[] indexedAttributeValue,
       final String typeName,
       final String indexedAttributeFieldName,
       final String primaryIndexName,
-      final ByteArray primaryIndexPartitionKey,
-      final ByteArray primaryIndexSortKey,
-      final ByteArray attributeVisibility) {
+      final byte[] primaryIndexPartitionKey,
+      final byte[] primaryIndexSortKey,
+      final byte[] attributeVisibility) {
     try {
       final RowWriter writer = getWriter(secondaryIndexName);
       if (writer != null) {
         writer.write(
             buildJoinDeleteMutation(
-                indexedAttributeValue.getBytes(),
+                indexedAttributeValue,
                 StringUtils.stringToBinary(typeName),
                 StringUtils.stringToBinary(indexedAttributeFieldName),
                 StringUtils.stringToBinary(primaryIndexName),
-                primaryIndexPartitionKey.getBytes(),
-                primaryIndexSortKey.getBytes()));
+                primaryIndexPartitionKey,
+                primaryIndexSortKey));
       }
     } catch (final Exception e) {
       LOGGER.error("Failed to delete from secondary index.", e);
@@ -129,10 +128,10 @@ public abstract class BaseSecondaryIndexDataStore implements SecondaryIndexDataS
   @Override
   public void deleteEntry(
       final String secondaryIndexName,
-      final ByteArray indexedAttributeValue,
+      final byte[] indexedAttributeValue,
       final String typeName,
       final String indexedAttributeFieldName,
-      final ByteArray dataId,
+      final byte[] dataId,
       final GeoWaveValue... values) {
     try {
       final RowWriter writer = getWriter(secondaryIndexName);
@@ -140,10 +139,10 @@ public abstract class BaseSecondaryIndexDataStore implements SecondaryIndexDataS
         for (final GeoWaveValue v : values) {
           writer.write(
               buildFullDeleteMutation(
-                  indexedAttributeValue.getBytes(),
+                  indexedAttributeValue,
                   StringUtils.stringToBinary(typeName),
                   StringUtils.stringToBinary(indexedAttributeFieldName),
-                  dataId.getBytes(),
+                  dataId,
                   v.getFieldMask()));
         }
       }

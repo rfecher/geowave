@@ -83,9 +83,9 @@ public class BatchedRangeRead<T> {
     for (final SinglePartitionQueryRanges r : ranges) {
       for (final ByteArrayRange range : r.getSortKeyRanges()) {
         final BoundStatement boundRead = new BoundStatement(preparedRead);
-        final byte[] start = range.getStart() != null ? range.getStart().getBytes() : new byte[0];
+        final byte[] start = range.getStart() != null ? range.getStart() : new byte[0];
         final byte[] end =
-            range.getEnd() != null ? range.getEndAsNextPrefix().getBytes()
+            range.getEnd() != null ? range.getEndAsNextPrefix()
                 : new byte[] {
                     (byte) 0xFF,
                     (byte) 0xFF,
@@ -105,7 +105,7 @@ public class BatchedRangeRead<T> {
             ByteBuffer.class);
         boundRead.set(
             CassandraField.GW_PARTITION_ID_KEY.getBindMarkerName(),
-            ByteBuffer.wrap(r.getPartitionKey().getBytes()),
+            ByteBuffer.wrap(r.getPartitionKey()),
             ByteBuffer.class);
 
         boundRead.set(

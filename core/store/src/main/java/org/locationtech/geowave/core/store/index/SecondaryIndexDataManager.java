@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.store.adapter.statistics.InternalDataStatistics;
 import org.locationtech.geowave.core.store.api.Index;
@@ -73,11 +72,11 @@ public class SecondaryIndexDataManager<T>
       final InsertionIds secondaryIndexInsertionIds =
           secondaryIndex.getIndexStrategy().getInsertionIds(fieldValue);
       // loop insertionIds
-      for (final ByteArray insertionId : secondaryIndexInsertionIds.getCompositeInsertionIds()) {
-        final ByteArray dataId = new ByteArray(kvs[0].getDataId());
+      for (final byte[] insertionId : secondaryIndexInsertionIds.getCompositeInsertionIds()) {
+        final byte[] dataId = kvs[0].getDataId();
         switch (secondaryIndex.getSecondaryIndexType()) {
           case JOIN:
-            final Pair<ByteArray, ByteArray> firstPartitionAndSortKey =
+            final Pair<byte[], byte[]> firstPartitionAndSortKey =
                 primaryIndexInsertionIds.getFirstPartitionAndSortKeyPair();
             if (delete) {
               secondaryIndexStore.storeJoinEntry(
@@ -88,7 +87,7 @@ public class SecondaryIndexDataManager<T>
                   primaryIndexName,
                   firstPartitionAndSortKey.getLeft(),
                   firstPartitionAndSortKey.getRight(),
-                  new ByteArray(visibility));
+                  visibility);
             } else {
               secondaryIndexStore.deleteJoinEntry(
                   secondaryIndex.getName(),
@@ -98,7 +97,7 @@ public class SecondaryIndexDataManager<T>
                   primaryIndexName,
                   firstPartitionAndSortKey.getLeft(),
                   firstPartitionAndSortKey.getRight(),
-                  new ByteArray(visibility));
+                  visibility);
             }
             break;
           case PARTIAL:

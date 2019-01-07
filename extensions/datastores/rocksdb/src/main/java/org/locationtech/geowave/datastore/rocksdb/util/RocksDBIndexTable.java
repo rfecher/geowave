@@ -8,9 +8,6 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.util;
 
-import com.google.common.primitives.Bytes;
-import com.google.common.primitives.Longs;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
@@ -25,6 +22,9 @@ import org.rocksdb.RocksIterator;
 import org.rocksdb.Slice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Longs;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class RocksDBIndexTable {
   private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBIndexTable.class);
@@ -134,14 +134,13 @@ public class RocksDBIndexTable {
       options = null;
       it = readDb.newIterator();
     } else {
-      options =
-          new ReadOptions().setIterateUpperBound(new Slice(range.getEndAsNextPrefix().getBytes()));
+      options = new ReadOptions().setIterateUpperBound(new Slice(range.getEndAsNextPrefix()));
       it = readDb.newIterator(options);
     }
     if (range.getStart() == null) {
       it.seekToFirst();
     } else {
-      it.seek(range.getStart().getBytes());
+      it.seek(range.getStart());
     }
 
     return new RocksDBRowIterator(this, options, it, adapterId, partition, requiresTimestamp);

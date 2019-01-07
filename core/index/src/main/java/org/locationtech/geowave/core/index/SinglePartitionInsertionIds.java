@@ -15,59 +15,53 @@ import java.util.List;
 import org.locationtech.geowave.core.index.persist.Persistable;
 
 public class SinglePartitionInsertionIds implements Persistable {
-  private List<ByteArray> compositeInsertionIds;
-  private ByteArray partitionKey;
-  private List<ByteArray> sortKeys;
+  private List<byte[]> compositeInsertionIds;
+  private byte[] partitionKey;
+  private List<byte[]> sortKeys;
 
   public SinglePartitionInsertionIds() {}
 
-  public SinglePartitionInsertionIds(final ByteArray partitionKey) {
-    this(partitionKey, (ByteArray) null);
+  public SinglePartitionInsertionIds(final byte[] partitionKey) {
+    this(partitionKey, (byte[]) null);
   }
 
-  public SinglePartitionInsertionIds(final ByteArray partitionKey, final ByteArray sortKey) {
+  public SinglePartitionInsertionIds(final byte[] partitionKey, final byte[] sortKey) {
     this.partitionKey = partitionKey;
     sortKeys = sortKey == null ? null : Arrays.asList(sortKey);
   }
 
   public SinglePartitionInsertionIds(
-      final ByteArray partitionKey,
+      final byte[] partitionKey,
       final SinglePartitionInsertionIds insertionId2) {
-    this(new SinglePartitionInsertionIds(partitionKey, (List<ByteArray>) null), insertionId2);
+    this(new SinglePartitionInsertionIds(partitionKey, (List<byte[]>) null), insertionId2);
   }
 
   public SinglePartitionInsertionIds(
       final SinglePartitionInsertionIds insertionId1,
       final SinglePartitionInsertionIds insertionId2) {
     partitionKey =
-        new ByteArray(
-            ByteArrayUtils.combineArrays(
-                insertionId1.partitionKey.getBytes(),
-                insertionId2.partitionKey.getBytes()));
+        ByteArrayUtils.combineArrays(insertionId1.partitionKey, insertionId2.partitionKey);
     if ((insertionId1.sortKeys == null) || insertionId1.sortKeys.isEmpty()) {
       sortKeys = insertionId2.sortKeys;
     } else if ((insertionId2.sortKeys == null) || insertionId2.sortKeys.isEmpty()) {
       sortKeys = insertionId1.sortKeys;
     } else {
       // use all permutations of range keys
-      sortKeys =
-          new ArrayList<ByteArray>(insertionId1.sortKeys.size() * insertionId2.sortKeys.size());
-      for (final ByteArray sortKey1 : insertionId1.sortKeys) {
-        for (final ByteArray sortKey2 : insertionId2.sortKeys) {
-          sortKeys.add(
-              new ByteArray(
-                  ByteArrayUtils.combineArrays(sortKey1.getBytes(), sortKey2.getBytes())));
+      sortKeys = new ArrayList<byte[]>(insertionId1.sortKeys.size() * insertionId2.sortKeys.size());
+      for (final byte[] sortKey1 : insertionId1.sortKeys) {
+        for (final byte[] sortKey2 : insertionId2.sortKeys) {
+          sortKeys.add(ByteArrayUtils.combineArrays(sortKey1, sortKey2));
         }
       }
     }
   }
 
-  public SinglePartitionInsertionIds(final ByteArray partitionKey, final List<ByteArray> sortKeys) {
+  public SinglePartitionInsertionIds(final byte[] partitionKey, final List<byte[]> sortKeys) {
     this.partitionKey = partitionKey;
     this.sortKeys = sortKeys;
   }
 
-  public List<ByteArray> getCompositeInsertionIds() {
+  public List<byte[]> getCompositeInsertionIds() {
     if (compositeInsertionIds != null) {
       return compositeInsertionIds;
     }
@@ -82,20 +76,19 @@ public class SinglePartitionInsertionIds implements Persistable {
       return compositeInsertionIds;
     }
 
-    final List<ByteArray> internalInsertionIds = new ArrayList<>(sortKeys.size());
-    for (final ByteArray sortKey : sortKeys) {
-      internalInsertionIds.add(
-          new ByteArray(ByteArrayUtils.combineArrays(partitionKey.getBytes(), sortKey.getBytes())));
+    final List<byte[]> internalInsertionIds = new ArrayList<>(sortKeys.size());
+    for (final byte[] sortKey : sortKeys) {
+      internalInsertionIds.add(ByteArrayUtils.combineArrays(partitionKey, sortKey));
     }
     compositeInsertionIds = internalInsertionIds;
     return compositeInsertionIds;
   }
 
-  public ByteArray getPartitionKey() {
+  public byte[] getPartitionKey() {
     return partitionKey;
   }
 
-  public List<ByteArray> getSortKeys() {
+  public List<byte[]> getSortKeys() {
     return sortKeys;
   }
 
@@ -143,7 +136,7 @@ public class SinglePartitionInsertionIds implements Persistable {
     if (partitionKey == null) {
       pLength = 0;
     } else {
-      pLength = partitionKey.getBytes().length;
+      pLength = partitionKey.length;
     }
     int sSize;
     int byteBufferSize = VarintUtils.unsignedIntByteLength(pLength) + pLength;
@@ -151,23 +144,22 @@ public class SinglePartitionInsertionIds implements Persistable {
       sSize = 0;
     } else {
       sSize = sortKeys.size();
-      for (final ByteArray sKey : sortKeys) {
-        byteBufferSize +=
-            VarintUtils.unsignedIntByteLength(sKey.getBytes().length) + sKey.getBytes().length;
+      for (final byte[] sKey : sortKeys) {
+        byteBufferSize += VarintUtils.unsignedIntByteLength(sKey.length) + sKey.length;
       }
     }
     byteBufferSize += VarintUtils.unsignedIntByteLength(sSize);
     final ByteBuffer buf = ByteBuffer.allocate(byteBufferSize);
     VarintUtils.writeUnsignedInt(pLength, buf);
     if (pLength > 0) {
-      buf.put(partitionKey.getBytes());
+      buf.put(partitionKey);
     }
     VarintUtils.writeUnsignedInt(sSize, buf);
 
     if (sSize > 0) {
-      for (final ByteArray sKey : sortKeys) {
-        VarintUtils.writeUnsignedInt(sKey.getBytes().length, buf);
-        buf.put(sKey.getBytes());
+      for (final byte[] sKey : sortKeys) {
+        VarintUtils.writeUnsignedInt(sKey.length, buf);
+        buf.put(sKey);
       }
     }
     return buf.array();
@@ -180,7 +172,7 @@ public class SinglePartitionInsertionIds implements Persistable {
     if (pLength > 0) {
       final byte[] pBytes = new byte[pLength];
       buf.get(pBytes);
-      partitionKey = new ByteArray(pBytes);
+      partitionKey = pBytes;
     } else {
       partitionKey = null;
     }
@@ -191,7 +183,7 @@ public class SinglePartitionInsertionIds implements Persistable {
         final int keyLength = VarintUtils.readUnsignedInt(buf);
         final byte[] sortKey = new byte[keyLength];
         buf.get(sortKey);
-        sortKeys.add(new ByteArray(sortKey));
+        sortKeys.add(sortKey);
       }
     } else {
       sortKeys = null;

@@ -23,6 +23,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
+import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.IndexMetaData;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
@@ -380,7 +381,7 @@ public class SplitsProvider {
 
     final StatisticsQuery<NumericHistogram> statsQuery =
         StatisticsQueryBuilder.newBuilder().factory().rowHistogram().indexName(
-            index.getName()).partition(partitionKey).build();
+            index.getName()).partition(partitionKey.getBytes()).build();
     for (final Short adapterId : adapterIds) {
       try (final CloseableIterator<InternalDataStatistics<?, ?, ?>> it =
           store.getDataStatistics(
@@ -524,8 +525,8 @@ public class SplitsProvider {
   public static GeoWaveRowRange toRowRange(
       final ByteArrayRange range,
       final int partitionKeyLength) {
-    final byte[] startRow = range.getStart() == null ? null : range.getStart().getBytes();
-    final byte[] stopRow = range.getEnd() == null ? null : range.getEnd().getBytes();
+    final byte[] startRow = range.getStart() == null ? null : range.getStart();
+    final byte[] stopRow = range.getEnd() == null ? null : range.getEnd();
 
     if (partitionKeyLength <= 0) {
       return new GeoWaveRowRange(null, startRow, stopRow, true, false);
@@ -563,17 +564,17 @@ public class SplitsProvider {
       final byte[] startKey = (range.getStartSortKey() == null) ? null : range.getStartSortKey();
       final byte[] endKey = (range.getEndSortKey() == null) ? null : range.getEndSortKey();
 
-      return new ByteArrayRange(new ByteArray(startKey), new ByteArray(endKey));
+      return new ByteArrayRange(startKey, endKey);
     } else {
       final byte[] startKey =
           (range.getStartSortKey() == null) ? range.getPartitionKey()
               : ArrayUtils.addAll(range.getPartitionKey(), range.getStartSortKey());
 
       final byte[] endKey =
-          (range.getEndSortKey() == null) ? ByteArray.getNextPrefix(range.getPartitionKey())
+          (range.getEndSortKey() == null) ? ByteArrayUtils.getNextPrefix(range.getPartitionKey())
               : ArrayUtils.addAll(range.getPartitionKey(), range.getEndSortKey());
 
-      return new ByteArrayRange(new ByteArray(startKey), new ByteArray(endKey));
+      return new ByteArrayRange(startKey, endKey);
     }
   }
 

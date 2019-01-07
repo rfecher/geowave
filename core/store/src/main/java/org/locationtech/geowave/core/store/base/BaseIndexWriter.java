@@ -75,7 +75,11 @@ class BaseIndexWriter<T> implements Writer<T> {
       }
       entryInfo =
           BaseDataStoreUtils.getWriteInfo(
-              entry, adapter, index, fieldVisibilityWriter, options.isSecondaryIndexing());
+              entry,
+              adapter,
+              index,
+              fieldVisibilityWriter,
+              options.isSecondaryIndexing());
       if (!options.isSecondaryIndexing()) {
         verifyVisibility(fieldVisibilityWriter, entryInfo);
       }
