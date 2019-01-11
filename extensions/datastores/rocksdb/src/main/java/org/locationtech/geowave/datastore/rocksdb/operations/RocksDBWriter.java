@@ -8,15 +8,16 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBIndexTable;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 public class RocksDBWriter implements RowWriter {
   private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
@@ -26,7 +27,8 @@ public class RocksDBWriter implements RowWriter {
   private final short adapterId;
   private final LoadingCache<ByteArray, RocksDBIndexTable> tableCache =
       Caffeine.newBuilder().build(partitionKey -> getTable(partitionKey.getBytes()));
-  boolean isTimestampRequired;
+  private final boolean isTimestampRequired;
+  private final boolean isDataIndex;
 
   public RocksDBWriter(
       final RocksDBClient client,
@@ -38,6 +40,7 @@ public class RocksDBWriter implements RowWriter {
     this.adapterId = adapterId;
     indexNamePrefix = RocksDBUtils.getTablePrefix(typeName, indexName);
     this.isTimestampRequired = isTimestampRequired;
+    isDataIndex = indexName.equals(BaseDataStoreUtils.DATA_ID_INDEX.getName());
   }
 
   private RocksDBIndexTable getTable(final byte[] partitionKey) {
@@ -69,7 +72,8 @@ public class RocksDBWriter implements RowWriter {
           row.getSortKey(),
           row.getDataId(),
           (short) row.getNumberOfDuplicates(),
-          value);
+          value,
+          isDataIndex);
     }
   }
 

@@ -203,7 +203,12 @@ public class SplitsProvider {
 
     for (final IntermediateSplitInfo split : splits) {
       retVal.add(
-          split.toFinalSplit(statsStore, indexIdToAdaptersMap, commonOptions.getAuthorizations()));
+          split.toFinalSplit(
+              statsStore,
+              adapterStore,
+              internalAdapterStore,
+              indexIdToAdaptersMap,
+              commonOptions.getAuthorizations()));
     }
     return retVal;
   }

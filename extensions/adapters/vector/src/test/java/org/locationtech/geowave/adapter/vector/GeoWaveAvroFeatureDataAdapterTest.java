@@ -45,7 +45,7 @@ import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.data.visibility.GlobalVisibilityHandler;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.index.IndexImpl;
 import org.locationtech.geowave.core.store.memory.MemoryStoreFactoryFamily;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.jts.geom.Coordinate;
@@ -209,7 +209,7 @@ public class GeoWaveAvroFeatureDataAdapterTest {
     final SimpleFeature decodedFeature =
         dataAdapter.decode(
             encoding,
-            new PrimaryIndex(
+            new IndexImpl(
                 null, // because
                 // we
                 // know

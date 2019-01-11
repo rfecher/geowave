@@ -32,7 +32,7 @@ import org.locationtech.geowave.core.store.flatten.FlattenedFieldInfo;
 import org.locationtech.geowave.core.store.flatten.FlattenedUnreadData;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.index.IndexImpl;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
@@ -290,7 +290,7 @@ public class HBaseDistributableFilter extends FilterBase {
 
   // Called by the aggregation endpoint, after filtering the current row
   public Object decodeRow(final DataTypeAdapter dataAdapter) {
-    return dataAdapter.decode(getAdapterEncoding(dataAdapter), new PrimaryIndex(null, model));
+    return dataAdapter.decode(getAdapterEncoding(dataAdapter), new IndexImpl(null, model));
   }
 
   protected boolean filterInternal(final CommonIndexedPersistenceEncoding encoding) {

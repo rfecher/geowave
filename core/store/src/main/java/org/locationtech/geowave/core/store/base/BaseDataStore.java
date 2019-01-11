@@ -8,21 +8,27 @@
  */
 package org.locationtech.geowave.core.store.base;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Streams;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.index.ByteArrayUtils;
+import org.locationtech.geowave.core.index.InsertionIds;
+import org.locationtech.geowave.core.index.QueryRanges;
+import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.AdapterToIndexMapping;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -61,6 +67,7 @@ import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
+import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.index.IndexMetaDataSet;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.index.NullIndex;
@@ -68,12 +75,16 @@ import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.index.writer.IndependentAdapterIndexWriter;
 import org.locationtech.geowave.core.store.index.writer.IndexCompositeWriter;
 import org.locationtech.geowave.core.store.memory.MemoryPersistentAdapterStore;
+import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
+import org.locationtech.geowave.core.store.operations.DataIndexReaderParamsBuilder;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
 import org.locationtech.geowave.core.store.operations.MetadataQuery;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.MetadataWriter;
+import org.locationtech.geowave.core.store.operations.QueryAndDeleteByRow;
 import org.locationtech.geowave.core.store.operations.ReaderParamsBuilder;
+import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.query.aggregate.AdapterAndIndexBasedAggregation;
@@ -86,6 +97,9 @@ import org.locationtech.geowave.core.store.query.constraints.TypeConstraintQuery
 import org.locationtech.geowave.core.store.query.filter.DedupeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Streams;
 
 public class BaseDataStore implements DataStore {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseDataStore.class);
@@ -141,7 +155,7 @@ public class BaseDataStore implements DataStore {
     return statisticsStore;
   }
 
-  public Short getAdapterId(String typeName) {
+  public Short getAdapterId(final String typeName) {
     return internalAdapterStore.getAdapterId(typeName);
   }
 
@@ -154,13 +168,14 @@ public class BaseDataStore implements DataStore {
       final DataStoreCallbackManager callbackManager =
           new DataStoreCallbackManager(statisticsStore, secondaryIndexDataStore, true);
       final List<IngestCallback<T>> callbacks =
-          Collections.singletonList(callbackManager.getIngestCallback(adapter, null));
+          Collections.singletonList(
+              callbackManager.getIngestCallback(adapter, BaseDataStoreUtils.DATA_ID_INDEX));
 
       final IngestCallbackList<T> callbacksList = new IngestCallbackList<>(callbacks);
       writers[i++] =
           createIndexWriter(
               adapter,
-              new NullIndex("DATA"),
+              BaseDataStoreUtils.DATA_ID_INDEX,
               baseOperations,
               baseOptions,
               callbacksList,
@@ -246,7 +261,8 @@ public class BaseDataStore implements DataStore {
     // via the DuplicateDeletionCallback. The callback should only be added
     // during the initial deletion query.
     final boolean delete =
-        (deleteMode == DeletionMode.DELETE || deleteMode == DeletionMode.DELETE_WITH_DUPLICATES);
+        ((deleteMode == DeletionMode.DELETE)
+            || (deleteMode == DeletionMode.DELETE_WITH_DUPLICATES));
 
     final List<CloseableIterator<Object>> results = new ArrayList<>();
 
@@ -299,11 +315,16 @@ public class BaseDataStore implements DataStore {
                   indexStore);
       final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation =
           queryOptions.getAggregation();
+      Map<Short, Set<ByteArray>> dataIdsToDelete = null;
+      if (delete && baseOptions.isSecondaryIndexing()) {
+        dataIdsToDelete = new HashMap<>();
+      }
       for (final Pair<Index, List<InternalDataAdapter<?>>> indexAdapterPair : indexAdapterPairList) {
         final List<Short> adapterIdsToQuery = new ArrayList<>();
         // this only needs to be done once per index, not once per
         // adapter
         boolean queriedAllAdaptersByPrefix = false;
+        // maintain a set of data IDs if deleting using secondary indexing
         for (final InternalDataAdapter adapter : indexAdapterPair.getRight()) {
           if (delete) {
             final DataStoreCallbackManager callbackCache =
@@ -315,32 +336,43 @@ public class BaseDataStore implements DataStore {
             // the duplicate deletion callback utilizes insertion id
             // query to clean up the dupes, in this case we do not
             // want the stats to change
-            if (!(constraints instanceof InsertionIdQuery))
+            if (!(constraints instanceof InsertionIdQuery)) {
               callbackCache.setPersistStats(baseOptions.isPersistDataStatistics());
-            else
+            } else {
               callbackCache.setPersistStats(false);
+            }
 
             deleteCallbacks.add(callbackCache);
             final ScanCallback callback = queryOptions.getScanCallback();
 
             final Index index = indexAdapterPair.getLeft();
             if (deleteMode == DeletionMode.DELETE_WITH_DUPLICATES) {
-              DeleteCallbackList<T, GeoWaveRow> delList =
+              final DeleteCallbackList<T, GeoWaveRow> delList =
                   (DeleteCallbackList<T, GeoWaveRow>) callbackCache.getDeleteCallback(
                       adapter,
                       index);
 
-              DuplicateDeletionCallback<T> dupDeletionCallback =
-                  new DuplicateDeletionCallback<T>(this, adapter, index);
+              final DuplicateDeletionCallback<T> dupDeletionCallback =
+                  new DuplicateDeletionCallback<>(this, adapter, index);
               delList.addCallback(dupDeletionCallback);
             }
-
+            final Map<Short, Set<ByteArray>> internalDataIdsToDelete = dataIdsToDelete;
             queryOptions.setScanCallback(new ScanCallback<Object, GeoWaveRow>() {
 
               @Override
               public void entryScanned(final Object entry, final GeoWaveRow row) {
                 if (callback != null) {
                   callback.entryScanned(entry, row);
+                }
+                if (internalDataIdsToDelete != null) {
+                  final ByteArray dataId = new ByteArray(row.getDataId());
+                  Set<ByteArray> currentDataIdsToDelete =
+                      internalDataIdsToDelete.get(row.getAdapterId());
+                  if (currentDataIdsToDelete == null) {
+                    currentDataIdsToDelete = new HashSet<>();
+                    internalDataIdsToDelete.put(row.getAdapterId(), currentDataIdsToDelete);
+                  }
+                  currentDataIdsToDelete.add(dataId);
                 }
                 callbackCache.getDeleteCallback(adapter, index).entryDeleted(entry, row);
               }
@@ -420,6 +452,9 @@ public class BaseDataStore implements DataStore {
                   delete));
         }
       }
+      if ((dataIdsToDelete != null) && !dataIdsToDelete.isEmpty()) {
+        deleteFromDataIdx(dataIdsToDelete, queryOptions.getAuthorizations());
+      }
 
     } catch (final IOException e1) {
       LOGGER.error("Failed to resolve adapter or index for query", e1);
@@ -437,6 +472,79 @@ public class BaseDataStore implements DataStore {
       }
 
     }, Iterators.concat(new CastIterator<T>(results.iterator())));
+  }
+
+  protected void deleteFromDataIdx(
+      final Map<Short, Set<ByteArray>> dataIdsToDelete,
+      final String... authorizations) {
+    try (RowDeleter rowDeleter =
+        baseOperations.createRowDeleter(
+            BaseDataStoreUtils.DATA_ID_INDEX.getName(),
+            adapterStore,
+            internalAdapterStore,
+            authorizations)) {
+      for (final Entry<Short, Set<ByteArray>> entry : dataIdsToDelete.entrySet()) {
+        final Short adapterId = entry.getKey();
+        final List<Short> adapterIdList = Collections.singletonList(adapterId);
+
+        final FieldVisibilityCount visibilityCounts =
+            FieldVisibilityCount.getVisibilityCounts(
+                BaseDataStoreUtils.DATA_ID_INDEX,
+                adapterIdList,
+                statisticsStore,
+                authorizations);
+        final ReaderParamsBuilder readerParams =
+            new ReaderParamsBuilder<>(
+                BaseDataStoreUtils.DATA_ID_INDEX,
+                adapterStore,
+                internalAdapterStore,
+                GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER).adapterIds(
+                    new short[] {adapterId}).isAuthorizationsLimiting(
+                        (visibilityCounts == null)
+                            || visibilityCounts.isAuthorizationsLimiting(
+                                authorizations)).additionalAuthorizations(authorizations);
+        entry.getValue().forEach(dataId -> {
+          final QueryRanges ranges =
+              new InsertionIds(new byte[0], Lists.newArrayList(dataId.getBytes())).asQueryRanges();
+          readerParams.queryRanges(ranges);
+          try (QueryAndDeleteByRow queryAndDelete =
+              new QueryAndDeleteByRow<>(
+                  rowDeleter,
+                  baseOperations.createReader(readerParams.build()))) {
+            while (queryAndDelete.hasNext()) {
+              queryAndDelete.next();
+            }
+          } catch (final Exception e) {
+            LOGGER.error(
+                "Failed to delete data ID '"
+                    + dataId.getString()
+                    + "' with Adapter ID '"
+                    + adapterId
+                    + "' from '"
+                    + BaseDataStoreUtils.DATA_ID_INDEX.getName()
+                    + "' table",
+                e);
+          }
+        });
+      }
+
+      // dataIdsToDelete.forEach(
+      // pair -> rowDeleter.delete(
+      // new GeoWaveRowImpl(
+      // new GeoWaveKeyImpl(
+      // new byte[0],
+      // pair.getRight(),
+      // new byte[0],
+      // pair.getLeft().getBytes(),
+      // 0),
+      // new GeoWaveValue[0])));
+    } catch (
+
+    final Exception e) {
+      LOGGER.error(
+          "Failed to delete data from '" + BaseDataStoreUtils.DATA_ID_INDEX.getName() + "'",
+          e);
+    }
   }
 
 
@@ -508,6 +616,15 @@ public class BaseDataStore implements DataStore {
               }
             }
           }
+          if (baseOptions.isSecondaryIndexing()) {
+            for (final InternalDataAdapter adapter : sanitizedQueryOptions.getAdaptersArray(
+                adapterStore)) {
+              deleteEntries(
+                  adapter,
+                  BaseDataStoreUtils.DATA_ID_INDEX,
+                  query.getCommonQueryOptions().getAuthorizations());
+            }
+          }
         } catch (final IOException e) {
           LOGGER.warn("Unable to get adapters to delete", e);
           return false;
@@ -533,11 +650,11 @@ public class BaseDataStore implements DataStore {
     return delete(query, null, true);
   }
 
-  public <T> boolean delete(final Query<T> query, ScanCallback<T, ?> scanCallback) {
+  public <T> boolean delete(final Query<T> query, final ScanCallback<T, ?> scanCallback) {
     return delete(query, scanCallback, true);
   }
 
-  public <T> boolean delete(final Query<T> query, boolean deleteDuplicates) {
+  public <T> boolean delete(final Query<T> query, final boolean deleteDuplicates) {
     return delete(query, null, deleteDuplicates);
   }
 
@@ -572,6 +689,67 @@ public class BaseDataStore implements DataStore {
         adapter.getTypeName(),
         adapter.getAdapterId(),
         additionalAuthorizations);
+  }
+
+  protected DataIndexRetrieval getDataIdxRetrieval(final Index index) {
+    if (baseOptions.isSecondaryIndexing() && !(index instanceof NullIndex)) {
+      // this implies that this index merely contains a reference by data ID and a second lookup
+      // must be done
+      if (getDataIdxRetrievalBatchSize() > 1) {
+
+      }
+      return new BaseDataIndexRetrieval(((dataId, adapterId, params) -> {
+        return getFieldValuesFromDataIdIndex(
+            dataId,
+            adapterId,
+            new DataIndexRetrievalParams(
+                params.isClientsideRowMerging(),
+                params.getFieldSubsets(),
+                params.getAdditionalAuthorizations()));
+      }));
+    }
+    return null;
+  }
+
+  protected GeoWaveValue[] getFieldValuesFromDataIdIndex(
+      final byte[] dataId,
+      final Short adapterId,
+      final DataIndexRetrievalParams params) {
+    final List<Short> adapterIdList = Collections.singletonList(adapterId);
+    final FieldVisibilityCount visibilityCounts =
+        FieldVisibilityCount.getVisibilityCounts(
+            BaseDataStoreUtils.DATA_ID_INDEX,
+            adapterIdList,
+            statisticsStore,
+            params.getAdditionalAuthorizations());
+    final DataIndexReaderParams<GeoWaveRow> readerParams =
+        new DataIndexReaderParamsBuilder<>(
+            BaseDataStoreUtils.DATA_ID_INDEX,
+            adapterStore,
+            internalAdapterStore,
+            GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER).adapterIds(
+                new short[] {adapterId}).fieldSubsets(
+                    params.getFieldSubsets()).isAuthorizationsLimiting(
+                        (visibilityCounts == null)
+                            || visibilityCounts.isAuthorizationsLimiting(
+                                params.getAdditionalAuthorizations())).isClientsideRowMerging(
+                                    params.isClientsideRowMerging()).dataIds(
+                                        dataId).additionalAuthorizations(
+                                            params.getAdditionalAuthorizations()).build();
+    final RowReader<GeoWaveRow> reader = baseOperations.createReader(readerParams);
+    if (reader.hasNext()) {
+      return reader.next().getFieldValues();
+    } else {
+      LOGGER.warn(
+          "Unable to find data ID '"
+              + StringUtils.stringFromBinary(dataId)
+              + " (hex:"
+              + ByteArrayUtils.getHexString(dataId)
+              + ")' with adapter ID "
+              + adapterId
+              + " in data table");
+      return new GeoWaveValue[0];
+    }
   }
 
   protected CloseableIterator<Object> queryConstraints(
@@ -611,6 +789,7 @@ public class BaseDataStore implements DataStore {
                 adapterIdsToQuery,
                 statisticsStore,
                 sanitizedQueryOptions.getAuthorizations()),
+            getDataIdxRetrieval(index),
             sanitizedQueryOptions.getAuthorizations());
 
     return constraintsQuery.query(
@@ -651,6 +830,7 @@ public class BaseDataStore implements DataStore {
                 adapterIds,
                 statisticsStore,
                 sanitizedQueryOptions.getAuthorizations()),
+            getDataIdxRetrieval(index),
             sanitizedQueryOptions.getAuthorizations());
 
     return prefixQuery.query(
@@ -694,6 +874,7 @@ public class BaseDataStore implements DataStore {
             filter,
             differingVisibilityCounts,
             visibilityCounts,
+            getDataIdxRetrieval(index),
             sanitizedQueryOptions.getAuthorizations());
     return q.query(
         baseOperations,
@@ -1437,5 +1618,9 @@ public class BaseDataStore implements DataStore {
   @Override
   public void deleteAll() {
     deleteEverything();
+  }
+
+  protected int getDataIdxRetrievalBatchSize() {
+    return 1;
   }
 }

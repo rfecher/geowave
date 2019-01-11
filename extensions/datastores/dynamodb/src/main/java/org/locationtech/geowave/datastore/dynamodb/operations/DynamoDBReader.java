@@ -122,7 +122,11 @@ public class DynamoDBReader<T> implements RowReader<T> {
     // readerParams.getAdapterIds()));
     // }
 
-    startRead(requests, tableName, readerParams.getMaxResolutionSubsamplingPerDimension() == null);
+    startRead(
+        requests,
+        tableName,
+        readerParams.isClientsideRowMerging(),
+        readerParams.getMaxResolutionSubsamplingPerDimension() == null);
   }
 
   protected void initRecordScanner() {
@@ -150,12 +154,13 @@ public class DynamoDBReader<T> implements RowReader<T> {
               new ByteArrayRange(startKey, stopKey),
               adapterId));
     }
-    startRead(requests, tableName, false);
+    startRead(requests, tableName, recordReaderParams.isClientsideRowMerging(), false);
   }
 
   private void startRead(
       final List<QueryRequest> requests,
       final String tableName,
+      final boolean rowMerging,
       final boolean parallelDecode) {
     Iterator<Map<String, AttributeValue>> rawIterator;
     Predicate<DynamoDBRow> adapterIdFilter = null;
@@ -165,10 +170,15 @@ public class DynamoDBReader<T> implements RowReader<T> {
 
           @Override
           public Iterator<DynamoDBRow> apply(final Iterator<Map<String, AttributeValue>> input) {
-            return new GeoWaveRowMergingIterator<>(
+            final Iterator<DynamoDBRow> rowIterator =
                 Iterators.filter(
                     Iterators.transform(input, new DynamoDBRow.GuavaRowTranslationHelper()),
-                    visibilityFilter));
+                    visibilityFilter);
+            if (rowMerging) {
+              return new GeoWaveRowMergingIterator<>(rowIterator);
+            } else {
+              return rowIterator;
+            }
           }
         };
 
@@ -325,10 +335,10 @@ public class DynamoDBReader<T> implements RowReader<T> {
       short[] adapterIds,
       final InternalAdapterStore adapterStore) {
     final List<QueryRequest> retVal = new ArrayList<>();
-    final byte[] partitionKey = r.getPartitionKey();
-    final byte[] partitionId =
-        ((partitionKey == null) || (partitionKey.length == 0)) ? DynamoDBWriter.EMPTY_PARTITION_KEY
-            : partitionKey;
+    final byte[] partitionKey =
+        ((r.getPartitionKey() == null) || (r.getPartitionKey().length == 0))
+            ? DynamoDBWriter.EMPTY_PARTITION_KEY
+            : r.getPartitionKey();
     if (((adapterIds == null) || (adapterIds.length == 0)) && (adapterStore != null)) {
       adapterIds = adapterStore.getAdapterIds();
     }
@@ -338,9 +348,9 @@ public class DynamoDBReader<T> implements RowReader<T> {
       if ((sortKeyRanges != null) && !sortKeyRanges.isEmpty()) {
         sortKeyRanges.forEach(
             (sortKeyRange -> retVal.add(
-                getQuery(tableName, partitionId, sortKeyRange, adapterId))));
+                getQuery(tableName, partitionKey, sortKeyRange, adapterId))));
       } else {
-        retVal.add(getQuery(tableName, partitionId, null, adapterId));
+        retVal.add(getQuery(tableName, partitionKey, null, adapterId));
       }
     }
     return retVal;

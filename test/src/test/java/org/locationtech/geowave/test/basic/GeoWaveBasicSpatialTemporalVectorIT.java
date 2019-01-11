@@ -63,7 +63,7 @@ public class GeoWaveBasicSpatialTemporalVectorIT extends AbstractGeoWaveBasicVec
 
   private static long startMillis;
   private static final boolean POINTS_ONLY = false;
-  private static final int NUM_THREADS = 4;
+  private static final int NUM_THREADS = 1;
 
   @BeforeClass
   public static void reportTestStart() {
@@ -91,11 +91,11 @@ public class GeoWaveBasicSpatialTemporalVectorIT extends AbstractGeoWaveBasicVec
   @Test
   public void testIngestAndQuerySpatialTemporalPointsAndLines() throws Exception {
     // ingest both lines and points
-    TestUtils.testLocalIngest(
-        dataStore,
-        DimensionalityType.SPATIAL_TEMPORAL,
-        HAIL_SHAPEFILE_FILE,
-        NUM_THREADS);
+//    TestUtils.testLocalIngest(
+//        dataStore,
+//        DimensionalityType.SPATIAL_TEMPORAL,
+//        HAIL_SHAPEFILE_FILE,
+//        NUM_THREADS);
 
     if (!POINTS_ONLY) {
       TestUtils.testLocalIngest(
@@ -113,7 +113,7 @@ public class GeoWaveBasicSpatialTemporalVectorIT extends AbstractGeoWaveBasicVec
       } else {
         expectedResultsUrls =
             new URL[] {
-                new File(HAIL_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE).toURI().toURL(),
+//                new File(HAIL_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE).toURI().toURL(),
                 new File(TORNADO_TRACKS_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE).toURI().toURL()};
       }
 
@@ -139,7 +139,7 @@ public class GeoWaveBasicSpatialTemporalVectorIT extends AbstractGeoWaveBasicVec
       } else {
         expectedResultsUrls =
             new URL[] {
-                new File(HAIL_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE).toURI().toURL(),
+//                new File(HAIL_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE).toURI().toURL(),
                 new File(
                     TORNADO_TRACKS_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE).toURI().toURL()};
       }
@@ -164,7 +164,7 @@ public class GeoWaveBasicSpatialTemporalVectorIT extends AbstractGeoWaveBasicVec
       } else {
         statsInputs =
             new URL[] {
-                new File(HAIL_SHAPEFILE_FILE).toURI().toURL(),
+//                new File(HAIL_SHAPEFILE_FILE).toURI().toURL(),
                 new File(TORNADO_TRACKS_SHAPEFILE_FILE).toURI().toURL()};
       }
 

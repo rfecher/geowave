@@ -20,7 +20,7 @@ import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 
-/** Represents a query operation using an Accumulo row prefix. */
+/** Represents a query operation using a row prefix. */
 class BaseRowPrefixQuery<T> extends AbstractBaseRowQuery<T> {
   final QueryRanges queryRanges;
 
@@ -31,8 +31,15 @@ class BaseRowPrefixQuery<T> extends AbstractBaseRowQuery<T> {
       final ScanCallback<T, ?> scanCallback,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
       final FieldVisibilityCount visibilityCounts,
+      final DataIndexRetrieval dataIndexRetrieval,
       final String[] authorizations) {
-    super(index, authorizations, scanCallback, differingVisibilityCounts, visibilityCounts);
+    super(
+        index,
+        authorizations,
+        scanCallback,
+        differingVisibilityCounts,
+        visibilityCounts,
+        dataIndexRetrieval);
 
     final ByteArrayRange sortKeyPrefixRange =
         new ByteArrayRange(sortKeyPrefix, sortKeyPrefix, false);

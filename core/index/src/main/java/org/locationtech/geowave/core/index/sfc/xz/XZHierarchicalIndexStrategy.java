@@ -360,7 +360,9 @@ public class XZHierarchicalIndexStrategy implements HierarchicalNumericIndexStra
     } else {
       return rasterStrategy.getCoordinatesPerDimension(partitionKey, sortKey);
     }
-
+    if (coordinates == null) {
+      return null;
+    }
     return new MultiDimensionalCoordinates(new byte[] {first}, coordinates);
   }
 

@@ -15,12 +15,10 @@ import org.apache.log4j.Logger;
 import org.locationtech.geowave.core.index.MultiDimensionalCoordinateRangesArray;
 import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
-import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
-import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
@@ -50,12 +48,14 @@ abstract class BaseQuery {
   protected final FieldVisibilityCount visibilityCounts;
   protected final String[] authorizations;
   protected final ScanCallbackList<?, ?> scanCallback;
+  private final DataIndexRetrieval dataIndexRetrieval;
 
   public BaseQuery(
       final Index index,
       final ScanCallback<?, ?> scanCallback,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
       final FieldVisibilityCount visibilityCounts,
+      final DataIndexRetrieval dataIndexRetrieval,
       final String... authorizations) {
     this(
         null,
@@ -64,6 +64,7 @@ abstract class BaseQuery {
         scanCallback,
         differingVisibilityCounts,
         visibilityCounts,
+        dataIndexRetrieval,
         authorizations);
   }
 
@@ -74,6 +75,7 @@ abstract class BaseQuery {
       final ScanCallback<?, ?> scanCallback,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
       final FieldVisibilityCount visibilityCounts,
+      final DataIndexRetrieval dataIndexRetrieval,
       final String... authorizations) {
     this.adapterIds = adapterIds;
     this.index = index;
@@ -87,6 +89,7 @@ abstract class BaseQuery {
       callbacks.add(scanCallback);
     }
     this.scanCallback = new ScanCallbackList(callbacks);
+    this.dataIndexRetrieval = dataIndexRetrieval;
   }
 
   protected <C> RowReader<C> getReader(
@@ -109,8 +112,8 @@ abstract class BaseQuery {
               : options.getMaxRangeDecomposition();
     }
 
-    ReaderParams<C> readerParams =
-        new ReaderParamsBuilder<C>(
+    final ReaderParams<C> readerParams =
+        new ReaderParamsBuilder<>(
             index,
             adapterStore,
             internalAdapterStore,
@@ -141,22 +144,7 @@ abstract class BaseQuery {
   }
 
   public boolean isRowMerging(final PersistentAdapterStore adapterStore) {
-    if (adapterIds != null) {
-      for (final short adapterId : adapterIds) {
-        if (adapterStore.getAdapter(adapterId).getAdapter() instanceof RowMergingDataAdapter) {
-          return true;
-        }
-      }
-    } else {
-      try (CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters()) {
-        while (it.hasNext()) {
-          if (it.next().getAdapter() instanceof RowMergingDataAdapter) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
+    return BaseDataStoreUtils.isRowMerging(adapterStore, adapterIds);
   }
 
   public boolean isServerSideAggregation(final DataStoreOptions options) {
@@ -210,6 +198,17 @@ abstract class BaseQuery {
 
   public String[] getAdditionalAuthorizations() {
     return authorizations;
+  }
+
+  public DataIndexRetrieval getFieldValuesFromDataIdx(final PersistentAdapterStore adapterStore) {
+    if (dataIndexRetrieval != null) {
+      dataIndexRetrieval.setParams(
+          new DataIndexRetrievalParams(
+              isRowMerging(adapterStore),
+              getFieldSubsets(),
+              getAdditionalAuthorizations()));
+    }
+    return dataIndexRetrieval;
   }
 
   public QueryFilter getServerFilter(final DataStoreOptions options) {

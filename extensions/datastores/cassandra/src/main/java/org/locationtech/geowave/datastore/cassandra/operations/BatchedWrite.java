@@ -31,7 +31,7 @@ public class BatchedWrite extends BatchHandler implements AutoCloseable {
   // to gain some efficiencies for bulk ingests with batches if done
   // correctly, while other recommendations contradict this article and
   // suggest don't use batching as a performance optimization
-  private static final boolean ASYNC = true;
+  private static final boolean ASYNC = false;
   private final int batchSize;
   private final PreparedStatement preparedInsert;
   private static final int MAX_CONCURRENT_WRITE = 100;

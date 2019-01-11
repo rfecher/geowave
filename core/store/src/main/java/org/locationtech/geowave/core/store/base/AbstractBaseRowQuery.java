@@ -18,10 +18,12 @@ import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
+import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
 import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.util.NativeEntryTransformer;
+import org.locationtech.geowave.core.store.util.TriFunction;
 
 /**
  * Represents a query operation by an Accumulo row. This abstraction is re-usable for both exact row
@@ -35,8 +37,15 @@ abstract class AbstractBaseRowQuery<T> extends BaseQuery {
       final String[] authorizations,
       final ScanCallback<T, ?> scanCallback,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
-      final FieldVisibilityCount visibilityCounts) {
-    super(index, scanCallback, differingVisibilityCounts, visibilityCounts, authorizations);
+      final FieldVisibilityCount visibilityCounts,
+      final DataIndexRetrieval dataIndexRetrieval) {
+    super(
+        index,
+        scanCallback,
+        differingVisibilityCounts,
+        visibilityCounts,
+        dataIndexRetrieval,
+        authorizations);
   }
 
   public CloseableIterator<T> query(
@@ -66,7 +75,8 @@ abstract class AbstractBaseRowQuery<T> extends BaseQuery {
                 (ScanCallback<T, ?>) scanCallback,
                 getFieldBitmask(),
                 maxResolutionSubsamplingPerDimension,
-                !isCommonIndexAggregation()),
+                !isCommonIndexAggregation(),
+                getFieldValuesFromDataIdx(adapterStore)),
             delete);
     return new CloseableIteratorWrapper<>(new ReaderClosableWrapper(reader), reader);
   }

@@ -31,6 +31,7 @@ public abstract class BaseReaderParams<T> {
   private final Pair<String[], InternalDataAdapter<?>> fieldSubsets;
   private final boolean isMixedVisibility;
   private final boolean isAuthorizationsLimiting;
+  private final boolean isClientsideRowMerging;
   private final Integer limit;
   private final Integer maxRangeDecomposition;
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
@@ -39,13 +40,14 @@ public abstract class BaseReaderParams<T> {
   public BaseReaderParams(
       final Index index,
       final PersistentAdapterStore adapterStore,
-      InternalAdapterStore internalAdapterStore,
+      final InternalAdapterStore internalAdapterStore,
       final short[] adapterIds,
       final double[] maxResolutionSubsamplingPerDimension,
       final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
       final Pair<String[], InternalDataAdapter<?>> fieldSubsets,
       final boolean isMixedVisibility,
       final boolean isAuthorizationsLimiting,
+      final boolean isClientsideRowMerging,
       final Integer limit,
       final Integer maxRangeDecomposition,
       final GeoWaveRowIteratorTransformer<T> rowTransformer,
@@ -59,6 +61,7 @@ public abstract class BaseReaderParams<T> {
     this.fieldSubsets = fieldSubsets;
     this.isMixedVisibility = isMixedVisibility;
     this.isAuthorizationsLimiting = isAuthorizationsLimiting;
+    this.isClientsideRowMerging = isClientsideRowMerging;
     this.limit = limit;
     this.maxRangeDecomposition = maxRangeDecomposition;
     this.rowTransformer = rowTransformer;
@@ -131,6 +134,10 @@ public abstract class BaseReaderParams<T> {
 
   public boolean isServersideAggregation() {
     return false;
+  }
+
+  public boolean isClientsideRowMerging() {
+    return isClientsideRowMerging;
   }
 
   public GeoWaveRowIteratorTransformer<T> getRowTransformer() {

@@ -38,6 +38,7 @@ import org.locationtech.geowave.core.store.adapter.NativeFieldHandler;
 import org.locationtech.geowave.core.store.adapter.NativeFieldHandler.RowBuilder;
 import org.locationtech.geowave.core.store.adapter.PersistentIndexFieldHandler;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.data.PersistentValue;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
 import org.locationtech.geowave.core.store.data.field.FieldUtils;
@@ -45,7 +46,7 @@ import org.locationtech.geowave.core.store.data.field.FieldWriter;
 import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.index.IndexImpl;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -72,7 +73,7 @@ public class PersistenceEncodingTest {
           new int[] {16, 16, 16},
           SFCType.HILBERT);
 
-  private static final Index index = new PrimaryIndex(strategy, model);
+  private static final Index index = new IndexImpl(strategy, model);
 
   Date start = null, end = null;
 
@@ -124,7 +125,7 @@ public class PersistenceEncodingTest {
             new int[] {14, 14, 14},
             SFCType.HILBERT);
 
-    final Index index = new PrimaryIndex(strategy, model);
+    final Index index = new IndexImpl(strategy, model);
 
     final GeoObjDataAdapter adapter =
         new GeoObjDataAdapter(NATIVE_FIELD_HANDLER_LIST, COMMON_FIELD_HANDLER_LIST);
@@ -267,6 +268,14 @@ public class PersistenceEncodingTest {
 
         @Override
         public void fromBinary(final byte[] bytes) {}
+
+        @Override
+        public CommonIndexValue toIndexValue(
+            final PersistentDataset<Object> adapterPersistenceEncoding) {
+          return new GeometryWrapper(
+              (Geometry) adapterPersistenceEncoding.getValue(GEOM),
+              new byte[0]);
+        }
       };
 
   static {
@@ -459,9 +468,6 @@ public class PersistenceEncodingTest {
       return new PersistentValue[] {
           new PersistentValue<Object>(
               START_TIME,
-              new Date((long) ((Time.TimeRange) indexValue).toNumericData().getMin())),
-          new PersistentValue<Object>(
-              END_TIME,
               new Date((long) ((Time.TimeRange) indexValue).toNumericData().getMin()))};
     }
 
@@ -477,6 +483,14 @@ public class PersistenceEncodingTest {
 
     @Override
     public void fromBinary(final byte[] bytes) {}
+
+    @Override
+    public CommonIndexValue toIndexValue(
+        final PersistentDataset<Object> adapterPersistenceEncoding) {
+      return new Time.Timestamp(
+          ((Date) adapterPersistenceEncoding.getValue(START_TIME)).getTime(),
+          new byte[0]);
+    }
   }
 
   public static class TimeRangeFieldHandler
@@ -518,5 +532,14 @@ public class PersistenceEncodingTest {
 
     @Override
     public void fromBinary(final byte[] bytes) {}
+
+    @Override
+    public CommonIndexValue toIndexValue(
+        final PersistentDataset<Object> adapterPersistenceEncoding) {
+      return new Time.TimeRange(
+          ((Date) adapterPersistenceEncoding.getValue(START_TIME)).getTime(),
+          ((Date) adapterPersistenceEncoding.getValue(END_TIME)).getTime(),
+          new byte[0]);
+    }
   }
 }

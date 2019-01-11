@@ -52,7 +52,7 @@ import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.base.BaseDataStore;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.index.IndexImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
 import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
 import org.locationtech.geowave.core.store.query.constraints.InsertionIdQuery;
@@ -93,7 +93,7 @@ public class DeleteWriterTest {
 
   final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 
-  private static final Index index = new PrimaryIndex(STRATEGY, MODEL);
+  private static final Index index = new IndexImpl(STRATEGY, MODEL);
 
   protected static final String DEFAULT_MINI_ACCUMULO_PASSWORD = "Ge0wave";
   protected static final String HADOOP_WINDOWS_UTIL = "winutils.exe";
@@ -151,7 +151,7 @@ public class DeleteWriterTest {
                           new Coordinate(43.454, 28.242),
                           new Coordinate(43.444, 28.252),
                           new Coordinate(43.444, 28.232),}),
-                  "test_line_1"));
+                  "test_line_1")).getInsertionIdsWritten(index.getName());
 
       indexWriter.write(
           new AccumuloDataStoreStatsTest.TestGeometry(
@@ -166,7 +166,7 @@ public class DeleteWriterTest {
           indexWriter.write(
               new AccumuloDataStoreStatsTest.TestGeometry(
                   factory.createPoint(new Coordinate(-77.0352, 38.8895)),
-                  "test_pt_1"));
+                  "test_pt_1")).getInsertionIdsWritten(index.getName());
     }
   }
 

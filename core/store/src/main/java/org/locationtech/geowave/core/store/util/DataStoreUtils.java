@@ -250,25 +250,38 @@ public class DataStoreUtils {
       final byte[] commonVisibility,
       final int maxFieldPosition) {
     final List<FlattenedFieldInfo> fieldInfoList = new LinkedList<>();
-    final List<Integer> fieldPositions = BitmaskUtils.getFieldPositions(bitmask);
-
-    final boolean sharedVisibility = fieldPositions.size() > 1;
-    if (sharedVisibility) {
-      final ByteBuffer input = ByteBuffer.wrap(flattenedValue);
-      for (int i = 0; i < fieldPositions.size(); i++) {
-        final Integer fieldPosition = fieldPositions.get(i);
-        if ((maxFieldPosition > -1) && (fieldPosition > maxFieldPosition)) {
-          return new FlattenedDataSet(
-              fieldInfoList,
-              new FlattenedUnreadDataSingleRow(input, i, fieldPositions));
+    if ((flattenedValue != null) && (flattenedValue.length > 0)) {
+      if ((bitmask != null) && (bitmask.length > 0)) {
+        final List<Integer> fieldPositions = BitmaskUtils.getFieldPositions(bitmask);
+        final boolean sharedVisibility = fieldPositions.size() > 1;
+        if (sharedVisibility) {
+          final ByteBuffer input = ByteBuffer.wrap(flattenedValue);
+          for (int i = 0; i < fieldPositions.size(); i++) {
+            final Integer fieldPosition = fieldPositions.get(i);
+            if ((maxFieldPosition > -1) && (fieldPosition > maxFieldPosition)) {
+              return new FlattenedDataSet(
+                  fieldInfoList,
+                  new FlattenedUnreadDataSingleRow(input, i, fieldPositions));
+            }
+            final int fieldLength = input.getInt();
+            final byte[] fieldValueBytes = new byte[fieldLength];
+            input.get(fieldValueBytes);
+            fieldInfoList.add(new FlattenedFieldInfo(fieldPosition, fieldValueBytes));
+          }
+        } else {
+          fieldInfoList.add(new FlattenedFieldInfo(fieldPositions.get(0), flattenedValue));
         }
-        final int fieldLength = input.getInt();
-        final byte[] fieldValueBytes = new byte[fieldLength];
-        input.get(fieldValueBytes);
-        fieldInfoList.add(new FlattenedFieldInfo(fieldPosition, fieldValueBytes));
+      } else {
+        // assume fields are in positional order
+        final ByteBuffer input = ByteBuffer.wrap(flattenedValue);
+        for (int i = 0; input.hasRemaining(); i++) {
+          final Integer fieldPosition = i;
+          final int fieldLength = input.getInt();
+          final byte[] fieldValueBytes = new byte[fieldLength];
+          input.get(fieldValueBytes);
+          fieldInfoList.add(new FlattenedFieldInfo(fieldPosition, fieldValueBytes));
+        }
       }
-    } else {
-      fieldInfoList.add(new FlattenedFieldInfo(fieldPositions.get(0), flattenedValue));
     }
     return new FlattenedDataSet(fieldInfoList, null);
   }

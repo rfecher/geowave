@@ -23,7 +23,6 @@ import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
 public class ReaderParams<T> extends BaseReaderParams<T> {
   private final boolean isServersideAggregation;
-  private final boolean isClientsideRowMerging;
   private final QueryRanges queryRanges;
   private final QueryFilter filter;
   private final List<MultiDimensionalCoordinateRangesArray> coordinateRanges;
@@ -59,12 +58,12 @@ public class ReaderParams<T> extends BaseReaderParams<T> {
         fieldSubsets,
         isMixedVisibility,
         isAuthorizationsLimiting,
+        isClientsideRowMerging,
         limit,
         maxRangeDecomposition,
         rowTransformer,
         additionalAuthorizations);
     this.isServersideAggregation = isServersideAggregation;
-    this.isClientsideRowMerging = isClientsideRowMerging;
     this.queryRanges = queryRanges;
     this.filter = filter;
     this.coordinateRanges = coordinateRanges;
@@ -79,10 +78,6 @@ public class ReaderParams<T> extends BaseReaderParams<T> {
   @Override
   public List<MultiDimensionalNumericData> getConstraints() {
     return constraints;
-  }
-
-  public boolean isClientsideRowMerging() {
-    return isClientsideRowMerging;
   }
 
   @Override

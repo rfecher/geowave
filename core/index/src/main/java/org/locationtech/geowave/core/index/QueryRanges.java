@@ -123,7 +123,7 @@ public class QueryRanges {
     for (final SinglePartitionQueryRanges partition : partitionRanges) {
       if ((partition.getSortKeyRanges() == null) || partition.getSortKeyRanges().isEmpty()) {
         internalQueryRanges.add(
-            new ByteArrayRange(partition.getPartitionKey(), partition.getPartitionKey(), true));
+            new ByteArrayRange(partition.getPartitionKey(), partition.getPartitionKey()));
       } else if (partition.getPartitionKey() == null) {
         internalQueryRanges.addAll(partition.getSortKeyRanges());
       } else {

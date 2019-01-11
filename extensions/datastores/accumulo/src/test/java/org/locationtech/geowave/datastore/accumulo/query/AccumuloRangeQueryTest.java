@@ -26,7 +26,6 @@ import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
 import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.EntryVisibilityHandler;
@@ -42,6 +41,7 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.data.PersistentValue;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
 import org.locationtech.geowave.core.store.data.field.FieldUtils;
@@ -268,6 +268,14 @@ public class AccumuloRangeQueryTest {
 
           @Override
           public void fromBinary(final byte[] bytes) {}
+
+          @Override
+          public CommonIndexValue toIndexValue(
+              final PersistentDataset<Object> adapterPersistenceEncoding) {
+            return new GeometryWrapper(
+                (Geometry) adapterPersistenceEncoding.getValue(GEOM),
+                new byte[0]);
+          }
         };
     private static final NativeFieldHandler<TestGeometry, Object> ID_FIELD_HANDLER =
         new NativeFieldHandler<AccumuloRangeQueryTest.TestGeometry, Object>() {

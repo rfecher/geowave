@@ -506,7 +506,8 @@ public class AccumuloUtils {
             index,
             null,
             null,
-            true);
+            true,
+            null);
       } catch (final IOException | AdapterException e) {
         // May need to address repeating adaptor log in this class, or
         // calling class.

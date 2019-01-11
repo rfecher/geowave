@@ -17,9 +17,17 @@ import org.locationtech.geowave.datastore.cassandra.CassandraRow.CassandraField;
 
 public class CassandraUtils {
 
+  // because Cassandra requires a partition key, if the geowave partition key is
+  // empty, we need a non-empty constant alternative
+  public static final byte[] EMPTY_PARTITION_KEY = new byte[] {0};
+  
   public static BoundStatement[] bindInsertion(
       final PreparedStatement insertionStatement,
       final GeoWaveRow row) {
+    byte[] partitionKey = row.getPartitionKey();
+    if ((partitionKey == null) || (partitionKey.length == 0)) {
+      partitionKey = EMPTY_PARTITION_KEY;
+    }
     final BoundStatement[] retVal = new BoundStatement[row.getFieldValues().length];
     int i = 0;
     for (final GeoWaveValue value : row.getFieldValues()) {
@@ -28,7 +36,7 @@ public class CassandraUtils {
       retVal[i] = new BoundStatement(insertionStatement);
       retVal[i].set(
           CassandraField.GW_PARTITION_ID_KEY.getBindMarkerName(),
-          ByteBuffer.wrap(row.getPartitionKey()),
+          ByteBuffer.wrap(partitionKey),
           ByteBuffer.class);
       retVal[i].set(
           CassandraField.GW_SORT_KEY.getBindMarkerName(),

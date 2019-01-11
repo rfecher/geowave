@@ -106,6 +106,7 @@ public class BatchedRangeRead<T> {
   private final Pair<Boolean, Boolean> groupByRowAndSortByTimePair;
   private final boolean isSortFinalResultsBySortKey;
   private final Compression compression;
+  private final boolean rowMerging;
 
   protected BatchedRangeRead(
       final RedissonClient client,
@@ -115,6 +116,7 @@ public class BatchedRangeRead<T> {
       final Collection<SinglePartitionQueryRanges> ranges,
       final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final Predicate<GeoWaveRow> filter,
+      final boolean rowMerging,
       final boolean async,
       final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
       final boolean isSortFinalResultsBySortKey) {
@@ -125,6 +127,7 @@ public class BatchedRangeRead<T> {
     this.ranges = ranges;
     this.rowTransformer = rowTransformer;
     this.filter = filter;
+    this.rowMerging = rowMerging;
     // we can't efficiently guarantee sort order with async queries
     this.async = async && !isSortFinalResultsBySortKey;
     this.groupByRowAndSortByTimePair = groupByRowAndSortByTimePair;
@@ -274,31 +277,31 @@ public class BatchedRangeRead<T> {
   private Iterator<T> transformAndFilter(
       final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result,
       final byte[] partitionKey) {
+    final Iterator<GeoWaveRow> iterator =
+        Iterators.filter(
+            Iterators.transform(
+                groupByRowAndSortByTimePair.getLeft()
+                    ? RedisUtils.groupByRow(result, groupByRowAndSortByTimePair.getRight())
+                    : result,
+                new Function<ScoredEntry<GeoWaveRedisPersistedRow>, GeoWaveRedisRow>() {
+
+                  @Override
+                  public GeoWaveRedisRow apply(final ScoredEntry<GeoWaveRedisPersistedRow> entry) {
+                // @formatter:off
+                        // wrap the persisted row with additional metadata
+                        // @formatter:on
+                    return new GeoWaveRedisRow(
+                        entry.getValue(),
+                        adapterId,
+                        partitionKey,
+                        RedisUtils.getSortKey(entry.getScore()));
+                  }
+                }),
+            filter);
     return rowTransformer.apply(
         sortByKeyIfRequired(
             isSortFinalResultsBySortKey,
-            (Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
-                Iterators.filter(
-                    Iterators.transform(
-                        groupByRowAndSortByTimePair.getLeft()
-                            ? RedisUtils.groupByRow(result, groupByRowAndSortByTimePair.getRight())
-                            : result,
-                        new Function<ScoredEntry<GeoWaveRedisPersistedRow>, GeoWaveRedisRow>() {
-
-                          @Override
-                          public GeoWaveRedisRow apply(
-                              final ScoredEntry<GeoWaveRedisPersistedRow> entry) {
-                        // @formatter:off
-                                    // wrap the persisted row with additional metadata
-                                    // @formatter:on
-                            return new GeoWaveRedisRow(
-                                entry.getValue(),
-                                adapterId,
-                                partitionKey,
-                                RedisUtils.getSortKey(entry.getScore()));
-                          }
-                        }),
-                    filter))));
+            rowMerging ? new GeoWaveRowMergingIterator(iterator) : iterator));
   }
 
   private static Iterator<GeoWaveRow> sortByKeyIfRequired(

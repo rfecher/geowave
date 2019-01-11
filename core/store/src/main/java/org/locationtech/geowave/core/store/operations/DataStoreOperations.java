@@ -9,12 +9,18 @@
 package org.locationtech.geowave.core.store.operations;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.locationtech.geowave.core.index.ByteArrayRange;
+import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
+import com.google.common.collect.Iterators;
 
 public interface DataStoreOperations {
 
@@ -41,6 +47,40 @@ public interface DataStoreOperations {
   MetadataDeleter createMetadataDeleter(MetadataType metadataType);
 
   <T> RowReader<T> createReader(ReaderParams<T> readerParams);
+
+  default <T> RowReader<T> createReader(final DataIndexReaderParams<T> readerParams) {
+    final List<RowReader<T>> readers =
+        Arrays.stream(readerParams.getDataIds()).map(
+            dataId -> createReader(
+                new ReaderParams<>(
+                    readerParams.getIndex(),
+                    readerParams.getAdapterStore(),
+                    readerParams.getInternalAdapterStore(),
+                    readerParams.getAdapterIds(),
+                    readerParams.getMaxResolutionSubsamplingPerDimension(),
+                    readerParams.getAggregation(),
+                    readerParams.getFieldSubsets(),
+                    readerParams.isMixedVisibility(),
+                    readerParams.isAuthorizationsLimiting(),
+                    false,
+                    readerParams.isClientsideRowMerging(),
+                    new QueryRanges(new ByteArrayRange(dataId, dataId, true)),
+                    null,
+                    1,
+                    readerParams.getMaxRangeDecomposition(),
+                    readerParams.getCoordinateRanges(),
+                    readerParams.getConstraints(),
+                    readerParams.getRowTransformer(),
+                    readerParams.getAdditionalAuthorizations()))).collect(Collectors.toList());
+    return new RowReaderWrapper<>(Iterators.concat(readers.iterator()), new AutoCloseable() {
+      @Override
+      public void close() throws Exception {
+        for (final RowReader<T> r : readers) {
+          r.close();
+        }
+      }
+    });
+  }
 
   <T> Deleter<T> createDeleter(ReaderParams<T> readerParams);
 

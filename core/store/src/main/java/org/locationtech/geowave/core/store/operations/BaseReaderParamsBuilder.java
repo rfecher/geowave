@@ -27,6 +27,7 @@ public abstract class BaseReaderParamsBuilder<T, R extends BaseReaderParamsBuild
   protected Pair<String[], InternalDataAdapter<?>> fieldSubsets = null;
   protected boolean isMixedVisibility = false;
   protected boolean isAuthorizationsLimiting = true;
+  protected boolean isClientsideRowMerging = false;
   protected Integer limit = null;
   protected Integer maxRangeDecomposition = null;
   protected String[] additionalAuthorizations = null;
@@ -70,6 +71,11 @@ public abstract class BaseReaderParamsBuilder<T, R extends BaseReaderParamsBuild
     return builder();
   }
 
+  public R isClientsideRowMerging(final boolean isClientsideRowMerging) {
+    this.isClientsideRowMerging = isClientsideRowMerging;
+    return builder();
+  }
+
   public R isAuthorizationsLimiting(final boolean isAuthorizationsLimiting) {
     this.isAuthorizationsLimiting = isAuthorizationsLimiting;
     return builder();
@@ -85,7 +91,7 @@ public abstract class BaseReaderParamsBuilder<T, R extends BaseReaderParamsBuild
     return builder();
   }
 
-  public R additionalAuthorizations(String... authorizations) {
+  public R additionalAuthorizations(final String... authorizations) {
     this.additionalAuthorizations = authorizations;
     return builder();
   }

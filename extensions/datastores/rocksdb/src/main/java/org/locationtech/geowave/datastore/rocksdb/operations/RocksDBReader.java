@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
@@ -29,6 +30,7 @@ import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
 import org.locationtech.geowave.core.store.operations.BaseReaderParams;
+import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
@@ -51,6 +53,12 @@ public class RocksDBReader<T> implements RowReader<T> {
 
   public RocksDBReader(final RocksDBClient client, final RecordReaderParams<T> recordReaderParams) {
     this.iterator = createIteratorForRecordReader(client, recordReaderParams);
+  }
+
+  public RocksDBReader(
+      final RocksDBClient client,
+      final DataIndexReaderParams<T> dataIndexReaderParams) {
+    this.iterator = createIteratorForDataIndexReader(client, dataIndexReaderParams, false);
   }
 
   private CloseableIterator<T> createIteratorForReader(
@@ -100,23 +108,27 @@ public class RocksDBReader<T> implements RowReader<T> {
   private CloseableIterator<T> createIterator(
       final RocksDBClient client,
       final BaseReaderParams<T> readerParams,
-      final Collection<SinglePartitionQueryRanges> ranges,
+      final Consumer<BatchedRangeRead> rangeOrDataIdInitializer,
       final Set<String> authorizations,
       final boolean async) {
     final Iterator<CloseableIterator> it =
-        Arrays.stream(ArrayUtils.toObject(readerParams.getAdapterIds())).map(
-            adapterId -> new BatchedRangeRead(
-                client,
-                RocksDBUtils.getTablePrefix(
-                    readerParams.getInternalAdapterStore().getTypeName(adapterId),
-                    readerParams.getIndex().getName()),
-                adapterId,
-                ranges,
-                readerParams.getRowTransformer(),
-                new ClientVisibilityFilter(authorizations),
-                async,
-                RocksDBUtils.isGroupByRowAndIsSortByTime(readerParams, adapterId),
-                RocksDBUtils.isSortByKeyRequired(readerParams)).results()).iterator();
+        Arrays.stream(ArrayUtils.toObject(readerParams.getAdapterIds())).map(adapterId -> {
+          final BatchedRangeRead read =
+              new BatchedRangeRead(
+                  client,
+                  RocksDBUtils.getTablePrefix(
+                      readerParams.getInternalAdapterStore().getTypeName(adapterId),
+                      readerParams.getIndex().getName()),
+                  adapterId,
+                  readerParams.getRowTransformer(),
+                  new ClientVisibilityFilter(authorizations),
+                  readerParams.isClientsideRowMerging(),
+                  async,
+                  RocksDBUtils.isGroupByRowAndIsSortByTime(readerParams, adapterId),
+                  RocksDBUtils.isSortByKeyRequired(readerParams));
+          rangeOrDataIdInitializer.accept(read);
+          return read.results();
+        }).iterator();
     final CloseableIterator<T>[] itArray = Iterators.toArray(it, CloseableIterator.class);
     return new CloseableIteratorWrapper<>(new Closeable() {
       AtomicBoolean closed = new AtomicBoolean(false);
@@ -128,6 +140,20 @@ public class RocksDBReader<T> implements RowReader<T> {
         }
       }
     }, Iterators.concat(itArray));
+  }
+
+  private CloseableIterator<T> createIterator(
+      final RocksDBClient client,
+      final BaseReaderParams<T> readerParams,
+      final Collection<SinglePartitionQueryRanges> ranges,
+      final Set<String> authorizations,
+      final boolean async) {
+    return createIterator(
+        client,
+        readerParams,
+        (final BatchedRangeRead read) -> read.setRanges(ranges),
+        authorizations,
+        async);
   }
 
   private CloseableIterator<T> createIteratorForRecordReader(
@@ -152,19 +178,37 @@ public class RocksDBReader<T> implements RowReader<T> {
         false);
   }
 
+  private CloseableIterator<T> createIteratorForDataIndexReader(
+      final RocksDBClient client,
+      final DataIndexReaderParams<T> dataIndexReaderParams,
+      final boolean async) {
+    final byte[][] dataIds = dataIndexReaderParams.getDataIds();
+    final Set<String> authorizations =
+        Sets.newHashSet(dataIndexReaderParams.getAdditionalAuthorizations());
+
+    return createIterator(
+        client,
+        dataIndexReaderParams,
+        (final BatchedRangeRead read) -> read.setDataIds(dataIds),
+        authorizations,
+        async);
+  }
+
   @SuppressWarnings("unchecked")
   private CloseableIterator<T> wrapResults(
       final Closeable closeable,
       final Iterator<GeoWaveRow> results,
       final BaseReaderParams<T> params,
       final Set<String> authorizations) {
+    final Iterator<GeoWaveRow> iterator =
+        Iterators.filter(results, new ClientVisibilityFilter(authorizations));
     return new CloseableIteratorWrapper<>(
         closeable,
         params.getRowTransformer().apply(
             sortBySortKeyIfRequired(
                 params,
-                (Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator(
-                    Iterators.filter(results, new ClientVisibilityFilter(authorizations))))));
+                params.isClientsideRowMerging() ? new GeoWaveRowMergingIterator(iterator)
+                    : iterator)));
   }
 
   private static Iterator<GeoWaveRow> sortBySortKeyIfRequired(

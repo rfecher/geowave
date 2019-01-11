@@ -21,7 +21,7 @@ public class BaseDataStoreOptions implements DataStoreOptions {
   protected boolean enableServerSideLibrary = true;
 
   @Parameter(names = "--enableSecondaryIndex")
-  protected boolean enableSecondaryIndex = false;
+  protected boolean enableSecondaryIndex = true;
 
   @Parameter(names = "--maxRangeDecomposition", arity = 1)
   protected int configuredMaxRangeDecomposition = Integer.MIN_VALUE;

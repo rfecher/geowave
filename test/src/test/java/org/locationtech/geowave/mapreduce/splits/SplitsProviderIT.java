@@ -225,6 +225,7 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
                     null,
                     splitInfo.isMixedVisibility(),
                     splitInfo.isAuthorizationsLimiting(),
+                    splitInfo.isClientsideRowMerging(),
                     p.getRange(),
                     null,
                     null,

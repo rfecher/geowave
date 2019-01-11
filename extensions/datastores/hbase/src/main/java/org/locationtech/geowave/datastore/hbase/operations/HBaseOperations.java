@@ -1012,7 +1012,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
       final List<ByteArrayRange> ranges = readerParams.getQueryRanges().getCompositeQueryRanges();
       if ((ranges != null) && !ranges.isEmpty()) {
-        final ByteArrayRange aggRange = getSingleRange(ranges);
+        final ByteArrayRange aggRange = ByteArrayUtils.getSingleRange(ranges);
         startRow = aggRange.getStart();
         endRow = aggRange.getEnd();
       }
@@ -1144,7 +1144,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
       final List<ByteArrayRange> ranges = readerParams.getQueryRanges().getCompositeQueryRanges();
       if ((ranges != null) && !ranges.isEmpty()) {
-        final ByteArrayRange aggRange = getSingleRange(ranges);
+        final ByteArrayRange aggRange = ByteArrayUtils.getSingleRange(ranges);
         startRow = aggRange.getStart();
         endRow = aggRange.getEnd();
       }
@@ -1182,21 +1182,6 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     } catch (final Throwable e) {
       LOGGER.error("Error during bulkdelete.", e);
     }
-  }
-
-  private ByteArrayRange getSingleRange(final List<ByteArrayRange> ranges) {
-    byte[] start = null;
-    byte[] end = null;
-
-    for (final ByteArrayRange range : ranges) {
-      if ((start == null) || (ByteArrayUtils.compare(range.getStart(), start) < 0)) {
-        start = range.getStart();
-      }
-      if ((end == null) || (ByteArrayUtils.compare(range.getEnd(), end) > 0)) {
-        end = range.getEnd();
-      }
-    }
-    return new ByteArrayRange(start, end);
   }
 
   public List<ByteArray> getTableRegions(final String tableNameStr) {

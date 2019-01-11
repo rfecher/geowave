@@ -113,9 +113,6 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   private StatsManager statsManager;
   private SecondaryIndexManager secondaryIndexManager;
   private TimeDescriptors timeDescriptors = null;
-  // should change this anytime the serialized image changes. Stay negative.
-  // so 0xa0, 0xa1, 0xa2 etc.
-  static final byte VERSION = (byte) 0xa3;
 
   // -----------------------------------------------------------------------------------
   // -----------------------------------------------------------------------------------
@@ -597,13 +594,7 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
                 + VarintUtils.unsignedIntByteLength(namespaceBytes.length)
                 + VarintUtils.unsignedIntByteLength(attrBytes.length)
                 + VarintUtils.unsignedIntByteLength(axisBytes.length)
-                + VarintUtils.unsignedIntByteLength(encodedTypeBytes.length)
-                + 1);
-
-    // TODO we will mess with serialization but "version" is definitely
-    // better done by simply registering a different persistable constructor
-    // and this should go away
-    buf.put(VERSION);
+                + VarintUtils.unsignedIntByteLength(encodedTypeBytes.length));
     VarintUtils.writeUnsignedInt(typeNameBytes.length, buf);
     VarintUtils.writeUnsignedInt(indexCrsBytes.length, buf);
     VarintUtils.writeUnsignedInt(namespaceBytes.length, buf);
@@ -635,10 +626,6 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     }
     // deserialize the feature type
     final ByteBuffer buf = ByteBuffer.wrap(bytes);
-    // TODO we will mess with serialization but "version" is definitely
-    // better done by simply registering a different persistable constructor
-    // and this should go away
-    buf.get();
     final byte[] typeNameBytes = new byte[VarintUtils.readUnsignedInt(buf)];
 
     final byte[] indexCrsBytes = new byte[VarintUtils.readUnsignedInt(buf)];

@@ -114,6 +114,9 @@ public class BinnedSFCUtils {
       final SpaceFillingCurve sfc) {
     final SFCIdAndBinInfo sfcIdAndBinInfo = getSFCIdAndBinInfo(rowId, baseDefinitions);
     final long[] coordinateValues = sfc.getCoordinates(sfcIdAndBinInfo.sfcId);
+    if (coordinateValues == null) {
+      return null;
+    }
     final Coordinate[] retVal = new Coordinate[coordinateValues.length];
     for (int i = 0; i < coordinateValues.length; i++) {
       final byte[] bin = sfcIdAndBinInfo.binIds.get(i);

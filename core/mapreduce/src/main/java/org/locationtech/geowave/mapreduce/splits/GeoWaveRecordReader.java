@@ -8,8 +8,6 @@
  */
 package org.locationtech.geowave.mapreduce.splits;
 
-import com.google.common.base.Preconditions;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -53,6 +51,8 @@ import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 import org.locationtech.geowave.mapreduce.input.InputFormatIteratorWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.base.Preconditions;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * This class is used by the GeoWaveInputFormat to read data from a GeoWave data store.
@@ -176,7 +176,8 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
                 r.getRange(),
                 queryFilters,
                 splitInfo.isMixedVisibility(),
-                splitInfo.isAuthorizationsLimiting()));
+                splitInfo.isAuthorizationsLimiting(),
+                splitInfo.isClientsideRowMerging()));
         incrementalRangeSums.put(r, sum);
         sum = sum.add(BigDecimal.valueOf(r.getCardinality()));
       }
@@ -225,7 +226,8 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
       final GeoWaveRowRange range,
       final List<QueryFilter> queryFilters,
       final boolean mixedVisibility,
-      final boolean authorizationsLimiting) {
+      final boolean authorizationsLimiting,
+      final boolean clientsideRowMerging) {
 
     final QueryFilter singleFilter =
         ((queryFilters == null) || queryFilters.isEmpty()) ? null
@@ -242,6 +244,7 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
                 sanitizedQueryOptions.getFieldIdsAdapterPair(),
                 mixedVisibility,
                 authorizationsLimiting,
+                clientsideRowMerging,
                 range,
                 sanitizedQueryOptions.getLimit(),
                 sanitizedQueryOptions.getMaxRangeDecomposition(),

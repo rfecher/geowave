@@ -8,12 +8,6 @@
  */
 package org.locationtech.geowave.datastore.accumulo.operations;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +71,7 @@ import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStor
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.operations.BaseReaderParams;
@@ -118,6 +113,12 @@ import org.locationtech.geowave.datastore.accumulo.util.ConnectorPool;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * This class holds all parameters necessary for establishing Accumulo connections and provides
@@ -832,12 +833,20 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
           ((Scanner) scanner).setBatchSize(Math.min(1024, params.getLimit()));
         }
       } else {
-        if (delete) {
-          scanner = createBatchDeleter(tableName, params.getAdditionalAuthorizations());
-          ((BatchDeleter) scanner).setRanges(AccumuloUtils.byteArrayRangesToAccumuloRanges(ranges));
+        if (options.isServerSideLibraryEnabled()) {
+          if (delete) {
+            scanner = createBatchDeleter(tableName, params.getAdditionalAuthorizations());
+            ((BatchDeleter) scanner).setRanges(
+                AccumuloUtils.byteArrayRangesToAccumuloRanges(ranges));
+          } else {
+            scanner = createBatchScanner(tableName, params.getAdditionalAuthorizations());
+            ((BatchScanner) scanner).setRanges(
+                AccumuloUtils.byteArrayRangesToAccumuloRanges(ranges));
+          }
         } else {
-          scanner = createBatchScanner(tableName, params.getAdditionalAuthorizations());
-          ((BatchScanner) scanner).setRanges(AccumuloUtils.byteArrayRangesToAccumuloRanges(ranges));
+          scanner = createClientScanner(tableName, params.getAdditionalAuthorizations());
+          ((Scanner) scanner).setRange(
+              AccumuloUtils.byteArrayRangeToAccumuloRange(ByteArrayUtils.getSingleRange(ranges)));
         }
       }
       if (params.getMaxResolutionSubsamplingPerDimension() != null) {
@@ -921,7 +930,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
 
     boolean usingDistributableFilter = false;
 
-    if (params.getFilter() != null) {
+    if (params.getFilter() != null && !options.isSecondaryIndexing()) {
       usingDistributableFilter = true;
       if (iteratorSettings == null) {
         if (params.isMixedVisibility()) {
@@ -959,7 +968,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
               QueryFilterIterator.QUERY_ITERATOR_NAME,
               WholeRowIterator.class);
     }
-    if (!usingDistributableFilter) {
+    if (!usingDistributableFilter && (!options.isSecondaryIndexing())){// || !BaseDataStoreUtils.DATA_ID_INDEX.equals(params.getIndex()))) {
       // it ends up being duplicative and slower to add both a
       // distributable query and the index constraints, but one of the two
       // is important to limit client-side filtering
@@ -1120,7 +1129,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
         readerParams.getRowTransformer(),
         readerParams.getIndex().getIndexStrategy().getPartitionKeyLength(),
         readerParams.isMixedVisibility() && !readerParams.isServersideAggregation(),
-        false,
+        readerParams.isClientsideRowMerging(),
         false);
   }
 

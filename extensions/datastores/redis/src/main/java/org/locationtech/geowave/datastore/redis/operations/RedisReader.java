@@ -149,6 +149,7 @@ public class RedisReader<T> implements RowReader<T> {
                 ranges,
                 readerParams.getRowTransformer(),
                 new ClientVisibilityFilter(authorizations),
+                readerParams.isClientsideRowMerging(),
                 async,
                 RedisUtils.isGroupByRowAndIsSortByTime(readerParams, adapterId),
                 RedisUtils.isSortByKeyRequired(readerParams)).results()).iterator();
@@ -196,12 +197,14 @@ public class RedisReader<T> implements RowReader<T> {
       final Iterator<GeoWaveRedisRow> results,
       final BaseReaderParams<T> params,
       final Set<String> authorizations) {
+    final Iterator<GeoWaveRow> iterator =
+        (Iterator) Iterators.filter(results, new ClientVisibilityFilter(authorizations));
     return new CloseableIterator.Wrapper<>(
         params.getRowTransformer().apply(
             sortBySortKeyIfRequired(
                 params,
-                (Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
-                    Iterators.filter(results, new ClientVisibilityFilter(authorizations))))));
+                params.isClientsideRowMerging() ? new GeoWaveRowMergingIterator(iterator)
+                    : iterator)));
   }
 
   private static Iterator<GeoWaveRow> sortBySortKeyIfRequired(

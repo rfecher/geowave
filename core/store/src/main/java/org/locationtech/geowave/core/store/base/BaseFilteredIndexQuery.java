@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.core.store.base;
 
-import com.google.common.collect.Iterators;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,8 +35,9 @@ import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.FilterList;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
+import org.locationtech.geowave.core.store.util.GeoWaveRowIteratorFactory;
 import org.locationtech.geowave.core.store.util.MergingEntryIterator;
-import org.locationtech.geowave.core.store.util.NativeEntryIteratorWrapper;
+import com.google.common.collect.Iterators;
 
 abstract class BaseFilteredIndexQuery extends BaseQuery {
   protected List<QueryFilter> clientFilters;
@@ -50,6 +50,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
       final Pair<String[], InternalDataAdapter<?>> fieldIdsAdapterPair,
       final DifferingFieldVisibilityEntryCount differingVisibilityCounts,
       final FieldVisibilityCount visibilityCounts,
+      final DataIndexRetrieval dataIndexRetrieval,
       final String... authorizations) {
     super(
         adapterIds,
@@ -58,6 +59,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
         scanCallback,
         differingVisibilityCounts,
         visibilityCounts,
+        dataIndexRetrieval,
         authorizations);
   }
 
@@ -174,7 +176,8 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
                 clientFilter,
                 scanCallback,
                 mergingAdapters,
-                maxResolutionSubsamplingPerDimension);
+                maxResolutionSubsamplingPerDimension,
+                getFieldValuesFromDataIdx(adapterStore));
           }
         };
       }
@@ -185,7 +188,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
       @SuppressWarnings({"rawtypes", "unchecked"})
       @Override
       public Iterator<T> apply(final Iterator<GeoWaveRow> input) {
-        return new NativeEntryIteratorWrapper(
+        return (Iterator<T>) GeoWaveRowIteratorFactory.iterator(
             adapterStore,
             index,
             input,
@@ -196,7 +199,8 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
             // enabled.
             ((options != null) && options.isServerSideLibraryEnabled()) ? null
                 : maxResolutionSubsamplingPerDimension,
-            decodePersistenceEncoding);
+            decodePersistenceEncoding,
+            getFieldValuesFromDataIdx(adapterStore));
       }
     };
   }

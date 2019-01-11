@@ -8,25 +8,6 @@
  */
 package org.locationtech.geowave.datastore.cassandra.operations;
 
-import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.KeyspaceMetadata;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.Statement;
-import com.datastax.driver.core.querybuilder.Delete;
-import com.datastax.driver.core.querybuilder.Insert;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.datastax.driver.core.querybuilder.Select;
-import com.datastax.driver.core.schemabuilder.Create;
-import com.datastax.driver.core.schemabuilder.SchemaBuilder;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.MoreExecutors;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -74,6 +55,25 @@ import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.KeyspaceMetadata;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.querybuilder.Delete;
+import com.datastax.driver.core.querybuilder.Insert;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
+import com.datastax.driver.core.schemabuilder.Create;
+import com.datastax.driver.core.schemabuilder.SchemaBuilder;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.MoreExecutors;
 
 public class CassandraOperations implements MapReduceDataStoreOperations {
   private static final Logger LOGGER = LoggerFactory.getLogger(CassandraOperations.class);
@@ -177,6 +177,7 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
       final String tableName,
       final short[] adapterIds,
       final Collection<SinglePartitionQueryRanges> ranges,
+      final boolean rowMerging,
       final GeoWaveRowIteratorTransformer<?> rowTransformer,
       final Predicate<GeoWaveRow> rowFilter) {
     PreparedStatement preparedRead;
@@ -207,7 +208,14 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
       }
     }
 
-    return new BatchedRangeRead(preparedRead, this, adapterIds, ranges, rowTransformer, rowFilter);
+    return new BatchedRangeRead(
+        preparedRead,
+        this,
+        adapterIds,
+        ranges,
+        rowMerging,
+        rowTransformer,
+        rowFilter);
   }
 
   public RowRead getRowRead(
@@ -399,7 +407,7 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public RowWriter createWriter(final Index index, InternalDataAdapter<?> adapter) {
+  public RowWriter createWriter(final Index index, final InternalDataAdapter<?> adapter) {
     createTable(index.getName());
     return new CassandraWriter(index.getName(), this);
   }

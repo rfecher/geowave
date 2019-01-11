@@ -400,8 +400,9 @@ public class SecondaryIndexIT {
     final Writer<SimpleFeature> writer = dataStore.createWriter(dataAdapter.getTypeName())) {
       for (final SimpleFeature aFeature : features) {
         allIndexIds.addAll(
-            writer.write(aFeature).getCompositeInsertionIds().stream().map(
-                i -> new ByteArray(i)).collect(Collectors.toList()));
+            writer.write(aFeature).getInsertionIdsWritten(
+                index.getName()).getCompositeInsertionIds().stream().map(
+                    i -> new ByteArray(i)).collect(Collectors.toList()));
       }
     }
 

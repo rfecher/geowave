@@ -15,6 +15,7 @@ import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
@@ -185,5 +186,10 @@ public class RedisOperations implements MapReduceDataStoreOperations {
         internalAdapterStore,
         indexName,
         gwNamespace);
+  }
+
+  @Override
+  public <T> RowReader<T> createReader(DataIndexReaderParams<T> readerParams) {
+    return MapReduceDataStoreOperations.super.createReader(readerParams);
   }
 }

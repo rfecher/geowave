@@ -77,12 +77,14 @@ public class BatchedRangeRead<T> {
   private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
   private final LoadingCache<ByteArray, RocksDBIndexTable> setCache =
       Caffeine.newBuilder().build(partitionKey -> getTable(partitionKey.getBytes()));
-  private final Collection<SinglePartitionQueryRanges> ranges;
+  private Collection<SinglePartitionQueryRanges> ranges;
+  private byte[][] dataIds;
   private final short adapterId;
   private final String indexNamePrefix;
   private final RocksDBClient client;
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
   private final Predicate<GeoWaveRow> filter;
+  private final boolean rowMerging;
 
   private final Pair<Boolean, Boolean> groupByRowAndSortByTimePair;
   private final boolean isSortFinalResultsBySortKey;
@@ -91,20 +93,28 @@ public class BatchedRangeRead<T> {
       final RocksDBClient client,
       final String indexNamePrefix,
       final short adapterId,
-      final Collection<SinglePartitionQueryRanges> ranges,
       final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final Predicate<GeoWaveRow> filter,
+      final boolean rowMerging,
       final boolean async,
       final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
       final boolean isSortFinalResultsBySortKey) {
     this.client = client;
     this.indexNamePrefix = indexNamePrefix;
     this.adapterId = adapterId;
-    this.ranges = ranges;
     this.rowTransformer = rowTransformer;
     this.filter = filter;
+    this.rowMerging = rowMerging;
     this.groupByRowAndSortByTimePair = groupByRowAndSortByTimePair;
     this.isSortFinalResultsBySortKey = isSortFinalResultsBySortKey;
+  }
+
+  public void setRanges(final Collection<SinglePartitionQueryRanges> ranges) {
+    this.ranges = ranges;
+  }
+
+  public void setDataIds(final byte[][] dataIds) {
+    this.dataIds = dataIds;
   }
 
   private RocksDBIndexTable getTable(final byte[] partitionKey) {
@@ -117,13 +127,19 @@ public class BatchedRangeRead<T> {
   }
 
   public CloseableIterator<T> results() {
-    final List<RangeReadInfo> reads = new ArrayList<>();
-    for (final SinglePartitionQueryRanges r : ranges) {
-      for (final ByteArrayRange range : r.getSortKeyRanges()) {
-        reads.add(new RangeReadInfo(r.getPartitionKey(), range));
+    if (ranges != null) {
+      final List<RangeReadInfo> reads = new ArrayList<>();
+      for (final SinglePartitionQueryRanges r : ranges) {
+        for (final ByteArrayRange range : r.getSortKeyRanges()) {
+          reads.add(new RangeReadInfo(r.getPartitionKey(), range));
+        }
       }
+      return executeQuery(reads);
+    } else {
+      return transformAndFilter(
+          setCache.get(EMPTY_PARTITION_KEY).dataIdxIterator(dataIds),
+          EMPTY_PARTITION_KEY.getBytes());
     }
-    return executeQuery(reads);
   }
 
   public CloseableIterator<T> executeQuery(final List<RangeReadInfo> reads) {
@@ -138,9 +154,6 @@ public class BatchedRangeRead<T> {
       } else {
         partitionKey = new ByteArray(r.partitionKey);
       }
-      // if we don't have enough
-      // precision we need to make
-      // sure the end is inclusive
       return transformAndFilter(
           setCache.get(partitionKey).iterator(r.sortKeyRange),
           r.partitionKey);
@@ -150,13 +163,13 @@ public class BatchedRangeRead<T> {
   private CloseableIterator<T> transformAndFilter(
       final CloseableIterator<GeoWaveRow> result,
       final byte[] partitionKey) {
+    final Iterator<GeoWaveRow> iterator = Iterators.filter(result, filter);
     return new CloseableIteratorWrapper<>(
         result,
         rowTransformer.apply(
             sortByKeyIfRequired(
                 isSortFinalResultsBySortKey,
-                (Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator(
-                    Iterators.filter(result, filter)))));
+                rowMerging ? new GeoWaveRowMergingIterator(iterator) : iterator)));
   }
 
   private static Iterator<GeoWaveRow> sortByKeyIfRequired(

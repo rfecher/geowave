@@ -104,7 +104,7 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
     dur = (System.currentTimeMillis() - mark);
     LOGGER.debug("Ingest (lines) duration = " + dur + " ms with " + nthreads + " thread(s).");
     try {
-      CoordinateReferenceSystem crs = CRS.decode(TestUtils.CUSTOM_CRSCODE);
+      final CoordinateReferenceSystem crs = CRS.decode(TestUtils.CUSTOM_CRSCODE);
       mark = System.currentTimeMillis();
 
       testQuery(

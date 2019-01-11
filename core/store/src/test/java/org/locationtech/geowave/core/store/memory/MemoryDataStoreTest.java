@@ -40,7 +40,7 @@ import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.data.field.FieldVisibilityHandler;
 import org.locationtech.geowave.core.store.data.visibility.GlobalVisibilityHandler;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.index.IndexImpl;
 import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
@@ -50,7 +50,7 @@ public class MemoryDataStoreTest {
   @Test
   public void test() throws IOException, MismatchedIndexToAdapterMapping {
     final Index index =
-        new PrimaryIndex(
+        new IndexImpl(
             new MockComponents.MockIndexStrategy(),
             new MockComponents.TestIndexModel());
     final String namespace = "test_" + getClass().getName();
@@ -145,11 +145,11 @@ public class MemoryDataStoreTest {
   @Test
   public void testMultipleIndices() throws IOException, MismatchedIndexToAdapterMapping {
     final Index index1 =
-        new PrimaryIndex(
+        new IndexImpl(
             new MockComponents.MockIndexStrategy(),
             new MockComponents.TestIndexModel("tm1"));
     final Index index2 =
-        new PrimaryIndex(
+        new IndexImpl(
             new MockComponents.MockIndexStrategy(),
             new MockComponents.TestIndexModel("tm2"));
     final String namespace = "test2_" + getClass().getName();

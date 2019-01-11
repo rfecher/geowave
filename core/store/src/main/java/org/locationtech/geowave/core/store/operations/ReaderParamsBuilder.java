@@ -21,7 +21,6 @@ import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 public class ReaderParamsBuilder<T> extends BaseReaderParamsBuilder<T, ReaderParamsBuilder<T>> {
 
   protected boolean isServersideAggregation = false;
-  protected boolean isClientsideRowMerging = false;
   protected QueryRanges queryRanges = null;
   protected QueryFilter filter = null;
   protected List<MultiDimensionalCoordinateRangesArray> coordinateRanges = null;
@@ -42,11 +41,6 @@ public class ReaderParamsBuilder<T> extends BaseReaderParamsBuilder<T, ReaderPar
 
   public ReaderParamsBuilder<T> isServersideAggregation(final boolean isServersideAggregation) {
     this.isServersideAggregation = isServersideAggregation;
-    return builder();
-  }
-
-  public ReaderParamsBuilder<T> isClientsideRowMerging(final boolean isClientsideRowMerging) {
-    this.isClientsideRowMerging = isClientsideRowMerging;
     return builder();
   }
 
@@ -78,7 +72,7 @@ public class ReaderParamsBuilder<T> extends BaseReaderParamsBuilder<T, ReaderPar
     if (additionalAuthorizations == null) {
       additionalAuthorizations = new String[0];
     }
-    return new ReaderParams<T>(
+    return new ReaderParams<>(
         index,
         adapterStore,
         internalAdapterStore,

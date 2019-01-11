@@ -17,6 +17,7 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.base.DataIndexRetrieval;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.metadata.AdapterIndexMappingStoreImpl;
@@ -65,6 +66,12 @@ public class HBaseDataStore extends BaseMapReduceDataStore {
         operations,
         options,
         adapterMappingStore);
+  }
+
+  @Override
+  protected DataIndexRetrieval getDataIdxRetrieval(Index index) {
+    // TODO Auto-generated method stub
+    return super.getDataIdxRetrieval(index);
   }
 
   @Override

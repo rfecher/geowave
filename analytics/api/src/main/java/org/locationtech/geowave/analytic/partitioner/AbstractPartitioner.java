@@ -38,7 +38,7 @@ import org.locationtech.geowave.core.index.sfc.tiered.TieredSFCIndexStrategy;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
-import org.locationtech.geowave.core.store.index.PrimaryIndex;
+import org.locationtech.geowave.core.store.index.IndexImpl;
 
 /**
  * Basic support class for Partitioners (e.g {@link Paritioner}
@@ -263,7 +263,7 @@ public abstract class AbstractPartitioner<T> implements Partitioner<T> {
     // For now, just setting to a non-zero reasonable value
     indexStrategy.setMaxEstimatedDuplicateIdsPerDimension(2);
 
-    index = new PrimaryIndex(indexStrategy, indexModel);
+    index = new IndexImpl(indexStrategy, indexModel);
   }
 
   @Override

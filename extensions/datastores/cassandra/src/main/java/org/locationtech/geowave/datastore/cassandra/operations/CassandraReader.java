@@ -8,16 +8,11 @@
  */
 package org.locationtech.geowave.datastore.cassandra.operations;
 
-import com.datastax.driver.core.querybuilder.Select;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import org.bouncycastle.util.Arrays;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -31,6 +26,10 @@ import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
 import org.locationtech.geowave.datastore.cassandra.CassandraRow;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
+import com.datastax.driver.core.querybuilder.Select;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 
 public class CassandraReader<T> implements RowReader<T> {
   private final ReaderParams<T> readerParams;
@@ -64,12 +63,14 @@ public class CassandraReader<T> implements RowReader<T> {
   @SuppressWarnings("unchecked")
   private CloseableIterator<T> wrapResults(
       final CloseableIterator<CassandraRow> results,
+      final boolean rowMerging,
       final Set<String> authorizations) {
+
+    final Iterator<GeoWaveRow> iterator =
+        (Iterator) Iterators.filter(results, new ClientVisibilityFilter(authorizations));
     return new CloseableIteratorWrapper<>(
         results,
-        rowTransformer.apply(
-            (Iterator<GeoWaveRow>) (Iterator<? extends GeoWaveRow>) new GeoWaveRowMergingIterator<>(
-                Iterators.filter(results, new ClientVisibilityFilter(authorizations)))));
+        rowTransformer.apply(new GeoWaveRowMergingIterator(iterator)));
   }
 
   protected void initScanner() {
@@ -83,6 +84,7 @@ public class CassandraReader<T> implements RowReader<T> {
               readerParams.getIndex().getName(),
               readerParams.getAdapterIds(),
               ranges,
+              readerParams.isClientsideRowMerging(),
               rowTransformer,
               new ClientVisibilityFilter(authorizations)).results();
     } else {
@@ -102,7 +104,7 @@ public class CassandraReader<T> implements RowReader<T> {
                   }
                 }));
       }
-      iterator = wrapResults(results, authorizations);
+      iterator = wrapResults(results, readerParams.isClientsideRowMerging(), authorizations);
     }
   }
 
@@ -125,6 +127,7 @@ public class CassandraReader<T> implements RowReader<T> {
             recordReaderParams.getIndex().getName(),
             adapterIds,
             Collections.singleton(partitionRange),
+            recordReaderParams.isClientsideRowMerging(),
             rowTransformer,
             new ClientVisibilityFilter(authorizations)).results();
   }

@@ -103,34 +103,6 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
     return getQualifiedTableName(tableName);
   }
 
-  protected Iterator<DynamoDBRow> getRows(
-      final String tableName,
-      final byte[][] dataIds,
-      final byte[] adapterId,
-      final String... additionalAuthorizations) {
-    final String qName = getQualifiedTableName(tableName);
-    final Short adapterIdObj = ByteArrayUtils.byteArrayToShort(adapterId);
-    final Set<ByteArray> dataIdsSet = new HashSet<>(dataIds.length);
-    for (int i = 0; i < dataIds.length; i++) {
-      dataIdsSet.add(new ByteArray(dataIds[i]));
-    }
-    final ScanRequest request = new ScanRequest(qName);
-    final ScanResult scanResult = client.scan(request);
-    final Iterator<DynamoDBRow> everything =
-        new GeoWaveRowMergingIterator<>(
-            Iterators.transform(
-                new LazyPaginatedScan(scanResult, request, client),
-                new DynamoDBRow.GuavaRowTranslationHelper()));
-    return Iterators.filter(everything, new Predicate<DynamoDBRow>() {
-
-      @Override
-      public boolean apply(final DynamoDBRow input) {
-        return dataIdsSet.contains(new ByteArray(input.getDataId()))
-            && Short.valueOf(input.getAdapterId()).equals(adapterIdObj);
-      }
-    });
-  }
-
   @Override
   public void deleteAll() throws Exception {
     final ListTablesResult tables = client.listTables();

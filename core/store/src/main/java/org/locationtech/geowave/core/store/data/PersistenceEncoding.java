@@ -23,7 +23,7 @@ public class PersistenceEncoding<T> {
   private Short internalAdapterId;
   private final byte[] dataId;
   protected final PersistentDataset<T> commonData;
-  private final PersistentDataset<byte[]> unknownData;
+  protected final PersistentDataset<byte[]> unknownData;
   protected static final Logger LOGGER = LoggerFactory.getLogger(PersistenceEncoding.class);
   protected static final double DOUBLE_TOLERANCE = 1E-12d;
 

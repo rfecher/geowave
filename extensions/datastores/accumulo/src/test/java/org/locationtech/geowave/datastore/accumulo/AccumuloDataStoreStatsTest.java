@@ -53,6 +53,7 @@ import org.locationtech.geowave.core.store.api.StatisticsQueryBuilder;
 import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.base.BaseDataStore;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
+import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.data.PersistentValue;
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
@@ -172,12 +173,14 @@ public class AccumuloDataStoreStatsTest {
           new ByteArray(
               indexWriter.write(
                   new TestGeometry(factory.createPoint(new Coordinate(25, 32)), "test_pt"),
-                  visWriterAAA).getPartitionKeys().iterator().next().getPartitionKey());
+                  visWriterAAA).getInsertionIdsWritten(
+                      index.getName()).getPartitionKeys().iterator().next().getPartitionKey());
       ByteArray testPartitionKey =
           new ByteArray(
               indexWriter.write(
                   new TestGeometry(factory.createPoint(new Coordinate(26, 32)), "test_pt_1"),
-                  visWriterAAA).getPartitionKeys().iterator().next().getPartitionKey());
+                  visWriterAAA).getInsertionIdsWritten(
+                      index.getName()).getPartitionKeys().iterator().next().getPartitionKey());
       // they should all be the same partition key, let's just make sure
       Assert.assertEquals(
           "test_pt_1 should have the same partition key as test_pt",
@@ -187,7 +190,8 @@ public class AccumuloDataStoreStatsTest {
           new ByteArray(
               indexWriter.write(
                   new TestGeometry(factory.createPoint(new Coordinate(27, 32)), "test_pt_2"),
-                  visWriterBBB).getPartitionKeys().iterator().next().getPartitionKey());
+                  visWriterBBB).getInsertionIdsWritten(
+                      index.getName()).getPartitionKeys().iterator().next().getPartitionKey());
       Assert.assertEquals(
           "test_pt_2 should have the same partition key as test_pt",
           partitionKey,
@@ -487,6 +491,14 @@ public class AccumuloDataStoreStatsTest {
 
           @Override
           public void fromBinary(final byte[] bytes) {}
+
+          @Override
+          public CommonIndexValue toIndexValue(
+              final PersistentDataset<Object> adapterPersistenceEncoding) {
+            return new GeometryWrapper(
+                (Geometry) adapterPersistenceEncoding.getValue(GEOM),
+                new byte[0]);
+          }
         };
 
     private static final EntryVisibilityHandler<TestGeometry> GEOMETRY_VISIBILITY_HANDLER =

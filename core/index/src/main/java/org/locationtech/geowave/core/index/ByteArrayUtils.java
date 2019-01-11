@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Encoder;
+import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.base.Preconditions;
@@ -284,5 +285,20 @@ public class ByteArrayUtils {
       str.append(String.format("%02X ", b));
     }
     return str.toString();
+  }
+
+  public static ByteArrayRange getSingleRange(final List<ByteArrayRange> ranges) {
+    byte[] start = null;
+    byte[] end = null;
+
+    for (final ByteArrayRange range : ranges) {
+      if ((start == null) || (ByteArrayUtils.compare(range.getStart(), start) < 0)) {
+        start = range.getStart();
+      }
+      if ((end == null) || (ByteArrayUtils.compare(range.getEnd(), end) > 0)) {
+        end = range.getEnd();
+      }
+    }
+    return new ByteArrayRange(start, end);
   }
 }

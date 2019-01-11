@@ -91,7 +91,7 @@ public class HBaseReader<T> implements RowReader<T> {
         recordReaderParams.getIndex().getIndexStrategy().getPartitionKeyLength();
     this.wholeRowEncoding =
         recordReaderParams.isMixedVisibility() && !recordReaderParams.isServersideAggregation();
-    this.clientSideRowMerging = false;
+    this.clientSideRowMerging = recordReaderParams.isClientsideRowMerging();
     this.rowTransformer = recordReaderParams.getRowTransformer();
     this.scanProvider =
         createScanProvider(recordReaderParams, operations, this.clientSideRowMerging);

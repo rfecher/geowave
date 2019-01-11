@@ -12,6 +12,7 @@ import org.locationtech.geowave.core.geotime.store.dimension.Time;
 import org.locationtech.geowave.core.geotime.store.dimension.Time.Timestamp;
 import org.locationtech.geowave.core.geotime.util.TimeUtils;
 import org.locationtech.geowave.core.store.adapter.IndexFieldHandler;
+import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.data.PersistentValue;
 import org.locationtech.geowave.core.store.data.field.FieldVisibilityHandler;
 import org.opengis.feature.simple.SimpleFeature;
@@ -65,5 +66,14 @@ public class FeatureTimestampHandler implements IndexFieldHandler<SimpleFeature,
         TimeUtils.getTimeValue(bindingClass, (long) indexValue.toNumericData().getCentroid());
     return new PersistentValue[] {
         new PersistentValue<>(nativeTimestampHandler.getFieldName(), obj)};
+  }
+
+  @Override
+  public Time toIndexValue(final PersistentDataset<Object> adapterPersistenceEncoding) {
+    final Object object =
+        adapterPersistenceEncoding.getValue(nativeTimestampHandler.getFieldName());
+    // visibility is unnecessary because this only happens after the geometry is read (its only used
+    // in reconstructing common index values when using a secondary index)
+    return new Timestamp(TimeUtils.getTimeMillis(object), null);
   }
 }

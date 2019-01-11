@@ -24,10 +24,9 @@ import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.mapreduce.HadoopWritableSerializationTool;
 
 /**
- * This is used internally to translate Accumulo rows into native objects (using the appropriate
- * data adapter). It also performs any client-side filtering. It will peek at the next entry in the
- * accumulo iterator to always maintain a reference to the next value. It maintains the adapter ID,
- * data ID, and original accumulo key in the GeoWaveInputKey for use by the GeoWaveInputFormat.
+ * This is used internally to translate GeoWave rows into native objects (using the appropriate data
+ * adapter). It also performs any client-side filtering. It will peek at the next entry in the
+ * underlying datastore iterator to always maintain a reference to the next value.
  *
  * @param <T> The type for the entry
  */
@@ -82,8 +81,8 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
     Object value = null;
     try {
       value =
-          BaseDataStoreUtils.decodeRow(row, clientFilter, adapter, null, index, null, null, true);
-    } catch (AdapterException e) {
+          BaseDataStoreUtils.decodeRow(row, clientFilter, adapter, null, index, null, null, true, null);
+    } catch (final AdapterException e) {
       return null;
     }
     if (value == null) {

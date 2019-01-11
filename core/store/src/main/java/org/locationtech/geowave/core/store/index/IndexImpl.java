@@ -18,13 +18,13 @@ import org.locationtech.geowave.core.store.api.Index;
  * This class fully describes everything necessary to index data within GeoWave. The key components
  * are the indexing strategy and the common index model.
  */
-public class PrimaryIndex implements Index {
+public class IndexImpl implements Index {
   protected NumericIndexStrategy indexStrategy;
   protected CommonIndexModel indexModel;
 
-  public PrimaryIndex() {}
+  public IndexImpl() {}
 
-  public PrimaryIndex(final NumericIndexStrategy indexStrategy, final CommonIndexModel indexModel) {
+  public IndexImpl(final NumericIndexStrategy indexStrategy, final CommonIndexModel indexModel) {
     this.indexStrategy = indexStrategy;
     this.indexModel = indexModel;
   }
@@ -57,7 +57,7 @@ public class PrimaryIndex implements Index {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final PrimaryIndex other = (PrimaryIndex) obj;
+    final IndexImpl other = (IndexImpl) obj;
     return getName().equals(other.getName());
   }
 

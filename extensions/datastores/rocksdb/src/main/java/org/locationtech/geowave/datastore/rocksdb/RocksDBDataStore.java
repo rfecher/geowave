@@ -36,4 +36,9 @@ public class RocksDBDataStore extends BaseMapReduceDataStore implements Closeabl
   public void close() {
     ((RocksDBOperations) baseOperations).close();
   }
+
+  @Override
+  protected int getDataIdxRetrievalBatchSize() {
+    return 100;
+  }
 }

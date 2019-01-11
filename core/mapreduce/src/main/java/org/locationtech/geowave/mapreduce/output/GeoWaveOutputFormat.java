@@ -32,6 +32,7 @@ import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToA
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.WriteResults;
 import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
@@ -227,7 +228,7 @@ public class GeoWaveOutputFormat extends OutputFormat<GeoWaveOutputKey<Object>, 
       if (adapter != null) {
         final Writer indexWriter = getIndexWriter(adapter, ingestKey.getIndexNames());
         if (indexWriter != null) {
-          final InsertionIds writeList = indexWriter.write(data);
+          final WriteResults writeList = indexWriter.write(data);
 
           if (!writeList.isEmpty()) {
             success = true;
