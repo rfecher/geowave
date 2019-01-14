@@ -8,8 +8,6 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import java.util.Arrays;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
@@ -19,6 +17,8 @@ import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBIndexTable;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBRow;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 public class RocksDBRowDeleter implements RowDeleter {
   private static class CacheKey {
@@ -82,7 +82,7 @@ public class RocksDBRowDeleter implements RowDeleter {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     tableCache.asMap().forEach((k, v) -> v.flush());
     tableCache.invalidateAll();
   }

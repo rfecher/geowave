@@ -71,7 +71,7 @@ abstract class AbstractBaseRowQuery<T> extends BaseQuery {
             new NativeEntryTransformer<>(
                 adapterStore,
                 index,
-                getClientFilter(options),
+                getClientFilters(options),
                 (ScanCallback<T, ?>) scanCallback,
                 getFieldBitmask(),
                 maxResolutionSubsamplingPerDimension,

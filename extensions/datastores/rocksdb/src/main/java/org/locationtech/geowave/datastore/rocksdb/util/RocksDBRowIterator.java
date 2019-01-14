@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.util;
 
-import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksIterator;
@@ -19,7 +18,6 @@ public class RocksDBRowIterator extends AbstractRocksDBIterator<GeoWaveRow> {
   private final boolean containsTimestamp;
 
   public RocksDBRowIterator(
-      Object mutex,
       final ReadOptions options,
       final RocksIterator it,
       final short adapterId,
@@ -33,10 +31,6 @@ public class RocksDBRowIterator extends AbstractRocksDBIterator<GeoWaveRow> {
 
   @Override
   protected GeoWaveRow readRow(final byte[] key, final byte[] value) {
-        if (ByteArrayUtils.getHexString(key).startsWith("74 6F 72 6E 61 64 6F 5F 74 72 61 63 6B 73 2E 38 ")){
-          System.err.println("key " + ByteArrayUtils.getHexString(key));
-        System.err.println("value "  +ByteArrayUtils.getHexString(value));
-        }
     return new RocksDBRow(adapterId, partition, key, value, containsTimestamp);
   }
 }

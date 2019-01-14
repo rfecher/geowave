@@ -32,7 +32,7 @@ public class NativeEntryIteratorWrapper<T> implements Iterator<T> {
   protected final PersistentAdapterStore adapterStore;
   protected final Index index;
   protected final Iterator<GeoWaveRow> scannerIt;
-  protected final QueryFilter clientFilter;
+  protected final QueryFilter[] clientFilters;
   protected final ScanCallback<T, ? extends GeoWaveRow> scanCallback;
 
   protected T nextValue;
@@ -41,7 +41,7 @@ public class NativeEntryIteratorWrapper<T> implements Iterator<T> {
       final PersistentAdapterStore adapterStore,
       final Index index,
       final Iterator<GeoWaveRow> scannerIt,
-      final QueryFilter clientFilter,
+      final QueryFilter[] clientFilters,
       final ScanCallback<T, ? extends GeoWaveRow> scanCallback,
       final byte[] fieldSubsetBitmask,
       final double[] maxResolutionSubsamplingPerDimension,
@@ -50,7 +50,7 @@ public class NativeEntryIteratorWrapper<T> implements Iterator<T> {
     this.adapterStore = adapterStore;
     this.index = index;
     this.scannerIt = scannerIt;
-    this.clientFilter = clientFilter;
+    this.clientFilters = clientFilters;
     this.scanCallback = scanCallback;
     this.fieldSubsetBitmask = fieldSubsetBitmask;
     this.decodePersistenceEncoding = decodePersistenceEncoding;
@@ -62,7 +62,7 @@ public class NativeEntryIteratorWrapper<T> implements Iterator<T> {
   protected void findNext() {
     while ((nextValue == null) && hasNextScannedResult()) {
       final GeoWaveRow row = getNextEncodedResult();
-      final T decodedValue = decodeRow(row, clientFilter, index);
+      final T decodedValue = decodeRow(row, clientFilters, index);
       if (decodedValue != null) {
         nextValue = decodedValue;
         return;
@@ -103,14 +103,14 @@ public class NativeEntryIteratorWrapper<T> implements Iterator<T> {
   }
 
   @SuppressWarnings("unchecked")
-  protected T decodeRow(final GeoWaveRow row, final QueryFilter clientFilter, final Index index) {
+  protected T decodeRow(final GeoWaveRow row, final QueryFilter[] clientFilters, final Index index) {
     Object decodedRow = null;
     if (adapterValid && ((bitPosition == null) || passesSkipFilter(row))) {
       try {
         decodedRow =
             BaseDataStoreUtils.decodeRow(
                 row,
-                clientFilter,
+                clientFilters,
                 null,
                 adapterStore,
                 index,

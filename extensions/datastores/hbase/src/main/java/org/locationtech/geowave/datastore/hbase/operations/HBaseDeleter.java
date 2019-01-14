@@ -23,7 +23,7 @@ public class HBaseDeleter<T> extends HBaseReader<T> implements Deleter<T> {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     if (!closed) {
       // make sure delete is only called once
       operations.bulkDelete(readerParams);
@@ -34,5 +34,5 @@ public class HBaseDeleter<T> extends HBaseReader<T> implements Deleter<T> {
   }
 
   @Override
-  public void entryScanned(T entry, GeoWaveRow row) {}
+  public void entryScanned(final T entry, final GeoWaveRow row) {}
 }

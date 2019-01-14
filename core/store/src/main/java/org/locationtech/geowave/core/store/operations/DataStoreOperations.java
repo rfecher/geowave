@@ -8,12 +8,14 @@
  */
 package org.locationtech.geowave.core.store.operations;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.QueryRanges;
+import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
@@ -72,14 +74,14 @@ public interface DataStoreOperations {
                     readerParams.getConstraints(),
                     readerParams.getRowTransformer(),
                     readerParams.getAdditionalAuthorizations()))).collect(Collectors.toList());
-    return new RowReaderWrapper<>(Iterators.concat(readers.iterator()), new AutoCloseable() {
+    return new RowReaderWrapper<>(new CloseableIteratorWrapper(new Closeable() {
       @Override
-      public void close() throws Exception {
+      public void close() {
         for (final RowReader<T> r : readers) {
           r.close();
         }
       }
-    });
+    }, Iterators.concat(readers.iterator())));
   }
 
   <T> Deleter<T> createDeleter(ReaderParams<T> readerParams);

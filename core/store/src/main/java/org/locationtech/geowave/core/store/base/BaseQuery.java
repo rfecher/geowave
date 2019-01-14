@@ -215,7 +215,7 @@ abstract class BaseQuery {
     return null;
   }
 
-  protected QueryFilter getClientFilter(final DataStoreOptions options) {
+  protected QueryFilter[] getClientFilters(final DataStoreOptions options) {
     return null;
   }
 

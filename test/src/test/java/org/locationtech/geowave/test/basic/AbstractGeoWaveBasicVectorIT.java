@@ -54,6 +54,7 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.api.StatisticsQuery;
+import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.callback.IngestCallback;
 import org.locationtech.geowave.core.store.data.CommonIndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
@@ -66,6 +67,7 @@ import org.locationtech.geowave.core.store.memory.MemoryAdapterStore;
 import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregation;
 import org.locationtech.geowave.core.store.query.constraints.DataIdQuery;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
+import org.locationtech.geowave.datastore.rocksdb.util.RocksDBIndexTable;
 import org.locationtech.geowave.format.geotools.vector.GeoToolsVectorDataStoreIngestPlugin;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.TestUtils.ExpectedResults;
@@ -448,12 +450,14 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
     queryResults.close();
 
     LOGGER.warn(expectedFeaturesToDelete + " features to delete...");
-
+BaseDataStoreUtils.callback = 0;
     // Do the delete
     final boolean deleteResults =
         geowaveStore.delete(
             QueryBuilder.newBuilder().indexName(index.getName()).constraints(query).build());
-
+System.err.println(BaseDataStoreUtils.callback);
+System.err.println(RocksDBIndexTable.deletes.get());
+System.err.println(RocksDBIndexTable.set.size());
     LOGGER.warn("Bulk delete results: " + (deleteResults ? "Success" : "Failure"));
 
     // Query again - should be zero remaining

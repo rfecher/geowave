@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.datastore.dynamodb.operations;
 
-import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +58,7 @@ public class DynamoDBReader<T> implements RowReader<T> {
   private final DynamoDBOperations operations;
   private Iterator<T> iterator;
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
-  private Closeable closeable = null;
+  private ParallelDecoder<T> closeable = null;
 
   private Predicate<GeoWaveRow> visibilityFilter;
 
@@ -239,7 +238,7 @@ public class DynamoDBReader<T> implements RowReader<T> {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     if (closeable != null) {
       closeable.close();
       closeable = null;

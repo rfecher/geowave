@@ -24,8 +24,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -118,7 +117,7 @@ public class BaseDataStoreUtils {
    */
   public static <T> Object decodeRow(
       final GeoWaveRow geowaveRow,
-      final QueryFilter clientFilter,
+      final QueryFilter[] clientFilters,
       final InternalDataAdapter<T> adapter,
       final PersistentAdapterStore adapterStore,
       final Index index,
@@ -155,11 +154,12 @@ public class BaseDataStoreUtils {
         geowaveRow,
         decodePackage,
         fieldSubsetBitmask,
-        clientFilter,
+        clientFilters,
         scanCallback,
         dataIndexRetrieval);
   }
 
+  public static int callback = 0;
   /**
    * build a persistence encoding object first, pass it through the client filters and if its
    * accepted, use the data adapter to decode the persistence model into the native data type
@@ -168,7 +168,7 @@ public class BaseDataStoreUtils {
       final GeoWaveRow row,
       final IntermediaryReadEntryInfo<T> decodePackage,
       final byte[] fieldSubsetBitmask,
-      final QueryFilter clientFilter,
+      final QueryFilter[] clientFilters,
       final ScanCallback<T, GeoWaveRow> scanCallback,
       final DataIndexRetrieval dataIndexRetrieval) {
     final boolean isSecondaryIndex = dataIndexRetrieval != null;
@@ -211,34 +211,42 @@ public class BaseDataStoreUtils {
               decodePackage.getDataAdapter(),
               decodePackage.getIndex().getIndexModel(),
               fieldSubsetBitmask,
-              row.getFieldValues());
+              row.getFieldValues(),
+              false);
     }
-    final Function<IndexedAdapterPersistenceEncoding, Object> function = (r -> {
-      if ((clientFilter == null)
-          || clientFilter.accept(decodePackage.getIndex().getIndexModel(), r)) {
-        if (!decodePackage.isDecodeRow()) {
-          return r;
-        }
-        final T decodedRow =
-            decodePackage.getDataAdapter().decode(
-                r,
-                isSecondaryIndex ? DATA_ID_INDEX : decodePackage.getIndex());
+    final BiFunction<IndexedAdapterPersistenceEncoding, Integer, Object> function =
+        ((r, initialFilter) -> {
+          final int i =
+              clientFilterProgress(clientFilters, decodePackage.getIndex().getIndexModel(), r);
+          if (i < 0) {
+            if (!decodePackage.isDecodeRow()) {
+              return r;
+            }
+            final T decodedRow =
+                decodePackage.getDataAdapter().decode(
+                    r,
+                    isSecondaryIndex ? DATA_ID_INDEX : decodePackage.getIndex());
+            if (isAsync(r)) {
+              return i;
+            }
+            if ((scanCallback != null)) {
+              scanCallback.entryScanned(decodedRow, row);
+              callback++;
+            }
 
-        if ((scanCallback != null)
-            && !((encodedRow instanceof AsyncPersistenceEncoding)
-                && (((AsyncPersistenceEncoding) encodedRow).getFieldValuesFuture() != null))) {
-          scanCallback.entryScanned(decodedRow, row);
-        }
-
-        return decodedRow;
-      }
-      return null;
-    });
-    final Object obj = function.apply(encodedRow);
-    if ((encodedRow instanceof AsyncPersistenceEncoding)
-        && (((AsyncPersistenceEncoding) encodedRow).getFieldValuesFuture() != null)) {
-      // by re-applying the function, client filters may be called multiple times for the same
-      // instance, beware of stateful filters such as dedupe filter
+            return decodedRow;
+          }
+          if (isAsync(r)) {
+            return i;
+          }
+          return null;
+        });
+    final Object obj = function.apply(encodedRow, 0);
+    if ((obj instanceof Integer) && isAsync(encodedRow)) {
+      // by re-applying the function, client filters should not be called multiple times for the
+      // same instance (beware of stateful filters such as dedupe filter). this method attempts to
+      // maintain progress of the filter chain so that any successful filters prior to retrieving
+      // the data will not need to be repeated
       return (((AsyncPersistenceEncoding) encodedRow).getFieldValuesFuture().thenApply(
           fv -> new LazyReadPersistenceEncoding(
               decodePackage.getDataAdapter().getAdapterId(),
@@ -249,9 +257,35 @@ public class BaseDataStoreUtils {
               decodePackage.getDataAdapter(),
               decodePackage.getIndex().getIndexModel(),
               fieldSubsetBitmask,
-              row.getFieldValues()))).thenApply(function);
+              fv,
+              true))).thenApply((r) -> function.apply(r, (Integer) obj));
     }
     return obj;
+  }
+
+  /**
+   *
+   * @return returns -1 if all client filters have accepted the row, otherwise returns how many
+   *         client filters have accepted
+   */
+  private static int clientFilterProgress(
+      final QueryFilter[] clientFilters,
+      final CommonIndexModel indexModel,
+      final IndexedAdapterPersistenceEncoding encodedRow) {
+    if (clientFilters == null) {
+      return -1;
+    }
+    for (int i = 0; i < clientFilters.length; i++) {
+      if (!clientFilters[i].accept(indexModel, encodedRow)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private static boolean isAsync(final IndexedAdapterPersistenceEncoding encodedRow) {
+    return ((encodedRow instanceof AsyncPersistenceEncoding)
+        && (((AsyncPersistenceEncoding) encodedRow).getFieldValuesFuture() != null));
   }
 
   protected static <T> IntermediaryWriteEntryInfo getWriteInfo(

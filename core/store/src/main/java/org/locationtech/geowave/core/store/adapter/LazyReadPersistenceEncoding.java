@@ -40,7 +40,8 @@ public class LazyReadPersistenceEncoding extends IndexedAdapterPersistenceEncodi
       final InternalDataAdapter<?> dataAdapter,
       final CommonIndexModel indexModel,
       final byte[] fieldSubsetBitmask,
-      final GeoWaveValue[] fieldValues) {
+      final GeoWaveValue[] fieldValues,
+      final boolean isSecondaryIndex) {
     super(
         adapterId,
         dataId,
@@ -56,7 +57,7 @@ public class LazyReadPersistenceEncoding extends IndexedAdapterPersistenceEncodi
             dataAdapter,
             indexModel,
             fieldValues,
-            false);
+            isSecondaryIndex);
   }
 
   public LazyReadPersistenceEncoding(

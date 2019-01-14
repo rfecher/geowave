@@ -38,7 +38,7 @@ public class RocksDBDataStore extends BaseMapReduceDataStore implements Closeabl
   }
 
   @Override
-  protected int getDataIdxRetrievalBatchSize() {
-    return 100;
+  protected int getDataIndexRetrievalBatchSize() {
+    return 1000;
   }
 }

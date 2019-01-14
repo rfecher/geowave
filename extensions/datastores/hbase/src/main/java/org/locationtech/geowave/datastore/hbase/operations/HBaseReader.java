@@ -8,9 +8,6 @@
  */
 package org.locationtech.geowave.datastore.hbase.operations;
 
-import com.beust.jcommander.internal.Lists;
-import com.google.common.collect.Iterators;
-import com.google.inject.Provider;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
@@ -43,6 +40,9 @@ import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
 import org.locationtech.geowave.mapreduce.splits.SplitsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Iterators;
+import com.google.inject.Provider;
 
 public class HBaseReader<T> implements RowReader<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(HBaseReader.class);
@@ -100,9 +100,13 @@ public class HBaseReader<T> implements RowReader<T> {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     if (scanner != null) {
-      scanner.close();
+      try {
+        scanner.close();
+      } catch (final IOException e) {
+        LOGGER.error("unable to close scanner", e);
+      }
     }
   }
 

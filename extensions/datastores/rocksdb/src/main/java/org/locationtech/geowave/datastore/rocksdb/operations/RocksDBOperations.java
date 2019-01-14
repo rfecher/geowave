@@ -129,7 +129,7 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
 
   @Override
   public <T> RowReader<T> createReader(final DataIndexReaderParams<T> readerParams) {
-    return MapReduceDataStoreOperations.super.createReader(readerParams);
+    return new RocksDBReader<>(client, readerParams);
   }
 
   @Override

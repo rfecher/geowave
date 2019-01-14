@@ -137,7 +137,7 @@ public class BatchedRangeRead<T> {
       return executeQuery(reads);
     } else {
       return transformAndFilter(
-          setCache.get(EMPTY_PARTITION_KEY).dataIdxIterator(dataIds),
+          setCache.get(EMPTY_PARTITION_KEY).dataIndexIterator(dataIds),
           EMPTY_PARTITION_KEY.getBytes());
     }
   }

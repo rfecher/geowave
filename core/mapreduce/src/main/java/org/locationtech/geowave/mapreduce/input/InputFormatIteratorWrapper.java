@@ -32,7 +32,7 @@ import org.locationtech.geowave.mapreduce.HadoopWritableSerializationTool;
  */
 public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInputKey, T>> {
   private final RowReader<GeoWaveRow> reader;
-  private final QueryFilter queryFilter;
+  private final QueryFilter[] queryFilters;
   private final HadoopWritableSerializationTool serializationTool;
   private final boolean isOutputWritable;
   private Entry<GeoWaveInputKey, T> nextEntry;
@@ -40,13 +40,13 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
 
   public InputFormatIteratorWrapper(
       final RowReader<GeoWaveRow> reader,
-      final QueryFilter queryFilter,
+      final QueryFilter[] queryFilters,
       final TransientAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final Index index,
       final boolean isOutputWritable) {
     this.reader = reader;
-    this.queryFilter = queryFilter;
+    this.queryFilters = queryFilters;
     this.index = index;
     this.serializationTool =
         new HadoopWritableSerializationTool(adapterStore, internalAdapterStore);
@@ -60,7 +60,7 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
         final Entry<GeoWaveInputKey, T> decodedValue =
             decodeRow(
                 nextRow,
-                queryFilter,
+                queryFilters,
                 (InternalDataAdapter<T>) serializationTool.getInternalAdapter(
                     nextRow.getAdapterId()),
                 index);
@@ -75,13 +75,22 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
   @SuppressWarnings("unchecked")
   private Entry<GeoWaveInputKey, T> decodeRow(
       final GeoWaveRow row,
-      final QueryFilter clientFilter,
+      final QueryFilter[] clientFilters,
       final InternalDataAdapter<T> adapter,
       final Index index) {
     Object value = null;
     try {
       value =
-          BaseDataStoreUtils.decodeRow(row, clientFilter, adapter, null, index, null, null, true, null);
+          BaseDataStoreUtils.decodeRow(
+              row,
+              clientFilters,
+              adapter,
+              null,
+              index,
+              null,
+              null,
+              true,
+              null);
     } catch (final AdapterException e) {
       return null;
     }

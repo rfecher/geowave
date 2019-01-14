@@ -231,7 +231,7 @@ public class RocksDBReader<T> implements RowReader<T> {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     iterator.close();
   }
 }

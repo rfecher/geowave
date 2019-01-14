@@ -8,8 +8,6 @@
  */
 package org.locationtech.geowave.datastore.redis.operations;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import java.util.Arrays;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
@@ -22,6 +20,8 @@ import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisRow;
 import org.locationtech.geowave.datastore.redis.util.RedisScoredSetWrapper;
 import org.locationtech.geowave.datastore.redis.util.RedisUtils;
 import org.redisson.api.RedissonClient;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 public class RedisRowDeleter implements RowDeleter {
 
@@ -50,7 +50,7 @@ public class RedisRowDeleter implements RowDeleter {
   }
 
   @Override
-  public void close() throws Exception {}
+  public void close() {}
 
   private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(
       final Pair<String, Short> setNameAndAdapterId) {

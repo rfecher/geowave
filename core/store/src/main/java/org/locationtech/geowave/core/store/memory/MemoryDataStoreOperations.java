@@ -262,7 +262,7 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
     }
 
     @Override
-    public void close() throws Exception {}
+    public void close() {}
 
     @Override
     public boolean hasNext() {
@@ -328,7 +328,7 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
     }
 
     @Override
-    public void close() throws Exception {}
+    public void close() {}
 
     @Override
     public void delete(final GeoWaveRow row) {

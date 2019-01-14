@@ -33,7 +33,6 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransforme
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
 import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
 import org.locationtech.geowave.core.store.operations.RowReader;
-import org.locationtech.geowave.core.store.query.filter.FilterList;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.GeoWaveRowIteratorFactory;
 import org.locationtech.geowave.core.store.util.MergingEntryIterator;
@@ -159,7 +158,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
       final PersistentAdapterStore adapterStore,
       final double[] maxResolutionSubsamplingPerDimension,
       final boolean decodePersistenceEncoding) {
-    final @Nullable QueryFilter clientFilter = getClientFilter(options);
+    final @Nullable QueryFilter[] clientFilters = getClientFilters(options);
     if ((options == null) || !options.isServerSideLibraryEnabled()) {
       final Map<Short, RowMergingDataAdapter> mergingAdapters = getMergingAdapters(adapterStore);
 
@@ -173,7 +172,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
                 adapterStore,
                 index,
                 input,
-                clientFilter,
+                clientFilters,
                 scanCallback,
                 mergingAdapters,
                 maxResolutionSubsamplingPerDimension,
@@ -192,7 +191,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
             adapterStore,
             index,
             input,
-            clientFilter,
+            clientFilters,
             scanCallback,
             getFieldBitmask(),
             // Don't do client side subsampling if server side is
@@ -206,11 +205,10 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
   }
 
   @Override
-  protected QueryFilter getClientFilter(final DataStoreOptions options) {
+  protected QueryFilter[] getClientFilters(final DataStoreOptions options) {
     final List<QueryFilter> internalClientFilters = getClientFiltersList(options);
     return internalClientFilters.isEmpty() ? null
-        : internalClientFilters.size() == 1 ? internalClientFilters.get(0)
-            : new FilterList(internalClientFilters);
+        : internalClientFilters.toArray(new QueryFilter[0]);
   }
 
   protected List<QueryFilter> getClientFiltersList(final DataStoreOptions options) {

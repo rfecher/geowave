@@ -45,7 +45,7 @@ public abstract class BaseReaderParamsBuilder<T, R extends BaseReaderParamsBuild
 
   protected abstract R builder();
 
-  public R adapterIds(final short[] adapterIds) {
+  public R adapterIds(final short... adapterIds) {
     this.adapterIds = adapterIds;
     return builder();
   }

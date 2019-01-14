@@ -448,7 +448,11 @@ public class AccumuloUtils {
       scanner.addScanIterator(iteratorSettings);
 
       final Iterator<Entry<Key, Value>> it =
-          new IteratorWrapper(adapterStore, index, scanner.iterator(), new DedupeFilter());
+          new IteratorWrapper(
+              adapterStore,
+              index,
+              scanner.iterator(),
+              new QueryFilter[] {new DedupeFilter()});
 
       iterator = new CloseableIteratorWrapper<>(new ScannerClosableWrapper(scanner), it);
     }
@@ -460,25 +464,25 @@ public class AccumuloUtils {
     private final Iterator<Entry<Key, Value>> scannerIt;
     private final PersistentAdapterStore adapterStore;
     private final Index index;
-    private final QueryFilter clientFilter;
+    private final QueryFilter[] clientFilters;
     private Entry<Key, Value> nextValue;
 
     public IteratorWrapper(
         final PersistentAdapterStore adapterStore,
         final Index index,
         final Iterator<Entry<Key, Value>> scannerIt,
-        final QueryFilter clientFilter) {
+        final QueryFilter[] clientFilters) {
       this.adapterStore = adapterStore;
       this.index = index;
       this.scannerIt = scannerIt;
-      this.clientFilter = clientFilter;
+      this.clientFilters = clientFilters;
       findNext();
     }
 
     private void findNext() {
       while (scannerIt.hasNext()) {
         final Entry<Key, Value> row = scannerIt.next();
-        final Object decodedValue = decodeRow(row, clientFilter, index);
+        final Object decodedValue = decodeRow(row, clientFilters, index);
         if (decodedValue != null) {
           nextValue = row;
           return;
@@ -489,7 +493,7 @@ public class AccumuloUtils {
 
     private Object decodeRow(
         final Entry<Key, Value> row,
-        final QueryFilter clientFilter,
+        final QueryFilter[] clientFilters,
         final Index index) {
       try {
         final List<Map<Key, Value>> fieldValueMapList = new ArrayList();
@@ -500,7 +504,7 @@ public class AccumuloUtils {
                 index.getIndexStrategy().getPartitionKeyLength(),
                 fieldValueMapList,
                 false),
-            clientFilter,
+            clientFilters,
             null,
             adapterStore,
             index,

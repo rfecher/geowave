@@ -20,7 +20,7 @@ import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 public class NativeEntryTransformer<T> implements GeoWaveRowIteratorTransformer<T> {
   private final PersistentAdapterStore adapterStore;
   private final Index index;
-  private final QueryFilter clientFilter;
+  private final QueryFilter[] clientFilters;
   private final ScanCallback<T, ? extends GeoWaveRow> scanCallback;
   private final byte[] fieldSubsetBitmask;
   private final double[] maxResolutionSubsamplingPerDimension;
@@ -30,7 +30,7 @@ public class NativeEntryTransformer<T> implements GeoWaveRowIteratorTransformer<
   public NativeEntryTransformer(
       final PersistentAdapterStore adapterStore,
       final Index index,
-      final QueryFilter clientFilter,
+      final QueryFilter[] clientFilters,
       final ScanCallback<T, ? extends GeoWaveRow> scanCallback,
       final byte[] fieldSubsetBitmask,
       final double[] maxResolutionSubsamplingPerDimension,
@@ -38,7 +38,7 @@ public class NativeEntryTransformer<T> implements GeoWaveRowIteratorTransformer<
       final DataIndexRetrieval dataIndexRetrieval) {
     this.adapterStore = adapterStore;
     this.index = index;
-    this.clientFilter = clientFilter;
+    this.clientFilters = clientFilters;
     this.scanCallback = scanCallback;
     this.fieldSubsetBitmask = fieldSubsetBitmask;
     this.decodePersistenceEncoding = decodePersistenceEncoding;
@@ -52,7 +52,7 @@ public class NativeEntryTransformer<T> implements GeoWaveRowIteratorTransformer<
         adapterStore,
         index,
         rowIter,
-        clientFilter,
+        clientFilters,
         scanCallback,
         fieldSubsetBitmask,
         maxResolutionSubsamplingPerDimension,

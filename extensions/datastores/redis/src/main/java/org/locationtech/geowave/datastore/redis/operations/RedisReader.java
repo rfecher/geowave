@@ -227,7 +227,7 @@ public class RedisReader<T> implements RowReader<T> {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     iterator.close();
   }
 }

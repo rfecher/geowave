@@ -10,7 +10,12 @@ package org.locationtech.geowave.datastore.rocksdb.util;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -110,12 +115,15 @@ public class RocksDBIndexTable {
     }
     put(key, value.getValue());
   }
-
+public static AtomicInteger deletes = new AtomicInteger(0);
+public static Set<ByteArray> set = Collections.synchronizedSet(new HashSet<>());
   public synchronized void delete(final byte[] key) {
     final RocksDB db = getWriteDb();
     try {
       readerDirty = true;
       db.singleDelete(key);
+      set.add(new ByteArray(key));
+      deletes.incrementAndGet();
     } catch (final RocksDBException e) {
       LOGGER.warn("Unable to delete key", e);
     }
@@ -129,10 +137,10 @@ public class RocksDBIndexTable {
     final ReadOptions options = new ReadOptions().setFillCache(false);
     final RocksIterator it = readDb.newIterator(options);
     it.seekToFirst();
-    return new RocksDBRowIterator(this, options, it, adapterId, partition, requiresTimestamp);
+    return new RocksDBRowIterator(options, it, adapterId, partition, requiresTimestamp);
   }
 
-  public synchronized CloseableIterator<GeoWaveRow> dataIdxIterator(final byte[][] dataIds) {
+  public synchronized CloseableIterator<GeoWaveRow> dataIndexIterator(final byte[][] dataIds) {
     final RocksDB readDb = getReadDb();
     if (readDb == null) {
       return new CloseableIterator.Empty<>();
@@ -188,7 +196,7 @@ public class RocksDBIndexTable {
       it.seek(range.getStart());
     }
 
-    return new RocksDBRowIterator(this, options, it, adapterId, partition, requiresTimestamp);
+    return new RocksDBRowIterator(options, it, adapterId, partition, requiresTimestamp);
   }
 
   private synchronized void put(final byte[] key, final byte[] value) {

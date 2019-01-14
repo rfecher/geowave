@@ -41,7 +41,6 @@ import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.constraints.AdapterAndIndexBasedQueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
-import org.locationtech.geowave.core.store.query.filter.FilterList;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
 import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
@@ -229,9 +228,9 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
       final boolean authorizationsLimiting,
       final boolean clientsideRowMerging) {
 
-    final QueryFilter singleFilter =
+    final QueryFilter[] filters =
         ((queryFilters == null) || queryFilters.isEmpty()) ? null
-            : queryFilters.size() == 1 ? queryFilters.get(0) : new FilterList(queryFilters);
+            : queryFilters.toArray(new QueryFilter[0]);
     final RowReader reader =
         operations.createReader(
             new RecordReaderParams(
@@ -254,7 +253,7 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
         new ReaderClosableWrapper(reader),
         new InputFormatIteratorWrapper<>(
             reader,
-            singleFilter,
+            filters,
             adapterStore,
             internalAdapterStore,
             index,
