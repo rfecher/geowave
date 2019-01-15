@@ -8,11 +8,6 @@
  */
 package org.locationtech.geowave.datastore.redis.util;
 
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.Streams;
-import com.google.common.primitives.Bytes;
-import com.google.common.primitives.UnsignedBytes;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,23 +20,31 @@ import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
+import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
-import org.locationtech.geowave.core.store.operations.BaseReaderParams;
 import org.locationtech.geowave.core.store.operations.MetadataType;
+import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.datastore.redis.config.RedisOptions.Compression;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.protocol.ScoredEntry;
+import org.redisson.codec.FstCodec;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Streams;
+import com.google.common.primitives.Bytes;
+import com.google.common.primitives.UnsignedBytes;
 
 public class RedisUtils {
   protected static final int MAX_ROWS_FOR_PAGINATION = 1000000;
   public static int REDIS_DEFAULT_MAX_RANGE_DECOMPOSITION = 250;
   public static int REDIS_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION = 250;
+  private static FstCodec DEFAULT_CODEC = new FstCodec();
 
   public static RScoredSortedSet<GeoWaveMetadata> getMetadataSet(
       final RedissonClient client,
-      Compression compression,
+      final Compression compression,
       final String namespace,
       final MetadataType metadataType) {
     // stats also store a timestamp because stats can be the exact same but
@@ -63,7 +66,7 @@ public class RedisUtils {
 
   public static RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getRowSet(
       final RedissonClient client,
-      Compression compression,
+      final Compression compression,
       final String setNamePrefix,
       final byte[] partitionKey,
       final boolean requiresTimestamp) {
@@ -92,9 +95,20 @@ public class RedisUtils {
     return setNamePrefix + partitionStr;
   }
 
+  public static RedisMapWrapper getDataIndexMap(
+      final RedissonClient client,
+      final Compression compression,
+      final String namespace,
+      final String typeName) {
+    return new RedisMapWrapper(
+        client,
+        getRowSetPrefix(namespace, typeName, BaseDataStoreUtils.DATA_ID_INDEX.getName()),
+        compression.getCodec(DEFAULT_CODEC));
+  }
+
   public static RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getRowSet(
       final RedissonClient client,
-      Compression compression,
+      final Compression compression,
       final String setName,
       final boolean requiresTimestamp) {
     return new RedisScoredSetWrapper<>(
@@ -107,7 +121,7 @@ public class RedisUtils {
 
   public static RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getRowSet(
       final RedissonClient client,
-      Compression compression,
+      final Compression compression,
       final String namespace,
       final String typeName,
       final String indexName,
@@ -203,7 +217,7 @@ public class RedisUtils {
     return adapter.getAdapter() instanceof RowMergingDataAdapter;
   }
 
-  public static boolean isSortByKeyRequired(final BaseReaderParams<?> params) {
+  public static boolean isSortByKeyRequired(final RangeReaderParams<?> params) {
     // subsampling needs to be sorted by sort key to work properly
     return (params.getMaxResolutionSubsamplingPerDimension() != null)
         && (params.getMaxResolutionSubsamplingPerDimension().length > 0);
@@ -214,7 +228,7 @@ public class RedisUtils {
   }
 
   public static Pair<Boolean, Boolean> isGroupByRowAndIsSortByTime(
-      final BaseReaderParams<?> readerParams,
+      final RangeReaderParams<?> readerParams,
       final short adapterId) {
     final boolean sortByTime = isSortByTime(readerParams.getAdapterStore().getAdapter(adapterId));
     return Pair.of(readerParams.isMixedVisibility() || sortByTime, sortByTime);

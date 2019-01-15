@@ -76,6 +76,7 @@ import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
+import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataQuery;
@@ -1503,5 +1504,11 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       }
       return new QueryAndDeleteByRow<>();
     }
+  }
+
+  @Override
+  public <T> RowReader<T> createReader(DataIndexReaderParams readerParams) {
+    // TODO Auto-generated method stub
+    return MapReduceDataStoreOperations.super.createReader(readerParams);
   }
 }

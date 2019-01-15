@@ -8,47 +8,25 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.util;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.entities.GeoWaveKeyImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
-import org.locationtech.geowave.core.store.entities.GeoWaveRowImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
-import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.rocksdb.Options;
 import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
-import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
 import org.rocksdb.Slice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-public class RocksDBIndexTable {
+public class RocksDBIndexTable extends AbstractRocksDBTable {
   private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBIndexTable.class);
-  private RocksDB writeDb;
-  private RocksDB readDb;
   private long prevTime = Long.MAX_VALUE;
-  private final Options writeOptions;
-  private final Options readOptions;
-  private final String subDirectory;
   private final boolean requiresTimestamp;
-  private boolean readerDirty = false;
-  private boolean exists;
-  private final short adapterId;
   private final byte[] partition;
 
   public RocksDBIndexTable(
@@ -58,26 +36,18 @@ public class RocksDBIndexTable {
       final short adapterId,
       final byte[] partition,
       final boolean requiresTimestamp) {
-    super();
-    this.writeOptions = writeOptions;
-    this.readOptions = readOptions;
-    this.subDirectory = subDirectory;
+    super(writeOptions, readOptions, subDirectory, adapterId);
     this.requiresTimestamp = requiresTimestamp;
-    this.adapterId = adapterId;
     this.partition = partition;
-    exists = new File(subDirectory).exists();
   }
 
   public synchronized void add(
       final byte[] sortKey,
       final byte[] dataId,
       final short numDuplicates,
-      final GeoWaveValue value,
-      final boolean isDataIndex) {
+      final GeoWaveValue value) {
     byte[] key;
-    if (isDataIndex) {
-      key = sortKey;
-    } else if (requiresTimestamp) {
+    if (requiresTimestamp) {
       // sometimes rows can be written so quickly that they are the exact
       // same millisecond - while Java does offer nanosecond precision,
       // support is OS-dependent. Instead this check is done to ensure
@@ -115,19 +85,7 @@ public class RocksDBIndexTable {
     }
     put(key, value.getValue());
   }
-public static AtomicInteger deletes = new AtomicInteger(0);
-public static Set<ByteArray> set = Collections.synchronizedSet(new HashSet<>());
-  public synchronized void delete(final byte[] key) {
-    final RocksDB db = getWriteDb();
-    try {
-      readerDirty = true;
-      db.singleDelete(key);
-      set.add(new ByteArray(key));
-      deletes.incrementAndGet();
-    } catch (final RocksDBException e) {
-      LOGGER.warn("Unable to delete key", e);
-    }
-  }
+
 
   public synchronized CloseableIterator<GeoWaveRow> iterator() {
     final RocksDB readDb = getReadDb();
@@ -140,46 +98,10 @@ public static Set<ByteArray> set = Collections.synchronizedSet(new HashSet<>());
     return new RocksDBRowIterator(options, it, adapterId, partition, requiresTimestamp);
   }
 
-  public synchronized CloseableIterator<GeoWaveRow> dataIndexIterator(final byte[][] dataIds) {
-    final RocksDB readDb = getReadDb();
-    if (readDb == null) {
-      return new CloseableIterator.Empty<>();
-    }
-    try {
-      final Map<byte[], byte[]> dataIdxResults = readDb.multiGet(Arrays.asList(dataIds));
-      return new CloseableIterator.Wrapper(
-          dataIdxResults.entrySet().stream().map(
-              e -> new GeoWaveRowImpl(
-                  new GeoWaveKeyImpl(new byte[0], adapterId, new byte[0], e.getKey(), 0),
-                  new GeoWaveValue[] {
-                      new GeoWaveValueImpl(new byte[0], new byte[0], e.getValue())})).iterator());
-    } catch (final RocksDBException e) {
-      LOGGER.error("Unable to get values by data ID", e);
-    }
-    return new CloseableIterator.Empty<>();
-  }
-
   public synchronized CloseableIterator<GeoWaveRow> iterator(final ByteArrayRange range) {
     final RocksDB readDb = getReadDb();
     if (readDb == null) {
       return new CloseableIterator.Empty<>();
-    }
-    if (range.isSingleValue()) {
-      try {
-        return new CloseableIterator.Wrapper(
-            Iterators.singletonIterator(
-                new GeoWaveRowImpl(
-                    new GeoWaveKeyImpl(new byte[0], adapterId, new byte[0], range.getStart(), 0),
-                    new GeoWaveValue[] {
-                        new GeoWaveValueImpl(
-                            new byte[0],
-                            new byte[0],
-                            readDb.get(range.getStart()))})));
-      } catch (final RocksDBException e) {
-        LOGGER.error(
-            "Unable to get value with key " + ByteArrayUtils.getHexString(range.getStart()),
-            e);
-      }
     }
     final ReadOptions options;
     final RocksIterator it;
@@ -197,98 +119,5 @@ public static Set<ByteArray> set = Collections.synchronizedSet(new HashSet<>());
     }
 
     return new RocksDBRowIterator(options, it, adapterId, partition, requiresTimestamp);
-  }
-
-  private synchronized void put(final byte[] key, final byte[] value) {
-    // TODO batch writes
-    final RocksDB db = getWriteDb();
-    try {
-      readerDirty = true;
-      db.put(key, value);
-    } catch (final RocksDBException e) {
-      LOGGER.warn("Unable to write key-value", e);
-    }
-  }
-
-  @SuppressFBWarnings(
-      justification = "The null check outside of the synchronized block is intentional to minimize the need for synchronization.")
-  public void flush() {
-    // TODO flush batch writes
-    final RocksDB db = getWriteDb();
-    try {
-      db.compactRange();
-    } catch (final RocksDBException e) {
-      LOGGER.warn("Unable to compact range", e);
-    }
-    // force re-opening a reader to catch the updates from this write
-    if (readerDirty && (readDb != null)) {
-      synchronized (this) {
-        if (readDb != null) {
-          readDb.close();
-          readDb = null;
-        }
-      }
-    }
-  }
-
-  public void close() {
-    synchronized (this) {
-      if (writeDb != null) {
-        writeDb.close();
-        writeDb = null;
-      }
-      if (readDb != null) {
-        readDb.close();
-      }
-    }
-  }
-
-  @SuppressFBWarnings(
-      justification = "double check for null is intentional to avoid synchronized blocks when not needed.")
-  private RocksDB getWriteDb() {
-    // avoid synchronization if unnecessary by checking for null outside
-    // synchronized block
-    if (writeDb == null) {
-      synchronized (this) {
-        // check again within synchronized block
-        if (writeDb == null) {
-          try {
-            if (exists || new File(subDirectory).mkdirs()) {
-              exists = true;
-              writeDb = RocksDB.open(writeOptions, subDirectory);
-            } else {
-              LOGGER.error("Unable to open to create directory '" + subDirectory + "'");
-            }
-          } catch (final RocksDBException e) {
-            LOGGER.error("Unable to open for writing", e);
-          }
-        }
-      }
-    }
-    return writeDb;
-  }
-
-  @SuppressFBWarnings(
-      justification = "double check for null is intentional to avoid synchronized blocks when not needed.")
-  private RocksDB getReadDb() {
-    if (!exists) {
-      return null;
-    }
-    // avoid synchronization if unnecessary by checking for null outside
-    // synchronized block
-    if (readDb == null) {
-      synchronized (this) {
-        // check again within synchronized block
-        if (readDb == null) {
-          try {
-            readerDirty = false;
-            readDb = RocksDB.openReadOnly(readOptions, subDirectory);
-          } catch (final RocksDBException e) {
-            LOGGER.warn("Unable to open for reading", e);
-          }
-        }
-      }
-    }
-    return readDb;
   }
 }

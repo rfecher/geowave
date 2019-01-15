@@ -9,7 +9,6 @@
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
 import org.locationtech.geowave.core.index.ByteArray;
-import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
@@ -20,7 +19,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 public class RocksDBWriter implements RowWriter {
-  private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
   private final RocksDBClient client;
   private final String indexNamePrefix;
 
@@ -28,7 +26,6 @@ public class RocksDBWriter implements RowWriter {
   private final LoadingCache<ByteArray, RocksDBIndexTable> tableCache =
       Caffeine.newBuilder().build(partitionKey -> getTable(partitionKey.getBytes()));
   private final boolean isTimestampRequired;
-  private final boolean isDataIndex;
 
   public RocksDBWriter(
       final RocksDBClient client,
@@ -40,7 +37,6 @@ public class RocksDBWriter implements RowWriter {
     this.adapterId = adapterId;
     indexNamePrefix = RocksDBUtils.getTablePrefix(typeName, indexName);
     this.isTimestampRequired = isTimestampRequired;
-    isDataIndex = indexName.equals(BaseDataStoreUtils.DATA_ID_INDEX.getName());
   }
 
   private RocksDBIndexTable getTable(final byte[] partitionKey) {
@@ -63,7 +59,7 @@ public class RocksDBWriter implements RowWriter {
   public void write(final GeoWaveRow row) {
     ByteArray partitionKey;
     if ((row.getPartitionKey() == null) || (row.getPartitionKey().length == 0)) {
-      partitionKey = EMPTY_PARTITION_KEY;
+      partitionKey = RocksDBUtils.EMPTY_PARTITION_KEY;
     } else {
       partitionKey = new ByteArray(row.getPartitionKey());
     }
@@ -72,8 +68,7 @@ public class RocksDBWriter implements RowWriter {
           row.getSortKey(),
           row.getDataId(),
           (short) row.getNumberOfDuplicates(),
-          value,
-          isDataIndex);
+          value);
     }
   }
 

@@ -22,7 +22,11 @@ import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import com.google.common.collect.Iterators;
+import com.google.common.primitives.Bytes;
 
 public interface DataStoreOperations {
 
@@ -42,6 +46,11 @@ public interface DataStoreOperations {
 
   RowWriter createWriter(Index index, InternalDataAdapter<?> adapter);
 
+  default RowWriter createDataIndexWriter(final InternalDataAdapter<?> adapter) {
+    return new DefaultDataIndexRowWriterWrapper(
+        createWriter(BaseDataStoreUtils.DATA_ID_INDEX, adapter));
+  }
+
   MetadataWriter createMetadataWriter(MetadataType metadataType);
 
   MetadataReader createMetadataReader(MetadataType metadataType);
@@ -50,34 +59,36 @@ public interface DataStoreOperations {
 
   <T> RowReader<T> createReader(ReaderParams<T> readerParams);
 
-  default <T> RowReader<T> createReader(final DataIndexReaderParams<T> readerParams) {
-    final List<RowReader<T>> readers =
-        Arrays.stream(readerParams.getDataIds()).map(
-            dataId -> createReader(
-                new ReaderParams<>(
-                    readerParams.getIndex(),
-                    readerParams.getAdapterStore(),
-                    readerParams.getInternalAdapterStore(),
-                    readerParams.getAdapterIds(),
-                    readerParams.getMaxResolutionSubsamplingPerDimension(),
-                    readerParams.getAggregation(),
-                    readerParams.getFieldSubsets(),
-                    readerParams.isMixedVisibility(),
-                    readerParams.isAuthorizationsLimiting(),
-                    false,
-                    readerParams.isClientsideRowMerging(),
-                    new QueryRanges(new ByteArrayRange(dataId, dataId, true)),
-                    null,
-                    1,
-                    readerParams.getMaxRangeDecomposition(),
-                    readerParams.getCoordinateRanges(),
-                    readerParams.getConstraints(),
-                    readerParams.getRowTransformer(),
-                    readerParams.getAdditionalAuthorizations()))).collect(Collectors.toList());
+  default <T> RowReader<T> createReader(final DataIndexReaderParams readerParams) {
+    final List<RowReader<GeoWaveRow>> readers =
+        Arrays.stream(readerParams.getDataIds()).map(dataId -> {
+          final byte[] sortKey = Bytes.concat(new byte[] {(byte) dataId.length}, dataId);
+          return createReader(
+              new ReaderParams<>(
+                  BaseDataStoreUtils.DATA_ID_INDEX,
+                  readerParams.getAdapterStore(),
+                  readerParams.getInternalAdapterStore(),
+                  new short[] {readerParams.getAdapterId()},
+                  null,
+                  readerParams.getAggregation(),
+                  readerParams.getFieldSubsets(),
+                  false,
+                  false,
+                  false,
+                  false,
+                  new QueryRanges(new ByteArrayRange(sortKey, sortKey, false)),
+                  null,
+                  1,
+                  null,
+                  null,
+                  null,
+                  GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER,
+                  new String[0]));
+        }).collect(Collectors.toList());
     return new RowReaderWrapper<>(new CloseableIteratorWrapper(new Closeable() {
       @Override
       public void close() {
-        for (final RowReader<T> r : readers) {
+        for (final RowReader<GeoWaveRow> r : readers) {
           r.close();
         }
       }

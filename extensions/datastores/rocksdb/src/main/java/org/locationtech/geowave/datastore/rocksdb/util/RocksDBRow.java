@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.util;
 
-import com.google.common.collect.Lists;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +17,7 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.locationtech.geowave.core.store.entities.MergeableGeoWaveRow;
+import com.google.common.collect.Lists;
 
 public class RocksDBRow extends MergeableGeoWaveRow implements GeoWaveRow {
   List<byte[]> mergedKeys;

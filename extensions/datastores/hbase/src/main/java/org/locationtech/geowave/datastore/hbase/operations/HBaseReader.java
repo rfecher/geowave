@@ -27,7 +27,7 @@ import org.locationtech.geowave.core.index.IndexUtils;
 import org.locationtech.geowave.core.index.MultiDimensionalCoordinateRangesArray;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
-import org.locationtech.geowave.core.store.operations.BaseReaderParams;
+import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
@@ -89,8 +89,7 @@ public class HBaseReader<T> implements RowReader<T> {
 
     this.partitionKeyLength =
         recordReaderParams.getIndex().getIndexStrategy().getPartitionKeyLength();
-    this.wholeRowEncoding =
-        recordReaderParams.isMixedVisibility() && !recordReaderParams.isServersideAggregation();
+    this.wholeRowEncoding = recordReaderParams.isMixedVisibility();
     this.clientSideRowMerging = recordReaderParams.isClientsideRowMerging();
     this.rowTransformer = recordReaderParams.getRowTransformer();
     this.scanProvider =
@@ -141,15 +140,6 @@ public class HBaseReader<T> implements RowReader<T> {
     rscanner.setStartRow(range.getStart()).setStopRow(range.getEndAsNextPrefix());
 
     if (operations.isServerSideLibraryEnabled()) {
-      // Add distributable filters if requested, this has to be last
-      // in the filter list for the dedupe filter to work correctly
-
-      if (recordReaderParams.getFilter() != null) {
-        addDistFilter(recordReaderParams, filterList);
-      } else {
-        addIndexFilter(recordReaderParams, filterList);
-      }
-
       addSkipFilter(recordReaderParams, filterList);
     }
 
@@ -248,7 +238,7 @@ public class HBaseReader<T> implements RowReader<T> {
   }
 
   private static <T> void setLimit(
-      final BaseReaderParams<T> readerParams,
+      final RangeReaderParams<T> readerParams,
       final FilterList filterList) {
     if ((readerParams.getLimit() != null) && (readerParams.getLimit() > 0)) {
       // @formatter:off
@@ -268,7 +258,7 @@ public class HBaseReader<T> implements RowReader<T> {
     }
   }
 
-  private void addSkipFilter(final BaseReaderParams<T> params, final FilterList filterList) {
+  private void addSkipFilter(final RangeReaderParams<T> params, final FilterList filterList) {
     // Add skipping filter if requested
     if (params.getMaxResolutionSubsamplingPerDimension() != null) {
       if (params.getMaxResolutionSubsamplingPerDimension().length != params.getIndex().getIndexStrategy().getOrderedDimensionDefinitions().length) {
@@ -292,7 +282,7 @@ public class HBaseReader<T> implements RowReader<T> {
     }
   }
 
-  private void addDistFilter(final BaseReaderParams<T> params, final FilterList filterList) {
+  private void addDistFilter(final ReaderParams<T> params, final FilterList filterList) {
     final HBaseDistributableFilter hbdFilter = new HBaseDistributableFilter();
 
     if (wholeRowEncoding) {
@@ -311,7 +301,7 @@ public class HBaseReader<T> implements RowReader<T> {
     filterList.addFilter(hbdFilter);
   }
 
-  private void addIndexFilter(final BaseReaderParams<T> params, final FilterList filterList) {
+  private void addIndexFilter(final ReaderParams<T> params, final FilterList filterList) {
     final List<MultiDimensionalCoordinateRangesArray> coords = params.getCoordinateRanges();
     if ((coords != null) && !coords.isEmpty()) {
       final HBaseNumericIndexStrategyFilter numericIndexFilter =
@@ -349,7 +339,7 @@ public class HBaseReader<T> implements RowReader<T> {
   }
 
   private Provider<Scan> createScanProvider(
-      final BaseReaderParams<T> readerParams,
+      final RangeReaderParams<T> readerParams,
       final HBaseOperations operations,
       final boolean clientSideRowMerging) {
     final Authorizations authorizations;

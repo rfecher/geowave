@@ -103,6 +103,15 @@ public class RedisOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
+  public RowWriter createDataIndexWriter(final InternalDataAdapter<?> adapter) {
+    return new RedisDataIndexWriter(
+        client,
+        options.getCompression(),
+        gwNamespace,
+        adapter.getTypeName());
+  }
+
+  @Override
   public MetadataWriter createMetadataWriter(final MetadataType metadataType) {
     return new RedisMetadataWriter(
         RedisUtils.getMetadataSet(client, options.getCompression(), gwNamespace, metadataType),
@@ -189,7 +198,7 @@ public class RedisOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public <T> RowReader<T> createReader(DataIndexReaderParams<T> readerParams) {
-    return MapReduceDataStoreOperations.super.createReader(readerParams);
+  public <T> RowReader<T> createReader(final DataIndexReaderParams readerParams) {
+    return new RedisReader<>(client, options.getCompression(), readerParams, gwNamespace);
   }
 }

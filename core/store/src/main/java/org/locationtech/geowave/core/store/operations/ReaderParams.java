@@ -21,7 +21,7 @@ import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
-public class ReaderParams<T> extends BaseReaderParams<T> {
+public class ReaderParams<T> extends RangeReaderParams<T> {
   private final boolean isServersideAggregation;
   private final QueryRanges queryRanges;
   private final QueryFilter filter;
@@ -69,18 +69,15 @@ public class ReaderParams<T> extends BaseReaderParams<T> {
     this.coordinateRanges = coordinateRanges;
     this.constraints = constraints;
   }
-
-  @Override
+  
   public List<MultiDimensionalCoordinateRangesArray> getCoordinateRanges() {
     return coordinateRanges;
   }
 
-  @Override
   public List<MultiDimensionalNumericData> getConstraints() {
     return constraints;
   }
 
-  @Override
   public boolean isServersideAggregation() {
     return isServersideAggregation;
   }
@@ -89,7 +86,6 @@ public class ReaderParams<T> extends BaseReaderParams<T> {
     return queryRanges;
   }
 
-  @Override
   public QueryFilter getFilter() {
     return filter;
   }

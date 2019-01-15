@@ -104,6 +104,11 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
   }
 
   @Override
+  public RowWriter createDataIndexWriter(final InternalDataAdapter<?> adapter) {
+    return new RockDBDataIndexWriter(client, adapter.getAdapterId(), adapter.getTypeName());
+  }
+
+  @Override
   public MetadataWriter createMetadataWriter(final MetadataType metadataType) {
     return new RocksDBMetadataWriter(RocksDBUtils.getMetadataTable(client, metadataType));
   }
@@ -128,7 +133,7 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
   }
 
   @Override
-  public <T> RowReader<T> createReader(final DataIndexReaderParams<T> readerParams) {
+  public <T> RowReader<T> createReader(final DataIndexReaderParams readerParams) {
     return new RocksDBReader<>(client, readerParams);
   }
 

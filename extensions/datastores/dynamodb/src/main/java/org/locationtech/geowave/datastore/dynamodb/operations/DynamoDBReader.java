@@ -23,7 +23,7 @@ import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
-import org.locationtech.geowave.core.store.operations.BaseReaderParams;
+import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.core.store.operations.ParallelDecoder;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
@@ -85,7 +85,7 @@ public class DynamoDBReader<T> implements RowReader<T> {
 
   private void processAuthorizations(
       final String[] authorizations,
-      final BaseReaderParams<T> params) {
+      final RangeReaderParams<T> params) {
     visibilityFilter = new ClientVisibilityFilter(Sets.newHashSet(authorizations));
   }
 

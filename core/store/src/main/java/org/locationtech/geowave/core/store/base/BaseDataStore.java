@@ -170,13 +170,7 @@ public class BaseDataStore implements DataStore {
 
       final IngestCallbackList<T> callbacksList = new IngestCallbackList<>(callbacks);
       writers[i++] =
-          createIndexWriter(
-              adapter,
-              BaseDataStoreUtils.DATA_ID_INDEX,
-              baseOperations,
-              baseOptions,
-              callbacksList,
-              callbacksList);
+          createDataIndexWriter(adapter, baseOperations, baseOptions, callbacksList, callbacksList);
     }
     for (final Index index : indices) {
       final DataStoreCallbackManager callbackManager =
@@ -485,27 +479,11 @@ public class BaseDataStore implements DataStore {
       for (final Entry<Short, Set<ByteArray>> entry : dataIdsToDelete.entrySet()) {
         final Short adapterId = entry.getKey();
         final List<Short> adapterIdList = Collections.singletonList(adapterId);
-
-        final FieldVisibilityCount visibilityCounts =
-            FieldVisibilityCount.getVisibilityCounts(
-                BaseDataStoreUtils.DATA_ID_INDEX,
-                adapterIdList,
-                statisticsStore,
-                authorizations);
-        final List<ByteArray> bytes = new ArrayList<>(entry.getValue());
-        System.err.println(bytes.size());
         final DataIndexReaderParams readerParams =
-            new DataIndexReaderParamsBuilder<>(
-                BaseDataStoreUtils.DATA_ID_INDEX,
-                adapterStore,
-                internalAdapterStore,
-                GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER).adapterIds(
-                    new short[] {adapterId}).isAuthorizationsLimiting(
-                        (visibilityCounts == null)
-                            || visibilityCounts.isAuthorizationsLimiting(
-                                authorizations)).additionalAuthorizations(authorizations).dataIds(
-                                    entry.getValue().stream().map(b -> b.getBytes()).toArray(
-                                        i -> new byte[i][])).build();
+            new DataIndexReaderParamsBuilder<>(adapterStore, internalAdapterStore).adapterId(
+                adapterId).dataIds(
+                    entry.getValue().stream().map(b -> b.getBytes()).toArray(
+                        i -> new byte[i][])).build();
 
         try (QueryAndDeleteByRow queryAndDelete =
             new QueryAndDeleteByRow<>(rowDeleter, baseOperations.createReader(readerParams))) {
@@ -514,17 +492,6 @@ public class BaseDataStore implements DataStore {
           }
         }
       }
-
-      // dataIdsToDelete.forEach(
-      // pair -> rowDeleter.delete(
-      // new GeoWaveRowImpl(
-      // new GeoWaveKeyImpl(
-      // new byte[0],
-      // pair.getRight(),
-      // new byte[0],
-      // pair.getLeft().getBytes(),
-      // 0),
-      // new GeoWaveValue[0])));
     } catch (
 
     final Exception e) {
@@ -687,10 +654,7 @@ public class BaseDataStore implements DataStore {
           final RowReader<GeoWaveRow> rowReader =
               getRowReader(
                   adapterId,
-                  new DataIndexRetrievalParams(
-                      params.isClientsideRowMerging(),
-                      params.getFieldSubsets(),
-                      params.getAdditionalAuthorizations()),
+                  new DataIndexRetrievalParams(params.getFieldSubsets(), params.getAggregation()),
                   dataIds);
           return new CloseableIteratorWrapper<>(
               rowReader,
@@ -701,10 +665,7 @@ public class BaseDataStore implements DataStore {
         return getFieldValuesFromDataIdIndex(
             dataId,
             adapterId,
-            new DataIndexRetrievalParams(
-                params.isClientsideRowMerging(),
-                params.getFieldSubsets(),
-                params.getAdditionalAuthorizations()));
+            new DataIndexRetrievalParams(params.getFieldSubsets(), params.getAggregation()));
       }));
     }
     return null;
@@ -736,26 +697,11 @@ public class BaseDataStore implements DataStore {
   protected RowReader<GeoWaveRow> getRowReader(
       final short adapterId,
       final DataIndexRetrievalParams params,
-      final byte[]... dataId) {
-    final FieldVisibilityCount visibilityCounts =
-        FieldVisibilityCount.getVisibilityCounts(
-            BaseDataStoreUtils.DATA_ID_INDEX,
-            Collections.singleton(adapterId),
-            statisticsStore,
-            params.getAdditionalAuthorizations());
-    final DataIndexReaderParams<GeoWaveRow> readerParams =
-        new DataIndexReaderParamsBuilder<>(
-            BaseDataStoreUtils.DATA_ID_INDEX,
-            adapterStore,
-            internalAdapterStore,
-            GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER).adapterIds(adapterId).fieldSubsets(
-                params.getFieldSubsets()).isAuthorizationsLimiting(
-                    (visibilityCounts == null)
-                        || visibilityCounts.isAuthorizationsLimiting(
-                            params.getAdditionalAuthorizations())).isClientsideRowMerging(
-                                params.isClientsideRowMerging()).dataIds(
-                                    dataId).additionalAuthorizations(
-                                        params.getAdditionalAuthorizations()).build();
+      final byte[]... dataIds) {
+    final DataIndexReaderParams readerParams =
+        new DataIndexReaderParamsBuilder<>(adapterStore, internalAdapterStore).adapterId(
+            adapterId).dataIds(dataIds).fieldSubsets(params.getFieldSubsets()).aggregation(
+                params.getAggregation()).build();
     return baseOperations.createReader(readerParams);
   }
 
@@ -893,6 +839,15 @@ public class BaseDataStore implements DataStore {
         sanitizedQueryOptions.getLimit(),
         sanitizedQueryOptions.getMaxRangeDecomposition(),
         delete);
+  }
+
+  protected <T> Writer<T> createDataIndexWriter(
+      final InternalDataAdapter<T> adapter,
+      final DataStoreOperations baseOperations,
+      final DataStoreOptions baseOptions,
+      final IngestCallback<T> callback,
+      final Closeable closable) {
+    return new DataIndexWriter<>(adapter, baseOperations, baseOptions, callback, closable);
   }
 
   protected <T> Writer<T> createIndexWriter(

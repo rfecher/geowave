@@ -34,8 +34,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.primitives.UnsignedBytes;
 
-public class BatchedRangeRead<T> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(BatchedRangeRead.class);
+public class RocksDBQueryExecution<T> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBQueryExecution.class);
 
   private static class RangeReadInfo {
     byte[] partitionKey;
@@ -77,8 +77,7 @@ public class BatchedRangeRead<T> {
   private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
   private final LoadingCache<ByteArray, RocksDBIndexTable> setCache =
       Caffeine.newBuilder().build(partitionKey -> getTable(partitionKey.getBytes()));
-  private Collection<SinglePartitionQueryRanges> ranges;
-  private byte[][] dataIds;
+  private final Collection<SinglePartitionQueryRanges> ranges;
   private final short adapterId;
   private final String indexNamePrefix;
   private final RocksDBClient client;
@@ -89,11 +88,12 @@ public class BatchedRangeRead<T> {
   private final Pair<Boolean, Boolean> groupByRowAndSortByTimePair;
   private final boolean isSortFinalResultsBySortKey;
 
-  protected BatchedRangeRead(
+  protected RocksDBQueryExecution(
       final RocksDBClient client,
       final String indexNamePrefix,
       final short adapterId,
       final GeoWaveRowIteratorTransformer<T> rowTransformer,
+      final Collection<SinglePartitionQueryRanges> ranges,
       final Predicate<GeoWaveRow> filter,
       final boolean rowMerging,
       final boolean async,
@@ -103,18 +103,11 @@ public class BatchedRangeRead<T> {
     this.indexNamePrefix = indexNamePrefix;
     this.adapterId = adapterId;
     this.rowTransformer = rowTransformer;
+    this.ranges = ranges;
     this.filter = filter;
     this.rowMerging = rowMerging;
     this.groupByRowAndSortByTimePair = groupByRowAndSortByTimePair;
     this.isSortFinalResultsBySortKey = isSortFinalResultsBySortKey;
-  }
-
-  public void setRanges(final Collection<SinglePartitionQueryRanges> ranges) {
-    this.ranges = ranges;
-  }
-
-  public void setDataIds(final byte[][] dataIds) {
-    this.dataIds = dataIds;
   }
 
   private RocksDBIndexTable getTable(final byte[] partitionKey) {
@@ -127,19 +120,13 @@ public class BatchedRangeRead<T> {
   }
 
   public CloseableIterator<T> results() {
-    if (ranges != null) {
-      final List<RangeReadInfo> reads = new ArrayList<>();
-      for (final SinglePartitionQueryRanges r : ranges) {
-        for (final ByteArrayRange range : r.getSortKeyRanges()) {
-          reads.add(new RangeReadInfo(r.getPartitionKey(), range));
-        }
+    final List<RangeReadInfo> reads = new ArrayList<>();
+    for (final SinglePartitionQueryRanges r : ranges) {
+      for (final ByteArrayRange range : r.getSortKeyRanges()) {
+        reads.add(new RangeReadInfo(r.getPartitionKey(), range));
       }
-      return executeQuery(reads);
-    } else {
-      return transformAndFilter(
-          setCache.get(EMPTY_PARTITION_KEY).dataIndexIterator(dataIds),
-          EMPTY_PARTITION_KEY.getBytes());
     }
+    return executeQuery(reads);
   }
 
   public CloseableIterator<T> executeQuery(final List<RangeReadInfo> reads) {

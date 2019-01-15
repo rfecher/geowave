@@ -8,11 +8,6 @@
  */
 package org.locationtech.geowave.datastore.redis.util;
 
-import com.clearspring.analytics.util.Varint;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
 import java.io.IOException;
 import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.redisson.client.codec.BaseCodec;
@@ -21,6 +16,11 @@ import org.redisson.client.protocol.Decoder;
 import org.redisson.client.protocol.Encoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.clearspring.analytics.util.Varint;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 
 public class GeoWaveRedisRowWithTimestampCodec extends BaseCodec {
   private static final Logger LOGGER =
@@ -36,16 +36,16 @@ public class GeoWaveRedisRowWithTimestampCodec extends BaseCodec {
         final byte[] visibility = new byte[in.readUnsignedByte()];
         final byte[] value = new byte[Varint.readUnsignedVarInt(in)];
         final int numDuplicates = in.readUnsignedByte();
-        if (in.read(dataId) != dataId.length) {
+        if ((dataId.length > 0) && (in.read(dataId) != dataId.length)) {
           LOGGER.warn("unable to read data ID");
         }
-        if (in.read(fieldMask) != fieldMask.length) {
+        if ((fieldMask.length > 0) && (in.read(fieldMask) != fieldMask.length)) {
           LOGGER.warn("unable to read fieldMask");
         }
-        if (in.read(visibility) != visibility.length) {
+        if ((visibility.length > 0) && (in.read(visibility) != visibility.length)) {
           LOGGER.warn("unable to read visibility");
         }
-        if (in.read(value) != value.length) {
+        if ((value.length > 0) && (in.read(value) != value.length)) {
           LOGGER.warn("unable to read value");
         }
         return new GeoWaveRedisPersistedTimestampRow(

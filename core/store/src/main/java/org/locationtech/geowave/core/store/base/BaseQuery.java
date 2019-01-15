@@ -203,10 +203,7 @@ abstract class BaseQuery {
   public DataIndexRetrieval getFieldValuesFromDataIdx(final PersistentAdapterStore adapterStore) {
     if (dataIndexRetrieval != null) {
       dataIndexRetrieval.setParams(
-          new DataIndexRetrievalParams(
-              isRowMerging(adapterStore),
-              getFieldSubsets(),
-              getAdditionalAuthorizations()));
+          new DataIndexRetrievalParams(getFieldSubsets(), getAggregation()));
     }
     return dataIndexRetrieval;
   }

@@ -51,7 +51,7 @@ public class MapReduceMemoryOperations extends MemoryDataStoreOperations
             readerParams.getAggregation(),
             readerParams.getFieldSubsets(),
             readerParams.isMixedVisibility(),
-            readerParams.isServersideAggregation(),
+            false,
             false,
             false,
             new QueryRanges(
@@ -59,11 +59,11 @@ public class MapReduceMemoryOperations extends MemoryDataStoreOperations
                     new SinglePartitionQueryRanges(
                         partitionKey,
                         Collections.singleton(sortRange)))),
-            readerParams.getFilter(),
+            null,
             readerParams.getLimit(),
             readerParams.getMaxRangeDecomposition(),
-            readerParams.getCoordinateRanges(),
-            readerParams.getConstraints(),
+            null,
+            null,
             readerParams.getRowTransformer(),
             readerParams.getAdditionalAuthorizations()));
   }

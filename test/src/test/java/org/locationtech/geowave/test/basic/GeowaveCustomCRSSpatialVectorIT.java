@@ -159,16 +159,16 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
               + "'");
     }
 
-//    try {
-//      testDeleteCQL(CQL_DELETE_STR, TestUtils.createWebMercatorSpatialIndex());
-//    } catch (final Exception e) {
-//      e.printStackTrace();
-//      TestUtils.deleteAll(dataStore);
-//      Assert.fail(
-//          "Error occurred while testing deletion of an entry using spatial index: '"
-//              + e.getLocalizedMessage()
-//              + "'");
-//    }
+    try {
+      testDeleteCQL(CQL_DELETE_STR, TestUtils.createWebMercatorSpatialIndex());
+    } catch (final Exception e) {
+      e.printStackTrace();
+      TestUtils.deleteAll(dataStore);
+      Assert.fail(
+          "Error occurred while testing deletion of an entry using spatial index: '"
+              + e.getLocalizedMessage()
+              + "'");
+    }
 
     try {
       testDeleteSpatial(

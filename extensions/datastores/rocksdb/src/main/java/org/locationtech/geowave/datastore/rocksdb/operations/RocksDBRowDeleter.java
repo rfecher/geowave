@@ -104,7 +104,6 @@ public class RocksDBRowDeleter implements RowDeleter {
                 RocksDBUtils.getTableName(
                     internalAdapterStore.getTypeName(row.getAdapterId()),
                     indexName,
-                    row.getAdapterId(),
                     row.getPartitionKey()),
                 row.getAdapterId(),
                 row.getPartitionKey()));

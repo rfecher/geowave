@@ -12,6 +12,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import java.time.Instant;
 import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
@@ -29,8 +30,8 @@ public class RedisWriter implements RowWriter {
   private final String setNamePrefix;
   private final LoadingCache<ByteArray, RedisScoredSetWrapper<GeoWaveRedisPersistedRow>> setCache =
       Caffeine.newBuilder().build(partitionKey -> getSet(partitionKey.getBytes()));
-  boolean isTimestampRequired;
-
+  private boolean isTimestampRequired;
+  
   public RedisWriter(
       final RedissonClient client,
       final Compression compression,

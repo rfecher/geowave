@@ -1,17 +1,8 @@
-/**
- * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
- *
- * <p> See the NOTICE file distributed with this work for additional information regarding copyright
- * ownership. All rights reserved. This program and the accompanying materials are made available
- * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
- * available at http://www.apache.org/licenses/LICENSE-2.0.txt
- */
 package org.locationtech.geowave.core.store.base;
 
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
-import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.api.Index;
@@ -20,16 +11,14 @@ import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.callback.IngestCallback;
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
-import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class BaseIndexWriter<T> implements Writer<T> {
+public class DataIndexWriter<T> implements Writer<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseIndexWriter.class);
-  protected final Index index;
   protected final DataStoreOperations operations;
   protected final DataStoreOptions options;
   protected final IngestCallback<T> callback;
@@ -38,16 +27,14 @@ class BaseIndexWriter<T> implements Writer<T> {
   protected final InternalDataAdapter<T> adapter;
   final Closeable closable;
 
-  public BaseIndexWriter(
+  public DataIndexWriter(
       final InternalDataAdapter<T> adapter,
-      final Index index,
       final DataStoreOperations operations,
       final DataStoreOptions options,
       final IngestCallback<T> callback,
       final Closeable closable) {
     this.operations = operations;
     this.options = options;
-    this.index = index;
     this.callback = callback;
     this.adapter = adapter;
     this.closable = closable;
@@ -55,7 +42,7 @@ class BaseIndexWriter<T> implements Writer<T> {
 
   @Override
   public Index[] getIndices() {
-    return new Index[] {index};
+    return new Index[] {BaseDataStoreUtils.DATA_ID_INDEX};
   }
 
   @Override
@@ -77,17 +64,16 @@ class BaseIndexWriter<T> implements Writer<T> {
           BaseDataStoreUtils.getWriteInfo(
               entry,
               adapter,
-              index,
+              BaseDataStoreUtils.DATA_ID_INDEX,
               fieldVisibilityWriter,
               options.isSecondaryIndexing(),
-              false);
-      verifyVisibility(fieldVisibilityWriter, entryInfo);
+              true);
       final GeoWaveRow[] rows = entryInfo.getRows();
 
       writer.write(rows);
       callback.entryIngested(entry, rows);
     }
-    return new WriteResults(index.getName(), entryInfo.getInsertionIds());
+    return new WriteResults();
   }
 
   @Override
@@ -116,25 +102,6 @@ class BaseIndexWriter<T> implements Writer<T> {
     }
   }
 
-  private void verifyVisibility(
-      final VisibilityWriter customFieldVisibilityWriter,
-      final IntermediaryWriteEntryInfo ingestInfo) {
-    if (customFieldVisibilityWriter != DataStoreUtils.UNCONSTRAINED_VISIBILITY) {
-      for (final GeoWaveValue value : ingestInfo.getValues()) {
-        if ((value.getVisibility() != null) && (value.getVisibility().length > 0)) {
-          if (!operations.ensureAuthorizations(
-              null,
-              StringUtils.stringFromBinary(value.getVisibility()))) {
-            LOGGER.error(
-                "Unable to set authorizations for ingested visibility '"
-                    + StringUtils.stringFromBinary(value.getVisibility())
-                    + "'");
-          }
-        }
-      }
-    }
-  }
-
   protected synchronized void closeInternal() {
     if (writer != null) {
       try {
@@ -149,7 +116,7 @@ class BaseIndexWriter<T> implements Writer<T> {
   protected synchronized void ensureOpen() {
     if (writer == null) {
       try {
-        writer = operations.createWriter(index, adapter);
+        writer = operations.createDataIndexWriter(adapter);
       } catch (final Exception e) {
         LOGGER.error("Unable to open writer", e);
       }

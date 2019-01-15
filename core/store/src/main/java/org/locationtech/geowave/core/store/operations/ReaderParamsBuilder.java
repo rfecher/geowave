@@ -18,7 +18,7 @@ import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 
-public class ReaderParamsBuilder<T> extends BaseReaderParamsBuilder<T, ReaderParamsBuilder<T>> {
+public class ReaderParamsBuilder<T> extends RangeReaderParamsBuilder<T, ReaderParamsBuilder<T>> {
 
   protected boolean isServersideAggregation = false;
   protected QueryRanges queryRanges = null;

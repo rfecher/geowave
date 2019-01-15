@@ -290,7 +290,9 @@ public class ByteArrayUtils {
   public static ByteArrayRange getSingleRange(final List<ByteArrayRange> ranges) {
     byte[] start = null;
     byte[] end = null;
-
+    if (ranges == null) {
+      return null;
+    }
     for (final ByteArrayRange range : ranges) {
       if ((start == null) || (ByteArrayUtils.compare(range.getStart(), start) < 0)) {
         start = range.getStart();

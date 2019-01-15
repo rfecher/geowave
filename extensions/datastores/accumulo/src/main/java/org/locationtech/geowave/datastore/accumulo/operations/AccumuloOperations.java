@@ -71,16 +71,15 @@ import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStor
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
-import org.locationtech.geowave.core.store.operations.BaseReaderParams;
 import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.MetadataWriter;
 import org.locationtech.geowave.core.store.operations.QueryAndDeleteByRow;
+import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
@@ -845,8 +844,11 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
           }
         } else {
           scanner = createClientScanner(tableName, params.getAdditionalAuthorizations());
-          ((Scanner) scanner).setRange(
-              AccumuloUtils.byteArrayRangeToAccumuloRange(ByteArrayUtils.getSingleRange(ranges)));
+          if (ranges != null) {
+            ((Scanner) scanner).setRange(
+                AccumuloUtils.byteArrayRangeToAccumuloRange(ByteArrayUtils.getSingleRange(ranges)));
+
+          }
         }
       }
       if (params.getMaxResolutionSubsamplingPerDimension() != null) {
@@ -891,7 +893,23 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   protected <T> void addConstraintsScanIteratorSettings(
-      final BaseReaderParams<T> params,
+      final RecordReaderParams<T> params,
+      final ScannerBase scanner,
+      final DataStoreOptions options) {
+    addFieldSubsettingToIterator(params, scanner);
+    if (params.isMixedVisibility()) {
+      // we have to at least use a whole row iterator
+      final IteratorSetting iteratorSettings =
+          new IteratorSetting(
+              QueryFilterIterator.QUERY_ITERATOR_PRIORITY,
+              QueryFilterIterator.QUERY_ITERATOR_NAME,
+              WholeRowIterator.class);
+      scanner.addScanIterator(iteratorSettings);
+    }
+  }
+
+  protected <T> void addConstraintsScanIteratorSettings(
+      final ReaderParams<T> params,
       final ScannerBase scanner,
       final DataStoreOptions options) {
     addFieldSubsettingToIterator(params, scanner);
@@ -930,7 +948,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
 
     boolean usingDistributableFilter = false;
 
-    if (params.getFilter() != null && !options.isSecondaryIndexing()) {
+    if ((params.getFilter() != null) && !options.isSecondaryIndexing()) {
       usingDistributableFilter = true;
       if (iteratorSettings == null) {
         if (params.isMixedVisibility()) {
@@ -968,7 +986,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
               QueryFilterIterator.QUERY_ITERATOR_NAME,
               WholeRowIterator.class);
     }
-    if (!usingDistributableFilter && (!options.isSecondaryIndexing())){// || !BaseDataStoreUtils.DATA_ID_INDEX.equals(params.getIndex()))) {
+    if (!usingDistributableFilter && (!options.isSecondaryIndexing())) {
       // it ends up being duplicative and slower to add both a
       // distributable query and the index constraints, but one of the two
       // is important to limit client-side filtering
@@ -980,7 +998,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   protected <T> void addIndexFilterToIterator(
-      final BaseReaderParams<T> params,
+      final ReaderParams<T> params,
       final ScannerBase scanner) {
     final List<MultiDimensionalCoordinateRangesArray> coords = params.getCoordinateRanges();
     if ((coords != null) && !coords.isEmpty()) {
@@ -1005,7 +1023,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   protected <T> void addFieldSubsettingToIterator(
-      final BaseReaderParams<T> params,
+      final RangeReaderParams<T> params,
       final ScannerBase scanner) {
     if ((params.getFieldSubsets() != null) && !params.isAggregation()) {
       final String[] fieldNames = params.getFieldSubsets().getLeft();
@@ -1128,7 +1146,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
         scanner,
         readerParams.getRowTransformer(),
         readerParams.getIndex().getIndexStrategy().getPartitionKeyLength(),
-        readerParams.isMixedVisibility() && !readerParams.isServersideAggregation(),
+        readerParams.isMixedVisibility(),
         readerParams.isClientsideRowMerging(),
         false);
   }

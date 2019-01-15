@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -55,7 +56,9 @@ import org.locationtech.geowave.core.store.data.DataWriter;
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.data.field.FieldVisibilityHandler;
 import org.locationtech.geowave.core.store.data.field.FieldWriter;
+import org.locationtech.geowave.core.store.entities.GeoWaveKeyImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.locationtech.geowave.core.store.flatten.BitmaskUtils;
@@ -82,7 +85,7 @@ public class BaseDataStoreUtils {
       final InternalDataAdapter<T> adapter,
       final Index index,
       final VisibilityWriter<T> customFieldVisibilityWriter) {
-    return getWriteInfo(entry, adapter, index, customFieldVisibilityWriter, false).getRows();
+    return getWriteInfo(entry, adapter, index, customFieldVisibilityWriter, false, false).getRows();
   }
 
   public static CloseableIterator<Object> aggregate(
@@ -105,6 +108,20 @@ public class BaseDataStoreUtils {
       return new Wrapper(Iterators.singletonIterator(aggregationFunction.getResult()));
     }
     return new CloseableIterator.Empty();
+  }
+
+  public static boolean isDataIndex(final String indexName) {
+    return BaseDataStoreUtils.DATA_ID_INDEX.getName().equals(indexName);
+  }
+
+
+  public static GeoWaveRow getDataIndexRow(
+      final byte[] dataId,
+      final short adapterId,
+      final byte[] value) {
+    return new GeoWaveRowImpl(
+        new GeoWaveKeyImpl(new byte[0], adapterId, new byte[0], dataId, 0),
+        new GeoWaveValue[] {new GeoWaveValueImpl(new byte[0], new byte[0], value)});
   }
 
   /**
@@ -159,7 +176,6 @@ public class BaseDataStoreUtils {
         dataIndexRetrieval);
   }
 
-  public static int callback = 0;
   /**
    * build a persistence encoding object first, pass it through the client filters and if its
    * accepted, use the data adapter to decode the persistence model into the native data type
@@ -231,7 +247,6 @@ public class BaseDataStoreUtils {
             }
             if ((scanCallback != null)) {
               scanCallback.entryScanned(decodedRow, row);
-              callback++;
             }
 
             return decodedRow;
@@ -293,8 +308,8 @@ public class BaseDataStoreUtils {
       final InternalDataAdapter<T> adapter,
       final Index index,
       final VisibilityWriter<T> customFieldVisibilityWriter,
-      final boolean secondaryIndex) {
-    final boolean dataIdIndex = (secondaryIndex && (index instanceof NullIndex));
+      final boolean secondaryIndex,
+      final boolean dataIdIndex) {
     final CommonIndexModel indexModel = index.getIndexModel();
     final AdapterPersistenceEncoding encodedData = adapter.encode(entry, indexModel);
     final InsertionIds insertionIds = dataIdIndex ? null : encodedData.getInsertionIds(index);
@@ -354,7 +369,11 @@ public class BaseDataStoreUtils {
             dataId,
             internalAdapterId,
             insertionIds,
-            BaseDataStoreUtils.composeFlattenedFields(fieldInfoList, indexModel, adapter));
+            BaseDataStoreUtils.composeFlattenedFields(
+                fieldInfoList,
+                indexModel,
+                adapter,
+                dataIdIndex));
       }
     } else {
       LOGGER.warn(
@@ -381,71 +400,101 @@ public class BaseDataStoreUtils {
   private static <T> GeoWaveValue[] composeFlattenedFields(
       final List<FieldInfo<?>> originalList,
       final CommonIndexModel model,
-      final DataTypeAdapter<?> writableAdapter) {
+      final DataTypeAdapter<?> writableAdapter,
+      final boolean dataIdIndex) {
     if (originalList.isEmpty()) {
       return new GeoWaveValue[0];
     }
-    final List<GeoWaveValue> retVal = new ArrayList<>();
     final Map<ByteArray, List<Pair<Integer, FieldInfo<?>>>> vizToFieldMap = new LinkedHashMap<>();
-    boolean sharedVisibility = false;
     // organize FieldInfos by unique visibility
-    for (final FieldInfo<?> fieldInfo : originalList) {
-      int fieldPosition = writableAdapter.getPositionOfOrderedField(model, fieldInfo.getFieldId());
-      if (fieldPosition == -1) {
-        // this is just a fallback for unexpected failures
-        fieldPosition = writableAdapter.getPositionOfOrderedField(model, fieldInfo.getFieldId());
+    if (dataIdIndex) {
+      final List<Pair<Integer, FieldInfo<?>>> fieldsWithPositions =
+          originalList.stream().map(fieldInfo -> {
+            final int fieldPosition =
+                writableAdapter.getPositionOfOrderedField(model, fieldInfo.getFieldId());
+            return (Pair) Pair.of(fieldPosition, fieldInfo);
+          }).collect(Collectors.toList());
+      byte[] mergedVisibility = new byte[0];
+      for (final FieldInfo<?> fieldValue : originalList) {
+        mergedVisibility =
+            DataStoreUtils.mergeVisibilities(mergedVisibility, fieldValue.getVisibility());
       }
-      final ByteArray currViz = new ByteArray(fieldInfo.getVisibility());
-      if (vizToFieldMap.containsKey(currViz)) {
-        sharedVisibility = true;
-        final List<Pair<Integer, FieldInfo<?>>> listForViz = vizToFieldMap.get(currViz);
-        listForViz.add(new ImmutablePair<Integer, FieldInfo<?>>(fieldPosition, fieldInfo));
-      } else {
-        final List<Pair<Integer, FieldInfo<?>>> listForViz = new LinkedList<>();
-        listForViz.add(new ImmutablePair<Integer, FieldInfo<?>>(fieldPosition, fieldInfo));
-        vizToFieldMap.put(currViz, listForViz);
+      vizToFieldMap.put(new ByteArray(mergedVisibility), fieldsWithPositions);
+    } else {
+      boolean sharedVisibility = false;
+      for (final FieldInfo<?> fieldInfo : originalList) {
+        int fieldPosition =
+            writableAdapter.getPositionOfOrderedField(model, fieldInfo.getFieldId());
+        if (fieldPosition == -1) {
+          // this is just a fallback for unexpected failures
+          fieldPosition = writableAdapter.getPositionOfOrderedField(model, fieldInfo.getFieldId());
+        }
+        final ByteArray currViz = new ByteArray(fieldInfo.getVisibility());
+        if (vizToFieldMap.containsKey(currViz)) {
+          sharedVisibility = true;
+          final List<Pair<Integer, FieldInfo<?>>> listForViz = vizToFieldMap.get(currViz);
+          listForViz.add(new ImmutablePair<Integer, FieldInfo<?>>(fieldPosition, fieldInfo));
+        } else {
+          final List<Pair<Integer, FieldInfo<?>>> listForViz = new LinkedList<>();
+          listForViz.add(new ImmutablePair<Integer, FieldInfo<?>>(fieldPosition, fieldInfo));
+          vizToFieldMap.put(currViz, listForViz);
+        }
+      }
+
+      if (!sharedVisibility) {
+        // at a minimum, must return transformed (bitmasked) fieldInfos
+        final GeoWaveValue[] bitmaskedValues = new GeoWaveValue[vizToFieldMap.size()];
+        int i = 0;
+        for (final List<Pair<Integer, FieldInfo<?>>> list : vizToFieldMap.values()) {
+          // every list must have exactly one element
+          final Pair<Integer, FieldInfo<?>> fieldInfo = list.get(0);
+          bitmaskedValues[i++] =
+              new GeoWaveValueImpl(
+                  BitmaskUtils.generateCompositeBitmask(fieldInfo.getLeft()),
+                  fieldInfo.getRight().getVisibility(),
+                  fieldInfo.getRight().getWrittenValue());
+        }
+        return bitmaskedValues;
       }
     }
-    if (!sharedVisibility) {
-      // at a minimum, must return transformed (bitmasked) fieldInfos
-      final GeoWaveValue[] bitmaskedValues = new GeoWaveValue[vizToFieldMap.size()];
-      int i = 0;
-      for (final List<Pair<Integer, FieldInfo<?>>> list : vizToFieldMap.values()) {
-        // every list must have exactly one element
-        final Pair<Integer, FieldInfo<?>> fieldInfo = list.get(0);
-        bitmaskedValues[i++] =
-            new GeoWaveValueImpl(
-                BitmaskUtils.generateCompositeBitmask(fieldInfo.getLeft()),
-                fieldInfo.getRight().getVisibility(),
-                fieldInfo.getRight().getWrittenValue());
+    if (vizToFieldMap.size() == 1) {
+      return new GeoWaveValue[] {entryToValue(vizToFieldMap.entrySet().iterator().next())};
+    } else {
+      final List<GeoWaveValue> retVal = new ArrayList<>(vizToFieldMap.size());
+      for (final Entry<ByteArray, List<Pair<Integer, FieldInfo<?>>>> entry : vizToFieldMap.entrySet()) {
+        retVal.add(entryToValue(entry));
       }
-      return bitmaskedValues;
+      return retVal.toArray(new GeoWaveValue[0]);
     }
-    for (final Entry<ByteArray, List<Pair<Integer, FieldInfo<?>>>> entry : vizToFieldMap.entrySet()) {
-      int totalLength = 0;
-      final SortedSet<Integer> fieldPositions = new TreeSet<>();
-      final List<Pair<Integer, FieldInfo<?>>> fieldInfoList = entry.getValue();
-      Collections.sort(fieldInfoList, new BitmaskedPairComparator());
-      final List<byte[]> fieldInfoBytesList = new ArrayList<>(fieldInfoList.size());
-      for (final Pair<Integer, FieldInfo<?>> fieldInfoPair : fieldInfoList) {
-        final FieldInfo<?> fieldInfo = fieldInfoPair.getRight();
-        final ByteBuffer fieldInfoBytes =
-            ByteBuffer.allocate(4 + fieldInfo.getWrittenValue().length);
-        fieldPositions.add(fieldInfoPair.getLeft());
-        fieldInfoBytes.putInt(fieldInfo.getWrittenValue().length);
-        fieldInfoBytes.put(fieldInfo.getWrittenValue());
-        fieldInfoBytesList.add(fieldInfoBytes.array());
-        totalLength += fieldInfoBytes.array().length;
-      }
-      final ByteBuffer allFields = ByteBuffer.allocate(totalLength);
-      for (final byte[] bytes : fieldInfoBytesList) {
-        allFields.put(bytes);
-      }
-      final byte[] compositeBitmask = BitmaskUtils.generateCompositeBitmask(fieldPositions);
-      retVal.add(
-          new GeoWaveValueImpl(compositeBitmask, entry.getKey().getBytes(), allFields.array()));
+  }
+
+  private static GeoWaveValue entryToValue(
+      final Entry<ByteArray, List<Pair<Integer, FieldInfo<?>>>> entry) {
+    final SortedSet<Integer> fieldPositions = new TreeSet<>();
+    final List<Pair<Integer, FieldInfo<?>>> fieldInfoList = entry.getValue();
+    final byte[] combinedValue = combineValues(fieldInfoList);
+    fieldInfoList.stream().forEach(p -> fieldPositions.add(p.getLeft()));
+    final byte[] compositeBitmask = BitmaskUtils.generateCompositeBitmask(fieldPositions);
+    return new GeoWaveValueImpl(compositeBitmask, entry.getKey().getBytes(), combinedValue);
+  }
+
+  private static byte[] combineValues(final List<Pair<Integer, FieldInfo<?>>> fieldInfoList) {
+    int totalLength = 0;
+    Collections.sort(fieldInfoList, new BitmaskedPairComparator());
+    final List<byte[]> fieldInfoBytesList = new ArrayList<>(fieldInfoList.size());
+    for (final Pair<Integer, FieldInfo<?>> fieldInfoPair : fieldInfoList) {
+      final FieldInfo<?> fieldInfo = fieldInfoPair.getRight();
+      final ByteBuffer fieldInfoBytes = ByteBuffer.allocate(4 + fieldInfo.getWrittenValue().length);
+      fieldInfoBytes.putInt(fieldInfo.getWrittenValue().length);
+      fieldInfoBytes.put(fieldInfo.getWrittenValue());
+      fieldInfoBytesList.add(fieldInfoBytes.array());
+      totalLength += fieldInfoBytes.array().length;
     }
-    return retVal.toArray(new GeoWaveValue[0]);
+    final ByteBuffer allFields = ByteBuffer.allocate(totalLength);
+    for (final byte[] bytes : fieldInfoBytesList) {
+      allFields.put(bytes);
+    }
+    return allFields.array();
   }
 
   private static <T> FieldInfo<?> getFieldInfo(

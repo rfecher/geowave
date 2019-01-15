@@ -163,7 +163,7 @@ public class BatchedRangeRead<T> {
     }
   }
 
-  public CloseableIterator<T> executeQuery(final List<RangeReadInfo> reads) {
+  private CloseableIterator<T> executeQuery(final List<RangeReadInfo> reads) {
     if (isSortFinalResultsBySortKey) {
       // order the reads by sort keys
       reads.sort(ScoreOrderComparator.SINGLETON);
@@ -185,7 +185,7 @@ public class BatchedRangeRead<T> {
     }).iterator()));
   }
 
-  public CloseableIterator<T> executeQueryAsync(final List<RangeReadInfo> reads) {
+  private CloseableIterator<T> executeQueryAsync(final List<RangeReadInfo> reads) {
     // first create a list of asynchronous query executions
     final List<RFuture<Collection<ScoredEntry<GeoWaveRedisPersistedRow>>>> futures =
         Lists.newArrayListWithExpectedSize(reads.size());

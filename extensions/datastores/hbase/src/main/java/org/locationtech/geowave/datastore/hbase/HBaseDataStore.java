@@ -69,12 +69,6 @@ public class HBaseDataStore extends BaseMapReduceDataStore {
   }
 
   @Override
-  protected DataIndexRetrieval getDataIndexRetrieval(Index index) {
-    // TODO Auto-generated method stub
-    return super.getDataIndexRetrieval(index);
-  }
-
-  @Override
   protected <T> void initOnIndexWriterCreate(
       final InternalDataAdapter<T> adapter,
       final Index index) {
