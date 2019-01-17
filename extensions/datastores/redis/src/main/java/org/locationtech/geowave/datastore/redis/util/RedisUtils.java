@@ -20,7 +20,7 @@ import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
-import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.MetadataType;
@@ -102,7 +102,7 @@ public class RedisUtils {
       final String typeName) {
     return new RedisMapWrapper(
         client,
-        getRowSetPrefix(namespace, typeName, BaseDataStoreUtils.DATA_ID_INDEX.getName()),
+        getRowSetPrefix(namespace, typeName, DataIndexUtils.DATA_ID_INDEX.getName()),
         compression.getCodec(DEFAULT_CODEC));
   }
 

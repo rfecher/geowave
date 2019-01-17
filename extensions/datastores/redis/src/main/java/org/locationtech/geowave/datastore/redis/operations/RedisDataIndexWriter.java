@@ -31,7 +31,7 @@ public class RedisDataIndexWriter implements RowWriter {
   public void write(final GeoWaveRow row) {
     for (final GeoWaveValue value : row.getFieldValues()) {
       // the data ID is mapped to the sort key
-      map.add(row.getSortKey(), value.getValue());
+      map.add(row.getDataId(), value.getValue());
     }
   }
 

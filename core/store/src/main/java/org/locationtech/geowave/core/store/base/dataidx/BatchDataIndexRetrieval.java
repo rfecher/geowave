@@ -1,4 +1,4 @@
-package org.locationtech.geowave.core.store.base;
+package org.locationtech.geowave.core.store.base.dataidx;
 
 import java.util.concurrent.CompletableFuture;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
@@ -8,7 +8,7 @@ public interface BatchDataIndexRetrieval extends DataIndexRetrieval {
 
   void flush();
 
-  void incrementOutstandingIterators();
+  void notifyIteratorInitiated();
 
-  void decrementOutstandingIterators();
+  void notifyIteratorExhausted();
 }

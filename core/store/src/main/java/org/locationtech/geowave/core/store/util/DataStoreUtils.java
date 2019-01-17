@@ -33,7 +33,6 @@ import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.AdapterPersistenceEncoding;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
@@ -445,7 +444,7 @@ public class DataStoreUtils {
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static boolean mergeData(
       final DataStoreOperations operations,
-      final DataStoreOptions options,
+      final Integer maxRangeDecomposition,
       final Index index,
       final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
@@ -471,7 +470,7 @@ public class DataStoreUtils {
               adapterStore,
               internalAdapterStore,
               GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER).isClientsideRowMerging(
-                  true).maxRangeDecomposition(options.getMaxRangeDecomposition());
+                  true).maxRangeDecomposition(maxRangeDecomposition);
 
       final short[] adapterIds = new short[1];
 

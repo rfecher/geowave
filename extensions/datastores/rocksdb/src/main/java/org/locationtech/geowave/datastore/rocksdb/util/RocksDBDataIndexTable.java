@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.rocksdb.Options;
@@ -24,8 +24,8 @@ public class RocksDBDataIndexTable extends AbstractRocksDBTable {
     super(writeOptions, readOptions, subDirectory, adapterId);
   }
 
-  public synchronized void add(final byte[] sortKey, final GeoWaveValue value) {
-    put(sortKey, value.getValue());
+  public synchronized void add(final byte[] dataId, final GeoWaveValue value) {
+    put(dataId, value.getValue());
   }
 
   public synchronized CloseableIterator<GeoWaveRow> dataIndexIterator(final byte[][] dataIds) {
@@ -38,7 +38,7 @@ public class RocksDBDataIndexTable extends AbstractRocksDBTable {
       final Map<byte[], byte[]> dataIdxResults = readDb.multiGet(dataIdsList);
       return new CloseableIterator.Wrapper(
           dataIdsList.stream().map(
-              dataId -> BaseDataStoreUtils.getDataIndexRow(
+              dataId -> DataIndexUtils.getDataIndexRow(
                   dataId,
                   adapterId,
                   dataIdxResults.get(dataId))).iterator());

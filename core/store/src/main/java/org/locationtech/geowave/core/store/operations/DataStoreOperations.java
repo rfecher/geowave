@@ -22,9 +22,10 @@ import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
+import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
 
@@ -48,7 +49,7 @@ public interface DataStoreOperations {
 
   default RowWriter createDataIndexWriter(final InternalDataAdapter<?> adapter) {
     return new DefaultDataIndexRowWriterWrapper(
-        createWriter(BaseDataStoreUtils.DATA_ID_INDEX, adapter));
+        createWriter(DataIndexUtils.DATA_ID_INDEX, adapter));
   }
 
   MetadataWriter createMetadataWriter(MetadataType metadataType);
@@ -59,13 +60,13 @@ public interface DataStoreOperations {
 
   <T> RowReader<T> createReader(ReaderParams<T> readerParams);
 
-  default <T> RowReader<T> createReader(final DataIndexReaderParams readerParams) {
+  default RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
     final List<RowReader<GeoWaveRow>> readers =
         Arrays.stream(readerParams.getDataIds()).map(dataId -> {
           final byte[] sortKey = Bytes.concat(new byte[] {(byte) dataId.length}, dataId);
           return createReader(
               new ReaderParams<>(
-                  BaseDataStoreUtils.DATA_ID_INDEX,
+                  DataIndexUtils.DATA_ID_INDEX,
                   readerParams.getAdapterStore(),
                   readerParams.getInternalAdapterStore(),
                   new short[] {readerParams.getAdapterId()},
@@ -95,7 +96,24 @@ public interface DataStoreOperations {
     }, Iterators.concat(readers.iterator())));
   }
 
-  <T> Deleter<T> createDeleter(ReaderParams<T> readerParams);
+  default <T> Deleter<T> createDeleter(final ReaderParams<T> readerParams) {
+    return new QueryAndDeleteByRow<>(
+        createRowDeleter(
+            readerParams.getIndex().getName(),
+            readerParams.getAdapterStore(),
+            readerParams.getInternalAdapterStore(),
+            readerParams.getAdditionalAuthorizations()),
+        createReader(readerParams));
+  }
+
+  default Deleter<GeoWaveRow> createDeleter(final DataIndexReaderParams readerParams) {
+    return new QueryAndDeleteByRow<>(
+        createRowDeleter(
+            DataIndexUtils.DATA_ID_INDEX.getName(),
+            readerParams.getAdapterStore(),
+            readerParams.getInternalAdapterStore()),
+        createReader(readerParams));
+  }
 
   RowDeleter createRowDeleter(
       String indexName,
@@ -103,11 +121,26 @@ public interface DataStoreOperations {
       InternalAdapterStore internalAdapterStore,
       String... authorizations);
 
-  boolean mergeData(
+  default boolean mergeData(
       final Index index,
       final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore);
+      final AdapterIndexMappingStore adapterIndexMappingStore,
+      final Integer maxRangeDecomposition) {
+    return DataStoreUtils.mergeData(
+        this,
+        maxRangeDecomposition,
+        index,
+        adapterStore,
+        internalAdapterStore,
+        adapterIndexMappingStore);
+  }
 
-  boolean mergeStats(DataStatisticsStore statsStore, InternalAdapterStore internalAdapterStore);
+
+  default boolean mergeStats(
+      final DataStatisticsStore statsStore,
+      final InternalAdapterStore internalAdapterStore) {
+    return DataStoreUtils.mergeStats(statsStore, internalAdapterStore);
+  }
 }
+

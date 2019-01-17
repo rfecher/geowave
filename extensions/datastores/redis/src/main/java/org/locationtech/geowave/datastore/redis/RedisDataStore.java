@@ -30,9 +30,4 @@ public class RedisDataStore extends BaseMapReduceDataStore {
         options,
         new InternalAdapterStoreImpl(operations));
   }
-
-  @Override
-  protected int getDataIndexRetrievalBatchSize() {
-    return 1000;
-  }
 }

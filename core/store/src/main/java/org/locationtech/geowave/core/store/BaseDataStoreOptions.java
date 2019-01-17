@@ -20,8 +20,11 @@ public class BaseDataStoreOptions implements DataStoreOptions {
   @Parameter(names = "--enableServerSideLibrary", arity = 1)
   protected boolean enableServerSideLibrary = true;
 
-  @Parameter(names = "--enableSecondaryIndex")
+  @Parameter(names = "--enableSecondaryIndexing")
   protected boolean enableSecondaryIndex = true;
+
+  @Parameter(names = "--dataIndexBatchSize")
+  protected int configuredDataIndexBatchSize = Integer.MIN_VALUE;
 
   @Parameter(names = "--maxRangeDecomposition", arity = 1)
   protected int configuredMaxRangeDecomposition = Integer.MIN_VALUE;
@@ -84,6 +87,15 @@ public class BaseDataStoreOptions implements DataStoreOptions {
     return configuredAggregationMaxRangeDecomposition == Integer.MIN_VALUE
         ? defaultAggregationMaxRangeDecomposition()
         : configuredAggregationMaxRangeDecomposition;
+  }
+
+  public int getDataIndexBatchSize() {
+    return configuredDataIndexBatchSize == Integer.MIN_VALUE ? defaultDataIndexBatchSize()
+        : configuredDataIndexBatchSize;
+  }
+
+  protected int defaultDataIndexBatchSize() {
+    return 2000;
   }
 
   protected int defaultAggregationMaxRangeDecomposition() {

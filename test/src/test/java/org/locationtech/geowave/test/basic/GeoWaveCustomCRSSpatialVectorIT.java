@@ -27,9 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(GeoWaveITRunner.class)
-public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorIT {
+public class GeoWaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorIT {
   private static final Logger LOGGER =
-      LoggerFactory.getLogger(GeowaveCustomCRSSpatialVectorIT.class);
+      LoggerFactory.getLogger(GeoWaveCustomCRSSpatialVectorIT.class);
 
   private static final String CQL_DELETE_STR = "STATE = 'TX'";
 
@@ -70,7 +70,7 @@ public class GeowaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
   }
 
   @Test
-  public void testMultiThreadedIngestAndQuerySpatialPointsAndLines() throws Exception {
+  public void testSingleThreadedIngestAndQuerySpatialPointsAndLines() throws Exception {
     testIngestAndQuerySpatialPointsAndLines(1);
   }
 

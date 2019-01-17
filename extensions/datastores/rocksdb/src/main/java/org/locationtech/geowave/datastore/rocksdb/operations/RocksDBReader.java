@@ -35,7 +35,6 @@ import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBDataIndexTable;
-import org.locationtech.geowave.datastore.rocksdb.util.RocksDBIndexTable;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
@@ -59,8 +58,7 @@ public class RocksDBReader<T> implements RowReader<T> {
   public RocksDBReader(
       final RocksDBClient client,
       final DataIndexReaderParams dataIndexReaderParams) {
-    this.iterator =
-        new Wrapper(createIteratorForDataIndexReader(client, dataIndexReaderParams));
+    this.iterator = new Wrapper(createIteratorForDataIndexReader(client, dataIndexReaderParams));
   }
 
   private CloseableIterator<T> createIteratorForReader(

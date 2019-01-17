@@ -31,4 +31,9 @@ public class DynamoDBDataStore extends BaseMapReduceDataStore {
         operations.getOptions().getBaseOptions(),
         new InternalAdapterStoreImpl(operations));
   }
+
+  @Override
+  protected int getDataIndexRetrievalBatchSize() {
+    return 100;
+  }
 }

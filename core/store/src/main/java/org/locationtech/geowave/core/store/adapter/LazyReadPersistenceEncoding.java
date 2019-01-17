@@ -10,7 +10,7 @@ package org.locationtech.geowave.core.store.adapter;
 
 import java.util.List;
 import java.util.function.Supplier;
-import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.data.field.FieldReader;
 import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
@@ -169,7 +169,7 @@ public class LazyReadPersistenceEncoding extends IndexedAdapterPersistenceEncodi
       for (final FlattenedFieldInfo fieldInfo : fieldInfos) {
         final String fieldName =
             dataAdapter.getFieldNameForPosition(
-                isSecondaryIndex ? BaseDataStoreUtils.DATA_ID_INDEX.getIndexModel() : indexModel,
+                isSecondaryIndex ? DataIndexUtils.DATA_ID_INDEX.getIndexModel() : indexModel,
                 fieldInfo.getFieldPosition());
         FieldReader<? extends CommonIndexValue> indexFieldReader = null;
         if (!isSecondaryIndex) {

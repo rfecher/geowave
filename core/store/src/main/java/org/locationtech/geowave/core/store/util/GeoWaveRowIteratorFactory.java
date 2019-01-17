@@ -3,8 +3,8 @@ package org.locationtech.geowave.core.store.util;
 import java.util.Iterator;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.base.BatchDataIndexRetrieval;
-import org.locationtech.geowave.core.store.base.DataIndexRetrieval;
+import org.locationtech.geowave.core.store.base.dataidx.BatchDataIndexRetrieval;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexRetrieval;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
@@ -30,7 +30,7 @@ public class GeoWaveRowIteratorFactory {
           fieldSubsetBitmask,
           maxResolutionSubsamplingPerDimension,
           decodePersistenceEncoding,
-          (BatchDataIndexRetrieval)dataIndexRetrieval);
+          (BatchDataIndexRetrieval) dataIndexRetrieval);
     }
     return new NativeEntryIteratorWrapper<>(
         adapterStore,

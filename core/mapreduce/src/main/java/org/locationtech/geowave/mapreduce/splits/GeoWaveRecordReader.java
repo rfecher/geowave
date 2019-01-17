@@ -29,11 +29,13 @@ import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.AdapterStoreWrapper;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.base.BaseDataStore;
 import org.locationtech.geowave.core.store.base.BaseQueryOptions;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveKey;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.index.IndexStore;
@@ -231,11 +233,14 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
     final QueryFilter[] filters =
         ((queryFilters == null) || queryFilters.isEmpty()) ? null
             : queryFilters.toArray(new QueryFilter[0]);
+
+    final PersistentAdapterStore persistentAdapterStore =
+        new AdapterStoreWrapper(adapterStore, internalAdapterStore);
     final RowReader reader =
         operations.createReader(
             new RecordReaderParams(
                 index,
-                new AdapterStoreWrapper(adapterStore, internalAdapterStore),
+                persistentAdapterStore,
                 internalAdapterStore,
                 sanitizedQueryOptions.getAdapterIds(internalAdapterStore),
                 sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
@@ -257,7 +262,15 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
             adapterStore,
             internalAdapterStore,
             index,
-            isOutputWritable));
+            isOutputWritable,
+
+            // TODO, need to pass along options
+            DataIndexUtils.getDataIndexRetrieval(
+                operations,
+                persistentAdapterStore,
+                internalAdapterStore,
+                null,
+                index)));
   }
 
   @Override

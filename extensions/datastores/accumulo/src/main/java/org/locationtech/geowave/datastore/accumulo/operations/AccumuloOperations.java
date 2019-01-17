@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -62,6 +63,7 @@ import org.locationtech.geowave.core.index.MultiDimensionalCoordinateRangesArray
 import org.locationtech.geowave.core.index.MultiDimensionalCoordinateRangesArray.ArrayOfArrays;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
+import org.locationtech.geowave.core.store.CloseableIterator.Wrapper;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
@@ -71,8 +73,12 @@ import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStor
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.base.BaseDataIndexDeleter;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
+import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
@@ -83,6 +89,7 @@ import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
+import org.locationtech.geowave.core.store.operations.RowReaderWrapper;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregation;
 import org.locationtech.geowave.core.store.server.BasicOptionProvider;
@@ -92,6 +99,7 @@ import org.locationtech.geowave.core.store.server.ServerOpHelper;
 import org.locationtech.geowave.core.store.server.ServerSideOperations;
 import org.locationtech.geowave.core.store.util.DataAdapterAndIndexCache;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
+import org.locationtech.geowave.core.store.util.TriFunction;
 import org.locationtech.geowave.datastore.accumulo.AccumuloStoreFactoryFamily;
 import org.locationtech.geowave.datastore.accumulo.IteratorConfig;
 import org.locationtech.geowave.datastore.accumulo.MergingCombiner;
@@ -504,6 +512,49 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
       final String tableName,
       final String... additionalAuthorizations) throws TableNotFoundException {
     return new ClientSideIteratorScanner(createScanner(tableName, additionalAuthorizations));
+  }
+
+  public Iterator<GeoWaveRow> getDataIndexResults(final byte[][] rows, final short adapterId) {
+    if ((rows == null) || (rows.length == 0)) {
+      return Collections.emptyIterator();
+    }
+    final byte[] family = StringUtils.stringToBinary(ByteArrayUtils.shortToString(adapterId));
+    try (final BatchScanner batchScanner =
+        createBatchScanner(DataIndexUtils.DATA_ID_INDEX.getName())) {
+      batchScanner.setRanges(
+          Arrays.stream(rows).map(r -> Range.exact(new Text(r))).collect(Collectors.toList()));
+      batchScanner.fetchColumnFamily(new Text(family));
+      final Map<ByteArray, byte[]> results = new HashMap<>();
+      batchScanner.iterator().forEachRemaining(
+          entry -> results.put(
+              new ByteArray(entry.getKey().getRow().getBytes()),
+              entry.getValue().get()));
+      return Arrays.stream(rows).map(
+          r -> DataIndexUtils.getDataIndexRow(
+              r,
+              adapterId,
+              results.get(new ByteArray(r)))).iterator();
+    } catch (final TableNotFoundException e) {
+      LOGGER.error("unable to find data index table", e);
+    }
+    return Collections.emptyIterator();
+  }
+
+  @Override
+  public RowWriter createDataIndexWriter(final InternalDataAdapter<?> adapter) {
+    return internalCreateWriter(
+        DataIndexUtils.DATA_ID_INDEX,
+        adapter,
+        (batchWriter, operations, tableName) -> new AccumuloDataIndexWriter(
+            batchWriter,
+            operations,
+            tableName));
+  }
+
+  @Override
+  public RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
+    return new RowReaderWrapper<>(
+        new Wrapper<>(getDataIndexResults(readerParams.getDataIds(), readerParams.getAdapterId())));
   }
 
   public Scanner createScanner(final String tableName, final String... additionalAuthorizations)
@@ -1167,6 +1218,19 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
 
   @Override
   public RowWriter createWriter(final Index index, final InternalDataAdapter<?> adapter) {
+    return internalCreateWriter(
+        index,
+        adapter,
+        (batchWriter, operations, tableName) -> new AccumuloWriter(
+            batchWriter,
+            operations,
+            tableName));
+  }
+
+  public RowWriter internalCreateWriter(
+      final Index index,
+      final InternalDataAdapter<?> adapter,
+      final TriFunction<BatchWriter, AccumuloOperations, String, RowWriter> rowWriterSupplier) {
     final String tableName = index.getName();
     if (createTable(
         tableName,
@@ -1183,10 +1247,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     }
 
     try {
-      return new org.locationtech.geowave.datastore.accumulo.operations.AccumuloWriter(
-          createBatchWriter(tableName),
-          this,
-          tableName);
+      return rowWriterSupplier.apply(createBatchWriter(tableName), this, tableName);
     } catch (final TableNotFoundException e) {
       LOGGER.error("Table does not exist", e);
     }
@@ -1250,13 +1311,14 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
       final Index index,
       final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore) {
+      final AdapterIndexMappingStore adapterIndexMappingStore,
+      final Integer maxRangeDecomposition) {
     if (options.isServerSideLibraryEnabled()) {
       return compactTable(index.getName());
     } else {
       return DataStoreUtils.mergeData(
           this,
-          options,
+          maxRangeDecomposition,
           index,
           adapterStore,
           internalAdapterStore,
@@ -1489,7 +1551,9 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   public <T> Deleter<T> createDeleter(final ReaderParams<T> readerParams) {
 
     final ScannerBase scanner = getScanner(readerParams, true);
-    if (readerParams.isMixedVisibility() || (scanner == null)) {
+    if (readerParams.isMixedVisibility()
+        || (scanner == null)
+        || !options.isServerSideLibraryEnabled()) {
       // currently scanner shouldn't be null, but in the future this could
       // be used to imply that range or bulk delete is unnecessary and we
       // instead simply delete by row ID
@@ -1528,5 +1592,28 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
         readerParams.isMixedVisibility() && !readerParams.isServersideAggregation(),
         readerParams.isClientsideRowMerging(),
         true);
+  }
+
+  @Override
+  public Deleter<GeoWaveRow> createDeleter(final DataIndexReaderParams readerParams) {
+    return new BaseDataIndexDeleter<>(
+        readerParams,
+        this,
+        (r, o) -> o.deleteRowsFromDataIndex(
+            readerParams.getDataIds(),
+            readerParams.getAdapterId()));
+  }
+
+  public void deleteRowsFromDataIndex(final byte[][] rows, final short adapterId) {
+    try {
+      final BatchDeleter deleter = createBatchDeleter(DataIndexUtils.DATA_ID_INDEX.getName());
+      deleter.fetchColumnFamily(new Text(ByteArrayUtils.shortToString(adapterId)));
+      deleter.setRanges(
+          Arrays.stream(rows).map(r -> Range.exact(new Text(r))).collect(Collectors.toList()));
+
+      deleter.delete();
+    } catch (final TableNotFoundException | MutationsRejectedException e) {
+      LOGGER.warn("Unable to delete from data index", e);
+    }
   }
 }

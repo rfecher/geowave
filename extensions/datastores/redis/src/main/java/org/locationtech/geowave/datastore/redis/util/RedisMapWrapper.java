@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.redisson.api.RBatch;
 import org.redisson.api.RMap;
@@ -36,12 +36,16 @@ public class RedisMapWrapper
     getCurrentAsyncCollection().putAsync(dataId, value);
   }
 
+  public void remove(final byte[][] dataIds) {
+    getCurrentSyncCollection().fastRemoveAsync(dataIds);
+  }
+
 
   public Iterator<GeoWaveRow> getRows(final byte[][] dataIds, final short adapterId) {
     final Map<byte[], byte[]> results =
         getCurrentSyncCollection().getAll(new HashSet<>(Arrays.asList(dataIds)));
     return Arrays.stream(dataIds).map(
-        dataId -> BaseDataStoreUtils.getDataIndexRow(
+        dataId -> DataIndexUtils.getDataIndexRow(
             dataId,
             adapterId,
             results.get(dataId))).iterator();

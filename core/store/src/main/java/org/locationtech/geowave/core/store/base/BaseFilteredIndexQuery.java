@@ -25,6 +25,7 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexRetrieval;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
@@ -159,6 +160,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
       final double[] maxResolutionSubsamplingPerDimension,
       final boolean decodePersistenceEncoding) {
     final @Nullable QueryFilter[] clientFilters = getClientFilters(options);
+    final DataIndexRetrieval dataIndexRetrieval = getFieldValuesFromDataIdx(adapterStore);
     if ((options == null) || !options.isServerSideLibraryEnabled()) {
       final Map<Short, RowMergingDataAdapter> mergingAdapters = getMergingAdapters(adapterStore);
 
@@ -176,7 +178,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
                 scanCallback,
                 mergingAdapters,
                 maxResolutionSubsamplingPerDimension,
-                getFieldValuesFromDataIdx(adapterStore));
+                dataIndexRetrieval);
           }
         };
       }
@@ -199,7 +201,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
             ((options != null) && options.isServerSideLibraryEnabled()) ? null
                 : maxResolutionSubsamplingPerDimension,
             decodePersistenceEncoding,
-            getFieldValuesFromDataIdx(adapterStore));
+            dataIndexRetrieval);
       }
     };
   }

@@ -717,42 +717,7 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
   }
 
   @Override
-  public boolean mergeData(
-      final Index index,
-      final PersistentAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore) {
-    // considering memory data store is for test purposes, this
-    // implementation is unnecessary
-    return DataStoreUtils.mergeData(
-        this,
-        options,
-        index,
-        adapterStore,
-        internalAdapterStore,
-        adapterIndexMappingStore);
-  }
-
-  @Override
-  public boolean mergeStats(
-      final DataStatisticsStore statsStore,
-      final InternalAdapterStore internalAdapterStore) {
-    return DataStoreUtils.mergeStats(statsStore, internalAdapterStore);
-  }
-
-  @Override
   public boolean metadataExists(final MetadataType type) throws IOException {
     return true;
-  }
-
-  @Override
-  public <T> Deleter<T> createDeleter(final ReaderParams<T> readerParams) {
-    return new QueryAndDeleteByRow<>(
-        createRowDeleter(
-            readerParams.getIndex().getName(),
-            readerParams.getAdapterStore(),
-            readerParams.getInternalAdapterStore(),
-            readerParams.getAdditionalAuthorizations()),
-        createReader(readerParams));
   }
 }

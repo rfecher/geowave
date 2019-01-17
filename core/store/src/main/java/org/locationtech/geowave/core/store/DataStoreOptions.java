@@ -15,6 +15,8 @@ public interface DataStoreOptions {
 
   public boolean isServerSideLibraryEnabled();
 
+  public int getDataIndexBatchSize();
+  
   public int getMaxRangeDecomposition();
 
   public int getAggregationMaxRangeDecomposition();

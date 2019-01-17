@@ -42,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -168,21 +167,53 @@ public class BatchedRangeRead<T> {
       // order the reads by sort keys
       reads.sort(ScoreOrderComparator.SINGLETON);
     }
-    return new CloseableIterator.Wrapper<>(Iterators.concat(reads.stream().map(r -> {
-      ByteArray partitionKey;
-      if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
-        partitionKey = EMPTY_PARTITION_KEY;
-      } else {
-        partitionKey = new ByteArray(r.partitionKey);
+    final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result =
+        Iterators.concat(reads.stream().map(r -> {
+          ByteArray partitionKey;
+          if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
+            partitionKey = EMPTY_PARTITION_KEY;
+          } else {
+            partitionKey = new ByteArray(r.partitionKey);
+          }
+          // if we don't have enough
+          // precision we need to make
+          // sure the end is inclusive
+          return new PartitionIteratorWrapper(
+              setCache.get(partitionKey).entryRange(
+                  r.startScore,
+                  true,
+                  r.endScore,
+                  r.endScore <= r.startScore),
+              r.partitionKey);
+        }).iterator());
+    return new CloseableIterator.Wrapper<>(transformAndFilter(result));
+  }
+
+  private static class PartitionIteratorWrapper
+      implements Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> {
+    private final byte[] partitionKey;
+    private final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> iteratorDelegate;
+
+    private PartitionIteratorWrapper(
+        final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> iteratorDelegate,
+        final byte[] partitionKey) {
+      this.partitionKey = partitionKey;
+      this.iteratorDelegate = iteratorDelegate;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return iteratorDelegate.hasNext();
+    }
+
+    @Override
+    public ScoredEntry<GeoWaveRedisPersistedRow> next() {
+      final ScoredEntry<GeoWaveRedisPersistedRow> retVal = iteratorDelegate.next();
+      if (retVal != null) {
+        retVal.getValue().setPartitionKey(partitionKey);
       }
-      // if we don't have enough
-      // precision we need to make
-      // sure the end is inclusive
-      return transformAndFilter(
-          setCache.get(
-              partitionKey).entryRange(r.startScore, true, r.endScore, r.endScore <= r.startScore),
-          r.partitionKey);
-    }).iterator()));
+      return retVal;
+    }
   }
 
   private CloseableIterator<T> executeQueryAsync(final List<RangeReadInfo> reads) {
@@ -224,7 +255,8 @@ public class BatchedRangeRead<T> {
                 return result;
               } else {
                 try {
-                  transformAndFilter(result.iterator(), r.partitionKey).forEachRemaining(row -> {
+                  result.forEach(i -> i.getValue().setPartitionKey(r.partitionKey));
+                  transformAndFilter(result.iterator()).forEachRemaining(row -> {
                     try {
                       results.put(row);
                     } catch (final InterruptedException e) {
@@ -274,29 +306,20 @@ public class BatchedRangeRead<T> {
     }, new RowConsumer<>(results));
   }
 
+
   private Iterator<T> transformAndFilter(
-      final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result,
-      final byte[] partitionKey) {
+      final Iterator<ScoredEntry<GeoWaveRedisPersistedRow>> result) {
     final Iterator<GeoWaveRow> iterator =
         Iterators.filter(
             Iterators.transform(
                 groupByRowAndSortByTimePair.getLeft()
                     ? RedisUtils.groupByRow(result, groupByRowAndSortByTimePair.getRight())
                     : result,
-                new Function<ScoredEntry<GeoWaveRedisPersistedRow>, GeoWaveRedisRow>() {
-
-                  @Override
-                  public GeoWaveRedisRow apply(final ScoredEntry<GeoWaveRedisPersistedRow> entry) {
-                // @formatter:off
-                        // wrap the persisted row with additional metadata
-                        // @formatter:on
-                    return new GeoWaveRedisRow(
-                        entry.getValue(),
-                        adapterId,
-                        partitionKey,
-                        RedisUtils.getSortKey(entry.getScore()));
-                  }
-                }),
+                entry -> new GeoWaveRedisRow(
+                    entry.getValue(),
+                    adapterId,
+                    entry.getValue().getPartitionKey(),
+                    RedisUtils.getSortKey(entry.getScore()))),
             filter);
     return rowTransformer.apply(
         sortByKeyIfRequired(

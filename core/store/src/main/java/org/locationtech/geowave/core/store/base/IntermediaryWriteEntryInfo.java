@@ -95,7 +95,7 @@ class IntermediaryWriteEntryInfo {
       return new GeoWaveRow[] {
           // intentionally make the data ID as the sort Key and the data ID empty
           new GeoWaveRowImpl(
-              new GeoWaveKeyImpl(new byte[0], internalAdapterId, new byte[0], dataId, 0),
+              new GeoWaveKeyImpl(dataId, internalAdapterId, new byte[0], new byte[0], 0),
               entryValues)};
     }
     final GeoWaveKey[] keys = GeoWaveKeyImpl.createKeys(insertionIds, dataId, internalAdapterId);

@@ -18,6 +18,7 @@ import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
 import org.locationtech.geowave.core.store.adapter.exceptions.AdapterException;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexRetrieval;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
@@ -37,6 +38,7 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
   private final boolean isOutputWritable;
   private Entry<GeoWaveInputKey, T> nextEntry;
   private final Index index;
+  private final DataIndexRetrieval dataIndexRetrieval;
 
   public InputFormatIteratorWrapper(
       final RowReader<GeoWaveRow> reader,
@@ -44,13 +46,15 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
       final TransientAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final Index index,
-      final boolean isOutputWritable) {
+      final boolean isOutputWritable,
+      DataIndexRetrieval dataIndexRetrieval) {
     this.reader = reader;
     this.queryFilters = queryFilters;
     this.index = index;
     this.serializationTool =
         new HadoopWritableSerializationTool(adapterStore, internalAdapterStore);
     this.isOutputWritable = isOutputWritable;
+    this.dataIndexRetrieval = dataIndexRetrieval;
   }
 
   private void findNext() {
@@ -90,7 +94,7 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
               null,
               null,
               true,
-              null);
+              dataIndexRetrieval);
     } catch (final AdapterException e) {
       return null;
     }

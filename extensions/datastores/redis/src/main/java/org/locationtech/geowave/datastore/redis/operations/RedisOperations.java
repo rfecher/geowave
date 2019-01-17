@@ -9,12 +9,12 @@
 package org.locationtech.geowave.datastore.redis.operations;
 
 import java.io.IOException;
-import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.base.BaseDataIndexDeleter;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
@@ -26,8 +26,8 @@ import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.RowWriter;
-import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.redis.config.RedisOptions;
+import org.locationtech.geowave.datastore.redis.util.RedisMapWrapper;
 import org.locationtech.geowave.datastore.redis.util.RedisUtils;
 import org.locationtech.geowave.datastore.redis.util.RedissonClientCache;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
@@ -156,28 +156,6 @@ public class RedisOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public boolean mergeData(
-      final Index index,
-      final PersistentAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore,
-      final AdapterIndexMappingStore adapterIndexMappingStore) {
-    return DataStoreUtils.mergeData(
-        this,
-        options.getStoreOptions(),
-        index,
-        adapterStore,
-        internalAdapterStore,
-        adapterIndexMappingStore);
-  }
-
-  @Override
-  public boolean mergeStats(
-      final DataStatisticsStore statsStore,
-      final InternalAdapterStore internalAdapterStore) {
-    return DataStoreUtils.mergeStats(statsStore, internalAdapterStore);
-  }
-
-  @Override
   public <T> RowReader<T> createReader(final RecordReaderParams<T> readerParams) {
     return new RedisReader<>(client, options.getCompression(), readerParams, gwNamespace);
   }
@@ -198,7 +176,29 @@ public class RedisOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public <T> RowReader<T> createReader(final DataIndexReaderParams readerParams) {
+  public RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
     return new RedisReader<>(client, options.getCompression(), readerParams, gwNamespace);
+  }
+
+  @Override
+  public Deleter<GeoWaveRow> createDeleter(final DataIndexReaderParams readerParams) {
+    final String typeName =
+        readerParams.getInternalAdapterStore().getTypeName(readerParams.getAdapterId());
+    return new BaseDataIndexDeleter<>(
+        readerParams,
+        this,
+        (r, o) -> o.deleteRowsFromDataIndex(
+            readerParams.getDataIds(),
+            readerParams.getAdapterId(),
+            typeName));
+  }
+
+  public void deleteRowsFromDataIndex(
+      final byte[][] dataIds,
+      final short adapterId,
+      final String typeName) {
+    final RedisMapWrapper map =
+        RedisUtils.getDataIndexMap(client, options.getCompression(), gwNamespace, typeName);
+    map.remove(dataIds);
   }
 }

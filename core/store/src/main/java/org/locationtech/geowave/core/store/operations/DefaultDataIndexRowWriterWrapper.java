@@ -32,10 +32,10 @@ public class DefaultDataIndexRowWriterWrapper implements RowWriter {
     delegateWriter.flush();
   }
 
-  private static class GeoWaveRowWrapper implements GeoWaveRow {
+  protected static class GeoWaveRowWrapper implements GeoWaveRow {
     private final GeoWaveRow row;
 
-    public GeoWaveRowWrapper(final GeoWaveRow row) {
+    protected GeoWaveRowWrapper(final GeoWaveRow row) {
       this.row = row;
     }
 
@@ -57,7 +57,7 @@ public class DefaultDataIndexRowWriterWrapper implements RowWriter {
 
     @Override
     public byte[] getSortKey() {
-      final byte[] sortKey = row.getSortKey();
+      final byte[] sortKey = row.getDataId();
       return Bytes.concat(new byte[] {(byte) sortKey.length}, sortKey);
     }
 
@@ -81,7 +81,7 @@ public class DefaultDataIndexRowWriterWrapper implements RowWriter {
 
     @Override
     public byte[] getFieldMask() {
-      return value.getFieldMask();
+      return new byte[0];
     }
 
     @Override

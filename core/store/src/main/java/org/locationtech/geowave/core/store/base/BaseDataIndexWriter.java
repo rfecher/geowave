@@ -8,6 +8,7 @@ import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.WriteResults;
 import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.callback.IngestCallback;
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
@@ -17,7 +18,7 @@ import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DataIndexWriter<T> implements Writer<T> {
+public class BaseDataIndexWriter<T> implements Writer<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseIndexWriter.class);
   protected final DataStoreOperations operations;
   protected final DataStoreOptions options;
@@ -27,7 +28,7 @@ public class DataIndexWriter<T> implements Writer<T> {
   protected final InternalDataAdapter<T> adapter;
   final Closeable closable;
 
-  public DataIndexWriter(
+  public BaseDataIndexWriter(
       final InternalDataAdapter<T> adapter,
       final DataStoreOperations operations,
       final DataStoreOptions options,
@@ -42,7 +43,7 @@ public class DataIndexWriter<T> implements Writer<T> {
 
   @Override
   public Index[] getIndices() {
-    return new Index[] {BaseDataStoreUtils.DATA_ID_INDEX};
+    return new Index[] {DataIndexUtils.DATA_ID_INDEX};
   }
 
   @Override
@@ -64,7 +65,7 @@ public class DataIndexWriter<T> implements Writer<T> {
           BaseDataStoreUtils.getWriteInfo(
               entry,
               adapter,
-              BaseDataStoreUtils.DATA_ID_INDEX,
+              DataIndexUtils.DATA_ID_INDEX,
               fieldVisibilityWriter,
               options.isSecondaryIndexing(),
               true);

@@ -8,12 +8,15 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
@@ -134,22 +137,24 @@ public class RocksDBQueryExecution<T> {
       // order the reads by sort keys
       reads.sort(ScoreOrderComparator.SINGLETON);
     }
-    return new CloseableIterator.Wrapper<>(Iterators.concat(reads.stream().map(r -> {
+    final List<CloseableIterator<GeoWaveRow>> iterators = reads.stream().map(r -> {
       ByteArray partitionKey;
       if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
         partitionKey = EMPTY_PARTITION_KEY;
       } else {
         partitionKey = new ByteArray(r.partitionKey);
       }
-      return transformAndFilter(
-          setCache.get(partitionKey).iterator(r.sortKeyRange),
-          r.partitionKey);
-    }).iterator()));
+      return setCache.get(partitionKey).iterator(r.sortKeyRange);
+    }).collect(Collectors.toList());
+    return transformAndFilter(new CloseableIteratorWrapper<>(new Closeable() {
+      @Override
+      public void close() throws IOException {
+        iterators.forEach(i -> i.close());
+      }
+    }, Iterators.concat(iterators.iterator())));
   }
 
-  private CloseableIterator<T> transformAndFilter(
-      final CloseableIterator<GeoWaveRow> result,
-      final byte[] partitionKey) {
+  private CloseableIterator<T> transformAndFilter(final CloseableIterator<GeoWaveRow> result) {
     final Iterator<GeoWaveRow> iterator = Iterators.filter(result, filter);
     return new CloseableIteratorWrapper<>(
         result,

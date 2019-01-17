@@ -8,19 +8,58 @@
  */
 package org.locationtech.geowave.datastore.cassandra.util;
 
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.PreparedStatement;
 import java.nio.ByteBuffer;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.datastore.cassandra.CassandraRow.CassandraField;
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.PreparedStatement;
 
 public class CassandraUtils {
 
   // because Cassandra requires a partition key, if the geowave partition key is
   // empty, we need a non-empty constant alternative
   public static final byte[] EMPTY_PARTITION_KEY = new byte[] {0};
-  
+
+  public static BoundStatement[] bindInsertion(
+      final PreparedStatement insertionStatement,
+      final GeoWaveRow row,
+      final boolean isDataIndex) {
+    return isDataIndex ? bindDataIndexInsertion(insertionStatement, row)
+        : bindInsertion(insertionStatement, row);
+  }
+
+  public static BoundStatement[] bindDataIndexInsertion(
+      final PreparedStatement insertionStatement,
+      final GeoWaveRow row) {
+    // the data ID becomes the partition key and the only other fields are the value and adapter ID
+    byte[] partitionKey = row.getDataId();
+    if ((partitionKey == null) || (partitionKey.length == 0)) {
+      partitionKey = EMPTY_PARTITION_KEY;
+    }
+    final BoundStatement[] retVal = new BoundStatement[row.getFieldValues().length];
+    int i = 0;
+    for (final GeoWaveValue value : row.getFieldValues()) {
+      final ByteBuffer nanoBuffer = ByteBuffer.allocate(8);
+      nanoBuffer.putLong(0, Long.MAX_VALUE - System.nanoTime());
+      retVal[i] = new BoundStatement(insertionStatement);
+      retVal[i].set(
+          CassandraField.GW_PARTITION_ID_KEY.getBindMarkerName(),
+          ByteBuffer.wrap(partitionKey),
+          ByteBuffer.class);
+      retVal[i].set(
+          CassandraField.GW_ADAPTER_ID_KEY.getBindMarkerName(),
+          row.getAdapterId(),
+          Short.class);
+      retVal[i].set(
+          CassandraField.GW_VALUE_KEY.getBindMarkerName(),
+          ByteBuffer.wrap(value.getValue()),
+          ByteBuffer.class);
+      i++;
+    }
+    return retVal;
+  }
+
   public static BoundStatement[] bindInsertion(
       final PreparedStatement insertionStatement,
       final GeoWaveRow row) {
@@ -31,7 +70,7 @@ public class CassandraUtils {
     final BoundStatement[] retVal = new BoundStatement[row.getFieldValues().length];
     int i = 0;
     for (final GeoWaveValue value : row.getFieldValues()) {
-      ByteBuffer nanoBuffer = ByteBuffer.allocate(8);
+      final ByteBuffer nanoBuffer = ByteBuffer.allocate(8);
       nanoBuffer.putLong(0, Long.MAX_VALUE - System.nanoTime());
       retVal[i] = new BoundStatement(insertionStatement);
       retVal[i].set(
@@ -70,10 +109,7 @@ public class CassandraUtils {
           CassandraField.GW_NUM_DUPLICATES_KEY.getBindMarkerName(),
           (byte) row.getNumberOfDuplicates(),
           byte.class);
-      // ByteBuffer.wrap(new byte[] {
-      // (byte) row.getNumberOfDuplicates()
       i++;
-      // ByteBuffer.class);
     }
     return retVal;
   }

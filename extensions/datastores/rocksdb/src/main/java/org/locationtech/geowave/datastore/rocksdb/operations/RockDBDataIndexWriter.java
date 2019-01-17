@@ -27,7 +27,7 @@ public class RockDBDataIndexWriter implements RowWriter {
   @Override
   public void write(final GeoWaveRow row) {
     for (final GeoWaveValue value : row.getFieldValues()) {
-      table.add(row.getSortKey(), value);
+      table.add(row.getDataId(), value);
     }
   }
 

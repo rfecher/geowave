@@ -1,4 +1,4 @@
-package org.locationtech.geowave.core.store.base;
+package org.locationtech.geowave.core.store.base.dataidx;
 
 import java.util.function.BiFunction;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;

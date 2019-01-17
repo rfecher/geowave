@@ -11,6 +11,7 @@ package org.locationtech.geowave.datastore.dynamodb.operations;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -37,7 +38,7 @@ import com.amazonaws.services.dynamodbv2.model.WriteRequest;
 
 public class DynamoDBWriter implements RowWriter {
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamoDBWriter.class);
-  private static final int NUM_ITEMS = 25;
+  private static final int NUM_ITEMS = DynamoDBOperations.MAX_ROWS_FOR_BATCHWRITER;
   private static final boolean ASYNC_WRITE = false;
   // because DynamoDB requires a hash key, if the geowave partition key is
   // empty, we need a non-empty constant alternative
@@ -46,8 +47,13 @@ public class DynamoDBWriter implements RowWriter {
   private final String tableName;
   private final AmazonDynamoDBAsync client;
   private final Map<AmazonWebServiceRequest, Future<?>> futureMap = new Hashtable<>();
+  private final boolean isDataIndex;
 
-  public DynamoDBWriter(final AmazonDynamoDBAsync client, final String tableName) {
+  public DynamoDBWriter(
+      final AmazonDynamoDBAsync client,
+      final String tableName,
+      final boolean isDataIndex) {
+    this.isDataIndex = isDataIndex;
     this.client = client;
     this.tableName = tableName;
   }
@@ -62,7 +68,7 @@ public class DynamoDBWriter implements RowWriter {
     final List<WriteRequest> mutations = new ArrayList<>();
 
     for (final GeoWaveRow row : rows) {
-      mutations.addAll(rowToMutations(row));
+      mutations.addAll(rowToMutations(row, isDataIndex));
     }
 
     write(mutations);
@@ -70,7 +76,7 @@ public class DynamoDBWriter implements RowWriter {
 
   @Override
   public void write(final GeoWaveRow row) {
-    write(rowToMutations(row));
+    write(rowToMutations(row, isDataIndex));
   }
 
   public void write(final Iterable<WriteRequest> items) {
@@ -210,45 +216,66 @@ public class DynamoDBWriter implements RowWriter {
     }
   }
 
-  private static List<WriteRequest> rowToMutations(final GeoWaveRow row) {
-    final ArrayList<WriteRequest> mutations = new ArrayList<>();
-
-    byte[] partitionKey = row.getPartitionKey();
-    if ((partitionKey == null) || (partitionKey.length == 0)) {
-      partitionKey = EMPTY_PARTITION_KEY;
-    }
-
-    for (final GeoWaveValue value : row.getFieldValues()) {
-      final byte[] rowId = DynamoDBRow.getRangeKey(row);
+  private static List<WriteRequest> rowToMutations(
+      final GeoWaveRow row,
+      final boolean isDataIndex) {
+    if (isDataIndex) {
+      byte[] partitionKey = row.getDataId();
+      if ((partitionKey == null) || (partitionKey.length == 0)) {
+        partitionKey = EMPTY_PARTITION_KEY;
+      }
       final Map<String, AttributeValue> map = new HashMap<>();
-
       map.put(
           DynamoDBRow.GW_PARTITION_ID_KEY,
           new AttributeValue().withB(ByteBuffer.wrap(partitionKey)));
-
-      map.put(DynamoDBRow.GW_RANGE_KEY, new AttributeValue().withB(ByteBuffer.wrap(rowId)));
-
-      if ((value.getFieldMask() != null) && (value.getFieldMask().length > 0)) {
-        map.put(
-            DynamoDBRow.GW_FIELD_MASK_KEY,
-            new AttributeValue().withB(ByteBuffer.wrap(value.getFieldMask())));
+      if (row.getFieldValues().length > 0) {
+        // there should be exactly one value
+        final GeoWaveValue value = row.getFieldValues()[0];
+        if ((value.getValue() != null) && (value.getValue().length > 0)) {
+          map.put(
+              DynamoDBRow.GW_VALUE_KEY,
+              new AttributeValue().withB(ByteBuffer.wrap(value.getValue())));
+        }
+      }
+      return Collections.singletonList(new WriteRequest(new PutRequest(map)));
+    } else {
+      final ArrayList<WriteRequest> mutations = new ArrayList<>();
+      byte[] partitionKey = row.getPartitionKey();
+      if ((partitionKey == null) || (partitionKey.length == 0)) {
+        partitionKey = EMPTY_PARTITION_KEY;
       }
 
-      if ((value.getVisibility() != null) && (value.getVisibility().length > 0)) {
-        map.put(
-            DynamoDBRow.GW_VISIBILITY_KEY,
-            new AttributeValue().withB(ByteBuffer.wrap(value.getVisibility())));
-      }
+      for (final GeoWaveValue value : row.getFieldValues()) {
+        final byte[] rowId = DynamoDBRow.getRangeKey(row);
+        final Map<String, AttributeValue> map = new HashMap<>();
 
-      if ((value.getValue() != null) && (value.getValue().length > 0)) {
         map.put(
-            DynamoDBRow.GW_VALUE_KEY,
-            new AttributeValue().withB(ByteBuffer.wrap(value.getValue())));
-      }
+            DynamoDBRow.GW_PARTITION_ID_KEY,
+            new AttributeValue().withB(ByteBuffer.wrap(partitionKey)));
 
-      mutations.add(new WriteRequest(new PutRequest(map)));
+        map.put(DynamoDBRow.GW_RANGE_KEY, new AttributeValue().withB(ByteBuffer.wrap(rowId)));
+
+        if ((value.getFieldMask() != null) && (value.getFieldMask().length > 0)) {
+          map.put(
+              DynamoDBRow.GW_FIELD_MASK_KEY,
+              new AttributeValue().withB(ByteBuffer.wrap(value.getFieldMask())));
+        }
+
+        if ((value.getVisibility() != null) && (value.getVisibility().length > 0)) {
+          map.put(
+              DynamoDBRow.GW_VISIBILITY_KEY,
+              new AttributeValue().withB(ByteBuffer.wrap(value.getVisibility())));
+        }
+
+        if ((value.getValue() != null) && (value.getValue().length > 0)) {
+          map.put(
+              DynamoDBRow.GW_VALUE_KEY,
+              new AttributeValue().withB(ByteBuffer.wrap(value.getValue())));
+        }
+
+        mutations.add(new WriteRequest(new PutRequest(map)));
+      }
+      return mutations;
     }
-
-    return mutations;
   }
 }

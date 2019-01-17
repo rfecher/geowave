@@ -1,4 +1,4 @@
-package org.locationtech.geowave.core.store.base;
+package org.locationtech.geowave.core.store.base.dataidx;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;

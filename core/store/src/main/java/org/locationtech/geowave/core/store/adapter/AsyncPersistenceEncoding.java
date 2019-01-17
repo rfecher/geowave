@@ -9,7 +9,7 @@
 package org.locationtech.geowave.core.store.adapter;
 
 import java.util.concurrent.CompletableFuture;
-import org.locationtech.geowave.core.store.base.BatchDataIndexRetrieval;
+import org.locationtech.geowave.core.store.base.dataidx.BatchDataIndexRetrieval;
 import org.locationtech.geowave.core.store.data.PersistentDataset;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;

@@ -42,8 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(GeoWaveITRunner.class)
-public class GeowaveBasicURLIngestIT extends AbstractGeoWaveBasicVectorIT {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GeowaveBasicURLIngestIT.class);
+public class GeoWaveBasicURLIngestIT extends AbstractGeoWaveBasicVectorIT {
+  private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveBasicURLIngestIT.class);
 
   private static final String S3URL = "s3.amazonaws.com";
   protected static final String GDELT_INPUT_FILE_URL =

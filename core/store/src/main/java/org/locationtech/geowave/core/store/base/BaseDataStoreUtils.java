@@ -51,14 +51,15 @@ import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.base.IntermediaryWriteEntryInfo.FieldInfo;
+import org.locationtech.geowave.core.store.base.dataidx.BatchDataIndexRetrieval;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexRetrieval;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.data.DataWriter;
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.data.field.FieldVisibilityHandler;
 import org.locationtech.geowave.core.store.data.field.FieldWriter;
-import org.locationtech.geowave.core.store.entities.GeoWaveKeyImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
-import org.locationtech.geowave.core.store.entities.GeoWaveRowImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.entities.GeoWaveValueImpl;
 import org.locationtech.geowave.core.store.flatten.BitmaskUtils;
@@ -66,7 +67,6 @@ import org.locationtech.geowave.core.store.flatten.BitmaskedPairComparator;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.NullIndex;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.slf4j.Logger;
@@ -78,7 +78,6 @@ import com.google.common.collect.Lists;
 
 public class BaseDataStoreUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseDataStoreUtils.class);
-  public static final Index DATA_ID_INDEX = new NullIndex("DATA");
 
   public static <T> GeoWaveRow[] getGeoWaveRows(
       final T entry,
@@ -108,20 +107,6 @@ public class BaseDataStoreUtils {
       return new Wrapper(Iterators.singletonIterator(aggregationFunction.getResult()));
     }
     return new CloseableIterator.Empty();
-  }
-
-  public static boolean isDataIndex(final String indexName) {
-    return BaseDataStoreUtils.DATA_ID_INDEX.getName().equals(indexName);
-  }
-
-
-  public static GeoWaveRow getDataIndexRow(
-      final byte[] dataId,
-      final short adapterId,
-      final byte[] value) {
-    return new GeoWaveRowImpl(
-        new GeoWaveKeyImpl(new byte[0], adapterId, new byte[0], dataId, 0),
-        new GeoWaveValue[] {new GeoWaveValueImpl(new byte[0], new byte[0], value)});
   }
 
   /**
@@ -241,7 +226,7 @@ public class BaseDataStoreUtils {
             final T decodedRow =
                 decodePackage.getDataAdapter().decode(
                     r,
-                    isSecondaryIndex ? DATA_ID_INDEX : decodePackage.getIndex());
+                    isSecondaryIndex ? DataIndexUtils.DATA_ID_INDEX : decodePackage.getIndex());
             if (isAsync(r)) {
               return i;
             }

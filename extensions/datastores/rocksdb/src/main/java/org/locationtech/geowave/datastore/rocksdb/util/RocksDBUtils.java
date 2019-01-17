@@ -20,7 +20,7 @@ import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
-import org.locationtech.geowave.core.store.base.BaseDataStoreUtils;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.RangeReaderParams;
@@ -51,7 +51,7 @@ public class RocksDBUtils {
       final String typeName,
       final short adapterId) {
     return client.getDataIndexTable(
-        getTablePrefix(typeName, BaseDataStoreUtils.DATA_ID_INDEX.getName()),
+        getTablePrefix(typeName, DataIndexUtils.DATA_ID_INDEX.getName()),
         adapterId);
   }
 
