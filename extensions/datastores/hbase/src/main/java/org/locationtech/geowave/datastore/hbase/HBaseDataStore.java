@@ -17,15 +17,12 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.base.dataidx.DataIndexRetrieval;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.metadata.AdapterIndexMappingStoreImpl;
 import org.locationtech.geowave.core.store.metadata.AdapterStoreImpl;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.metadata.IndexStoreImpl;
 import org.locationtech.geowave.core.store.metadata.InternalAdapterStoreImpl;
-import org.locationtech.geowave.core.store.metadata.SecondaryIndexStoreImpl;
 import org.locationtech.geowave.core.store.server.ServerOpHelper;
 import org.locationtech.geowave.core.store.server.ServerSideOperations;
 import org.locationtech.geowave.datastore.hbase.cli.config.HBaseOptions;
@@ -42,7 +39,6 @@ public class HBaseDataStore extends BaseMapReduceDataStore {
         new AdapterStoreImpl(operations, options),
         new DataStatisticsStoreImpl(operations, options),
         new AdapterIndexMappingStoreImpl(operations, options),
-        new SecondaryIndexStoreImpl(),
         operations,
         options,
         new InternalAdapterStoreImpl(operations));
@@ -53,7 +49,6 @@ public class HBaseDataStore extends BaseMapReduceDataStore {
       final PersistentAdapterStore adapterStore,
       final DataStatisticsStore statisticsStore,
       final AdapterIndexMappingStore indexMappingStore,
-      final SecondaryIndexDataStore secondaryIndexDataStore,
       final MapReduceDataStoreOperations operations,
       final DataStoreOptions options,
       final InternalAdapterStore adapterMappingStore) {
@@ -62,7 +57,6 @@ public class HBaseDataStore extends BaseMapReduceDataStore {
         adapterStore,
         statisticsStore,
         indexMappingStore,
-        secondaryIndexDataStore,
         operations,
         options,
         adapterMappingStore);

@@ -66,7 +66,6 @@ import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.index.IndexMetaDataSet;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.index.writer.IndependentAdapterIndexWriter;
 import org.locationtech.geowave.core.store.index.writer.IndexCompositeWriter;
 import org.locationtech.geowave.core.store.memory.MemoryPersistentAdapterStore;
@@ -98,7 +97,6 @@ public class BaseDataStore implements DataStore {
   protected final IndexStore indexStore;
   protected final PersistentAdapterStore adapterStore;
   protected final DataStatisticsStore statisticsStore;
-  protected final SecondaryIndexDataStore secondaryIndexDataStore;
   protected final AdapterIndexMappingStore indexMappingStore;
   protected final DataStoreOperations baseOperations;
   protected final DataStoreOptions baseOptions;
@@ -113,7 +111,6 @@ public class BaseDataStore implements DataStore {
       final PersistentAdapterStore adapterStore,
       final DataStatisticsStore statisticsStore,
       final AdapterIndexMappingStore indexMappingStore,
-      final SecondaryIndexDataStore secondaryIndexDataStore,
       final DataStoreOperations operations,
       final DataStoreOptions options,
       final InternalAdapterStore internalAdapterStore) {
@@ -121,11 +118,7 @@ public class BaseDataStore implements DataStore {
     this.adapterStore = adapterStore;
     this.statisticsStore = statisticsStore;
     this.indexMappingStore = indexMappingStore;
-    this.secondaryIndexDataStore = secondaryIndexDataStore;
     this.internalAdapterStore = internalAdapterStore;
-    if (secondaryIndexDataStore != null) {
-      secondaryIndexDataStore.setDataStore(this);
-    }
     baseOperations = operations;
     baseOptions = options;
   }
@@ -157,7 +150,7 @@ public class BaseDataStore implements DataStore {
     int i = 0;
     if (baseOptions.isSecondaryIndexing()) {
       final DataStoreCallbackManager callbackManager =
-          new DataStoreCallbackManager(statisticsStore, secondaryIndexDataStore, true);
+          new DataStoreCallbackManager(statisticsStore, true);
       final List<IngestCallback<T>> callbacks =
           Collections.singletonList(
               callbackManager.getIngestCallback(adapter, DataIndexUtils.DATA_ID_INDEX));
@@ -168,7 +161,7 @@ public class BaseDataStore implements DataStore {
     }
     for (final Index index : indices) {
       final DataStoreCallbackManager callbackManager =
-          new DataStoreCallbackManager(statisticsStore, secondaryIndexDataStore, i == 0);
+          new DataStoreCallbackManager(statisticsStore, i == 0);
       callbackManager.setPersistStats(baseOptions.isPersistDataStatistics());
 
       final List<IngestCallback<T>> callbacks =
@@ -316,7 +309,6 @@ public class BaseDataStore implements DataStore {
             final DataStoreCallbackManager callbackCache =
                 new DataStoreCallbackManager(
                     statisticsStore,
-                    secondaryIndexDataStore,
                     queriedAdapters.add(adapter.getAdapterId()));
 
             // the duplicate deletion callback utilizes insertion id
@@ -590,7 +582,6 @@ public class BaseDataStore implements DataStore {
       adapterStore.removeAll();
       statisticsStore.removeAll();
       internalAdapterStore.removeAll();
-      secondaryIndexDataStore.removeAll();
       indexMappingStore.removeAll();
 
       baseOperations.deleteAll();
@@ -1514,9 +1505,5 @@ public class BaseDataStore implements DataStore {
   @Override
   public void deleteAll() {
     deleteEverything();
-  }
-
-  protected int getDataIndexRetrievalBatchSize() {
-    return 1000;
   }
 }

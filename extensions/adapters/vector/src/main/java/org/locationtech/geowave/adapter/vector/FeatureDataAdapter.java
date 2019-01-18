@@ -19,7 +19,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
-import org.locationtech.geowave.adapter.vector.index.SecondaryIndexManager;
 import org.locationtech.geowave.adapter.vector.plugin.visibility.VisibilityConfiguration;
 import org.locationtech.geowave.adapter.vector.stats.StatsConfigurationCollection.SimpleFeatureStatsConfigurationCollection;
 import org.locationtech.geowave.adapter.vector.stats.StatsManager;
@@ -34,7 +33,6 @@ import org.locationtech.geowave.core.geotime.util.TimeDescriptors.TimeDescriptor
 import org.locationtech.geowave.core.geotime.util.TimeUtils;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.VarintUtils;
-import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.store.EntryVisibilityHandler;
 import org.locationtech.geowave.core.store.adapter.AbstractDataAdapter;
 import org.locationtech.geowave.core.store.adapter.AdapterPersistenceEncoding;
@@ -56,8 +54,6 @@ import org.locationtech.geowave.core.store.data.field.FieldWriter;
 import org.locationtech.geowave.core.store.data.visibility.VisibilityManagement;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
-import org.locationtech.geowave.core.store.index.SecondaryIndexDataAdapter;
-import org.locationtech.geowave.core.store.index.SecondaryIndexImpl;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.mapreduce.HadoopDataAdapter;
 import org.locationtech.geowave.mapreduce.HadoopWritableSerializer;
@@ -98,7 +94,7 @@ import com.google.common.collect.HashBiMap;
  */
 public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     implements GeotoolsFeatureDataAdapter, StatisticsProvider<SimpleFeature>,
-    HadoopDataAdapter<SimpleFeature, FeatureWritable>, SecondaryIndexDataAdapter<SimpleFeature>,
+    HadoopDataAdapter<SimpleFeature, FeatureWritable>,
     InitializeWithIndicesDataAdapter<SimpleFeature> {
   private static final Logger LOGGER = LoggerFactory.getLogger(FeatureDataAdapter.class);
   // the original coordinate system will always be represented internally by
@@ -111,7 +107,6 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
   private SimpleFeatureType reprojectedFeatureType;
   private MathTransform transform;
   private StatsManager statsManager;
-  private SecondaryIndexManager secondaryIndexManager;
   private TimeDescriptors timeDescriptors = null;
 
   // -----------------------------------------------------------------------------------
@@ -279,7 +274,6 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     }
 
     statsManager = new StatsManager(this, persistedFeatureType, reprojectedFeatureType, transform);
-    secondaryIndexManager = new SecondaryIndexManager(persistedFeatureType, statsManager);
   }
 
   /** Helper method for establishing a visibility manager in the constructor */
@@ -577,7 +571,6 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     } else {
       indexCrsBytes = new byte[0];
     }
-    final byte[] secondaryIndexBytes = PersistenceUtils.toBinary(secondaryIndexManager);
     // 21 bytes is the 7 four byte length fields and one byte for the
     // version
     final ByteBuffer buf =
@@ -588,7 +581,6 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
                 + namespaceBytes.length
                 + attrBytes.length
                 + axisBytes.length
-                + secondaryIndexBytes.length
                 + VarintUtils.unsignedIntByteLength(typeNameBytes.length)
                 + VarintUtils.unsignedIntByteLength(indexCrsBytes.length)
                 + VarintUtils.unsignedIntByteLength(namespaceBytes.length)
@@ -607,7 +599,6 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     buf.put(attrBytes);
     buf.put(axisBytes);
     buf.put(encodedTypeBytes);
-    buf.put(secondaryIndexBytes);
     return buf.array();
   }
 
@@ -677,10 +668,6 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     } catch (final SchemaException e) {
       LOGGER.error("Unable to deserialized feature type", e);
     }
-
-    secondaryIndexManager =
-        (SecondaryIndexManager) PersistenceUtils.fromBinary(secondaryIndexBytes);
-
     return null;
   }
 
@@ -790,11 +777,6 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature>
     public SimpleFeature fromWritable(final FeatureWritable writable) {
       return writable.getFeature();
     }
-  }
-
-  @Override
-  public List<SecondaryIndexImpl<SimpleFeature>> getSupportedSecondaryIndices() {
-    return secondaryIndexManager.getSupportedSecondaryIndices();
   }
 
   private final transient BiMap<String, Integer> fieldToPositionMap = HashBiMap.create();

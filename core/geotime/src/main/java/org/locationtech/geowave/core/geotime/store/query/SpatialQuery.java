@@ -9,7 +9,6 @@
 package org.locationtech.geowave.core.geotime.store.query;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.dimension.NumericDimensionField;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
-import org.locationtech.geowave.core.store.index.FilterableConstraints;
 import org.locationtech.geowave.core.store.query.constraints.BasicQuery;
 import org.locationtech.geowave.core.store.query.filter.BasicQueryFilter.BasicQueryCompareOperation;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
@@ -78,7 +76,7 @@ public class SpatialQuery extends BasicQuery {
   }
 
   public SpatialQuery(final Constraints constraints, final Geometry queryGeometry) {
-    this(constraints, queryGeometry, Collections.emptyMap());
+    this(constraints, queryGeometry, (String) null);
   }
 
   public SpatialQuery(
@@ -88,40 +86,17 @@ public class SpatialQuery extends BasicQuery {
     this(
         constraints,
         queryGeometry,
-        Collections.emptyMap(),
         crsCode,
         CompareOperation.INTERSECTS,
         BasicQueryCompareOperation.INTERSECTS);
   }
 
-  public SpatialQuery(
-      final Geometry queryGeometry,
-      final Map<String, FilterableConstraints> additionalConstraints) {
-    this(
-        GeometryUtils.basicConstraintsFromGeometry(queryGeometry),
-        queryGeometry,
-        additionalConstraints);
-  }
 
   public SpatialQuery(final Geometry queryGeometry, final String crsCode) {
     this(
         GeometryUtils.basicConstraintsFromGeometry(queryGeometry),
         queryGeometry,
-        Collections.emptyMap(),
         crsCode,
-        CompareOperation.INTERSECTS,
-        BasicQueryCompareOperation.INTERSECTS);
-  }
-
-  private SpatialQuery(
-      final Constraints constraints,
-      final Geometry queryGeometry,
-      final Map<String, FilterableConstraints> additionalConstraints) {
-    this(
-        constraints,
-        queryGeometry,
-        additionalConstraints,
-        null,
         CompareOperation.INTERSECTS,
         BasicQueryCompareOperation.INTERSECTS);
   }
@@ -159,25 +134,9 @@ public class SpatialQuery extends BasicQuery {
     this(
         GeometryUtils.basicConstraintsFromGeometry(queryGeometry),
         queryGeometry,
-        Collections.emptyMap(),
         crsCode,
         compareOp == null ? CompareOperation.INTERSECTS : compareOp,
         BasicQueryCompareOperation.INTERSECTS);
-  }
-
-  public SpatialQuery(
-      final Constraints constraints,
-      final Geometry queryGeometry,
-      final String crsCode,
-      final CompareOperation compareOp,
-      final BasicQueryCompareOperation nonSpatialCompareOp) {
-    this(
-        constraints,
-        queryGeometry,
-        Collections.emptyMap(),
-        crsCode,
-        compareOp == null ? CompareOperation.INTERSECTS : compareOp,
-        nonSpatialCompareOp);
   }
 
   /**
@@ -197,7 +156,6 @@ public class SpatialQuery extends BasicQuery {
     this(
         constraints,
         queryGeometry,
-        Collections.emptyMap(),
         null,
         compareOp == null ? CompareOperation.INTERSECTS : compareOp,
         nonSpatialCompareOp);
@@ -206,11 +164,10 @@ public class SpatialQuery extends BasicQuery {
   public SpatialQuery(
       final Constraints constraints,
       final Geometry queryGeometry,
-      final Map<String, FilterableConstraints> additionalConstraints,
       final String crsCode,
       final CompareOperation compareOp,
       final BasicQueryCompareOperation nonSpatialCompareOp) {
-    super(constraints, nonSpatialCompareOp, additionalConstraints);
+    super(constraints, nonSpatialCompareOp);
     this.crsCode = crsCode;
     this.queryGeometry = queryGeometry;
     this.compareOp = compareOp;
