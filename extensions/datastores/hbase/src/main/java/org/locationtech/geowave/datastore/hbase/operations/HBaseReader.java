@@ -48,7 +48,7 @@ public class HBaseReader<T> implements RowReader<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(HBaseReader.class);
 
   protected final ReaderParams<T> readerParams;
-  private final RecordReaderParams<T> recordReaderParams;
+  private final RecordReaderParams recordReaderParams;
   protected final HBaseOperations operations;
   private final boolean clientSideRowMerging;
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
@@ -81,7 +81,7 @@ public class HBaseReader<T> implements RowReader<T> {
   }
 
   public HBaseReader(
-      final RecordReaderParams<T> recordReaderParams,
+      final RecordReaderParams recordReaderParams,
       final HBaseOperations operations) {
     this.readerParams = null;
     this.recordReaderParams = recordReaderParams;
@@ -91,9 +91,13 @@ public class HBaseReader<T> implements RowReader<T> {
         recordReaderParams.getIndex().getIndexStrategy().getPartitionKeyLength();
     this.wholeRowEncoding = recordReaderParams.isMixedVisibility();
     this.clientSideRowMerging = recordReaderParams.isClientsideRowMerging();
-    this.rowTransformer = recordReaderParams.getRowTransformer();
+    this.rowTransformer =
+        (GeoWaveRowIteratorTransformer<T>) GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER;
     this.scanProvider =
-        createScanProvider(recordReaderParams, operations, this.clientSideRowMerging);
+        createScanProvider(
+            (RangeReaderParams<T>) recordReaderParams,
+            operations,
+            this.clientSideRowMerging);
 
     initRecordScanner();
   }
@@ -140,7 +144,7 @@ public class HBaseReader<T> implements RowReader<T> {
     rscanner.setStartRow(range.getStart()).setStopRow(range.getEndAsNextPrefix());
 
     if (operations.isServerSideLibraryEnabled()) {
-      addSkipFilter(recordReaderParams, filterList);
+      addSkipFilter((RangeReaderParams<T>) recordReaderParams, filterList);
     }
 
     setLimit(recordReaderParams, filterList);

@@ -33,7 +33,7 @@ import com.google.common.collect.Sets;
 
 public class CassandraReader<T> implements RowReader<T> {
   private final ReaderParams<T> readerParams;
-  private final RecordReaderParams<T> recordReaderParams;
+  private final RecordReaderParams recordReaderParams;
   private final CassandraOperations operations;
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
 
@@ -49,13 +49,14 @@ public class CassandraReader<T> implements RowReader<T> {
   }
 
   public CassandraReader(
-      final RecordReaderParams<T> recordReaderParams,
+      final RecordReaderParams recordReaderParams,
       final CassandraOperations operations) {
     readerParams = null;
     this.recordReaderParams = recordReaderParams;
     this.operations = operations;
 
-    this.rowTransformer = recordReaderParams.getRowTransformer();
+    this.rowTransformer =
+        (GeoWaveRowIteratorTransformer<T>) GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER;
 
     initRecordScanner();
   }

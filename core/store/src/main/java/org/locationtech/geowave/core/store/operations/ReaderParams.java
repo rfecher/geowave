@@ -27,6 +27,7 @@ public class ReaderParams<T> extends RangeReaderParams<T> {
   private final QueryFilter filter;
   private final List<MultiDimensionalCoordinateRangesArray> coordinateRanges;
   private final List<MultiDimensionalNumericData> constraints;
+  private final GeoWaveRowIteratorTransformer<T> rowTransformer;
 
   public ReaderParams(
       final Index index,
@@ -61,15 +62,15 @@ public class ReaderParams<T> extends RangeReaderParams<T> {
         isClientsideRowMerging,
         limit,
         maxRangeDecomposition,
-        rowTransformer,
         additionalAuthorizations);
     this.isServersideAggregation = isServersideAggregation;
     this.queryRanges = queryRanges;
     this.filter = filter;
     this.coordinateRanges = coordinateRanges;
     this.constraints = constraints;
+    this.rowTransformer = rowTransformer;
   }
-  
+
   public List<MultiDimensionalCoordinateRangesArray> getCoordinateRanges() {
     return coordinateRanges;
   }
@@ -88,5 +89,9 @@ public class ReaderParams<T> extends RangeReaderParams<T> {
 
   public QueryFilter getFilter() {
     return filter;
+  }
+
+  public GeoWaveRowIteratorTransformer<T> getRowTransformer() {
+    return rowTransformer;
   }
 }

@@ -75,6 +75,7 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.metadata.DataStatisticsStoreImpl;
 import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
@@ -943,7 +944,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   protected <T> void addConstraintsScanIteratorSettings(
-      final RecordReaderParams<T> params,
+      final RecordReaderParams params,
       final ScannerBase scanner,
       final DataStoreOptions options) {
     addFieldSubsettingToIterator(params, scanner);
@@ -1126,7 +1127,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
         true);
   }
 
-  protected <T> Scanner getScanner(final RecordReaderParams<T> params) {
+  protected <T> Scanner getScanner(final RecordReaderParams params) {
     final GeoWaveRowRange range = params.getRowRange();
     final String tableName = params.getIndex().getName();
     Scanner scanner;
@@ -1189,12 +1190,12 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> RowReader<T> createReader(final RecordReaderParams<T> readerParams) {
+  public RowReader<GeoWaveRow> createReader(final RecordReaderParams readerParams) {
     final ScannerBase scanner = getScanner(readerParams);
     addConstraintsScanIteratorSettings(readerParams, scanner, options);
     return new AccumuloReader<>(
         scanner,
-        readerParams.getRowTransformer(),
+        GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER,
         readerParams.getIndex().getIndexStrategy().getPartitionKeyLength(),
         readerParams.isMixedVisibility(),
         readerParams.isClientsideRowMerging(),

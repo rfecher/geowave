@@ -32,7 +32,6 @@ import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.memory.MemoryAdapterStore;
 import org.locationtech.geowave.core.store.operations.RowReader;
@@ -214,8 +213,8 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
         for (final String indexName : gwSplit.getIndexNames()) {
           final SplitInfo splitInfo = gwSplit.getInfo(indexName);
           for (final RangeLocationPair p : splitInfo.getRangeLocationPairs()) {
-            final RecordReaderParams<?> readerParams =
-                new RecordReaderParams<>(
+            final RecordReaderParams readerParams =
+                new RecordReaderParams(
                     splitInfo.getIndex(),
                     as,
                     ias,
@@ -228,8 +227,7 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
                     splitInfo.isClientsideRowMerging(),
                     p.getRange(),
                     null,
-                    null,
-                    GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER);
+                    null);
             try (RowReader<?> reader = ops.createReader(readerParams)) {
               while (reader.hasNext()) {
                 reader.next();

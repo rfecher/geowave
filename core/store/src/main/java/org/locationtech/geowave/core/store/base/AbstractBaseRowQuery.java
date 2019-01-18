@@ -10,7 +10,6 @@ package org.locationtech.geowave.core.store.base;
 
 import org.apache.log4j.Logger;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
@@ -19,12 +18,9 @@ import org.locationtech.geowave.core.store.base.dataidx.DataIndexRetrieval;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
-import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.util.NativeEntryTransformer;
-import org.locationtech.geowave.core.store.util.TriFunction;
 
 /**
  * Represents a query operation by an Accumulo row. This abstraction is re-usable for both exact row
@@ -79,6 +75,6 @@ abstract class AbstractBaseRowQuery<T> extends BaseQuery {
                 !isCommonIndexAggregation(),
                 getDataIndexRetrieval()),
             delete);
-    return new CloseableIteratorWrapper<>(new ReaderClosableWrapper(reader), reader);
+    return reader;
   }
 }

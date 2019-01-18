@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -39,9 +41,8 @@ import org.locationtech.geowave.core.store.base.dataidx.BatchDataIndexRetrieval;
 import org.locationtech.geowave.core.store.base.dataidx.DataIndexRetrieval;
 import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveKey;
-import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.index.IndexStore;
-import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.constraints.AdapterAndIndexBasedQueryConstraints;
 import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
@@ -56,6 +57,7 @@ import org.locationtech.geowave.mapreduce.input.InputFormatIteratorWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -138,14 +140,12 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
 
     numKeysRead = 0;
 
-    final Map<RangeLocationPair, CloseableIterator<Entry<GeoWaveInputKey, T>>> iteratorsPerRange =
-        new LinkedHashMap<>();
-
     final Set<String> indices = split.getIndexNames();
     BigDecimal sum = BigDecimal.ZERO;
 
     final Map<RangeLocationPair, BigDecimal> incrementalRangeSums = new LinkedHashMap<>();
-
+    final List<CloseableIterator<Pair<GeoWaveInputKey, T>>> allIterators = new ArrayList<>();
+    final NextRangeCallback callback = new InternalCallback();
     for (final String i : indices) {
       final SplitInfo splitInfo = split.getInfo(i);
       List<QueryFilter> queryFilters = null;
@@ -175,21 +175,57 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
 
         queryFilters = constraints.createFilters(splitInfo.getIndex());
       }
-      for (final RangeLocationPair r : splitInfo.getRangeLocationPairs()) {
-        iteratorsPerRange.put(
-            r,
-            queryRange(
+      if (!splitInfo.getRangeLocationPairs().isEmpty()) {
+        final QueryFilter[] filters =
+            ((queryFilters == null) || queryFilters.isEmpty()) ? null
+                : queryFilters.toArray(new QueryFilter[0]);
+
+        final PersistentAdapterStore persistentAdapterStore =
+            new AdapterStoreWrapper(adapterStore, internalAdapterStore);
+        final DataIndexRetrieval dataIndexRetrieval =
+            DataIndexUtils.getDataIndexRetrieval(
+                operations,
+                persistentAdapterStore,
+                internalAdapterStore,
                 splitInfo.getIndex(),
-                r.getRange(),
-                queryFilters,
-                splitInfo.isMixedVisibility(),
-                splitInfo.isAuthorizationsLimiting(),
-                splitInfo.isClientsideRowMerging()));
-        incrementalRangeSums.put(r, sum);
-        sum = sum.add(BigDecimal.valueOf(r.getCardinality()));
+                sanitizedQueryOptions.getFieldIdsAdapterPair(),
+                sanitizedQueryOptions.getAggregation(),
+                dataIndexBatchSize);
+
+        final List<Pair<RangeLocationPair, RowReader<GeoWaveRow>>> indexReaders =
+            new ArrayList<>(splitInfo.getRangeLocationPairs().size());
+        for (final RangeLocationPair r : splitInfo.getRangeLocationPairs()) {
+          indexReaders.add(
+              Pair.of(
+                  r,
+                  operations.createReader(
+                      new RecordReaderParams(
+                          splitInfo.getIndex(),
+                          persistentAdapterStore,
+                          internalAdapterStore,
+                          sanitizedQueryOptions.getAdapterIds(internalAdapterStore),
+                          sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
+                          sanitizedQueryOptions.getAggregation(),
+                          sanitizedQueryOptions.getFieldIdsAdapterPair(),
+                          splitInfo.isMixedVisibility(),
+                          splitInfo.isAuthorizationsLimiting(),
+                          splitInfo.isClientsideRowMerging(),
+                          r.getRange(),
+                          sanitizedQueryOptions.getLimit(),
+                          sanitizedQueryOptions.getMaxRangeDecomposition(),
+                          sanitizedQueryOptions.getAuthorizations()))));
+          incrementalRangeSums.put(r, sum);
+          sum = sum.add(BigDecimal.valueOf(r.getCardinality()));
+        }
+        allIterators.add(
+            concatenateWithCallback(
+                indexReaders,
+                callback,
+                splitInfo.getIndex(),
+                filters,
+                dataIndexRetrieval));
       }
     }
-
     // finally we can compute percent progress
     progressPerRange = new LinkedHashMap<>();
     RangeLocationPair prevRangeIndex = null;
@@ -215,61 +251,20 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
     iterator = new CloseableIteratorWrapper<>(new Closeable() {
       @Override
       public void close() throws IOException {
-        for (final CloseableIterator<?> it : iteratorsPerRange.values()) {
-          it.close();
+        for (final CloseableIterator<Pair<GeoWaveInputKey, T>> reader : allIterators) {
+          reader.close();
         }
       }
-    }, concatenateWithCallback(iteratorsPerRange.entrySet().iterator(), new NextRangeCallback() {
+    }, Iterators.concat(allIterators.iterator()));
 
-      @Override
-      public void setRange(final RangeLocationPair indexPair) {
-        currentGeoWaveRangeIndexPair = indexPair;
-      }
-    }));
+
   }
 
-  protected CloseableIterator<Entry<GeoWaveInputKey, T>> queryRange(
+  protected Iterator<Pair<GeoWaveInputKey, T>> rowReaderToKeyValues(
       final Index index,
-      final GeoWaveRowRange range,
-      final List<QueryFilter> queryFilters,
-      final boolean mixedVisibility,
-      final boolean authorizationsLimiting,
-      final boolean clientsideRowMerging) {
-
-    final QueryFilter[] filters =
-        ((queryFilters == null) || queryFilters.isEmpty()) ? null
-            : queryFilters.toArray(new QueryFilter[0]);
-
-    final PersistentAdapterStore persistentAdapterStore =
-        new AdapterStoreWrapper(adapterStore, internalAdapterStore);
-    final RowReader reader =
-        operations.createReader(
-            new RecordReaderParams(
-                index,
-                persistentAdapterStore,
-                internalAdapterStore,
-                sanitizedQueryOptions.getAdapterIds(internalAdapterStore),
-                sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
-                sanitizedQueryOptions.getAggregation(),
-                sanitizedQueryOptions.getFieldIdsAdapterPair(),
-                mixedVisibility,
-                authorizationsLimiting,
-                clientsideRowMerging,
-                range,
-                sanitizedQueryOptions.getLimit(),
-                sanitizedQueryOptions.getMaxRangeDecomposition(),
-                GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER,
-                sanitizedQueryOptions.getAuthorizations()));
-
-    final DataIndexRetrieval dataIndexRetrieval =
-        DataIndexUtils.getDataIndexRetrieval(
-            operations,
-            persistentAdapterStore,
-            internalAdapterStore,
-            index,
-            sanitizedQueryOptions.getFieldIdsAdapterPair(),
-            sanitizedQueryOptions.getAggregation(),
-            dataIndexBatchSize);
+      final QueryFilter[] filters,
+      final DataIndexRetrieval dataIndexRetrieval,
+      final Iterator<GeoWaveRow> reader) {
     InputFormatIteratorWrapper<T> iteratorWrapper;
     if (dataIndexRetrieval instanceof BatchDataIndexRetrieval) {
       // need special handling to account for asynchronous batched retrieval from the data index
@@ -293,7 +288,7 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
               isOutputWritable,
               dataIndexRetrieval);
     }
-    return new CloseableIteratorWrapper(new ReaderClosableWrapper(reader), iteratorWrapper);
+    return iteratorWrapper;
   }
 
   @Override
@@ -335,48 +330,26 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
   }
 
   /** Mostly guava's concatenate method, but there is a need for a callback between iterators */
-  protected static <T> Iterator<Entry<GeoWaveInputKey, T>> concatenateWithCallback(
-      final Iterator<Entry<RangeLocationPair, CloseableIterator<Entry<GeoWaveInputKey, T>>>> inputs,
-      final NextRangeCallback nextRangeCallback) {
+  protected CloseableIterator<Pair<GeoWaveInputKey, T>> concatenateWithCallback(
+      final List<Pair<RangeLocationPair, RowReader<GeoWaveRow>>> inputs,
+      final NextRangeCallback nextRangeCallback,
+      final Index index,
+      final QueryFilter[] filters,
+      final DataIndexRetrieval dataIndexRetrieval) {
     Preconditions.checkNotNull(inputs);
-    return new Iterator<Entry<GeoWaveInputKey, T>>() {
-      Iterator<Entry<GeoWaveInputKey, T>> currentIterator = Collections.emptyIterator();
-      Iterator<Entry<GeoWaveInputKey, T>> removeFrom;
-
+    return new CloseableIteratorWrapper<>(new Closeable() {
       @Override
-      public boolean hasNext() {
-        boolean currentHasNext;
-        while (!(currentHasNext = Preconditions.checkNotNull(currentIterator).hasNext())
-            && inputs.hasNext()) {
-          final Entry<RangeLocationPair, CloseableIterator<Entry<GeoWaveInputKey, T>>> entry =
-              inputs.next();
-          nextRangeCallback.setRange(entry.getKey());
-          currentIterator = entry.getValue();
+      public void close() {
+        for (final Pair<RangeLocationPair, RowReader<GeoWaveRow>> input : inputs) {
+          input.getRight().close();
         }
-        return currentHasNext;
       }
-
-      @Override
-      public Entry<GeoWaveInputKey, T> next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
-        removeFrom = currentIterator;
-        return currentIterator.next();
-      }
-
-      @SuppressFBWarnings(
-          value = "NP_NULL_ON_SOME_PATH",
-          justification = "Precondition catches null")
-      @Override
-      public void remove() {
-        Preconditions.checkState(
-            removeFrom != null,
-            "no calls to next() since last call to remove()");
-        removeFrom.remove();
-        removeFrom = null;
-      }
-    };
+    },
+        rowReaderToKeyValues(
+            index,
+            filters,
+            dataIndexRetrieval,
+            new ConcatenatedIteratorWithCallback(nextRangeCallback, inputs.iterator())));
   }
 
   private static float getOverallProgress(
@@ -440,5 +413,60 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
                 currentGeoWaveRangeIndexPair.getRange(),
                 currentGeoWaveKey,
                 progress)));
+  }
+
+  private class InternalCallback implements NextRangeCallback {
+
+    @Override
+    public void setRange(final RangeLocationPair indexPair) {
+      currentGeoWaveRangeIndexPair = indexPair;
+    }
+  }
+
+  private static class ConcatenatedIteratorWithCallback implements Iterator<GeoWaveRow> {
+    private final NextRangeCallback nextRangeCallback;
+    private final Iterator<Pair<RangeLocationPair, RowReader<GeoWaveRow>>> inputIteratorOfIterators;
+    private Iterator<GeoWaveRow> currentIterator = Collections.emptyIterator();
+    private Iterator<GeoWaveRow> removeFrom;
+
+    public ConcatenatedIteratorWithCallback(
+        final NextRangeCallback nextRangeCallback,
+        final Iterator<Pair<RangeLocationPair, RowReader<GeoWaveRow>>> inputIteratorOfIterators) {
+      super();
+      this.nextRangeCallback = nextRangeCallback;
+      this.inputIteratorOfIterators = inputIteratorOfIterators;
+    }
+
+    @Override
+    public boolean hasNext() {
+      boolean currentHasNext;
+      while (!(currentHasNext = Preconditions.checkNotNull(currentIterator).hasNext())
+          && inputIteratorOfIterators.hasNext()) {
+        final Entry<RangeLocationPair, RowReader<GeoWaveRow>> entry =
+            inputIteratorOfIterators.next();
+        nextRangeCallback.setRange(entry.getKey());
+        currentIterator = entry.getValue();
+      }
+      return currentHasNext;
+    }
+
+    @Override
+    public GeoWaveRow next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      removeFrom = currentIterator;
+      return currentIterator.next();
+    }
+
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "Precondition catches null")
+    @Override
+    public void remove() {
+      Preconditions.checkState(
+          removeFrom != null,
+          "no calls to next() since last call to remove()");
+      removeFrom.remove();
+      removeFrom = null;
+    }
   }
 }

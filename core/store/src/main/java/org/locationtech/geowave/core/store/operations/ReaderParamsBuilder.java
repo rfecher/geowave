@@ -25,13 +25,15 @@ public class ReaderParamsBuilder<T> extends RangeReaderParamsBuilder<T, ReaderPa
   protected QueryFilter filter = null;
   protected List<MultiDimensionalCoordinateRangesArray> coordinateRanges = null;
   protected List<MultiDimensionalNumericData> constraints = null;
+  protected GeoWaveRowIteratorTransformer<T> rowTransformer;
 
   public ReaderParamsBuilder(
       final Index index,
       final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final GeoWaveRowIteratorTransformer<T> rowTransformer) {
-    super(index, adapterStore, internalAdapterStore, rowTransformer);
+    super(index, adapterStore, internalAdapterStore);
+    this.rowTransformer = rowTransformer;
   }
 
   @Override
@@ -63,6 +65,10 @@ public class ReaderParamsBuilder<T> extends RangeReaderParamsBuilder<T, ReaderPa
   public ReaderParamsBuilder<T> constraints(final List<MultiDimensionalNumericData> constraints) {
     this.constraints = constraints;
     return builder();
+  }
+
+  public GeoWaveRowIteratorTransformer<T> getRowTransformer() {
+    return rowTransformer;
   }
 
   public ReaderParams<T> build() {

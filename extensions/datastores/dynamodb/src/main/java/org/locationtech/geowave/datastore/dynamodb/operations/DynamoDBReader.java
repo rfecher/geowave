@@ -54,7 +54,7 @@ import com.google.common.collect.Sets;
 public class DynamoDBReader<T> implements RowReader<T> {
   private static final boolean ASYNC = false;
   private final ReaderParams<T> readerParams;
-  private final RecordReaderParams<T> recordReaderParams;
+  private final RecordReaderParams recordReaderParams;
   private final DynamoDBOperations operations;
   private Iterator<T> iterator;
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
@@ -72,13 +72,14 @@ public class DynamoDBReader<T> implements RowReader<T> {
   }
 
   public DynamoDBReader(
-      final RecordReaderParams<T> recordReaderParams,
+      final RecordReaderParams recordReaderParams,
       final DynamoDBOperations operations) {
     readerParams = null;
     this.recordReaderParams = recordReaderParams;
-    processAuthorizations(recordReaderParams.getAdditionalAuthorizations(), recordReaderParams);
+    processAuthorizations(recordReaderParams.getAdditionalAuthorizations(), (RangeReaderParams<T>) recordReaderParams);
     this.operations = operations;
-    this.rowTransformer = recordReaderParams.getRowTransformer();
+    this.rowTransformer =
+        (GeoWaveRowIteratorTransformer<T>) GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER;
 
     initRecordScanner();
   }

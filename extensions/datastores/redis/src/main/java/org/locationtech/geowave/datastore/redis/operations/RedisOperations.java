@@ -155,7 +155,7 @@ public class RedisOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public <T> RowReader<T> createReader(final RecordReaderParams<T> readerParams) {
+  public  RowReader<GeoWaveRow> createReader(final RecordReaderParams readerParams) {
     return new RedisReader<>(client, options.getCompression(), readerParams, gwNamespace);
   }
 

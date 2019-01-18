@@ -14,7 +14,6 @@ import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 
 public abstract class RangeReaderParamsBuilder<T, R extends RangeReaderParamsBuilder<T, R>>
     extends BaseReaderParamsBuilder<T, R> {
@@ -29,16 +28,13 @@ public abstract class RangeReaderParamsBuilder<T, R extends RangeReaderParamsBui
   protected Integer limit = null;
   protected Integer maxRangeDecomposition = null;
   protected String[] additionalAuthorizations = null;
-  protected GeoWaveRowIteratorTransformer<T> rowTransformer;
 
   public RangeReaderParamsBuilder(
       final Index index,
       final PersistentAdapterStore adapterStore,
-      final InternalAdapterStore internalAdapterStore,
-      final GeoWaveRowIteratorTransformer<T> rowTransformer) {
+      final InternalAdapterStore internalAdapterStore) {
     super(adapterStore, internalAdapterStore);
     this.index = index;
-    this.rowTransformer = rowTransformer;
   }
 
   @Override

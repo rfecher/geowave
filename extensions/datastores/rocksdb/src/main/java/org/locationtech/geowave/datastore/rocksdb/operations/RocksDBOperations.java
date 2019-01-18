@@ -165,7 +165,7 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
   }
 
   @Override
-  public <T> RowReader<T> createReader(final RecordReaderParams<T> readerParams) {
+  public RowReader<GeoWaveRow> createReader(final RecordReaderParams readerParams) {
     return new RocksDBReader<>(client, readerParams);
   }
 

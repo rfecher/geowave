@@ -14,7 +14,6 @@ import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 
 public abstract class RangeReaderParams<T> extends BaseReaderParams<T> {
   private final Index index;
@@ -26,7 +25,6 @@ public abstract class RangeReaderParams<T> extends BaseReaderParams<T> {
   private final Integer limit;
   private final Integer maxRangeDecomposition;
   private final String[] additionalAuthorizations;
-  private final GeoWaveRowIteratorTransformer<T> rowTransformer;
 
   public RangeReaderParams(
       final Index index,
@@ -41,7 +39,6 @@ public abstract class RangeReaderParams<T> extends BaseReaderParams<T> {
       final boolean isClientsideRowMerging,
       final Integer limit,
       final Integer maxRangeDecomposition,
-      final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final String[] additionalAuthorizations) {
     super(adapterStore, internalAdapterStore, aggregation, fieldSubsets);
     this.index = index;
@@ -53,7 +50,6 @@ public abstract class RangeReaderParams<T> extends BaseReaderParams<T> {
     this.limit = limit;
     this.maxRangeDecomposition = maxRangeDecomposition;
     this.additionalAuthorizations = additionalAuthorizations;
-    this.rowTransformer = rowTransformer;
   }
 
   public Index getIndex() {
@@ -90,9 +86,5 @@ public abstract class RangeReaderParams<T> extends BaseReaderParams<T> {
 
   public boolean isClientsideRowMerging() {
     return isClientsideRowMerging;
-  }
-
-  public GeoWaveRowIteratorTransformer<T> getRowTransformer() {
-    return rowTransformer;
   }
 }

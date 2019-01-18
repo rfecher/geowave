@@ -341,7 +341,7 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public <T> RowReader<T> createReader(final RecordReaderParams<T> recordReaderParams) {
+  public RowReader<GeoWaveRow> createReader(final RecordReaderParams recordReaderParams) {
     return new DynamoDBReader<>(recordReaderParams, this);
   }
 

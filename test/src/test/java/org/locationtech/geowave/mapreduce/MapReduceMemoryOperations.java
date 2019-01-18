@@ -16,6 +16,8 @@ import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.memory.MemoryDataStoreOperations;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
@@ -28,7 +30,7 @@ public class MapReduceMemoryOperations extends MemoryDataStoreOperations
       Collections.synchronizedMap(new HashMap<ByteArray, SortedSet<MemoryStoreEntry>>());
 
   @Override
-  public <T> RowReader<T> createReader(final RecordReaderParams<T> readerParams) {
+  public RowReader<GeoWaveRow> createReader(final RecordReaderParams readerParams) {
 
     final byte[] partitionKey =
         readerParams.getRowRange().getPartitionKey() == null ? new byte[0]
@@ -64,7 +66,7 @@ public class MapReduceMemoryOperations extends MemoryDataStoreOperations
             readerParams.getMaxRangeDecomposition(),
             null,
             null,
-            readerParams.getRowTransformer(),
+            GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER,
             readerParams.getAdditionalAuthorizations()));
   }
 }

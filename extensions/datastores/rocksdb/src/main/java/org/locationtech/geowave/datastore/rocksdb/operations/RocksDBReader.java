@@ -27,6 +27,7 @@ import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
 import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.RangeReaderParams;
@@ -48,10 +49,11 @@ public class RocksDBReader<T> implements RowReader<T> {
       final RocksDBClient client,
       final ReaderParams<T> readerParams,
       final boolean async) {
-    this.iterator = createIteratorForReader(client, readerParams, false);
+    this.iterator =
+        createIteratorForReader(client, readerParams, readerParams.getRowTransformer(), false);
   }
 
-  public RocksDBReader(final RocksDBClient client, final RecordReaderParams<T> recordReaderParams) {
+  public RocksDBReader(final RocksDBClient client, final RecordReaderParams recordReaderParams) {
     this.iterator = createIteratorForRecordReader(client, recordReaderParams);
   }
 
@@ -64,13 +66,20 @@ public class RocksDBReader<T> implements RowReader<T> {
   private CloseableIterator<T> createIteratorForReader(
       final RocksDBClient client,
       final ReaderParams<T> readerParams,
+      final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final boolean async) {
     final Collection<SinglePartitionQueryRanges> ranges =
         readerParams.getQueryRanges().getPartitionQueryRanges();
 
     final Set<String> authorizations = Sets.newHashSet(readerParams.getAdditionalAuthorizations());
     if ((ranges != null) && !ranges.isEmpty()) {
-      return createIterator(client, readerParams, ranges, authorizations, async);
+      return createIterator(
+          client,
+          readerParams,
+          readerParams.getRowTransformer(),
+          ranges,
+          authorizations,
+          async);
     } else {
       final List<CloseableIterator<GeoWaveRow>> iterators = new ArrayList<>();
       for (final short adapterId : readerParams.getAdapterIds()) {
@@ -101,13 +110,14 @@ public class RocksDBReader<T> implements RowReader<T> {
             iterators.forEach(it -> it.close());
           }
         }
-      }, Iterators.concat(iterators.iterator()), readerParams, authorizations);
+      }, Iterators.concat(iterators.iterator()), readerParams, rowTransformer, authorizations);
     }
   }
 
   private CloseableIterator<T> createIterator(
       final RocksDBClient client,
       final RangeReaderParams<T> readerParams,
+      final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final Collection<SinglePartitionQueryRanges> ranges,
       final Set<String> authorizations,
       final boolean async) {
@@ -119,7 +129,7 @@ public class RocksDBReader<T> implements RowReader<T> {
                     readerParams.getInternalAdapterStore().getTypeName(adapterId),
                     readerParams.getIndex().getName()),
                 adapterId,
-                readerParams.getRowTransformer(),
+                rowTransformer,
                 ranges,
                 new ClientVisibilityFilter(authorizations),
                 readerParams.isClientsideRowMerging(),
@@ -141,7 +151,7 @@ public class RocksDBReader<T> implements RowReader<T> {
 
   private CloseableIterator<T> createIteratorForRecordReader(
       final RocksDBClient client,
-      final RecordReaderParams<T> recordReaderParams) {
+      final RecordReaderParams recordReaderParams) {
     final GeoWaveRowRange range = recordReaderParams.getRowRange();
     final byte[] startKey = range.isInfiniteStartSortKey() ? null : range.getStartSortKey();
     final byte[] stopKey = range.isInfiniteStopSortKey() ? null : range.getEndSortKey();
@@ -153,7 +163,8 @@ public class RocksDBReader<T> implements RowReader<T> {
         Sets.newHashSet(recordReaderParams.getAdditionalAuthorizations());
     return createIterator(
         client,
-        recordReaderParams,
+        (RangeReaderParams<T>) recordReaderParams,
+        (GeoWaveRowIteratorTransformer<T>) GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER,
         Collections.singleton(partitionRange),
         authorizations,
         // there should already be sufficient parallelism created by
@@ -178,12 +189,13 @@ public class RocksDBReader<T> implements RowReader<T> {
       final Closeable closeable,
       final Iterator<GeoWaveRow> results,
       final RangeReaderParams<T> params,
+      final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final Set<String> authorizations) {
     final Iterator<GeoWaveRow> iterator =
         Iterators.filter(results, new ClientVisibilityFilter(authorizations));
     return new CloseableIteratorWrapper<>(
         closeable,
-        params.getRowTransformer().apply(
+        rowTransformer.apply(
             sortBySortKeyIfRequired(
                 params,
                 params.isClientsideRowMerging() ? new GeoWaveRowMergingIterator(iterator)

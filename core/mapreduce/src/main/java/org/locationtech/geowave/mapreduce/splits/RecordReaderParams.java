@@ -14,10 +14,10 @@ import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 
-public class RecordReaderParams<T> extends RangeReaderParams<T> {
+public class RecordReaderParams extends RangeReaderParams<GeoWaveRow> {
   private final GeoWaveRowRange rowRange;
 
   public RecordReaderParams(
@@ -34,7 +34,6 @@ public class RecordReaderParams<T> extends RangeReaderParams<T> {
       final GeoWaveRowRange rowRange,
       final Integer limit,
       final Integer maxRangeDecomposition,
-      final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final String... additionalAuthorizations) {
     super(
         index,
@@ -49,7 +48,6 @@ public class RecordReaderParams<T> extends RangeReaderParams<T> {
         isClientsideRowMerging,
         limit,
         maxRangeDecomposition,
-        rowTransformer,
         additionalAuthorizations);
     this.rowRange = rowRange;
   }

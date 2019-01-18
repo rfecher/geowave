@@ -32,7 +32,6 @@ import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.operations.ReaderClosableWrapper;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
 import org.locationtech.geowave.core.store.util.GeoWaveRowIteratorFactory;
@@ -101,7 +100,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
     if ((limit != null) && (limit > 0)) {
       it = Iterators.limit(it, limit);
     }
-    return new CloseableIteratorWrapper(new ReaderClosableWrapper(reader), it);
+    return new CloseableIteratorWrapper(reader, it);
   }
 
   @Override
