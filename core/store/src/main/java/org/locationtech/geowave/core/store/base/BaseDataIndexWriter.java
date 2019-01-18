@@ -18,7 +18,7 @@ import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BaseDataIndexWriter<T> implements Writer<T> {
+class BaseDataIndexWriter<T> implements Writer<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseIndexWriter.class);
   protected final DataStoreOperations operations;
   protected final DataStoreOptions options;
@@ -28,7 +28,7 @@ public class BaseDataIndexWriter<T> implements Writer<T> {
   protected final InternalDataAdapter<T> adapter;
   final Closeable closable;
 
-  public BaseDataIndexWriter(
+  protected BaseDataIndexWriter(
       final InternalDataAdapter<T> adapter,
       final DataStoreOperations operations,
       final DataStoreOptions options,

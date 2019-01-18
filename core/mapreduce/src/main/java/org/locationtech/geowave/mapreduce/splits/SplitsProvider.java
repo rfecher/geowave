@@ -344,7 +344,8 @@ public class SplitsProvider {
       final Map<Pair<Index, ByteArray>, RowRangeHistogramStatistics<?>> statsCache,
       final ByteArray partitionKey,
       final String[] authorizations) throws IOException {
-    RowRangeHistogramStatistics<?> rangeStats = statsCache.get(Pair.of(index, partitionKey));
+    Pair<Index, ByteArray> key = Pair.of(index, partitionKey);
+    RowRangeHistogramStatistics<?> rangeStats = statsCache.get(key);
 
     if (rangeStats == null) {
       try {
@@ -356,12 +357,12 @@ public class SplitsProvider {
                 statsStore,
                 partitionKey,
                 authorizations);
+        if (rangeStats != null) {
+          statsCache.put(key, rangeStats);
+        }
       } catch (final Exception e) {
         throw new IOException(e);
       }
-    }
-    if (rangeStats != null) {
-      statsCache.put(Pair.of(index, partitionKey), rangeStats);
     }
     return rangeStats;
   }

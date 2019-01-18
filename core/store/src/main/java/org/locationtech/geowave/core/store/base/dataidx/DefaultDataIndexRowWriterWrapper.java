@@ -1,8 +1,9 @@
-package org.locationtech.geowave.core.store.operations;
+package org.locationtech.geowave.core.store.base.dataidx;
 
 import java.util.Arrays;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
+import org.locationtech.geowave.core.store.operations.RowWriter;
 import com.google.common.primitives.Bytes;
 
 public class DefaultDataIndexRowWriterWrapper implements RowWriter {

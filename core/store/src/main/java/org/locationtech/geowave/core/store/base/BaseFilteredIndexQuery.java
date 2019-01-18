@@ -160,7 +160,7 @@ abstract class BaseFilteredIndexQuery extends BaseQuery {
       final double[] maxResolutionSubsamplingPerDimension,
       final boolean decodePersistenceEncoding) {
     final @Nullable QueryFilter[] clientFilters = getClientFilters(options);
-    final DataIndexRetrieval dataIndexRetrieval = getFieldValuesFromDataIdx(adapterStore);
+    final DataIndexRetrieval dataIndexRetrieval = getDataIndexRetrieval();
     if ((options == null) || !options.isServerSideLibraryEnabled()) {
       final Map<Short, RowMergingDataAdapter> mergingAdapters = getMergingAdapters(adapterStore);
 

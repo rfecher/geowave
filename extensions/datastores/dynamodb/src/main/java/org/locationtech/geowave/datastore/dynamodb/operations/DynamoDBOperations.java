@@ -25,12 +25,10 @@ import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.base.BaseDataIndexDeleter;
 import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
-import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
@@ -166,13 +164,8 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
   }
 
   @Override
-  public Deleter<GeoWaveRow> createDeleter(final DataIndexReaderParams readerParams) {
-    return new BaseDataIndexDeleter<>(
-        readerParams,
-        this,
-        (r, o) -> o.deleteRowsFromDataIndex(
-            readerParams.getDataIds(),
-            readerParams.getAdapterId()));
+  public void delete(final DataIndexReaderParams readerParams) {
+    deleteRowsFromDataIndex(readerParams.getDataIds(), readerParams.getAdapterId());
   }
 
   public void deleteRowsFromDataIndex(final byte[][] dataIds, final short adapterId) {

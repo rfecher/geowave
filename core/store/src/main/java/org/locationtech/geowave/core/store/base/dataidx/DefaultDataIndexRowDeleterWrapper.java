@@ -1,7 +1,8 @@
-package org.locationtech.geowave.core.store.operations;
+package org.locationtech.geowave.core.store.base.dataidx;
 
+import org.locationtech.geowave.core.store.base.dataidx.DefaultDataIndexRowWriterWrapper.GeoWaveRowWrapper;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
-import org.locationtech.geowave.core.store.operations.DefaultDataIndexRowWriterWrapper.GeoWaveRowWrapper;
+import org.locationtech.geowave.core.store.operations.RowDeleter;
 
 public class DefaultDataIndexRowDeleterWrapper implements RowDeleter {
   private final RowDeleter delegateDeleter;

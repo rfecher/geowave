@@ -23,6 +23,7 @@ import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
+import org.locationtech.geowave.core.store.base.dataidx.DefaultDataIndexRowWriterWrapper;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
@@ -106,13 +107,18 @@ public interface DataStoreOperations {
         createReader(readerParams));
   }
 
-  default Deleter<GeoWaveRow> createDeleter(final DataIndexReaderParams readerParams) {
-    return new QueryAndDeleteByRow<>(
-        createRowDeleter(
-            DataIndexUtils.DATA_ID_INDEX.getName(),
-            readerParams.getAdapterStore(),
-            readerParams.getInternalAdapterStore()),
-        createReader(readerParams));
+  default void delete(final DataIndexReaderParams readerParams) {
+    try (QueryAndDeleteByRow<GeoWaveRow> defaultDeleter =
+        new QueryAndDeleteByRow<>(
+            createRowDeleter(
+                DataIndexUtils.DATA_ID_INDEX.getName(),
+                readerParams.getAdapterStore(),
+                readerParams.getInternalAdapterStore()),
+            createReader(readerParams))) {
+      while (defaultDeleter.hasNext()) {
+        defaultDeleter.next();
+      }
+    }
   }
 
   RowDeleter createRowDeleter(

@@ -48,6 +48,11 @@ public class AsyncPersistenceEncoding extends IndexedAdapterPersistenceEncoding 
   }
 
   @Override
+  public boolean isAsync() {
+    return fieldValuesFuture != null;
+  }
+
+  @Override
   public PersistentDataset<Object> getAdapterExtendedData() {
     // defer any reading of fieldValues until necessary
     deferredReadFields();
@@ -69,6 +74,6 @@ public class AsyncPersistenceEncoding extends IndexedAdapterPersistenceEncoding 
   }
 
   private void deferredReadFields() {
-    fieldValuesFuture = asyncRetrieval.getDataAsync(getDataId(), getInternalAdapterId());
+    fieldValuesFuture = asyncRetrieval.getDataAsync(getInternalAdapterId(), getDataId());
   }
 }

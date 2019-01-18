@@ -7,34 +7,52 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
+import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
+import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
+import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
+import org.locationtech.geowave.core.store.api.Aggregation;
+import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
-import org.locationtech.geowave.core.store.util.TriFunction;
+import org.locationtech.geowave.core.store.operations.DataStoreOperations;
+import org.locationtech.geowave.core.store.operations.RowReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.Iterators;
 
-public class BaseBatchIndexRetrieval implements BatchDataIndexRetrieval {
-  private static final Logger LOGGER = LoggerFactory.getLogger(BaseBatchIndexRetrieval.class);
-  private final TriFunction<byte[][], Short, DataIndexRetrievalParams, CloseableIterator<GeoWaveValue[]>> function;
-  private BiFunction<byte[][], Short, CloseableIterator<GeoWaveValue[]>> reducedFunction;
+public class BatchIndexRetrievalImpl implements BatchDataIndexRetrieval {
+  private static final Logger LOGGER = LoggerFactory.getLogger(BatchIndexRetrievalImpl.class);
   private final int batchSize;
   private final Map<Short, Map<ByteArray, CompletableFuture<GeoWaveValue[]>>> currentBatchesPerAdapter =
       new HashMap<>();
+  private final DataStoreOperations operations;
+  private final PersistentAdapterStore adapterStore;
+  private final InternalAdapterStore internalAdapterStore;
+  private final Pair<String[], InternalDataAdapter<?>> fieldSubsets;
+  private final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation;
   private final AtomicInteger outstandingIterators = new AtomicInteger(0);
 
-  public BaseBatchIndexRetrieval(
-      final TriFunction<byte[][], Short, DataIndexRetrievalParams, CloseableIterator<GeoWaveValue[]>> function,
+  public BatchIndexRetrievalImpl(
+      final DataStoreOperations operations,
+      final PersistentAdapterStore adapterStore,
+      final InternalAdapterStore internalAdapterStore,
+      final Pair<String[], InternalDataAdapter<?>> fieldSubsets,
+      final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
       final int batchSize) {
-    this.function = function;
+    this.operations = operations;
+    this.adapterStore = adapterStore;
+    this.internalAdapterStore = internalAdapterStore;
+    this.fieldSubsets = fieldSubsets;
+    this.aggregation = aggregation;
     this.batchSize = batchSize;
   }
 
   @Override
-  public GeoWaveValue[] getData(final byte[] dataId, final short adapterId) {
-    try (CloseableIterator<GeoWaveValue[]> it =
-        reducedFunction.apply(new byte[][] {dataId}, adapterId)) {
+  public GeoWaveValue[] getData(final short adapterId, final byte[] dataId) {
+    try (CloseableIterator<GeoWaveValue[]> it = getData(adapterId, new byte[][] {dataId})) {
       if (it.hasNext()) {
         return it.next();
       }
@@ -42,15 +60,26 @@ public class BaseBatchIndexRetrieval implements BatchDataIndexRetrieval {
     return null;
   }
 
-  @Override
-  public void setParams(final DataIndexRetrievalParams params) {
-    reducedFunction = (dataIds, adapterId) -> function.apply(dataIds, adapterId, params);
+  private CloseableIterator<GeoWaveValue[]> getData(final short adapterId, final byte[][] dataIds) {
+    final RowReader<GeoWaveRow> rowReader =
+        DataIndexUtils.getRowReader(
+            operations,
+            adapterStore,
+            internalAdapterStore,
+            fieldSubsets,
+            aggregation,
+            adapterId,
+            dataIds);
+    return new CloseableIteratorWrapper<>(
+        rowReader,
+        Iterators.transform(rowReader, r -> r.getFieldValues()));
+
   }
 
   @Override
   public synchronized CompletableFuture<GeoWaveValue[]> getDataAsync(
-      final byte[] dataId,
-      final short adapterId) {
+      final short adapterId,
+      final byte[] dataId) {
     Map<ByteArray, CompletableFuture<GeoWaveValue[]>> batch =
         currentBatchesPerAdapter.get(adapterId);
     if (batch == null) {
@@ -89,8 +118,8 @@ public class BaseBatchIndexRetrieval implements BatchDataIndexRetrieval {
     }
     batch.clear();
     if (internalSuppliers.length > 0) {
-      CompletableFuture.supplyAsync(
-          () -> reducedFunction.apply(internalDataIds, adapterId)).whenComplete((values, ex) -> {
+      CompletableFuture.supplyAsync(() -> getData(adapterId, internalDataIds)).whenComplete(
+          (values, ex) -> {
             if (values != null) {
               int i = 0;
               while (values.hasNext() && (i < internalSuppliers.length)) {

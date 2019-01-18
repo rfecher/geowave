@@ -89,9 +89,12 @@ public class BaseDataStoreOptions implements DataStoreOptions {
         : configuredAggregationMaxRangeDecomposition;
   }
 
+  @Override
   public int getDataIndexBatchSize() {
-    return configuredDataIndexBatchSize == Integer.MIN_VALUE ? defaultDataIndexBatchSize()
-        : configuredDataIndexBatchSize;
+    return isSecondaryIndexing()
+        ? (configuredDataIndexBatchSize == Integer.MIN_VALUE ? defaultDataIndexBatchSize()
+            : configuredDataIndexBatchSize)
+        : Integer.MIN_VALUE;
   }
 
   protected int defaultDataIndexBatchSize() {

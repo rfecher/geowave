@@ -32,11 +32,11 @@ import org.locationtech.geowave.mapreduce.HadoopWritableSerializationTool;
  * @param <T> The type for the entry
  */
 public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInputKey, T>> {
-  private final RowReader<GeoWaveRow> reader;
+  protected final RowReader<GeoWaveRow> reader;
   private final QueryFilter[] queryFilters;
   private final HadoopWritableSerializationTool serializationTool;
   private final boolean isOutputWritable;
-  private Entry<GeoWaveInputKey, T> nextEntry;
+  protected Entry<GeoWaveInputKey, T> nextEntry;
   private final Index index;
   private final DataIndexRetrieval dataIndexRetrieval;
 
@@ -47,7 +47,7 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
       final InternalAdapterStore internalAdapterStore,
       final Index index,
       final boolean isOutputWritable,
-      DataIndexRetrieval dataIndexRetrieval) {
+      final DataIndexRetrieval dataIndexRetrieval) {
     this.reader = reader;
     this.queryFilters = queryFilters;
     this.index = index;
@@ -57,12 +57,12 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
     this.dataIndexRetrieval = dataIndexRetrieval;
   }
 
-  private void findNext() {
+  protected void findNext() {
     while ((this.nextEntry == null) && reader.hasNext()) {
       final GeoWaveRow nextRow = reader.next();
       if (nextRow != null) {
         final Entry<GeoWaveInputKey, T> decodedValue =
-            decodeRow(
+            decodeRowToEntry(
                 nextRow,
                 queryFilters,
                 (InternalDataAdapter<T>) serializationTool.getInternalAdapter(
@@ -77,7 +77,7 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
   }
 
   @SuppressWarnings("unchecked")
-  private Entry<GeoWaveInputKey, T> decodeRow(
+  protected Object decodeRowToValue(
       final GeoWaveRow row,
       final QueryFilter[] clientFilters,
       final InternalDataAdapter<T> adapter,
@@ -101,6 +101,23 @@ public class InputFormatIteratorWrapper<T> implements Iterator<Entry<GeoWaveInpu
     if (value == null) {
       return null;
     }
+    return value;
+  }
+
+  @SuppressWarnings("unchecked")
+  protected Entry<GeoWaveInputKey, T> decodeRowToEntry(
+      final GeoWaveRow row,
+      final QueryFilter[] clientFilters,
+      final InternalDataAdapter<T> adapter,
+      final Index index) {
+    final Object value = decodeRowToValue(row, clientFilters, adapter, index);
+    if (value == null) {
+      return null;
+    }
+    return valueToEntry(row, value);
+  }
+
+  protected Entry<GeoWaveInputKey, T> valueToEntry(final GeoWaveRow row, final Object value) {
     final short adapterId = row.getAdapterId();
     final T result =
         (T) (isOutputWritable

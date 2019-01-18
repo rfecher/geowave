@@ -210,18 +210,18 @@ public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {
         TORNADO_TRACKS_EXPECTED_POLYGON_FILTER_RESULTS_FILE,
         "polygon tornado tracks spatial query",
         true);
-    // TODO understand why the spatial-temporal queries on tornado tracks
-    // are running into memory issues
-    // verifyQuery(
-    // context,
-    // TEST_BOX_TEMPORAL_FILTER_FILE,
-    // TORNADO_TRACKS_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE,
-    // "bounding box tornado tracks spatial-temporal query");
-    // verifyQuery(
-    // context,
-    // TEST_POLYGON_TEMPORAL_FILTER_FILE,
-    // TORNADO_TRACKS_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE,
-    // "polygon tornado tracks spatial-temporal query");
+    verifyQuery(
+        context,
+        TEST_BOX_TEMPORAL_FILTER_FILE,
+        TORNADO_TRACKS_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE,
+        "bounding box tornado tracks spatial-temporal query",
+        true);
+    verifyQuery(
+        context,
+        TEST_POLYGON_TEMPORAL_FILTER_FILE,
+        TORNADO_TRACKS_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE,
+        "polygon tornado tracks spatial-temporal query",
+        true);
 
     // test configurable CRS for tornado tracks
     verifyQuery(
@@ -238,20 +238,20 @@ public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {
         "polygon tornado tracks spatial query with other CRS",
         TestUtils.CUSTOM_CRS,
         true);
-    // TODO understand why the spatial-temporal queries on tornado tracks
-    // are running into memory issues
-    // verifyQuery(
-    // context,
-    // TEST_BOX_TEMPORAL_FILTER_FILE,
-    // TORNADO_TRACKS_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE,
-    // "bounding box tornado tracks spatial-temporal query with other CRS",
-    // TestUtils.CUSTOM_CRS);
-    // verifyQuery(
-    // context,
-    // TEST_POLYGON_TEMPORAL_FILTER_FILE,
-    // TORNADO_TRACKS_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE,
-    // "polygon tornado tracks spatial-temporal query with other CRS",
-    // TestUtils.CUSTOM_CRS);
+    verifyQuery(
+        context,
+        TEST_BOX_TEMPORAL_FILTER_FILE,
+        TORNADO_TRACKS_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE,
+        "bounding box tornado tracks spatial-temporal query with other CRS",
+        TestUtils.CUSTOM_CRS,
+        false);
+    verifyQuery(
+        context,
+        TEST_POLYGON_TEMPORAL_FILTER_FILE,
+        TORNADO_TRACKS_EXPECTED_POLYGON_TEMPORAL_FILTER_RESULTS_FILE,
+        "polygon tornado tracks spatial-temporal query with other CRS",
+        TestUtils.CUSTOM_CRS,
+        true);
 
     // now test with both ingested
     TestUtils.testLocalIngest(dataStore, DimensionalityType.ALL, HAIL_SHAPEFILE_FILE, 1);
@@ -387,8 +387,8 @@ public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {
   }
 
   private static long getCount(
-      JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd,
-      String dataStoreType) {
+      final JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd,
+      final String dataStoreType) {
     // TODO this seems like it could only occur if the RecordReaders
     // resulting from the splits had overlapping ranges, which seems to
     // occur for HBase

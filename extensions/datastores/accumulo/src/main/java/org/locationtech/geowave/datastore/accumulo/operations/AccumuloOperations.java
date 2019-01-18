@@ -73,7 +73,6 @@ import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStor
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
-import org.locationtech.geowave.core.store.base.BaseDataIndexDeleter;
 import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
@@ -1595,13 +1594,8 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   @Override
-  public Deleter<GeoWaveRow> createDeleter(final DataIndexReaderParams readerParams) {
-    return new BaseDataIndexDeleter<>(
-        readerParams,
-        this,
-        (r, o) -> o.deleteRowsFromDataIndex(
-            readerParams.getDataIds(),
-            readerParams.getAdapterId()));
+  public void delete(final DataIndexReaderParams readerParams) {
+    deleteRowsFromDataIndex(readerParams.getDataIds(), readerParams.getAdapterId());
   }
 
   public void deleteRowsFromDataIndex(final byte[][] rows, final short adapterId) {

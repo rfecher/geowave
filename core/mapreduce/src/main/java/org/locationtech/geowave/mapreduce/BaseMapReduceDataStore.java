@@ -96,7 +96,8 @@ public class BaseMapReduceDataStore extends BaseDataStore implements MapReduceDa
         internalAdapterStore,
         aimStore,
         indexStore,
-        (MapReduceDataStoreOperations) baseOperations);
+        (MapReduceDataStoreOperations) baseOperations,
+        baseOptions.getDataIndexBatchSize());
   }
 
   protected SplitsProvider createSplitsProvider() {

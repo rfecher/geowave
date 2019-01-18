@@ -59,6 +59,10 @@ public class CQLQueryFilter implements QueryFilter {
             indexModel);
         final PersistentDataset<Object> existingExtValues =
             ((AbstractAdapterPersistenceEncoding) persistenceEncoding).getAdapterExtendedData();
+
+        if (persistenceEncoding.isAsync()) {
+          return false;
+        }
         if (existingExtValues != null) {
           adapterExtendedValues.addValues(existingExtValues.getValues());
         }

@@ -77,7 +77,7 @@ abstract class AbstractBaseRowQuery<T> extends BaseQuery {
                 getFieldBitmask(),
                 maxResolutionSubsamplingPerDimension,
                 !isCommonIndexAggregation(),
-                getFieldValuesFromDataIdx(adapterStore)),
+                getDataIndexRetrieval()),
             delete);
     return new CloseableIteratorWrapper<>(new ReaderClosableWrapper(reader), reader);
   }

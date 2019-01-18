@@ -35,6 +35,8 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.base.BaseDataStore;
 import org.locationtech.geowave.core.store.base.BaseQueryOptions;
+import org.locationtech.geowave.core.store.base.dataidx.BatchDataIndexRetrieval;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexRetrieval;
 import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveKey;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
@@ -48,6 +50,7 @@ import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
 import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
 import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
+import org.locationtech.geowave.mapreduce.input.AsyncInputFormatIteratorWrapper;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 import org.locationtech.geowave.mapreduce.input.InputFormatIteratorWrapper;
 import org.slf4j.Logger;
@@ -93,6 +96,7 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
   protected IndexStore indexStore;
   protected BaseDataStore dataStore;
   protected MapReduceDataStoreOperations operations;
+  protected int dataIndexBatchSize;
 
   public GeoWaveRecordReader(
       final CommonQueryOptions commonOptions,
@@ -104,7 +108,8 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
       final InternalAdapterStore internalAdapterStore,
       final AdapterIndexMappingStore aimStore,
       final IndexStore indexStore,
-      final MapReduceDataStoreOperations operations) {
+      final MapReduceDataStoreOperations operations,
+      final int dataIndexBatchSize) {
     this.constraints = constraints;
     // all queries will use the same instance of the dedupe filter for
     // client side filtering because the filter needs to be applied across
@@ -122,6 +127,7 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
     this.aimStore = aimStore;
     this.indexStore = indexStore;
     this.operations = operations;
+    this.dataIndexBatchSize = dataIndexBatchSize;
   }
 
   /** Initialize a scanner over the given input split using this task attempt configuration. */
@@ -254,23 +260,40 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
                 sanitizedQueryOptions.getMaxRangeDecomposition(),
                 GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER,
                 sanitizedQueryOptions.getAuthorizations()));
-    return new CloseableIteratorWrapper(
-        new ReaderClosableWrapper(reader),
-        new InputFormatIteratorWrapper<>(
-            reader,
-            filters,
-            adapterStore,
+
+    final DataIndexRetrieval dataIndexRetrieval =
+        DataIndexUtils.getDataIndexRetrieval(
+            operations,
+            persistentAdapterStore,
             internalAdapterStore,
             index,
-            isOutputWritable,
-
-            // TODO, need to pass along options
-            DataIndexUtils.getDataIndexRetrieval(
-                operations,
-                persistentAdapterStore,
-                internalAdapterStore,
-                null,
-                index)));
+            sanitizedQueryOptions.getFieldIdsAdapterPair(),
+            sanitizedQueryOptions.getAggregation(),
+            dataIndexBatchSize);
+    InputFormatIteratorWrapper<T> iteratorWrapper;
+    if (dataIndexRetrieval instanceof BatchDataIndexRetrieval) {
+      // need special handling to account for asynchronous batched retrieval from the data index
+      iteratorWrapper =
+          new AsyncInputFormatIteratorWrapper<>(
+              reader,
+              filters,
+              adapterStore,
+              internalAdapterStore,
+              index,
+              isOutputWritable,
+              (BatchDataIndexRetrieval) dataIndexRetrieval);
+    } else {
+      iteratorWrapper =
+          new InputFormatIteratorWrapper<>(
+              reader,
+              filters,
+              adapterStore,
+              internalAdapterStore,
+              index,
+              isOutputWritable,
+              dataIndexRetrieval);
+    }
+    return new CloseableIteratorWrapper(new ReaderClosableWrapper(reader), iteratorWrapper);
   }
 
   @Override

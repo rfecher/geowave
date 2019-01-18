@@ -22,7 +22,6 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.locationtech.geowave.core.index.ByteArray;
-import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.store.GeoWaveStoreFinder;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.AdapterStore;
@@ -114,12 +113,6 @@ public class GeoWaveOutputFormat extends OutputFormat<GeoWaveOutputKey<Object>, 
     } else {
       GeoWaveConfiguratorBase.setStoreOptionsMap(CLASS, config, null);
     }
-  }
-
-  public static void setStoreOptionsMap(
-      final Configuration config,
-      final Map<String, String> storeConfigOptions) {
-    GeoWaveConfiguratorBase.setStoreOptionsMap(CLASS, config, storeConfigOptions);
   }
 
   public static void addIndex(final Configuration config, final Index index) {

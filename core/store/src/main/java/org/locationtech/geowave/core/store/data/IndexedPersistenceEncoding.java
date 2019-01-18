@@ -35,6 +35,10 @@ public class IndexedPersistenceEncoding<T> extends PersistenceEncoding<T> {
     this.duplicateCount = duplicateCount;
   }
 
+  public boolean isAsync() {
+    return false;
+  }
+
   /**
    * Return the partition key portion of the insertion ID
    *

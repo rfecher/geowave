@@ -74,7 +74,7 @@ public class GeoWaveAvroFeatureDataAdapterTest {
     final StoreFactoryFamilySpi storeFactoryFamily = new MemoryStoreFactoryFamily();
     final StoreFactoryOptions opts =
         storeFactoryFamily.getDataStoreFactory().createOptionsInstance();
-    opts.setGeowaveNamespace("test_avro");
+    opts.setGeoWaveNamespace("test_avro");
     dataStore = storeFactoryFamily.getDataStoreFactory().createStore(opts);
 
     try {

@@ -40,14 +40,14 @@ public class BasicQueryFilter implements QueryFilter {
   public enum BasicQueryCompareOperation implements BasicQueryCompareOp {
     CONTAINS {
       @Override
-      public boolean compare(double dataMin, double dataMax, double queryMin, double queryMax) {
+      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
         // checking if data range contains query range
         return !((dataMin < queryMin) || (dataMax > queryMax));
       }
     },
     OVERLAPS {
       @Override
-      public boolean compare(double dataMin, double dataMax, double queryMin, double queryMax) {
+      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
         // per definition, it shouldn't allow only boundary points to
         // overlap (stricter than intersect, see DE-9IM definitions)
         return !((dataMax <= queryMin) || (dataMin >= queryMax))
@@ -58,7 +58,7 @@ public class BasicQueryFilter implements QueryFilter {
     },
     INTERSECTS {
       @Override
-      public boolean compare(double dataMin, double dataMax, double queryMin, double queryMax) {
+      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
         // similar to overlap but a bit relaxed (allows boundary points
         // to touch)
         // this is equivalent to !((dataMax < queryMin) || (dataMin >
@@ -68,14 +68,14 @@ public class BasicQueryFilter implements QueryFilter {
     },
     TOUCHES {
       @Override
-      public boolean compare(double dataMin, double dataMax, double queryMin, double queryMax) {
+      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
         return (FloatCompareUtils.checkDoublesEqual(dataMin, queryMax))
             || (FloatCompareUtils.checkDoublesEqual(dataMax, queryMin));
       }
     },
     WITHIN {
       @Override
-      public boolean compare(double dataMin, double dataMax, double queryMin, double queryMax) {
+      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
         // checking if query range is within the data range
         // this is equivalent to (queryMin >= dataMin) && (queryMax <=
         // dataMax);
@@ -84,13 +84,13 @@ public class BasicQueryFilter implements QueryFilter {
     },
     DISJOINT {
       @Override
-      public boolean compare(double dataMin, double dataMax, double queryMin, double queryMax) {
+      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
         return ((dataMax < queryMin) || (dataMin > queryMax));
       }
     },
     CROSSES {
       @Override
-      public boolean compare(double dataMin, double dataMax, double queryMin, double queryMax) {
+      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
         // accordingly to the def. intersection point must be interior
         // to both source geometries.
         // this is not possible in 1D data so always returns false
@@ -99,7 +99,7 @@ public class BasicQueryFilter implements QueryFilter {
     },
     EQUALS {
       @Override
-      public boolean compare(double dataMin, double dataMax, double queryMin, double queryMax) {
+      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
         return (FloatCompareUtils.checkDoublesEqual(dataMin, queryMin))
             && (FloatCompareUtils.checkDoublesEqual(dataMax, queryMax));
       }
@@ -133,7 +133,7 @@ public class BasicQueryFilter implements QueryFilter {
       final NumericDimensionField<?>[] dimensionFields) {
     this.dimensionFields = dimensionFields;
 
-    binnedConstraints = new HashMap<ByteArray, List<MultiDimensionalNumericData>>();
+    binnedConstraints = new HashMap<>();
     this.constraints = constraints;
     final List<BinnedNumericDataset> queries =
         BinnedNumericDataset.applyBins(constraints, dimensionFields);
@@ -141,7 +141,7 @@ public class BasicQueryFilter implements QueryFilter {
       final ByteArray binId = new ByteArray(q.getBinId());
       List<MultiDimensionalNumericData> ranges = binnedConstraints.get(binId);
       if (ranges == null) {
-        ranges = new ArrayList<MultiDimensionalNumericData>();
+        ranges = new ArrayList<>();
         binnedConstraints.put(binId, ranges);
       }
       ranges.add(q);
@@ -156,7 +156,7 @@ public class BasicQueryFilter implements QueryFilter {
     final double[] minPerDimension = dataRange.getMinValuesPerDimension();
     final double[] maxPerDimension = dataRange.getMaxValuesPerDimension();
     boolean ok = true;
-    for (int d = 0; d < dimensionFields.length && ok; d++) {
+    for (int d = 0; (d < dimensionFields.length) && ok; d++) {
       ok &=
           op.compare(
               minPerDimension[d],
@@ -171,13 +171,17 @@ public class BasicQueryFilter implements QueryFilter {
   public boolean accept(
       final CommonIndexModel indexModel,
       final IndexedPersistenceEncoding<?> persistenceEncoding) {
-    if (!(persistenceEncoding instanceof CommonIndexedPersistenceEncoding))
+    if (!(persistenceEncoding instanceof CommonIndexedPersistenceEncoding)) {
       return false;
+    }
     final List<BinnedNumericDataset> dataRanges =
         BinnedNumericDataset.applyBins(
             ((CommonIndexedPersistenceEncoding) persistenceEncoding).getNumericData(
                 dimensionFields),
             dimensionFields);
+    if (persistenceEncoding.isAsync()) {
+      return false;
+    }
     // check that at least one data range overlaps at least one query range
     for (final BinnedNumericDataset dataRange : dataRanges) {
       final List<MultiDimensionalNumericData> queries =
@@ -195,7 +199,7 @@ public class BasicQueryFilter implements QueryFilter {
 
   @Override
   public byte[] toBinary() {
-    int byteBufferLength = VarintUtils.unsignedIntByteLength(this.compareOp.ordinal());
+    int byteBufferLength = VarintUtils.unsignedIntByteLength(compareOp.ordinal());
     final int dimensions = Math.min(constraints.getDimensionCount(), dimensionFields.length);
     byteBufferLength += VarintUtils.unsignedIntByteLength(dimensions);
     final byte[][] lengthDimensionAndQueryBinaries = new byte[dimensions][];
@@ -216,7 +220,7 @@ public class BasicQueryFilter implements QueryFilter {
       lengthDimensionAndQueryBinaries[d] = buf.array();
     }
     final ByteBuffer buf = ByteBuffer.allocate(byteBufferLength);
-    VarintUtils.writeUnsignedInt(this.compareOp.ordinal(), buf);
+    VarintUtils.writeUnsignedInt(compareOp.ordinal(), buf);
     VarintUtils.writeUnsignedInt(dimensions, buf);
     for (final byte[] binary : lengthDimensionAndQueryBinaries) {
       buf.put(binary);
@@ -227,7 +231,7 @@ public class BasicQueryFilter implements QueryFilter {
   @Override
   public void fromBinary(final byte[] bytes) {
     final ByteBuffer buf = ByteBuffer.wrap(bytes);
-    this.compareOp = BasicQueryCompareOperation.values()[VarintUtils.readUnsignedInt(buf)];
+    compareOp = BasicQueryCompareOperation.values()[VarintUtils.readUnsignedInt(buf)];
     final int numDimensions = VarintUtils.readUnsignedInt(buf);
     dimensionFields = new NumericDimensionField<?>[numDimensions];
     final NumericData[] data = new NumericData[numDimensions];

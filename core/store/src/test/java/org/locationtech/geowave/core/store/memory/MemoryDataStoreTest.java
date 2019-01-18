@@ -56,7 +56,7 @@ public class MemoryDataStoreTest {
     final String namespace = "test_" + getClass().getName();
     final StoreFactoryFamilySpi storeFamily = new MemoryStoreFactoryFamily();
     final MemoryRequiredOptions reqOptions = new MemoryRequiredOptions();
-    reqOptions.setGeowaveNamespace(namespace);
+    reqOptions.setGeoWaveNamespace(namespace);
     final DataStore dataStore = storeFamily.getDataStoreFactory().createStore(reqOptions);
     final DataStatisticsStore statsStore =
         storeFamily.getDataStatisticsStoreFactory().createStore(reqOptions);
@@ -155,7 +155,7 @@ public class MemoryDataStoreTest {
     final String namespace = "test2_" + getClass().getName();
     final StoreFactoryFamilySpi storeFamily = new MemoryStoreFactoryFamily();
     final MemoryRequiredOptions opts = new MemoryRequiredOptions();
-    opts.setGeowaveNamespace(namespace);
+    opts.setGeoWaveNamespace(namespace);
     final DataStore dataStore = storeFamily.getDataStoreFactory().createStore(opts);
     final DataStatisticsStore statsStore =
         storeFamily.getDataStatisticsStoreFactory().createStore(opts);

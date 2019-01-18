@@ -9,32 +9,16 @@
 package org.locationtech.geowave.core.store.util;
 
 import java.util.Iterator;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.base.dataidx.BatchDataIndexRetrieval;
+import org.locationtech.geowave.core.store.base.dataidx.BatchDataIndexRetrievalIteratorHelper;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.query.filter.QueryFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AsyncNativeEntryIteratorWrapper<T> extends NativeEntryIteratorWrapper<T> {
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(AsyncNativeEntryIteratorWrapper.class);
-  private static final int MAX_COMPLETED_OBJECT_CAPACITY = 1000000;
-  private final BlockingQueue<Object> completedObjects =
-      new LinkedBlockingDeque<>(MAX_COMPLETED_OBJECT_CAPACITY);
-  private final AtomicInteger outstandingFutures = new AtomicInteger(0);
-  private static final Object POISON = new Object();
-  private final AtomicBoolean scannedResultsExhausted = new AtomicBoolean(false);
-
-  private final AtomicBoolean scannedResultsStarted = new AtomicBoolean(false);
+  private final BatchDataIndexRetrievalIteratorHelper<T, T> batchHelper;
 
   public AsyncNativeEntryIteratorWrapper(
       final PersistentAdapterStore adapterStore,
@@ -56,6 +40,7 @@ public class AsyncNativeEntryIteratorWrapper<T> extends NativeEntryIteratorWrapp
         maxResolutionSubsamplingPerDimension,
         decodePersistenceEncoding,
         dataIndexRetrieval);
+    batchHelper = new BatchDataIndexRetrievalIteratorHelper<>(dataIndexRetrieval);
   }
 
   @Override
@@ -64,63 +49,22 @@ public class AsyncNativeEntryIteratorWrapper<T> extends NativeEntryIteratorWrapp
       final QueryFilter[] clientFilters,
       final Index index) {
     final T retVal = super.decodeRow(row, clientFilters, index);
-    if (retVal instanceof CompletableFuture) {
-      if (((CompletableFuture) retVal).isDone()) {
-        try {
-          return (T) ((CompletableFuture) retVal).get();
-        } catch (InterruptedException | ExecutionException e) {
-          LOGGER.warn("unable to get results", e);
-        }
-      } else {
-        outstandingFutures.incrementAndGet();
-        ((CompletableFuture) retVal).whenComplete((decodedValue, exception) -> {
-          if (decodedValue != null) {
-            try {
-              completedObjects.put(decodedValue);
-            } catch (final InterruptedException e) {
-              LOGGER.error("Unable to put value in blocking queue", e);
-            }
-          }
-
-          if ((outstandingFutures.decrementAndGet() == 0) && scannedResultsExhausted.get()) {
-            try {
-              completedObjects.put(POISON);
-            } catch (final InterruptedException e) {
-              LOGGER.error("Unable to put poison in blocking queue", e);
-            }
-          }
-        });
-      }
-      return null;
-    }
-    return retVal;
+    return batchHelper.postDecodeRow(retVal);
   }
 
   @Override
   public boolean hasNext() {
-    if (!scannedResultsStarted.getAndSet(true)) {
-      ((BatchDataIndexRetrieval) dataIndexRetrieval).notifyIteratorInitiated();
-    }
+    batchHelper.preHasNext();
     return super.hasNext();
   }
 
   @Override
   protected void findNext() {
     super.findNext();
-    if (!hasNextScannedResult() && !scannedResultsExhausted.getAndSet(true)) {
-      ((BatchDataIndexRetrieval) dataIndexRetrieval).notifyIteratorExhausted();
-    }
-    if ((nextValue == null) && ((outstandingFutures.get() > 0) || !completedObjects.isEmpty())) {
-      try {
-        final Object completedObj = completedObjects.take();
-        if (completedObj == POISON) {
-          nextValue = null;
-        } else {
-          nextValue = (T) completedObj;
-        }
-      } catch (final InterruptedException e) {
-        LOGGER.error("Unable to take value from blocking queue", e);
-      }
+    final boolean hasNextValue = (nextValue != null);
+    final T batchNextValue = batchHelper.postFindNext(hasNextValue, hasNextScannedResult());
+    if (!hasNextValue) {
+      nextValue = batchNextValue;
     }
   }
 }

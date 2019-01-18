@@ -3,7 +3,5 @@ package org.locationtech.geowave.core.store.base.dataidx;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 
 public interface DataIndexRetrieval {
-  GeoWaveValue[] getData(byte[] dataId, short adapterId);
-
-  void setParams(DataIndexRetrievalParams params);
+  GeoWaveValue[] getData(short adapterId, byte[] dataId);
 }

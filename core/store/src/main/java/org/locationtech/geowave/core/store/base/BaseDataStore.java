@@ -70,10 +70,8 @@ import org.locationtech.geowave.core.store.index.SecondaryIndexDataStore;
 import org.locationtech.geowave.core.store.index.writer.IndependentAdapterIndexWriter;
 import org.locationtech.geowave.core.store.index.writer.IndexCompositeWriter;
 import org.locationtech.geowave.core.store.memory.MemoryPersistentAdapterStore;
-import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.DataIndexReaderParamsBuilder;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.operations.Deleter;
 import org.locationtech.geowave.core.store.operations.MetadataQuery;
 import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
@@ -467,17 +465,11 @@ public class BaseDataStore implements DataStore {
       final String... authorizations) {
     for (final Entry<Short, Set<ByteArray>> entry : dataIdsToDelete.entrySet()) {
       final Short adapterId = entry.getKey();
-      final DataIndexReaderParams readerParams =
+      baseOperations.delete(
           new DataIndexReaderParamsBuilder<>(adapterStore, internalAdapterStore).adapterId(
               adapterId).dataIds(
                   entry.getValue().stream().map(b -> b.getBytes()).toArray(
-                      i -> new byte[i][])).build();
-
-      try (Deleter<GeoWaveRow> deleter = baseOperations.createDeleter(readerParams)) {
-        while (deleter.hasNext()) {
-          deleter.next();
-        }
-      }
+                      i -> new byte[i][])).build());
     }
   }
 
@@ -667,8 +659,10 @@ public class BaseDataStore implements DataStore {
                 baseOperations,
                 adapterStore,
                 internalAdapterStore,
-                baseOptions,
-                index),
+                index,
+                sanitizedQueryOptions.getFieldIdsAdapterPair(),
+                sanitizedQueryOptions.getAggregation(),
+                baseOptions.getDataIndexBatchSize()),
             sanitizedQueryOptions.getAuthorizations());
 
     return constraintsQuery.query(
@@ -713,8 +707,10 @@ public class BaseDataStore implements DataStore {
                 baseOperations,
                 adapterStore,
                 internalAdapterStore,
-                baseOptions,
-                index),
+                index,
+                sanitizedQueryOptions.getFieldIdsAdapterPair(),
+                sanitizedQueryOptions.getAggregation(),
+                baseOptions.getDataIndexBatchSize()),
             sanitizedQueryOptions.getAuthorizations());
 
     return prefixQuery.query(
@@ -762,8 +758,10 @@ public class BaseDataStore implements DataStore {
                 baseOperations,
                 adapterStore,
                 internalAdapterStore,
-                baseOptions,
-                index),
+                index,
+                sanitizedQueryOptions.getFieldIdsAdapterPair(),
+                sanitizedQueryOptions.getAggregation(),
+                baseOptions.getDataIndexBatchSize()),
             sanitizedQueryOptions.getAuthorizations());
     return q.query(
         baseOperations,

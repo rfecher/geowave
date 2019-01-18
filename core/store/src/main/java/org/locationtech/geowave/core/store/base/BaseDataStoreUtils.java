@@ -198,8 +198,8 @@ public class BaseDataStoreUtils {
                 fieldSubsetBitmask,
                 Suppliers.memoize(
                     () -> dataIndexRetrieval.getData(
-                        row.getDataId(),
-                        decodePackage.getDataAdapter().getAdapterId())));
+                        decodePackage.getDataAdapter().getAdapterId(),
+                        row.getDataId())));
       }
     } else {
       encodedRow =
@@ -227,7 +227,7 @@ public class BaseDataStoreUtils {
                 decodePackage.getDataAdapter().decode(
                     r,
                     isSecondaryIndex ? DataIndexUtils.DATA_ID_INDEX : decodePackage.getIndex());
-            if (isAsync(r)) {
+            if (r.isAsync()) {
               return i;
             }
             if ((scanCallback != null)) {
@@ -236,13 +236,13 @@ public class BaseDataStoreUtils {
 
             return decodedRow;
           }
-          if (isAsync(r)) {
+          if (r.isAsync()) {
             return i;
           }
           return null;
         });
     final Object obj = function.apply(encodedRow, 0);
-    if ((obj instanceof Integer) && isAsync(encodedRow)) {
+    if ((obj instanceof Integer) && encodedRow.isAsync()) {
       // by re-applying the function, client filters should not be called multiple times for the
       // same instance (beware of stateful filters such as dedupe filter). this method attempts to
       // maintain progress of the filter chain so that any successful filters prior to retrieving
@@ -281,11 +281,6 @@ public class BaseDataStoreUtils {
       }
     }
     return -1;
-  }
-
-  private static boolean isAsync(final IndexedAdapterPersistenceEncoding encodedRow) {
-    return ((encodedRow instanceof AsyncPersistenceEncoding)
-        && (((AsyncPersistenceEncoding) encodedRow).getFieldValuesFuture() != null));
   }
 
   protected static <T> IntermediaryWriteEntryInfo getWriteInfo(

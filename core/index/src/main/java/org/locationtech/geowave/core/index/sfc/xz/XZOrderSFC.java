@@ -39,8 +39,9 @@ public class XZOrderSFC implements SpaceFillingCurve {
   // indicator that we have searched a full level of the 2^dim tree
   private XElement LevelTerminator;
 
-  // TODO magic number; have to determine most appropriate value?
-  private static int g = 12;
+  // TODO magic number; have to determine most appropriate value (12 seems to have potential
+  // issues)?
+  private static int g = 11;
 
   private SFCDimensionDefinition[] dimensionDefs;
   private int dimensionCount;
