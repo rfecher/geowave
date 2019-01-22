@@ -39,21 +39,24 @@ public class BatchedWrite extends BatchHandler implements AutoCloseable {
   // to control it
   private final Semaphore writeSemaphore = new Semaphore(MAX_CONCURRENT_WRITE);
   private final boolean isDataIndex;
+  private final boolean visibilityEnabled;
 
   public BatchedWrite(
       final Session session,
       final PreparedStatement preparedInsert,
       final int batchSize,
-      final boolean isDataIndex) {
+      final boolean isDataIndex,
+      final boolean visibilityEnabled) {
     super(session);
     this.preparedInsert = preparedInsert;
     this.batchSize = batchSize;
     this.isDataIndex = isDataIndex;
+    this.visibilityEnabled = visibilityEnabled;
   }
 
   public void insert(final GeoWaveRow row) {
     final BoundStatement[] statements =
-        CassandraUtils.bindInsertion(preparedInsert, row, isDataIndex);
+        CassandraUtils.bindInsertion(preparedInsert, row, isDataIndex, visibilityEnabled);
     for (final BoundStatement statement : statements) {
       insertStatement(row, statement);
     }

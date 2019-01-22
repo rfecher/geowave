@@ -42,6 +42,7 @@ import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOpt
 import org.locationtech.geowave.core.store.data.VisibilityWriter;
 import org.locationtech.geowave.core.store.data.field.FieldVisibilityHandler;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
+import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
 import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
@@ -63,7 +64,8 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
           GeoWaveStoreType.HBASE,
           GeoWaveStoreType.DYNAMODB,
           GeoWaveStoreType.REDIS,
-          GeoWaveStoreType.ROCKSDB})
+          GeoWaveStoreType.ROCKSDB},
+      options = {"enableVisibility=true", "enableSecondaryIndexing=false"})
   protected DataStorePluginOptions dataStoreOptions;
 
   private static final Logger LOGGER = Logger.getLogger(AbstractGeoWaveIT.class);
@@ -99,7 +101,7 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
     LOGGER.warn("-----------------------------------------");
   }
 
-  @Test
+//  @Test
   public void testIngestAndQueryMixedVisibilityRasters() throws IOException {
     final String coverageName = "testMixedVisibilityRasters";
     final int tileSize = 64;
@@ -119,7 +121,7 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
     TestUtils.deleteAll(dataStoreOptions);
   }
 
-  @Test
+//  @Test
   public void testComplexVisibility() throws IOException {
     final String coverageName = "testComplexVisibility";
     final int tileSize = 64;
@@ -662,6 +664,8 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
       final boolean spatial,
       final int expectedResultCount,
       final int expectedNonNullFieldCount) throws IOException {
+    ClientVisibilityFilter.accepted = 0;
+    ClientVisibilityFilter.denied = 0;
     try (CloseableIterator<SimpleFeature> it =
         (CloseableIterator) store.query(
             QueryBuilder.newBuilder().setAuthorizations(auths).constraints(
@@ -679,6 +683,8 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
         }
         resultCount++;
       }
+//      System.err.println(ClientVisibilityFilter.accepted);
+//      System.err.println(ClientVisibilityFilter.denied + ClientVisibilityFilter.accepted);
       Assert.assertEquals(
           "Unexpected result count for "
               + (spatial ? "spatial query" : "full table scan")

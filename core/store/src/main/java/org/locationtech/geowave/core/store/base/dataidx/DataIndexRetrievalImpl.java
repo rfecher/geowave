@@ -15,6 +15,7 @@ public class DataIndexRetrievalImpl implements DataIndexRetrieval {
   private final InternalAdapterStore internalAdapterStore;
   private final Pair<String[], InternalDataAdapter<?>> fieldSubsets;
   private final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation;
+  private final String[] additionalAuthorizations;
 
 
   public DataIndexRetrievalImpl(
@@ -22,12 +23,14 @@ public class DataIndexRetrievalImpl implements DataIndexRetrieval {
       final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final Pair<String[], InternalDataAdapter<?>> fieldSubsets,
-      final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation) {
+      final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
+      final String[] additionalAuthorizations) {
     this.operations = operations;
     this.adapterStore = adapterStore;
     this.internalAdapterStore = internalAdapterStore;
     this.fieldSubsets = fieldSubsets;
     this.aggregation = aggregation;
+    this.additionalAuthorizations = additionalAuthorizations;
   }
 
   @Override
@@ -38,6 +41,7 @@ public class DataIndexRetrievalImpl implements DataIndexRetrieval {
         internalAdapterStore,
         fieldSubsets,
         aggregation,
+        additionalAuthorizations,
         adapterId,
         dataId);
   }

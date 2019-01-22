@@ -25,15 +25,22 @@ import io.netty.buffer.ByteBufOutputStream;
 public class GeoWaveRedisRowWithTimestampCodec extends BaseCodec {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(GeoWaveRedisRowWithTimestampCodec.class);
-  protected static GeoWaveRedisRowWithTimestampCodec SINGLETON =
-      new GeoWaveRedisRowWithTimestampCodec();
+  protected static GeoWaveRedisRowWithTimestampCodec SINGLETON_WITH_VISIBILITY =
+      new GeoWaveRedisRowWithTimestampCodec(true);
+  protected static GeoWaveRedisRowWithTimestampCodec SINGLETON_WITHOUT_VISIBILITY =
+      new GeoWaveRedisRowWithTimestampCodec(false);
   private final Decoder<Object> decoder = new Decoder<Object>() {
     @Override
     public Object decode(final ByteBuf buf, final State state) throws IOException {
       try (final ByteBufInputStream in = new ByteBufInputStream(buf)) {
         final byte[] dataId = new byte[in.readUnsignedByte()];
         final byte[] fieldMask = new byte[in.readUnsignedByte()];
-        final byte[] visibility = new byte[in.readUnsignedByte()];
+        final byte[] visibility;
+        if (visibilityEnabled) {
+          visibility = new byte[in.readUnsignedByte()];
+        } else {
+          visibility = new byte[0];
+        }
         final byte[] value = new byte[Varint.readUnsignedVarInt(in)];
         final int numDuplicates = in.readUnsignedByte();
         if ((dataId.length > 0) && (in.read(dataId) != dataId.length)) {
@@ -42,7 +49,9 @@ public class GeoWaveRedisRowWithTimestampCodec extends BaseCodec {
         if ((fieldMask.length > 0) && (in.read(fieldMask) != fieldMask.length)) {
           LOGGER.warn("unable to read fieldMask");
         }
-        if ((visibility.length > 0) && (in.read(visibility) != visibility.length)) {
+        if (visibilityEnabled
+            && (visibility.length > 0)
+            && (in.read(visibility) != visibility.length)) {
           LOGGER.warn("unable to read visibility");
         }
         if ((value.length > 0) && (in.read(value) != value.length)) {
@@ -65,7 +74,7 @@ public class GeoWaveRedisRowWithTimestampCodec extends BaseCodec {
         final ByteBuf buf = ByteBufAllocator.DEFAULT.buffer();
 
         try (final ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
-          GeoWaveRedisRowCodec.encodeRow(out, row);
+          GeoWaveRedisRowCodec.encodeRow(out, row, visibilityEnabled);
           Varint.writeSignedVarInt((int) row.getSecondsSinceEpic(), out);
           Varint.writeSignedVarInt(row.getNanoOfSecond(), out);
           out.flush();
@@ -75,8 +84,11 @@ public class GeoWaveRedisRowWithTimestampCodec extends BaseCodec {
       throw new IOException("Encoder only supports GeoWaveRedisPersistedTimestampRow");
     }
   };
+  private final boolean visibilityEnabled;
 
-  private GeoWaveRedisRowWithTimestampCodec() {}
+  private GeoWaveRedisRowWithTimestampCodec(final boolean visibilityEnabled) {
+    this.visibilityEnabled = visibilityEnabled;
+  }
 
   @Override
   public Decoder<Object> getValueDecoder() {

@@ -8,11 +8,8 @@
  */
 package org.locationtech.geowave.core.store.operations;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
-import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
-import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.Index;
 
 public abstract class RangeReaderParamsBuilder<T, R extends RangeReaderParamsBuilder<T, R>>
@@ -20,14 +17,10 @@ public abstract class RangeReaderParamsBuilder<T, R extends RangeReaderParamsBui
   protected final Index index;
   protected short[] adapterIds = null;
   protected double[] maxResolutionSubsamplingPerDimension = null;
-  protected Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation = null;
-  protected Pair<String[], InternalDataAdapter<?>> fieldSubsets = null;
   protected boolean isMixedVisibility = false;
-  protected boolean isAuthorizationsLimiting = true;
   protected boolean isClientsideRowMerging = false;
   protected Integer limit = null;
   protected Integer maxRangeDecomposition = null;
-  protected String[] additionalAuthorizations = null;
 
   public RangeReaderParamsBuilder(
       final Index index,
@@ -61,11 +54,6 @@ public abstract class RangeReaderParamsBuilder<T, R extends RangeReaderParamsBui
     return builder();
   }
 
-  public R isAuthorizationsLimiting(final boolean isAuthorizationsLimiting) {
-    this.isAuthorizationsLimiting = isAuthorizationsLimiting;
-    return builder();
-  }
-
   public R limit(final Integer limit) {
     this.limit = limit;
     return builder();
@@ -76,8 +64,9 @@ public abstract class RangeReaderParamsBuilder<T, R extends RangeReaderParamsBui
     return builder();
   }
 
+  @Override
   public R additionalAuthorizations(final String... authorizations) {
-    this.additionalAuthorizations = authorizations;
+    additionalAuthorizations = authorizations;
     return builder();
   }
 }

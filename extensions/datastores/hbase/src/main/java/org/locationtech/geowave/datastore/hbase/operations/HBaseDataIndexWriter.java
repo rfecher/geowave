@@ -4,9 +4,11 @@ import java.io.IOException;
 import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.RowMutations;
+import org.apache.hadoop.hbase.security.visibility.CellVisibility;
 import org.apache.log4j.Logger;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.StringUtils;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
@@ -62,11 +64,15 @@ public class HBaseDataIndexWriter implements RowWriter {
     final RowMutations mutation = new RowMutations(row.getDataId());
     for (final GeoWaveValue value : row.getFieldValues()) {
       final Put put = new Put(row.getDataId());
-
+      // visibility is in the visibility column so no need to serialize it with the value
       put.addColumn(
           StringUtils.stringToBinary(ByteArrayUtils.shortToString(row.getAdapterId())),
           new byte[0],
-          value.getValue());
+          DataIndexUtils.serializeDataIndexValue(value, false));
+      if ((value.getVisibility() != null) && (value.getVisibility().length > 0)) {
+        put.setCellVisibility(
+            new CellVisibility(StringUtils.stringFromBinary(value.getVisibility())));
+      }
       try {
         mutation.add(put);
       } catch (final IOException e) {

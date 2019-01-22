@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.redisson.api.RBatch;
 import org.redisson.api.RMap;
 import org.redisson.api.RMapAsync;
@@ -22,18 +23,26 @@ import org.redisson.client.codec.Codec;
 
 public class RedisMapWrapper
     extends AbstractRedisSetWrapper<RMapAsync<byte[], byte[]>, RMap<byte[], byte[]>> {
+  private final boolean visibilityEnabled;
 
-  public RedisMapWrapper(final RedissonClient client, final String setName, final Codec codec) {
+  public RedisMapWrapper(
+      final RedissonClient client,
+      final String setName,
+      final Codec codec,
+      final boolean visibilityEnabled) {
     super(client, setName, codec);
+    this.visibilityEnabled = visibilityEnabled;
   }
 
   public boolean remove(final byte[] dataId) {
     return getCurrentSyncCollection().remove(dataId) != null;
   }
 
-  public void add(final byte[] dataId, final byte[] value) {
+  public void add(final byte[] dataId, final GeoWaveValue value) {
     preAdd();
-    getCurrentAsyncCollection().putAsync(dataId, value);
+    getCurrentAsyncCollection().putAsync(
+        dataId,
+        DataIndexUtils.serializeDataIndexValue(value, visibilityEnabled));
   }
 
   public void remove(final byte[][] dataIds) {
@@ -45,10 +54,11 @@ public class RedisMapWrapper
     final Map<byte[], byte[]> results =
         getCurrentSyncCollection().getAll(new HashSet<>(Arrays.asList(dataIds)));
     return Arrays.stream(dataIds).map(
-        dataId -> DataIndexUtils.getDataIndexRow(
+        dataId -> DataIndexUtils.deserializeDataIndexRow(
             dataId,
             adapterId,
-            results.get(dataId))).iterator();
+            results.get(dataId),
+            visibilityEnabled)).iterator();
   }
 
   @Override

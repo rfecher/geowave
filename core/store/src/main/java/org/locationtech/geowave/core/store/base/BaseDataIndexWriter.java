@@ -68,7 +68,8 @@ class BaseDataIndexWriter<T> implements Writer<T> {
               DataIndexUtils.DATA_ID_INDEX,
               fieldVisibilityWriter,
               options.isSecondaryIndexing(),
-              true);
+              true,
+              options.isVisibilityEnabled());
       final GeoWaveRow[] rows = entryInfo.getRows();
 
       writer.write(rows);

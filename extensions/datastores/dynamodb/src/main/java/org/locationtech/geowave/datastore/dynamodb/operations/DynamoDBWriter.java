@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.core.store.operations.RowWriter;
@@ -234,7 +235,13 @@ public class DynamoDBWriter implements RowWriter {
         if ((value.getValue() != null) && (value.getValue().length > 0)) {
           map.put(
               DynamoDBRow.GW_VALUE_KEY,
-              new AttributeValue().withB(ByteBuffer.wrap(value.getValue())));
+              new AttributeValue().withB(
+                  ByteBuffer.wrap(DataIndexUtils.serializeDataIndexValue(value, false))));
+        }
+        if ((value.getVisibility() != null) && (value.getVisibility().length > 0)) {
+          map.put(
+              DynamoDBRow.GW_VISIBILITY_KEY,
+              new AttributeValue().withB(ByteBuffer.wrap(value.getVisibility())));
         }
       }
       return Collections.singletonList(new WriteRequest(new PutRequest(map)));

@@ -148,7 +148,7 @@ public class AttributesSubsetQueryIT extends AbstractGeoWaveIT {
         QueryBuilder.newBuilder().addTypeName(dataAdapter.getTypeName()).indexName(
             TestUtils.DEFAULT_SPATIAL_INDEX.getName()).subsetFields(
                 dataAdapter.getTypeName(),
-                CITY_ATTRIBUTE);
+                CITY_ATTRIBUTE, GEOMETRY_ATTRIBUTE);
 
     CloseableIterator<SimpleFeature> results =
         (CloseableIterator<SimpleFeature>) dataStore.createDataStore().query(

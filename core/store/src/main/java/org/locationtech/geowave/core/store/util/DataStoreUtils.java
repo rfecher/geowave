@@ -31,6 +31,7 @@ import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.index.SinglePartitionInsertionIds;
 import org.locationtech.geowave.core.index.SinglePartitionQueryRanges;
 import org.locationtech.geowave.core.index.StringUtils;
+import org.locationtech.geowave.core.index.VarintUtils;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
@@ -262,7 +263,7 @@ public class DataStoreUtils {
                   fieldInfoList,
                   new FlattenedUnreadDataSingleRow(input, i, fieldPositions));
             }
-            final int fieldLength = input.getInt();
+            final int fieldLength = VarintUtils.readUnsignedInt(input);
             final byte[] fieldValueBytes = new byte[fieldLength];
             input.get(fieldValueBytes);
             fieldInfoList.add(new FlattenedFieldInfo(fieldPosition, fieldValueBytes));
@@ -275,7 +276,7 @@ public class DataStoreUtils {
         final ByteBuffer input = ByteBuffer.wrap(flattenedValue);
         for (int i = 0; input.hasRemaining(); i++) {
           final Integer fieldPosition = i;
-          final int fieldLength = input.getInt();
+          final int fieldLength = VarintUtils.readUnsignedInt(input);
           final byte[] fieldValueBytes = new byte[fieldLength];
           input.get(fieldValueBytes);
           fieldInfoList.add(new FlattenedFieldInfo(fieldPosition, fieldValueBytes));
@@ -359,7 +360,6 @@ public class DataStoreUtils {
   }
 
   public static ByteArray ensureUniqueId(final byte[] id, final boolean hasMetadata) {
-
     final ByteBuffer buf = ByteBuffer.allocate(id.length + UNIQUE_ADDED_BYTES);
 
     byte[] metadata = null;

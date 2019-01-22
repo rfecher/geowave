@@ -80,7 +80,8 @@ class BaseIndexWriter<T> implements Writer<T> {
               index,
               fieldVisibilityWriter,
               options.isSecondaryIndexing(),
-              false);
+              false,
+              options.isVisibilityEnabled());
       verifyVisibility(fieldVisibilityWriter, entryInfo);
       final GeoWaveRow[] rows = entryInfo.getRows();
 

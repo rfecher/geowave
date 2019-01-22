@@ -56,6 +56,7 @@ import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter.RowRange;
 import org.apache.hadoop.hbase.ipc.BlockingRpcCallback;
 import org.apache.hadoop.hbase.protobuf.generated.AdminProtos.GetRegionInfoResponse.CompactionState;
+import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.shaded.com.google.protobuf.ByteString;
 import org.locationtech.geowave.core.cli.VersionUtils;
 import org.locationtech.geowave.core.index.ByteArray;
@@ -542,13 +543,19 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     }
   }
 
-  public Iterator<GeoWaveRow> getDataIndexResults(final byte[][] rows, final short adapterId) {
+  public Iterator<GeoWaveRow> getDataIndexResults(
+      final byte[][] rows,
+      final short adapterId,
+      final String... additionalAuthorizations) {
     Result[] results = null;
     final byte[] family = StringUtils.stringToBinary(ByteArrayUtils.shortToString(adapterId));
     try (final Table table = conn.getTable(getTableName(DataIndexUtils.DATA_ID_INDEX.getName()))) {
       results = table.get(Arrays.stream(rows).map(r -> {
         final Get g = new Get(r);
         g.addFamily(family);
+        if ((additionalAuthorizations != null) && (additionalAuthorizations.length > 0)) {
+          g.setAuthorizations(new Authorizations(additionalAuthorizations));
+        }
         return g;
       }).collect(Collectors.toList()));
     } catch (final IOException e) {
@@ -556,10 +563,11 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     }
     if (results != null) {
       return Arrays.stream(results).map(
-          r -> DataIndexUtils.getDataIndexRow(
+          r -> DataIndexUtils.deserializeDataIndexRow(
               r.getRow(),
               adapterId,
-              r.getValue(family, new byte[0]))).iterator();
+              r.getValue(family, new byte[0]),
+              false)).iterator();
     }
     return Collections.emptyIterator();
   }
@@ -1573,6 +1581,10 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   @Override
   public RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
     return new RowReaderWrapper<>(
-        new Wrapper<>(getDataIndexResults(readerParams.getDataIds(), readerParams.getAdapterId())));
+        new Wrapper<>(
+            getDataIndexResults(
+                readerParams.getDataIds(),
+                readerParams.getAdapterId(),
+                readerParams.getAdditionalAuthorizations())));
   }
 }

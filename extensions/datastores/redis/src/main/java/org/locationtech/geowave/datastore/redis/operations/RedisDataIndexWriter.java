@@ -15,9 +15,10 @@ public class RedisDataIndexWriter implements RowWriter {
       final RedissonClient client,
       final Compression compression,
       final String namespace,
-      final String typeName) {
+      final String typeName,
+      final boolean visibilityEnabled) {
     super();
-    map = RedisUtils.getDataIndexMap(client, compression, namespace, typeName);
+    map = RedisUtils.getDataIndexMap(client, compression, namespace, typeName, visibilityEnabled);
   }
 
   @Override
@@ -31,7 +32,7 @@ public class RedisDataIndexWriter implements RowWriter {
   public void write(final GeoWaveRow row) {
     for (final GeoWaveValue value : row.getFieldValues()) {
       // the data ID is mapped to the sort key
-      map.add(row.getDataId(), value.getValue());
+      map.add(row.getDataId(), value);
     }
   }
 

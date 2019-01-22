@@ -18,13 +18,10 @@ import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksIterator;
 import org.rocksdb.Slice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
 
 public class RocksDBIndexTable extends AbstractRocksDBTable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBIndexTable.class);
   private long prevTime = Long.MAX_VALUE;
   private final boolean requiresTimestamp;
   private final byte[] partition;
@@ -35,8 +32,9 @@ public class RocksDBIndexTable extends AbstractRocksDBTable {
       final String subDirectory,
       final short adapterId,
       final byte[] partition,
-      final boolean requiresTimestamp) {
-    super(writeOptions, readOptions, subDirectory, adapterId);
+      final boolean requiresTimestamp,
+      final boolean visibilityEnabled) {
+    super(writeOptions, readOptions, subDirectory, adapterId, visibilityEnabled);
     this.requiresTimestamp = requiresTimestamp;
     this.partition = partition;
   }
@@ -47,6 +45,22 @@ public class RocksDBIndexTable extends AbstractRocksDBTable {
       final short numDuplicates,
       final GeoWaveValue value) {
     byte[] key;
+    byte[] endBytes;
+    if (visibilityEnabled) {
+      endBytes =
+          Bytes.concat(
+              value.getVisibility(),
+              ByteArrayUtils.shortToByteArray(numDuplicates),
+              new byte[] {
+                  (byte) value.getVisibility().length,
+                  (byte) sortKey.length,
+                  (byte) value.getFieldMask().length});
+    } else {
+      endBytes =
+          Bytes.concat(
+              ByteArrayUtils.shortToByteArray(numDuplicates),
+              new byte[] {(byte) sortKey.length, (byte) value.getFieldMask().length});
+    }
     if (requiresTimestamp) {
       // sometimes rows can be written so quickly that they are the exact
       // same millisecond - while Java does offer nanosecond precision,
@@ -58,30 +72,9 @@ public class RocksDBIndexTable extends AbstractRocksDBTable {
         time = prevTime - 1;
       }
       prevTime = time;
-      key =
-          Bytes.concat(
-              sortKey,
-              dataId,
-              Longs.toByteArray(time),
-              value.getFieldMask(),
-              value.getVisibility(),
-              ByteArrayUtils.shortToByteArray(numDuplicates),
-              new byte[] {
-                  (byte) sortKey.length,
-                  (byte) value.getFieldMask().length,
-                  (byte) value.getVisibility().length});
+      key = Bytes.concat(sortKey, dataId, Longs.toByteArray(time), value.getFieldMask(), endBytes);
     } else {
-      key =
-          Bytes.concat(
-              sortKey,
-              dataId,
-              value.getFieldMask(),
-              value.getVisibility(),
-              ByteArrayUtils.shortToByteArray(numDuplicates),
-              new byte[] {
-                  (byte) sortKey.length,
-                  (byte) value.getFieldMask().length,
-                  (byte) value.getVisibility().length});
+      key = Bytes.concat(sortKey, dataId, value.getFieldMask(), endBytes);
     }
     put(key, value.getValue());
   }
@@ -95,7 +88,13 @@ public class RocksDBIndexTable extends AbstractRocksDBTable {
     final ReadOptions options = new ReadOptions().setFillCache(false);
     final RocksIterator it = readDb.newIterator(options);
     it.seekToFirst();
-    return new RocksDBRowIterator(options, it, adapterId, partition, requiresTimestamp);
+    return new RocksDBRowIterator(
+        options,
+        it,
+        adapterId,
+        partition,
+        requiresTimestamp,
+        visibilityEnabled);
   }
 
   public synchronized CloseableIterator<GeoWaveRow> iterator(final ByteArrayRange range) {
@@ -118,6 +117,12 @@ public class RocksDBIndexTable extends AbstractRocksDBTable {
       it.seek(range.getStart());
     }
 
-    return new RocksDBRowIterator(options, it, adapterId, partition, requiresTimestamp);
+    return new RocksDBRowIterator(
+        options,
+        it,
+        adapterId,
+        partition,
+        requiresTimestamp,
+        visibilityEnabled);
   }
 }

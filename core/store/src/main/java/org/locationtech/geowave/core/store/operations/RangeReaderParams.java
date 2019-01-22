@@ -20,11 +20,9 @@ public abstract class RangeReaderParams<T> extends BaseReaderParams<T> {
   private final short[] adapterIds;
   private final double[] maxResolutionSubsamplingPerDimension;
   private final boolean isMixedVisibility;
-  private final boolean isAuthorizationsLimiting;
   private final boolean isClientsideRowMerging;
   private final Integer limit;
   private final Integer maxRangeDecomposition;
-  private final String[] additionalAuthorizations;
 
   public RangeReaderParams(
       final Index index,
@@ -40,16 +38,20 @@ public abstract class RangeReaderParams<T> extends BaseReaderParams<T> {
       final Integer limit,
       final Integer maxRangeDecomposition,
       final String[] additionalAuthorizations) {
-    super(adapterStore, internalAdapterStore, aggregation, fieldSubsets);
+    super(
+        adapterStore,
+        internalAdapterStore,
+        aggregation,
+        fieldSubsets,
+        isAuthorizationsLimiting,
+        additionalAuthorizations);
     this.index = index;
     this.adapterIds = adapterIds;
     this.maxResolutionSubsamplingPerDimension = maxResolutionSubsamplingPerDimension;
     this.isMixedVisibility = isMixedVisibility;
-    this.isAuthorizationsLimiting = isAuthorizationsLimiting;
     this.isClientsideRowMerging = isClientsideRowMerging;
     this.limit = limit;
     this.maxRangeDecomposition = maxRangeDecomposition;
-    this.additionalAuthorizations = additionalAuthorizations;
   }
 
   public Index getIndex() {
@@ -64,10 +66,6 @@ public abstract class RangeReaderParams<T> extends BaseReaderParams<T> {
     return maxResolutionSubsamplingPerDimension;
   }
 
-  public boolean isAuthorizationsLimiting() {
-    return isAuthorizationsLimiting;
-  }
-
   public boolean isMixedVisibility() {
     return isMixedVisibility;
   }
@@ -78,10 +76,6 @@ public abstract class RangeReaderParams<T> extends BaseReaderParams<T> {
 
   public Integer getMaxRangeDecomposition() {
     return maxRangeDecomposition;
-  }
-
-  public String[] getAdditionalAuthorizations() {
-    return additionalAuthorizations;
   }
 
   public boolean isClientsideRowMerging() {

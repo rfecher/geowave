@@ -144,11 +144,12 @@ public class BaseDataStore implements DataStore {
   }
 
   private <T> Writer<T> createWriter(final InternalDataAdapter<T> adapter, final Index... indices) {
+    boolean secondaryIndex = baseOptions.isSecondaryIndexing() && DataIndexUtils.adapterSupportsDataIndex(adapter);
     final Writer<T>[] writers =
-        new Writer[baseOptions.isSecondaryIndexing() ? indices.length + 1 : indices.length];
+        new Writer[secondaryIndex ? indices.length + 1 : indices.length];
 
     int i = 0;
-    if (baseOptions.isSecondaryIndexing()) {
+    if (secondaryIndex) {
       final DataStoreCallbackManager callbackManager =
           new DataStoreCallbackManager(statisticsStore, true);
       final List<IngestCallback<T>> callbacks =
@@ -278,7 +279,7 @@ public class BaseDataStore implements DataStore {
     final List<DataStoreCallbackManager> deleteCallbacks = new ArrayList<>();
 
     final Map<Short, Set<ByteArray>> dataIdsToDelete;
-    if (delete && baseOptions.isSecondaryIndexing()) {
+    if (DeletionMode.DELETE_WITH_DUPLICATES.equals(deleteMode) && baseOptions.isSecondaryIndexing()) {
       dataIdsToDelete = new HashMap<>();
     } else {
       dataIdsToDelete = null;
@@ -458,10 +459,12 @@ public class BaseDataStore implements DataStore {
     for (final Entry<Short, Set<ByteArray>> entry : dataIdsToDelete.entrySet()) {
       final Short adapterId = entry.getKey();
       baseOperations.delete(
-          new DataIndexReaderParamsBuilder<>(adapterStore, internalAdapterStore).adapterId(
-              adapterId).dataIds(
-                  entry.getValue().stream().map(b -> b.getBytes()).toArray(
-                      i -> new byte[i][])).build());
+          new DataIndexReaderParamsBuilder<>(
+              adapterStore,
+              internalAdapterStore).additionalAuthorizations(
+                  authorizations).isAuthorizationsLimiting(false).adapterId(adapterId).dataIds(
+                      entry.getValue().stream().map(b -> b.getBytes()).toArray(
+                          i -> new byte[i][])).build());
     }
   }
 
@@ -653,6 +656,7 @@ public class BaseDataStore implements DataStore {
                 index,
                 sanitizedQueryOptions.getFieldIdsAdapterPair(),
                 sanitizedQueryOptions.getAggregation(),
+                sanitizedQueryOptions.getAuthorizations(),
                 baseOptions.getDataIndexBatchSize()),
             sanitizedQueryOptions.getAuthorizations());
 
@@ -701,6 +705,7 @@ public class BaseDataStore implements DataStore {
                 index,
                 sanitizedQueryOptions.getFieldIdsAdapterPair(),
                 sanitizedQueryOptions.getAggregation(),
+                sanitizedQueryOptions.getAuthorizations(),
                 baseOptions.getDataIndexBatchSize()),
             sanitizedQueryOptions.getAuthorizations());
 
@@ -752,6 +757,7 @@ public class BaseDataStore implements DataStore {
                 index,
                 sanitizedQueryOptions.getFieldIdsAdapterPair(),
                 sanitizedQueryOptions.getAggregation(),
+                sanitizedQueryOptions.getAuthorizations(),
                 baseOptions.getDataIndexBatchSize()),
             sanitizedQueryOptions.getAuthorizations());
     return q.query(

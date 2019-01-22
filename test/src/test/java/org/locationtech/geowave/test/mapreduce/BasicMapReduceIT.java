@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.test.mapreduce;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -71,6 +70,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.MAP_REDUCE})
@@ -141,7 +141,7 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
     return dataStorePluginOptions;
   }
 
-  @Test
+//  @Test
   public void testIngestAndQueryGeneralGpx() throws Exception {
     TestUtils.deleteAll(dataStorePluginOptions);
     MapReduceTestUtils.testMapReduceIngest(
@@ -306,7 +306,7 @@ public class BasicMapReduceIT extends AbstractGeoWaveIT {
     TestUtils.deleteAll(dataStorePluginOptions);
     MapReduceTestUtils.testMapReduceIngest(
         dataStorePluginOptions,
-        DimensionalityType.ALL,
+        dimensionalityType,
         "avro",
         TestUtils.TEMP_DIR
             + File.separator

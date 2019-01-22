@@ -11,6 +11,8 @@ public abstract class BaseReaderParamsBuilder<T, R extends BaseReaderParamsBuild
   protected final InternalAdapterStore internalAdapterStore;
   protected Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation = null;
   protected Pair<String[], InternalDataAdapter<?>> fieldSubsets = null;
+  protected boolean isAuthorizationsLimiting = true;
+  protected String[] additionalAuthorizations;
 
   public BaseReaderParamsBuilder(
       final PersistentAdapterStore adapterStore,
@@ -28,6 +30,16 @@ public abstract class BaseReaderParamsBuilder<T, R extends BaseReaderParamsBuild
 
   public R fieldSubsets(final Pair<String[], InternalDataAdapter<?>> fieldSubsets) {
     this.fieldSubsets = fieldSubsets;
+    return builder();
+  }
+
+  public R additionalAuthorizations(final String... authorizations) {
+    this.additionalAuthorizations = authorizations;
+    return builder();
+  }
+
+  public R isAuthorizationsLimiting(final boolean isAuthorizationsLimiting) {
+    this.isAuthorizationsLimiting = isAuthorizationsLimiting;
     return builder();
   }
 }

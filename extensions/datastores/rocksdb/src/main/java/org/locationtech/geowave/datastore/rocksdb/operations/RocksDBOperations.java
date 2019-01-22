@@ -42,15 +42,16 @@ import org.slf4j.LoggerFactory;
 public class RocksDBOperations implements MapReduceDataStoreOperations, Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBOperations.class);
   private static final boolean READER_ASYNC = true;
-  private final RocksDBOptions options;
   private final RocksDBClient client;
   private final String directory;
+  private final boolean visibilityEnabled;
 
   public RocksDBOperations(final RocksDBOptions options) {
     directory = options.getDirectory() + "/" + options.getGeoWaveNamespace();
+
+    visibilityEnabled = options.getStoreOptions().isVisibilityEnabled();
     // a factory method that returns a RocksDB instance
-    this.options = options;
-    client = RocksDBClientCache.getInstance().getClient(directory);
+    client = RocksDBClientCache.getInstance().getClient(directory, visibilityEnabled);
   }
 
   @Override
@@ -180,6 +181,6 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
 
   @Override
   public void close() {
-    RocksDBClientCache.getInstance().close(directory);
+    RocksDBClientCache.getInstance().close(directory, visibilityEnabled);
   }
 }

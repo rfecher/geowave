@@ -11,16 +11,22 @@ public abstract class BaseReaderParams<T> {
   private final InternalAdapterStore internalAdapterStore;
   private final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation;
   private final Pair<String[], InternalDataAdapter<?>> fieldSubsets;
+  private final boolean isAuthorizationsLimiting;
+  private final String[] additionalAuthorizations;
 
   public BaseReaderParams(
       final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
-      final Pair<String[], InternalDataAdapter<?>> fieldSubsets) {
+      final Pair<String[], InternalDataAdapter<?>> fieldSubsets,
+      final boolean isAuthorizationsLimiting,
+      final String[] additionalAuthorizations) {
     this.adapterStore = adapterStore;
     this.internalAdapterStore = internalAdapterStore;
     this.aggregation = aggregation;
     this.fieldSubsets = fieldSubsets;
+    this.isAuthorizationsLimiting = isAuthorizationsLimiting;
+    this.additionalAuthorizations = additionalAuthorizations;
   }
 
 
@@ -42,5 +48,13 @@ public abstract class BaseReaderParams<T> {
 
   public boolean isAggregation() {
     return ((aggregation != null) && (aggregation.getRight() != null));
+  }
+
+  public boolean isAuthorizationsLimiting() {
+    return isAuthorizationsLimiting;
+  }
+
+  public String[] getAdditionalAuthorizations() {
+    return additionalAuthorizations;
   }
 }

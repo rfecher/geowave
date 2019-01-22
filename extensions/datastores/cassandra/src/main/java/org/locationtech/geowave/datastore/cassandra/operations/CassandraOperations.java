@@ -184,7 +184,8 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
         session,
         preparedWrite,
         isDataIndex ? 1 : options.getBatchWriteSize(),
-        isDataIndex);
+        isDataIndex,
+        options.isVisibilityEnabled());
   }
 
   @Override
@@ -543,7 +544,9 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
     results.forEach(r -> {
       final byte[] d = r.getBytes(CassandraField.GW_PARTITION_ID_KEY.getFieldName()).array();
       final byte[] v = r.getBytes(CassandraField.GW_VALUE_KEY.getFieldName()).array();
-      resultsMap.put(new ByteArray(d), DataIndexUtils.getDataIndexRow(d, adapterId, v));
+      resultsMap.put(
+          new ByteArray(d),
+          DataIndexUtils.deserializeDataIndexRow(d, adapterId, v, options.isVisibilityEnabled()));
     });
     return Arrays.stream(dataIds).map(d -> resultsMap.get(new ByteArray(d))).iterator();
   }

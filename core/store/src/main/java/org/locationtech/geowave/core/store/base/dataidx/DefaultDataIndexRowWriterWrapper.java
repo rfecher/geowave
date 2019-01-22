@@ -42,8 +42,7 @@ public class DefaultDataIndexRowWriterWrapper implements RowWriter {
 
     @Override
     public GeoWaveValue[] getFieldValues() {
-      return Arrays.stream(row.getFieldValues()).map(v -> new GeoWaveValueWrapper(v)).toArray(
-          i -> new GeoWaveValue[i]);
+      return row.getFieldValues();
     }
 
     @Override
@@ -72,27 +71,5 @@ public class DefaultDataIndexRowWriterWrapper implements RowWriter {
       return row.getNumberOfDuplicates();
     }
 
-  }
-  private static class GeoWaveValueWrapper implements GeoWaveValue {
-    private final GeoWaveValue value;
-
-    public GeoWaveValueWrapper(final GeoWaveValue value) {
-      this.value = value;
-    }
-
-    @Override
-    public byte[] getFieldMask() {
-      return new byte[0];
-    }
-
-    @Override
-    public byte[] getVisibility() {
-      return new byte[0];
-    }
-
-    @Override
-    public byte[] getValue() {
-      return value.getValue();
-    }
   }
 }

@@ -190,6 +190,7 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
                 splitInfo.getIndex(),
                 sanitizedQueryOptions.getFieldIdsAdapterPair(),
                 sanitizedQueryOptions.getAggregation(),
+                sanitizedQueryOptions.getAuthorizations(),
                 dataIndexBatchSize);
 
         final List<Pair<RangeLocationPair, RowReader<GeoWaveRow>>> indexReaders =

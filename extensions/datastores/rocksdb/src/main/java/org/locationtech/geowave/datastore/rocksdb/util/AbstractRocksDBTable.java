@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 abstract public class AbstractRocksDBTable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBIndexTable.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRocksDBTable.class);
   private RocksDB writeDb;
   private RocksDB readDb;
   private final Options writeOptions;
@@ -18,18 +18,21 @@ abstract public class AbstractRocksDBTable {
   private boolean readerDirty = false;
   private boolean exists;
   protected final short adapterId;
+  protected boolean visibilityEnabled;
 
   public AbstractRocksDBTable(
       final Options writeOptions,
       final Options readOptions,
       final String subDirectory,
-      final short adapterId) {
+      final short adapterId,
+      final boolean visibilityEnabled) {
     super();
     this.writeOptions = writeOptions;
     this.readOptions = readOptions;
     this.subDirectory = subDirectory;
     this.adapterId = adapterId;
     exists = new File(subDirectory).exists();
+    this.visibilityEnabled = visibilityEnabled;
   }
 
   public synchronized void delete(final byte[] key) {

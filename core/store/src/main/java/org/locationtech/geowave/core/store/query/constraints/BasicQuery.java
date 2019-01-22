@@ -521,18 +521,17 @@ public class BasicQuery implements QueryConstraints {
   @Override
   public byte[] toBinary() {
     final List<byte[]> bytes = new ArrayList<>(constraints.constraintsSets.size());
-    int totalBytes = 4;
+    int totalBytes = 0;
     for (final ConstraintSet c : constraints.constraintsSets) {
       bytes.add(c.toBinary());
-      totalBytes += (bytes.get(bytes.size() - 1).length + 4);
+      final int length = bytes.get(bytes.size() - 1).length;
+      totalBytes += (length + VarintUtils.unsignedIntByteLength(length));
     }
 
-    // TODO; additionalConstraints
-
-    final ByteBuffer buf = ByteBuffer.allocate(totalBytes);
-    buf.putInt(bytes.size());
+    final ByteBuffer buf = ByteBuffer.allocate(totalBytes + VarintUtils.unsignedIntByteLength(bytes.size()));
+    VarintUtils.writeUnsignedInt(bytes.size(), buf);
     for (final byte[] entryBytes : bytes) {
-      buf.putInt(entryBytes.length);
+      VarintUtils.writeUnsignedInt(entryBytes.length, buf);
       buf.put(entryBytes);
     }
     return buf.array();
@@ -541,17 +540,16 @@ public class BasicQuery implements QueryConstraints {
   @Override
   public void fromBinary(final byte[] bytes) {
     final ByteBuffer buf = ByteBuffer.wrap(bytes);
-    final int numEntries = buf.getInt();
+    final int numEntries = VarintUtils.readUnsignedInt(buf);
     final List<ConstraintSet> sets = new LinkedList<>();
     for (int i = 0; i < numEntries; i++) {
-      final byte[] d = new byte[buf.getInt()];
+      final byte[] d = new byte[VarintUtils.readUnsignedInt(buf)];
       buf.get(d);
       final ConstraintSet cs = new ConstraintSet();
       cs.fromBinary(d);
       sets.add(cs);
     }
     constraints = new Constraints(sets);
-    // TODO; additionalConstraints
   }
 
   public boolean isExact() {

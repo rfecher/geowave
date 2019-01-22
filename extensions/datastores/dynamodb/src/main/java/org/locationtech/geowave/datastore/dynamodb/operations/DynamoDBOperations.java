@@ -190,6 +190,7 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
 
   @Override
   public RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
+    //TODO use authorizations if provided
     return new RowReaderWrapper<>(
         new CloseableIterator.Wrapper<>(
             getRowsFromDataIndex(readerParams.getDataIds(), readerParams.getAdapterId())));
@@ -237,7 +238,7 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
 
       resultMap.put(
           new ByteArray(dataId),
-          DataIndexUtils.getDataIndexRow(dataId, adapterId, value));
+          DataIndexUtils.deserializeDataIndexRow(dataId, adapterId, value, false));
     }));
     return result;
   }

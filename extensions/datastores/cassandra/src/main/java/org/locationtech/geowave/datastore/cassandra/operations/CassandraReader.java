@@ -64,7 +64,6 @@ public class CassandraReader<T> implements RowReader<T> {
   @SuppressWarnings("unchecked")
   private CloseableIterator<T> wrapResults(
       final CloseableIterator<CassandraRow> results,
-      final boolean rowMerging,
       final Set<String> authorizations) {
 
     final Iterator<GeoWaveRow> iterator =
@@ -105,7 +104,7 @@ public class CassandraReader<T> implements RowReader<T> {
                   }
                 }));
       }
-      iterator = wrapResults(results, readerParams.isClientsideRowMerging(), authorizations);
+      iterator = wrapResults(results, authorizations);
     }
   }
 

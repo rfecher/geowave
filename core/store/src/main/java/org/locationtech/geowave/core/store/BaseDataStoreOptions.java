@@ -21,7 +21,10 @@ public class BaseDataStoreOptions implements DataStoreOptions {
   protected boolean enableServerSideLibrary = true;
 
   @Parameter(names = "--enableSecondaryIndexing")
-  protected boolean enableSecondaryIndex = true;
+  protected boolean enableSecondaryIndex = false;
+
+  @Parameter(names = "--enableVisibility", arity = 1)
+  protected Boolean configuredEnableVisibility = null;
 
   @Parameter(names = "--dataIndexBatchSize")
   protected int configuredDataIndexBatchSize = Integer.MIN_VALUE;
@@ -46,6 +49,7 @@ public class BaseDataStoreOptions implements DataStoreOptions {
     return enableSecondaryIndex;
   }
 
+  @Override
   public void setSecondaryIndexing(final boolean enableSecondaryIndex) {
     this.enableSecondaryIndex = enableSecondaryIndex;
   }
@@ -78,6 +82,10 @@ public class BaseDataStoreOptions implements DataStoreOptions {
     return 2000;
   }
 
+  protected boolean defaultEnableVisibility() {
+    return true;
+  }
+
   public void setMaxRangeDecomposition(final int maxRangeDecomposition) {
     configuredMaxRangeDecomposition = maxRangeDecomposition;
   }
@@ -107,5 +115,15 @@ public class BaseDataStoreOptions implements DataStoreOptions {
 
   public void setAggregationMaxRangeDecomposition(final int aggregationMaxRangeDecomposition) {
     configuredAggregationMaxRangeDecomposition = aggregationMaxRangeDecomposition;
+  }
+
+  @Override
+  public boolean isVisibilityEnabled() {
+    return configuredEnableVisibility == null ? defaultEnableVisibility()
+        : configuredEnableVisibility;
+  }
+
+  public void setEnableVisibility(final boolean configuredEnableVisibility) {
+    this.configuredEnableVisibility = configuredEnableVisibility;
   }
 }

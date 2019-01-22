@@ -25,7 +25,8 @@ public class ClientVisibilityFilter implements Predicate<GeoWaveRow> {
   public ClientVisibilityFilter(Set<String> auths) {
     this.auths = auths;
   }
-
+  public static int accepted = 0;
+  public static int denied = 0;
   @Override
   public boolean apply(GeoWaveRow input) {
     String visibility = "";
@@ -33,6 +34,13 @@ public class ClientVisibilityFilter implements Predicate<GeoWaveRow> {
     if (fieldValues.length > 0 && fieldValues[0].getVisibility() != null) {
       visibility = StringUtils.stringFromBinary(input.getFieldValues()[0].getVisibility());
     }
-    return VisibilityExpression.evaluate(visibility, auths);
+    boolean retVal= VisibilityExpression.evaluate(visibility, auths);
+    if (retVal) {
+      accepted++;
+    }
+    else {
+      denied++;
+    }
+    return retVal;
   }
 }

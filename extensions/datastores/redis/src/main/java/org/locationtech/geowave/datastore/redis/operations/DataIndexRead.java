@@ -18,8 +18,9 @@ public class DataIndexRead {
       final String namespace,
       final String typeName,
       final short adapterId,
-      final byte[][] dataIds) {
-    map = RedisUtils.getDataIndexMap(client, compression, namespace, typeName);
+      final byte[][] dataIds,
+      final boolean visibilityEnabled) {
+    map = RedisUtils.getDataIndexMap(client, compression, namespace, typeName, visibilityEnabled);
     this.adapterId = adapterId;
     this.dataIds = dataIds;
   }

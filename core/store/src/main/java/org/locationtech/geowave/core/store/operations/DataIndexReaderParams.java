@@ -17,8 +17,16 @@ public class DataIndexReaderParams extends BaseReaderParams<GeoWaveRow> {
       final short adapterId,
       final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
       final Pair<String[], InternalDataAdapter<?>> fieldSubsets,
-      final byte[][] dataIds) {
-    super(adapterStore, internalAdapterStore, aggregation, fieldSubsets);
+      final byte[][] dataIds,
+      final boolean isAuthorizationsLimiting,
+      final String[] additionalAuthorizations) {
+    super(
+        adapterStore,
+        internalAdapterStore,
+        aggregation,
+        fieldSubsets,
+        isAuthorizationsLimiting,
+        additionalAuthorizations);
     this.dataIds = dataIds;
     this.adapterId = adapterId;
   }

@@ -20,12 +20,13 @@ public class RocksDBDataIndexTable extends AbstractRocksDBTable {
       final Options writeOptions,
       final Options readOptions,
       final String subDirectory,
-      final short adapterId) {
-    super(writeOptions, readOptions, subDirectory, adapterId);
+      final short adapterId,
+      final boolean visibilityEnabled) {
+    super(writeOptions, readOptions, subDirectory, adapterId, visibilityEnabled);
   }
 
   public synchronized void add(final byte[] dataId, final GeoWaveValue value) {
-    put(dataId, value.getValue());
+    put(dataId, DataIndexUtils.serializeDataIndexValue(value, visibilityEnabled));
   }
 
   public synchronized CloseableIterator<GeoWaveRow> dataIndexIterator(final byte[][] dataIds) {
@@ -38,10 +39,11 @@ public class RocksDBDataIndexTable extends AbstractRocksDBTable {
       final Map<byte[], byte[]> dataIdxResults = readDb.multiGet(dataIdsList);
       return new CloseableIterator.Wrapper(
           dataIdsList.stream().map(
-              dataId -> DataIndexUtils.getDataIndexRow(
+              dataId -> DataIndexUtils.deserializeDataIndexRow(
                   dataId,
                   adapterId,
-                  dataIdxResults.get(dataId))).iterator());
+                  dataIdxResults.get(dataId),
+                  visibilityEnabled)).iterator());
     } catch (final RocksDBException e) {
       LOGGER.error("Unable to get values by data ID", e);
     }

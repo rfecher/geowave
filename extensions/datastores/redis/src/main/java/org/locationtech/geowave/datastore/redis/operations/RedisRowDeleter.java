@@ -33,6 +33,7 @@ public class RedisRowDeleter implements RowDeleter {
   private final InternalAdapterStore internalAdapterStore;
   private final String indexName;
   private final String namespace;
+  private final boolean visibilityEnabled;
 
   public RedisRowDeleter(
       final RedissonClient client,
@@ -40,13 +41,15 @@ public class RedisRowDeleter implements RowDeleter {
       final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final String indexName,
-      final String namespace) {
+      final String namespace,
+      final boolean visibilityEnabled) {
     this.client = client;
     this.compression = compression;
     this.adapterStore = adapterStore;
     this.internalAdapterStore = internalAdapterStore;
     this.indexName = indexName;
     this.namespace = namespace;
+    this.visibilityEnabled = visibilityEnabled;
   }
 
   @Override
@@ -58,7 +61,8 @@ public class RedisRowDeleter implements RowDeleter {
         client,
         compression,
         setNameAndAdapterId.getLeft(),
-        RedisUtils.isSortByTime(adapterStore.getAdapter(setNameAndAdapterId.getRight())));
+        RedisUtils.isSortByTime(adapterStore.getAdapter(setNameAndAdapterId.getRight())),
+        visibilityEnabled);
   }
 
   @Override

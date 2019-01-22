@@ -52,6 +52,7 @@ public class RedisReader<T> implements RowReader<T> {
       final Compression compression,
       final ReaderParams<T> readerParams,
       final String namespace,
+      final boolean visibilityEnabled,
       final boolean async) {
     this.iterator =
         createIteratorForReader(
@@ -60,6 +61,7 @@ public class RedisReader<T> implements RowReader<T> {
             readerParams,
             readerParams.getRowTransformer(),
             namespace,
+            visibilityEnabled,
             false);
   }
 
@@ -67,23 +69,31 @@ public class RedisReader<T> implements RowReader<T> {
       final RedissonClient client,
       final Compression compression,
       final DataIndexReaderParams dataIndexReaderParams,
-      final String namespace) {
+      final String namespace,
+      final boolean visibilityEnabled) {
     this.iterator =
         new Wrapper(
             createIteratorForDataIndexReader(
                 client,
                 compression,
                 dataIndexReaderParams,
-                namespace));
+                namespace,
+                visibilityEnabled));
   }
 
   public RedisReader(
       final RedissonClient client,
       final Compression compression,
       final RecordReaderParams recordReaderParams,
-      final String namespace) {
+      final String namespace,
+      final boolean visibilityEnabled) {
     this.iterator =
-        createIteratorForRecordReader(client, compression, recordReaderParams, namespace);
+        createIteratorForRecordReader(
+            client,
+            compression,
+            recordReaderParams,
+            namespace,
+            visibilityEnabled);
   }
 
   private CloseableIterator<T> createIteratorForReader(
@@ -92,6 +102,7 @@ public class RedisReader<T> implements RowReader<T> {
       final ReaderParams<T> readerParams,
       final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final String namespace,
+      final boolean visibilityEnabled,
       final boolean async) {
     final Collection<SinglePartitionQueryRanges> ranges =
         readerParams.getQueryRanges().getPartitionQueryRanges();
@@ -106,6 +117,7 @@ public class RedisReader<T> implements RowReader<T> {
           namespace,
           ranges,
           authorizations,
+          visibilityEnabled,
           async);
     } else {
       final Iterator<GeoWaveRedisRow>[] iterators =
@@ -127,7 +139,8 @@ public class RedisReader<T> implements RowReader<T> {
                       compression,
                       setNamePrefix,
                       p.getBytes(),
-                      groupByRowAndSortByTime.getRight()).entryRange(
+                      groupByRowAndSortByTime.getRight(),
+                      visibilityEnabled).entryRange(
                           Double.NEGATIVE_INFINITY,
                           true,
                           Double.POSITIVE_INFINITY,
@@ -161,6 +174,7 @@ public class RedisReader<T> implements RowReader<T> {
       final String namespace,
       final Collection<SinglePartitionQueryRanges> ranges,
       final Set<String> authorizations,
+      final boolean visibilityEnabled,
       final boolean async) {
     final Iterator<CloseableIterator> it =
         Arrays.stream(ArrayUtils.toObject(readerParams.getAdapterIds())).map(
@@ -178,7 +192,8 @@ public class RedisReader<T> implements RowReader<T> {
                 readerParams.isClientsideRowMerging(),
                 async,
                 RedisUtils.isGroupByRowAndIsSortByTime(readerParams, adapterId),
-                RedisUtils.isSortByKeyRequired(readerParams)).results()).iterator();
+                RedisUtils.isSortByKeyRequired(readerParams),
+                visibilityEnabled).results()).iterator();
     final CloseableIterator<T>[] itArray = Iterators.toArray(it, CloseableIterator.class);
     return new CloseableIteratorWrapper<>(new Closeable() {
       AtomicBoolean closed = new AtomicBoolean(false);
@@ -196,7 +211,8 @@ public class RedisReader<T> implements RowReader<T> {
       final RedissonClient client,
       final Compression compression,
       final DataIndexReaderParams dataIndexReaderParams,
-      final String namespace) {
+      final String namespace,
+      final boolean visibilityEnabled) {
     return new DataIndexRead(
         client,
         compression,
@@ -204,14 +220,16 @@ public class RedisReader<T> implements RowReader<T> {
         dataIndexReaderParams.getInternalAdapterStore().getTypeName(
             dataIndexReaderParams.getAdapterId()),
         dataIndexReaderParams.getAdapterId(),
-        dataIndexReaderParams.getDataIds()).results();
+        dataIndexReaderParams.getDataIds(),
+        visibilityEnabled).results();
   }
 
   private CloseableIterator<T> createIteratorForRecordReader(
       final RedissonClient client,
       final Compression compression,
       final RecordReaderParams recordReaderParams,
-      final String namespace) {
+      final String namespace,
+      final boolean visibilityEnabled) {
     final GeoWaveRowRange range = recordReaderParams.getRowRange();
     final byte[] startKey = range.isInfiniteStartSortKey() ? null : range.getStartSortKey();
     final byte[] stopKey = range.isInfiniteStopSortKey() ? null : range.getEndSortKey();
@@ -229,6 +247,7 @@ public class RedisReader<T> implements RowReader<T> {
         namespace,
         Collections.singleton(partitionRange),
         authorizations,
+        visibilityEnabled,
         // there should already be sufficient parallelism created by
         // input splits for record reader use cases
         false);

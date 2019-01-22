@@ -514,13 +514,16 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
     return new ClientSideIteratorScanner(createScanner(tableName, additionalAuthorizations));
   }
 
-  public Iterator<GeoWaveRow> getDataIndexResults(final byte[][] rows, final short adapterId) {
+  public Iterator<GeoWaveRow> getDataIndexResults(
+      final byte[][] rows,
+      final short adapterId,
+      final String... additionalAuthorizations) {
     if ((rows == null) || (rows.length == 0)) {
       return Collections.emptyIterator();
     }
     final byte[] family = StringUtils.stringToBinary(ByteArrayUtils.shortToString(adapterId));
     try (final BatchScanner batchScanner =
-        createBatchScanner(DataIndexUtils.DATA_ID_INDEX.getName())) {
+        createBatchScanner(DataIndexUtils.DATA_ID_INDEX.getName(), additionalAuthorizations)) {
       batchScanner.setRanges(
           Arrays.stream(rows).map(r -> Range.exact(new Text(r))).collect(Collectors.toList()));
       batchScanner.fetchColumnFamily(new Text(family));
@@ -530,10 +533,11 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
               new ByteArray(entry.getKey().getRow().getBytes()),
               entry.getValue().get()));
       return Arrays.stream(rows).map(
-          r -> DataIndexUtils.getDataIndexRow(
+          r -> DataIndexUtils.deserializeDataIndexRow(
               r,
               adapterId,
-              results.get(new ByteArray(r)))).iterator();
+              results.get(new ByteArray(r)),
+              false)).iterator();
     } catch (final TableNotFoundException e) {
       LOGGER.error("unable to find data index table", e);
     }
@@ -554,7 +558,11 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   @Override
   public RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
     return new RowReaderWrapper<>(
-        new Wrapper<>(getDataIndexResults(readerParams.getDataIds(), readerParams.getAdapterId())));
+        new Wrapper<>(
+            getDataIndexResults(
+                readerParams.getDataIds(),
+                readerParams.getAdapterId(),
+                readerParams.getAdditionalAuthorizations())));
   }
 
   public Scanner createScanner(final String tableName, final String... additionalAuthorizations)
@@ -1600,8 +1608,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   public void deleteRowsFromDataIndex(final byte[][] rows, final short adapterId) {
-    try {
-      final BatchDeleter deleter = createBatchDeleter(DataIndexUtils.DATA_ID_INDEX.getName());
+    try (final BatchDeleter deleter = createBatchDeleter(DataIndexUtils.DATA_ID_INDEX.getName())) {
       deleter.fetchColumnFamily(new Text(ByteArrayUtils.shortToString(adapterId)));
       deleter.setRanges(
           Arrays.stream(rows).map(r -> Range.exact(new Text(r))).collect(Collectors.toList()));

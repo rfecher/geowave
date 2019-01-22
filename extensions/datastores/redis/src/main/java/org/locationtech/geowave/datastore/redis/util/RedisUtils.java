@@ -46,15 +46,19 @@ public class RedisUtils {
       final RedissonClient client,
       final Compression compression,
       final String namespace,
-      final MetadataType metadataType) {
+      final MetadataType metadataType,
+      final boolean visibilityEnabled) {
     // stats also store a timestamp because stats can be the exact same but
     // need to still be unique (consider multiple count statistics that are
     // exactly the same count, but need to be merged)
     return client.getScoredSortedSet(
         namespace + "_" + metadataType.toString(),
         compression.getCodec(
-            MetadataType.STATS.equals(metadataType) ? GeoWaveMetadataWithTimestampCodec.SINGLETON
-                : GeoWaveMetadataCodec.SINGLETON));
+            MetadataType.STATS.equals(metadataType)
+                ? visibilityEnabled ? GeoWaveMetadataWithTimestampCodec.SINGLETON_WITH_VISIBILITY
+                    : GeoWaveMetadataWithTimestampCodec.SINGLETON_WITHOUT_VISIBILITY
+                : visibilityEnabled ? GeoWaveMetadataCodec.SINGLETON_WITH_VISIBILITY
+                    : GeoWaveMetadataCodec.SINGLETON_WITHOUT_VISIBILITY));
   }
 
   public static String getRowSetPrefix(
@@ -69,12 +73,14 @@ public class RedisUtils {
       final Compression compression,
       final String setNamePrefix,
       final byte[] partitionKey,
-      final boolean requiresTimestamp) {
+      final boolean requiresTimestamp,
+      final boolean visibilityEnabled) {
     return getRowSet(
         client,
         compression,
         getRowSetName(setNamePrefix, partitionKey),
-        requiresTimestamp);
+        requiresTimestamp,
+        visibilityEnabled);
   }
 
   public static String getRowSetName(
@@ -99,24 +105,30 @@ public class RedisUtils {
       final RedissonClient client,
       final Compression compression,
       final String namespace,
-      final String typeName) {
+      final String typeName,
+      final boolean visibilityEnabled) {
     return new RedisMapWrapper(
         client,
         getRowSetPrefix(namespace, typeName, DataIndexUtils.DATA_ID_INDEX.getName()),
-        compression.getCodec(DEFAULT_CODEC));
+        compression.getCodec(DEFAULT_CODEC),
+        visibilityEnabled);
   }
 
   public static RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getRowSet(
       final RedissonClient client,
       final Compression compression,
       final String setName,
-      final boolean requiresTimestamp) {
+      final boolean requiresTimestamp,
+      final boolean visibilityEnabled) {
     return new RedisScoredSetWrapper<>(
         client,
         setName,
         compression.getCodec(
-            requiresTimestamp ? GeoWaveRedisRowWithTimestampCodec.SINGLETON
-                : GeoWaveRedisRowCodec.SINGLETON));
+            requiresTimestamp
+                ? visibilityEnabled ? GeoWaveRedisRowWithTimestampCodec.SINGLETON_WITH_VISIBILITY
+                    : GeoWaveRedisRowWithTimestampCodec.SINGLETON_WITH_VISIBILITY
+                : visibilityEnabled ? GeoWaveRedisRowCodec.SINGLETON_WITH_VISIBILITY
+                    : GeoWaveRedisRowCodec.SINGLETON_WITHOUT_VISIBILITY));
   }
 
   public static RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getRowSet(
@@ -126,13 +138,15 @@ public class RedisUtils {
       final String typeName,
       final String indexName,
       final byte[] partitionKey,
-      final boolean requiresTimestamp) {
+      final boolean requiresTimestamp,
+      final boolean visibilityEnabled) {
     return getRowSet(
         client,
         compression,
         getRowSetPrefix(namespace, typeName, indexName),
         partitionKey,
-        requiresTimestamp);
+        requiresTimestamp,
+        visibilityEnabled);
   }
 
   public static double getScore(final byte[] byteArray) {

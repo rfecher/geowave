@@ -33,6 +33,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.StringUtils;
+import org.locationtech.geowave.core.index.VarintUtils;
 import org.locationtech.geowave.core.store.AdapterToIndexMapping;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIterator.Wrapper;
@@ -84,7 +85,14 @@ public class BaseDataStoreUtils {
       final InternalDataAdapter<T> adapter,
       final Index index,
       final VisibilityWriter<T> customFieldVisibilityWriter) {
-    return getWriteInfo(entry, adapter, index, customFieldVisibilityWriter, false, false).getRows();
+    return getWriteInfo(
+        entry,
+        adapter,
+        index,
+        customFieldVisibilityWriter,
+        false,
+        false,
+        true).getRows();
   }
 
   public static CloseableIterator<Object> aggregate(
@@ -158,7 +166,7 @@ public class BaseDataStoreUtils {
         fieldSubsetBitmask,
         clientFilters,
         scanCallback,
-        dataIndexRetrieval);
+        decodePackage.adapterSupportsDataIndex() ? dataIndexRetrieval : null);
   }
 
   /**
@@ -218,7 +226,11 @@ public class BaseDataStoreUtils {
     final BiFunction<IndexedAdapterPersistenceEncoding, Integer, Object> function =
         ((r, initialFilter) -> {
           final int i =
-              clientFilterProgress(clientFilters, decodePackage.getIndex().getIndexModel(), r);
+              clientFilterProgress(
+                  clientFilters,
+                  decodePackage.getIndex().getIndexModel(),
+                  r,
+                  initialFilter);
           if (i < 0) {
             if (!decodePackage.isDecodeRow()) {
               return r;
@@ -271,11 +283,12 @@ public class BaseDataStoreUtils {
   private static int clientFilterProgress(
       final QueryFilter[] clientFilters,
       final CommonIndexModel indexModel,
-      final IndexedAdapterPersistenceEncoding encodedRow) {
-    if (clientFilters == null) {
+      final IndexedAdapterPersistenceEncoding encodedRow,
+      final int initialFilter) {
+    if ((clientFilters == null) || (initialFilter < 0)) {
       return -1;
     }
-    for (int i = 0; i < clientFilters.length; i++) {
+    for (int i = initialFilter; i < clientFilters.length; i++) {
       if (!clientFilters[i].accept(indexModel, encodedRow)) {
         return i;
       }
@@ -289,7 +302,8 @@ public class BaseDataStoreUtils {
       final Index index,
       final VisibilityWriter<T> customFieldVisibilityWriter,
       final boolean secondaryIndex,
-      final boolean dataIdIndex) {
+      final boolean dataIdIndex,
+      final boolean visibilityEnabled) {
     final CommonIndexModel indexModel = index.getIndexModel();
     final AdapterPersistenceEncoding encodedData = adapter.encode(entry, indexModel);
     final InsertionIds insertionIds = dataIdIndex ? null : encodedData.getInsertionIds(index);
@@ -298,17 +312,19 @@ public class BaseDataStoreUtils {
 
     final byte[] dataId = adapter.getDataId(entry);
     if (dataIdIndex || !insertionIds.isEmpty()) {
-      if (secondaryIndex && !dataIdIndex) {
+      if (secondaryIndex && DataIndexUtils.adapterSupportsDataIndex(adapter) && !dataIdIndex) {
         byte[] indexModelVisibility = new byte[0];
-        for (final Entry<String, CommonIndexValue> fieldValue : encodedData.getCommonData().getValues().entrySet()) {
-          indexModelVisibility =
-              DataStoreUtils.mergeVisibilities(
-                  indexModelVisibility,
-                  customFieldVisibilityWriter.getFieldVisibilityHandler(
-                      fieldValue.getKey()).getVisibility(
-                          entry,
-                          fieldValue.getKey(),
-                          fieldValue.getValue()));
+        if (visibilityEnabled) {
+          for (final Entry<String, CommonIndexValue> fieldValue : encodedData.getCommonData().getValues().entrySet()) {
+            indexModelVisibility =
+                DataStoreUtils.mergeVisibilities(
+                    indexModelVisibility,
+                    customFieldVisibilityWriter.getFieldVisibilityHandler(
+                        fieldValue.getKey()).getVisibility(
+                            entry,
+                            fieldValue.getKey(),
+                            fieldValue.getValue()));
+          }
         }
         return new IntermediaryWriteEntryInfo(
             dataId,
@@ -325,7 +341,8 @@ public class BaseDataStoreUtils {
                   fieldValue.getKey(),
                   fieldValue.getValue(),
                   entry,
-                  customFieldVisibilityWriter);
+                  customFieldVisibilityWriter,
+                  visibilityEnabled);
           if (fieldInfo != null) {
             fieldInfoList.add(fieldInfo);
           }
@@ -338,7 +355,8 @@ public class BaseDataStoreUtils {
                     fieldValue.getKey(),
                     fieldValue.getValue(),
                     entry,
-                    customFieldVisibilityWriter);
+                    customFieldVisibilityWriter,
+                    visibilityEnabled);
             if (fieldInfo != null) {
               fieldInfoList.add(fieldInfo);
             }
@@ -464,8 +482,11 @@ public class BaseDataStoreUtils {
     final List<byte[]> fieldInfoBytesList = new ArrayList<>(fieldInfoList.size());
     for (final Pair<Integer, FieldInfo<?>> fieldInfoPair : fieldInfoList) {
       final FieldInfo<?> fieldInfo = fieldInfoPair.getRight();
-      final ByteBuffer fieldInfoBytes = ByteBuffer.allocate(4 + fieldInfo.getWrittenValue().length);
-      fieldInfoBytes.putInt(fieldInfo.getWrittenValue().length);
+      final ByteBuffer fieldInfoBytes =
+          ByteBuffer.allocate(
+              VarintUtils.unsignedIntByteLength(fieldInfo.getWrittenValue().length)
+                  + fieldInfo.getWrittenValue().length);
+      VarintUtils.writeUnsignedInt(fieldInfo.getWrittenValue().length, fieldInfoBytes);
       fieldInfoBytes.put(fieldInfo.getWrittenValue());
       fieldInfoBytesList.add(fieldInfoBytes.array());
       totalLength += fieldInfoBytes.array().length;
@@ -482,7 +503,8 @@ public class BaseDataStoreUtils {
       final String fieldName,
       final Object fieldValue,
       final T entry,
-      final VisibilityWriter<T> customFieldVisibilityWriter) {
+      final VisibilityWriter<T> customFieldVisibilityWriter,
+      final boolean visibilityEnabled) {
     final FieldWriter fieldWriter = dataWriter.getWriter(fieldName);
     final FieldVisibilityHandler<T, Object> customVisibilityHandler =
         customFieldVisibilityWriter.getFieldVisibilityHandler(fieldName);
@@ -490,9 +512,11 @@ public class BaseDataStoreUtils {
       return new FieldInfo(
           fieldName,
           fieldWriter.writeField(fieldValue),
-          DataStoreUtils.mergeVisibilities(
-              customVisibilityHandler.getVisibility(entry, fieldName, fieldValue),
-              fieldWriter.getVisibility(entry, fieldName, fieldValue)));
+          visibilityEnabled
+              ? DataStoreUtils.mergeVisibilities(
+                  customVisibilityHandler.getVisibility(entry, fieldName, fieldValue),
+                  fieldWriter.getVisibility(entry, fieldName, fieldValue))
+              : new byte[0]);
     } else if (fieldValue != null) {
       LOGGER.warn(
           "Data writer of class "
@@ -601,19 +625,26 @@ public class BaseDataStoreUtils {
     return combineByIndex(result);
   }
 
+  public static boolean isRowMerging(final DataTypeAdapter<?> adapter) {
+    if (adapter instanceof InternalDataAdapter) {
+      return isRowMerging(((InternalDataAdapter) adapter).getAdapter());
+    }
+    return adapter instanceof RowMergingDataAdapter;
+  }
+
   public static boolean isRowMerging(
       final PersistentAdapterStore adapterStore,
       final short[] adapterIds) {
     if (adapterIds != null) {
       for (final short adapterId : adapterIds) {
-        if (adapterStore.getAdapter(adapterId).getAdapter() instanceof RowMergingDataAdapter) {
+        if (isRowMerging(adapterStore.getAdapter(adapterId).getAdapter())) {
           return true;
         }
       }
     } else {
       try (CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters()) {
         while (it.hasNext()) {
-          if (it.next().getAdapter() instanceof RowMergingDataAdapter) {
+          if (isRowMerging(it.next().getAdapter())) {
             return true;
           }
         }

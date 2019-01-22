@@ -9,6 +9,7 @@
 package org.locationtech.geowave.datastore.redis.operations;
 
 import java.io.IOException;
+import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
@@ -98,7 +99,8 @@ public class RedisOperations implements MapReduceDataStoreOperations {
         gwNamespace,
         adapter.getTypeName(),
         index.getName(),
-        RedisUtils.isSortByTime(adapter));
+        RedisUtils.isSortByTime(adapter),
+        options.getStoreOptions().isVisibilityEnabled());
   }
 
   @Override
@@ -107,27 +109,43 @@ public class RedisOperations implements MapReduceDataStoreOperations {
         client,
         options.getCompression(),
         gwNamespace,
-        adapter.getTypeName());
+        adapter.getTypeName(),
+        options.getStoreOptions().isVisibilityEnabled());
   }
 
   @Override
   public MetadataWriter createMetadataWriter(final MetadataType metadataType) {
     return new RedisMetadataWriter(
-        RedisUtils.getMetadataSet(client, options.getCompression(), gwNamespace, metadataType),
+        RedisUtils.getMetadataSet(
+            client,
+            options.getCompression(),
+            gwNamespace,
+            metadataType,
+            options.getStoreOptions().isVisibilityEnabled()),
         MetadataType.STATS.equals(metadataType));
   }
 
   @Override
   public MetadataReader createMetadataReader(final MetadataType metadataType) {
     return new RedisMetadataReader(
-        RedisUtils.getMetadataSet(client, options.getCompression(), gwNamespace, metadataType),
+        RedisUtils.getMetadataSet(
+            client,
+            options.getCompression(),
+            gwNamespace,
+            metadataType,
+            options.getStoreOptions().isVisibilityEnabled()),
         metadataType);
   }
 
   @Override
   public MetadataDeleter createMetadataDeleter(final MetadataType metadataType) {
     return new RedisMetadataDeleter(
-        RedisUtils.getMetadataSet(client, options.getCompression(), gwNamespace, metadataType),
+        RedisUtils.getMetadataSet(
+            client,
+            options.getCompression(),
+            gwNamespace,
+            metadataType,
+            options.getStoreOptions().isVisibilityEnabled()),
         metadataType);
   }
 
@@ -138,6 +156,7 @@ public class RedisOperations implements MapReduceDataStoreOperations {
         options.getCompression(),
         readerParams,
         gwNamespace,
+        options.getStoreOptions().isVisibilityEnabled(),
         READER_ASYNC);
   }
 
@@ -151,12 +170,23 @@ public class RedisOperations implements MapReduceDataStoreOperations {
             readerParams.getAdditionalAuthorizations()),
         // intentionally don't run this reader as async because it does
         // not work well while simultaneously deleting rows
-        new RedisReader<>(client, options.getCompression(), readerParams, gwNamespace, false));
+        new RedisReader<>(
+            client,
+            options.getCompression(),
+            readerParams,
+            gwNamespace,
+            options.getStoreOptions().isVisibilityEnabled(),
+            false));
   }
 
   @Override
-  public  RowReader<GeoWaveRow> createReader(final RecordReaderParams readerParams) {
-    return new RedisReader<>(client, options.getCompression(), readerParams, gwNamespace);
+  public RowReader<GeoWaveRow> createReader(final RecordReaderParams readerParams) {
+    return new RedisReader<>(
+        client,
+        options.getCompression(),
+        readerParams,
+        gwNamespace,
+        options.getStoreOptions().isVisibilityEnabled());
   }
 
   @Override
@@ -171,12 +201,18 @@ public class RedisOperations implements MapReduceDataStoreOperations {
         adapterStore,
         internalAdapterStore,
         indexName,
-        gwNamespace);
+        gwNamespace,
+        options.getStoreOptions().isVisibilityEnabled());
   }
 
   @Override
   public RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
-    return new RedisReader<>(client, options.getCompression(), readerParams, gwNamespace);
+    return new RedisReader<>(
+        client,
+        options.getCompression(),
+        readerParams,
+        gwNamespace,
+        options.getStoreOptions().isVisibilityEnabled());
   }
 
   @Override
@@ -191,7 +227,12 @@ public class RedisOperations implements MapReduceDataStoreOperations {
       final short adapterId,
       final String typeName) {
     final RedisMapWrapper map =
-        RedisUtils.getDataIndexMap(client, options.getCompression(), gwNamespace, typeName);
+        RedisUtils.getDataIndexMap(
+            client,
+            options.getCompression(),
+            gwNamespace,
+            typeName,
+            options.getStoreOptions().isVisibilityEnabled());
     map.remove(dataIds);
   }
 }

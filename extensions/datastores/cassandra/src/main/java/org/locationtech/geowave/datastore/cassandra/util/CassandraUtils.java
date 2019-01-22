@@ -9,6 +9,7 @@
 package org.locationtech.geowave.datastore.cassandra.util;
 
 import java.nio.ByteBuffer;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
 import org.locationtech.geowave.datastore.cassandra.CassandraRow.CassandraField;
@@ -24,14 +25,16 @@ public class CassandraUtils {
   public static BoundStatement[] bindInsertion(
       final PreparedStatement insertionStatement,
       final GeoWaveRow row,
-      final boolean isDataIndex) {
-    return isDataIndex ? bindDataIndexInsertion(insertionStatement, row)
+      final boolean isDataIndex,
+      final boolean visibilityEnabled) {
+    return isDataIndex ? bindDataIndexInsertion(insertionStatement, row, visibilityEnabled)
         : bindInsertion(insertionStatement, row);
   }
 
   public static BoundStatement[] bindDataIndexInsertion(
       final PreparedStatement insertionStatement,
-      final GeoWaveRow row) {
+      final GeoWaveRow row,
+      final boolean visibilityEnabled) {
     // the data ID becomes the partition key and the only other fields are the value and adapter ID
     byte[] partitionKey = row.getDataId();
     if ((partitionKey == null) || (partitionKey.length == 0)) {
@@ -53,7 +56,7 @@ public class CassandraUtils {
           Short.class);
       retVal[i].set(
           CassandraField.GW_VALUE_KEY.getBindMarkerName(),
-          ByteBuffer.wrap(value.getValue()),
+          ByteBuffer.wrap(DataIndexUtils.serializeDataIndexValue(value, visibilityEnabled)),
           ByteBuffer.class);
       i++;
     }

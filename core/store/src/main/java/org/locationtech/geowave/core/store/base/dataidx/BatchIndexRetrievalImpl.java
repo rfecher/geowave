@@ -33,6 +33,7 @@ public class BatchIndexRetrievalImpl implements BatchDataIndexRetrieval {
   private final InternalAdapterStore internalAdapterStore;
   private final Pair<String[], InternalDataAdapter<?>> fieldSubsets;
   private final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation;
+  private final String[] additionalAuthorizations;
   private final AtomicInteger outstandingIterators = new AtomicInteger(0);
 
   public BatchIndexRetrievalImpl(
@@ -41,12 +42,14 @@ public class BatchIndexRetrievalImpl implements BatchDataIndexRetrieval {
       final InternalAdapterStore internalAdapterStore,
       final Pair<String[], InternalDataAdapter<?>> fieldSubsets,
       final Pair<InternalDataAdapter<?>, Aggregation<?, ?, ?>> aggregation,
+      final String[] additionalAuthorizations,
       final int batchSize) {
     this.operations = operations;
     this.adapterStore = adapterStore;
     this.internalAdapterStore = internalAdapterStore;
     this.fieldSubsets = fieldSubsets;
     this.aggregation = aggregation;
+    this.additionalAuthorizations = additionalAuthorizations;
     this.batchSize = batchSize;
   }
 
@@ -68,6 +71,7 @@ public class BatchIndexRetrievalImpl implements BatchDataIndexRetrieval {
             internalAdapterStore,
             fieldSubsets,
             aggregation,
+            additionalAuthorizations,
             adapterId,
             dataIds);
     return new CloseableIteratorWrapper<>(

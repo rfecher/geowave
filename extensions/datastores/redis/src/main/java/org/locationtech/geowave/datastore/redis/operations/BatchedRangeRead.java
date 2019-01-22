@@ -106,6 +106,7 @@ public class BatchedRangeRead<T> {
   private final boolean isSortFinalResultsBySortKey;
   private final Compression compression;
   private final boolean rowMerging;
+  private final boolean visibilityEnabled;
 
   protected BatchedRangeRead(
       final RedissonClient client,
@@ -118,7 +119,8 @@ public class BatchedRangeRead<T> {
       final boolean rowMerging,
       final boolean async,
       final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
-      final boolean isSortFinalResultsBySortKey) {
+      final boolean isSortFinalResultsBySortKey,
+      final boolean visibilityEnabled) {
     this.client = client;
     this.compression = compression;
     this.setNamePrefix = setNamePrefix;
@@ -131,6 +133,7 @@ public class BatchedRangeRead<T> {
     this.async = async && !isSortFinalResultsBySortKey;
     this.groupByRowAndSortByTimePair = groupByRowAndSortByTimePair;
     this.isSortFinalResultsBySortKey = isSortFinalResultsBySortKey;
+    this.visibilityEnabled = visibilityEnabled;
   }
 
   private RedisScoredSetWrapper<GeoWaveRedisPersistedRow> getSet(final byte[] partitionKey) {
@@ -139,7 +142,8 @@ public class BatchedRangeRead<T> {
         compression,
         setNamePrefix,
         partitionKey,
-        groupByRowAndSortByTimePair.getRight());
+        groupByRowAndSortByTimePair.getRight(),
+        visibilityEnabled);
   }
 
   public CloseableIterator<T> results() {

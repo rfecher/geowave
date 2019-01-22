@@ -40,6 +40,8 @@ public class DataIndexReaderParamsBuilder<T>
         adapterId,
         aggregation,
         fieldSubsets,
-        dataIds);
+        dataIds,
+        isAuthorizationsLimiting,
+        additionalAuthorizations);
   }
 }

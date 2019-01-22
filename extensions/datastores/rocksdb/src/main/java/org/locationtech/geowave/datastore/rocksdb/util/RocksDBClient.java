@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
+import org.rocksdb.RocksDBException;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
@@ -148,39 +149,50 @@ public class RocksDBClient implements Closeable {
 
   private final Cache<String, CacheKey> keyCache = Caffeine.newBuilder().build();
   private final LoadingCache<IndexCacheKey, RocksDBIndexTable> indexTableCache =
-      Caffeine.newBuilder().build(key -> {
-        return new RocksDBIndexTable(
-            indexWriteOptions,
-            indexReadOptions,
-            key.directory,
-            key.adapterId,
-            key.partition,
-            key.requiresTimestamp);
-      });
+      Caffeine.newBuilder().build(key -> loadIndexTable(key));
 
   private final LoadingCache<DataIndexCacheKey, RocksDBDataIndexTable> dataIndexTableCache =
-      Caffeine.newBuilder().build(key -> {
-        return new RocksDBDataIndexTable(
-            indexWriteOptions,
-            indexReadOptions,
-            key.directory,
-            key.adapterId);
-      });
+      Caffeine.newBuilder().build(key -> loadDataIndexTable(key));
   private final LoadingCache<CacheKey, RocksDBMetadataTable> metadataTableCache =
-      Caffeine.newBuilder().build(key -> {
-        new File(key.directory).mkdirs();
-        return new RocksDBMetadataTable(
-            RocksDB.open(metadataOptions, key.directory),
-            key.requiresTimestamp);
-      });
+      Caffeine.newBuilder().build(key -> loadMetadataTable(key));
   private final String subDirectory;
+  private final boolean visibilityEnabled;
 
   protected static Options indexWriteOptions = null;
   protected static Options indexReadOptions = null;
   protected static Options metadataOptions = null;
 
-  public RocksDBClient(final String subDirectory) {
+  public RocksDBClient(final String subDirectory, final boolean visibilityEnabled) {
     this.subDirectory = subDirectory;
+    this.visibilityEnabled = visibilityEnabled;
+  }
+
+  private RocksDBMetadataTable loadMetadataTable(final CacheKey key) throws RocksDBException {
+    new File(key.directory).mkdirs();
+    return new RocksDBMetadataTable(
+        RocksDB.open(metadataOptions, key.directory),
+        key.requiresTimestamp,
+        visibilityEnabled);
+  }
+
+  private RocksDBIndexTable loadIndexTable(final IndexCacheKey key) {
+    return new RocksDBIndexTable(
+        indexWriteOptions,
+        indexReadOptions,
+        key.directory,
+        key.adapterId,
+        key.partition,
+        key.requiresTimestamp,
+        visibilityEnabled);
+  }
+
+  private RocksDBDataIndexTable loadDataIndexTable(final DataIndexCacheKey key) {
+    return new RocksDBDataIndexTable(
+        indexWriteOptions,
+        indexReadOptions,
+        key.directory,
+        key.adapterId,
+        visibilityEnabled);
   }
 
   public String getSubDirectory() {
