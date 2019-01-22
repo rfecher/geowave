@@ -282,6 +282,10 @@ public class RocksDBClient implements Closeable {
     }
   }
 
+  public boolean isVisibilityEnabled() {
+    return visibilityEnabled;
+  }
+
   @Override
   public void close() {
     keyCache.invalidateAll();

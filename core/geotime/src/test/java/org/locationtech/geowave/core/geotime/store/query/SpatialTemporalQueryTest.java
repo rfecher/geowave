@@ -36,8 +36,8 @@ public class SpatialTemporalQueryTest {
   @Test
   public void test() throws ParseException {
     final GeometryFactory factory = new GeometryFactory();
-    final SpatialTemporalQuery query =
-        new SpatialTemporalQuery(
+    final ExplicitSpatialTemporalQuery query =
+        new ExplicitSpatialTemporalQuery(
             df.parse("2005-05-17T19:32:56GMT-00:00"),
             df.parse("2005-05-17T22:32:56GMT-00:00"),
             factory.createPolygon(
@@ -47,7 +47,7 @@ public class SpatialTemporalQueryTest {
                     new Coordinate(28, 31),
                     new Coordinate(24, 31),
                     new Coordinate(24, 33)}));
-    final SpatialTemporalQuery queryCopy = new SpatialTemporalQuery();
+    final ExplicitSpatialTemporalQuery queryCopy = new ExplicitSpatialTemporalQuery();
     queryCopy.fromBinary(query.toBinary());
     assertEquals(queryCopy.getQueryGeometry(), query.getQueryGeometry());
   }
@@ -79,8 +79,8 @@ public class SpatialTemporalQueryTest {
   public void performOp(final CompareOperation op, final boolean[] expectedResults)
       throws ParseException {
     final GeometryFactory factory = new GeometryFactory();
-    final SpatialTemporalQuery query =
-        new SpatialTemporalQuery(
+    final ExplicitSpatialTemporalQuery query =
+        new ExplicitSpatialTemporalQuery(
             df.parse("2005-05-17T19:32:56GMT-00:00"),
             df.parse("2005-05-17T22:32:56GMT-00:00"),
             factory.createPolygon(
@@ -91,7 +91,7 @@ public class SpatialTemporalQueryTest {
                     new Coordinate(24, 37),
                     new Coordinate(24, 33)}),
             op);
-    final SpatialQuery queryCopy = new SpatialQuery();
+    final ExplicitSpatialQuery queryCopy = new ExplicitSpatialQuery();
     queryCopy.fromBinary(query.toBinary());
 
     final CommonIndexedPersistenceEncoding[] data =

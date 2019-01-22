@@ -31,8 +31,6 @@ public class GeoWaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
   private static final Logger LOGGER =
       LoggerFactory.getLogger(GeoWaveCustomCRSSpatialVectorIT.class);
 
-  private static final String CQL_DELETE_STR = "STATE = 'TX'";
-
   @GeoWaveTestStore(
       value = {
           GeoWaveStoreType.ACCUMULO,
@@ -147,9 +145,9 @@ public class GeoWaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
           new URL[] {
               new File(HAIL_SHAPEFILE_FILE).toURI().toURL(),
               new File(TORNADO_TRACKS_SHAPEFILE_FILE).toURI().toURL()},
-          TestUtils.createWebMercatorSpatialIndex(),
           false,
-          CRS.decode(TestUtils.CUSTOM_CRSCODE));
+          CRS.decode(TestUtils.CUSTOM_CRSCODE),
+          TestUtils.createWebMercatorSpatialIndex());
     } catch (final Exception e) {
       e.printStackTrace();
       TestUtils.deleteAll(dataStore);
@@ -171,7 +169,7 @@ public class GeoWaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
     }
 
     try {
-      testDeleteSpatial(
+      testDeleteByBasicQuery(
           new File(TEST_POLYGON_FILTER_FILE).toURI().toURL(),
           TestUtils.createWebMercatorSpatialIndex());
     } catch (final Exception e) {

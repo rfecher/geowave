@@ -22,7 +22,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
-import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitSpatialQuery;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
@@ -127,7 +127,7 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
   public void testUniform() {
     ingestWithDistribution(Distribution.UNIFORM);
     final QueryConstraints query =
-        new SpatialQuery(new GeometryFactory().toGeometry(new Envelope(-180, 180, -90, 90)));
+        new ExplicitSpatialQuery(new GeometryFactory().toGeometry(new Envelope(-180, 180, -90, 90)));
     assertTrue(getSplitsMSE(query, 12, 12) < 0.1);
   }
 
@@ -135,13 +135,13 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
   public void testBimodal() {
     ingestWithDistribution(Distribution.BIMODAL);
     QueryConstraints query =
-        new SpatialQuery(new GeometryFactory().toGeometry(new Envelope(-180, 180, -90, 90)));
+        new ExplicitSpatialQuery(new GeometryFactory().toGeometry(new Envelope(-180, 180, -90, 90)));
     assertTrue(getSplitsMSE(query, 12, 12) < 0.1);
 
-    query = new SpatialQuery(new GeometryFactory().toGeometry(new Envelope(-120, -60, -90, 90)));
+    query = new ExplicitSpatialQuery(new GeometryFactory().toGeometry(new Envelope(-120, -60, -90, 90)));
     assertTrue(getSplitsMSE(query, 12, 12) < 0.1);
 
-    query = new SpatialQuery(new GeometryFactory().toGeometry(new Envelope(-20, 20, -90, 90)));
+    query = new ExplicitSpatialQuery(new GeometryFactory().toGeometry(new Envelope(-20, 20, -90, 90)));
     assertTrue(getSplitsMSE(query, 12, 12) < 0.1);
   }
 
@@ -149,13 +149,13 @@ public class SplitsProviderIT extends AbstractGeoWaveIT {
   public void testSkewed() {
     ingestWithDistribution(Distribution.SKEWED);
     QueryConstraints query =
-        new SpatialQuery(new GeometryFactory().toGeometry(new Envelope(-180, 180, -90, 90)));
+        new ExplicitSpatialQuery(new GeometryFactory().toGeometry(new Envelope(-180, 180, -90, 90)));
     assertTrue(getSplitsMSE(query, 12, 12) < 0.1);
 
-    query = new SpatialQuery(new GeometryFactory().toGeometry(new Envelope(-180, -140, -90, 90)));
+    query = new ExplicitSpatialQuery(new GeometryFactory().toGeometry(new Envelope(-180, -140, -90, 90)));
     assertTrue(getSplitsMSE(query, 12, 12) < 0.1);
 
-    query = new SpatialQuery(new GeometryFactory().toGeometry(new Envelope(0, 180, -90, 90)));
+    query = new ExplicitSpatialQuery(new GeometryFactory().toGeometry(new Envelope(0, 180, -90, 90)));
     assertTrue(getSplitsMSE(query, 12, 12) < 0.1);
   }
 

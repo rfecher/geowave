@@ -34,7 +34,7 @@ import org.locationtech.geowave.core.geotime.index.dimension.LatitudeDefinition;
 import org.locationtech.geowave.core.geotime.index.dimension.LongitudeDefinition;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
-import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitSpatialQuery;
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
 import org.locationtech.geowave.core.index.StringUtils;
@@ -264,8 +264,8 @@ public class DeleteWriterTest {
             internalAdapterId,
             CountDataStatistics.STATS_TYPE).next();
     assertEquals(3, countStats.getCount());
-    final SpatialQuery spatialQuery =
-        new SpatialQuery(new GeometryFactory().toGeometry(new Envelope(-78, -77, 38, 39)));
+    final ExplicitSpatialQuery spatialQuery =
+        new ExplicitSpatialQuery(new GeometryFactory().toGeometry(new Envelope(-78, -77, 38, 39)));
     try (final CloseableIterator it1 =
         mockDataStore.query(QueryBuilder.newBuilder().constraints(spatialQuery).build())) {
       assertTrue(it1.hasNext());

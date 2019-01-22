@@ -65,6 +65,7 @@ import org.locationtech.geowave.core.store.flatten.FlattenedUnreadDataSingleRow;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
+import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParamsBuilder;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
@@ -504,5 +505,12 @@ public class DataStoreUtils {
       }
     }
     return true;
+  }
+
+  public static boolean isMergingIteratorRequired(
+      final RangeReaderParams<?> readerParams,
+      final boolean visibilityEnabled) {
+    return readerParams.isClientsideRowMerging()
+        || (readerParams.isMixedVisibility() && visibilityEnabled);
   }
 }

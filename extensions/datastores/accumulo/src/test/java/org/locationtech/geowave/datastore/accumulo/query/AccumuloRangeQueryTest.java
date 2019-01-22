@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
-import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitSpatialQuery;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -103,7 +103,7 @@ public class AccumuloRangeQueryTest {
                 new Coordinate(1.0261, 1.0319),
                 new Coordinate(1.0261, 1.0323),
                 new Coordinate(1.0249, 1.0319)});
-    final QueryConstraints intersectQuery = new SpatialQuery(testGeo);
+    final QueryConstraints intersectQuery = new ExplicitSpatialQuery(testGeo);
     Assert.assertTrue(testdata.geom.intersects(testGeo));
     final CloseableIterator<TestGeometry> resultOfIntersect =
         (CloseableIterator) mockDataStore.query(
@@ -115,7 +115,7 @@ public class AccumuloRangeQueryTest {
   @Test
   public void largeQuery() {
     final Geometry largeGeo = createPolygon(50000);
-    final QueryConstraints largeQuery = new SpatialQuery(largeGeo);
+    final QueryConstraints largeQuery = new ExplicitSpatialQuery(largeGeo);
     final CloseableIterator itr =
         mockDataStore.query(
             QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
@@ -169,7 +169,7 @@ public class AccumuloRangeQueryTest {
   @Test
   public void testMiss() {
     final QueryConstraints intersectQuery =
-        new SpatialQuery(
+        new ExplicitSpatialQuery(
             factory.createPolygon(
                 new Coordinate[] {
                     new Coordinate(1.0247, 1.0319),
@@ -186,7 +186,7 @@ public class AccumuloRangeQueryTest {
   @Test
   public void testEncompass() {
     final QueryConstraints encompassQuery =
-        new SpatialQuery(
+        new ExplicitSpatialQuery(
             factory.createPolygon(
                 new Coordinate[] {
                     new Coordinate(1.0249, 1.0319),

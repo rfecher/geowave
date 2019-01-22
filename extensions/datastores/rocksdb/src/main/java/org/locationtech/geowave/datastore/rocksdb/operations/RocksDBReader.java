@@ -34,6 +34,7 @@ import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
+import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBDataIndexTable;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
@@ -110,7 +111,12 @@ public class RocksDBReader<T> implements RowReader<T> {
             iterators.forEach(it -> it.close());
           }
         }
-      }, Iterators.concat(iterators.iterator()), readerParams, rowTransformer, authorizations);
+      },
+          Iterators.concat(iterators.iterator()),
+          readerParams,
+          rowTransformer,
+          authorizations,
+          client.isVisibilityEnabled());
     }
   }
 
@@ -132,7 +138,9 @@ public class RocksDBReader<T> implements RowReader<T> {
                 rowTransformer,
                 ranges,
                 new ClientVisibilityFilter(authorizations),
-                readerParams.isClientsideRowMerging(),
+                DataStoreUtils.isMergingIteratorRequired(
+                    readerParams,
+                    client.isVisibilityEnabled()),
                 async,
                 RocksDBUtils.isGroupByRowAndIsSortByTime(readerParams, adapterId),
                 RocksDBUtils.isSortByKeyRequired(readerParams)).results()).iterator();
@@ -190,7 +198,8 @@ public class RocksDBReader<T> implements RowReader<T> {
       final Iterator<GeoWaveRow> results,
       final RangeReaderParams<T> params,
       final GeoWaveRowIteratorTransformer<T> rowTransformer,
-      final Set<String> authorizations) {
+      final Set<String> authorizations,
+      final boolean visibilityEnabled) {
     final Iterator<GeoWaveRow> iterator =
         Iterators.filter(results, new ClientVisibilityFilter(authorizations));
     return new CloseableIteratorWrapper<>(
@@ -198,7 +207,8 @@ public class RocksDBReader<T> implements RowReader<T> {
         rowTransformer.apply(
             sortBySortKeyIfRequired(
                 params,
-                params.isClientsideRowMerging() ? new GeoWaveRowMergingIterator(iterator)
+                DataStoreUtils.isMergingIteratorRequired(params, visibilityEnabled)
+                    ? new GeoWaveRowMergingIterator(iterator)
                     : iterator)));
   }
 

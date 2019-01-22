@@ -151,7 +151,7 @@ public class OptimalCQLQuery implements AdapterAndIndexBasedQueryConstraints, Qu
                   timeConstraintSet);
           // convert to constraints
           final Constraints timeConstraints =
-              SpatialTemporalQuery.createConstraints(temporalConstraints, false);
+              ExplicitSpatialTemporalQuery.createConstraints(temporalConstraints, false);
           constraints = geoConstraints.getConstraints().merge(timeConstraints);
         }
         // TODO: this actually doesn't boost performance much, if at
@@ -174,10 +174,10 @@ public class OptimalCQLQuery implements AdapterAndIndexBasedQueryConstraints, Qu
         // specified, so specify a CRS if necessary
         if (GeometryUtils.getDefaultCRS().equals(
             adapter.getFeatureType().getCoordinateReferenceSystem())) {
-          baseQuery = new SpatialQuery(constraints, geometry, extractedCompareOp);
+          baseQuery = new ExplicitSpatialQuery(constraints, geometry, extractedCompareOp);
         } else {
           baseQuery =
-              new SpatialQuery(
+              new ExplicitSpatialQuery(
                   constraints,
                   geometry,
                   GeometryUtils.getCrsCode(adapter.getFeatureType().getCoordinateReferenceSystem()),
@@ -206,7 +206,7 @@ public class OptimalCQLQuery implements AdapterAndIndexBasedQueryConstraints, Qu
             TimeUtils.getTemporalConstraintsForDescriptors(
                 adapter.getTimeDescriptors(),
                 timeConstraintSet);
-        baseQuery = new TemporalQuery(temporalConstraints);
+        baseQuery = new ExplicitTemporalQuery(temporalConstraints);
       }
     }
     // if baseQuery completely represents CQLQuery expression then use that

@@ -42,7 +42,7 @@ import org.locationtech.geowave.adapter.vector.util.QueryIndexHelper;
 import org.locationtech.geowave.core.geotime.index.dimension.LatitudeDefinition;
 import org.locationtech.geowave.core.geotime.index.dimension.TimeDefinition;
 import org.locationtech.geowave.core.geotime.store.query.OptimalCQLQuery;
-import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitSpatialQuery;
 import org.locationtech.geowave.core.geotime.store.query.TemporalConstraintsSet;
 import org.locationtech.geowave.core.geotime.store.query.api.VectorAggregationQueryBuilder;
 import org.locationtech.geowave.core.geotime.store.query.api.VectorQueryBuilder;
@@ -553,7 +553,7 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
     // temporalConstraints));
     // }
     // else {
-    return new SpatialQuery(
+    return new ExplicitSpatialQuery(
         geoConstraints.getConstraints().merge(temporalConstraints),
         geoConstraints.getGeometry(),
         GeometryUtils.getCrsCode(

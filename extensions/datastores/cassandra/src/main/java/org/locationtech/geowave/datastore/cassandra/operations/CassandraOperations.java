@@ -499,7 +499,7 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
 
   @Override
   public <T> RowReader<T> createReader(final ReaderParams<T> readerParams) {
-    return new CassandraReader<>(readerParams, this);
+    return new CassandraReader<>(readerParams, this, options.isVisibilityEnabled());
   }
 
   @Override
@@ -562,7 +562,7 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
 
   @Override
   public RowReader<GeoWaveRow> createReader(final RecordReaderParams recordReaderParams) {
-    return new CassandraReader<>(recordReaderParams, this);
+    return new CassandraReader<>(recordReaderParams, this, options.isVisibilityEnabled());
   }
 
   @Override

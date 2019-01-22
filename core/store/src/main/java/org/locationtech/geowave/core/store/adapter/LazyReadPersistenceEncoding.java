@@ -140,9 +140,6 @@ public class LazyReadPersistenceEncoding extends IndexedAdapterPersistenceEncodi
     }
 
     protected void readValues() {
-      if (getFieldValues().length > 1) {
-        System.err.println(getFieldValues().length);
-      }
       for (final GeoWaveValue value : getFieldValues()) {
         byte[] byteValue = value.getValue();
         byte[] fieldMask = value.getFieldMask();
@@ -154,7 +151,6 @@ public class LazyReadPersistenceEncoding extends IndexedAdapterPersistenceEncodi
           }
           fieldMask = newBitmask;
         }
-
         readValue(new GeoWaveValueImpl(fieldMask, value.getVisibility(), byteValue));
       }
     }

@@ -20,9 +20,11 @@ import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowIteratorTransformer;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowMergingIterator;
+import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
+import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.cassandra.CassandraRow;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
@@ -38,23 +40,29 @@ public class CassandraReader<T> implements RowReader<T> {
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
 
   private CloseableIterator<T> iterator;
+  private final boolean visibilityEnabled;
 
-  public CassandraReader(final ReaderParams<T> readerParams, final CassandraOperations operations) {
+  public CassandraReader(
+      final ReaderParams<T> readerParams,
+      final CassandraOperations operations,
+      final boolean visibilityEnabled) {
     this.readerParams = readerParams;
     recordReaderParams = null;
     this.operations = operations;
     this.rowTransformer = readerParams.getRowTransformer();
+    this.visibilityEnabled = visibilityEnabled;
 
     initScanner();
   }
 
   public CassandraReader(
       final RecordReaderParams recordReaderParams,
-      final CassandraOperations operations) {
+      final CassandraOperations operations,
+      final boolean visibilityEnabled) {
     readerParams = null;
     this.recordReaderParams = recordReaderParams;
     this.operations = operations;
-
+    this.visibilityEnabled = visibilityEnabled;
     this.rowTransformer =
         (GeoWaveRowIteratorTransformer<T>) GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER;
 
@@ -64,29 +72,32 @@ public class CassandraReader<T> implements RowReader<T> {
   @SuppressWarnings("unchecked")
   private CloseableIterator<T> wrapResults(
       final CloseableIterator<CassandraRow> results,
-      final Set<String> authorizations) {
+      final RangeReaderParams<T> readerParams) {
 
+    final Set<String> authorizations = Sets.newHashSet(readerParams.getAdditionalAuthorizations());
     final Iterator<GeoWaveRow> iterator =
         (Iterator) Iterators.filter(results, new ClientVisibilityFilter(authorizations));
     return new CloseableIteratorWrapper<>(
         results,
-        rowTransformer.apply(new GeoWaveRowMergingIterator(iterator)));
+        rowTransformer.apply(
+            DataStoreUtils.isMergingIteratorRequired(readerParams, visibilityEnabled)
+                ? new GeoWaveRowMergingIterator(iterator)
+                : iterator));
   }
 
   protected void initScanner() {
     final Collection<SinglePartitionQueryRanges> ranges =
         readerParams.getQueryRanges().getPartitionQueryRanges();
-
-    final Set<String> authorizations = Sets.newHashSet(readerParams.getAdditionalAuthorizations());
     if ((ranges != null) && !ranges.isEmpty()) {
       iterator =
           operations.getBatchedRangeRead(
               readerParams.getIndex().getName(),
               readerParams.getAdapterIds(),
               ranges,
-              readerParams.isClientsideRowMerging(),
+              DataStoreUtils.isMergingIteratorRequired(readerParams, visibilityEnabled),
               rowTransformer,
-              new ClientVisibilityFilter(authorizations)).results();
+              new ClientVisibilityFilter(
+                  Sets.newHashSet(readerParams.getAdditionalAuthorizations()))).results();
     } else {
       // TODO figure out the query select by adapter IDs here
       final Select select = operations.getSelect(readerParams.getIndex().getName());
@@ -104,7 +115,7 @@ public class CassandraReader<T> implements RowReader<T> {
                   }
                 }));
       }
-      iterator = wrapResults(results, authorizations);
+      iterator = wrapResults(results, readerParams);
     }
   }
 
@@ -127,7 +138,7 @@ public class CassandraReader<T> implements RowReader<T> {
             recordReaderParams.getIndex().getName(),
             adapterIds,
             Collections.singleton(partitionRange),
-            recordReaderParams.isClientsideRowMerging(),
+            DataStoreUtils.isMergingIteratorRequired(readerParams, visibilityEnabled),
             rowTransformer,
             new ClientVisibilityFilter(authorizations)).results();
   }

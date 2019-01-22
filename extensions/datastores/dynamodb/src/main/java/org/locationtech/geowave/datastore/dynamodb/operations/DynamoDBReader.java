@@ -29,6 +29,7 @@ import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.SimpleParallelDecoder;
 import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
+import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.dynamodb.DynamoDBRow;
 import org.locationtech.geowave.datastore.dynamodb.util.AsyncPaginatedQuery;
 import org.locationtech.geowave.datastore.dynamodb.util.AsyncPaginatedScan;
@@ -59,28 +60,36 @@ public class DynamoDBReader<T> implements RowReader<T> {
   private Iterator<T> iterator;
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
   private ParallelDecoder<T> closeable = null;
+  private final boolean visibilityEnabled;
 
   private Predicate<GeoWaveRow> visibilityFilter;
 
-  public DynamoDBReader(final ReaderParams<T> readerParams, final DynamoDBOperations operations) {
+  public DynamoDBReader(
+      final ReaderParams<T> readerParams,
+      final DynamoDBOperations operations,
+      final boolean visibilityEnabled) {
     this.readerParams = readerParams;
     recordReaderParams = null;
     processAuthorizations(readerParams.getAdditionalAuthorizations(), readerParams);
     this.operations = operations;
     this.rowTransformer = readerParams.getRowTransformer();
+    this.visibilityEnabled = visibilityEnabled;
     initScanner();
   }
 
   public DynamoDBReader(
       final RecordReaderParams recordReaderParams,
-      final DynamoDBOperations operations) {
+      final DynamoDBOperations operations,
+      final boolean visibilityEnabled) {
     readerParams = null;
     this.recordReaderParams = recordReaderParams;
-    processAuthorizations(recordReaderParams.getAdditionalAuthorizations(), (RangeReaderParams<T>) recordReaderParams);
+    processAuthorizations(
+        recordReaderParams.getAdditionalAuthorizations(),
+        (RangeReaderParams<T>) recordReaderParams);
     this.operations = operations;
     this.rowTransformer =
         (GeoWaveRowIteratorTransformer<T>) GeoWaveRowIteratorTransformer.NO_OP_TRANSFORMER;
-
+    this.visibilityEnabled = visibilityEnabled;
     initRecordScanner();
   }
 
@@ -125,7 +134,7 @@ public class DynamoDBReader<T> implements RowReader<T> {
     startRead(
         requests,
         tableName,
-        readerParams.isClientsideRowMerging(),
+        DataStoreUtils.isMergingIteratorRequired(readerParams, visibilityEnabled),
         readerParams.getMaxResolutionSubsamplingPerDimension() == null);
   }
 

@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider;
 import org.locationtech.geowave.core.geotime.ingest.SpatialOptions;
 import org.locationtech.geowave.core.geotime.store.dimension.GeometryWrapper;
-import org.locationtech.geowave.core.geotime.store.query.SpatialQuery;
+import org.locationtech.geowave.core.geotime.store.query.ExplicitSpatialQuery;
 import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxDataStatistics;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.StringUtils;
@@ -198,7 +198,7 @@ public class AccumuloDataStoreStatsTest {
           testPartitionKey);
     }
 
-    final SpatialQuery query = new SpatialQuery(testGeoFilter);
+    final ExplicitSpatialQuery query = new ExplicitSpatialQuery(testGeoFilter);
 
     try (CloseableIterator<?> it1 =
         mockDataStore.query(

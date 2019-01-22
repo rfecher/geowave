@@ -29,8 +29,8 @@ public class SpatialQueryTest {
   @Test
   public void test() {
     final GeometryFactory factory = new GeometryFactory();
-    final SpatialQuery query =
-        new SpatialQuery(
+    final ExplicitSpatialQuery query =
+        new ExplicitSpatialQuery(
             factory.createPolygon(
                 new Coordinate[] {
                     new Coordinate(24, 33),
@@ -38,7 +38,7 @@ public class SpatialQueryTest {
                     new Coordinate(28, 31),
                     new Coordinate(24, 31),
                     new Coordinate(24, 33)}));
-    final SpatialQuery queryCopy = new SpatialQuery();
+    final ExplicitSpatialQuery queryCopy = new ExplicitSpatialQuery();
     queryCopy.fromBinary(query.toBinary());
     assertEquals(queryCopy.getQueryGeometry(), query.getQueryGeometry());
   }
@@ -69,9 +69,9 @@ public class SpatialQueryTest {
             new Coordinate(24, 37),
             new Coordinate(24, 33)};
     // create spatial query object with geometric relationship operator
-    final SpatialQuery query = new SpatialQuery(factory.createPolygon(queryCoord), op);
+    final ExplicitSpatialQuery query = new ExplicitSpatialQuery(factory.createPolygon(queryCoord), op);
 
-    final SpatialQuery queryCopy = new SpatialQuery();
+    final ExplicitSpatialQuery queryCopy = new ExplicitSpatialQuery();
     queryCopy.fromBinary(query.toBinary());
 
     // This line is crossing query polygon

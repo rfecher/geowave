@@ -33,6 +33,7 @@ import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
+import org.locationtech.geowave.core.store.util.DataStoreUtils;
 import org.locationtech.geowave.datastore.redis.config.RedisOptions.Compression;
 import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisPersistedRow;
 import org.locationtech.geowave.datastore.redis.util.GeoWaveRedisRow;
@@ -162,7 +163,12 @@ public class RedisReader<T> implements RowReader<T> {
                             p.getLeft().getBytes(),
                             RedisUtils.getSortKey(pr.getScore())))).iterator());
       }
-      return wrapResults(Iterators.concat(iterators), readerParams, rowTransformer, authorizations);
+      return wrapResults(
+          Iterators.concat(iterators),
+          readerParams,
+          rowTransformer,
+          authorizations,
+          visibilityEnabled);
     }
   }
 
@@ -189,7 +195,7 @@ public class RedisReader<T> implements RowReader<T> {
                 ranges,
                 rowTransformer,
                 new ClientVisibilityFilter(authorizations),
-                readerParams.isClientsideRowMerging(),
+                DataStoreUtils.isMergingIteratorRequired(readerParams, visibilityEnabled),
                 async,
                 RedisUtils.isGroupByRowAndIsSortByTime(readerParams, adapterId),
                 RedisUtils.isSortByKeyRequired(readerParams),
@@ -258,14 +264,16 @@ public class RedisReader<T> implements RowReader<T> {
       final Iterator<GeoWaveRedisRow> results,
       final RangeReaderParams<T> params,
       final GeoWaveRowIteratorTransformer<T> rowTransformer,
-      final Set<String> authorizations) {
+      final Set<String> authorizations,
+      final boolean visibilityEnabled) {
     final Iterator<GeoWaveRow> iterator =
         (Iterator) Iterators.filter(results, new ClientVisibilityFilter(authorizations));
     return new CloseableIterator.Wrapper<>(
         rowTransformer.apply(
             sortBySortKeyIfRequired(
                 params,
-                params.isClientsideRowMerging() ? new GeoWaveRowMergingIterator(iterator)
+                DataStoreUtils.isMergingIteratorRequired(params, visibilityEnabled)
+                    ? new GeoWaveRowMergingIterator(iterator)
                     : iterator)));
   }
 
