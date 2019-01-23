@@ -65,6 +65,7 @@ import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.api.StatisticsQuery;
 import org.locationtech.geowave.core.store.callback.IngestCallback;
 import org.locationtech.geowave.core.store.cli.config.AddStoreCommand;
+import org.locationtech.geowave.core.store.cli.remote.options.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.data.CommonIndexedPersistenceEncoding;
 import org.locationtech.geowave.core.store.data.visibility.DifferingFieldVisibilityEntryCount;
 import org.locationtech.geowave.core.store.data.visibility.FieldVisibilityCount;
@@ -126,7 +127,7 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
   protected static final String TEST_BOX_FILTER_FILE = TEST_FILTER_PACKAGE + "Box-Filter.shp";
   protected static final String TEST_POLYGON_FILTER_FILE =
       TEST_FILTER_PACKAGE + "Polygon-Filter.shp";
-  private static final String TEST_EXPORT_DIRECTORY = "export";
+  protected static final String TEST_EXPORT_DIRECTORY = "export";
   private static final String TEST_BASE_EXPORT_FILE_NAME = "basicIT-export.avro";
   protected static final String CQL_DELETE_STR = "STATE = 'TX'";
 
@@ -545,99 +546,13 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
   }
 
   protected void testSpatialTemporalLocalExportAndReingestWithCQL(
-      final URL filterURL,
+      final URL filterUrl,
       final int numThreads,
       final boolean pointsOnly,
       final DimensionalityType dimensionalityType) throws Exception {
+    final File exportDir =
+        exportWithCQL(getDataStorePluginOptions(), filterUrl, dimensionalityType);
 
-    final SimpleFeature savedFilter = TestUtils.resourceToFeature(filterURL);
-
-    final Geometry filterGeometry = (Geometry) savedFilter.getDefaultGeometry();
-    final Object startObj =
-        savedFilter.getAttribute(TestUtils.TEST_FILTER_START_TIME_ATTRIBUTE_NAME);
-    final Object endObj = savedFilter.getAttribute(TestUtils.TEST_FILTER_END_TIME_ATTRIBUTE_NAME);
-    Date startDate = null, endDate = null;
-    if ((startObj != null) && (endObj != null)) {
-      // if we can resolve start and end times, make it a spatial temporal
-      // query
-      if (startObj instanceof Calendar) {
-        startDate = ((Calendar) startObj).getTime();
-      } else if (startObj instanceof Date) {
-        startDate = (Date) startObj;
-      }
-      if (endObj instanceof Calendar) {
-        endDate = ((Calendar) endObj).getTime();
-      } else if (endObj instanceof Date) {
-        endDate = (Date) endObj;
-      }
-    }
-    final PersistentAdapterStore adapterStore = getDataStorePluginOptions().createAdapterStore();
-    final VectorLocalExportCommand exportCommand = new VectorLocalExportCommand();
-    final VectorLocalExportOptions options = exportCommand.getOptions();
-    final File exportDir = new File(TestUtils.TEMP_DIR, TEST_EXPORT_DIRECTORY);
-    exportDir.delete();
-    exportDir.mkdirs();
-
-    exportCommand.setParameters("test");
-
-    final File configFile = File.createTempFile("test_export", null);
-    final ManualOperationParams params = new ManualOperationParams();
-
-    params.getContext().put(ConfigOptions.PROPERTIES_FILE_CONTEXT, configFile);
-    final AddStoreCommand addStore = new AddStoreCommand();
-    addStore.setParameters("test");
-    addStore.setPluginOptions(getDataStorePluginOptions());
-    addStore.execute(params);
-    options.setBatchSize(10000);
-    final Envelope env = filterGeometry.getEnvelopeInternal();
-    final double east = env.getMaxX();
-    final double west = env.getMinX();
-    final double south = env.getMinY();
-    final double north = env.getMaxY();
-    try (CloseableIterator<InternalDataAdapter<?>> adapterIt = adapterStore.getAdapters()) {
-      while (adapterIt.hasNext()) {
-        final InternalDataAdapter<?> adapter = adapterIt.next();
-        options.setTypeNames(new String[] {adapter.getTypeName()});
-        if (adapter.getAdapter() instanceof GeotoolsFeatureDataAdapter) {
-          final GeotoolsFeatureDataAdapter gtAdapter =
-              (GeotoolsFeatureDataAdapter) adapter.getAdapter();
-          final TimeDescriptors timeDesc = gtAdapter.getTimeDescriptors();
-
-          String startTimeAttribute;
-          if (timeDesc.getStartRange() != null) {
-            startTimeAttribute = timeDesc.getStartRange().getLocalName();
-          } else {
-            startTimeAttribute = timeDesc.getTime().getLocalName();
-          }
-          final String endTimeAttribute;
-          if (timeDesc.getEndRange() != null) {
-            endTimeAttribute = timeDesc.getEndRange().getLocalName();
-          } else {
-            endTimeAttribute = timeDesc.getTime().getLocalName();
-          }
-          final String geometryAttribute =
-              gtAdapter.getFeatureType().getGeometryDescriptor().getLocalName();
-
-          final String cqlPredicate =
-              String.format(
-                  "BBOX(\"%s\",%f,%f,%f,%f) AND \"%s\" <= '%s' AND \"%s\" >= '%s'",
-                  geometryAttribute,
-                  west,
-                  south,
-                  east,
-                  north,
-                  startTimeAttribute,
-                  CQL_DATE_FORMAT.format(endDate),
-                  endTimeAttribute,
-                  CQL_DATE_FORMAT.format(startDate));
-          options.setOutputFile(
-              new File(exportDir, adapter.getTypeName() + TEST_BASE_EXPORT_FILE_NAME));
-          options.setCqlFilter(cqlPredicate);
-          exportCommand.execute(params);
-        }
-      }
-    }
-    TestUtils.deleteAll(getDataStorePluginOptions());
     TestUtils.testLocalIngest(
         getDataStorePluginOptions(),
         dimensionalityType,
@@ -668,6 +583,108 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
               + e.getLocalizedMessage()
               + "'");
     }
+  }
+
+  protected static File exportWithCQL(
+      final DataStorePluginOptions dataStoreOptions,
+      final URL filterUrl,
+      final DimensionalityType dimensionalityType) throws Exception {
+    Geometry filterGeometry = null;
+    Date startDate = null, endDate = null;
+    if (filterUrl != null) {
+      final SimpleFeature savedFilter = TestUtils.resourceToFeature(filterUrl);
+
+      filterGeometry = (Geometry) savedFilter.getDefaultGeometry();
+      final Object startObj =
+          savedFilter.getAttribute(TestUtils.TEST_FILTER_START_TIME_ATTRIBUTE_NAME);
+      final Object endObj = savedFilter.getAttribute(TestUtils.TEST_FILTER_END_TIME_ATTRIBUTE_NAME);
+      if ((startObj != null) && (endObj != null)) {
+        // if we can resolve start and end times, make it a spatial temporal
+        // query
+        if (startObj instanceof Calendar) {
+          startDate = ((Calendar) startObj).getTime();
+        } else if (startObj instanceof Date) {
+          startDate = (Date) startObj;
+        }
+        if (endObj instanceof Calendar) {
+          endDate = ((Calendar) endObj).getTime();
+        } else if (endObj instanceof Date) {
+          endDate = (Date) endObj;
+        }
+      }
+    }
+    final PersistentAdapterStore adapterStore = dataStoreOptions.createAdapterStore();
+    final VectorLocalExportCommand exportCommand = new VectorLocalExportCommand();
+    final VectorLocalExportOptions options = exportCommand.getOptions();
+    final File exportDir = new File(TestUtils.TEMP_DIR, TEST_EXPORT_DIRECTORY);
+    exportDir.delete();
+    exportDir.mkdirs();
+
+    exportCommand.setParameters("test");
+
+    final File configFile = File.createTempFile("test_export", null);
+    final ManualOperationParams params = new ManualOperationParams();
+
+    params.getContext().put(ConfigOptions.PROPERTIES_FILE_CONTEXT, configFile);
+    final AddStoreCommand addStore = new AddStoreCommand();
+    addStore.setParameters("test");
+    addStore.setPluginOptions(dataStoreOptions);
+    addStore.execute(params);
+    options.setBatchSize(10000);
+    try (CloseableIterator<InternalDataAdapter<?>> adapterIt = adapterStore.getAdapters()) {
+      while (adapterIt.hasNext()) {
+        final InternalDataAdapter<?> adapter = adapterIt.next();
+        options.setTypeNames(new String[] {adapter.getTypeName()});
+        if ((adapter.getAdapter() instanceof GeotoolsFeatureDataAdapter)
+            && (filterGeometry != null)
+            && (startDate != null)
+            && (endDate != null)) {
+          final GeotoolsFeatureDataAdapter gtAdapter =
+              (GeotoolsFeatureDataAdapter) adapter.getAdapter();
+          final TimeDescriptors timeDesc = gtAdapter.getTimeDescriptors();
+
+          String startTimeAttribute;
+          if (timeDesc.getStartRange() != null) {
+            startTimeAttribute = timeDesc.getStartRange().getLocalName();
+          } else {
+            startTimeAttribute = timeDesc.getTime().getLocalName();
+          }
+          final String endTimeAttribute;
+          if (timeDesc.getEndRange() != null) {
+            endTimeAttribute = timeDesc.getEndRange().getLocalName();
+          } else {
+            endTimeAttribute = timeDesc.getTime().getLocalName();
+          }
+          final String geometryAttribute =
+              gtAdapter.getFeatureType().getGeometryDescriptor().getLocalName();
+
+          final Envelope env = filterGeometry.getEnvelopeInternal();
+          final double east = env.getMaxX();
+          final double west = env.getMinX();
+          final double south = env.getMinY();
+          final double north = env.getMaxY();
+          final String cqlPredicate =
+              String.format(
+                  "BBOX(\"%s\",%f,%f,%f,%f) AND \"%s\" <= '%s' AND \"%s\" >= '%s'",
+                  geometryAttribute,
+                  west,
+                  south,
+                  east,
+                  north,
+                  startTimeAttribute,
+                  CQL_DATE_FORMAT.format(endDate),
+                  endTimeAttribute,
+                  CQL_DATE_FORMAT.format(startDate));
+          options.setCqlFilter(cqlPredicate);
+        }
+
+        options.setOutputFile(
+            new File(exportDir, adapter.getTypeName() + TEST_BASE_EXPORT_FILE_NAME));
+        exportCommand.execute(params);
+      }
+    }
+    TestUtils.deleteAll(dataStoreOptions);
+    return exportDir;
   }
 
   protected void testStats(

@@ -64,7 +64,9 @@ public class TestObjectDataAdapter extends AbstractDataAdapter<TestObject>
 
         @Override
         public CommonIndexValue toIndexValue(PersistentDataset<Object> adapterPersistenceEncoding) {
-          return new GeometryWrapper((Geometry)adapterPersistenceEncoding.getValue(GEOM), new byte[0]);
+          return new GeometryWrapper(
+              (Geometry) adapterPersistenceEncoding.getValue(GEOM),
+              new byte[0]);
         }
       };
 

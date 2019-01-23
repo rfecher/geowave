@@ -145,7 +145,8 @@ public class GeoWaveVectorSerializationIT extends AbstractGeoWaveIT {
     try (Writer writer = geowaveStore.createWriter(serAdapter.getTypeName())) {
       writer.write(sf);
     }
-    final QueryConstraints q = new ExplicitSpatialQuery(((Geometry) args.get(Geometry.class)).buffer(0.5d));
+    final QueryConstraints q =
+        new ExplicitSpatialQuery(((Geometry) args.get(Geometry.class)).buffer(0.5d));
     try (final CloseableIterator<?> iter =
         geowaveStore.query(QueryBuilder.newBuilder().constraints(q).build())) {
       boolean foundFeat = false;

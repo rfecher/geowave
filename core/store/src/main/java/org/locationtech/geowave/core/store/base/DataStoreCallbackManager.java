@@ -34,8 +34,7 @@ public class DataStoreCallbackManager {
   private final boolean captureAdapterStats;
 
   final Map<Short, IngestCallback<?>> icache = new HashMap<>();
-  final Map<Short, DeleteCallback<?, GeoWaveRow>> dcache =
-      new HashMap<>();
+  final Map<Short, DeleteCallback<?, GeoWaveRow>> dcache = new HashMap<>();
 
   public DataStoreCallbackManager(
       final DataStatisticsStore statsStore,
@@ -70,15 +69,12 @@ public class DataStoreCallbackManager {
     if (!dcache.containsKey(writableAdapter.getAdapterId())) {
       final DataStoreStatisticsProvider<T> statsProvider =
           new DataStoreStatisticsProvider<>(writableAdapter, index, captureAdapterStats);
-      final List<DeleteCallback<T, GeoWaveRow>> callbackList =
-          new ArrayList<>();
+      final List<DeleteCallback<T, GeoWaveRow>> callbackList = new ArrayList<>();
       if ((writableAdapter.getAdapter() instanceof StatisticsProvider) && persistStats) {
         callbackList.add(
             new StatsCompositionTool<>(statsProvider, statsStore, index, writableAdapter));
       }
-      dcache.put(
-          writableAdapter.getAdapterId(),
-          new DeleteCallbackList<>(callbackList));
+      dcache.put(writableAdapter.getAdapterId(), new DeleteCallbackList<>(callbackList));
     }
     return (DeleteCallback<T, GeoWaveRow>) dcache.get(writableAdapter.getAdapterId());
   }

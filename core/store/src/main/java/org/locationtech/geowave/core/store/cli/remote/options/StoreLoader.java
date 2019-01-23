@@ -67,7 +67,10 @@ public class StoreLoader {
    * @param configFile
    * @return
    */
-  public boolean loadFromConfig(final Properties props, final String namespace, final File configFile) {
+  public boolean loadFromConfig(
+      final Properties props,
+      final String namespace,
+      final File configFile) {
 
     dataStorePlugin = new DataStorePluginOptions();
 

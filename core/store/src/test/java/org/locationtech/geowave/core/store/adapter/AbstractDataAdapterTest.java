@@ -39,8 +39,7 @@ public class AbstractDataAdapterTest {
         new ArrayList<>();
     indexFieldHandlers.add(new MockComponents.TestPersistentIndexFieldHandler());
 
-    final ArrayList<NativeFieldHandler<Integer, Object>> nativeFieldHandlers =
-        new ArrayList<>();
+    final ArrayList<NativeFieldHandler<Integer, Object>> nativeFieldHandlers = new ArrayList<>();
     nativeFieldHandlers.add(new MockComponents.TestNativeFieldHandler());
 
     final MockComponents.MockAbstractDataAdapter mockAbstractDataAdapter =
@@ -71,8 +70,7 @@ public class AbstractDataAdapterTest {
         new ArrayList<>();
     indexFieldHandlers.add(new TestPersistentIndexFieldHandler());
 
-    final ArrayList<NativeFieldHandler<Integer, Object>> nativeFieldHandlers =
-        new ArrayList<>();
+    final ArrayList<NativeFieldHandler<Integer, Object>> nativeFieldHandlers = new ArrayList<>();
     nativeFieldHandlers.add(new TestNativeFieldHandler());
 
     final MockAbstractDataAdapter mockAbstractDataAdapter =

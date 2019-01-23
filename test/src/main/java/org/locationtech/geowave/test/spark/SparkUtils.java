@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public class SparkUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(SparkUtils.class);
+  private static final int DEFAULT_SPLITS_FOR_COUNT = 100;
 
   public static void verifyQuery(
       final DataStorePluginOptions dataStore,
@@ -77,6 +78,8 @@ public class SparkUtils {
       // Load RDD using spatial query (bbox)
       final RDDOptions queryOpts = new RDDOptions();
       queryOpts.setQuery(QueryBuilder.newBuilder().constraints(query).build());
+      queryOpts.setMinSplits(DEFAULT_SPLITS_FOR_COUNT);
+      queryOpts.setMaxSplits(DEFAULT_SPLITS_FOR_COUNT);
       final GeoWaveRDD newRDD = GeoWaveRDDLoader.loadRDD(context, dataStore, queryOpts);
       final JavaPairRDD<GeoWaveInputKey, SimpleFeature> javaRdd = newRDD.getRawRDD();
       final long count = getCount(javaRdd, dataStore.getType());

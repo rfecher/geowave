@@ -50,9 +50,7 @@ public class MemoryDataStoreTest {
   @Test
   public void test() throws IOException, MismatchedIndexToAdapterMapping {
     final Index index =
-        new IndexImpl(
-            new MockComponents.MockIndexStrategy(),
-            new MockComponents.TestIndexModel());
+        new IndexImpl(new MockComponents.MockIndexStrategy(), new MockComponents.TestIndexModel());
     final String namespace = "test_" + getClass().getName();
     final StoreFactoryFamilySpi storeFamily = new MemoryStoreFactoryFamily();
     final MemoryRequiredOptions reqOptions = new MemoryRequiredOptions();

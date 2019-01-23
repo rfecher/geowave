@@ -97,7 +97,7 @@ public class MockComponents {
 
       @Override
       public TestIndexFieldType toIndexValue(PersistentDataset<Object> adapterPersistenceEncoding) {
-        return new TestIndexFieldType((Integer)adapterPersistenceEncoding.getValue(INTEGER));
+        return new TestIndexFieldType((Integer) adapterPersistenceEncoding.getValue(INTEGER));
       }
     }
 
@@ -413,7 +413,8 @@ public class MockComponents {
 
     @Override
     public TestIndexFieldType toIndexValue(PersistentDataset<Object> adapterPersistenceEncoding) {
-      return toIndexValue((Integer)adapterPersistenceEncoding.getValue(MockAbstractDataAdapter.INTEGER));
+      return toIndexValue(
+          (Integer) adapterPersistenceEncoding.getValue(MockAbstractDataAdapter.INTEGER));
     }
   }
 

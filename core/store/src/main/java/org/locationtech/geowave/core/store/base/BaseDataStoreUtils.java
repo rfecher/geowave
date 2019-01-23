@@ -407,7 +407,7 @@ public class BaseDataStoreUtils {
     // organize FieldInfos by unique visibility
     if (dataIdIndex) {
       final List<Pair<Integer, FieldInfo<?>>> fieldsWithPositions =
-          originalList.stream().map(fieldInfo -> {
+          (List) originalList.stream().map(fieldInfo -> {
             final int fieldPosition =
                 writableAdapter.getPositionOfOrderedField(model, fieldInfo.getFieldId());
             return (Pair) Pair.of(fieldPosition, fieldInfo);

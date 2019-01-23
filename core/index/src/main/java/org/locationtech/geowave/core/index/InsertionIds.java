@@ -8,8 +8,6 @@
  */
 package org.locationtech.geowave.core.index;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +17,8 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.persist.Persistable;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 public class InsertionIds implements Persistable {
   private Collection<SinglePartitionInsertionIds> partitionKeys;
@@ -26,7 +26,7 @@ public class InsertionIds implements Persistable {
   private int size = -1;
 
   public InsertionIds() {
-    partitionKeys = new ArrayList<SinglePartitionInsertionIds>();
+    partitionKeys = new ArrayList<>();
   }
 
   public InsertionIds(final List<byte[]> sortKeys) {
@@ -142,32 +142,15 @@ public class InsertionIds implements Persistable {
     return compositeInsertionIds;
   }
 
-  public boolean contains(final ByteArray partitionKey, final ByteArray sortKey) {
-    for (final SinglePartitionInsertionIds p : partitionKeys) {
-      if (((partitionKey == null) && (p.getPartitionKey() == null))
-          || ((partitionKey != null) && partitionKey.equals(p.getPartitionKey()))) {
-        // partition key matches find out if sort key is contained
-        if (sortKey == null) {
-          return true;
-        }
-        if ((p.getSortKeys() != null) && p.getSortKeys().contains(sortKey)) {
-          return true;
-        }
-        return false;
-      }
-    }
-    return false;
-  }
-
   public Pair<byte[], byte[]> getFirstPartitionAndSortKeyPair() {
     if (partitionKeys == null) {
       return null;
     }
     for (final SinglePartitionInsertionIds p : partitionKeys) {
       if ((p.getSortKeys() != null) && !p.getSortKeys().isEmpty()) {
-        return new ImmutablePair<byte[], byte[]>(p.getPartitionKey(), p.getSortKeys().get(0));
+        return new ImmutablePair<>(p.getPartitionKey(), p.getSortKeys().get(0));
       } else if ((p.getPartitionKey() != null)) {
-        return new ImmutablePair<byte[], byte[]>(p.getPartitionKey(), null);
+        return new ImmutablePair<>(p.getPartitionKey(), null);
       }
     }
     return null;

@@ -11,6 +11,7 @@ package org.locationtech.geowave.adapter.vector;
 import java.util.Arrays;
 import org.locationtech.geowave.core.geotime.store.dimension.Time;
 import org.locationtech.geowave.core.geotime.store.dimension.Time.TimeRange;
+import org.locationtech.geowave.core.geotime.store.dimension.Time.Timestamp;
 import org.locationtech.geowave.core.geotime.util.TimeUtils;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.sfc.data.NumericData;
@@ -73,6 +74,15 @@ public class FeatureTimeRangeHandler implements IndexFieldHandler<SimpleFeature,
       }
     } else {
       visibility = new byte[] {};
+    }
+    if (startObj == null) {
+      if (endObj != null) {
+        return new Timestamp(TimeUtils.getTimeMillis(endObj), visibility);
+      }
+      return null;
+    }
+    if (endObj == null) {
+      return new Timestamp(TimeUtils.getTimeMillis(startObj), visibility);
     }
     return new TimeRange(
         TimeUtils.getTimeMillis(startObj),

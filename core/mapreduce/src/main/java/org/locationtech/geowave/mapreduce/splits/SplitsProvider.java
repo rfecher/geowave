@@ -82,6 +82,7 @@ public class SplitsProvider {
     final List<InputSplit> retVal = new ArrayList<>();
     final TreeSet<IntermediateSplitInfo> splits = new TreeSet<>();
     final Map<String, List<Short>> indexIdToAdaptersMap = new HashMap<>();
+
     for (final Pair<Index, List<Short>> indexAdapterIdPair : BaseDataStoreUtils.getAdaptersWithMinimalSetOfIndices(
         typeOptions.getTypeNames(),
         indexOptions.getIndexName(),
@@ -105,26 +106,29 @@ public class SplitsProvider {
           }
         }
         if (adapter == null) {
-          LOGGER.warn("Unable to find type matching an adapter dependent query");
+          indexAdapterConstraints = constraints;
+          LOGGER.info("Unable to find type matching an adapter dependent query");
+        } else {
+          indexAdapterConstraints =
+              ((AdapterAndIndexBasedQueryConstraints) constraints).createQueryConstraints(
+                  adapter,
+                  indexAdapterIdPair.getLeft());
+          // make sure we pass along the new constraints to the record
+          // reader - for spark on YARN (not localy though), job
+          // configuration is immutable so while picking up the
+          // appropriate constraint from the configuration is more
+          // efficient, also do a check for
+          // AdapterAndIndexBasedQueryConstraints within the Record Reader
+          // itself
+          GeoWaveInputFormat.setQueryConstraints(
+              context.getConfiguration(),
+              indexAdapterConstraints);
         }
-        indexAdapterConstraints =
-            ((AdapterAndIndexBasedQueryConstraints) constraints).createQueryConstraints(
-                adapter,
-                indexAdapterIdPair.getLeft());
-        // make sure we pass along the new constraints to the record
-        // reader - for spark on YARN (not localy though), job
-        // configuration is immutable so while picking up the
-        // appropriate constraint from the configuration is more
-        // efficient, also do a check for
-        // AdapterAndIndexBasedQueryConstraints within the Record Reader
-        // itself
-        GeoWaveInputFormat.setQueryConstraints(context.getConfiguration(), indexAdapterConstraints);
       } else {
         indexAdapterConstraints = constraints;
       }
       IndexMetaData[] indexMetadata;
       if (indexAdapterConstraints != null) {
-
         indexMetadata =
             IndexMetaDataSet.getIndexMetadata(
                 indexAdapterIdPair.getLeft(),

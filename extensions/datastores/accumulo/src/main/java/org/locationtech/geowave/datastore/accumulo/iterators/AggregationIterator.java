@@ -99,8 +99,7 @@ public class AggregationIterator extends Filter {
   @Override
   public boolean accept(final Key key, final Value value) {
     if (queryFilterIterator != null) {
-      final PersistentDataset<CommonIndexValue> commonData =
-          new PersistentDataset<>();
+      final PersistentDataset<CommonIndexValue> commonData = new PersistentDataset<>();
       key.getRow(currentRow);
       final FlattenedUnreadData unreadData =
           queryFilterIterator.aggregateFieldData(key, value, commonData);

@@ -528,7 +528,8 @@ public class BasicQuery implements QueryConstraints {
       totalBytes += (length + VarintUtils.unsignedIntByteLength(length));
     }
 
-    final ByteBuffer buf = ByteBuffer.allocate(totalBytes + VarintUtils.unsignedIntByteLength(bytes.size()));
+    final ByteBuffer buf =
+        ByteBuffer.allocate(totalBytes + VarintUtils.unsignedIntByteLength(bytes.size()));
     VarintUtils.writeUnsignedInt(bytes.size(), buf);
     for (final byte[] entryBytes : bytes) {
       VarintUtils.writeUnsignedInt(entryBytes.length, buf);

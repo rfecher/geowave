@@ -36,6 +36,10 @@ import org.threeten.extra.Interval;
 public class TimeUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(TimeUtils.class);
 
+  // because we use varint encoding we want it to be small enough to only take up a byte, but random
+  // enough that its as unlikely as possible to be found as a "real" value
+  public static long RESERVED_MILLIS_FOR_NULL = -113;
+
   /**
    * Convert a calendar object to a long in the form of milliseconds since the epoch of January 1,
    * 1970. The time is converted to GMT if it is not already in that timezone so that all times will
@@ -105,7 +109,7 @@ public class TimeUtils {
                 + "' is not of expected temporal type");
       }
     }
-    return -1;
+    return RESERVED_MILLIS_FOR_NULL;
   }
 
   /**
@@ -133,7 +137,7 @@ public class TimeUtils {
    * @return An instance of the binding class with the value interpreted from longVal
    */
   public static Object getTimeValue(final Class<?> bindingClass, final long longVal) {
-    if (longVal < 0) {
+    if (longVal == RESERVED_MILLIS_FOR_NULL) {
       // indicator that the time value is null;
       return null;
     }

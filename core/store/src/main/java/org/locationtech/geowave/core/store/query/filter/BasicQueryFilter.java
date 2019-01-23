@@ -40,14 +40,22 @@ public class BasicQueryFilter implements QueryFilter {
   public enum BasicQueryCompareOperation implements BasicQueryCompareOp {
     CONTAINS {
       @Override
-      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
+      public boolean compare(
+          final double dataMin,
+          final double dataMax,
+          final double queryMin,
+          final double queryMax) {
         // checking if data range contains query range
         return !((dataMin < queryMin) || (dataMax > queryMax));
       }
     },
     OVERLAPS {
       @Override
-      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
+      public boolean compare(
+          final double dataMin,
+          final double dataMax,
+          final double queryMin,
+          final double queryMax) {
         // per definition, it shouldn't allow only boundary points to
         // overlap (stricter than intersect, see DE-9IM definitions)
         return !((dataMax <= queryMin) || (dataMin >= queryMax))
@@ -58,7 +66,11 @@ public class BasicQueryFilter implements QueryFilter {
     },
     INTERSECTS {
       @Override
-      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
+      public boolean compare(
+          final double dataMin,
+          final double dataMax,
+          final double queryMin,
+          final double queryMax) {
         // similar to overlap but a bit relaxed (allows boundary points
         // to touch)
         // this is equivalent to !((dataMax < queryMin) || (dataMin >
@@ -68,14 +80,22 @@ public class BasicQueryFilter implements QueryFilter {
     },
     TOUCHES {
       @Override
-      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
+      public boolean compare(
+          final double dataMin,
+          final double dataMax,
+          final double queryMin,
+          final double queryMax) {
         return (FloatCompareUtils.checkDoublesEqual(dataMin, queryMax))
             || (FloatCompareUtils.checkDoublesEqual(dataMax, queryMin));
       }
     },
     WITHIN {
       @Override
-      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
+      public boolean compare(
+          final double dataMin,
+          final double dataMax,
+          final double queryMin,
+          final double queryMax) {
         // checking if query range is within the data range
         // this is equivalent to (queryMin >= dataMin) && (queryMax <=
         // dataMax);
@@ -84,13 +104,21 @@ public class BasicQueryFilter implements QueryFilter {
     },
     DISJOINT {
       @Override
-      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
+      public boolean compare(
+          final double dataMin,
+          final double dataMax,
+          final double queryMin,
+          final double queryMax) {
         return ((dataMax < queryMin) || (dataMin > queryMax));
       }
     },
     CROSSES {
       @Override
-      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
+      public boolean compare(
+          final double dataMin,
+          final double dataMax,
+          final double queryMin,
+          final double queryMax) {
         // accordingly to the def. intersection point must be interior
         // to both source geometries.
         // this is not possible in 1D data so always returns false
@@ -99,7 +127,11 @@ public class BasicQueryFilter implements QueryFilter {
     },
     EQUALS {
       @Override
-      public boolean compare(final double dataMin, final double dataMax, final double queryMin, final double queryMax) {
+      public boolean compare(
+          final double dataMin,
+          final double dataMax,
+          final double queryMin,
+          final double queryMax) {
         return (FloatCompareUtils.checkDoublesEqual(dataMin, queryMin))
             && (FloatCompareUtils.checkDoublesEqual(dataMax, queryMax));
       }

@@ -34,7 +34,7 @@ public class QueryRanges {
         || (queryRanges.partitionRanges == null)
         || queryRanges.partitionRanges.isEmpty()) {
       partitionRanges = fromPartitionKeys(partitionKeys);
-    } else if ((partitionKeys == null) || partitionKeys.length == 0) {
+    } else if ((partitionKeys == null) || (partitionKeys.length == 0)) {
       partitionRanges = queryRanges.partitionRanges;
     } else {
       partitionRanges = new ArrayList<>(partitionKeys.length * queryRanges.partitionRanges.size());
@@ -61,7 +61,8 @@ public class QueryRanges {
     final Map<ByteArray, Collection<ByteArrayRange>> sortRangesPerPartition = new HashMap<>();
     for (final QueryRanges qr : queryRangesList) {
       for (final SinglePartitionQueryRanges r : qr.getPartitionQueryRanges()) {
-        final Collection<ByteArrayRange> ranges = sortRangesPerPartition.get(r.getPartitionKey());
+        final Collection<ByteArrayRange> ranges =
+            sortRangesPerPartition.get(new ByteArray(r.getPartitionKey()));
         if (ranges == null) {
           sortRangesPerPartition.put(
               new ByteArray(r.getPartitionKey()),

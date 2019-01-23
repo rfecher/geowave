@@ -111,9 +111,7 @@ public class GeometryUtils {
     // there apparently is no way to associate a CRS with a poly
     // intersection operation so it will have to assume the same CRS as the
     // feature type
-    return factory.intersects(
-        factory.property(geometryAttributeName),
-        factory.literal(jtsGeom));
+    return factory.intersects(factory.property(geometryAttributeName), factory.literal(jtsGeom));
   }
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings()

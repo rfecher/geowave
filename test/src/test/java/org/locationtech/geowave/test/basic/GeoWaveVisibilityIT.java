@@ -690,7 +690,8 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
         (CloseableIterator) store.query(
             QueryBuilder.newBuilder().setAuthorizations(auths).constraints(
                 spatial
-                    ? new ExplicitSpatialQuery(new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1)))
+                    ? new ExplicitSpatialQuery(
+                        new GeometryFactory().toGeometry(new Envelope(-1, 1, -1, 1)))
                     : null).build())) {
       int resultCount = 0;
       int nonNullFieldsCount = 0;
@@ -703,8 +704,6 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
         }
         resultCount++;
       }
-      // System.err.println(ClientVisibilityFilter.accepted);
-      // System.err.println(ClientVisibilityFilter.denied + ClientVisibilityFilter.accepted);
       Assert.assertEquals(
           "Unexpected result count for "
               + (spatial ? "spatial query" : "full table scan")

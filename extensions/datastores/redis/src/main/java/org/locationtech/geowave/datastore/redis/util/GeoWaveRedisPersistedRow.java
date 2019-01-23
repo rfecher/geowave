@@ -17,7 +17,7 @@ public class GeoWaveRedisPersistedRow {
   private final GeoWaveValue value;
 
   private transient byte[] partitionKey;
-  
+
   public GeoWaveRedisPersistedRow(
       final short numDuplicates,
       final byte[] dataId,

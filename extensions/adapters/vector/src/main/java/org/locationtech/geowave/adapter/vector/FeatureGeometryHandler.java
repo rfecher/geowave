@@ -47,6 +47,9 @@ public class FeatureGeometryHandler
   @Override
   public GeometryWrapper toIndexValue(final SimpleFeature row) {
     final Geometry geometry = (Geometry) nativeGeometryHandler.getFieldValue(row);
+    if (geometry == null) {
+      return null;
+    }
     byte[] visibility;
     if (visibilityHandler != null) {
       visibility =
@@ -67,7 +70,7 @@ public class FeatureGeometryHandler
   @Override
   public GeometryWrapper toIndexValue(final PersistentDataset<Object> adapterPersistenceEncoding) {
     final Geometry geometry =
-        (Geometry)adapterPersistenceEncoding.getValue(nativeGeometryHandler.getFieldName());
+        (Geometry) adapterPersistenceEncoding.getValue(nativeGeometryHandler.getFieldName());
     // visibility is unnecessary because this only happens after the geometry is read (its only used
     // in reconstructing common index values when using a secondary index)
     return new GeometryWrapper(geometry, null);

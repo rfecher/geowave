@@ -141,23 +141,57 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
     numKeysRead = 0;
 
     final Set<String> indices = split.getIndexNames();
-    BigDecimal sum = BigDecimal.ZERO;
+    final BigDecimal sum = BigDecimal.ZERO;
 
     final Map<RangeLocationPair, BigDecimal> incrementalRangeSums = new LinkedHashMap<>();
     final List<CloseableIterator<Pair<GeoWaveInputKey, T>>> allIterators = new ArrayList<>();
     final NextRangeCallback callback = new InternalCallback();
+    final short[] adapters;
+    // do a check for AdapterAndIndexBasedQueryConstraints in case
+    // the splits provider was unable to set it
+    if (constraints instanceof AdapterAndIndexBasedQueryConstraints) {
+      adapters = sanitizedQueryOptions.getAdapterIds(internalAdapterStore);
+    } else {
+      adapters = null;
+    }
     for (final String i : indices) {
       final SplitInfo splitInfo = split.getInfo(i);
       List<QueryFilter> queryFilters = null;
       if (constraints != null) {
-        // do a check for AdapterAndIndexBasedQueryConstraints in case
-        // the splits provider was unable to set it
-        if (constraints instanceof AdapterAndIndexBasedQueryConstraints) {
-          final short[] adapters = sanitizedQueryOptions.getAdapterIds(internalAdapterStore);
+        // if adapters isn't null that also means this constraint is
+        // AdapterAndIndexBasedQueryConstraints
+        if (adapters != null) {
           DataTypeAdapter<?> adapter = null;
+          if (adapters.length > 1) {
+            // this should be a rare situation, but just in case, loop over adapters and fill the
+            // iterator of results per adapter
+            for (final short adapterId : adapters) {
+              final String typeName = internalAdapterStore.getTypeName(adapterId);
+              if (typeName != null) {
+                adapter = adapterStore.getAdapter(typeName);
+              }
+
+              if (adapter == null) {
+                LOGGER.warn("Unable to find type matching an adapter dependent query");
+              }
+              queryFilters =
+                  ((AdapterAndIndexBasedQueryConstraints) constraints).createQueryConstraints(
+                      adapter,
+                      splitInfo.getIndex()).createFilters(splitInfo.getIndex());
+              sanitizedQueryOptions.setAdapterId(adapterId);
+              fillIterators(
+                  allIterators,
+                  splitInfo,
+                  queryFilters,
+                  sum,
+                  incrementalRangeSums,
+                  callback);
+            }
+            continue;
+          }
+
           // in practice this is used for CQL and you can't have
-          // multiple
-          // types/adapters
+          // multiple types/adapters
           if (adapters.length == 1) {
             final String typeName = internalAdapterStore.getTypeName(adapters[0]);
             if (typeName != null) {
@@ -175,57 +209,7 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
 
         queryFilters = constraints.createFilters(splitInfo.getIndex());
       }
-      if (!splitInfo.getRangeLocationPairs().isEmpty()) {
-        final QueryFilter[] filters =
-            ((queryFilters == null) || queryFilters.isEmpty()) ? null
-                : queryFilters.toArray(new QueryFilter[0]);
-
-        final PersistentAdapterStore persistentAdapterStore =
-            new AdapterStoreWrapper(adapterStore, internalAdapterStore);
-        final DataIndexRetrieval dataIndexRetrieval =
-            DataIndexUtils.getDataIndexRetrieval(
-                operations,
-                persistentAdapterStore,
-                internalAdapterStore,
-                splitInfo.getIndex(),
-                sanitizedQueryOptions.getFieldIdsAdapterPair(),
-                sanitizedQueryOptions.getAggregation(),
-                sanitizedQueryOptions.getAuthorizations(),
-                dataIndexBatchSize);
-
-        final List<Pair<RangeLocationPair, RowReader<GeoWaveRow>>> indexReaders =
-            new ArrayList<>(splitInfo.getRangeLocationPairs().size());
-        for (final RangeLocationPair r : splitInfo.getRangeLocationPairs()) {
-          indexReaders.add(
-              Pair.of(
-                  r,
-                  operations.createReader(
-                      new RecordReaderParams(
-                          splitInfo.getIndex(),
-                          persistentAdapterStore,
-                          internalAdapterStore,
-                          sanitizedQueryOptions.getAdapterIds(internalAdapterStore),
-                          sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
-                          sanitizedQueryOptions.getAggregation(),
-                          sanitizedQueryOptions.getFieldIdsAdapterPair(),
-                          splitInfo.isMixedVisibility(),
-                          splitInfo.isAuthorizationsLimiting(),
-                          splitInfo.isClientsideRowMerging(),
-                          r.getRange(),
-                          sanitizedQueryOptions.getLimit(),
-                          sanitizedQueryOptions.getMaxRangeDecomposition(),
-                          sanitizedQueryOptions.getAuthorizations()))));
-          incrementalRangeSums.put(r, sum);
-          sum = sum.add(BigDecimal.valueOf(r.getCardinality()));
-        }
-        allIterators.add(
-            concatenateWithCallback(
-                indexReaders,
-                callback,
-                splitInfo.getIndex(),
-                filters,
-                dataIndexRetrieval));
-      }
+      fillIterators(allIterators, splitInfo, queryFilters, sum, incrementalRangeSums, callback);
     }
     // finally we can compute percent progress
     progressPerRange = new LinkedHashMap<>();
@@ -259,6 +243,67 @@ public class GeoWaveRecordReader<T> extends RecordReader<GeoWaveInputKey, T> {
     }, Iterators.concat(allIterators.iterator()));
 
 
+  }
+
+  private void fillIterators(
+      final List<CloseableIterator<Pair<GeoWaveInputKey, T>>> allIterators,
+      final SplitInfo splitInfo,
+      final List<QueryFilter> queryFilters,
+      BigDecimal sum,
+      final Map<RangeLocationPair, BigDecimal> incrementalRangeSums,
+      final NextRangeCallback callback) {
+
+    if (!splitInfo.getRangeLocationPairs().isEmpty()) {
+      final QueryFilter[] filters =
+          ((queryFilters == null) || queryFilters.isEmpty()) ? null
+              : queryFilters.toArray(new QueryFilter[0]);
+
+      final PersistentAdapterStore persistentAdapterStore =
+          new AdapterStoreWrapper(adapterStore, internalAdapterStore);
+      final DataIndexRetrieval dataIndexRetrieval =
+          DataIndexUtils.getDataIndexRetrieval(
+              operations,
+              persistentAdapterStore,
+              internalAdapterStore,
+              splitInfo.getIndex(),
+              sanitizedQueryOptions.getFieldIdsAdapterPair(),
+              sanitizedQueryOptions.getAggregation(),
+              sanitizedQueryOptions.getAuthorizations(),
+              dataIndexBatchSize);
+
+      final List<Pair<RangeLocationPair, RowReader<GeoWaveRow>>> indexReaders =
+          new ArrayList<>(splitInfo.getRangeLocationPairs().size());
+      for (final RangeLocationPair r : splitInfo.getRangeLocationPairs()) {
+        indexReaders.add(
+            Pair.of(
+                r,
+                operations.createReader(
+                    new RecordReaderParams(
+                        splitInfo.getIndex(),
+                        persistentAdapterStore,
+                        internalAdapterStore,
+                        sanitizedQueryOptions.getAdapterIds(internalAdapterStore),
+                        sanitizedQueryOptions.getMaxResolutionSubsamplingPerDimension(),
+                        sanitizedQueryOptions.getAggregation(),
+                        sanitizedQueryOptions.getFieldIdsAdapterPair(),
+                        splitInfo.isMixedVisibility(),
+                        splitInfo.isAuthorizationsLimiting(),
+                        splitInfo.isClientsideRowMerging(),
+                        r.getRange(),
+                        sanitizedQueryOptions.getLimit(),
+                        sanitizedQueryOptions.getMaxRangeDecomposition(),
+                        sanitizedQueryOptions.getAuthorizations()))));
+        incrementalRangeSums.put(r, sum);
+        sum = sum.add(BigDecimal.valueOf(r.getCardinality()));
+      }
+      allIterators.add(
+          concatenateWithCallback(
+              indexReaders,
+              callback,
+              splitInfo.getIndex(),
+              filters,
+              dataIndexRetrieval));
+    }
   }
 
   protected Iterator<Pair<GeoWaveInputKey, T>> rowReaderToKeyValues(

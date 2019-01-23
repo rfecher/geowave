@@ -103,7 +103,7 @@ public class ByteArrayRange implements Comparable<ByteArrayRange> {
   public boolean intersects(final ByteArrayRange other) {
     if (isSingleValue()) {
       if (other.isSingleValue()) {
-        return getStart().equals(other.getStart());
+        return Arrays.equals(getStart(), other.getStart());
       }
       return false;
     }

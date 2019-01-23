@@ -11,6 +11,8 @@ package org.locationtech.geowave.core.index;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import org.locationtech.geowave.core.index.persist.Persistable;
 
@@ -27,7 +29,7 @@ public class SinglePartitionInsertionIds implements Persistable {
 
   public SinglePartitionInsertionIds(final byte[] partitionKey, final byte[] sortKey) {
     this.partitionKey = partitionKey;
-    sortKeys = sortKey == null ? null : Arrays.asList(sortKey);
+    sortKeys = sortKey == null ? null : new ArrayList<>(Collections.singletonList(sortKey));
   }
 
   public SinglePartitionInsertionIds(
@@ -47,7 +49,7 @@ public class SinglePartitionInsertionIds implements Persistable {
       sortKeys = insertionId1.sortKeys;
     } else {
       // use all permutations of range keys
-      sortKeys = new ArrayList<byte[]>(insertionId1.sortKeys.size() * insertionId2.sortKeys.size());
+      sortKeys = new ArrayList<>(insertionId1.sortKeys.size() * insertionId2.sortKeys.size());
       for (final byte[] sortKey1 : insertionId1.sortKeys) {
         for (final byte[] sortKey2 : insertionId2.sortKeys) {
           sortKeys.add(ByteArrayUtils.combineArrays(sortKey1, sortKey2));
@@ -96,8 +98,12 @@ public class SinglePartitionInsertionIds implements Persistable {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = (prime * result) + ((partitionKey == null) ? 0 : partitionKey.hashCode());
-    result = (prime * result) + ((sortKeys == null) ? 0 : sortKeys.hashCode());
+    result = (prime * result) + ((partitionKey == null) ? 0 : Arrays.hashCode(partitionKey));
+    if (sortKeys != null) {
+      for (final byte[] sortKey : sortKeys) {
+        result = (prime * result) + (sortKey == null ? 0 : Arrays.hashCode(sortKey));
+      }
+    }
     return result;
   }
 
@@ -117,15 +123,23 @@ public class SinglePartitionInsertionIds implements Persistable {
       if (other.partitionKey != null) {
         return false;
       }
-    } else if (!partitionKey.equals(other.partitionKey)) {
+    } else if (!Arrays.equals(partitionKey, other.partitionKey)) {
       return false;
     }
     if (sortKeys == null) {
       if (other.sortKeys != null) {
         return false;
       }
-    } else if (!sortKeys.equals(other.sortKeys)) {
+    } else if (sortKeys.size() != other.sortKeys.size()) {
       return false;
+    } else {
+      final Iterator<byte[]> it1 = sortKeys.iterator();
+      final Iterator<byte[]> it2 = other.sortKeys.iterator();
+      while (it1.hasNext() && it2.hasNext()) {
+        if ((!Arrays.equals(it1.next(), it2.next()))) {
+          return false;
+        }
+      }
     }
     return true;
   }

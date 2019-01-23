@@ -69,7 +69,8 @@ public class SpatialQueryTest {
             new Coordinate(24, 37),
             new Coordinate(24, 33)};
     // create spatial query object with geometric relationship operator
-    final ExplicitSpatialQuery query = new ExplicitSpatialQuery(factory.createPolygon(queryCoord), op);
+    final ExplicitSpatialQuery query =
+        new ExplicitSpatialQuery(factory.createPolygon(queryCoord), op);
 
     final ExplicitSpatialQuery queryCopy = new ExplicitSpatialQuery();
     queryCopy.fromBinary(query.toBinary());

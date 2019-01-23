@@ -103,7 +103,10 @@ public class NativeEntryIteratorWrapper<T> implements Iterator<T> {
   }
 
   @SuppressWarnings("unchecked")
-  protected T decodeRow(final GeoWaveRow row, final QueryFilter[] clientFilters, final Index index) {
+  protected T decodeRow(
+      final GeoWaveRow row,
+      final QueryFilter[] clientFilters,
+      final Index index) {
     Object decodedRow = null;
     if (adapterValid && ((bitPosition == null) || passesSkipFilter(row))) {
       try {

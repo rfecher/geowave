@@ -16,11 +16,14 @@ import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 public class RocksDBClient implements Closeable {
+  private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBClient.class);
 
   private static class CacheKey {
     protected final String directory;
@@ -168,7 +171,10 @@ public class RocksDBClient implements Closeable {
   }
 
   private RocksDBMetadataTable loadMetadataTable(final CacheKey key) throws RocksDBException {
-    new File(key.directory).mkdirs();
+    final File dir = new File(key.directory);
+    if (!dir.exists() && !dir.mkdirs()) {
+      LOGGER.error("Unable to create directory for rocksdb store '" + key.directory + "'");
+    }
     return new RocksDBMetadataTable(
         RocksDB.open(metadataOptions, key.directory),
         key.requiresTimestamp,

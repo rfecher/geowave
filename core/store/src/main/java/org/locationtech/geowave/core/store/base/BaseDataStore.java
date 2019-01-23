@@ -144,9 +144,9 @@ public class BaseDataStore implements DataStore {
   }
 
   private <T> Writer<T> createWriter(final InternalDataAdapter<T> adapter, final Index... indices) {
-    boolean secondaryIndex = baseOptions.isSecondaryIndexing() && DataIndexUtils.adapterSupportsDataIndex(adapter);
-    final Writer<T>[] writers =
-        new Writer[secondaryIndex ? indices.length + 1 : indices.length];
+    boolean secondaryIndex =
+        baseOptions.isSecondaryIndexing() && DataIndexUtils.adapterSupportsDataIndex(adapter);
+    final Writer<T>[] writers = new Writer[secondaryIndex ? indices.length + 1 : indices.length];
 
     int i = 0;
     if (secondaryIndex) {
@@ -279,7 +279,8 @@ public class BaseDataStore implements DataStore {
     final List<DataStoreCallbackManager> deleteCallbacks = new ArrayList<>();
 
     final Map<Short, Set<ByteArray>> dataIdsToDelete;
-    if (DeletionMode.DELETE_WITH_DUPLICATES.equals(deleteMode) && baseOptions.isSecondaryIndexing()) {
+    if (DeletionMode.DELETE_WITH_DUPLICATES.equals(deleteMode)
+        && baseOptions.isSecondaryIndexing()) {
       dataIdsToDelete = new HashMap<>();
     } else {
       dataIdsToDelete = null;

@@ -21,6 +21,7 @@ import org.locationtech.geowave.core.store.flatten.FlattenedFieldInfo;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * This is an implements of persistence encoding that also contains all of the extended data values
@@ -109,6 +110,7 @@ public class LazyReadPersistenceEncoding extends IndexedAdapterPersistenceEncodi
     return super.getCommonData();
   }
 
+  @SuppressFBWarnings(justification = "This is intentional to avoid unnecessary sync")
   private void deferredReadFields() {
     if (deferredFieldReader != null) {
       // this is intentional to check for null twice to avoid extra unnecessary synchronization

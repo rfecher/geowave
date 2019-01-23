@@ -48,6 +48,9 @@ public class FeatureTimestampHandler implements IndexFieldHandler<SimpleFeature,
   @Override
   public Time toIndexValue(final SimpleFeature row) {
     final Object object = nativeTimestampHandler.getFieldValue(row);
+    if (object == null) {
+      return null;
+    }
     byte[] visibility;
     if (visibilityHandler != null) {
       visibility =
