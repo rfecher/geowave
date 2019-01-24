@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.core.geotime.index.sfc.hilbert.tiered;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -136,7 +137,7 @@ public class TieredSFCIndexStrategyTest {
           if (rangeAtTierFound) {
             throw new Exception("multiple ranges were found unexpectedly for tier " + tier);
           }
-          assertEquals(
+          assertArrayEquals(
               "this range is an exact fit, so it should have exactly one value for tier "
                   + DEFINED_BITS_OF_PRECISION[sfcIndex],
               range.getStart(),

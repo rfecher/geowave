@@ -52,22 +52,22 @@ public class SecondaryIndexIT extends AbstractGeoWaveBasicVectorIT {
 
   private static final int TOTAL_FEATURES_FOR_VISIBILITY_TEST = 400;
 
-   @Test
+  @Test
   public void testLocalIngestAndQuerySpatial() throws Exception {
     testIngestAndQuery(DimensionalityType.SPATIAL, false);
   }
 
-   @Test
+  @Test
   public void testLocalIngestAndQuerySpatialTemporal() throws Exception {
     testIngestAndQuery(DimensionalityType.SPATIAL_TEMPORAL, false);
   }
 
-   @Test
+  @Test
   public void testLocalIngestAndQuerySpatialAndSpatialTemporal() throws Exception {
     testIngestAndQuery(DimensionalityType.ALL, false);
   }
 
-   @Test
+  @Test
   public void testDistributedIngestAndQuerySpatial() throws Exception {
     testIngestAndQuery(DimensionalityType.SPATIAL, true);
   }
@@ -77,7 +77,7 @@ public class SecondaryIndexIT extends AbstractGeoWaveBasicVectorIT {
     testIngestAndQuery(DimensionalityType.SPATIAL_TEMPORAL, true);
   }
 
-   @Test
+  @Test
   public void testDistributedIngestAndQuerySpatialAndSpatialTemporal() throws Exception {
     testIngestAndQuery(DimensionalityType.ALL, true);
   }
