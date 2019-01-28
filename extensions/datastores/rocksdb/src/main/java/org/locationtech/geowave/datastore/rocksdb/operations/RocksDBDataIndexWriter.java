@@ -15,10 +15,10 @@ import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBDataIndexTable;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 
-public class RockDBDataIndexWriter implements RowWriter {
+public class RocksDBDataIndexWriter implements RowWriter {
   private final RocksDBDataIndexTable table;
 
-  public RockDBDataIndexWriter(
+  public RocksDBDataIndexWriter(
       final RocksDBClient client,
       final short adapterId,
       final String typeName) {

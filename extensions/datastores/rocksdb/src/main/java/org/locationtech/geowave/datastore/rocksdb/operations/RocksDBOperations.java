@@ -105,7 +105,7 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
 
   @Override
   public RowWriter createDataIndexWriter(final InternalDataAdapter<?> adapter) {
-    return new RockDBDataIndexWriter(client, adapter.getAdapterId(), adapter.getTypeName());
+    return new RocksDBDataIndexWriter(client, adapter.getAdapterId(), adapter.getTypeName());
   }
 
   @Override
