@@ -98,6 +98,11 @@ public class HaloDBClient implements Closeable {
     }
   }
 
+  public String getSubDirectory() {
+    return subDirectory;
+  }
+
+
   @Override
   public void close() throws IOException {
     keyCache.invalidateAll();

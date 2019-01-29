@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class will persist Adapter Index Mappings within an Accumulo table for GeoWave metadata. The
- * mappings will be persisted in an "AIM" column family.
+ * This class will persist Adapter Index Mappings within a table for GeoWave metadata. The mappings
+ * will be persisted in an "AIM" column family.
  *
  * <p> There is an LRU cache associated with it so staying in sync with external updates is not
  * practical - it assumes the objects are not updated often or at all. The objects are stored in
@@ -33,7 +33,8 @@ import org.slf4j.LoggerFactory;
  * adapter and indexing is consistent across all visibility constraints.
  */
 public class AdapterIndexMappingStoreImpl extends AbstractGeoWavePersistence<AdapterToIndexMapping>
-    implements AdapterIndexMappingStore {
+    implements
+    AdapterIndexMappingStore {
   private static final Logger LOGGER = LoggerFactory.getLogger(AdapterIndexMappingStoreImpl.class);
 
   public AdapterIndexMappingStoreImpl(

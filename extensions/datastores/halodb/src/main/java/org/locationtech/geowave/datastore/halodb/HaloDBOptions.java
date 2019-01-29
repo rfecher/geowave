@@ -28,9 +28,13 @@ public class HaloDBOptions {
   @Parameter(
       names = "--halodb-compactionjobrate",
       hidden = true,
-      description = " This is the amount of data which will be copied by the compaction thread per second.  Defaults to 50 MB.")
+      description = "This is the amount of data which will be copied by the compaction thread per second.  Defaults to 50 MB.")
   private int compactionJobRate = 50 * 1024 * 1024;
 
+  @Parameter(
+      names = "--halodb-chunksize",
+      description = "Native memory segment memory are divided into chunks whose size can be configured here.  Defaults to 5 MB.")
+  private int memoryPoolChunkSize = 5 * 1024 * 1024;
   @Parameter(
       names = "--halodb-expectedrecords",
       description = "Setting this value is important as it helps to preallocate enough memory for the off-heap cache. Defaults to 100 million.")
@@ -100,7 +104,7 @@ public class HaloDBOptions {
     // Hash table is divided into segments and each segment manages its own native memory.
     // The number of segments is twice the number of cores in the machine.
     // A segment's memory is further divided into chunks whose size can be configured here.
-    options.setMemoryPoolChunkSize(2 * 1024 * 1024);
+    options.setMemoryPoolChunkSize(memoryPoolChunkSize);
 
     // using a memory pool requires us to declare the size of keys in advance.
     // Any write request with key length greater than the declared value will fail, but it

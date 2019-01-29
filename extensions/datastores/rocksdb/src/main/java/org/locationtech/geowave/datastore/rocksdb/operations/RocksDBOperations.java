@@ -50,7 +50,13 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
   private HaloDBOperations haloDBOperations;
 
   public RocksDBOperations(final RocksDBOptions options) {
-    directory = options.getDirectory() + "/" + options.getGeoWaveNamespace();
+    directory =
+        options.getDirectory()
+            + File.separator
+            + ((options.getGeoWaveNamespace() == null)
+                || options.getGeoWaveNamespace().trim().isEmpty()
+                || "null".equalsIgnoreCase(options.getGeoWaveNamespace()) ? "default"
+                    : options.getGeoWaveNamespace());
 
     visibilityEnabled = options.getStoreOptions().isVisibilityEnabled();
     // a factory method that returns a RocksDB instance

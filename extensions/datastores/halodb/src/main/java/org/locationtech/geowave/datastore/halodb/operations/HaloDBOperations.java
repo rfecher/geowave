@@ -38,22 +38,26 @@ import com.google.common.collect.Sets;
 public class HaloDBOperations implements Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(HaloDBOperations.class);
   private final HaloDBClient client;
-  private final String directory;
   private final boolean visibilityEnabled;
 
   public HaloDBOperations(
       final HaloDBOptions haloDbOptions,
       final StoreFactoryOptions storeOptions) {
-    directory = haloDbOptions.getDirectory() + "/" + storeOptions.getGeoWaveNamespace();
-
+    final String namespace = storeOptions.getGeoWaveNamespace();
     visibilityEnabled = storeOptions.getStoreOptions().isVisibilityEnabled();
     // a factory method that returns a HaloDB instance
-    client = HaloDBCache.getInstance().getClient(haloDbOptions, directory, visibilityEnabled);
+    client =
+        HaloDBCache.getInstance().getClient(
+            haloDbOptions,
+            (namespace == null) || namespace.trim().isEmpty() || "null".equalsIgnoreCase(namespace)
+                ? "default"
+                : namespace,
+            visibilityEnabled);
   }
 
   public void deleteAll() throws Exception {
     close();
-    FileUtils.deleteDirectory(new File(directory));
+    FileUtils.deleteDirectory(new File(client.getSubDirectory()));
   }
 
   public boolean deleteAll(
@@ -66,13 +70,15 @@ public class HaloDBOperations implements Closeable {
     } catch (final IOException e) {
       LOGGER.warn("unable to close data index for type '" + typeName + "'", e);
     }
-    Arrays.stream(new File(directory).list((dir, name) -> name.startsWith(prefix))).forEach(d -> {
-      try {
-        FileUtils.deleteDirectory(new File(d));
-      } catch (final IOException e) {
-        LOGGER.warn("Unable to delete directory '" + d + "'");
-      }
-    });
+    Arrays.stream(
+        new File(client.getSubDirectory()).list((dir, name) -> name.startsWith(prefix))).forEach(
+            d -> {
+              try {
+                FileUtils.deleteDirectory(new File(d));
+              } catch (final IOException e) {
+                LOGGER.warn("Unable to delete directory '" + d + "'");
+              }
+            });
     return true;
   }
 
@@ -128,9 +134,9 @@ public class HaloDBOperations implements Closeable {
   @Override
   public void close() {
     try {
-      HaloDBCache.getInstance().close(directory);
+      HaloDBCache.getInstance().close(client.getSubDirectory());
     } catch (final IOException e) {
-      LOGGER.warn("unable to close HaloDB at directory '" + directory + "'");
+      LOGGER.warn("unable to close HaloDB at directory '" + client.getSubDirectory() + "'");
     }
   }
 }
