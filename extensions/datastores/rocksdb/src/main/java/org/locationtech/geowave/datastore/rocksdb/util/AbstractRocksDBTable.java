@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
- * 
+ *
  * See the NOTICE file distributed with this work for additional information regarding copyright
  * ownership. All rights reserved. This program and the accompanying materials are made available
  * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
@@ -70,7 +70,11 @@ abstract public class AbstractRocksDBTable {
     // TODO flush batch writes
     final RocksDB db = getWriteDb();
     try {
+      final long time = System.currentTimeMillis();
+      System.err.println("compacting " + subDirectory);
       db.compactRange();
+      System.err.println(
+          "finished compaction in " + (System.currentTimeMillis() - time) + "ms of" + subDirectory);
     } catch (final RocksDBException e) {
       LOGGER.warn("Unable to compact range", e);
     }

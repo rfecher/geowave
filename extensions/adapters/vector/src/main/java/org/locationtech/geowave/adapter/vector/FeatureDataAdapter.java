@@ -679,7 +679,8 @@ public class FeatureDataAdapter extends AbstractDataAdapter<SimpleFeature> imple
 
   @Override
   public byte[] getDataId(final SimpleFeature entry) {
-    return StringUtils.stringToBinary(entry.getID());
+    return ByteBuffer.allocate(4).putInt(Integer.parseInt(entry.getID())).array();
+    // return StringUtils.stringToBinary(entry.getID());
   }
 
   private ThreadLocal<FeatureRowBuilder> builder = null;

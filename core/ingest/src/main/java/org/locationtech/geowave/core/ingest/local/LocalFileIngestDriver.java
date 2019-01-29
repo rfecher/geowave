@@ -41,8 +41,8 @@ import org.slf4j.LoggerFactory;
  * This extends the local file driver to directly ingest data into GeoWave utilizing the
  * LocalFileIngestPlugin's that are discovered by the system.
  */
-public class LocalFileIngestDriver
-    extends AbstractLocalFileDriver<LocalFileIngestPlugin<?>, LocalIngestRunData> {
+public class LocalFileIngestDriver extends
+    AbstractLocalFileDriver<LocalFileIngestPlugin<?>, LocalIngestRunData> {
   public static final int INGEST_BATCH_SIZE = 50000;
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalFileIngestDriver.class);
   protected DataStorePluginOptions storeOptions;
@@ -162,12 +162,8 @@ public class LocalFileIngestDriver
 
     // This gets the list of required indexes from the Plugin.
     // If for some reason a GeoWaveData specifies an index that isn't
-    // originally
-    // in the specifiedPrimaryIndexes list, then this array is used to
-    // determine
-    // if the Plugin supports it. If it does, then we allow the creation of
-    // the
-    // index.
+    // originally in the specifiedPrimaryIndexes list, then this array is used to determine if the
+    // Plugin supports it. If it does, then we allow the creation of the index.
     final Map<String, Index> requiredIndexMap = new HashMap<>();
     final Index[] requiredIndices = plugin.getRequiredIndices();
     if ((requiredIndices != null) && (requiredIndices.length > 0)) {
@@ -175,9 +171,9 @@ public class LocalFileIngestDriver
         requiredIndexMap.put(requiredIndex.getName(), requiredIndex);
       }
     }
+    long time = System.currentTimeMillis();
 
     if (threads == 1) {
-
       processFileSingleThreaded(
           file,
           typeName,
@@ -185,9 +181,7 @@ public class LocalFileIngestDriver
           ingestRunData,
           specifiedPrimaryIndexes,
           requiredIndexMap);
-
     } else {
-
       processFileMultiThreaded(
           file,
           typeName,
@@ -196,7 +190,7 @@ public class LocalFileIngestDriver
           specifiedPrimaryIndexes,
           requiredIndexMap);
     }
-
+    System.err.println("total time: " + (System.currentTimeMillis() - time) + " ms");
     LOGGER.info(String.format("Finished ingest for file: [%s]", file.getFile()));
   }
 
@@ -242,6 +236,9 @@ public class LocalFileIngestDriver
                   indexWriters);
 
           count++;
+          if (count % 1000000 == 0) {
+            System.err.println(count);
+          }
 
         } catch (final Exception e) {
           throw new RuntimeException("Interrupted ingesting GeoWaveData", e);
@@ -354,10 +351,14 @@ public class LocalFileIngestDriver
               file,
               specifiedPrimaryIndexes.keySet().toArray(new String[0]),
               ingestOptions.getVisibility())) {
-
+        int count = 0;
         while (geowaveDataIt.hasNext()) {
           final GeoWaveData<?> geowaveData = (GeoWaveData<?>) geowaveDataIt.next();
           try {
+            count++;
+            if (count % 1000000 == 0) {
+              System.err.println(count);
+            }
             while (!queue.offer(geowaveData, 100, TimeUnit.MILLISECONDS)) {
               // Determine if we have any workers left. The point
               // of this code is so we

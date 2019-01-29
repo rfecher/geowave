@@ -8,12 +8,12 @@
  */
 package org.locationtech.geowave.adapter.vector;
 
-import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificDatumReader;
@@ -34,6 +34,7 @@ import org.locationtech.jts.io.WKBReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import com.google.common.base.Preconditions;
 
 public class GeoWaveAvroFeatureUtils {
   private static final TWKBWriter WKB_WRITER = new TWKBWriter();
@@ -190,6 +191,8 @@ public class GeoWaveAvroFeatureUtils {
     return sftb.buildFeatureType();
   }
 
+  private static AtomicInteger ctr = new AtomicInteger(0);
+
   public static SimpleFeature avroSimpleFeatureToGTSimpleFeature(
       final SimpleFeatureType type,
       final List<String> attributeTypes,
@@ -202,7 +205,7 @@ public class GeoWaveAvroFeatureUtils {
 
     // null values should still take a place in the array - check
     Preconditions.checkArgument(attributeTypes.size() == attributeValues.getValues().size());
-    byte serializationVersion = attributeValues.getSerializationVersion().get();
+    final byte serializationVersion = attributeValues.getSerializationVersion().get();
     WKBReader legacyReader = null;
     if (serializationVersion < FieldUtils.SERIALIZATION_VERSION) {
       legacyReader = new WKBReader();
@@ -224,11 +227,11 @@ public class GeoWaveAvroFeatureUtils {
       }
     }
 
-    simpleFeature = sfb.buildFeature(attributeValues.getFid());
+    simpleFeature = sfb.buildFeature(Integer.toString(ctr.getAndIncrement()));
     return simpleFeature;
   }
 
-  private static String jtsCompatibility(String attrTypeName) {
+  private static String jtsCompatibility(final String attrTypeName) {
     if (attrTypeName.startsWith("com.vividsolutions")) {
       return attrTypeName.replace("com.vividsolutions", "org.locationtech");
     }
