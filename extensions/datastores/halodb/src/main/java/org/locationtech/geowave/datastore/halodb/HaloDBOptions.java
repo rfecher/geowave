@@ -6,36 +6,40 @@ public class HaloDBOptions {
   @Parameter(
       names = "--halodb-dir",
       description = "The directory to read/write for the data index.  Defaults to \"halodb\" in the working directory.")
-  private final String directory = "halodb";
+  private String directory = "halodb";
   @Parameter(
       names = "--halodb-maxfilesize",
+      hidden = true,
       description = "The max file size in bytes.  Defaults to 1 GB.")
-  private final int maxFileSize = 1024 * 1024 * 1024;
+  private int maxFileSize = 1024 * 1024 * 1024;
 
   @Parameter(
       names = "--halodb-flushdatasize",
+      hidden = true,
       description = "The threshold at which page cache is synced to disk.  Defaults to 10 MB.")
-  private final int flushDataSize = 10 * 1024 * 1024;
+  private int flushDataSize = 10 * 1024 * 1024;
 
   @Parameter(
       names = "--halodb-compactionthreshold",
+      hidden = true,
       description = "The percentage of stale data in a data file at which the file will be compacted.  Defaults to 70%.")
-  private final double compactionThreshold = 0.7;
+  private double compactionThreshold = 0.7;
 
   @Parameter(
       names = "--halodb-compactionjobrate",
+      hidden = true,
       description = " This is the amount of data which will be copied by the compaction thread per second.  Defaults to 50 MB.")
-  private final int compactionJobRate = 50 * 1024 * 1024;
+  private int compactionJobRate = 50 * 1024 * 1024;
 
   @Parameter(
       names = "--halodb-expectedrecords",
-      description = "Setting this value is important as it helps to preallocate enough memory for the off-heap cache..  Defaults to 250 million.")
-  private final int expectedTotalRecords = 250_000_000;
+      description = "Setting this value is important as it helps to preallocate enough memory for the off-heap cache. Defaults to 100 million.")
+  private int expectedTotalRecords = 100_000_000;
 
   @Parameter(
       names = "--halodb-maxkeysize",
-      description = "Using a memory pool requires us to declare the size of keys in advance. Any write request with key length greater than the declared value will fail, but it is still possible to store keys smaller than this declared size. Defaults to 4 bytes.")
-  private final int maxKeySize = 4;
+      description = "Using a memory pool requires us to declare the size of keys in advance. Any write request with key length greater than the declared value will fail, but it is still possible to store keys smaller than this declared size. Defaults to 4 bytes as a suggestion to keep it small.")
+  private int maxKeySize = 4;
 
   public String getDirectory() {
     return directory;
@@ -70,7 +74,7 @@ public class HaloDBOptions {
     // Setting this value is important as it helps to preallocate enough
     // memory for the off-heap cache. If the value is too low the db might
     // need to rehash the cache. For a db of size n set this value to 2*n.
-    options.setNumberOfRecords(expectedTotalRecords);
+    options.setNumberOfRecords(expectedTotalRecords * 2);
 
     // Delete operation for a key will write a tombstone record to a tombstone file.
     // the tombstone record can be removed only when all previous version of that key
@@ -160,5 +164,57 @@ public class HaloDBOptions {
       return false;
     }
     return true;
+  }
+
+  public int getMaxFileSize() {
+    return maxFileSize;
+  }
+
+  public void setMaxFileSize(final int maxFileSize) {
+    this.maxFileSize = maxFileSize;
+  }
+
+  public int getFlushDataSize() {
+    return flushDataSize;
+  }
+
+  public void setFlushDataSize(final int flushDataSize) {
+    this.flushDataSize = flushDataSize;
+  }
+
+  public double getCompactionThreshold() {
+    return compactionThreshold;
+  }
+
+  public void setCompactionThreshold(final double compactionThreshold) {
+    this.compactionThreshold = compactionThreshold;
+  }
+
+  public int getCompactionJobRate() {
+    return compactionJobRate;
+  }
+
+  public void setCompactionJobRate(final int compactionJobRate) {
+    this.compactionJobRate = compactionJobRate;
+  }
+
+  public int getExpectedTotalRecords() {
+    return expectedTotalRecords;
+  }
+
+  public void setExpectedTotalRecords(final int expectedTotalRecords) {
+    this.expectedTotalRecords = expectedTotalRecords;
+  }
+
+  public int getMaxKeySize() {
+    return maxKeySize;
+  }
+
+  public void setMaxKeySize(final int maxKeySize) {
+    this.maxKeySize = maxKeySize;
+  }
+
+  public void setDirectory(final String directory) {
+    this.directory = directory;
   }
 }

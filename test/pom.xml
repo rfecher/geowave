@@ -761,6 +761,13 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>halodb-it</id>
+			<properties>
+				<skipITs>false</skipITs>
+				<testStoreOptions>enableSecondaryIndexing=true,halodb-dataidx=true,halodb-maxkeysize=60</testStoreOptions>
+			</properties>
+		</profile>
+		<profile>
 			<id>hbase-it-all</id>
 			<properties>
 				<skipITs>false</skipITs>

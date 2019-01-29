@@ -13,6 +13,7 @@ import org.locationtech.geowave.core.store.BaseDataStoreOptions;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.StoreFactoryFamilySpi;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
+import org.locationtech.geowave.datastore.halodb.HaloDBOptions;
 import org.locationtech.geowave.datastore.redis.RedisStoreFactoryFamily;
 import org.locationtech.geowave.datastore.redis.util.RedisUtils;
 import org.redisson.client.codec.Codec;
@@ -31,6 +32,13 @@ public class RedisOptions extends StoreFactoryOptions {
       description = "Can be \"snappy\",\"lz4\", or \"none\". Defaults to snappy.",
       converter = CompressionConverter.class)
   private Compression compression = Compression.SNAPPY;
+  @Parameter(
+      names = "--halodb-dataidx",
+      description = "Enable HaloDB for the data index when using secondary indexing. Understand that it uses local files, and is generally only applicable when data would not fit in memory in Redis. Defaults to disabled.")
+  private boolean enableHaloDBDataIndex = false;
+
+  @ParametersDelegate
+  protected HaloDBOptions haloDBOptions = new HaloDBOptions();
 
   @ParametersDelegate
   protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
@@ -87,6 +95,18 @@ public class RedisOptions extends StoreFactoryOptions {
 
   public Compression getCompression() {
     return compression;
+  }
+
+  public HaloDBOptions getHaloDBOptions() {
+    return haloDBOptions;
+  }
+
+  public boolean isEnableHaloDBDataIndex() {
+    return enableHaloDBDataIndex;
+  }
+
+  public void setEnableHaloDBDataIndex(final boolean enableHaloDBDataIndex) {
+    this.enableHaloDBDataIndex = enableHaloDBDataIndex;
   }
 
   public static enum Compression {

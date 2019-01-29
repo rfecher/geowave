@@ -12,6 +12,7 @@ import org.locationtech.geowave.core.store.BaseDataStoreOptions;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.StoreFactoryFamilySpi;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
+import org.locationtech.geowave.datastore.halodb.HaloDBOptions;
 import org.locationtech.geowave.datastore.rocksdb.RocksDBStoreFactoryFamily;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBUtils;
 import com.beust.jcommander.Parameter;
@@ -22,6 +23,14 @@ public class RocksDBOptions extends StoreFactoryOptions {
       names = "--directory",
       description = "The directory to read/write to.  Defaults to \"rocksdb\" in the working directory.")
   private String directory = "rocksdb";
+
+  @Parameter(
+      names = "--halodb-dataidx",
+      description = "Enable HaloDB for the data index when using secondary indexing.  Defaults to disabled.")
+  private boolean enableHaloDBDataIndex = false;
+
+  @ParametersDelegate
+  protected HaloDBOptions haloDBOptions = new HaloDBOptions();
 
   @ParametersDelegate
   protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
@@ -65,6 +74,18 @@ public class RocksDBOptions extends StoreFactoryOptions {
   @Override
   public StoreFactoryFamilySpi getStoreFactory() {
     return new RocksDBStoreFactoryFamily();
+  }
+
+  public boolean isEnableHaloDBDataIndex() {
+    return enableHaloDBDataIndex;
+  }
+
+  public void setEnableHaloDBDataIndex(final boolean enableHaloDBDataIndex) {
+    this.enableHaloDBDataIndex = enableHaloDBDataIndex;
+  }
+
+  public HaloDBOptions getHaloDBOptions() {
+    return haloDBOptions;
   }
 
   @Override

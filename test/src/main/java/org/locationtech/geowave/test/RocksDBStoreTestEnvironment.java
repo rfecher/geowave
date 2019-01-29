@@ -24,6 +24,7 @@ public class RocksDBStoreTestEnvironment extends StoreTestEnvironment {
       new RocksDBStoreFactoryFamily().getDataStoreFactory();
   private static RocksDBStoreTestEnvironment singletonInstance = null;
   private static final String DEFAULT_DB_DIRECTORY = "./target/rocksdb";
+  private static final String DEFAULT_HALODB_DIRECTORY = "./target/halodb";
 
   public static synchronized RocksDBStoreTestEnvironment getInstance() {
     if (singletonInstance == null) {
@@ -61,5 +62,6 @@ public class RocksDBStoreTestEnvironment extends StoreTestEnvironment {
   @Override
   protected void initOptions(final StoreFactoryOptions options) {
     ((RocksDBOptions) options).setDirectory(DEFAULT_DB_DIRECTORY);
+    ((RocksDBOptions) options).getHaloDBOptions().setDirectory(DEFAULT_HALODB_DIRECTORY);
   }
 }

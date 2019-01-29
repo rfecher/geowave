@@ -17,6 +17,7 @@ import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.Deleter;
@@ -29,6 +30,7 @@ import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.RowWriter;
+import org.locationtech.geowave.datastore.halodb.operations.HaloDBOperations;
 import org.locationtech.geowave.datastore.rocksdb.config.RocksDBOptions;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClient;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBClientCache;
@@ -45,6 +47,7 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
   private final RocksDBClient client;
   private final String directory;
   private final boolean visibilityEnabled;
+  private HaloDBOperations haloDBOperations;
 
   public RocksDBOperations(final RocksDBOptions options) {
     directory = options.getDirectory() + "/" + options.getGeoWaveNamespace();
@@ -52,6 +55,11 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
     visibilityEnabled = options.getStoreOptions().isVisibilityEnabled();
     // a factory method that returns a RocksDB instance
     client = RocksDBClientCache.getInstance().getClient(directory, visibilityEnabled);
+    if (options.isEnableHaloDBDataIndex()) {
+      haloDBOperations = new HaloDBOperations(options.getHaloDBOptions(), options);
+    } else {
+      haloDBOperations = null;
+    }
   }
 
   @Override
@@ -68,6 +76,9 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
   public void deleteAll() throws Exception {
     close();
     FileUtils.deleteDirectory(new File(directory));
+    if (haloDBOperations != null) {
+      haloDBOperations.deleteAll();
+    }
   }
 
   @Override
@@ -85,6 +96,9 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
         LOGGER.warn("Unable to delete directory '" + d + "'");
       }
     });
+    if (DataIndexUtils.isDataIndex(indexName) && (haloDBOperations != null)) {
+      haloDBOperations.deleteAll(typeName, adapterId, additionalAuthorizations);
+    }
     return true;
   }
 
@@ -105,6 +119,9 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
 
   @Override
   public RowWriter createDataIndexWriter(final InternalDataAdapter<?> adapter) {
+    if (haloDBOperations != null) {
+      return haloDBOperations.createDataIndexWriter(adapter);
+    }
     return new RocksDBDataIndexWriter(client, adapter.getAdapterId(), adapter.getTypeName());
   }
 
@@ -134,6 +151,9 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
 
   @Override
   public RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
+    if (haloDBOperations != null) {
+      return haloDBOperations.createReader(readerParams);
+    }
     return new RocksDBReader<>(client, readerParams);
   }
 
@@ -152,9 +172,13 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
 
   @Override
   public void delete(final DataIndexReaderParams readerParams) {
-    final String typeName =
-        readerParams.getInternalAdapterStore().getTypeName(readerParams.getAdapterId());
-    deleteRowsFromDataIndex(readerParams.getDataIds(), readerParams.getAdapterId(), typeName);
+    if (haloDBOperations != null) {
+      haloDBOperations.delete(readerParams);
+    } else {
+      final String typeName =
+          readerParams.getInternalAdapterStore().getTypeName(readerParams.getAdapterId());
+      deleteRowsFromDataIndex(readerParams.getDataIds(), readerParams.getAdapterId(), typeName);
+    }
   }
 
   public void deleteRowsFromDataIndex(
@@ -182,5 +206,8 @@ public class RocksDBOperations implements MapReduceDataStoreOperations, Closeabl
   @Override
   public void close() {
     RocksDBClientCache.getInstance().close(directory, visibilityEnabled);
+    if (haloDBOperations != null) {
+      haloDBOperations.close();
+    }
   }
 }

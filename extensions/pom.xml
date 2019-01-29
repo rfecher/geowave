@@ -19,6 +19,7 @@
 		<module>datastores/bigtable</module>
 		<module>datastores/cassandra</module>
 		<module>datastores/dynamodb</module>
+		<module>datastores/halodb</module>
 		<module>datastores/redis</module>
 		<module>datastores/rocksdb</module>
 		<module>formats/geolife</module>

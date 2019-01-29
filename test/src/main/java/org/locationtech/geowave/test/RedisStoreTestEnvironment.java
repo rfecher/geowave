@@ -19,6 +19,7 @@ import redis.embedded.RedisServer;
 public class RedisStoreTestEnvironment extends StoreTestEnvironment {
   private static final GenericStoreFactory<DataStore> STORE_FACTORY =
       new RedisStoreFactoryFamily().getDataStoreFactory();
+  private static final String DEFAULT_HALODB_DIRECTORY = "./target/halodb";
 
   private static RedisStoreTestEnvironment singletonInstance = null;
 
@@ -62,6 +63,7 @@ public class RedisStoreTestEnvironment extends StoreTestEnvironment {
   @Override
   protected void initOptions(final StoreFactoryOptions options) {
     ((RedisOptions) options).setAddress("redis://127.0.0.1:6379");
+    ((RedisOptions) options).getHaloDBOptions().setDirectory(DEFAULT_HALODB_DIRECTORY);
   }
 
   @Override

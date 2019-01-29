@@ -47,7 +47,7 @@ public class HaloDBOperations implements Closeable {
     directory = haloDbOptions.getDirectory() + "/" + storeOptions.getGeoWaveNamespace();
 
     visibilityEnabled = storeOptions.getStoreOptions().isVisibilityEnabled();
-    // a factory method that returns a RocksDB instance
+    // a factory method that returns a HaloDB instance
     client = HaloDBCache.getInstance().getClient(haloDbOptions, directory, visibilityEnabled);
   }
 

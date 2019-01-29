@@ -8,12 +8,13 @@
  */
 package org.locationtech.geowave.datastore.redis.operations;
 
+import java.io.Closeable;
 import java.io.IOException;
-import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.Deleter;
@@ -26,6 +27,7 @@ import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.RowWriter;
+import org.locationtech.geowave.datastore.halodb.operations.HaloDBOperations;
 import org.locationtech.geowave.datastore.redis.config.RedisOptions;
 import org.locationtech.geowave.datastore.redis.util.RedisMapWrapper;
 import org.locationtech.geowave.datastore.redis.util.RedisUtils;
@@ -35,11 +37,12 @@ import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
 import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 
-public class RedisOperations implements MapReduceDataStoreOperations {
+public class RedisOperations implements MapReduceDataStoreOperations, Closeable {
   private static final boolean READER_ASYNC = true;
   private final String gwNamespace;
   private final RedisOptions options;
   private final RedissonClient client;
+  private HaloDBOperations haloDBOperations;
 
   public RedisOperations(final RedisOptions options) {
     if ((options.getGeoWaveNamespace() == null) || options.getGeoWaveNamespace().equals("")) {
@@ -49,6 +52,11 @@ public class RedisOperations implements MapReduceDataStoreOperations {
     }
     this.options = options;
     client = RedissonClientCache.getInstance().getClient(options.getAddress());
+    if (options.isEnableHaloDBDataIndex()) {
+      haloDBOperations = new HaloDBOperations(options.getHaloDBOptions(), options);
+    } else {
+      haloDBOperations = null;
+    }
   }
 
   @Override
@@ -74,6 +82,9 @@ public class RedisOperations implements MapReduceDataStoreOperations {
   @Override
   public void deleteAll() throws Exception {
     deleteByPattern(gwNamespace + "_*");
+    if (haloDBOperations != null) {
+      haloDBOperations.deleteAll();
+    }
   }
 
   @Override
@@ -83,6 +94,9 @@ public class RedisOperations implements MapReduceDataStoreOperations {
       final Short adapterId,
       final String... additionalAuthorizations) {
     deleteByPattern(RedisUtils.getRowSetPrefix(gwNamespace, typeName, indexName) + "*");
+    if (DataIndexUtils.isDataIndex(indexName) && (haloDBOperations != null)) {
+      haloDBOperations.deleteAll(typeName, adapterId, additionalAuthorizations);
+    }
     return true;
   }
 
@@ -105,6 +119,9 @@ public class RedisOperations implements MapReduceDataStoreOperations {
 
   @Override
   public RowWriter createDataIndexWriter(final InternalDataAdapter<?> adapter) {
+    if (haloDBOperations != null) {
+      return haloDBOperations.createDataIndexWriter(adapter);
+    }
     return new RedisDataIndexWriter(
         client,
         options.getCompression(),
@@ -207,6 +224,9 @@ public class RedisOperations implements MapReduceDataStoreOperations {
 
   @Override
   public RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
+    if (haloDBOperations != null) {
+      return haloDBOperations.createReader(readerParams);
+    }
     return new RedisReader<>(
         client,
         options.getCompression(),
@@ -217,9 +237,13 @@ public class RedisOperations implements MapReduceDataStoreOperations {
 
   @Override
   public void delete(final DataIndexReaderParams readerParams) {
-    final String typeName =
-        readerParams.getInternalAdapterStore().getTypeName(readerParams.getAdapterId());
-    deleteRowsFromDataIndex(readerParams.getDataIds(), readerParams.getAdapterId(), typeName);
+    if (haloDBOperations != null) {
+      haloDBOperations.delete(readerParams);
+    } else {
+      final String typeName =
+          readerParams.getInternalAdapterStore().getTypeName(readerParams.getAdapterId());
+      deleteRowsFromDataIndex(readerParams.getDataIds(), readerParams.getAdapterId(), typeName);
+    }
   }
 
   public void deleteRowsFromDataIndex(
@@ -234,5 +258,12 @@ public class RedisOperations implements MapReduceDataStoreOperations {
             typeName,
             options.getStoreOptions().isVisibilityEnabled());
     map.remove(dataIds);
+  }
+
+  @Override
+  public void close() {
+    if (haloDBOperations != null) {
+      haloDBOperations.close();
+    }
   }
 }
