@@ -45,6 +45,7 @@ public class DataIndexOnlyIT extends AbstractSecondaryIndexIT {
       value = {
           GeoWaveStoreType.ACCUMULO,
           GeoWaveStoreType.HBASE,
+          GeoWaveStoreType.BIGTABLE,
           GeoWaveStoreType.CASSANDRA,
           GeoWaveStoreType.DYNAMODB,
           GeoWaveStoreType.REDIS,
@@ -56,6 +57,7 @@ public class DataIndexOnlyIT extends AbstractSecondaryIndexIT {
       value = {
           GeoWaveStoreType.ACCUMULO,
           GeoWaveStoreType.HBASE,
+          GeoWaveStoreType.BIGTABLE,
           GeoWaveStoreType.CASSANDRA,
           GeoWaveStoreType.DYNAMODB,
           GeoWaveStoreType.REDIS,
