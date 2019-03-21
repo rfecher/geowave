@@ -94,41 +94,6 @@
 				</dependency>
 				<dependency>
 					<groupId>org.locationtech.geowave</groupId>
-					<artifactId>geowave-datastore-accumulo</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.locationtech.geowave</groupId>
-					<artifactId>geowave-datastore-hbase</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.locationtech.geowave</groupId>
-					<artifactId>geowave-datastore-bigtable</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.locationtech.geowave</groupId>
-					<artifactId>geowave-datastore-cassandra</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.locationtech.geowave</groupId>
-					<artifactId>geowave-datastore-dynamodb</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.locationtech.geowave</groupId>
-					<artifactId>geowave-datastore-redis</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.locationtech.geowave</groupId>
-					<artifactId>geowave-datastore-rocksdb</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.locationtech.geowave</groupId>
 					<artifactId>geowave-cli-osm</artifactId>
 					<version>${project.version}</version>
 				</dependency>

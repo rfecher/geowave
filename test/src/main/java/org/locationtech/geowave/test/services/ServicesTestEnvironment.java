@@ -39,7 +39,7 @@ public class ServicesTestEnvironment implements TestEnvironment {
     return singletonInstance;
   }
 
-  private static String[] PARENT_CLASSLOADER_LIBRARIES =
+  private static final String[] PARENT_CLASSLOADER_LIBRARIES =
       new String[] {"hbase", "hadoop", "protobuf", "guava", "restlet", "spring"};
 
   protected static final int JETTY_PORT = 9011;
