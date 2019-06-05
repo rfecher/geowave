@@ -60,10 +60,10 @@ import org.locationtech.geowave.test.spark.GeoWaveSparkSpatialJoinIT;
     // BasicKafkaIT.class,
     // BasicMapReduceIT.class,
     SimpleQuerySecondaryIndexIT.class,
-    BasicSecondaryIndexIT.class,
+//    BasicSecondaryIndexIT.class,
     // DataIndexOnlyIT.class,
-    // MapReduceSecondaryIndexIT.class,
-    // VisibilitySecondaryIndexIT.class,
+     MapReduceSecondaryIndexIT.class,
+     VisibilitySecondaryIndexIT.class,
     // // for now tests are taking too long in travis and landsatIT is a long
     // test
     // // LandsatIT.class,

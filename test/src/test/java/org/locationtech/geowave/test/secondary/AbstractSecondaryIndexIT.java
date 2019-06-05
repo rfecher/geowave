@@ -67,9 +67,9 @@ abstract public class AbstractSecondaryIndexIT extends AbstractGeoWaveBasicVecto
         1,
         false,
         dimensionality);
-    // testDeleteDataId(
-    // new File(TEST_BOX_TEMPORAL_FILTER_FILE).toURI().toURL(),
-    // dimensionality.getDefaultIndices()[0]);
+    testDeleteDataId(
+        new File(TEST_BOX_TEMPORAL_FILTER_FILE).toURI().toURL(),
+        dimensionality.getDefaultIndices()[0]);
     testDeleteCQL(CQL_DELETE_STR, null);
 
     testDeleteByBasicQuery(new File(TEST_POLYGON_TEMPORAL_FILTER_FILE).toURI().toURL(), null);
