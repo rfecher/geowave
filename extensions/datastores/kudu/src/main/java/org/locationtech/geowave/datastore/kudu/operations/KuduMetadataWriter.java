@@ -39,7 +39,7 @@ public class KuduMetadataWriter implements MetadataWriter {
                 + "', '"
                 + ByteArrayUtils.getHexString(row.getSecondaryId())
                 + "' to '"
-                + tableName
+                + insert.getTable().getName()
                 + "'",
             new Exception());
       }
