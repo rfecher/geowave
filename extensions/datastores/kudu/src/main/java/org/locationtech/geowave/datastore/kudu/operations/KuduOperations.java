@@ -96,12 +96,19 @@ public class KuduOperations implements MapReduceDataStoreOperations {
 
   @Override
   public boolean metadataExists(final MetadataType type) throws IOException {
+    if (!client.tableExists(getKuduQualifiedName(getMetadataTableName(type)))) {
+
+      LOGGER.warn(
+          "table doesn't exist: " + getKuduQualifiedName(getMetadataTableName(type)),
+          new Exception());
+    }
     return client.tableExists(getKuduQualifiedName(getMetadataTableName(type)));
   }
 
   @Override
   public void deleteAll() throws Exception {
     for (String table : client.getTablesList().getTablesList()) {
+      LOGGER.warn("Deleting tabe " + table, new Exception());
       client.deleteTable(table);
     }
   }
