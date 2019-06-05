@@ -6,6 +6,7 @@ import org.apache.kudu.client.KuduSession;
 import org.apache.kudu.client.OperationResponse;
 import org.apache.kudu.client.PartialRow;
 import org.apache.kudu.client.RowError;
+import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.MetadataWriter;
@@ -31,6 +32,9 @@ public class KuduMetadataWriter implements MetadataWriter {
       Insert insert = operations.getTable(tableName).newInsert();
       PartialRow partialRow = insert.getRow();
       KuduMetadataRow row = new KuduMetadataRow(metadata);
+      if (tableName.contains(MetadataType.INTERNAL_ADAPTER.name())) {
+        LOGGER.warn("writing " + ByteArrayUtils.getHexString(row.getSecondaryId()));
+      }
       row.populatePartialRow(partialRow);
       OperationResponse resp = session.apply(insert);
       if (resp.hasRowError()) {

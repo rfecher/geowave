@@ -48,48 +48,49 @@ import org.locationtech.geowave.test.spark.GeoWaveSparkSpatialJoinIT;
 
 @RunWith(GeoWaveITSuiteRunner.class)
 @SuiteClasses({
-    GeoWaveVisibilityIT.class,
-    GeoWaveCustomCRSSpatialVectorIT.class,
-    GeoWaveBasicTemporalVectorIT.class,
-    GeoWaveBasicSpatialTemporalVectorIT.class,
-    GeoWaveGeometryPrecisionIT.class,
-    // TODO need to mock up S3
-    // GeowaveBasicURLIngestIT.class,
-    GeoWaveVectorSerializationIT.class,
-    BasicKafkaIT.class,
-    BasicMapReduceIT.class,
-    BasicSecondaryIndexIT.class,
-    DataIndexOnlyIT.class,
-    MapReduceSecondaryIndexIT.class,
-    VisibilitySecondaryIndexIT.class,
+    // GeoWaveVisibilityIT.class,
+    // GeoWaveCustomCRSSpatialVectorIT.class,
+    // GeoWaveBasicTemporalVectorIT.class,
+    // GeoWaveBasicSpatialTemporalVectorIT.class,
+    // GeoWaveGeometryPrecisionIT.class,
+    // // TODO need to mock up S3
+    // // GeowaveBasicURLIngestIT.class,
+    // GeoWaveVectorSerializationIT.class,
+    // BasicKafkaIT.class,
+    // BasicMapReduceIT.class,
+    // BasicSecondaryIndexIT.class,
+    // DataIndexOnlyIT.class,
+    // MapReduceSecondaryIndexIT.class,
+    // VisibilitySecondaryIndexIT.class,
     // // for now tests are taking too long in travis and landsatIT is a long
     // test
     // // LandsatIT.class,
     // these also help shave off some time
     // DBScanIT.class,
     // GeoWaveNNIT.class,
-    CustomCRSLandsatIT.class,
+    // CustomCRSLandsatIT.class,
     GeoWaveBasicRasterIT.class,
-    GeoWaveBasicCustomCRSRasterIT.class,
-    BulkIngestInputGenerationIT.class,
-    AttributesSubsetQueryIT.class,
-    SpatialTemporalQueryIT.class,
-    PolygonDataIdQueryIT.class,
-    ConfigCacheIT.class,
-    GeoWaveBasicSparkIT.class,
-    GeoWaveSparkKMeansIT.class,
-    GeoWaveSparkSQLIT.class,
-    GeoWaveSparkSpatialJoinIT.class,
-    GeoServerIT.class,
-    GeoServerIngestIT.class,
-    // has to be after SparkEnvironment usage
-    CustomCRSKDERasterResizeIT.class,
-    GeoWaveGrpcIT.class,
-    ConfigServicesIT.class,
-    RemoteIT.class,
-    IngestIT.class,
-    FileUploadIT.class,
-    SplitsProviderIT.class})
+    // GeoWaveBasicCustomCRSRasterIT.class,
+    // BulkIngestInputGenerationIT.class,
+    // AttributesSubsetQueryIT.class,
+    // SpatialTemporalQueryIT.class,
+    // PolygonDataIdQueryIT.class,
+    // ConfigCacheIT.class,
+    // GeoWaveBasicSparkIT.class,
+    // GeoWaveSparkKMeansIT.class,
+    // GeoWaveSparkSQLIT.class,
+    // GeoWaveSparkSpatialJoinIT.class,
+    // GeoServerIT.class,
+    // GeoServerIngestIT.class,
+    // // has to be after SparkEnvironment usage
+    // CustomCRSKDERasterResizeIT.class,
+    // GeoWaveGrpcIT.class,
+    // ConfigServicesIT.class,
+    // RemoteIT.class,
+    // IngestIT.class,
+    // FileUploadIT.class,
+    // SplitsProviderIT.class
+})
 public class GeoWaveITSuite {
   @BeforeClass
   public static void setupSuite() {

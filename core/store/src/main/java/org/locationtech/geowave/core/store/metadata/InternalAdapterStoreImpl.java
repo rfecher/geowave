@@ -129,7 +129,6 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
                 + "' not found. '"
                 + AbstractGeoWavePersistence.METADATA_TABLE
                 + "' table does not exist");
-        getReader(warnIfNotExist);
       }
       return null;
     }
