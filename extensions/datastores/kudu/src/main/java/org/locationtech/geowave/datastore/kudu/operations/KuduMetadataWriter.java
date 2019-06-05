@@ -38,7 +38,10 @@ public class KuduMetadataWriter implements MetadataWriter {
                 + ByteArrayUtils.getHexString(row.getPrimaryId())
                 + "', '"
                 + ByteArrayUtils.getHexString(row.getSecondaryId())
-                + "'");
+                + "' to '"
+                + tableName
+                + "'",
+            new Exception());
       }
       row.populatePartialRow(partialRow);
       OperationResponse resp = session.apply(insert);
