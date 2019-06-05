@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.datastore.accumulo.iterators;
 
-import com.google.common.io.BaseEncoding;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.user.WholeRowIterator;
@@ -27,8 +25,9 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.VarintUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.io.BaseEncoding;
 
-public class SingleEntryFilterIterator extends Filter {
+public class SingleEntryFilterIterator extends ExceptionHandlingFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SingleEntryFilterIterator.class);
   public static final String ENTRY_FILTER_ITERATOR_NAME = "GEOWAVE_ENTRY_FILTER_ITERATOR";
   public static final int ENTRY_FILTER_ITERATOR_PRIORITY = 25;
@@ -42,7 +41,7 @@ public class SingleEntryFilterIterator extends Filter {
   private List<byte[]> dataIds;
 
   @Override
-  public boolean accept(final Key k, final Value v) {
+  public boolean acceptInternal(final Key k, final Value v) {
 
     boolean accept = true;
 

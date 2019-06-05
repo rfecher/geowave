@@ -115,17 +115,24 @@ public class HBaseReader<T> implements RowReader<T> {
 
   @Override
   public boolean hasNext() {
+    // try {
     if (scanIt != null) {
       return scanIt.hasNext();
     }
+    // } catch (Exception e) {
+    // }
     return false;
   }
 
   @Override
   public T next() {
+    // try {
     if (scanIt != null) { // not aggregation
       return scanIt.next();
     }
+    // } catch (Exception e) {
+
+    // }
     throw new NoSuchElementException();
   }
 

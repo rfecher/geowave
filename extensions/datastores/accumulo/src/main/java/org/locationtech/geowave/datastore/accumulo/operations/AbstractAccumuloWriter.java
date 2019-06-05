@@ -30,6 +30,14 @@ abstract public class AbstractAccumuloWriter implements RowWriter {
     this.tableName = tableName;
   }
 
+  public AccumuloOperations getOperations() {
+    return operations;
+  }
+
+  public String getTableName() {
+    return tableName;
+  }
+
   public org.apache.accumulo.core.client.BatchWriter getBatchWriter() {
     return batchWriter;
   }
