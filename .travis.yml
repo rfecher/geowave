@@ -28,14 +28,14 @@ env:
     - secure: C3gdJmFavZxvsRVqCLpRUAaisNV3MhWbSYf4Wjs2SBLC/AIEwN0vDWHOuYiUExuXR1kApBVdNffuCX7bt/5siewHgmiVUGyY1xytxDdv+PAKZihlfYZRGattyg3XUbEFwyjr7c74639Y1w45NPUoBMUT4SKHZkfqD+FDU47OHIM=
 
 # CDH tests only run in the precise environment. It times out on xenial
-matrix:
-  include:
-    - dist: precise
-      jdk: oraclejdk8
-      env: NAME='HBase Server IT on Latest CDH Versions'  MAVEN_PROFILES='hbase-it-server,cloudera' BUILD_AND_PUBLISH=false  IT_ONLY=true
-    - dist: precise
-      jdk: oraclejdk8
-      env: NAME='Accumulo Server IT on Latest CDH Versions' MAVEN_PROFILES='accumulo-it-server,cloudera' BUILD_AND_PUBLISH=false  IT_ONLY=true
+#matrix:
+#  include:
+#    - dist: precise
+#      jdk: oraclejdk8
+#      env: NAME='HBase Server IT on Latest CDH Versions'  MAVEN_PROFILES='hbase-it-server,cloudera' BUILD_AND_PUBLISH=false  IT_ONLY=true
+#    - dist: precise
+#      jdk: oraclejdk8
+#      env: NAME='Accumulo Server IT on Latest CDH Versions' MAVEN_PROFILES='accumulo-it-server,cloudera' BUILD_AND_PUBLISH=false  IT_ONLY=true
 
 cache:
   directories:
