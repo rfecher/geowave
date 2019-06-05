@@ -86,9 +86,10 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
         LOGGER.warn(
             "Adapter ID '"
                 + adapterId
-                + "' not found. '"
+                + "' not found. INTERNAL_ADAPTER '"
                 + AbstractGeoWavePersistence.METADATA_TABLE
-                + "' table does not exist");
+                + "' table does not exist",
+            new Exception());
       }
       return null;
     }
@@ -126,9 +127,10 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
         LOGGER.warn(
             "Adapter '"
                 + typeName
-                + "' not found. '"
+                + "' not found. INTERNAL_ADAPTER '"
                 + AbstractGeoWavePersistence.METADATA_TABLE
-                + "' table does not exist");
+                + "' table does not exist",
+            new Exception());
       }
       return null;
     }
