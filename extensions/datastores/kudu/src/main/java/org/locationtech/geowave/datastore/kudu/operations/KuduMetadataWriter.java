@@ -33,7 +33,12 @@ public class KuduMetadataWriter implements MetadataWriter {
       PartialRow partialRow = insert.getRow();
       KuduMetadataRow row = new KuduMetadataRow(metadata);
       if (tableName.contains(MetadataType.INTERNAL_ADAPTER.name())) {
-        LOGGER.warn("writing " + ByteArrayUtils.getHexString(row.getSecondaryId()));
+        LOGGER.warn(
+            "writing '"
+                + ByteArrayUtils.getHexString(row.getPrimaryId())
+                + "', '"
+                + ByteArrayUtils.getHexString(row.getSecondaryId())
+                + "'");
       }
       row.populatePartialRow(partialRow);
       OperationResponse resp = session.apply(insert);
