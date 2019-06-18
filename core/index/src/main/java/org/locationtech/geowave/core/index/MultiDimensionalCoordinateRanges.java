@@ -94,8 +94,8 @@ public class MultiDimensionalCoordinateRanges implements Persistable {
     }
     for (int d = 0; d < coordinateRangesPerDimension.length; d++) {
       for (int i = 0; i < coordinateRangesPerDimension[d].length; i++) {
-        final byte[] serializedRange = new byte[VarintUtils.readUnsignedInt(buf)];
-        buf.get(serializedRange);
+        final byte[] serializedRange =
+            ByteArrayUtils.safeRead(buf, VarintUtils.readUnsignedInt(buf));
 
         coordinateRangesPerDimension[d][i] = new CoordinateRange();
         coordinateRangesPerDimension[d][i].fromBinary(serializedRange);

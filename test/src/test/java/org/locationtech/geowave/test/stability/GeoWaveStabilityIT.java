@@ -226,7 +226,6 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
         Assert.fail();
       } catch (Exception e) {
         // Expected exception
-        LOGGER.error("Expected exception", e);
       }
     } catch (Exception e) {
       if (badMetadata) {
@@ -242,7 +241,6 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
       URL[] expectedResultsUrls =
           new URL[] {new File(HAIL_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE).toURI().toURL()};
 
-      LOGGER.error("TESTING QUERY");
       testQuery(
           new File(TEST_BOX_TEMPORAL_FILTER_FILE).toURI().toURL(),
           expectedResultsUrls,

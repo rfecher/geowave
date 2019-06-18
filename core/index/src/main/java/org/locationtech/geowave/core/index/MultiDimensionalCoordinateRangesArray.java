@@ -48,8 +48,7 @@ public class MultiDimensionalCoordinateRangesArray implements Persistable {
     final ByteBuffer buf = ByteBuffer.wrap(bytes);
     rangesArray = new MultiDimensionalCoordinateRanges[VarintUtils.readUnsignedInt(buf)];
     for (int i = 0; i < rangesArray.length; i++) {
-      final byte[] rangesBinary = new byte[VarintUtils.readUnsignedInt(buf)];
-      buf.get(rangesBinary);
+      final byte[] rangesBinary = ByteArrayUtils.safeRead(buf, VarintUtils.readUnsignedInt(buf));
       rangesArray[i] = new MultiDimensionalCoordinateRanges();
       rangesArray[i].fromBinary(rangesBinary);
     }
@@ -93,8 +92,7 @@ public class MultiDimensionalCoordinateRangesArray implements Persistable {
       coordinateArrays =
           new MultiDimensionalCoordinateRangesArray[VarintUtils.readUnsignedInt(buf)];
       for (int i = 0; i < coordinateArrays.length; i++) {
-        final byte[] rangesBinary = new byte[VarintUtils.readUnsignedInt(buf)];
-        buf.get(rangesBinary);
+        final byte[] rangesBinary = ByteArrayUtils.safeRead(buf, VarintUtils.readUnsignedInt(buf));
         coordinateArrays[i] = new MultiDimensionalCoordinateRangesArray();
         coordinateArrays[i].fromBinary(rangesBinary);
       }

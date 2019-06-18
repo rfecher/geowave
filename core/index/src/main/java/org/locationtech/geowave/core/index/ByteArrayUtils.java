@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.core.index;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Base64;
@@ -68,10 +69,12 @@ public class ByteArrayUtils {
    */
   public static byte[] safeRead(final ByteBuffer buffer, final int length) {
     if (length > buffer.remaining()) {
-      throw new ArrayIndexOutOfBoundsException("Tried to read more data than was available.");
+      throw new BufferUnderflowException();
     }
     final byte[] readBytes = new byte[length];
-    buffer.get(readBytes);
+    if (length > 0) {
+      buffer.get(readBytes);
+    }
     return readBytes;
   }
 
