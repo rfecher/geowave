@@ -18,7 +18,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
-import org.locationtech.geowave.core.geotime.store.query.ExplicitCQLQuery;
 import org.locationtech.geowave.core.geotime.store.query.OptimalCQLQuery;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
@@ -143,13 +142,13 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private void copyBadData(boolean badMetadata, boolean badData) throws Exception {
-    DataStoreOperations badStoreOperations = badDataStore.createDataStoreOperations();
-    DataStoreOperations storeOperations = dataStore.createDataStoreOperations();
-    PersistentAdapterStore adapterStore = dataStore.createAdapterStore();
-    InternalAdapterStore internalAdapterStore = dataStore.createInternalAdapterStore();
-    AdapterIndexMappingStore indexMappingStore = dataStore.createAdapterIndexMappingStore();
-    IndexStore indexStore = dataStore.createIndexStore();
+  private void copyBadData(final boolean badMetadata, final boolean badData) throws Exception {
+    final DataStoreOperations badStoreOperations = badDataStore.createDataStoreOperations();
+    final DataStoreOperations storeOperations = dataStore.createDataStoreOperations();
+    final PersistentAdapterStore adapterStore = dataStore.createAdapterStore();
+    final InternalAdapterStore internalAdapterStore = dataStore.createInternalAdapterStore();
+    final AdapterIndexMappingStore indexMappingStore = dataStore.createAdapterIndexMappingStore();
+    final IndexStore indexStore = dataStore.createIndexStore();
     for (final MetadataType metadataType : MetadataType.values()) {
       try (MetadataWriter writer = badStoreOperations.createMetadataWriter(metadataType)) {
         final MetadataReader reader = storeOperations.createMetadataReader(metadataType);
@@ -200,34 +199,34 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
       badStoreOperations.mergeStats(
           badDataStore.createDataStatisticsStore(),
           badDataStore.createInternalAdapterStore());
-    } catch (Exception e) {
+    } catch (final Exception e) {
       LOGGER.info("Caught exception while merging bad stats.");
     }
 
   }
 
-  private void queryBadData(boolean badMetadata) throws Exception {
-    PersistentAdapterStore badAdapterStore = badDataStore.createAdapterStore();
+  private void queryBadData(final boolean badMetadata) throws Exception {
+    final PersistentAdapterStore badAdapterStore = badDataStore.createAdapterStore();
     try (CloseableIterator<InternalDataAdapter<?>> dataAdapters = badAdapterStore.getAdapters()) {
-      InternalDataAdapter<?> adapter = dataAdapters.next();
+      final InternalDataAdapter<?> adapter = dataAdapters.next();
       Assert.assertTrue(adapter.getAdapter() instanceof GeotoolsFeatureDataAdapter);
       final QueryConstraints constraints =
-          (ExplicitCQLQuery) OptimalCQLQuery.createOptimalQuery(
+          OptimalCQLQuery.createOptimalQuery(
               "BBOX(geom,-105,28,-87,44) and STATE = 'IL'",
               (GeotoolsFeatureDataAdapter) adapter.getAdapter(),
               null,
               null);
-      QueryBuilder<?, ?> bldr = QueryBuilder.newBuilder();
+      final QueryBuilder<?, ?> bldr = QueryBuilder.newBuilder();
 
       try (final CloseableIterator<?> actualResults =
           badDataStore.createDataStore().query(bldr.constraints(constraints).build())) {
-        int size = Iterators.size(actualResults);
+        final int size = Iterators.size(actualResults);
         LOGGER.error(String.format("Found %d results, expected exception...", size));
         Assert.fail();
-      } catch (Exception e) {
+      } catch (final Exception e) {
         // Expected exception
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       if (badMetadata) {
         // expected
       } else {
@@ -238,7 +237,7 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
 
   private void queryGoodData() {
     try {
-      URL[] expectedResultsUrls =
+      final URL[] expectedResultsUrls =
           new URL[] {new File(HAIL_EXPECTED_BOX_TEMPORAL_FILTER_RESULTS_FILE).toURI().toURL()};
 
       testQuery(
@@ -257,7 +256,7 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
 
   private static class BadGeoWaveMetadata extends GeoWaveMetadata {
 
-    public BadGeoWaveMetadata(GeoWaveMetadata source) {
+    public BadGeoWaveMetadata(final GeoWaveMetadata source) {
       super(
           reverse(source.getPrimaryId()),
           reverse(source.getSecondaryId()),
@@ -265,9 +264,10 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
           reverse(source.getValue()));
     }
 
-    private static byte[] reverse(byte[] source) {
-      ArrayUtils.reverse(source);
-      return source;
+    private static byte[] reverse(final byte[] source) {
+      final byte[] retVal = ArrayUtils.clone(source);
+      ArrayUtils.reverse(retVal);
+      return retVal;
     }
 
   }
@@ -276,7 +276,7 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
 
     private final GeoWaveRow source;
 
-    public BadGeoWaveRow(GeoWaveRow source) {
+    public BadGeoWaveRow(final GeoWaveRow source) {
       this.source = source;
     }
 
@@ -315,7 +315,7 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
 
       private final GeoWaveValue source;
 
-      public BadGeoWaveValue(GeoWaveValue source) {
+      public BadGeoWaveValue(final GeoWaveValue source) {
         this.source = source;
       }
 
@@ -331,7 +331,7 @@ public class GeoWaveStabilityIT extends AbstractGeoWaveBasicVectorIT {
 
       @Override
       public byte[] getValue() {
-        byte[] value = source.getValue();
+        final byte[] value = ArrayUtils.clone(source.getValue());
         ArrayUtils.reverse(value);
         return value;
       }
