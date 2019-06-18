@@ -221,15 +221,11 @@ public class AggregationIterator extends ExceptionHandlingFilter {
   @Override
   public boolean hasTop() {
     // firstly iterate through all of the original data values
-    final boolean hasTopOriginal = super.hasTop();
+    final boolean hasTopOriginal = hasTopOriginal();
     if (hasTopOriginal) {
       return true;
     }
     return hasTopStat();
-  }
-
-  protected boolean hasTopOriginal() {
-    return parent.hasTop();
   }
 
   @Override
@@ -260,6 +256,10 @@ public class AggregationIterator extends ExceptionHandlingFilter {
 
   protected Value getTopOriginalValue() {
     return parent.getTopValue();
+  }
+
+  protected boolean hasTopOriginal() {
+    return parent.hasTop();
   }
 
   protected Key getTopStatKey() {
