@@ -17,8 +17,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.imageio.ImageIO;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -40,6 +43,7 @@ import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
+import org.locationtech.geowave.datastore.rocksdb.config.RocksDBOptions;
 import org.locationtech.geowave.examples.ingest.SimpleIngest;
 import org.locationtech.geowave.service.client.ConfigServiceClient;
 import org.locationtech.geowave.service.client.GeoServerServiceClient;
@@ -83,12 +87,12 @@ public class GeoServerIngestIT extends BaseServiceIT {
           GeoWaveStoreType.DYNAMODB,
           GeoWaveStoreType.KUDU,
           GeoWaveStoreType.REDIS,
-      // GeoServer and this thread have different class
-      // loaders so the RocksDB "singleton" instances are not shared in
-      // this JVM and GeoServer, for file-based geoserver data sources, using the REST "importer"
-      // will be more handy than adding a layer by referencing the local file system
-      // GeoWaveStoreType.ROCKSDB
-      },
+          // GeoServer and this thread have different class
+          // loaders so the RocksDB "singleton" instances are not shared in
+          // this JVM and GeoServer, for file-based geoserver data sources, using the REST
+          // "importer"
+          // will be more handy than adding a layer by referencing the local file system
+          GeoWaveStoreType.ROCKSDB},
       namespace = testName)
   protected DataStorePluginOptions dataStorePluginOptions;
 
@@ -149,7 +153,7 @@ public class GeoServerIngestIT extends BaseServiceIT {
   }
 
   @Test
-  public void testExamplesIngest() throws IOException, URISyntaxException {
+  public void testExamplesIngest() throws Exception {
     final DataStore ds = dataStorePluginOptions.createDataStore();
     final SimpleFeatureType sft = SimpleIngest.createPointFeatureType();
     final Index spatialIdx = TestUtils.createWebMercatorSpatialIndex();
@@ -178,15 +182,23 @@ public class GeoServerIngestIT extends BaseServiceIT {
         ds.aggregateStatistics(
             VectorStatisticsQueryBuilder.newBuilder().factory().bbox().fieldName(
                 sft.getGeometryDescriptor().getLocalName()).build());
+
+    if (ds instanceof Closeable) {
+      ((Closeable) ds).close();
+    }
+    FileUtils.copyDirectory(new File(((RocksDBOptions)dataStorePluginOptions.getFactoryOptions()).getDirectory()), new File("./tmp-rocksdb"));
     TestUtils.assertStatusCode(
         "Should Create 'testomatic' Workspace",
         201,
         geoServerServiceClient.addWorkspace("testomatic"));
+    Map<String,String> map = new HashMap<>(dataStorePluginOptions.getOptionsAsMap());
+    System.err.println(map.get("directory"));
+    map.put("directory", "./tmp-rocksdb");
     storeServiceClient.addStoreReRoute(
         dataStorePluginOptions.getGeoWaveNamespace(),
         dataStorePluginOptions.getType(),
         dataStorePluginOptions.getGeoWaveNamespace(),
-        dataStorePluginOptions.getOptionsAsMap());
+        map);
     TestUtils.assertStatusCode(
         "Should Add " + dataStorePluginOptions.getGeoWaveNamespace() + " Datastore",
         201,
@@ -228,6 +240,7 @@ public class GeoServerIngestIT extends BaseServiceIT {
         geoServerServiceClient.addStyle(
             ServicesTestEnvironment.TEST_SLD_DISTRIBUTED_RENDER_FILE,
             ServicesTestEnvironment.TEST_STYLE_NAME_DISTRIBUTED_RENDER));
+    System.err.println("adding layer");
     TestUtils.assertStatusCode(
         "Should Publish '" + SimpleIngest.FEATURE_NAME + "' Layer",
         201,

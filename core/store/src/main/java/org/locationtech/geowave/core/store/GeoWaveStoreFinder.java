@@ -255,12 +255,14 @@ public class GeoWaveStoreFinder {
         true)) {
       availableOptions.add(option.getName());
     }
+
+    System.err.println("checking match");
     for (final String optionName : filteredParams.keySet()) {
       if (!availableOptions.contains(optionName) && !STORE_HINT_KEY.equals(optionName)) {
         return false;
       }
     }
-
+    System.err.println("creating index store");
     // lastly try to create the index store (pick a minimally required
     // store)
     try {
@@ -271,6 +273,7 @@ public class GeoWaveStoreFinder {
       geowaveStoreFactoryFamily.getIndexStoreFactory().createStore(options);
     } catch (final Exception e) {
       LOGGER.info("supplied map is not able to construct index store", e);
+      System.err.println("couldn't create");
       return false;
     }
     return true;

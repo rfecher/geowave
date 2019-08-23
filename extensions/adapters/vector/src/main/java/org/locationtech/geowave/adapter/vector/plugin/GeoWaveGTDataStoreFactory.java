@@ -12,6 +12,7 @@ import java.awt.RenderingHints.Key;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.factory.FactoryIteratorProvider;
@@ -28,6 +30,8 @@ import org.locationtech.geowave.core.store.StoreFactoryFamilySpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
 
 /**
@@ -60,12 +64,19 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
     final Collection<StoreFactoryFamilySpi> dataStoreFactories =
         GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().values();
 
+    System.err.println("crap datastore");
     if (dataStoreFactories.isEmpty()) {
       LOGGER.error("No GeoWave DataStore found!  Geotools datastore for GeoWave is unavailable");
       geowaveStoreFactoryFamily = null;
     } else {
       final Iterator<StoreFactoryFamilySpi> it = dataStoreFactories.iterator();
+      // it.next();
+      // it.next();
+      // it.next();
       geowaveStoreFactoryFamily = it.next();
+      System.err.println("base is " + geowaveStoreFactoryFamily.getType());
+      it.next();
+      it.next();
       if (it.hasNext()) {
         GeoTools.addFactoryIteratorProvider(new GeoWaveGTDataStoreFactoryIteratorProvider());
       }
@@ -74,6 +85,9 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
 
   public GeoWaveGTDataStoreFactory(final StoreFactoryFamilySpi geowaveStoreFactoryFamily) {
     this.geowaveStoreFactoryFamily = geowaveStoreFactoryFamily;
+    if (this.geowaveStoreFactoryFamily.getType().toLowerCase().equalsIgnoreCase("rocksdb")) {
+      System.err.println("constructed");
+    }
   }
 
   // GeoServer seems to call this several times so we should cache a
@@ -84,12 +98,15 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
   public DataStore createDataStore(final Map<String, Serializable> params) throws IOException {
     // iterate in reverse over the cache so the most recently added is
     // accessed first
+    System.err.println("creating");
     for (int index = dataStoreCache.size() - 1; index >= 0; index--) {
       final DataStoreCacheEntry cacheEntry = dataStoreCache.get(index);
       if (paramsEqual(params, cacheEntry.params)) {
+        System.err.println("cache complete");
         return cacheEntry.dataStore;
       }
     }
+    System.err.println("creating complete");
     return createNewDataStore(params);
   }
 
@@ -117,8 +134,10 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
   public DataStore createNewDataStore(final Map<String, Serializable> params) throws IOException {
     final GeoWaveGTDataStore dataStore;
     try {
+      System.err.println("creating new");
       dataStore =
           new GeoWaveGTDataStore(new GeoWavePluginConfig(geowaveStoreFactoryFamily, params));
+      System.err.println("creating new done");
       dataStoreCache.add(new DataStoreCacheEntry(params, dataStore));
     } catch (final Exception ex) {
       throw new IOException("Error initializing datastore", ex);
@@ -148,6 +167,9 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
   @Override
   public boolean canProcess(final Map<String, Serializable> params) {
     try {
+      if (this.geowaveStoreFactoryFamily.getType().toLowerCase().equalsIgnoreCase("rocksdb")) {
+        System.err.println("can process");
+      }
       final Map<String, String> dataStoreParams =
           params.entrySet().stream().filter(
               e -> !GeoWavePluginConfig.BASE_GEOWAVE_PLUGIN_PARAM_KEYS.contains(
@@ -161,10 +183,14 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
               Collectors.toMap(
                   e -> e.getKey() == null ? null : e.getKey().toString(),
                   e -> e.getValue() == null ? null : e.getValue().toString()));
-      return GeoWaveStoreFinder.exactMatch(
-          geowaveStoreFactoryFamily,
-          dataStoreParams,
-          originalParams);
+      boolean ret =
+          GeoWaveStoreFinder.exactMatch(geowaveStoreFactoryFamily, dataStoreParams, originalParams);
+      // if (this.geowaveStoreFactoryFamily.getType().toLowerCase().equalsIgnoreCase("rocksdb")) {
+      System.err.println(Joiner.on(",").withKeyValueSeparator("=").join(dataStoreParams));
+      System.err.println(
+          "done can process " + ret + " " + this.geowaveStoreFactoryFamily.getType());
+      // }
+      return ret;
     } catch (final Exception e) {
       LOGGER.info("unable to process params as GeoWave datastore", e);
       return false;
@@ -213,7 +239,10 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
         final Iterator<StoreFactoryFamilySpi> geowaveDataStoreIt =
             GeoWaveStoreFinder.getRegisteredStoreFactoryFamilies().values().iterator();
         geowaveDataStoreIt.next();
-        it = Iterators.transform(geowaveDataStoreIt, new GeoWaveStoreToGeoToolsDataStore());
+        geowaveDataStoreIt.next();
+//        geowaveDataStoreIt.next();
+        it = 
+            (Iterator)Arrays.asList(new GeoWaveGTDataStoreFactory1(geowaveDataStoreIt.next()),new GeoWaveGTDataStoreFactory2(geowaveDataStoreIt.next()),new GeoWaveGTDataStoreFactory4(geowaveDataStoreIt.next()),new GeoWaveGTDataStoreFactory5(geowaveDataStoreIt.next())/*,new GeoWaveGTDataStoreFactory6(geowaveDataStoreIt.next()),new GeoWaveGTDataStoreFactory7(geowaveDataStoreIt.next()),new GeoWaveGTDataStoreFactory8(geowaveDataStoreIt.next())*/).iterator();
       }
 
       @Override
@@ -246,6 +275,8 @@ public class GeoWaveGTDataStoreFactory implements DataStoreFactorySpi {
     @Override
     public DataStoreFactorySpi apply(final StoreFactoryFamilySpi input) {
       i++;
+      System.err.println(i + " " + input.getType());
+
       switch (i) {
         case 1:
           return new GeoWaveGTDataStoreFactory1(input);

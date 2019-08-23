@@ -94,6 +94,7 @@ public class GeoWaveGTDataStore extends ContentDataStore {
   }
 
   private void init(final GeoWavePluginConfig config) {
+    LOGGER.warn("start init");
     dataStore = config.getDataStore();
     dataStoreOptions = config.getDataStoreOptions();
     dataStatisticsStore = config.getDataStatisticsStore();
@@ -101,6 +102,7 @@ public class GeoWaveGTDataStore extends ContentDataStore {
     adapterStore = config.getAdapterStore();
     adapterIndexMappingStore = config.getAdapterIndexMappingStore();
     internalAdapterStore = config.getInternalAdapterStore();
+    LOGGER.warn("end init");
   }
 
   public AuthorizationSPI getAuthorizationSPI() {
@@ -196,15 +198,21 @@ public class GeoWaveGTDataStore extends ContentDataStore {
 
   private GeotoolsFeatureDataAdapter getAdapter(final String typeName) {
     final GeotoolsFeatureDataAdapter featureAdapter;
+    LOGGER.warn("getting");
     final Short adapterId = internalAdapterStore.getAdapterId(typeName);
+    LOGGER.warn("adapterid");
     if (adapterId == null) {
+      LOGGER.warn("null");
       return null;
     }
     final InternalDataAdapter<?> adapter = adapterStore.getAdapter(adapterId);
+    LOGGER.warn("adapter");
     if ((adapter == null) || !(adapter.getAdapter() instanceof GeotoolsFeatureDataAdapter)) {
+      LOGGER.warn("adapternull");
       return null;
     }
     featureAdapter = (GeotoolsFeatureDataAdapter) adapter.getAdapter();
+    LOGGER.warn("success " + featureAdapter.getFeatureType().getAttributeCount());
     if (featureNameSpaceURI != null) {
       featureAdapter.setNamespace(featureNameSpaceURI.toString());
     }
@@ -214,14 +222,18 @@ public class GeoWaveGTDataStore extends ContentDataStore {
   @Override
   protected List<Name> createTypeNames() throws IOException {
     final List<Name> names = new ArrayList<>();
+    LOGGER.warn("getting type names");
     try (final CloseableIterator<InternalDataAdapter<?>> adapters = adapterStore.getAdapters()) {
       while (adapters.hasNext()) {
         final InternalDataAdapter<?> adapter = adapters.next();
+        LOGGER.warn("adapter " + adapter.getTypeName());
         if (adapter.getAdapter() instanceof GeotoolsFeatureDataAdapter) {
           names.add(((GeotoolsFeatureDataAdapter) adapter.getAdapter()).getFeatureType().getName());
         }
       }
     }
+
+    LOGGER.warn("names " + names.size());
     return names;
   }
 
@@ -251,6 +263,7 @@ public class GeoWaveGTDataStore extends ContentDataStore {
   public void dispose() {
     if (dataStore instanceof Closeable) {
       try {
+        System.err.println("closing...");
         ((Closeable) dataStore).close();
       } catch (final IOException e) {
         LOGGER.error("Unable to close geowave datastore", e);

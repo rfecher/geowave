@@ -232,6 +232,17 @@ public class ServicesTestEnvironment implements TestEnvironment {
     }
   }
 
+  public void stopService() throws Exception {
+    jettyServer.stop();
+  }
+
+  public void startService() throws Exception {
+    jettyServer.start();
+    while (!jettyServer.isRunning() && !jettyServer.isStarted()) {
+      Thread.sleep(1000);
+    }
+  }
+
   @Override
   public TestEnvironment[] getDependentEnvironments() {
     return new TestEnvironment[] {MapReduceTestEnvironment.getInstance()};

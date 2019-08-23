@@ -1572,7 +1572,18 @@ public class GeoServerRestClient {
       final String storeName,
       final String adapterId) {
     final DataStorePluginOptions dsPlugin = getStorePlugin(storeName);
-
+//    if (dsPlugin.getFactoryFamily().getType().equalsIgnoreCase("rocksdb")) {
+//      String directory = dsPlugin.getFactoryOptions().createPluginOptions().getOptionsAsMap().get("directory");
+//      try {
+//        File newFile = new File(new File(directory).getParentFile(), new File(directory).getName() + "-geoserver");
+//        org.apache.commons.io.FileUtils.copyDirectory(new File(directory), newFile);
+//      } catch (IOException e) {
+//        // TODO Auto-generated catch block
+//        e.printStackTrace();
+//      }
+//      dsPlugin.getFactoryOptions().createPluginOptions().creat
+//    }
+    System.err.println("getting adapter info");
     final DataStore dataStore = dsPlugin.createDataStore();
 
     final ArrayList<DataAdapterInfo> adapterInfoList = new ArrayList<>();
@@ -1589,10 +1600,10 @@ public class GeoServerRestClient {
     }
     LOGGER.debug("getStoreAdapterInfo(" + storeName + ") got " + adapterInfoList.size() + " ids");
     if (dataStore instanceof Closeable) {
-      try {
+      try {System.err.println("closing");
         ((Closeable) dataStore).close();
       } catch (final IOException e) {
-        LOGGER.error("Unable to close datastore");
+        LOGGER.error("Unable to close datastore", e);
       }
     }
     return adapterInfoList;
