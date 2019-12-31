@@ -73,6 +73,7 @@ import org.locationtech.geowave.core.store.flatten.BitmaskUtils;
 import org.locationtech.geowave.core.store.flatten.BitmaskedPairComparator;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
+import org.locationtech.geowave.core.store.index.CustomIndex;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregation;
 import org.locationtech.geowave.core.store.query.constraints.AdapterAndIndexBasedQueryConstraints;
@@ -345,7 +346,12 @@ public class BaseDataStoreUtils {
       final boolean visibilityEnabled) {
     final CommonIndexModel indexModel = index.getIndexModel();
     final AdapterPersistenceEncoding encodedData = adapter.encode(entry, indexModel);
-    final InsertionIds insertionIds = dataIdIndex ? null : encodedData.getInsertionIds(index);
+    final InsertionIds insertionIds;
+    if (index instanceof CustomIndex) {
+      insertionIds = ((CustomIndex) index).getInsertionIds(entry);
+    } else {
+      insertionIds = dataIdIndex ? null : encodedData.getInsertionIds(index);
+    }
 
     final short internalAdapterId = adapter.getAdapterId();
 
@@ -424,7 +430,9 @@ public class BaseDataStoreUtils {
                 dataIdIndex));
       }
     } else {
-      LOGGER.warn(
+      // we can allow some entries to not be indexed within every index for flexibility, and
+      // therefore this should just be info level
+      LOGGER.info(
           "Indexing failed to produce insertion ids; entry ["
               + StringUtils.stringFromBinary(adapter.getDataId(entry))
               + "] not saved for index '"
@@ -859,8 +867,8 @@ public class BaseDataStoreUtils {
     if (adapter instanceof InternalDataAdapter) {
       return isRowMerging(((InternalDataAdapter) adapter).getAdapter());
     }
-    return adapter instanceof RowMergingDataAdapter
-        && ((RowMergingDataAdapter) adapter).getTransform() != null;
+    return (adapter instanceof RowMergingDataAdapter)
+        && (((RowMergingDataAdapter) adapter).getTransform() != null);
   }
 
   public static boolean isRowMerging(

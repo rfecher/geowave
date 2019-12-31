@@ -71,6 +71,9 @@ public class GeoWaveRedisRowCodec extends BaseCodec {
 
         try (final ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
           encodeRow(out, row, visibilityEnabled);
+          if (row.getDuplicateId() != null) {
+            out.writeByte(row.getDuplicateId());
+          }
           out.flush();
           return out.buffer();
         }

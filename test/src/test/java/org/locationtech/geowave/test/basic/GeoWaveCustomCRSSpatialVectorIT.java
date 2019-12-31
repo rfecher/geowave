@@ -93,7 +93,7 @@ public class GeoWaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
     // ingest both lines and points
     TestUtils.testLocalIngest(
         cpDataStore,
-        DimensionalityType.SPATIAL,
+        DimensionalityType.SPATIAL_TEMPORAL,
         TestUtils.CUSTOM_CRSCODE,
         HAIL_SHAPEFILE_FILE,
         "geotools-vector",
@@ -105,7 +105,7 @@ public class GeoWaveCustomCRSSpatialVectorIT extends AbstractGeoWaveBasicVectorI
 
     TestUtils.testLocalIngest(
         cpDataStore,
-        DimensionalityType.SPATIAL,
+        DimensionalityType.SPATIAL_TEMPORAL,
         TestUtils.CUSTOM_CRSCODE,
         TORNADO_TRACKS_SHAPEFILE_FILE,
         "geotools-vector",
