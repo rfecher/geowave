@@ -26,7 +26,7 @@ public class GeoWaveRedisPersistedRow {
       final GeoWaveValue value) {
     this(numDuplicates, dataId, value, null);
   }
-  
+
   public GeoWaveRedisPersistedRow(
       final short numDuplicates,
       final byte[] dataId,

@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2013-2019 Contributors to the Eclipse Foundation
+ *
+ * <p> See the NOTICE file distributed with this work for additional information regarding copyright
+ * ownership. All rights reserved. This program and the accompanying materials are made available
+ * under the terms of the Apache License, Version 2.0 which accompanies this distribution and is
+ * available at http://www.apache.org/licenses/LICENSE-2.0.txt
+ */
 package org.locationtech.geowave.test.basic;
 
 import java.util.ArrayList;
@@ -6,8 +14,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.IntPredicate;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.core.geotime.ingest.SpatialDimensionalityTypeProvider.SpatialIndexBuilder;
@@ -36,6 +47,8 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jersey.repackaged.com.google.common.collect.Iterators;
 
 @RunWith(GeoWaveITRunner.class)
@@ -50,11 +63,13 @@ import jersey.repackaged.com.google.common.collect.Iterators;
         GeoWaveStoreType.REDIS,
         GeoWaveStoreType.ROCKSDB})
 public class GeoWaveCustomIndexIT {
+  private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveCustomIndexIT.class);
+  private static long startMillis;
   private static String TEST_ENUM_INDEX_NAME = "TestEnumIdx";
   protected DataStorePluginOptions dataStoreOptions;
 
   private static enum TestEnum {
-    A(i -> (i % 2) == 0), B(i -> (i % 3) == 0), C(i -> (i % 5) == 0);
+    A(i -> (i % 2) == 0), B(i -> (i % 3) == 0), C(i -> (i % 5) == 0), NOT_A(i -> (i + 1) % 2 == 0);
     private final IntPredicate ingestLogic;
 
     private TestEnum(final IntPredicate ingestLogic) {
@@ -66,28 +81,77 @@ public class GeoWaveCustomIndexIT {
     }
   }
 
-  @Before
-  public void init() {
+  @BeforeClass
+  public static void startTimer() {
+    startMillis = System.currentTimeMillis();
+    LOGGER.warn("-----------------------------------------");
+    LOGGER.warn("*                                       *");
+    LOGGER.warn("*    RUNNING GeoWaveCustomIndexIT       *");
+    LOGGER.warn("*                                       *");
+    LOGGER.warn("-----------------------------------------");
+  }
+
+  @AfterClass
+  public static void reportTest() {
+    LOGGER.warn("-----------------------------------------");
+    LOGGER.warn("*                                       *");
+    LOGGER.warn("*      FINISHED GeoWaveCustomIndexIT    *");
+    LOGGER.warn(
+        "*         "
+            + ((System.currentTimeMillis() - startMillis) / 1000)
+            + "s elapsed.                  *");
+    LOGGER.warn("*                                       *");
+    LOGGER.warn("-----------------------------------------");
+  }
+
+  public void ingest(boolean addSpatialTemporal) {
     final SimpleFeatureType sft = SimpleIngest.createPointFeatureType();
     final GeotoolsFeatureDataAdapter fda = SimpleIngest.createDataAdapter(sft);
     final List<SimpleFeature> features =
         getGriddedTemporalFeaturesWithEnumString(new SimpleFeatureBuilder(sft), 6001);
-    TestUtils.deleteAll(dataStoreOptions); 
+    TestUtils.deleteAll(dataStoreOptions);
     final DataStore dataStore = dataStoreOptions.createDataStore();
-    dataStore.addType(
-        fda,
-        new SpatialIndexBuilder().createIndex(),
-        new SpatialTemporalIndexBuilder().createIndex(),
-        getTestEnumIndex());
+    if (addSpatialTemporal) {
+      dataStore.addType(
+          fda,
+          new SpatialIndexBuilder().createIndex(),
+          new SpatialTemporalIndexBuilder().createIndex(),
+          getTestEnumIndex());
+    } else {
+      dataStore.addType(fda, getTestEnumIndex());
+    }
     try (Writer<SimpleFeature> writer = dataStore.createWriter(sft.getTypeName())) {
       features.stream().forEach(f -> writer.write(f));
     }
   }
 
-  @Test
-  public void testCustomIndexing() {
-    // first make sure spatial and spatial temporal work fine
+  @After
+  public void cleanup() {
+    TestUtils.deleteAll(dataStoreOptions);
+  }
 
+  @Test
+  public void testCustomIndexingWithSpatialTemporal() {
+    ingest(true);
+    testQueries(true);
+    // TODO There's an issue with deletion where the IndexMetadataSet delete callback assumes the
+    // GeoWaveRows are from that index (such as spatial/spatial-temporal, when in this case they're
+    // coming from the custom enum index, so it seems the index metadata stat can become
+    // inconsistent, in this case it should throw an ArrayIndexOutOfBoundsException
+    // See Issue #1655
+    // testDeleteByCustomIndex();
+
+  }
+
+
+  @Test
+  public void testCustomIndexingAsOnlyIndex() {
+    ingest(false);
+    testQueries(false);
+    testDeleteByCustomIndex();
+  }
+
+  private void testQueries(boolean spatialTemporal) {
     final DataStore dataStore = dataStoreOptions.createDataStore();
     final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
     final Calendar cal = Calendar.getInstance();
@@ -99,14 +163,21 @@ public class GeoWaveCustomIndexIT {
         (long) dataStore.aggregateStatistics(
             VectorStatisticsQueryBuilder.newBuilder().factory().count().build()));
     final Date endQueryTime = cal.getTime();
+    if (spatialTemporal) {
+      // if spatial/temporal indexing exists explicitly set the appropriate one
+      bldr.indexName(new SpatialIndexBuilder().createIndex().getName());
+    }
     try (CloseableIterator<SimpleFeature> it =
         dataStore.query(
             bldr.constraints(
                 bldr.constraintsFactory().spatialTemporalConstraints().spatialConstraints(
                     GeometryUtils.GEOMETRY_FACTORY.toGeometry(
-                        new Envelope(0, 2, 0, 2))).build()).indexName(
-                            new SpatialIndexBuilder().createIndex().getName()).build())) {
+                        new Envelope(0, 2, 0, 2))).build()).build())) {
       Assert.assertEquals(27, Iterators.size(it));
+    }
+    if (spatialTemporal) {
+      // if spatial/temporal indexing exists explicitly set the appropriate one
+      bldr.indexName(new SpatialTemporalIndexBuilder().createIndex().getName());
     }
     try (CloseableIterator<SimpleFeature> it =
         dataStore.query(
@@ -115,8 +186,7 @@ public class GeoWaveCustomIndexIT {
                     GeometryUtils.GEOMETRY_FACTORY.toGeometry(
                         new Envelope(0, 2, 0, 2))).addTimeRange(
                             startQueryTime,
-                            endQueryTime).build()).indexName(
-                                new SpatialTemporalIndexBuilder().createIndex().getName()).build())) {
+                            endQueryTime).build()).build())) {
       Assert.assertEquals(9, Iterators.size(it));
     }
     try (CloseableIterator<SimpleFeature> it =
@@ -145,10 +215,53 @@ public class GeoWaveCustomIndexIT {
     }
   }
 
+  private void testDeleteByCustomIndex() {
+    final DataStore dataStore = dataStoreOptions.createDataStore();
+    final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
+    dataStore.delete(
+        bldr.constraints(
+            bldr.constraintsFactory().customConstraints(
+                new TestEnumConstraints(TestEnum.C))).indexName(TEST_ENUM_INDEX_NAME).build());
+    try (CloseableIterator<SimpleFeature> it =
+        dataStore.query(
+            bldr.constraints(
+                bldr.constraintsFactory().customConstraints(
+                    new TestEnumConstraints(TestEnum.C))).indexName(
+                        TEST_ENUM_INDEX_NAME).build())) {
+      Assert.assertEquals(0, Iterators.size(it));
+    }
+    try (CloseableIterator<SimpleFeature> it =
+        dataStore.query(
+            bldr.constraints(
+                bldr.constraintsFactory().customConstraints(
+                    new TestEnumConstraints(TestEnum.A))).indexName(
+                        TEST_ENUM_INDEX_NAME).build())) {
+      Assert.assertTrue((8103 / 2) > Iterators.size(it));
+    }
+    dataStore.delete(
+        bldr.constraints(
+            bldr.constraintsFactory().customConstraints(
+                new TestEnumConstraints(TestEnum.B))).indexName(TEST_ENUM_INDEX_NAME).build());
+    try (CloseableIterator<SimpleFeature> it =
+        dataStore.query(
+            bldr.constraints(
+                bldr.constraintsFactory().customConstraints(
+                    new TestEnumConstraints(TestEnum.B))).indexName(
+                        TEST_ENUM_INDEX_NAME).build())) {
+      Assert.assertEquals(0, Iterators.size(it));
+    }
+    try (CloseableIterator<SimpleFeature> it =
+        dataStore.query(
+            bldr.constraints(
+                bldr.constraintsFactory().customConstraints(
+                    new TestEnumConstraints(TestEnum.A))).indexName(
+                        TEST_ENUM_INDEX_NAME).build())) {
+      Assert.assertTrue((8103 / 2) > Iterators.size(it));
+    }
+  }
+
   private static CustomIndexImpl<SimpleFeature, TestEnumConstraints> getTestEnumIndex() {
-    return new CustomIndexImpl<>(
-        new TestEnumIndexStrategy(),
-        TEST_ENUM_INDEX_NAME);
+    return new CustomIndexImpl<>(new TestEnumIndexStrategy(), TEST_ENUM_INDEX_NAME);
   }
 
   public static class TestEnumIndexStrategy implements

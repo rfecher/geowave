@@ -73,7 +73,7 @@ import org.locationtech.geowave.core.store.flatten.BitmaskUtils;
 import org.locationtech.geowave.core.store.flatten.BitmaskedPairComparator;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.index.CommonIndexValue;
-import org.locationtech.geowave.core.store.index.CustomIndex;
+import org.locationtech.geowave.core.store.index.CustomIndexStrategy;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregation;
 import org.locationtech.geowave.core.store.query.constraints.AdapterAndIndexBasedQueryConstraints;
@@ -347,8 +347,8 @@ public class BaseDataStoreUtils {
     final CommonIndexModel indexModel = index.getIndexModel();
     final AdapterPersistenceEncoding encodedData = adapter.encode(entry, indexModel);
     final InsertionIds insertionIds;
-    if (index instanceof CustomIndex) {
-      insertionIds = ((CustomIndex) index).getInsertionIds(entry);
+    if (index instanceof CustomIndexStrategy) {
+      insertionIds = ((CustomIndexStrategy) index).getInsertionIds(entry);
     } else {
       insertionIds = dataIdIndex ? null : encodedData.getInsertionIds(index);
     }
@@ -714,7 +714,10 @@ public class BaseDataStoreUtils {
     Index bestIdx = null;
     while (i < indices.length) {
       nextIdx = indices[i++];
-      if (nextIdx.getIndexStrategy().getOrderedDimensionDefinitions().length == 0) {
+      if (nextIdx == null
+          || nextIdx.getIndexStrategy() == null
+          || nextIdx.getIndexStrategy().getOrderedDimensionDefinitions() == null
+          || nextIdx.getIndexStrategy().getOrderedDimensionDefinitions().length == 0) {
         continue;
       }
 
@@ -763,6 +766,9 @@ public class BaseDataStoreUtils {
           }
         }
       }
+    }
+    if (bestIdx == null && indices.length > 0) {
+      bestIdx = indices[0];
     }
     return bestIdx;
   }

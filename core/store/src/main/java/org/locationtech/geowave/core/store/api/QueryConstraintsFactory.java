@@ -78,8 +78,8 @@ public interface QueryConstraintsFactory {
 
   /**
    * constrain using a custom persistable object NOTE: this only applies to an index that is a
-   * {@link CustomIndexImpl} and the instance of these custom constraints must match the generic of the
-   * custom index's strategy
+   * {@link CustomIndexImpl} and the instance of these custom constraints must match the generic of
+   * the custom index's strategy
    *
    * @param customConstraints the instance of custom constraints
    * @return the query constraints
