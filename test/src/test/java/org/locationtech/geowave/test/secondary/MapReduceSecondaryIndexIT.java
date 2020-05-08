@@ -46,7 +46,8 @@ public class MapReduceSecondaryIndexIT extends AbstractSecondaryIndexIT {
           // GeoWaveStoreType.DYNAMODB,
           GeoWaveStoreType.KUDU,
           GeoWaveStoreType.REDIS,
-          GeoWaveStoreType.ROCKSDB},
+          GeoWaveStoreType.ROCKSDB,
+          GeoWaveStoreType.FILESYSTEM},
       options = {"enableSecondaryIndexing=true"})
   protected DataStorePluginOptions dataStoreOptions;
   private static long startMillis;
@@ -62,7 +63,8 @@ public class MapReduceSecondaryIndexIT extends AbstractSecondaryIndexIT {
           // TODO GEOWAVE Issue #1573 prevents deletion from passing on Kudu
           GeoWaveStoreType.KUDU,
           GeoWaveStoreType.REDIS,
-          GeoWaveStoreType.ROCKSDB},
+          GeoWaveStoreType.ROCKSDB,
+          GeoWaveStoreType.FILESYSTEM},
       options = {"enableSecondaryIndexing=true"},
       namespace = "MapReduceSecondaryIndexIT_tmp")
   protected DataStorePluginOptions inputDataStoreOptions;

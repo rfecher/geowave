@@ -55,7 +55,8 @@ import org.slf4j.LoggerFactory;
         GeoWaveStoreType.HBASE,
         GeoWaveStoreType.KUDU,
         GeoWaveStoreType.REDIS,
-        GeoWaveStoreType.ROCKSDB})
+        GeoWaveStoreType.ROCKSDB,
+        GeoWaveStoreType.FILESYSTEM})
 public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveGrpcIT.class);
   private static File configFile = null;

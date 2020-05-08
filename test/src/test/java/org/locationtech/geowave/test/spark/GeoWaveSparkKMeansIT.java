@@ -59,7 +59,8 @@ public class GeoWaveSparkKMeansIT {
           GeoWaveStoreType.CASSANDRA,
           GeoWaveStoreType.KUDU,
           GeoWaveStoreType.REDIS,
-          GeoWaveStoreType.ROCKSDB})
+          GeoWaveStoreType.ROCKSDB,
+          GeoWaveStoreType.FILESYSTEM})
   protected DataStorePluginOptions inputDataStore;
 
   private static long startMillis;

@@ -87,7 +87,8 @@ public class GeoServerIngestIT extends BaseServiceIT {
           // loaders so the RocksDB "singleton" instances are not shared in
           // this JVM and GeoServer, for file-based geoserver data sources, using the REST
           // "importer" will be more handy than adding a layer by referencing the local file system
-          GeoWaveStoreType.ROCKSDB},
+          GeoWaveStoreType.ROCKSDB,
+          GeoWaveStoreType.FILESYSTEM},
       namespace = testName)
   protected DataStorePluginOptions dataStorePluginOptions;
 

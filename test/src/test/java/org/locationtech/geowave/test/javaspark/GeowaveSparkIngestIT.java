@@ -58,7 +58,8 @@ public class GeowaveSparkIngestIT extends AbstractGeoWaveBasicVectorIT {
           GeoWaveStoreType.DYNAMODB,
           GeoWaveStoreType.KUDU,
           GeoWaveStoreType.REDIS,
-          GeoWaveStoreType.ROCKSDB})
+          GeoWaveStoreType.ROCKSDB,
+          GeoWaveStoreType.FILESYSTEM})
   protected DataStorePluginOptions dataStore;
 
   private static Stopwatch stopwatch = new Stopwatch();
