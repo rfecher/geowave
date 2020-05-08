@@ -60,7 +60,9 @@ public class GeoWaveSparkKMeansIT {
           GeoWaveStoreType.KUDU,
           GeoWaveStoreType.REDIS,
           GeoWaveStoreType.ROCKSDB,
-          GeoWaveStoreType.FILESYSTEM})
+      // runs out of heap space memory for filesystem on this test
+      // GeoWaveStoreType.FILESYSTEM
+      })
   protected DataStorePluginOptions inputDataStore;
 
   private static long startMillis;

@@ -17,7 +17,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractFileSystemIterator<T> implements CloseableIterator<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFileSystemIterator.class);
@@ -29,14 +28,7 @@ public abstract class AbstractFileSystemIterator<T> implements CloseableIterator
       final byte[] startKey,
       final byte[] endKey) {
     super();
-    iterator =
-        FileSystemUtils.stream(subDirectory, startKey, endKey).map(
-            path -> Pair.of(
-                FileSystemUtils.fileNameToKey(path.getFileName().toString()),
-                path)).sorted(
-                    (p1, p2) -> UnsignedBytes.lexicographicalComparator().compare(
-                        p1.getLeft(),
-                        p2.getLeft())).iterator();
+    iterator = FileSystemUtils.getSortedSet(subDirectory, startKey, endKey).iterator();
   }
 
   @Override
@@ -49,7 +41,14 @@ public abstract class AbstractFileSystemIterator<T> implements CloseableIterator
     if (closed) {
       throw new NoSuchElementException();
     }
-    final Pair<byte[], Path> next = iterator.next();
+    Pair<byte[], Path> next = iterator.next();
+    while (!Files.exists(next.getRight())) {
+      if (!iterator.hasNext()) {
+        LOGGER.warn("No more files exist in the directory");
+        return null;
+      }
+      next = iterator.next();
+    }
     try {
       return readRow(next.getLeft(), Files.readAllBytes(next.getRight()));
     } catch (final IOException e) {

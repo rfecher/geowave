@@ -9,9 +9,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
@@ -43,25 +45,32 @@ public class FileSystemUtils {
     return ByteArrayUtils.byteArrayFromString(key.substring(0, key.length() - 4));
   }
 
-  public static Stream<Path> stream(
+  public static SortedSet<Pair<byte[], Path>> getSortedSet(
       final Path subDirectory,
       final byte[] startKeyInclusive,
       final byte[] endKeyExclusive) {
-    final Path startPath =
-        startKeyInclusive == null ? null
-            : subDirectory.resolve(FileSystemUtils.keyToFileName(startKeyInclusive));
-    final Path endPath =
-        endKeyExclusive == null ? null
-            : subDirectory.resolve(FileSystemUtils.keyToFileName(endKeyExclusive));
     try {
-      return Files.walk(subDirectory).filter(
-          p -> (!Files.isDirectory(p)
-              && ((startPath == null) || (p.compareTo(startPath) >= 0))
-              && ((endPath == null) || (p.compareTo(endPath) < 0))));
+      final Supplier<SortedSet<Pair<byte[], Path>>> sortedSetFactory =
+          () -> new TreeSet<>(
+              (p1, p2) -> UnsignedBytes.lexicographicalComparator().compare(
+                  p1.getLeft(),
+                  p2.getLeft()));
+      SortedSet<Pair<byte[], Path>> sortedSet =
+          Files.walk(subDirectory).filter(Files::isRegularFile).map(
+              path -> Pair.of(
+                  FileSystemUtils.fileNameToKey(path.getFileName().toString()),
+                  path)).collect(Collectors.toCollection(sortedSetFactory));
+      if (startKeyInclusive != null) {
+        sortedSet = sortedSet.tailSet(Pair.of(startKeyInclusive, null));
+      }
+      if (endKeyExclusive != null) {
+        sortedSet = sortedSet.headSet(Pair.of(endKeyExclusive, null));
+      }
+      return sortedSet;
     } catch (final IOException e) {
       LOGGER.warn("Unable to iterate through file system", e);
     }
-    return Stream.empty();
+    return new TreeSet<>();
   }
 
   public static void visit(
@@ -69,7 +78,8 @@ public class FileSystemUtils {
       final byte[] startKeyInclusive,
       final byte[] endKeyExclusive,
       final Consumer<Path> pathVisitor) {
-    stream(subDirectory, startKeyInclusive, endKeyExclusive).forEach(pathVisitor);
+    getSortedSet(subDirectory, startKeyInclusive, endKeyExclusive).stream().map(
+        Pair::getRight).forEach(pathVisitor);
   }
 
   public static String getTablePrefix(final String typeName, final String indexName) {

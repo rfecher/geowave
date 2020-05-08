@@ -104,7 +104,7 @@ public class FileSystemIndexTable extends AbstractFileSystemTable {
     return new FileSystemRowIterator(
         subDirectory,
         range.getStart(),
-        range.getEndAsNextPrefix(),
+        range.getEnd() == null ? null : range.getEndAsNextPrefix(),
         adapterId,
         partition,
         requiresTimestamp,

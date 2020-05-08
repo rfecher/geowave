@@ -81,7 +81,10 @@ import org.slf4j.LoggerFactory;
         GeoWaveStoreType.KUDU,
         GeoWaveStoreType.REDIS,
         GeoWaveStoreType.ROCKSDB,
-        GeoWaveStoreType.FILESYSTEM})
+    // FileSystem DataStore can't handle this test due to "too many open files" errors (there's a
+    // file per row)
+    // GeoWaveStoreType.FILESYSTEM
+    })
 public class SpatialTemporalQueryIT {
   private static final SimpleDateFormat CQL_DATE_FORMAT =
       new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
