@@ -37,7 +37,9 @@ public class BasicSecondaryIndexIT extends AbstractSecondaryIndexIT {
           GeoWaveStoreType.KUDU,
           GeoWaveStoreType.REDIS,
           GeoWaveStoreType.ROCKSDB,
-          GeoWaveStoreType.FILESYSTEM},
+      // Out of memory
+      // GeoWaveStoreType.FILESYSTEM
+      },
       options = {"enableSecondaryIndexing=true"})
   protected DataStorePluginOptions dataStoreOptions;
   private static long startMillis;
