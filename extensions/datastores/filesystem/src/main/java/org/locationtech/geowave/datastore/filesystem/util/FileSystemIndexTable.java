@@ -42,9 +42,9 @@ public class FileSystemIndexTable extends AbstractFileSystemTable {
     final byte[] prefix = Bytes.concat(sortKey, dataId);
     FileSystemUtils.visit(subDirectory, prefix, ByteArrayUtils.getNextPrefix(prefix), p -> {
       try {
-        Files.deleteIfExists(p);
+        Files.delete(p);
       } catch (final IOException e) {
-        LOGGER.warn("", e);
+        LOGGER.warn("Unable to delete file", e);
       }
     });
   }

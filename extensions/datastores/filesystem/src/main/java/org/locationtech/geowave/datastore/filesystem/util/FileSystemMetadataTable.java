@@ -40,8 +40,8 @@ public class FileSystemMetadataTable {
 
   public void remove(final byte[] key) {
     try {
-      Files.deleteIfExists(subDirectory.resolve(FileSystemUtils.keyToFileName(key)));
-    } catch (final IOException e) {
+      Files.delete(subDirectory.resolve(FileSystemUtils.keyToFileName(key)));
+    } catch (final Exception e) {
       LOGGER.warn("Unable to delete metadata", e);
     }
   }
