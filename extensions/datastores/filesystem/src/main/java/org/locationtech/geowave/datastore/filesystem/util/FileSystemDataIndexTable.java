@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -37,10 +36,9 @@ public class FileSystemDataIndexTable extends AbstractFileSystemTable {
   }
 
   public CloseableIterator<GeoWaveRow> dataIndexIterator(final byte[][] dataIds) {
-    final List<byte[]> dataIdsList = Arrays.asList(dataIds);
     return new CloseableIterator.Wrapper(
         Arrays.stream(dataIds).map(
-            // convert to pari with path so the path is only instantiated once (depending on
+            // convert to pair with path so the path is only instantiated once (depending on
             // filesystem (such as S3 or HDFS) can be modestly expensive
             dataId -> Pair.of(
                 dataId,
