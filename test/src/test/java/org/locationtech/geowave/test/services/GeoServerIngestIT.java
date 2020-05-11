@@ -88,10 +88,10 @@ public class GeoServerIngestIT extends BaseServiceIT {
           // this JVM and GeoServer, for file-based geoserver data sources, using the REST
           // "importer" will be more handy than adding a layer by referencing the local file system
           GeoWaveStoreType.ROCKSDB,
-      // filesystem sporadically fails with a null response on spatial-temporal subsampling (after
-      // the spatial index is removed and the services restarted)
-      // GeoWaveStoreType.FILESYSTEM
-      },
+          // filesystem sporadically fails with a null response on spatial-temporal subsampling
+          // (after
+          // the spatial index is removed and the services restarted)
+          GeoWaveStoreType.FILESYSTEM},
       namespace = testName)
   protected DataStorePluginOptions dataStorePluginOptions;
 
@@ -155,7 +155,7 @@ public class GeoServerIngestIT extends BaseServiceIT {
   public void testExamplesIngest() throws Exception {
     final DataStore ds = dataStorePluginOptions.createDataStore();
     final SimpleFeatureType sft = SimpleIngest.createPointFeatureType();
-    final Index spatialIdx = TestUtils.createWebMercatorSpatialIndex();
+    // final Index spatialIdx = TestUtils.createWebMercatorSpatialIndex();
     final Index spatialTemporalIdx = TestUtils.createWebMercatorSpatialTemporalIndex();
     final GeotoolsFeatureDataAdapter fda = SimpleIngest.createDataAdapter(sft);
     final List<SimpleFeature> features =
@@ -164,7 +164,7 @@ public class GeoServerIngestIT extends BaseServiceIT {
         String.format("Beginning to ingest a uniform grid of %d features", features.size()));
     int ingestedFeatures = 0;
     final int featuresPer5Percent = features.size() / 20;
-    ds.addType(fda, spatialIdx, spatialTemporalIdx);
+    ds.addType(fda, spatialTemporalIdx);
     try (Writer writer = ds.createWriter(fda.getTypeName())) {
       for (final SimpleFeature feat : features) {
         writer.write(feat);
@@ -288,10 +288,10 @@ public class GeoServerIngestIT extends BaseServiceIT {
             920,
             360,
             null,
-            false);
+            true);
     Assert.assertNotNull(ref);
     // being a little lenient because of differences in O/S rendering
-    TestUtils.testTileAgainstReference(biSubsamplingWithoutError, ref, 0, 0.07);
+    TestUtils.testTileAgainstReference(biSubsamplingWithoutError, ref, 0, 0.071);
 
     BufferedImage biSubsamplingWithExpectedError =
         getWMSSingleTile(
@@ -304,8 +304,8 @@ public class GeoServerIngestIT extends BaseServiceIT {
             920,
             360,
             null,
-            false);
-    TestUtils.testTileAgainstReference(biSubsamplingWithExpectedError, ref, 0.01, 0.15);
+            true);
+    TestUtils.testTileAgainstReference(biSubsamplingWithExpectedError, ref, 0.01, 0.151);
 
     BufferedImage biSubsamplingWithLotsOfError =
         getWMSSingleTile(
@@ -318,8 +318,8 @@ public class GeoServerIngestIT extends BaseServiceIT {
             920,
             360,
             null,
-            false);
-    TestUtils.testTileAgainstReference(biSubsamplingWithLotsOfError, ref, 0.3, 0.4);
+            true);
+    TestUtils.testTileAgainstReference(biSubsamplingWithLotsOfError, ref, 0.3, 0.41);
 
     final BufferedImage biDistributedRendering =
         getWMSSingleTile(
@@ -333,10 +333,10 @@ public class GeoServerIngestIT extends BaseServiceIT {
             360,
             null,
             true);
-    TestUtils.testTileAgainstReference(biDistributedRendering, ref, 0, 0.07);
+    TestUtils.testTileAgainstReference(biDistributedRendering, ref, 0, 0.071);
 
     // Test subsampling with only the spatial-temporal index
-    ds.removeIndex(spatialIdx.getName());
+    // ds.removeIndex(spatialIdx.getName());
     ServicesTestEnvironment.getInstance().restartServices();
 
     biSubsamplingWithoutError =
