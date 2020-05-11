@@ -35,7 +35,7 @@ abstract public class AbstractFileSystemTable {
 
   public void delete(final byte[] key) {
     try {
-      Files.deleteIfExists(subDirectory.resolve(FileSystemUtils.keyToFileName(key)));
+      Files.delete(subDirectory.resolve(FileSystemUtils.keyToFileName(key)));
     } catch (final IOException e) {
       LOGGER.warn("Unable to delete file", e);
     }
