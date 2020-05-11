@@ -56,8 +56,7 @@ import org.slf4j.LoggerFactory;
         GeoWaveStoreType.KUDU,
         GeoWaveStoreType.REDIS,
         GeoWaveStoreType.ROCKSDB,
-    // GeoWaveStoreType.FILESYSTEM
-    })
+        GeoWaveStoreType.FILESYSTEM})
 public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoWaveGrpcIT.class);
   private static File configFile = null;
@@ -120,7 +119,7 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     TestUtils.deleteAll(dataStore);
 
     // Create the index
-    SpatialIndexBuilder indexBuilder = new SpatialIndexBuilder();
+    final SpatialIndexBuilder indexBuilder = new SpatialIndexBuilder();
     indexBuilder.setName(GeoWaveGrpcTestUtils.indexName);
 
     IndexStore indexStore = dataStore.createIndexStore();

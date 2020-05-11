@@ -10,6 +10,7 @@ package org.locationtech.geowave.datastore.filesystem.util;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Collection;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -100,11 +101,10 @@ public class FileSystemIndexTable extends AbstractFileSystemTable {
         visibilityEnabled);
   }
 
-  public CloseableIterator<GeoWaveRow> iterator(final ByteArrayRange range) {
+  public CloseableIterator<GeoWaveRow> iterator(final Collection<ByteArrayRange> ranges) {
     return new FileSystemRowIterator(
         subDirectory,
-        range.getStart(),
-        range.getEnd() == null ? null : range.getEndAsNextPrefix(),
+        ranges,
         adapterId,
         partition,
         requiresTimestamp,

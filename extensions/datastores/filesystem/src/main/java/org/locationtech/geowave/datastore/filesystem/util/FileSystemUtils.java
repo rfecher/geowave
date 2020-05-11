@@ -45,6 +45,10 @@ public class FileSystemUtils {
     return ByteArrayUtils.byteArrayFromString(key.substring(0, key.length() - 4));
   }
 
+  public static SortedSet<Pair<byte[], Path>> getSortedSet(final Path subDirectory) {
+    return getSortedSet(subDirectory, null, null);
+  }
+
   public static SortedSet<Pair<byte[], Path>> getSortedSet(
       final Path subDirectory,
       final byte[] startKeyInclusive,

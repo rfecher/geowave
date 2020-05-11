@@ -11,12 +11,15 @@ package org.locationtech.geowave.datastore.filesystem.util;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.apache.commons.lang3.tuple.Pair;
+import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractFileSystemIterator<T> implements CloseableIterator<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFileSystemIterator.class);
@@ -29,6 +32,37 @@ public abstract class AbstractFileSystemIterator<T> implements CloseableIterator
       final byte[] endKey) {
     super();
     iterator = FileSystemUtils.getSortedSet(subDirectory, startKey, endKey).iterator();
+  }
+
+  public AbstractFileSystemIterator(
+      final Path subDirectory,
+      final Collection<ByteArrayRange> ranges) {
+    super();
+    iterator =
+        FileSystemUtils.getSortedSet(subDirectory).stream().filter(
+            p -> inRanges(ranges, p.getKey())).iterator();
+  }
+
+  private static boolean inRanges(final Collection<ByteArrayRange> ranges, final byte[] key) {
+    if ((ranges == null) || ranges.isEmpty()) {
+      return true;
+    }
+    for (final ByteArrayRange range : ranges) {
+      if (inRange(range, key)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean inRange(final ByteArrayRange range, final byte[] key) {
+
+    return ((range.getStart() == null)
+        || (UnsignedBytes.lexicographicalComparator().compare(range.getStart(), key) <= 0))
+        && ((range.getEnd() == null)
+            || (UnsignedBytes.lexicographicalComparator().compare(
+                range.getEndAsNextPrefix(),
+                key) > 0));
   }
 
   @Override

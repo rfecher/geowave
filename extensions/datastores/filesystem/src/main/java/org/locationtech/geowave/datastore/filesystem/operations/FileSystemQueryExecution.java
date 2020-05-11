@@ -124,28 +124,18 @@ public class FileSystemQueryExecution<T> {
   }
 
   public CloseableIterator<T> results() {
-    final List<RangeReadInfo> reads = new ArrayList<>();
-    for (final SinglePartitionQueryRanges r : ranges) {
-      for (final ByteArrayRange range : r.getSortKeyRanges()) {
-        reads.add(new RangeReadInfo(r.getPartitionKey(), range));
-      }
-    }
-    return executeQuery(reads);
+    return executeQuery();
   }
 
-  public CloseableIterator<T> executeQuery(final List<RangeReadInfo> reads) {
-    if (isSortFinalResultsBySortKey) {
-      // order the reads by sort keys
-      reads.sort(ScoreOrderComparator.SINGLETON);
-    }
-    final List<CloseableIterator<GeoWaveRow>> iterators = reads.stream().map(r -> {
+  public CloseableIterator<T> executeQuery() {
+    final List<CloseableIterator<GeoWaveRow>> iterators = ranges.stream().map(r -> {
       ByteArray partitionKey;
-      if ((r.partitionKey == null) || (r.partitionKey.length == 0)) {
+      if ((r.getPartitionKey() == null) || (r.getPartitionKey().length == 0)) {
         partitionKey = EMPTY_PARTITION_KEY;
       } else {
-        partitionKey = new ByteArray(r.partitionKey);
+        partitionKey = new ByteArray(r.getPartitionKey());
       }
-      return setCache.get(partitionKey).iterator(r.sortKeyRange);
+      return setCache.get(partitionKey).iterator(r.getSortKeyRanges());
     }).collect(Collectors.toList());
     return transformAndFilter(new CloseableIteratorWrapper<>(new Closeable() {
       @Override

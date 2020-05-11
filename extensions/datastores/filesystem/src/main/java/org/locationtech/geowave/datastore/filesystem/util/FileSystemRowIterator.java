@@ -9,6 +9,8 @@
 package org.locationtech.geowave.datastore.filesystem.util;
 
 import java.nio.file.Path;
+import java.util.Collection;
+import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 
 public class FileSystemRowIterator extends AbstractFileSystemIterator<GeoWaveRow> {
@@ -26,6 +28,20 @@ public class FileSystemRowIterator extends AbstractFileSystemIterator<GeoWaveRow
       final boolean containsTimestamp,
       final boolean visiblityEnabled) {
     super(subDirectory, startKey, endKey);
+    this.adapterId = adapterId;
+    this.partition = partition;
+    this.containsTimestamp = containsTimestamp;
+    visibilityEnabled = visiblityEnabled;
+  }
+
+  public FileSystemRowIterator(
+      final Path subDirectory,
+      final Collection<ByteArrayRange> ranges,
+      final short adapterId,
+      final byte[] partition,
+      final boolean containsTimestamp,
+      final boolean visiblityEnabled) {
+    super(subDirectory, ranges);
     this.adapterId = adapterId;
     this.partition = partition;
     this.containsTimestamp = containsTimestamp;
