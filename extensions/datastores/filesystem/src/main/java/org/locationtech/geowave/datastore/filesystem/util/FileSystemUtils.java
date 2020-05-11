@@ -93,10 +93,12 @@ public class FileSystemUtils {
   public static FileSystemDataIndexTable getDataIndexTable(
       final FileSystemClient client,
       final String typeName,
-      final short adapterId) {
+      final short adapterId,
+      final String format) {
     return client.getDataIndexTable(
         getTablePrefix(typeName, DataIndexUtils.DATA_ID_INDEX.getName()),
-        adapterId);
+        adapterId,
+        format);
   }
 
   public static FileSystemIndexTable getIndexTable(
@@ -104,8 +106,9 @@ public class FileSystemUtils {
       final String tableName,
       final short adapterId,
       final byte[] partitionKey,
+      final String format,
       final boolean requiresTimestamp) {
-    return client.getIndexTable(tableName, adapterId, partitionKey, requiresTimestamp);
+    return client.getIndexTable(tableName, adapterId, partitionKey, format, requiresTimestamp);
   }
 
   public static boolean isSortByTime(final InternalDataAdapter<?> adapter) {
@@ -160,12 +163,14 @@ public class FileSystemUtils {
       final String namePrefix,
       final short adapterId,
       final byte[] partitionKey,
+      final String format,
       final boolean requiresTimestamp) {
     return getIndexTable(
         client,
         getTableName(namePrefix, partitionKey),
         adapterId,
         partitionKey,
+        format,
         requiresTimestamp);
   }
 

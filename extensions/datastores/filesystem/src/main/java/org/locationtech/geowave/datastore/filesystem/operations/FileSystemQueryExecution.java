@@ -11,7 +11,6 @@ package org.locationtech.geowave.datastore.filesystem.operations;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -85,6 +84,7 @@ public class FileSystemQueryExecution<T> {
   private final short adapterId;
   private final String indexNamePrefix;
   private final FileSystemClient client;
+  private final String format;
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
   private final Predicate<GeoWaveRow> filter;
   private final boolean rowMerging;
@@ -96,6 +96,7 @@ public class FileSystemQueryExecution<T> {
       final FileSystemClient client,
       final String indexNamePrefix,
       final short adapterId,
+      final String format,
       final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final Collection<SinglePartitionQueryRanges> ranges,
       final Predicate<GeoWaveRow> filter,
@@ -106,6 +107,7 @@ public class FileSystemQueryExecution<T> {
     this.client = client;
     this.indexNamePrefix = indexNamePrefix;
     this.adapterId = adapterId;
+    this.format = format;
     this.rowTransformer = rowTransformer;
     this.ranges = ranges;
     this.filter = filter;
@@ -120,6 +122,7 @@ public class FileSystemQueryExecution<T> {
         indexNamePrefix,
         adapterId,
         partitionKey,
+        format,
         groupByRowAndSortByTimePair.getRight());
   }
 

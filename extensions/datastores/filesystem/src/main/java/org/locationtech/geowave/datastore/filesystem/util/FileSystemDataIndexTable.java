@@ -27,7 +27,8 @@ public class FileSystemDataIndexTable extends AbstractFileSystemTable {
   public FileSystemDataIndexTable(
       final String subDirectory,
       final short adapterId,
-      final boolean visibilityEnabled) throws IOException {
+      final boolean visibilityEnabled,
+      final String format) throws IOException {
     super(subDirectory, adapterId, visibilityEnabled);
   }
 

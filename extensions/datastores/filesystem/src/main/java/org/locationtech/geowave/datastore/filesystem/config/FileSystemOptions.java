@@ -21,12 +21,18 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.ParametersDelegate;
 
 public class FileSystemOptions extends StoreFactoryOptions {
+  public static final String DEFAULT_BINARY_FORMATTER = "binary";
   @Parameter(
       names = "--dir",
       description = "The directory to read/write to.  Defaults to \"filesystem\" in the working directory.")
   private String dir = "filesystem";
 
-
+  @Parameter(
+      names = "--format",
+      description = "Optionally use a formatter configured with Java SPI of type org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatterSpi.  Defaults to \""
+          + DEFAULT_BINARY_FORMATTER
+          + "\" which is a compact geowave serialization.")
+  private String format = "binary";
   @ParametersDelegate
   protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
     @Override
@@ -49,6 +55,14 @@ public class FileSystemOptions extends StoreFactoryOptions {
       return false;
     }
   };
+
+  public String getFormat() {
+    return format;
+  }
+
+  public void setFormat(final String format) {
+    this.format = format;
+  }
 
   @Override
   public void validatePluginOptions() throws ParameterException {

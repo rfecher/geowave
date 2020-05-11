@@ -31,17 +31,26 @@ public class FileSystemRowDeleter implements RowDeleter {
     private final String tableName;
     private final short adapterId;
     private final byte[] partition;
+    private final String format;
 
-    public CacheKey(final String tableName, final short adapterId, final byte[] partition) {
+    public CacheKey(
+        final String tableName,
+        final short adapterId,
+        final byte[] partition,
+        final String format) {
       this.tableName = tableName;
       this.adapterId = adapterId;
       this.partition = partition;
+      this.format = format;
     }
 
     @Override
     public int hashCode() {
       final int prime = 31;
       int result = 1;
+      result = (prime * result) + adapterId;
+      result = (prime * result) + ((format == null) ? 0 : format.hashCode());
+      result = (prime * result) + Arrays.hashCode(partition);
       result = (prime * result) + ((tableName == null) ? 0 : tableName.hashCode());
       return result;
     }
@@ -58,6 +67,19 @@ public class FileSystemRowDeleter implements RowDeleter {
         return false;
       }
       final CacheKey other = (CacheKey) obj;
+      if (adapterId != other.adapterId) {
+        return false;
+      }
+      if (format == null) {
+        if (other.format != null) {
+          return false;
+        }
+      } else if (!format.equals(other.format)) {
+        return false;
+      }
+      if (!Arrays.equals(partition, other.partition)) {
+        return false;
+      }
       if (tableName == null) {
         if (other.tableName != null) {
           return false;
@@ -75,16 +97,19 @@ public class FileSystemRowDeleter implements RowDeleter {
   private final PersistentAdapterStore adapterStore;
   private final InternalAdapterStore internalAdapterStore;
   private final String indexName;
+  private final String format;
 
   public FileSystemRowDeleter(
       final FileSystemClient client,
       final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
-      final String indexName) {
+      final String indexName,
+      final String format) {
     this.client = client;
     this.adapterStore = adapterStore;
     this.internalAdapterStore = internalAdapterStore;
     this.indexName = indexName;
+    this.format = format;
   }
 
   @Override
@@ -98,6 +123,7 @@ public class FileSystemRowDeleter implements RowDeleter {
         cacheKey.tableName,
         cacheKey.adapterId,
         cacheKey.partition,
+        cacheKey.format,
         FileSystemUtils.isSortByTime(adapterStore.getAdapter(cacheKey.adapterId)));
   }
 
@@ -111,7 +137,8 @@ public class FileSystemRowDeleter implements RowDeleter {
                     indexName,
                     row.getPartitionKey()),
                 row.getAdapterId(),
-                row.getPartitionKey()));
+                row.getPartitionKey(),
+                format));
     if (row instanceof GeoWaveRowImpl) {
       final GeoWaveKey key = ((GeoWaveRowImpl) row).getKey();
       if (key instanceof FileSystemRow) {

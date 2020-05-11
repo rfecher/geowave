@@ -46,13 +46,16 @@ import com.google.common.collect.Streams;
 
 public class FileSystemReader<T> implements RowReader<T> {
   private final CloseableIterator<T> iterator;
+  private String format;
 
   public FileSystemReader(
       final FileSystemClient client,
       final ReaderParams<T> readerParams,
-      final boolean async) {
+      final boolean async,
+      final String format) {
     this.iterator =
         createIteratorForReader(client, readerParams, readerParams.getRowTransformer(), false);
+    this.format = format;
   }
 
   public FileSystemReader(
@@ -100,6 +103,7 @@ public class FileSystemReader<T> implements RowReader<T> {
                     indexNamePrefix,
                     adapterId,
                     p.getBytes(),
+                    format,
                     groupByRowAndSortByTime.getRight()).iterator());
         iterators.addAll(streamIt.collect(Collectors.toList()));
       }
@@ -136,6 +140,7 @@ public class FileSystemReader<T> implements RowReader<T> {
                     readerParams.getInternalAdapterStore().getTypeName(adapterId),
                     readerParams.getIndex().getName()),
                 adapterId,
+                format,
                 rowTransformer,
                 ranges,
                 new ClientVisibilityFilter(authorizations),
@@ -189,7 +194,8 @@ public class FileSystemReader<T> implements RowReader<T> {
             client,
             dataIndexReaderParams.getInternalAdapterStore().getTypeName(
                 dataIndexReaderParams.getAdapterId()),
-            dataIndexReaderParams.getAdapterId());
+            dataIndexReaderParams.getAdapterId(),
+            format);
     Iterator<GeoWaveRow> iterator;
     if (dataIndexReaderParams.getDataIds() != null) {
       iterator = dataIndexTable.dataIndexIterator(dataIndexReaderParams.getDataIds());

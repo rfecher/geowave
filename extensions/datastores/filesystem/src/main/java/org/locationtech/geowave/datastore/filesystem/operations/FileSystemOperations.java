@@ -47,6 +47,7 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
   private final FileSystemClient client;
   private final String directory;
   private final boolean visibilityEnabled;
+  private final String format;
 
   public FileSystemOperations(final FileSystemOptions options) {
     directory =
@@ -60,6 +61,7 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
     visibilityEnabled = options.getStoreOptions().isVisibilityEnabled();
     // a factory method that returns a RocksDB instance
     client = FileSystemClientCache.getInstance().getClient(directory, visibilityEnabled);
+    format = options.getFormat();
   }
 
   @Override
@@ -135,12 +137,17 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
         adapter.getAdapterId(),
         adapter.getTypeName(),
         index.getName(),
+        format,
         FileSystemUtils.isSortByTime(adapter));
   }
 
   @Override
   public RowWriter createDataIndexWriter(final InternalDataAdapter<?> adapter) {
-    return new FileSystemDataIndexWriter(client, adapter.getAdapterId(), adapter.getTypeName());
+    return new FileSystemDataIndexWriter(
+        client,
+        adapter.getAdapterId(),
+        adapter.getTypeName(),
+        format);
   }
 
   @Override
@@ -164,7 +171,7 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
 
   @Override
   public <T> RowReader<T> createReader(final ReaderParams<T> readerParams) {
-    return new FileSystemReader<>(client, readerParams, READER_ASYNC);
+    return new FileSystemReader<>(client, readerParams, READER_ASYNC, format);
   }
 
   @Override
@@ -182,7 +189,7 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
             readerParams.getAdditionalAuthorizations()),
         // intentionally don't run this reader as async because it does
         // not work well while simultaneously deleting rows
-        new FileSystemReader<>(client, readerParams, false));
+        new FileSystemReader<>(client, readerParams, false, format));
   }
 
   @Override
@@ -197,7 +204,7 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
       final short adapterId,
       final String typeName) {
     final FileSystemDataIndexTable table =
-        FileSystemUtils.getDataIndexTable(client, typeName, adapterId);
+        FileSystemUtils.getDataIndexTable(client, typeName, adapterId, format);
     Arrays.stream(dataIds).forEach(d -> table.delete(d));
   }
 
@@ -212,7 +219,7 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
       final PersistentAdapterStore adapterStore,
       final InternalAdapterStore internalAdapterStore,
       final String... authorizations) {
-    return new FileSystemRowDeleter(client, adapterStore, internalAdapterStore, indexName);
+    return new FileSystemRowDeleter(client, adapterStore, internalAdapterStore, indexName, format);
   }
 
   @Override

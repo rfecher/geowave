@@ -31,6 +31,7 @@ public class FileSystemIndexTable extends AbstractFileSystemTable {
       final String subDirectory,
       final short adapterId,
       final byte[] partition,
+      final String format,
       final boolean requiresTimestamp,
       final boolean visibilityEnabled) throws IOException {
     super(subDirectory, adapterId, visibilityEnabled);
