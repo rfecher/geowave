@@ -36,6 +36,8 @@ public class FileSystemUtils {
   public static int FILESYSTEM_DEFAULT_MAX_RANGE_DECOMPOSITION = 250;
   public static int FILESYSTEM_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION = 250;
 
+  private static final Set<ByteArray> EMPTY_PARTITION = Collections.singleton(new ByteArray());
+
   public static SortedSet<Pair<FileSystemKey, Path>> getSortedSet(
       final Path subDirectory,
       final Function<String, FileSystemKey> fileNameToKey) {
@@ -138,15 +140,19 @@ public class FileSystemUtils {
       final String indexName,
       final String typeName) {
     try {
-      return Files.list(directory).filter(Files::isDirectory).flatMap(
-          path -> recurseDirectoriesToString(path, path.getFileName().toString())).map(
-              dir -> new ByteArray(
-                  indexFormatter.getPartitionKey(indexName, typeName, dir))).collect(
-                      Collectors.toSet());
+      final Set<ByteArray> partitions =
+          Files.list(directory).filter(Files::isDirectory).flatMap(
+              path -> recurseDirectoriesToString(path, path.getFileName().toString())).map(
+                  dir -> new ByteArray(
+                      indexFormatter.getPartitionKey(indexName, typeName, dir))).collect(
+                          Collectors.toSet());
+      if (!partitions.isEmpty()) {
+        return partitions;
+      }
     } catch (final IOException e) {
       LOGGER.warn("Unable to list files in directory " + directory, e);
     }
-    return Collections.EMPTY_SET;
+    return EMPTY_PARTITION;
   }
 
   private static Stream<String> recurseDirectoriesToString(
