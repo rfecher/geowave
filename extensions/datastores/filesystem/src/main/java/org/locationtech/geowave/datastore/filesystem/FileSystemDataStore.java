@@ -19,7 +19,9 @@ import org.locationtech.geowave.datastore.filesystem.operations.FileSystemOperat
 import org.locationtech.geowave.mapreduce.BaseMapReduceDataStore;
 
 public class FileSystemDataStore extends BaseMapReduceDataStore implements Closeable {
-  public FileSystemDataStore(final FileSystemOperations operations, final DataStoreOptions options) {
+  public FileSystemDataStore(
+      final FileSystemOperations operations,
+      final DataStoreOptions options) {
     super(
         new IndexStoreImpl(operations, options),
         new AdapterStoreImpl(operations, options),

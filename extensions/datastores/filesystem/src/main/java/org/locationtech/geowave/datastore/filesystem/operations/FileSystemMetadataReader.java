@@ -26,7 +26,9 @@ public class FileSystemMetadataReader implements MetadataReader {
   private final FileSystemMetadataTable table;
   private final MetadataType metadataType;
 
-  public FileSystemMetadataReader(final FileSystemMetadataTable table, final MetadataType metadataType) {
+  public FileSystemMetadataReader(
+      final FileSystemMetadataTable table,
+      final MetadataType metadataType) {
     this.table = table;
     this.metadataType = metadataType;
   }

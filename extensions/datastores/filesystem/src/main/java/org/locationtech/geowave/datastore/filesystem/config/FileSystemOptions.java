@@ -24,14 +24,14 @@ public class FileSystemOptions extends StoreFactoryOptions {
   public static final String DEFAULT_BINARY_FORMATTER = "binary";
   @Parameter(
       names = "--dir",
-      description = "The directory to read/write to.  Defaults to \"filesystem\" in the working directory.")
-  private String dir = "filesystem";
+      description = "The directory to read/write to.  Defaults to \"geowave\" in the working directory.")
+  private String dir = "geowave";
 
   @Parameter(
       names = "--format",
       description = "Optionally use a formatter configured with Java SPI of type org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatterSpi.  Defaults to \""
           + DEFAULT_BINARY_FORMATTER
-          + "\" which is a compact geowave serialization.  Use `geowave util filesystem list-formats` to see available options.")
+          + "\" which is a compact geowave serialization.  Use `geowave util filesystem listformats` to see available formats.")
   private String format = "binary";
   @ParametersDelegate
   protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {

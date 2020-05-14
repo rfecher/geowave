@@ -45,7 +45,7 @@ All core data stores have these options:
 *--aggregationMaxRangeDecomposition* _<count>_::
   The maximum number of ranges to use when breaking down aggregation queries.
 
-When the `accummulo` type option is used, additional options are:
+When the `accumulo` type option is used, additional options are:
     
 *$$*$$ -i, --instance* _<instance>_::
   The Accumulo instance ID.
@@ -91,6 +91,14 @@ When the `rocksdb` type option is used, additional options are:
 
 *--batchWriteSize* _<count>_::
   The size (in records) for each batched write. Anything <= 1 will use synchronous single record writes without batching. Default is 1000.
+  
+When the `filesystem` type option is used, additional options are:
+
+*--dir* _<path>_::
+  The directory to read/write to.  Defaults to "geowave" in the working directory.
+   
+*--format* _<format>_::
+  Optionally use a formatter configured with Java SPI of type org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatterSpi.  Defaults to 'binary' which is a compact geowave serialization.  Use `geowave util filesystem listformats` to see available formats.
 
 When the `cassandra` type option is used, additional options are:
 

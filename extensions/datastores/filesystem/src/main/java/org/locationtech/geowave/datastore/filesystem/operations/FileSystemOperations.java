@@ -117,13 +117,15 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
   }
 
   private static void deleteDirectory(final Path directory) throws IOException {
-    Files.walk(directory).sorted(Comparator.reverseOrder()).forEach(t -> {
-      try {
-        Files.delete(t);
-      } catch (final IOException e) {
-        LOGGER.info("Unable to delete file or directory", e);
-      }
-    });
+    if (Files.exists(directory)) {
+      Files.walk(directory).sorted(Comparator.reverseOrder()).forEach(t -> {
+        try {
+          Files.delete(t);
+        } catch (final IOException e) {
+          LOGGER.warn("Unable to delete file or directory", e);
+        }
+      });
+    }
   }
 
   @Override
@@ -136,13 +138,13 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
     if (DataIndexUtils.DATA_ID_INDEX.getName().equals(indexName)) {
       directoryName =
           DataFormatterCache.getInstance().getFormatter(
-              typeName,
+              format,
               visibilityEnabled).getDataIndexFormatter().getDirectoryName(typeName);
       client.invalidateDataIndexCache(adapterId, typeName, format);
     } else {
       directoryName =
           DataFormatterCache.getInstance().getFormatter(
-              typeName,
+              format,
               visibilityEnabled).getIndexFormatter().getDirectoryName(indexName, typeName);
       client.invalidateIndexCache(indexName, typeName);
     }

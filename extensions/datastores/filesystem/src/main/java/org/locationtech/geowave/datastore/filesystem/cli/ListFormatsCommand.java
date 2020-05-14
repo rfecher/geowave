@@ -9,9 +9,9 @@ import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatterSpi;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameters;
 
-@GeowaveOperation(name = "list-formats", parentOperation = FileSystemSection.class)
+@GeowaveOperation(name = "listformats", parentOperation = FileSystemSection.class)
 @Parameters(
-    commandDescription = "List available formats for uasge with --format option with FileSystem datastore")
+    commandDescription = "List available formats for usage with --format option with FileSystem datastore")
 public class ListFormatsCommand extends ServiceEnabledCommand<String> {
 
   @Override

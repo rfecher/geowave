@@ -7,15 +7,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
@@ -139,34 +140,49 @@ public class FileSystemUtils {
       final IndexFormatter indexFormatter,
       final String indexName,
       final String typeName) {
-    try {
-      final Set<ByteArray> partitions =
-          Files.list(directory).filter(Files::isDirectory).flatMap(
-              path -> recurseDirectoriesToString(path, path.getFileName().toString())).map(
-                  dir -> new ByteArray(
-                      indexFormatter.getPartitionKey(indexName, typeName, dir))).collect(
-                          Collectors.toSet());
-      if (!partitions.isEmpty()) {
-        return partitions;
-      }
-    } catch (final IOException e) {
-      LOGGER.warn("Unable to list files in directory " + directory, e);
-    }
-    return EMPTY_PARTITION;
+    return recurseDirectoriesToString(
+        directory,
+        "",
+        new HashSet<>(),
+        indexFormatter,
+        indexName,
+        typeName);
   }
 
-  private static Stream<String> recurseDirectoriesToString(
+  private static Set<ByteArray> recurseDirectoriesToString(
       final Path currentPath,
-      final String subdirectoryName) {
+      final String subdirectoryName,
+      final Set<ByteArray> partitionDirectories,
+      final IndexFormatter indexFormatter,
+      final String indexName,
+      final String typeName) {
     try {
-      return Files.list(currentPath).filter(Files::isDirectory).flatMap(
+      final AtomicBoolean atLeastOneRegularFile = new AtomicBoolean(false);
+      Files.list(currentPath).filter(p -> {
+        if (Files.isDirectory(p)) {
+          return true;
+        } else {
+          atLeastOneRegularFile.set(true);
+          return false;
+        }
+      }).forEach(
           path -> recurseDirectoriesToString(
               path,
-              subdirectoryName + "/" + path.getFileName().toString()));
+              (subdirectoryName == null) || subdirectoryName.isEmpty()
+                  ? path.getFileName().toString()
+                  : subdirectoryName + "/" + path.getFileName().toString(),
+              partitionDirectories,
+              indexFormatter,
+              indexName,
+              typeName));
+      if (atLeastOneRegularFile.get()) {
+        partitionDirectories.add(
+            new ByteArray(indexFormatter.getPartitionKey(indexName, typeName, subdirectoryName)));
+      }
     } catch (final IOException e) {
       LOGGER.warn("Cannot list files in " + subdirectoryName, e);
     }
-    return Stream.of();
+    return partitionDirectories;
   }
 
   private static class SortKeyOrder implements Comparator<GeoWaveRow>, Serializable {

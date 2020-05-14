@@ -24,6 +24,8 @@ import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractFileSystemIterator<T> implements CloseableIterator<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFileSystemIterator.class);
+  // this is a memoized supplier to support lazy evaluation because readRow actually relies on
+  // member variables set in child constructors
   final Iterator<Pair<FileSystemKey, Path>> iterator;
   boolean closed = false;
 
