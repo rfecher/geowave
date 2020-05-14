@@ -129,9 +129,7 @@ public interface FileSystemDataFormatter {
     /**
      * Gives the formatter an opportunity to override the default directory for each partition (when
      * the index uses partitions). Keep in mind the index directory name is already implicitly in
-     * the path, this is a subdirectory within the index and for now there is an assumption that
-     * this is a single directory at least within logic that queries everything in an index (ie.
-     * don't use path separators to attempt to nest a partition within mutliple subdirectories).
+     * the path.
      *
      * @param indexName the indexName name
      * @param typeName the type name
@@ -145,6 +143,16 @@ public interface FileSystemDataFormatter {
       return ByteArrayUtils.byteArrayToString(partitionKey);
     }
 
+    /**
+     * This is the inverse of getPartiionDirectoryName so that partitions can be read from the
+     * directory structure
+     *
+     * @param indexName the index name
+     * @param typeName the type name
+     * @param partitionDirectoryName the partition directory name that resolves from this partition
+     *        key
+     * @return the partition key represented by this directory
+     */
     default byte[] getPartitionKey(
         final String indexName,
         final String typeName,
