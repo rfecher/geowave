@@ -15,9 +15,11 @@ import java.util.Arrays;
 import java.util.Objects;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
+import org.locationtech.geowave.core.store.entities.GeoWaveKeyImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.DataIndexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,30 +44,36 @@ public class FileSystemDataIndexTable extends AbstractFileSystemTable {
   }
 
   public CloseableIterator<GeoWaveRow> dataIndexIterator(final byte[][] dataIds) {
+    final DataIndexFormatter dataIndexFormatter = formatter.getDataIndexFormatter();
     return new CloseableIterator.Wrapper(
         Arrays.stream(dataIds).map(
             // convert to pair with path so the path is only instantiated once (depending on
             // filesystem (such as S3 or HDFS) can be modestly expensive
             dataId -> Pair.of(
                 dataId,
-                tableDirectory.resolve(
-                    formatter.getDataIndexFormatter().getFileName(typeName, dataId)))).filter(
-                        p -> Files.exists(p.getRight())).map(pair -> {
-                          try {
-                            return DataIndexUtils.deserializeDataIndexRow(
+                tableDirectory.resolve(dataIndexFormatter.getFileName(typeName, dataId)))).filter(
+                    p -> Files.exists(p.getRight())).map(pair -> {
+                      try {
+                        return new GeoWaveRowImpl(
+                            new GeoWaveKeyImpl(
                                 pair.getLeft(),
                                 adapterId,
-                                Files.readAllBytes(pair.getRight()),
-                                visibilityEnabled);
-                          } catch (final IOException e) {
-                            LOGGER.error(
-                                "Unable to read value by data ID for file '"
-                                    + pair.getRight()
-                                    + "'",
-                                e);
-                            return null;
-                          }
-                        }).filter(Objects::nonNull).iterator());
+                                new byte[0],
+                                new byte[0],
+                                0),
+                            new GeoWaveValue[] {
+                                dataIndexFormatter.getValue(
+                                    pair.getRight().getFileName().toString(),
+                                    typeName,
+                                    pair.getLeft(),
+                                    Files.readAllBytes(pair.getRight()))});
+                      } catch (final IOException e) {
+                        LOGGER.error(
+                            "Unable to read value by data ID for file '" + pair.getRight() + "'",
+                            e);
+                        return null;
+                      }
+                    }).filter(Objects::nonNull).iterator());
   }
 
   public CloseableIterator<GeoWaveRow> dataIndexIterator(

@@ -33,6 +33,7 @@ abstract public class AbstractFileSystemTable {
     super();
     this.adapterId = adapterId;
     this.typeName = typeName;
+    this.visibilityEnabled = visibilityEnabled;
     formatter = DataFormatterCache.getInstance().getFormatter(format, visibilityEnabled);
   }
 
