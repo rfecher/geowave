@@ -1,28 +1,30 @@
 package org.locationtech.geowave.datastore.filesystem.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.RowMergingDataAdapter;
-import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.RangeReaderParams;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.IndexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.collect.Streams;
@@ -34,41 +36,28 @@ public class FileSystemUtils {
   public static int FILESYSTEM_DEFAULT_MAX_RANGE_DECOMPOSITION = 250;
   public static int FILESYSTEM_DEFAULT_AGGREGATION_MAX_RANGE_DECOMPOSITION = 250;
 
-  public static String keyToFileName(final byte[] key) {
-    return ByteArrayUtils.byteArrayToString(key) + ".row";
+  public static SortedSet<Pair<FileSystemKey, Path>> getSortedSet(
+      final Path subDirectory,
+      final Function<String, FileSystemKey> fileNameToKey) {
+    return getSortedSet(subDirectory, null, null, fileNameToKey);
   }
 
-  public static byte[] fileNameToKey(final String key) {
-    if (key.length() < 5) {
-      return new byte[0];
-    }
-    return ByteArrayUtils.byteArrayFromString(key.substring(0, key.length() - 4));
-  }
-
-  public static SortedSet<Pair<byte[], Path>> getSortedSet(final Path subDirectory) {
-    return getSortedSet(subDirectory, null, null);
-  }
-
-  public static SortedSet<Pair<byte[], Path>> getSortedSet(
+  public static SortedSet<Pair<FileSystemKey, Path>> getSortedSet(
       final Path subDirectory,
       final byte[] startKeyInclusive,
-      final byte[] endKeyExclusive) {
+      final byte[] endKeyExclusive,
+      final Function<String, FileSystemKey> fileNameToKey) {
     try {
-      final Supplier<SortedSet<Pair<byte[], Path>>> sortedSetFactory =
-          () -> new TreeSet<>(
-              (p1, p2) -> UnsignedBytes.lexicographicalComparator().compare(
-                  p1.getLeft(),
-                  p2.getLeft()));
-      SortedSet<Pair<byte[], Path>> sortedSet =
+      final Supplier<SortedSet<Pair<FileSystemKey, Path>>> sortedSetFactory = () -> new TreeSet<>();
+      SortedSet<Pair<FileSystemKey, Path>> sortedSet =
           Files.walk(subDirectory).filter(Files::isRegularFile).map(
-              path -> Pair.of(
-                  FileSystemUtils.fileNameToKey(path.getFileName().toString()),
-                  path)).collect(Collectors.toCollection(sortedSetFactory));
+              path -> Pair.of(fileNameToKey.apply(path.getFileName().toString()), path)).collect(
+                  Collectors.toCollection(sortedSetFactory));
       if (startKeyInclusive != null) {
-        sortedSet = sortedSet.tailSet(Pair.of(startKeyInclusive, null));
+        sortedSet = sortedSet.tailSet(Pair.of(new BasicFileSystemKey(startKeyInclusive), null));
       }
       if (endKeyExclusive != null) {
-        sortedSet = sortedSet.headSet(Pair.of(endKeyExclusive, null));
+        sortedSet = sortedSet.headSet(Pair.of(new BasicFileSystemKey(endKeyExclusive), null));
       }
       return sortedSet;
     } catch (final IOException e) {
@@ -81,34 +70,39 @@ public class FileSystemUtils {
       final Path subDirectory,
       final byte[] startKeyInclusive,
       final byte[] endKeyExclusive,
-      final Consumer<Path> pathVisitor) {
-    getSortedSet(subDirectory, startKeyInclusive, endKeyExclusive).stream().map(
+      final Consumer<Path> pathVisitor,
+      final Function<String, FileSystemKey> fileNameToKey) {
+    getSortedSet(subDirectory, startKeyInclusive, endKeyExclusive, fileNameToKey).stream().map(
         Pair::getRight).forEach(pathVisitor);
-  }
-
-  public static String getTablePrefix(final String typeName, final String indexName) {
-    return typeName + "_" + indexName;
   }
 
   public static FileSystemDataIndexTable getDataIndexTable(
       final FileSystemClient client,
-      final String typeName,
       final short adapterId,
+      final String typeName,
       final String format) {
-    return client.getDataIndexTable(
-        getTablePrefix(typeName, DataIndexUtils.DATA_ID_INDEX.getName()),
-        adapterId,
-        format);
+    return client.getDataIndexTable(adapterId, typeName, format);
+  }
+
+  public static Path getMetadataTablePath(final String subDirectory, final MetadataType type) {
+    return Paths.get(subDirectory, "metadata", type.name());
   }
 
   public static FileSystemIndexTable getIndexTable(
       final FileSystemClient client,
-      final String tableName,
       final short adapterId,
+      final String typeName,
+      final String indexName,
       final byte[] partitionKey,
       final String format,
       final boolean requiresTimestamp) {
-    return client.getIndexTable(tableName, adapterId, partitionKey, format, requiresTimestamp);
+    return client.getIndexTable(
+        adapterId,
+        typeName,
+        indexName,
+        partitionKey,
+        format,
+        requiresTimestamp);
   }
 
   public static boolean isSortByTime(final InternalDataAdapter<?> adapter) {
@@ -135,52 +129,38 @@ public class FileSystemUtils {
   public static FileSystemMetadataTable getMetadataTable(
       final FileSystemClient client,
       final MetadataType metadataType) {
-    // stats also store a timestamp because stats can be the exact same but
-    // need to still be unique (consider multiple count statistics that are
-    // exactly the same count, but need to be merged)
     return client.getMetadataTable(metadataType);
   }
 
-  public static String getTableName(
-      final String typeName,
+  public static Set<ByteArray> getPartitions(
+      final Path directory,
+      final IndexFormatter indexFormatter,
       final String indexName,
-      final byte[] partitionKey) {
-    return getTableName(getTablePrefix(typeName, indexName), partitionKey);
-  }
-
-  public static String getTableName(final String setNamePrefix, final byte[] partitionKey) {
-    String partitionStr;
-    if ((partitionKey != null) && (partitionKey.length > 0)) {
-      partitionStr = "_" + ByteArrayUtils.byteArrayToString(partitionKey);
-    } else {
-      partitionStr = "";
+      final String typeName) {
+    try {
+      return Files.list(directory).filter(Files::isDirectory).flatMap(
+          path -> recurseDirectoriesToString(path, path.getFileName().toString())).map(
+              dir -> new ByteArray(
+                  indexFormatter.getPartitionKey(indexName, typeName, dir))).collect(
+                      Collectors.toSet());
+    } catch (final IOException e) {
+      LOGGER.warn("Unable to list files in directory " + directory, e);
     }
-    return setNamePrefix + partitionStr;
+    return Collections.EMPTY_SET;
   }
 
-  public static FileSystemIndexTable getIndexTableFromPrefix(
-      final FileSystemClient client,
-      final String namePrefix,
-      final short adapterId,
-      final byte[] partitionKey,
-      final String format,
-      final boolean requiresTimestamp) {
-    return getIndexTable(
-        client,
-        getTableName(namePrefix, partitionKey),
-        adapterId,
-        partitionKey,
-        format,
-        requiresTimestamp);
-  }
-
-  public static Set<ByteArray> getPartitions(final String directory, final String tableNamePrefix) {
-    return Arrays.stream(
-        new File(directory).list((dir, name) -> name.startsWith(tableNamePrefix))).map(
-            str -> str.length() > (tableNamePrefix.length() + 1)
-                ? new ByteArray(
-                    ByteArrayUtils.byteArrayFromString(str.substring(tableNamePrefix.length() + 1)))
-                : new ByteArray()).collect(Collectors.toSet());
+  private static Stream<String> recurseDirectoriesToString(
+      final Path currentPath,
+      final String subdirectoryName) {
+    try {
+      return Files.list(currentPath).filter(Files::isDirectory).flatMap(
+          path -> recurseDirectoriesToString(
+              path,
+              subdirectoryName + "/" + path.getFileName().toString()));
+    } catch (final IOException e) {
+      LOGGER.warn("Cannot list files in " + subdirectoryName, e);
+    }
+    return Stream.of();
   }
 
   private static class SortKeyOrder implements Comparator<GeoWaveRow>, Serializable {
@@ -226,5 +206,16 @@ public class FileSystemUtils {
       }
       return Integer.compare(o1.getNumberOfDuplicates(), o2.getNumberOfDuplicates());
     }
+  }
+
+  protected static String keyToFileName(final byte[] key) {
+    return ByteArrayUtils.byteArrayToString(key) + ".bin";
+  }
+
+  protected static byte[] fileNameToKey(final String key) {
+    if (key.length() < 5) {
+      return new byte[0];
+    }
+    return ByteArrayUtils.byteArrayFromString(key.substring(0, key.length() - 4));
   }
 }

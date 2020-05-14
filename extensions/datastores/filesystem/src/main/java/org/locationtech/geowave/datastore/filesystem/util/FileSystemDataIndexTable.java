@@ -27,13 +27,18 @@ public class FileSystemDataIndexTable extends AbstractFileSystemTable {
   public FileSystemDataIndexTable(
       final String subDirectory,
       final short adapterId,
-      final boolean visibilityEnabled,
-      final String format) throws IOException {
-    super(subDirectory, adapterId, visibilityEnabled);
+      final String typeName,
+      final String format,
+      final boolean visibilityEnabled) throws IOException {
+    super(adapterId, typeName, format, visibilityEnabled);
+    setTableDirectory(
+        Paths.get(subDirectory, formatter.getDataIndexFormatter().getDirectoryName(typeName)));
   }
 
   public synchronized void add(final byte[] dataId, final GeoWaveValue value) {
-    put(dataId, DataIndexUtils.serializeDataIndexValue(value, visibilityEnabled));
+    writeFile(
+        formatter.getDataIndexFormatter().getFileName(typeName, dataId),
+        formatter.getDataIndexFormatter().getFileContents(typeName, dataId, value));
   }
 
   public CloseableIterator<GeoWaveRow> dataIndexIterator(final byte[][] dataIds) {
@@ -43,31 +48,39 @@ public class FileSystemDataIndexTable extends AbstractFileSystemTable {
             // filesystem (such as S3 or HDFS) can be modestly expensive
             dataId -> Pair.of(
                 dataId,
-                subDirectory.resolve(Paths.get(FileSystemUtils.keyToFileName(dataId))))).filter(
-                    p -> Files.exists(p.getRight())).map(pair -> {
-                      try {
-                        return DataIndexUtils.deserializeDataIndexRow(
-                            pair.getLeft(),
-                            adapterId,
-                            Files.readAllBytes(pair.getRight()),
-                            visibilityEnabled);
-                      } catch (final IOException e) {
-                        LOGGER.error(
-                            "Unable to read value by data ID for file '" + pair.getRight() + "'",
-                            e);
-                        return null;
-                      }
-                    }).filter(Objects::nonNull).iterator());
+                tableDirectory.resolve(
+                    formatter.getDataIndexFormatter().getFileName(typeName, dataId)))).filter(
+                        p -> Files.exists(p.getRight())).map(pair -> {
+                          try {
+                            return DataIndexUtils.deserializeDataIndexRow(
+                                pair.getLeft(),
+                                adapterId,
+                                Files.readAllBytes(pair.getRight()),
+                                visibilityEnabled);
+                          } catch (final IOException e) {
+                            LOGGER.error(
+                                "Unable to read value by data ID for file '"
+                                    + pair.getRight()
+                                    + "'",
+                                e);
+                            return null;
+                          }
+                        }).filter(Objects::nonNull).iterator());
   }
 
   public CloseableIterator<GeoWaveRow> dataIndexIterator(
       final byte[] startDataId,
       final byte[] endDataId) {
     return new DataIndexRowIterator(
-        subDirectory,
+        tableDirectory,
         startDataId,
         endDataId,
         adapterId,
-        visibilityEnabled);
+        typeName,
+        formatter.getDataIndexFormatter());
+  }
+
+  public void deleteDataId(final byte[] dataId) {
+    deleteFile(formatter.getDataIndexFormatter().getFileName(typeName, dataId));
   }
 }

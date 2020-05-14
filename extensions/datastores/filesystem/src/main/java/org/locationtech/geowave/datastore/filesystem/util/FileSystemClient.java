@@ -13,23 +13,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 public class FileSystemClient {
   private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemClient.class);
 
-  private static class CacheKey {
-    protected final String directory;
+  private abstract static class CacheKey {
     protected final boolean requiresTimestamp;
 
-    public CacheKey(final String directory, final boolean requiresTimestamp) {
-      this.directory = directory;
+    public CacheKey(final boolean requiresTimestamp) {
       this.requiresTimestamp = requiresTimestamp;
     }
 
@@ -37,7 +35,6 @@ public class FileSystemClient {
     public int hashCode() {
       final int prime = 31;
       int result = 1;
-      result = (prime * result) + ((directory == null) ? 0 : directory.hashCode());
       result = (prime * result) + (requiresTimestamp ? 1231 : 1237);
       return result;
     }
@@ -54,37 +51,70 @@ public class FileSystemClient {
         return false;
       }
       final CacheKey other = (CacheKey) obj;
-      if (directory == null) {
-        if (other.directory != null) {
-          return false;
-        }
-      } else if (!directory.equals(other.directory)) {
-        return false;
-      }
       if (requiresTimestamp != other.requiresTimestamp) {
         return false;
       }
       return true;
     }
   }
+  private static class MetadataCacheKey extends CacheKey {
+    protected final MetadataType type;
 
-  private static class IndexCacheKey extends DataIndexCacheKey {
-    protected final byte[] partition;
-
-    public IndexCacheKey(
-        final String directory,
-        final short adapterId,
-        final byte[] partition,
-        final String format,
-        final boolean requiresTimestamp) {
-      super(directory, requiresTimestamp, adapterId, format);
-      this.partition = partition;
+    public MetadataCacheKey(final MetadataType type) {
+      // stats also store a timestamp because stats can be the exact same but
+      // need to still be unique (consider multiple count statistics that are
+      // exactly the same count, but need to be merged)
+      super(type.equals(MetadataType.STATS));
+      this.type = type;
     }
 
     @Override
     public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
+      result = (prime * result) + ((type == null) ? 0 : type.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!super.equals(obj)) {
+        return false;
+      }
+      if (getClass() != obj.getClass()) {
+        return false;
+      }
+      final MetadataCacheKey other = (MetadataCacheKey) obj;
+      if (type != other.type) {
+        return false;
+      }
+      return true;
+    }
+  }
+  private static class IndexCacheKey extends DataIndexCacheKey {
+    protected final String indexName;
+    protected final byte[] partition;
+
+    public IndexCacheKey(
+        final short adapterId,
+        final String typeName,
+        final String indexName,
+        final byte[] partition,
+        final String format,
+        final boolean requiresTimestamp) {
+      super(requiresTimestamp, adapterId, typeName, format);
+      this.partition = partition;
+      this.indexName = indexName;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = (prime * result) + ((indexName == null) ? 0 : indexName.hashCode());
       result = (prime * result) + Arrays.hashCode(partition);
       return result;
     }
@@ -101,30 +131,36 @@ public class FileSystemClient {
         return false;
       }
       final IndexCacheKey other = (IndexCacheKey) obj;
+      if (indexName == null) {
+        if (other.indexName != null) {
+          return false;
+        }
+      } else if (!indexName.equals(other.indexName)) {
+        return false;
+      }
       if (!Arrays.equals(partition, other.partition)) {
         return false;
       }
       return true;
     }
-
   }
   private static class DataIndexCacheKey extends CacheKey {
     protected final short adapterId;
+    protected final String typeName;
     protected final String format;
 
-    public DataIndexCacheKey(final String directory, final short adapterId, final String format) {
-      super(directory, false);
-      this.adapterId = adapterId;
-      this.format = format;
+    public DataIndexCacheKey(final short adapterId, final String typeName, final String format) {
+      this(false, adapterId, typeName, format);
     }
 
     private DataIndexCacheKey(
-        final String directory,
         final boolean requiresTimestamp,
         final short adapterId,
+        final String typeName,
         final String format) {
-      super(directory, requiresTimestamp);
+      super(requiresTimestamp);
       this.adapterId = adapterId;
+      this.typeName = typeName;
       this.format = format;
     }
 
@@ -164,13 +200,12 @@ public class FileSystemClient {
 
   }
 
-  private final Cache<String, CacheKey> keyCache = Caffeine.newBuilder().build();
   private final LoadingCache<IndexCacheKey, FileSystemIndexTable> indexTableCache =
       Caffeine.newBuilder().build(key -> loadIndexTable(key));
 
   private final LoadingCache<DataIndexCacheKey, FileSystemDataIndexTable> dataIndexTableCache =
       Caffeine.newBuilder().build(key -> loadDataIndexTable(key));
-  private final LoadingCache<CacheKey, FileSystemMetadataTable> metadataTableCache =
+  private final LoadingCache<MetadataCacheKey, FileSystemMetadataTable> metadataTableCache =
       Caffeine.newBuilder().build(key -> loadMetadataTable(key));
   private final String subDirectory;
   private final boolean visibilityEnabled;
@@ -180,21 +215,20 @@ public class FileSystemClient {
     this.visibilityEnabled = visibilityEnabled;
   }
 
-  private FileSystemMetadataTable loadMetadataTable(final CacheKey key) throws IOException {
-    Path dir = Paths.get(key.directory);
+  private FileSystemMetadataTable loadMetadataTable(final MetadataCacheKey key) throws IOException {
+    Path dir = FileSystemUtils.getMetadataTablePath(subDirectory, key.type);
     if (!Files.exists(dir)) {
       dir = Files.createDirectories(dir);
     }
-    return new FileSystemMetadataTable(
-        Paths.get(key.directory),
-        key.requiresTimestamp,
-        visibilityEnabled);
+    return new FileSystemMetadataTable(dir, key.requiresTimestamp, visibilityEnabled);
   }
 
   private FileSystemIndexTable loadIndexTable(final IndexCacheKey key) throws IOException {
     return new FileSystemIndexTable(
-        key.directory,
+        subDirectory,
         key.adapterId,
+        key.typeName,
+        key.indexName,
         key.partition,
         key.format,
         key.requiresTimestamp,
@@ -204,10 +238,11 @@ public class FileSystemClient {
   private FileSystemDataIndexTable loadDataIndexTable(final DataIndexCacheKey key)
       throws IOException {
     return new FileSystemDataIndexTable(
-        key.directory,
+        subDirectory,
         key.adapterId,
-        visibilityEnabled,
-        key.format);
+        key.typeName,
+        key.format,
+        visibilityEnabled);
   }
 
   public String getSubDirectory() {
@@ -215,76 +250,46 @@ public class FileSystemClient {
   }
 
   public synchronized FileSystemIndexTable getIndexTable(
-      final String tableName,
       final short adapterId,
+      final String typeName,
+      final String indexName,
       final byte[] partition,
       final String format,
       final boolean requiresTimestamp) {
-    final String directory = subDirectory + "/" + tableName;
     return indexTableCache.get(
-        (IndexCacheKey) keyCache.get(
-            directory,
-            d -> new IndexCacheKey(d, adapterId, partition, format, requiresTimestamp)));
+        new IndexCacheKey(adapterId, typeName, indexName, partition, format, requiresTimestamp));
   }
 
   public synchronized FileSystemDataIndexTable getDataIndexTable(
-      final String tableName,
       final short adapterId,
+      final String typeName,
       final String format) {
-    final String directory = subDirectory + "/" + tableName;
-    return dataIndexTableCache.get(
-        (DataIndexCacheKey) keyCache.get(
-            directory,
-            d -> new DataIndexCacheKey(d, adapterId, format)));
+    return dataIndexTableCache.get(new DataIndexCacheKey(adapterId, typeName, format));
   }
 
   public synchronized FileSystemMetadataTable getMetadataTable(final MetadataType type) {
-    final String directory = subDirectory + "/" + type.name();
-    return metadataTableCache.get(
-        keyCache.get(directory, d -> new CacheKey(d, type.equals(MetadataType.STATS))));
-  }
-
-  public boolean indexTableExists(final String indexName) {
-    // then look for prefixes of this index directory in which case there is
-    // a partition key
-    for (final String key : keyCache.asMap().keySet()) {
-      if (key.substring(subDirectory.length()).contains(indexName)) {
-        return true;
-      }
-    }
-    // this could have been created by a different process so check the
-    // directory listing
-    try {
-      return Files.list(Paths.get(subDirectory)).anyMatch(p -> p.toString().contains(indexName));
-    } catch (final IOException e) {
-      LOGGER.warn("Unable to list directory", e);
-    }
-    return false;
+    return metadataTableCache.get(new MetadataCacheKey(type));
   }
 
   public boolean metadataTableExists(final MetadataType type) {
     // this could have been created by a different process so check the
     // directory listing
-    return (keyCache.getIfPresent(subDirectory + "/" + type.name()) != null)
-        || Files.exists(Paths.get(subDirectory + "/" + type.name()));
+    return (metadataTableCache.getIfPresent(new MetadataCacheKey(type)) != null)
+        || Files.exists(FileSystemUtils.getMetadataTablePath(subDirectory, type));
   }
 
-  public void close(final String indexName, final String typeName) {
-    final String prefix = FileSystemUtils.getTablePrefix(typeName, indexName);
-    for (final Entry<String, CacheKey> e : keyCache.asMap().entrySet()) {
-      final String key = e.getKey();
-      if (key.substring(subDirectory.length() + 1).startsWith(prefix)) {
-        keyCache.invalidate(key);
-        AbstractFileSystemTable indexTable = indexTableCache.getIfPresent(e.getValue());
-        if (indexTable == null) {
-          indexTable = dataIndexTableCache.getIfPresent(e.getValue());
-        }
-        if (indexTable != null) {
-          indexTableCache.invalidate(e.getValue());
-          dataIndexTableCache.invalidate(e.getValue());
-        }
-      }
-    }
+  public void invalidateDataIndexCache(
+      final short adapterId,
+      final String typeName,
+      final String format) {
+    dataIndexTableCache.invalidate(new DataIndexCacheKey(adapterId, typeName, format));
+  }
+
+  public void invalidateIndexCache(final String indexName, final String typeName) {
+    indexTableCache.invalidateAll(
+        indexTableCache.asMap().keySet().stream().filter(
+            k -> k.typeName.equals(typeName) && k.indexName.equals(indexName)).collect(
+                Collectors.toList()));
   }
 
   public boolean isVisibilityEnabled() {

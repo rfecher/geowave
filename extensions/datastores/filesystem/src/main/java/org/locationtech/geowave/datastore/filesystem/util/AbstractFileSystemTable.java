@@ -11,40 +11,47 @@ package org.locationtech.geowave.datastore.filesystem.util;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract public class AbstractFileSystemTable {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFileSystemTable.class);
 
-  protected final Path subDirectory;
+  protected Path tableDirectory;
   protected final short adapterId;
+  protected final String typeName;
   protected boolean visibilityEnabled;
+  protected FileSystemDataFormatter formatter;
 
   public AbstractFileSystemTable(
-      final String subDirectory,
       final short adapterId,
+      final String typeName,
+      final String format,
       final boolean visibilityEnabled) throws IOException {
     super();
     this.adapterId = adapterId;
-    this.subDirectory = Files.createDirectories(Paths.get(subDirectory));
-    this.visibilityEnabled = visibilityEnabled;
+    this.typeName = typeName;
+    formatter = DataFormatterCache.getInstance().getFormatter(format, visibilityEnabled);
   }
 
-  public void delete(final byte[] key) {
+  protected void setTableDirectory(final Path tableDirectory) throws IOException {
+    this.tableDirectory = Files.createDirectories(tableDirectory);
+  }
+
+  public void deleteFile(final String fileName) {
     try {
-      Files.delete(subDirectory.resolve(FileSystemUtils.keyToFileName(key)));
+      Files.delete(tableDirectory.resolve(fileName));
     } catch (final IOException e) {
       LOGGER.warn("Unable to delete file", e);
     }
   }
 
-  protected void put(final byte[] key, final byte[] value) {
+  protected void writeFile(final String fileName, final byte[] value) {
     try {
       Files.write(
-          subDirectory.resolve(FileSystemUtils.keyToFileName(key)),
+          tableDirectory.resolve(fileName),
           value,
           StandardOpenOption.CREATE,
           StandardOpenOption.TRUNCATE_EXISTING,

@@ -28,67 +28,25 @@ public class FileSystemRowDeleter implements RowDeleter {
   private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemRowDeleter.class);
 
   private static class CacheKey {
-    private final String tableName;
     private final short adapterId;
+    private final String typeName;
+    private final String indexName;
     private final byte[] partition;
     private final String format;
 
     public CacheKey(
-        final String tableName,
         final short adapterId,
+        final String typeName,
+        final String indexName,
         final byte[] partition,
         final String format) {
-      this.tableName = tableName;
       this.adapterId = adapterId;
+      this.typeName = typeName;
+      this.indexName = indexName;
       this.partition = partition;
       this.format = format;
     }
 
-    @Override
-    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = (prime * result) + adapterId;
-      result = (prime * result) + ((format == null) ? 0 : format.hashCode());
-      result = (prime * result) + Arrays.hashCode(partition);
-      result = (prime * result) + ((tableName == null) ? 0 : tableName.hashCode());
-      return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null) {
-        return false;
-      }
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-      final CacheKey other = (CacheKey) obj;
-      if (adapterId != other.adapterId) {
-        return false;
-      }
-      if (format == null) {
-        if (other.format != null) {
-          return false;
-        }
-      } else if (!format.equals(other.format)) {
-        return false;
-      }
-      if (!Arrays.equals(partition, other.partition)) {
-        return false;
-      }
-      if (tableName == null) {
-        if (other.tableName != null) {
-          return false;
-        }
-      } else if (!tableName.equals(other.tableName)) {
-        return false;
-      }
-      return true;
-    }
   }
 
   private final LoadingCache<CacheKey, FileSystemIndexTable> tableCache =
@@ -120,8 +78,9 @@ public class FileSystemRowDeleter implements RowDeleter {
   private FileSystemIndexTable getIndexTable(final CacheKey cacheKey) {
     return FileSystemUtils.getIndexTable(
         client,
-        cacheKey.tableName,
         cacheKey.adapterId,
+        cacheKey.typeName,
+        cacheKey.indexName,
         cacheKey.partition,
         cacheKey.format,
         FileSystemUtils.isSortByTime(adapterStore.getAdapter(cacheKey.adapterId)));
@@ -132,11 +91,9 @@ public class FileSystemRowDeleter implements RowDeleter {
     final FileSystemIndexTable table =
         tableCache.get(
             new CacheKey(
-                FileSystemUtils.getTableName(
-                    internalAdapterStore.getTypeName(row.getAdapterId()),
-                    indexName,
-                    row.getPartitionKey()),
                 row.getAdapterId(),
+                internalAdapterStore.getTypeName(row.getAdapterId()),
+                indexName,
                 row.getPartitionKey(),
                 format));
     if (row instanceof GeoWaveRowImpl) {
@@ -145,21 +102,21 @@ public class FileSystemRowDeleter implements RowDeleter {
         deleteRow(table, (FileSystemRow) key);
       } else {
         LOGGER.info(
-            "Unable to convert scanned row into RocksDBRow for deletion.  Row is of type GeoWaveRowImpl.");
+            "Unable to convert scanned row into FileSystemRow for deletion.  Row is of type GeoWaveRowImpl.");
         table.delete(key.getSortKey(), key.getDataId());
       }
     } else if (row instanceof FileSystemRow) {
       deleteRow(table, (FileSystemRow) row);
     } else {
       LOGGER.info(
-          "Unable to convert scanned row into RocksDBRow for deletion. Row is of type "
+          "Unable to convert scanned row into FileSystemRow for deletion. Row is of type "
               + row.getClass());
       table.delete(row.getSortKey(), row.getDataId());
     }
   }
 
   private static void deleteRow(final FileSystemIndexTable table, final FileSystemRow row) {
-    Arrays.stream(row.getKeys()).forEach(k -> table.delete(k));
+    Arrays.stream(row.getFiles()).forEach(f -> table.deleteFile(f));
   }
 
   @Override

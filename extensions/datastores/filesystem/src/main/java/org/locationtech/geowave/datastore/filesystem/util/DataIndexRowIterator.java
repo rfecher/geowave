@@ -9,26 +9,39 @@
 package org.locationtech.geowave.datastore.filesystem.util;
 
 import java.nio.file.Path;
-import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
+import org.locationtech.geowave.core.store.entities.GeoWaveKeyImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.core.store.entities.GeoWaveRowImpl;
+import org.locationtech.geowave.core.store.entities.GeoWaveValue;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.DataIndexFormatter;
 
 public class DataIndexRowIterator extends AbstractFileSystemIterator<GeoWaveRow> {
   private final short adapterId;
-  private final boolean visibilityEnabled;
+  private final String typeName;
+  private final DataIndexFormatter formatter;
 
   public DataIndexRowIterator(
       final Path subDirectory,
       final byte[] startKey,
       final byte[] endKey,
       final short adapterId,
-      final boolean visiblityEnabled) {
-    super(subDirectory, startKey, endKey);
+      final String typeName,
+      final DataIndexFormatter formatter) {
+    super(
+        subDirectory,
+        startKey,
+        endKey,
+        fileName -> new BasicFileSystemKey(formatter.getDataId(fileName, typeName), fileName));
     this.adapterId = adapterId;
-    visibilityEnabled = visiblityEnabled;
+    this.typeName = typeName;
+    this.formatter = formatter;
   }
 
   @Override
-  protected GeoWaveRow readRow(final byte[] key, final byte[] value) {
-    return DataIndexUtils.deserializeDataIndexRow(key, adapterId, value, visibilityEnabled);
+  protected GeoWaveRow readRow(final FileSystemKey key, final byte[] value) {
+    return new GeoWaveRowImpl(
+        new GeoWaveKeyImpl(key.getSortOrderKey(), adapterId, new byte[0], new byte[0], 0),
+        new GeoWaveValue[] {
+            formatter.getValue(key.getFileName(), typeName, key.getSortOrderKey(), value)});
   }
 }

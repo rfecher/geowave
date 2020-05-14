@@ -10,52 +10,67 @@ package org.locationtech.geowave.datastore.filesystem.util;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.function.Function;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.FileSystemIndexKey;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.FormattedFileInfo;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.IndexFormatter;
 
 public class FileSystemRowIterator extends AbstractFileSystemIterator<GeoWaveRow> {
   private final short adapterId;
   private final byte[] partition;
-  private final boolean containsTimestamp;
-  private final boolean visibilityEnabled;
+  private final IndexFormatter formatter;
+  private final String typeName;
+  private final String indexName;
 
   public FileSystemRowIterator(
       final Path subDirectory,
       final byte[] startKey,
       final byte[] endKey,
       final short adapterId,
+      final String typeName,
+      final String indexName,
       final byte[] partition,
-      final boolean containsTimestamp,
-      final boolean visiblityEnabled) {
-    super(subDirectory, startKey, endKey);
+      final IndexFormatter formatter,
+      final Function<String, FileSystemKey> fileNameToKey) {
+    super(subDirectory, startKey, endKey, fileNameToKey);
     this.adapterId = adapterId;
+    this.typeName = typeName;
+    this.indexName = indexName;
     this.partition = partition;
-    this.containsTimestamp = containsTimestamp;
-    visibilityEnabled = visiblityEnabled;
+    this.formatter = formatter;
   }
 
   public FileSystemRowIterator(
       final Path subDirectory,
       final Collection<ByteArrayRange> ranges,
       final short adapterId,
+      final String typeName,
+      final String indexName,
       final byte[] partition,
-      final boolean containsTimestamp,
-      final boolean visiblityEnabled) {
-    super(subDirectory, ranges);
+      final IndexFormatter formatter,
+      final Function<String, FileSystemKey> fileNameToKey) {
+    super(subDirectory, ranges, fileNameToKey);
     this.adapterId = adapterId;
+    this.typeName = typeName;
+    this.indexName = indexName;
     this.partition = partition;
-    this.containsTimestamp = containsTimestamp;
-    visibilityEnabled = visiblityEnabled;
+    this.formatter = formatter;
   }
 
   @Override
-  protected GeoWaveRow readRow(final byte[] key, final byte[] value) {
+  protected GeoWaveRow readRow(final FileSystemKey key, final byte[] value) {
+    final FileSystemIndexKey indexKey = ((FileSystemIndexKeyWrapper) key).getOriginalKey();
     return new FileSystemRow(
+        key.getFileName(),
         adapterId,
         partition,
-        key,
-        value,
-        containsTimestamp,
-        visibilityEnabled);
+        indexKey,
+        formatter.getValue(
+            indexKey,
+            typeName,
+            indexName,
+            new FormattedFileInfo(key.getFileName(), value)));
   }
 }

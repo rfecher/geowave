@@ -82,7 +82,8 @@ public class FileSystemQueryExecution<T> {
       Caffeine.newBuilder().build(partitionKey -> getTable(partitionKey.getBytes()));
   private final Collection<SinglePartitionQueryRanges> ranges;
   private final short adapterId;
-  private final String indexNamePrefix;
+  private final String typeName;
+  private final String indexName;
   private final FileSystemClient client;
   private final String format;
   private final GeoWaveRowIteratorTransformer<T> rowTransformer;
@@ -94,8 +95,9 @@ public class FileSystemQueryExecution<T> {
 
   protected FileSystemQueryExecution(
       final FileSystemClient client,
-      final String indexNamePrefix,
       final short adapterId,
+      final String typeName,
+      final String indexName,
       final String format,
       final GeoWaveRowIteratorTransformer<T> rowTransformer,
       final Collection<SinglePartitionQueryRanges> ranges,
@@ -105,8 +107,9 @@ public class FileSystemQueryExecution<T> {
       final Pair<Boolean, Boolean> groupByRowAndSortByTimePair,
       final boolean isSortFinalResultsBySortKey) {
     this.client = client;
-    this.indexNamePrefix = indexNamePrefix;
     this.adapterId = adapterId;
+    this.typeName = typeName;
+    this.indexName = indexName;
     this.format = format;
     this.rowTransformer = rowTransformer;
     this.ranges = ranges;
@@ -117,10 +120,11 @@ public class FileSystemQueryExecution<T> {
   }
 
   private FileSystemIndexTable getTable(final byte[] partitionKey) {
-    return FileSystemUtils.getIndexTableFromPrefix(
+    return FileSystemUtils.getIndexTable(
         client,
-        indexNamePrefix,
         adapterId,
+        typeName,
+        indexName,
         partitionKey,
         format,
         groupByRowAndSortByTimePair.getRight());

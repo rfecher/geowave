@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -23,24 +24,27 @@ import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractFileSystemIterator<T> implements CloseableIterator<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFileSystemIterator.class);
-  final Iterator<Pair<byte[], Path>> iterator;
+  final Iterator<Pair<FileSystemKey, Path>> iterator;
   boolean closed = false;
 
   public AbstractFileSystemIterator(
       final Path subDirectory,
       final byte[] startKey,
-      final byte[] endKey) {
+      final byte[] endKey,
+      final Function<String, FileSystemKey> fileNameToKey) {
     super();
-    iterator = FileSystemUtils.getSortedSet(subDirectory, startKey, endKey).iterator();
+    iterator =
+        FileSystemUtils.getSortedSet(subDirectory, startKey, endKey, fileNameToKey).iterator();
   }
 
   public AbstractFileSystemIterator(
       final Path subDirectory,
-      final Collection<ByteArrayRange> ranges) {
+      final Collection<ByteArrayRange> ranges,
+      final Function<String, FileSystemKey> fileNameToKey) {
     super();
     iterator =
-        FileSystemUtils.getSortedSet(subDirectory).stream().filter(
-            p -> inRanges(ranges, p.getKey())).iterator();
+        FileSystemUtils.getSortedSet(subDirectory, fileNameToKey).stream().filter(
+            p -> inRanges(ranges, p.getKey().getSortOrderKey())).iterator();
   }
 
   private static boolean inRanges(final Collection<ByteArrayRange> ranges, final byte[] key) {
@@ -75,7 +79,7 @@ public abstract class AbstractFileSystemIterator<T> implements CloseableIterator
     if (closed) {
       throw new NoSuchElementException();
     }
-    Pair<byte[], Path> next = iterator.next();
+    Pair<FileSystemKey, Path> next = iterator.next();
     while (!Files.exists(next.getRight())) {
       if (!iterator.hasNext()) {
         LOGGER.warn("No more files exist in the directory");
@@ -92,7 +96,7 @@ public abstract class AbstractFileSystemIterator<T> implements CloseableIterator
     return null;
   }
 
-  protected abstract T readRow(byte[] key, byte[] value);
+  protected abstract T readRow(FileSystemKey key, byte[] value);
 
   @Override
   public void close() {

@@ -9,16 +9,19 @@
 package org.locationtech.geowave.datastore.filesystem.operations;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import org.apache.commons.io.FileUtils;
+import java.util.Comparator;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.base.dataidx.DataIndexUtils;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.operations.DataIndexReaderParams;
 import org.locationtech.geowave.core.store.operations.Deleter;
@@ -32,6 +35,7 @@ import org.locationtech.geowave.core.store.operations.RowDeleter;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.operations.RowWriter;
 import org.locationtech.geowave.datastore.filesystem.config.FileSystemOptions;
+import org.locationtech.geowave.datastore.filesystem.util.DataFormatterCache;
 import org.locationtech.geowave.datastore.filesystem.util.FileSystemClient;
 import org.locationtech.geowave.datastore.filesystem.util.FileSystemClientCache;
 import org.locationtech.geowave.datastore.filesystem.util.FileSystemDataIndexTable;
@@ -51,12 +55,12 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
 
   public FileSystemOperations(final FileSystemOptions options) {
     directory =
-        options.getDirectory()
-            + File.separator
-            + ((options.getGeoWaveNamespace() == null)
+        Paths.get(
+            options.getDirectory(),
+            ((options.getGeoWaveNamespace() == null)
                 || options.getGeoWaveNamespace().trim().isEmpty()
                 || "null".equalsIgnoreCase(options.getGeoWaveNamespace()) ? "default"
-                    : options.getGeoWaveNamespace());
+                    : options.getGeoWaveNamespace())).toString();
 
     visibilityEnabled = options.getStoreOptions().isVisibilityEnabled();
     // a factory method that returns a RocksDB instance
@@ -92,7 +96,13 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
 
   @Override
   public boolean indexExists(final String indexName) throws IOException {
-    return client.indexTableExists(indexName);
+    // this is really only used to short-circuit queries when the index doesn't exist
+    // for one thing all directory names by default have type name in them and potentially partition
+    // keys in addition to index names,
+    // and futhermore thats just the default, with pluggable formatters there is not even an
+    // essential association between index names and directory names, just let the query go and
+    // it'll be fine if it can't recurse the directory because it didn't exist
+    return true;
   }
 
   @Override
@@ -103,7 +113,17 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
   @Override
   public void deleteAll() throws Exception {
     close();
-    FileUtils.deleteDirectory(new File(directory));
+    deleteDirectory(Paths.get(directory));
+  }
+
+  private static void deleteDirectory(final Path directory) throws IOException {
+    Files.walk(directory).sorted(Comparator.reverseOrder()).forEach(t -> {
+      try {
+        Files.delete(t);
+      } catch (final IOException e) {
+        LOGGER.info("Unable to delete file or directory", e);
+      }
+    });
   }
 
   @Override
@@ -112,16 +132,25 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
       final String typeName,
       final Short adapterId,
       final String... additionalAuthorizations) {
-    final String prefix = FileSystemUtils.getTablePrefix(typeName, indexName);
-    client.close(indexName, typeName);
-    Arrays.stream(new File(directory).listFiles((dir, name) -> name.startsWith(prefix))).forEach(
-        f -> {
-          try {
-            FileUtils.deleteDirectory(f);
-          } catch (final IOException e) {
-            LOGGER.warn("Unable to delete directory '" + f.getAbsolutePath() + "'", e);
-          }
-        });
+    final String directoryName;
+    if (DataIndexUtils.DATA_ID_INDEX.getName().equals(indexName)) {
+      directoryName =
+          DataFormatterCache.getInstance().getFormatter(
+              typeName,
+              visibilityEnabled).getDataIndexFormatter().getDirectoryName(typeName);
+      client.invalidateDataIndexCache(adapterId, typeName, format);
+    } else {
+      directoryName =
+          DataFormatterCache.getInstance().getFormatter(
+              typeName,
+              visibilityEnabled).getIndexFormatter().getDirectoryName(indexName, typeName);
+      client.invalidateIndexCache(indexName, typeName);
+    }
+    try {
+      deleteDirectory(Paths.get(directoryName));
+    } catch (final IOException e) {
+      LOGGER.warn("Unable to delete directories", e);
+    }
     return true;
   }
 
@@ -176,7 +205,7 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
 
   @Override
   public RowReader<GeoWaveRow> createReader(final DataIndexReaderParams readerParams) {
-    return new FileSystemReader<>(client, readerParams);
+    return new FileSystemReader<>(client, readerParams, format);
   }
 
   @Override
@@ -204,13 +233,13 @@ public class FileSystemOperations implements MapReduceDataStoreOperations, Close
       final short adapterId,
       final String typeName) {
     final FileSystemDataIndexTable table =
-        FileSystemUtils.getDataIndexTable(client, typeName, adapterId, format);
-    Arrays.stream(dataIds).forEach(d -> table.delete(d));
+        FileSystemUtils.getDataIndexTable(client, adapterId, typeName, format);
+    Arrays.stream(dataIds).forEach(d -> table.deleteDataId(d));
   }
 
   @Override
   public RowReader<GeoWaveRow> createReader(final RecordReaderParams readerParams) {
-    return new FileSystemReader<>(client, readerParams);
+    return new FileSystemReader<>(client, readerParams, format);
   }
 
   @Override

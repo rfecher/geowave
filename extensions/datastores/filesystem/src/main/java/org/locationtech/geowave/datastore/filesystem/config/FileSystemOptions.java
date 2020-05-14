@@ -8,7 +8,7 @@
  */
 package org.locationtech.geowave.datastore.filesystem.config;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.Properties;
 import org.locationtech.geowave.core.store.BaseDataStoreOptions;
 import org.locationtech.geowave.core.store.DataStoreOptions;
@@ -31,7 +31,7 @@ public class FileSystemOptions extends StoreFactoryOptions {
       names = "--format",
       description = "Optionally use a formatter configured with Java SPI of type org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatterSpi.  Defaults to \""
           + DEFAULT_BINARY_FORMATTER
-          + "\" which is a compact geowave serialization.")
+          + "\" which is a compact geowave serialization.  Use `geowave util filesystem list-formats` to see available options.")
   private String format = "binary";
   @ParametersDelegate
   protected BaseDataStoreOptions baseOptions = new BaseDataStoreOptions() {
@@ -67,14 +67,14 @@ public class FileSystemOptions extends StoreFactoryOptions {
   @Override
   public void validatePluginOptions() throws ParameterException {
     // Set the directory to be absolute
-    dir = new File(dir).getAbsolutePath();
+    dir = Paths.get(dir).toAbsolutePath().toString();
     super.validatePluginOptions();
   }
 
   @Override
   public void validatePluginOptions(final Properties properties) throws ParameterException {
     // Set the directory to be absolute
-    dir = new File(dir).getAbsolutePath();
+    dir = Paths.get(dir).toAbsolutePath().toString();
     super.validatePluginOptions(properties);
   }
 

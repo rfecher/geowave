@@ -10,6 +10,7 @@ package org.locationtech.geowave.datastore.filesystem.operations;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,6 +36,8 @@ import org.locationtech.geowave.core.store.operations.ReaderParams;
 import org.locationtech.geowave.core.store.operations.RowReader;
 import org.locationtech.geowave.core.store.query.filter.ClientVisibilityFilter;
 import org.locationtech.geowave.core.store.util.DataStoreUtils;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.IndexFormatter;
+import org.locationtech.geowave.datastore.filesystem.util.DataFormatterCache;
 import org.locationtech.geowave.datastore.filesystem.util.FileSystemClient;
 import org.locationtech.geowave.datastore.filesystem.util.FileSystemDataIndexTable;
 import org.locationtech.geowave.datastore.filesystem.util.FileSystemUtils;
@@ -46,27 +49,31 @@ import com.google.common.collect.Streams;
 
 public class FileSystemReader<T> implements RowReader<T> {
   private final CloseableIterator<T> iterator;
-  private String format;
+  private final String format;
 
   public FileSystemReader(
       final FileSystemClient client,
       final ReaderParams<T> readerParams,
       final boolean async,
       final String format) {
+    this.format = format;
     this.iterator =
         createIteratorForReader(client, readerParams, readerParams.getRowTransformer(), false);
-    this.format = format;
   }
 
   public FileSystemReader(
       final FileSystemClient client,
-      final RecordReaderParams recordReaderParams) {
+      final RecordReaderParams recordReaderParams,
+      final String format) {
+    this.format = format;
     this.iterator = createIteratorForRecordReader(client, recordReaderParams);
   }
 
   public FileSystemReader(
       final FileSystemClient client,
-      final DataIndexReaderParams dataIndexReaderParams) {
+      final DataIndexReaderParams dataIndexReaderParams,
+      final String format) {
+    this.format = format;
     this.iterator = new Wrapper(createIteratorForDataIndexReader(client, dataIndexReaderParams));
   }
 
@@ -89,22 +96,30 @@ public class FileSystemReader<T> implements RowReader<T> {
           async);
     } else {
       final List<CloseableIterator<GeoWaveRow>> iterators = new ArrayList<>();
+      final IndexFormatter indexFormatter =
+          DataFormatterCache.getInstance().getFormatter(
+              format,
+              client.isVisibilityEnabled()).getIndexFormatter();
+      final String indexName = readerParams.getIndex().getName();
       for (final short adapterId : readerParams.getAdapterIds()) {
         final Pair<Boolean, Boolean> groupByRowAndSortByTime =
             FileSystemUtils.isGroupByRowAndIsSortByTime(readerParams, adapterId);
-        final String indexNamePrefix =
-            FileSystemUtils.getTablePrefix(
-                readerParams.getInternalAdapterStore().getTypeName(adapterId),
-                readerParams.getIndex().getName());
+        final String typeName = readerParams.getInternalAdapterStore().getTypeName(adapterId);
+        final String indexDirectory = indexFormatter.getDirectoryName(indexName, typeName);
         final Stream<CloseableIterator<GeoWaveRow>> streamIt =
-            FileSystemUtils.getPartitions(client.getSubDirectory(), indexNamePrefix).stream().map(
-                p -> FileSystemUtils.getIndexTableFromPrefix(
-                    client,
-                    indexNamePrefix,
-                    adapterId,
-                    p.getBytes(),
-                    format,
-                    groupByRowAndSortByTime.getRight()).iterator());
+            FileSystemUtils.getPartitions(
+                Paths.get(client.getSubDirectory(), indexDirectory),
+                indexFormatter,
+                indexName,
+                typeName).stream().map(
+                    p -> FileSystemUtils.getIndexTable(
+                        client,
+                        adapterId,
+                        typeName,
+                        indexName,
+                        p.getBytes(),
+                        format,
+                        groupByRowAndSortByTime.getRight()).iterator());
         iterators.addAll(streamIt.collect(Collectors.toList()));
       }
       return wrapResults(new Closeable() {
@@ -136,10 +151,9 @@ public class FileSystemReader<T> implements RowReader<T> {
         Arrays.stream(ArrayUtils.toObject(readerParams.getAdapterIds())).map(
             adapterId -> new FileSystemQueryExecution(
                 client,
-                FileSystemUtils.getTablePrefix(
-                    readerParams.getInternalAdapterStore().getTypeName(adapterId),
-                    readerParams.getIndex().getName()),
                 adapterId,
+                readerParams.getInternalAdapterStore().getTypeName(adapterId),
+                readerParams.getIndex().getName(),
                 format,
                 rowTransformer,
                 ranges,
@@ -192,9 +206,9 @@ public class FileSystemReader<T> implements RowReader<T> {
     final FileSystemDataIndexTable dataIndexTable =
         FileSystemUtils.getDataIndexTable(
             client,
+            dataIndexReaderParams.getAdapterId(),
             dataIndexReaderParams.getInternalAdapterStore().getTypeName(
                 dataIndexReaderParams.getAdapterId()),
-            dataIndexReaderParams.getAdapterId(),
             format);
     Iterator<GeoWaveRow> iterator;
     if (dataIndexReaderParams.getDataIds() != null) {

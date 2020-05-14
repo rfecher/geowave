@@ -10,44 +10,70 @@ package org.locationtech.geowave.datastore.filesystem.util;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Optional;
+import java.util.function.Function;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.FileSystemIndexKey;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.FormattedFileInfo;
+import org.locationtech.geowave.datastore.filesystem.FileSystemDataFormatter.IndexFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.primitives.Bytes;
-import com.google.common.primitives.Longs;
 
 public class FileSystemIndexTable extends AbstractFileSystemTable {
   private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemIndexTable.class);
-  private long prevTime = Long.MAX_VALUE;
   private final boolean requiresTimestamp;
-  private final byte[] partition;
+  private final String indexName;
+  private final byte[] partitionKey;
 
   public FileSystemIndexTable(
       final String subDirectory,
       final short adapterId,
-      final byte[] partition,
+      final String typeName,
+      final String indexName,
+      final byte[] partitionKey,
       final String format,
       final boolean requiresTimestamp,
       final boolean visibilityEnabled) throws IOException {
-    super(subDirectory, adapterId, visibilityEnabled);
+    super(adapterId, typeName, format, visibilityEnabled);
     this.requiresTimestamp = requiresTimestamp;
-    this.partition = partition;
+    this.indexName = indexName;
+    this.partitionKey = partitionKey;
+    final IndexFormatter indexFormatter = formatter.getIndexFormatter();
+
+    if ((partitionKey != null) && (partitionKey.length > 0)) {
+      setTableDirectory(
+          Paths.get(
+              subDirectory,
+              indexFormatter.getDirectoryName(indexName, typeName),
+              indexFormatter.getPartitionDirectoryName(indexName, typeName, partitionKey)));
+    } else {
+      setTableDirectory(
+          Paths.get(subDirectory, indexFormatter.getDirectoryName(indexName, typeName)));
+    }
   }
 
   public void delete(final byte[] sortKey, final byte[] dataId) {
     final byte[] prefix = Bytes.concat(sortKey, dataId);
-    FileSystemUtils.visit(subDirectory, prefix, ByteArrayUtils.getNextPrefix(prefix), p -> {
+    FileSystemUtils.visit(tableDirectory, prefix, ByteArrayUtils.getNextPrefix(prefix), p -> {
       try {
         Files.delete(p);
       } catch (final IOException e) {
         LOGGER.warn("Unable to delete file", e);
       }
-    });
+    }, fileNameToKey());
+  }
+
+  protected Function<String, FileSystemKey> fileNameToKey() {
+    return fileName -> new FileSystemIndexKeyWrapper(
+        formatter.getIndexFormatter().getKey(fileName, requiresTimestamp),
+        fileName);
   }
 
   public synchronized void add(
@@ -55,60 +81,42 @@ public class FileSystemIndexTable extends AbstractFileSystemTable {
       final byte[] dataId,
       final short numDuplicates,
       final GeoWaveValue value) {
-    byte[] key;
-    byte[] endBytes;
-    if (visibilityEnabled) {
-      endBytes =
-          Bytes.concat(
-              value.getVisibility(),
-              ByteArrayUtils.shortToByteArray(numDuplicates),
-              new byte[] {
-                  (byte) value.getVisibility().length,
-                  (byte) sortKey.length,
-                  (byte) value.getFieldMask().length});
-    } else {
-      endBytes =
-          Bytes.concat(
-              ByteArrayUtils.shortToByteArray(numDuplicates),
-              new byte[] {(byte) sortKey.length, (byte) value.getFieldMask().length});
-    }
-    if (requiresTimestamp) {
-      // sometimes rows can be written so quickly that they are the exact
-      // same millisecond - while Java does offer nanosecond precision,
-      // support is OS-dependent. Instead this check is done to ensure
-      // subsequent millis are written at least within this ingest
-      // process.
-      long time = Long.MAX_VALUE - System.currentTimeMillis();
-      if (time >= prevTime) {
-        time = prevTime - 1;
-      }
-      prevTime = time;
-      key = Bytes.concat(sortKey, dataId, Longs.toByteArray(time), value.getFieldMask(), endBytes);
-    } else {
-      key = Bytes.concat(sortKey, dataId, value.getFieldMask(), endBytes);
-    }
-    put(key, value.getValue());
+    final FormattedFileInfo fileInfo =
+        formatter.getIndexFormatter().format(
+            typeName,
+            indexName,
+            new FileSystemIndexKey(
+                sortKey,
+                dataId,
+                requiresTimestamp ? Optional.of(System.currentTimeMillis()) : Optional.empty(),
+                numDuplicates),
+            value);
+    writeFile(fileInfo.getFileName(), value.getValue());
   }
 
 
   public CloseableIterator<GeoWaveRow> iterator() {
     return new FileSystemRowIterator(
-        subDirectory,
+        tableDirectory,
         null,
         null,
         adapterId,
-        partition,
-        requiresTimestamp,
-        visibilityEnabled);
+        typeName,
+        indexName,
+        partitionKey,
+        formatter.getIndexFormatter(),
+        fileNameToKey());
   }
 
   public CloseableIterator<GeoWaveRow> iterator(final Collection<ByteArrayRange> ranges) {
     return new FileSystemRowIterator(
-        subDirectory,
+        tableDirectory,
         ranges,
         adapterId,
-        partition,
-        requiresTimestamp,
-        visibilityEnabled);
+        typeName,
+        indexName,
+        partitionKey,
+        formatter.getIndexFormatter(),
+        fileNameToKey());
   }
 }

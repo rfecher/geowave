@@ -21,9 +21,10 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 public class FileSystemWriter implements RowWriter {
   private static ByteArray EMPTY_PARTITION_KEY = new ByteArray();
   private final FileSystemClient client;
-  private final String indexNamePrefix;
 
   private final short adapterId;
+  private final String typeName;
+  private final String indexName;
   private final LoadingCache<ByteArray, FileSystemIndexTable> tableCache =
       Caffeine.newBuilder().build(partitionKey -> getTable(partitionKey.getBytes()));
   private final boolean isTimestampRequired;
@@ -38,16 +39,18 @@ public class FileSystemWriter implements RowWriter {
       final boolean isTimestampRequired) {
     this.client = client;
     this.adapterId = adapterId;
+    this.typeName = typeName;
+    this.indexName = indexName;
     this.format = format;
-    indexNamePrefix = FileSystemUtils.getTablePrefix(typeName, indexName);
     this.isTimestampRequired = isTimestampRequired;
   }
 
   private FileSystemIndexTable getTable(final byte[] partitionKey) {
-    return FileSystemUtils.getIndexTableFromPrefix(
+    return FileSystemUtils.getIndexTable(
         client,
-        indexNamePrefix,
         adapterId,
+        typeName,
+        indexName,
         partitionKey,
         format,
         isTimestampRequired);

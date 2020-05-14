@@ -23,7 +23,7 @@ public class FileSystemDataIndexWriter implements RowWriter {
       final short adapterId,
       final String typeName,
       final String format) {
-    table = FileSystemUtils.getDataIndexTable(client, typeName, adapterId, format);
+    table = FileSystemUtils.getDataIndexTable(client, adapterId, typeName, format);
   }
 
   @Override
