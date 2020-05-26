@@ -60,6 +60,7 @@ import org.locationtech.geowave.mapreduce.s3.GeoWaveAmazonS3Factory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.internal.Console;
 import com.google.common.collect.Lists;
 import com.upplication.s3fs.S3FileSystem;
 import com.upplication.s3fs.S3FileSystemProvider;
@@ -81,7 +82,8 @@ public class SparkIngestDriver implements Serializable {
       final String indexList,
       final VisibilityOptions ingestOptions,
       final SparkCommandLineOptions sparkOptions,
-      final String basePath) throws IOException {
+      final String basePath,
+      final Console console) throws IOException {
 
     final Properties configProperties = ConfigOptions.loadProperties(configFile);
 
@@ -184,7 +186,8 @@ public class SparkIngestDriver implements Serializable {
             indexList,
             ingestOptions,
             configProperties,
-            inputFiles.iterator());
+            inputFiles.iterator(),
+            console);
       });
     } else if (isHDFS) {
       try {
@@ -202,7 +205,8 @@ public class SparkIngestDriver implements Serializable {
             indexList,
             ingestOptions,
             configProperties,
-            uri);
+            uri,
+            console);
       });
     }
 
@@ -217,7 +221,8 @@ public class SparkIngestDriver implements Serializable {
       final String indexList,
       final VisibilityOptions ingestOptions,
       final Properties configProperties,
-      final Iterator<URI> inputFiles) throws IOException {
+      final Iterator<URI> inputFiles,
+      final Console console) throws IOException {
 
     // Based on the selected formats, select the format plugins
     final IngestFormatPluginOptions pluginFormats = new IngestFormatPluginOptions();
@@ -234,7 +239,8 @@ public class SparkIngestDriver implements Serializable {
     if (!inputStoreLoader.loadFromConfig(
         configProperties,
         DataStorePluginOptions.getStoreNamespace(inputStoreName),
-        configFile)) {
+        configFile,
+        console)) {
       throw new ParameterException("Cannot find store name: " + inputStoreLoader.getStoreName());
     }
     inputStoreOptions = inputStoreLoader.getDataStorePlugin();

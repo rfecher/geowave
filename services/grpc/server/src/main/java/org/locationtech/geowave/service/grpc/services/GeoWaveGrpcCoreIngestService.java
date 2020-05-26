@@ -13,14 +13,14 @@ import java.util.Map;
 import org.locationtech.geowave.core.cli.api.OperationParams;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
 import org.locationtech.geowave.core.cli.parser.ManualOperationParams;
-import org.locationtech.geowave.core.ingest.operations.KafkaToGeowaveCommand;
+import org.locationtech.geowave.core.ingest.operations.KafkaToGeoWaveCommand;
 import org.locationtech.geowave.core.ingest.operations.ListIngestPluginsCommand;
-import org.locationtech.geowave.core.ingest.operations.LocalToGeowaveCommand;
+import org.locationtech.geowave.core.ingest.operations.LocalToGeoWaveCommand;
 import org.locationtech.geowave.core.ingest.operations.LocalToHdfsCommand;
 import org.locationtech.geowave.core.ingest.operations.LocalToKafkaCommand;
-import org.locationtech.geowave.core.ingest.operations.LocalToMapReduceToGeowaveCommand;
-import org.locationtech.geowave.core.ingest.operations.MapReduceToGeowaveCommand;
-import org.locationtech.geowave.core.ingest.operations.SparkToGeowaveCommand;
+import org.locationtech.geowave.core.ingest.operations.LocalToMapReduceToGeoWaveCommand;
+import org.locationtech.geowave.core.ingest.operations.MapReduceToGeoWaveCommand;
+import org.locationtech.geowave.core.ingest.operations.SparkToGeoWaveCommand;
 import org.locationtech.geowave.service.grpc.GeoWaveGrpcServiceOptions;
 import org.locationtech.geowave.service.grpc.GeoWaveGrpcServiceSpi;
 import org.locationtech.geowave.service.grpc.protobuf.CoreIngestGrpc.CoreIngestImplBase;
@@ -74,7 +74,7 @@ public class GeoWaveGrpcCoreIngestService extends CoreIngestImplBase implements
   public void sparkToGeowaveCommand(
       final org.locationtech.geowave.service.grpc.protobuf.SparkToGeowaveCommandParametersProtos request,
       final StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
-    final SparkToGeowaveCommand cmd = new SparkToGeowaveCommand();
+    final SparkToGeoWaveCommand cmd = new SparkToGeoWaveCommand();
     final Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
 
@@ -103,7 +103,7 @@ public class GeoWaveGrpcCoreIngestService extends CoreIngestImplBase implements
       final org.locationtech.geowave.service.grpc.protobuf.KafkaToGeowaveCommandParametersProtos request,
       final StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
 
-    final KafkaToGeowaveCommand cmd = new KafkaToGeowaveCommand();
+    final KafkaToGeoWaveCommand cmd = new KafkaToGeoWaveCommand();
     final Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
 
@@ -184,7 +184,7 @@ public class GeoWaveGrpcCoreIngestService extends CoreIngestImplBase implements
   public void localToMapReduceToGeowaveCommand(
       final org.locationtech.geowave.service.grpc.protobuf.LocalToMapReduceToGeowaveCommandParametersProtos request,
       final StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
-    final LocalToMapReduceToGeowaveCommand cmd = new LocalToMapReduceToGeowaveCommand();
+    final LocalToMapReduceToGeoWaveCommand cmd = new LocalToMapReduceToGeoWaveCommand();
     final Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
 
@@ -211,7 +211,7 @@ public class GeoWaveGrpcCoreIngestService extends CoreIngestImplBase implements
       final org.locationtech.geowave.service.grpc.protobuf.LocalToGeowaveCommandParametersProtos request,
       final StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
 
-    final LocalToGeowaveCommand cmd = new LocalToGeowaveCommand();
+    final LocalToGeoWaveCommand cmd = new LocalToGeoWaveCommand();
     final Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
 
@@ -238,7 +238,7 @@ public class GeoWaveGrpcCoreIngestService extends CoreIngestImplBase implements
       final org.locationtech.geowave.service.grpc.protobuf.MapReduceToGeowaveCommandParametersProtos request,
       final StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
 
-    final MapReduceToGeowaveCommand cmd = new MapReduceToGeowaveCommand();
+    final MapReduceToGeoWaveCommand cmd = new MapReduceToGeoWaveCommand();
     final Map<FieldDescriptor, Object> m = request.getAllFields();
     GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
 

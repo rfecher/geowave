@@ -32,7 +32,7 @@ public class PrefixedJCommander extends JCommander {
 
   // Allows us to override the commanders list that's being stored
   // in our parent class.
-  private final Map<Object, JCommander> childCommanders;
+  private Map<Object, JCommander> childCommanders;
 
   // A list of objects to add to the translator before feeding
   // into the internal JCommander object.
@@ -56,19 +56,27 @@ public class PrefixedJCommander extends JCommander {
   @SuppressWarnings("unchecked")
   public PrefixedJCommander() {
     super();
+    Field commandsField;
     try {
       // HP Fortify "Access Specifier Manipulation"
       // This field is being modified by trusted code,
       // in a way that is not influenced by user input
-      final Field commandsField = JCommander.class.getDeclaredField("m_commands");
+      commandsField = JCommander.class.getDeclaredField("commands");
       commandsField.setAccessible(true);
       childCommanders = (Map<Object, JCommander>) commandsField.get(this);
     } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
       // This is a programmer error, and will only happen if another
-      // version
-      // of JCommander is being used.
-      LOGGER.error("Another version of JCommander is being used", e);
-      throw new RuntimeException(e);
+      // version of JCommander is being used.
+      // newer versions of JCommander have renamed the member variables, try the old names
+      try {
+        commandsField = JCommander.class.getDeclaredField("m_commands");
+
+        commandsField.setAccessible(true);
+        childCommanders = (Map<Object, JCommander>) commandsField.get(this);
+      } catch (final NoSuchFieldException | IllegalArgumentException | IllegalAccessException e2) {
+        LOGGER.error("Another version of JCommander is being used", e2);
+        throw new RuntimeException(e);
+      }
     }
   }
 
