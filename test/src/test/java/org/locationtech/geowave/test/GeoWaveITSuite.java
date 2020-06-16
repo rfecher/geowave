@@ -104,7 +104,8 @@ import org.locationtech.geowave.test.stability.GeoWaveStabilityIT;
     TypeServicesIT.class,
     IngestIT.class,
     FileUploadIT.class,
-    SplitsProviderIT.class})
+    SplitsProviderIT.class //
+})
 public class GeoWaveITSuite {
   @BeforeClass
   public static void setupSuite() {

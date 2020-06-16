@@ -267,7 +267,7 @@ public class RocksDBClient implements Closeable {
     }
     final String directory = subDirectory + "/" + type.name();
     return metadataTableCache.get(
-        keyCache.get(directory, d -> new CacheKey(d, type.equals(MetadataType.STATS))));
+        keyCache.get(directory, d -> new CacheKey(d, type.equals(MetadataType.STAT_VALUES))));
   }
 
   public boolean indexTableExists(final String indexName) {

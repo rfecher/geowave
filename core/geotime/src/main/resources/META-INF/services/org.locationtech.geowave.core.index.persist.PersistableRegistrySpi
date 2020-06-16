@@ -1,1 +1,2 @@
 org.locationtech.geowave.core.geotime.GeoTimePersistableRegistry
+org.locationtech.geowave.core.geotime.store.statistics.GeotimeRegisteredStatistics

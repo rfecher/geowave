@@ -31,33 +31,27 @@ public class StatServiceClient {
 
   public Response listStats(final String storeName) {
 
-    return listStats(storeName, null, null, null);
+    return listStats(storeName, null, null, null, null, null, null);
   }
 
   public Response listStats(
       final String storeName,
+      final String indexName,
       final String typeName,
+      final String fieldName,
+      final String tag,
       final String authorizations,
-      final Boolean jsonFormatFlag) {
+      final Integer limit) {
     final Response resp =
-        statService.listStats(storeName, typeName, authorizations, jsonFormatFlag);
-    return resp;
-  }
-
-  public Response calcStat(final String storeName, final String typeName, final String statId) {
-
-    return calcStat(storeName, typeName, statId, null, null);
-  }
-
-  public Response calcStat(
-      final String storeName,
-      final String typeName,
-      final String statType,
-      final String authorizations,
-      final Boolean jsonFormatFlag) {
-
-    final Response resp =
-        statService.calcStat(storeName, typeName, statType, authorizations, jsonFormatFlag);
+        statService.listStats(
+            storeName,
+            indexName,
+            typeName,
+            fieldName,
+            tag,
+            authorizations,
+            limit,
+            true);
     return resp;
   }
 
@@ -79,17 +73,32 @@ public class StatServiceClient {
 
   public Response removeStat(
       final String storeName,
-      final String typeName,
       final String statType,
-      final String authorizations,
-      final Boolean jsonFormatFlag) {
+      final String indexName,
+      final String typeName,
+      final String fieldName,
+      final String tag,
+      final Boolean all,
+      final Boolean force) {
 
     final Response resp =
-        statService.removeStat(storeName, typeName, statType, authorizations, jsonFormatFlag);
+        statService.removeStat(
+            storeName,
+            statType,
+            indexName,
+            typeName,
+            fieldName,
+            tag,
+            all,
+            force);
     return resp;
   }
 
-  public Response removeStat(final String storeName, final String typeName, final String statType) {
-    return removeStat(storeName, typeName, statType, null, null);
+  public Response removeStat(
+      final String storeName,
+      final String statType,
+      final String typeName,
+      final Boolean force) {
+    return removeStat(storeName, statType, null, typeName, null, null, true, force);
   }
 }

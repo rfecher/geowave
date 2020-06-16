@@ -122,7 +122,7 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     indexBuilder.setName(GeoWaveGrpcTestUtils.indexName);
 
     IndexStore indexStore = dataStore.createIndexStore();
-    indexStore.addIndex(indexBuilder.createIndex());
+    dataStore.createDataStore().addIndex(indexBuilder.createIndex());
 
 
     // variables for storing results and test returns
@@ -341,7 +341,7 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     // Add the index again
     // Index store could be invalid after running deleteAll, so recreate it
     indexStore = dataStore.createIndexStore();
-    indexStore.addIndex(indexBuilder.createIndex());
+    dataStore.createDataStore().addIndex(indexBuilder.createIndex());
 
     client.vectorIngest(0, 10, 0, 10, 5, 5);
 
@@ -403,9 +403,8 @@ public class GeoWaveGrpcIT extends AbstractGeoWaveBasicVectorIT {
     Assert.assertTrue(result.contains("SPATIAL_IDX"));
 
     result = client.ListStatsCommand();
-    Assert.assertTrue(!result.equalsIgnoreCase(""));
+    Assert.assertTrue(result.contains("COUNT"));
 
-    Assert.assertTrue(client.CalculateStatCommand());
     Assert.assertTrue(client.RecalculateStatsCommand());
 
     Assert.assertTrue(client.RemoveStatCommand());

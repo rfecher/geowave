@@ -111,7 +111,8 @@ public class SimpleIngest {
    * @param sft simple feature type you want to generate an adapter from
    * @return data adapter that handles serialization of the sft simple feature type
    */
-  public static GeotoolsFeatureDataAdapter createDataAdapter(final SimpleFeatureType sft) {
+  public static GeotoolsFeatureDataAdapter<SimpleFeature> createDataAdapter(
+      final SimpleFeatureType sft) {
     return new FeatureDataAdapter(sft);
   }
 

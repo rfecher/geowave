@@ -25,6 +25,7 @@ import org.locationtech.geowave.core.geotime.index.api.SpatialTemporalIndexBuild
 import org.locationtech.geowave.core.geotime.index.dimension.TemporalBinningStrategy.Unit;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.GeoWaveStoreFinder;
+import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.store.StoreLoader;
@@ -108,13 +109,13 @@ public class VectorIngestRunnerTest {
   }
 
   private void createIndices(final OperationParams params) {
-    IndexStore indexStore = getStorePluginOptions(params).createIndexStore();
+    DataStore dataStore = getStorePluginOptions(params).createDataStore();
     // Create the spatial index
     SpatialIndexBuilder builder = new SpatialIndexBuilder();
     builder.setName("spatialindex");
     builder.setNumPartitions(1);
     builder.setIncludeTimeInCommonIndexModel(false);
-    indexStore.addIndex(builder.createIndex());
+    dataStore.addIndex(builder.createIndex());
 
     // Create the spatial temporal index
     SpatialTemporalIndexBuilder st_builder = new SpatialTemporalIndexBuilder();
@@ -124,6 +125,6 @@ public class VectorIngestRunnerTest {
     st_builder.setNumPartitions(1);
     st_builder.setPartitionStrategy(PartitionStrategy.ROUND_ROBIN);
     st_builder.setPeriodicity(Unit.DAY);
-    indexStore.addIndex(st_builder.createIndex());
+    dataStore.addIndex(st_builder.createIndex());
   }
 }

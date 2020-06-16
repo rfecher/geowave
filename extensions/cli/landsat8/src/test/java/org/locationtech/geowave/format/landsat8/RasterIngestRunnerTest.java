@@ -22,6 +22,7 @@ import org.locationtech.geowave.core.cli.parser.ManualOperationParams;
 import org.locationtech.geowave.core.geotime.index.api.SpatialIndexBuilder;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.GeoWaveStoreFinder;
+import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.store.StoreLoader;
@@ -103,12 +104,12 @@ public class RasterIngestRunnerTest {
   }
 
   private void createIndices(final OperationParams params) {
-    IndexStore indexStore = getStorePluginOptions(params).createIndexStore();
+    DataStore dataStore = getStorePluginOptions(params).createDataStore();
     // Create the spatial index
     SpatialIndexBuilder builder = new SpatialIndexBuilder();
     builder.setName("spatialindex");
     builder.setNumPartitions(1);
     builder.setIncludeTimeInCommonIndexModel(false);
-    indexStore.addIndex(builder.createIndex());
+    dataStore.addIndex(builder.createIndex());
   }
 }

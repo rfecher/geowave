@@ -14,10 +14,8 @@ import java.util.List;
 import org.locationtech.geowave.core.cli.annotations.GeowaveOperation;
 import org.locationtech.geowave.core.cli.api.OperationParams;
 import org.locationtech.geowave.core.store.CloseableIterator;
-import org.locationtech.geowave.core.store.DataStoreStatisticsProvider;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
-import org.locationtech.geowave.core.store.adapter.statistics.StatsCompositionTool;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.QueryBuilder;
@@ -37,11 +35,6 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RecalculateStatsCommand.class);
 
-  @Parameter(
-      names = {"--typeName"},
-      description = "Optionally recalculate a single datatype's stats")
-  private String typeName = "";
-
   @Parameter(description = "<store name>")
   private List<String> parameters = new ArrayList<>();
 
@@ -53,49 +46,44 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
   @Override
   protected boolean performStatsCommand(
       final DataStorePluginOptions storeOptions,
-      final InternalDataAdapter<?> adapter,
       final StatsCommandLineOptions statsOptions) throws IOException {
 
     try {
-      final DataStore dataStore = storeOptions.createDataStore();
-      if (!(dataStore instanceof BaseDataStore)) {
-        LOGGER.warn(
-            "Datastore type '"
-                + dataStore.getClass().getName()
-                + "' must be instance of BaseDataStore to recalculate stats");
-        return false;
-      }
+      // final DataStore dataStore = storeOptions.createDataStore();
 
-      final AdapterIndexMappingStore mappingStore = storeOptions.createAdapterIndexMappingStore();
-      final IndexStore indexStore = storeOptions.createIndexStore();
+      // final AdapterIndexMappingStore mappingStore =
+      // storeOptions.createAdapterIndexMappingStore();
+      // final IndexStore indexStore = storeOptions.createIndexStore();
 
-      boolean isFirstTime = true;
-      for (final Index index : mappingStore.getIndicesForAdapter(adapter.getAdapterId()).getIndices(
-          indexStore)) {
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        final DataStoreStatisticsProvider provider =
-            new DataStoreStatisticsProvider(adapter, index, isFirstTime);
-        final String[] authorizations = getAuthorizations(statsOptions.getAuthorizations());
-
-        try (StatsCompositionTool<?> statsTool =
-            new StatsCompositionTool(
-                provider,
-                storeOptions.createDataStatisticsStore(),
-                index,
-                adapter,
-                true)) {
-          try (CloseableIterator<?> entryIt =
-              ((BaseDataStore) dataStore).query(
-                  QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
-                      index.getName()).setAuthorizations(authorizations).build(),
-                  (ScanCallback) statsTool)) {
-            while (entryIt.hasNext()) {
-              entryIt.next();
-            }
-          }
-        }
-        isFirstTime = false;
-      }
+      // STATS_TODO: Recalculate stats based on options
+      // boolean isFirstTime = true;
+      // for (final Index index :
+      // mappingStore.getIndicesForAdapter(adapter.getAdapterId()).getIndices(
+      // indexStore)) {
+      // @SuppressWarnings({"rawtypes", "unchecked"})
+      // final DataStoreStatisticsProvider provider =
+      // new DataStoreStatisticsProvider(adapter, index, isFirstTime);
+      // final String[] authorizations = getAuthorizations(statsOptions.getAuthorizations());
+      //
+      // try (StatsCompositionTool<?> statsTool =
+      // new StatsCompositionTool(
+      // provider,
+      // storeOptions.createDataStatisticsStore(),
+      // index,
+      // adapter,
+      // true)) {
+      // try (CloseableIterator<?> entryIt =
+      // ((BaseDataStore) dataStore).query(
+      // QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
+      // index.getName()).setAuthorizations(authorizations).build(),
+      // (ScanCallback) statsTool)) {
+      // while (entryIt.hasNext()) {
+      // entryIt.next();
+      // }
+      // }
+      // }
+      // isFirstTime = false;
+      // }
 
     } catch (final Exception ex) {
       LOGGER.error("Error while writing statistics.", ex);
@@ -122,9 +110,6 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
     // Ensure we have all the required arguments
     if (parameters.size() < 1) {
       throw new ParameterException("Requires arguments: <store name>");
-    }
-    if ((typeName != null) && !typeName.trim().isEmpty()) {
-      parameters.add(typeName);
     }
     super.run(params, parameters);
     return null;
