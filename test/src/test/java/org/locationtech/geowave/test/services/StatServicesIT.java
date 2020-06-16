@@ -115,35 +115,6 @@ public class StatServicesIT extends BaseServiceIT {
   }
 
   @Test
-  public void testCalcStat() {
-    TestUtils.assertStatusCode(
-        "Should successfully calculate stat for existent store, adapterID, and statID",
-        200,
-        statServiceClient.calcStat(store_name, "GridPoint", "COUNT_DATA"));
-
-    // The following case should probably return a 404 based on the
-    // situation described in the test description
-    TestUtils.assertStatusCode(
-        "Returns a successful 200 status for calculate stat for existent store and adapterID, but a nonexistent statID.  A warning is output",
-        200,
-        statServiceClient.calcStat(store_name, "GridPoint", "nonexistent-stat"));
-
-    // The following case should probably return a 404 based on the
-    // situation described in the test description
-    TestUtils.assertStatusCode(
-        "Returns a successful 200 status for calculate stat for existent store and statID, but nonexistent adapterID.  A warning is output",
-        200,
-        statServiceClient.calcStat(store_name, "nonexistent-adapter", "COUNT_DATA"));
-
-    muteLogging();
-    TestUtils.assertStatusCode(
-        "Should fail to calculate stat for existent adapterID and statID, but nonexistent store",
-        400,
-        statServiceClient.calcStat("nonexistent-store", "GridPoint", "COUNT_DATA"));
-    unmuteLogging();
-  }
-
-  @Test
   public void testListStats() {
     TestUtils.assertStatusCode(
         "Should successfully liststats for existent store",
@@ -190,27 +161,27 @@ public class StatServicesIT extends BaseServiceIT {
     TestUtils.assertStatusCode(
         "Should successfully remove stat for existent store, adapterID, and statID",
         200,
-        statServiceClient.removeStat(store_name, "GridPoint", "COUNT_DATA"));
+        statServiceClient.removeStat(store_name, "COUNT", "GridPoint", true));
 
     // The following case should probably return a 404 based on the
     // situation described in the test description
     TestUtils.assertStatusCode(
-        "Returns a successful 200 status for removing stat for existent store and type name, but a nonexistent stat type.  A warning is output.",
-        200,
-        statServiceClient.removeStat(store_name, "GridPoint", "nonexistent-stat"));
+        "Should fail to remove a nonexistent stat.",
+        400,
+        statServiceClient.removeStat(store_name, "nonexistent-stat", "GridPoint", true));
 
     // The following case should probably return a 404 based on the
     // situation described in the test description
     TestUtils.assertStatusCode(
-        "Returns a successful 200 status for removing stat for existent store and stat type, but nonexistent type name.  A warning is output",
-        200,
-        statServiceClient.removeStat(store_name, "nonexistent-type", "COUNT_DATA"));
+        "Should fail to remove a stat from a nonexistent type.",
+        400,
+        statServiceClient.removeStat(store_name, "COUNT", "nonexistent-type", true));
 
     muteLogging();
     TestUtils.assertStatusCode(
         "Should fail to remove for existent data type name and stat type, but nonexistent store",
         400,
-        statServiceClient.removeStat("nonexistent-store", "GridPoint", "COUNT_DATA"));
+        statServiceClient.removeStat("nonexistent-store", "COUNT", "GridPoint", true));
     unmuteLogging();
   }
 

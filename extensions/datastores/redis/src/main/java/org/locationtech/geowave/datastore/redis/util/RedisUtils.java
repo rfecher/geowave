@@ -53,7 +53,7 @@ public class RedisUtils {
     return client.getScoredSortedSet(
         namespace + "_" + metadataType.toString(),
         compression.getCodec(
-            MetadataType.STATS.equals(metadataType)
+            MetadataType.STAT_VALUES.equals(metadataType)
                 ? visibilityEnabled ? GeoWaveMetadataWithTimestampCodec.SINGLETON_WITH_VISIBILITY
                     : GeoWaveMetadataWithTimestampCodec.SINGLETON_WITHOUT_VISIBILITY
                 : visibilityEnabled ? GeoWaveMetadataCodec.SINGLETON_WITH_VISIBILITY

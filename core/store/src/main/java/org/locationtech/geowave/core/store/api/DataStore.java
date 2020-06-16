@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.core.store.api;
 
+import java.util.List;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.CloseableIterator;
 
@@ -108,13 +109,47 @@ public interface DataStore {
   DataTypeAdapter<?>[] getTypes();
 
   /**
+   * Add a statistic to the data store. The initial value of the statistic will be calculated after
+   * being added.
+   * 
+   * @param statistic the statistic to add
+   */
+  void addStatistic(Statistic<? extends StatisticValue<?>> statistic);
+
+  /**
+   * Add a statistic to the data store.
+   * 
+   * @param statistic the statistic to add
+   * @param calculateStat if {@code true} the initial value of the statistic will be calculated
+   *        after being added
+   */
+  void addStatistic(Statistic<? extends StatisticValue<?>> statistic, boolean calculateStat);
+
+  /**
+   * Remove a statistic from the data store.
+   * 
+   * @param statistic the statistic to remove
+   */
+  void removeStatistic(final Statistic<? extends StatisticValue<?>> statistic);
+
+  /**
+   * Gets all of the statistics that are being tracked on the provided data type adapter.
+   * 
+   * @param typeName the data type adapter to get the statistics for
+   * @return An iterator of all the statistics that are being tracked on the provided data type
+   *         adapter.
+   */
+  CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> getTypeStatistics(
+      final String typeName);
+
+  /**
    * Get data statistics that match the given query criteria
    *
    * @param query the query criteria, use StatisticsQueryBuilder or its extensions and if you're
    *        interested in a particular common statistics type use StatisticsQueryBuilder.factory()
    * @return An array of statistics that result from the query
    */
-  <R> Statistics<R>[] queryStatistics(StatisticsQuery<R> query);
+  <V extends StatisticValue<R>, R> CloseableIterator<V> queryStatistics(StatisticQuery<V, R> query);
 
   /**
    * Get a single statistical result that matches the given query criteria
@@ -125,7 +160,7 @@ public interface DataStore {
    *         only makes sense within a single type, otherwise aggregates the results of the query
    *         into a single result that is returned
    */
-  <R> R aggregateStatistics(StatisticsQuery<R> query);
+  <V extends StatisticValue<R>, R> V aggregateStatistics(StatisticQuery<V, R> query);
 
   /**
    * Add an index to the data store.
@@ -218,6 +253,7 @@ public interface DataStore {
    */
   void deleteAll();
 
+
   /**
    * Add this type to the data store. This only needs to be called one time ever per type.
    *
@@ -227,6 +263,21 @@ public interface DataStore {
    *        be added
    */
   <T> void addType(DataTypeAdapter<T> dataTypeAdapter, Index... initialIndices);
+
+  /**
+   * Add this type to the data store with the given statistics. This only needs to be called one
+   * time ever per type.
+   * 
+   * @param dataTypeAdapter the data type adapter for this type that is used to read and write
+   *        GeoWave entries
+   * @param statistics the initial set of statistics that will be used with this adapter
+   * @param initialIndices the initial indexing for this type, in the future additional indices can
+   *        be added
+   */
+  <T> void addType(
+      DataTypeAdapter<T> dataTypeAdapter,
+      List<Statistic<?>> statistics,
+      Index... initialIndices);
 
   /**
    * Returns an index writer to perform batched write operations for the given data type name. It

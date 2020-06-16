@@ -34,7 +34,6 @@ import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
-import org.locationtech.geowave.core.store.adapter.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
@@ -48,6 +47,7 @@ import org.locationtech.geowave.core.store.query.aggregate.CommonIndexAggregatio
 import org.locationtech.geowave.core.store.server.BasicOptionProvider;
 import org.locationtech.geowave.core.store.server.RowMergingAdapterOptionProvider;
 import org.locationtech.geowave.core.store.server.ServerOpConfig.ServerOpScope;
+import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.server.ServerOpHelper;
 import org.locationtech.geowave.core.store.server.ServerSideOperations;
 import org.locationtech.geowave.core.store.util.DataAdapterAndIndexCache;
@@ -390,7 +390,6 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
       final String columnFamily,
       final byte[] columnQualifier,
       final String... authorizations) {
-
     boolean success = true;
     BatchDeleter deleter = null;
     try {
@@ -1315,7 +1314,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   public MetadataWriter createMetadataWriter(final MetadataType metadataType) {
     // this checks for existence prior to create
     createTable(AbstractGeoWavePersistence.METADATA_TABLE, false, options.isEnableBlockCache());
-    if (MetadataType.STATS.equals(metadataType) && options.isServerSideLibraryEnabled()) {
+    if (MetadataType.STAT_VALUES.equals(metadataType) && options.isServerSideLibraryEnabled()) {
       synchronized (this) {
         if (!iteratorsAttached) {
           iteratorsAttached = true;
@@ -1373,13 +1372,11 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   @Override
-  public boolean mergeStats(
-      final DataStatisticsStore statsStore,
-      final InternalAdapterStore internalAdapterStore) {
+  public boolean mergeStats(final DataStatisticsStore statsStore) {
     if (options.isServerSideLibraryEnabled()) {
       return compactTable(AbstractGeoWavePersistence.METADATA_TABLE);
     } else {
-      return DataStoreUtils.mergeStats(statsStore, internalAdapterStore);
+      return statsStore.mergeStats();
     }
   }
 

@@ -16,7 +16,7 @@ import org.locationtech.geowave.core.cli.parser.ManualOperationParams;
 import org.locationtech.geowave.core.store.cli.index.ListIndexPluginsCommand;
 import org.locationtech.geowave.core.store.cli.index.ListIndicesCommand;
 import org.locationtech.geowave.core.store.cli.index.RemoveIndexCommand;
-import org.locationtech.geowave.core.store.cli.stats.CalculateStatCommand;
+import org.locationtech.geowave.core.store.cli.type.ListTypesCommand;
 import org.locationtech.geowave.core.store.cli.stats.ListStatsCommand;
 import org.locationtech.geowave.core.store.cli.stats.RecalculateStatsCommand;
 import org.locationtech.geowave.core.store.cli.stats.RemoveStatCommand;
@@ -133,32 +133,7 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase implements
     }
   }
 
-  @Override
-  public void calculateStatCommand(
-      final org.locationtech.geowave.service.grpc.protobuf.CalculateStatCommandParametersProtos request,
-      final StreamObserver<org.locationtech.geowave.service.grpc.protobuf.GeoWaveReturnTypesProtos.VoidResponseProtos> responseObserver) {
-    final CalculateStatCommand cmd = new CalculateStatCommand();
-    final Map<FieldDescriptor, Object> m = request.getAllFields();
-    GeoWaveGrpcServiceCommandUtil.setGrpcToCommandFields(m, cmd);
-
-    final File configFile = GeoWaveGrpcServiceOptions.geowaveConfigFile;
-    final OperationParams params = new ManualOperationParams();
-    params.getContext().put(ConfigOptions.PROPERTIES_FILE_CONTEXT, configFile);
-
-    cmd.prepare(params);
-
-    LOGGER.info("Executing CalculateStatCommand...");
-    try {
-      cmd.computeResults(params);
-      final VoidResponseProtos resp = VoidResponseProtos.newBuilder().build();
-      responseObserver.onNext(resp);
-      responseObserver.onCompleted();
-
-    } catch (final Exception e) {
-      LOGGER.error("Exception encountered executing command", e);
-      responseObserver.onError(e);
-    }
-  }
+  // STATS_TODO: Add missing stat commands
 
   @Override
   public void recalculateStatsCommand(

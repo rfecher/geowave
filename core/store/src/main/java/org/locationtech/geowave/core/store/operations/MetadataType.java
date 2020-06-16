@@ -9,5 +9,5 @@
 package org.locationtech.geowave.core.store.operations;
 
 public enum MetadataType {
-  ADAPTER, AIM, INDEX, STATS, INTERNAL_ADAPTER
+  ADAPTER, AIM, INDEX, STATS, INTERNAL_ADAPTER, STAT_VALUES
 }

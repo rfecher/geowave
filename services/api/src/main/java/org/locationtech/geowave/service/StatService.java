@@ -22,25 +22,18 @@ import javax.ws.rs.core.Response;
 public interface StatService {
 
   @GET
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.TEXT_PLAIN)
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Path("/list")
   public Response listStats(
       @QueryParam("storeName") String storeName,
+      @QueryParam("indexName") String indexName,
       @QueryParam("typeName") String typeName,
+      @QueryParam("fieldName") String fieldName,
+      @QueryParam("tag") String tag,
       @QueryParam("authorizations") String authorizations,
-      @QueryParam("jsonFormatFlag") Boolean jsonFormatFlag);
-
-  @POST
-  @Produces(MediaType.APPLICATION_JSON)
-  @Consumes(MediaType.MULTIPART_FORM_DATA)
-  @Path("/calc")
-  public Response calcStat(
-      @QueryParam("storeName") String storeName,
-      @QueryParam("datatypeName") String typeName,
-      @QueryParam("statType") String statType,
-      @QueryParam("authorizations") String authorizations,
-      @QueryParam("jsonFormatFlag") Boolean jsonFormatFlag);
+      @QueryParam("limit") Integer limit,
+      @QueryParam("csv") Boolean csv);
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
@@ -64,8 +57,11 @@ public interface StatService {
   @Path("/rm")
   public Response removeStat(
       @QueryParam("storeName") String storeName,
-      @QueryParam("datatypeName") String typeName,
       @QueryParam("statType") String statType,
-      @QueryParam("authorizations") String authorizations,
-      @QueryParam("jsonFormatFlag") Boolean jsonFormatFlag);
+      @QueryParam("indexName") String indexName,
+      @QueryParam("typeName") String typeName,
+      @QueryParam("fieldName") String fieldName,
+      @QueryParam("tag") String tag,
+      @QueryParam("all") Boolean all,
+      @QueryParam("force") Boolean force);
 }
