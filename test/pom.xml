@@ -355,6 +355,22 @@
 			<artifactId>system-rules</artifactId>
 			<version>1.16.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.accumulo</groupId>
+			<artifactId>accumulo-test</artifactId>
+			<version>${accumulo.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-minikdc</artifactId>
+			<version>${hadoop.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.directory.jdbm</groupId>
+					<artifactId>apacheds-jdbm1</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 
 
@@ -681,6 +697,15 @@
 				<skipITs>false</skipITs>
 				<testStoreType>ACCUMULO</testStoreType>
 				<testStoreOptions>enableServerSideLibrary=true</testStoreOptions>
+			</properties>
+		</profile>
+		<profile>
+			<id>accumulo-it-kerberos</id>
+			<properties>
+				<skipITs>false</skipITs>
+				<testStoreType>ACCUMULO</testStoreType>
+				<testStoreOptions>enableServerSideLibrary=true</testStoreOptions>
+				<testKerberos>true</testKerberos>
 			</properties>
 		</profile>
 		<profile>

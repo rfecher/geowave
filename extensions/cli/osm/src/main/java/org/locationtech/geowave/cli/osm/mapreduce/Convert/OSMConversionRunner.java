@@ -133,6 +133,7 @@ public class OSMConversionRunner extends Configured implements Tool {
                 accumuloOptions.getInstance(),
                 accumuloOptions.getUser(),
                 accumuloOptions.getPassword(),
+                accumuloOptions.isUseSasl(),
                 accumuloOptions.getGeoWaveNamespace(),
                 options),
             options);

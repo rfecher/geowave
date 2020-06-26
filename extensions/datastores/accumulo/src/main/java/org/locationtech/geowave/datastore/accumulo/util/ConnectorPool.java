@@ -8,13 +8,14 @@
  */
 package org.locationtech.geowave.datastore.accumulo.util;
 
+import org.apache.accumulo.core.client.*;
+import org.apache.accumulo.core.client.security.tokens.KerberosToken;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.Instance;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
+import java.util.Objects;
 
 public class ConnectorPool {
   private static ConnectorPool singletonInstance;
@@ -32,14 +33,19 @@ public class ConnectorPool {
       final String zookeeperUrl,
       final String instanceName,
       final String userName,
-      final String password) throws AccumuloException, AccumuloSecurityException {
+      final String password,
+      boolean useSasl) throws AccumuloException, AccumuloSecurityException, IOException {
 
     final ConnectorConfig config =
-        new ConnectorConfig(zookeeperUrl, instanceName, userName, password);
+        new ConnectorConfig(zookeeperUrl, instanceName, userName, password, useSasl);
     Connector connector = connectorCache.get(config);
     if (connector == null) {
       final Instance inst = new ZooKeeperInstance(instanceName, zookeeperUrl);
-      connector = inst.getConnector(userName, password);
+      if (useSasl) {
+        connector = inst.getConnector(userName, new KerberosToken(userName));
+      } else {
+        connector = inst.getConnector(userName, new PasswordToken(password));
+      }
       connectorCache.put(config, connector);
     }
     return connector;
@@ -50,70 +56,38 @@ public class ConnectorPool {
     private final String instanceName;
     private final String userName;
     private final String password;
+    private final boolean useSasl;
 
     public ConnectorConfig(
         final String zookeeperUrl,
         final String instanceName,
         final String userName,
-        final String password) {
+        final String password,
+        boolean useSasl) {
       this.zookeeperUrl = zookeeperUrl;
       this.instanceName = instanceName;
       this.userName = userName;
       this.password = password;
+      this.useSasl = useSasl;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (o == null || getClass() != o.getClass())
+        return false;
+      ConnectorConfig that = (ConnectorConfig) o;
+      return useSasl == that.useSasl
+          && zookeeperUrl.equals(that.zookeeperUrl)
+          && instanceName.equals(that.instanceName)
+          && userName.equals(that.userName)
+          && Objects.equals(password, that.password);
     }
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = (prime * result) + ((instanceName == null) ? 0 : instanceName.hashCode());
-      result = (prime * result) + ((password == null) ? 0 : password.hashCode());
-      result = (prime * result) + ((userName == null) ? 0 : userName.hashCode());
-      result = (prime * result) + ((zookeeperUrl == null) ? 0 : zookeeperUrl.hashCode());
-      return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null) {
-        return false;
-      }
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-      final ConnectorConfig other = (ConnectorConfig) obj;
-      if (instanceName == null) {
-        if (other.instanceName != null) {
-          return false;
-        }
-      } else if (!instanceName.equals(other.instanceName)) {
-        return false;
-      }
-      if (password == null) {
-        if (other.password != null) {
-          return false;
-        }
-      } else if (!password.equals(other.password)) {
-        return false;
-      }
-      if (userName == null) {
-        if (other.userName != null) {
-          return false;
-        }
-      } else if (!userName.equals(other.userName)) {
-        return false;
-      }
-      if (zookeeperUrl == null) {
-        if (other.zookeeperUrl != null) {
-          return false;
-        }
-      } else if (!zookeeperUrl.equals(other.zookeeperUrl)) {
-        return false;
-      }
-      return true;
+      return Objects.hash(zookeeperUrl, instanceName, userName, password, useSasl);
     }
   }
 }

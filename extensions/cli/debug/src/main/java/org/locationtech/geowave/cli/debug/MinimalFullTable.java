@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.cli.debug;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -83,6 +84,7 @@ public class MinimalFullTable extends DefaultOperation implements Command {
                 opts.getInstance(),
                 opts.getUser(),
                 opts.getPassword(),
+                opts.isUseSasl(),
                 opts.getGeoWaveNamespace(),
                 (AccumuloOptions) opts.getStoreOptions());
 
@@ -100,7 +102,8 @@ public class MinimalFullTable extends DefaultOperation implements Command {
 
         scanner.close();
         System.out.println("Got " + results + " results in " + stopWatch.toString());
-      } catch (AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
+      } catch (AccumuloException | AccumuloSecurityException | TableNotFoundException
+          | IOException e) {
         LOGGER.error("Unable to scan accumulo datastore", e);
       }
     } else if (storeType.equals(HBaseStoreFactoryFamily.TYPE)) {

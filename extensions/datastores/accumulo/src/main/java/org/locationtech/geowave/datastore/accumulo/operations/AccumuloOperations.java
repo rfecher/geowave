@@ -173,12 +173,19 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
       final String instanceName,
       final String userName,
       final String password,
+      final boolean useSasl,
       final String tableNamespace,
-      final AccumuloOptions options) throws AccumuloException, AccumuloSecurityException {
+      final AccumuloOptions options)
+      throws AccumuloException, AccumuloSecurityException, IOException {
     this(null, tableNamespace, options);
     this.password = password;
     connector =
-        ConnectorPool.getInstance().getConnector(zookeeperUrl, instanceName, userName, password);
+        ConnectorPool.getInstance().getConnector(
+            zookeeperUrl,
+            instanceName,
+            userName,
+            password,
+            useSasl);
   }
 
   /**
@@ -866,7 +873,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
           }
           if (!exists) {
             if (configuredOptions == null) {
-              configuredOptions = iteratorConfig.getOptions(new HashMap<String, String>());
+              configuredOptions = iteratorConfig.getOptions(new HashMap<>());
             }
             connector.tableOperations().attachIterator(
                 qName,
@@ -886,18 +893,19 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
   }
 
   public static AccumuloOperations createOperations(final AccumuloRequiredOptions options)
-      throws AccumuloException, AccumuloSecurityException {
+      throws AccumuloException, AccumuloSecurityException, IOException {
     return new AccumuloOperations(
         options.getZookeeper(),
         options.getInstance(),
         options.getUser(),
         options.getPassword(),
+        options.isUseSasl(),
         options.getGeoWaveNamespace(),
         (AccumuloOptions) options.getStoreOptions());
   }
 
   public static Connector getConnector(final AccumuloRequiredOptions options)
-      throws AccumuloException, AccumuloSecurityException {
+      throws AccumuloException, AccumuloSecurityException, IOException {
     return createOperations(options).connector;
   }
 

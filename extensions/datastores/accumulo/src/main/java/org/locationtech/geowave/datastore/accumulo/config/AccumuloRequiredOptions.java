@@ -8,15 +8,19 @@
  */
 package org.locationtech.geowave.datastore.accumulo.config;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.locationtech.geowave.core.cli.converters.PasswordConverter;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.StoreFactoryFamilySpi;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.datastore.accumulo.AccumuloStoreFactoryFamily;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParametersDelegate;
+import java.io.IOException;
 
-/** Default, required options needed in order to execute any command for Accumulo. */
+/**
+ * Default, required options needed in order to execute any command for Accumulo.
+ */
 public class AccumuloRequiredOptions extends StoreFactoryOptions {
 
   public static final String ZOOKEEPER_CONFIG_KEY = "zookeeper";
@@ -41,7 +45,7 @@ public class AccumuloRequiredOptions extends StoreFactoryOptions {
 
   @Parameter(
       names = {"-u", "--" + USER_CONFIG_KEY},
-      description = "A valid Accumulo user ID",
+      description = "A valid Accumulo user ID. If not provided and using SASL, the active Kerebros user will be used.",
       required = true)
   private String user;
 
@@ -52,25 +56,13 @@ public class AccumuloRequiredOptions extends StoreFactoryOptions {
       converter = PasswordConverter.class)
   private String password;
 
+  @Parameter(names = "--sasl", description = "Use SASL to connect to Accumulo (Kerberos)")
+  private boolean useSasl = false;
+
   @ParametersDelegate
   private AccumuloOptions additionalOptions = new AccumuloOptions();
 
   public AccumuloRequiredOptions() {}
-
-  public AccumuloRequiredOptions(
-      final String zookeeper,
-      final String instance,
-      final String user,
-      final String password,
-      final String gwNamespace,
-      final AccumuloOptions additionalOptions) {
-    super(gwNamespace);
-    this.zookeeper = zookeeper;
-    this.instance = instance;
-    this.user = user;
-    this.password = password;
-    this.additionalOptions = additionalOptions;
-  }
 
   public String getZookeeper() {
     return zookeeper;
@@ -89,6 +81,22 @@ public class AccumuloRequiredOptions extends StoreFactoryOptions {
   }
 
   public String getUser() {
+    if (user == null || user.isEmpty()) {
+      if (isUseSasl()) {
+        if (!UserGroupInformation.isSecurityEnabled()) {
+          throw new IllegalArgumentException(
+              "Kerberos security is not"
+                  + " enabled. Run with --sasl or set 'sasl.enabled' in"
+                  + " accumulo-client.properties");
+        }
+        try {
+          UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+          user = ugi.getUserName();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
     return user;
   }
 
@@ -106,6 +114,14 @@ public class AccumuloRequiredOptions extends StoreFactoryOptions {
 
   public void setStoreOptions(final AccumuloOptions additionalOptions) {
     this.additionalOptions = additionalOptions;
+  }
+
+  public void setUseSasl(boolean useSasl) {
+    this.useSasl = useSasl;
+  }
+
+  public boolean isUseSasl() {
+    return useSasl;
   }
 
   @Override
