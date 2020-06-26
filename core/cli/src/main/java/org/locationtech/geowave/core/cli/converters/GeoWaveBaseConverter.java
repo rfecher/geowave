@@ -61,8 +61,13 @@ public abstract class GeoWaveBaseConverter<T> extends BaseConverter<T> {
     if (console == null) {
       try {
         Method consoleMethod = System.class.getDeclaredMethod("console");
-        Object console = consoleMethod.invoke(null);
-        console = new JDK6Console(console);
+        Object systemConsole = consoleMethod.invoke(null);
+        if (systemConsole == null){
+          console = new DefaultConsole();
+        }
+        else {
+          console = new JDK6Console(systemConsole);
+        }
       } catch (Throwable t) {
         console = new DefaultConsole();
       }
