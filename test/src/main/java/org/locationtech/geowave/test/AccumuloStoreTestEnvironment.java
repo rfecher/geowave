@@ -246,6 +246,8 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
         LOGGER.warn("Unable to login root user", e);
       }
     } else {
+
+      LOGGER.error("*********NOT USING KERBEROS*****");
       accumuloOpts.setUser(accumuloUser);
       accumuloOpts.setPassword(accumuloPassword);
     }
