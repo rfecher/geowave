@@ -72,7 +72,10 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
   private boolean useKerberos() {
     String kerberosStr = System.getenv(TEST_KERBEROS_ENVIRONMENT_VARIABLE_NAME);
     if (!TestUtils.isSet(kerberosStr)) {
+
+      LOGGER.error("*********CHECKING KERBEROS*****");
       kerberosStr = System.getProperty(TEST_KERBEROS_PROPERTY_NAME);
+      if(kerberosStr == null){ LOGGER.error("*********NULL KERBEROS*****");} else{ LOGGER.error(kerberosStr + " = kerberosStr");}
     }
     return TestUtils.isSet(kerberosStr) && "true".equalsIgnoreCase(kerberosStr);
   }
