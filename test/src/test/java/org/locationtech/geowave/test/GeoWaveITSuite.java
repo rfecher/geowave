@@ -13,15 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.locationtech.geowave.mapreduce.splits.SplitsProviderIT;
-import org.locationtech.geowave.test.basic.GeoWaveBasicCustomCRSRasterIT;
-import org.locationtech.geowave.test.basic.GeoWaveBasicRasterIT;
-import org.locationtech.geowave.test.basic.GeoWaveBasicSpatialTemporalVectorIT;
-import org.locationtech.geowave.test.basic.GeoWaveBasicTemporalVectorIT;
-import org.locationtech.geowave.test.basic.GeoWaveCustomCRSSpatialVectorIT;
-import org.locationtech.geowave.test.basic.GeoWaveCustomIndexIT;
-import org.locationtech.geowave.test.basic.GeoWaveGeometryPrecisionIT;
-import org.locationtech.geowave.test.basic.GeoWaveVectorSerializationIT;
-import org.locationtech.geowave.test.basic.GeoWaveVisibilityIT;
+import org.locationtech.geowave.test.basic.*;
 import org.locationtech.geowave.test.config.ConfigCacheIT;
 import org.locationtech.geowave.test.docs.GeoWaveDocumentationExamplesIT;
 import org.locationtech.geowave.test.kafka.BasicKafkaIT;
@@ -33,21 +25,8 @@ import org.locationtech.geowave.test.query.AttributesSubsetQueryIT;
 import org.locationtech.geowave.test.query.PolygonDataIdQueryIT;
 import org.locationtech.geowave.test.query.QueryOptionsIT;
 import org.locationtech.geowave.test.query.SpatialTemporalQueryIT;
-import org.locationtech.geowave.test.secondary.BasicSecondaryIndexIT;
-import org.locationtech.geowave.test.secondary.DataIndexOnlyIT;
-import org.locationtech.geowave.test.secondary.MapReduceSecondaryIndexIT;
-import org.locationtech.geowave.test.secondary.SimpleQuerySecondaryIndexIT;
-import org.locationtech.geowave.test.secondary.VisibilitySecondaryIndexIT;
-import org.locationtech.geowave.test.services.ConfigServicesIT;
-import org.locationtech.geowave.test.services.FileUploadIT;
-import org.locationtech.geowave.test.services.GeoServerIT;
-import org.locationtech.geowave.test.services.GeoServerIngestIT;
-import org.locationtech.geowave.test.services.IndexServicesIT;
-import org.locationtech.geowave.test.services.IngestIT;
-import org.locationtech.geowave.test.services.StatServicesIT;
-import org.locationtech.geowave.test.services.StoreServicesIT;
-import org.locationtech.geowave.test.services.TypeServicesIT;
-import org.locationtech.geowave.test.services.grpc.GeoWaveGrpcIT;
+import org.locationtech.geowave.test.secondary.*;
+import org.locationtech.geowave.test.services.*;
 import org.locationtech.geowave.test.spark.GeoWaveBasicSparkIT;
 import org.locationtech.geowave.test.spark.GeoWaveSparkKMeansIT;
 import org.locationtech.geowave.test.spark.GeoWaveSparkSQLIT;
@@ -96,7 +75,7 @@ import org.locationtech.geowave.test.stability.GeoWaveStabilityIT;
     GeoServerIngestIT.class,
     // has to be after SparkEnvironment usage
     CustomCRSKDERasterResizeIT.class,
-    GeoWaveGrpcIT.class,
+//    GeoWaveGrpcIT.class,
     ConfigServicesIT.class,
     StoreServicesIT.class,
     IndexServicesIT.class,

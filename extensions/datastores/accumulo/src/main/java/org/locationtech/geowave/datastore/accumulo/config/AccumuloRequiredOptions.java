@@ -64,7 +64,7 @@ public class AccumuloRequiredOptions extends StoreFactoryOptions {
   private String password;
 
   @Parameter(names = "--sasl", description = "Use SASL to connect to Accumulo (Kerberos)")
-  private boolean useSasl = false;
+  private boolean sasl = false;
 
   @ParametersDelegate
   private AccumuloOptions additionalOptions = new AccumuloOptions();
@@ -135,12 +135,12 @@ public class AccumuloRequiredOptions extends StoreFactoryOptions {
     this.additionalOptions = additionalOptions;
   }
 
-  public void setUseSasl(boolean useSasl) {
-    this.useSasl = useSasl;
+  public void setUseSasl(boolean sasl) {
+    this.sasl = sasl;
   }
 
   public boolean isUseSasl() {
-    return useSasl;
+    return sasl;
   }
 
   @Override
