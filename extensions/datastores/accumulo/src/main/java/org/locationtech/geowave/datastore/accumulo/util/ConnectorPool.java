@@ -71,7 +71,7 @@ public class ConnectorPool {
           } catch (Exception e) {
             LOGGER.warn("Unable to renew Kerberos TGT", e);
           }
-        }, 0, 10, TimeUnit.MINUTES);
+        }, 0, 2, TimeUnit.MINUTES);
 
       } else {
         connector =

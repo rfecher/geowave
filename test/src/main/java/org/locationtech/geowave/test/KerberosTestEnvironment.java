@@ -11,6 +11,9 @@ public class KerberosTestEnvironment implements TestEnvironment {
 
   private static KerberosTestEnvironment singletonInstance = null;
 
+  private static final String TEST_KERBEROS_ENVIRONMENT_VARIABLE_NAME = "TEST_KERBEROS";
+  private static final String TEST_KERBEROS_PROPERTY_NAME = "testKerberos";
+
   public static synchronized KerberosTestEnvironment getInstance() {
     if (singletonInstance == null) {
       singletonInstance = new KerberosTestEnvironment();
@@ -22,6 +25,17 @@ public class KerberosTestEnvironment implements TestEnvironment {
 
   private KerberosTestEnvironment() {
 
+  }
+  public boolean isRunning(){
+    return util != null;
+  }
+
+  public static boolean useKerberos() {
+    String kerberosStr = System.getenv(TEST_KERBEROS_ENVIRONMENT_VARIABLE_NAME);
+    if (!TestUtils.isSet(kerberosStr)) {
+      kerberosStr = System.getProperty(TEST_KERBEROS_PROPERTY_NAME);
+    }
+    return TestUtils.isSet(kerberosStr) && "true".equalsIgnoreCase(kerberosStr);
   }
 
   private KerberosTestingUtilSpi getUtil() {

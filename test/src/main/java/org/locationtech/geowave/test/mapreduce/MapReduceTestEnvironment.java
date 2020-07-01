@@ -8,19 +8,26 @@
  */
 package org.locationtech.geowave.test.mapreduce;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Locale;
+import org.apache.accumulo.cluster.ClusterUser;
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
 import org.locationtech.geowave.core.cli.parser.ManualOperationParams;
 import org.locationtech.geowave.mapreduce.operations.ConfigHDFSCommand;
+import org.locationtech.geowave.test.KerberosTestEnvironment;
 import org.locationtech.geowave.test.TestEnvironment;
 import org.locationtech.geowave.test.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Locale;
 
 public class MapReduceTestEnvironment implements TestEnvironment {
   private static final Logger LOGGER = LoggerFactory.getLogger(MapReduceTestEnvironment.class);
@@ -42,6 +49,7 @@ public class MapReduceTestEnvironment implements TestEnvironment {
   private String hdfsBaseDirectory;
   private ManualOperationParams operationParams;
   private File configFile;
+  private File kerberosConfigFile;
 
   private MapReduceTestEnvironment() {}
 
@@ -70,6 +78,23 @@ public class MapReduceTestEnvironment implements TestEnvironment {
       } else {
         hdfsProtocol = hdfs.toLowerCase(Locale.ENGLISH).startsWith("hdfs://");
       }
+    }
+    if (KerberosTestEnvironment.useKerberos()){
+      if (!KerberosTestEnvironment.getInstance().isRunning()) {
+        KerberosTestEnvironment.getInstance().setup();
+      }
+
+        Configuration kerberosConfig = new Configuration(false);
+
+        kerberosConfigFile = File.createTempFile("kerberos-config", null);
+        kerberosConfig.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
+              ClusterUser user = KerberosTestEnvironment.getInstance().getRootUser();
+        kerberosConfig.set(YarnConfiguration.RM_PRINCIPAL, user.getPrincipal());
+        kerberosConfig.set(YarnConfiguration.RM_KEYTAB, user.getKeytab().getAbsolutePath());
+        MapReduceTestUtils.writeConfigToFile(kerberosConfigFile, kerberosConfig);
+        URL kerberosConfigUrl = kerberosConfigFile.toURI().toURL();
+        MapReduceTestUtils.addURLToSystemClassLoader(kerberosConfigUrl);
+        Configuration.addDefaultResource(kerberosConfigUrl.toString());
     }
     if (!TestUtils.isSet(jobtracker)) {
       jobtracker = DEFAULT_JOB_TRACKER;

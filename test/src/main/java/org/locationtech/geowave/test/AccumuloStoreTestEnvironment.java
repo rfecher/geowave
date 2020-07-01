@@ -28,6 +28,7 @@ import org.locationtech.geowave.datastore.accumulo.AccumuloStoreFactoryFamily;
 import org.locationtech.geowave.datastore.accumulo.cli.MiniAccumuloClusterFactory;
 import org.locationtech.geowave.datastore.accumulo.config.AccumuloRequiredOptions;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
+import org.locationtech.geowave.test.mapreduce.MapReduceTestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.*;
@@ -60,20 +61,10 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
   protected String accumuloUser;
   protected String accumuloPassword;
   protected MiniAccumuloClusterImpl miniAccumulo;
-  public static final String TEST_KERBEROS_ENVIRONMENT_VARIABLE_NAME = "TEST_KERBEROS";
-  public static final String TEST_KERBEROS_PROPERTY_NAME = "testKerberos";
 
   private final List<Process> cleanup = new ArrayList<>();
 
   private AccumuloStoreTestEnvironment() {}
-
-  private boolean useKerberos() {
-    String kerberosStr = System.getenv(TEST_KERBEROS_ENVIRONMENT_VARIABLE_NAME);
-    if (!TestUtils.isSet(kerberosStr)) {
-      kerberosStr = System.getProperty(TEST_KERBEROS_PROPERTY_NAME);
-    }
-    return TestUtils.isSet(kerberosStr) && "true".equalsIgnoreCase(kerberosStr);
-  }
 
   @Override
   public void setup() {
@@ -151,29 +142,21 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
     siteConfig.put(Property.INSTANCE_ZK_HOST.getKey(), zookeeper);
     config.setSiteConfig(siteConfig);
 
-    if (useKerberos()) {
+    if (KerberosTestEnvironment.useKerberos()) {
       KerberosTestEnvironment.getInstance().configureMiniAccumulo(config, coreSite);
       File siteFile = new File(config.getConfDir(), "accumulo-site.xml");
       writeConfig(siteFile, config.getSiteConfig().entrySet());
       // Write out any configuration items to a file so HDFS will pick them up automatically (from
-      // the
-      // classpath)
+      // the classpath)
       if (coreSite.size() > 0) {
         File csFile = new File(config.getConfDir(), "core-site.xml");
-        if (csFile.exists())
-          throw new RuntimeException(csFile + " already exist");
-
-        OutputStream out =
-            new BufferedOutputStream(
-                new FileOutputStream(new File(config.getConfDir(), "core-site.xml")));
-        coreSite.writeXml(out);
-        out.close();
+        MapReduceTestUtils.writeConfigToFile(csFile, coreSite);
       }
     }
     final LinkedList<String> args = new LinkedList<>();
     args.add("--instance-name");
     args.add(config.getInstanceName());
-    if (!useKerberos()) {
+    if (!KerberosTestEnvironment.useKerberos()) {
       args.add("--password");
       args.add(config.getRootPassword());
     } else {
@@ -271,7 +254,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
   @Override
   protected void initOptions(final StoreFactoryOptions options) {
     final AccumuloRequiredOptions accumuloOpts = (AccumuloRequiredOptions) options;
-    if (useKerberos()) {
+    if (KerberosTestEnvironment.useKerberos()) {
       ClusterUser rootUser = KerberosTestEnvironment.getInstance().getRootUser();
       accumuloOpts.setUser(rootUser.getPrincipal());
       accumuloOpts.setKeytab(rootUser.getKeytab().getAbsolutePath());
@@ -312,7 +295,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
 
   @Override
   public TestEnvironment[] getDependentEnvironments() {
-    if (useKerberos()) {
+    if (KerberosTestEnvironment.useKerberos()) {
       return new TestEnvironment[] {
           KerberosTestEnvironment.getInstance(),
           ZookeeperTestEnvironment.getInstance()};

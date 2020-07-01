@@ -8,9 +8,6 @@
  */
 package org.locationtech.geowave.test.mapreduce;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;
@@ -31,208 +28,234 @@ import org.locationtech.geowave.test.TestUtils.DimensionalityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.IntrospectionException;
+import java.io.*;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MapReduceTestUtils {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MapReduceTestUtils.class);
-  public static final String TEST_EXPORT_DIRECTORY = "basicMapReduceIT-export";
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapReduceTestUtils.class);
+    public static final String TEST_EXPORT_DIRECTORY = "basicMapReduceIT-export";
 
-  public static final String EXPECTED_RESULTS_KEY = "EXPECTED_RESULTS";
-  public static final int MIN_INPUT_SPLITS = 3;
-  public static final int MAX_INPUT_SPLITS = 5;
+    public static final String EXPECTED_RESULTS_KEY = "EXPECTED_RESULTS";
+    public static final int MIN_INPUT_SPLITS = 3;
+    public static final int MAX_INPUT_SPLITS = 5;
 
-  public static void testMapReduceIngest(
-      final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType,
-      final String ingestFilePath) throws Exception {
-    testMapReduceIngest(dataStore, dimensionalityType, "gpx", ingestFilePath);
-  }
+    public static void testMapReduceIngest(
+        final DataStorePluginOptions dataStore,
+        final DimensionalityType dimensionalityType,
+        final String ingestFilePath) throws Exception {
+        testMapReduceIngest(dataStore, dimensionalityType, "gpx", ingestFilePath);
+    }
 
-  public static void testMapReduceExport(final DataStorePluginOptions inputStorePluginOptions)
-      throws Exception {
-    testMapReduceExport(inputStorePluginOptions, TEST_EXPORT_DIRECTORY);
-  }
+    public static void testMapReduceExport(final DataStorePluginOptions inputStorePluginOptions)
+        throws Exception {
+        testMapReduceExport(inputStorePluginOptions, TEST_EXPORT_DIRECTORY);
+    }
 
-  public static void testMapReduceExport(
-      final DataStorePluginOptions inputStorePluginOptions,
-      final String directory) throws Exception {
-    final VectorMRExportCommand exportCommand = new VectorMRExportCommand();
-    final VectorMRExportOptions options = exportCommand.getMrOptions();
+    public static void testMapReduceExport(
+        final DataStorePluginOptions inputStorePluginOptions, final String directory)
+        throws Exception {
+        final VectorMRExportCommand exportCommand = new VectorMRExportCommand();
+        final VectorMRExportOptions options = exportCommand.getMrOptions();
 
-    exportCommand.setStoreOptions(inputStorePluginOptions);
+        exportCommand.setStoreOptions(inputStorePluginOptions);
 
-    final MapReduceTestEnvironment env = MapReduceTestEnvironment.getInstance();
-    final String exportPath = env.getHdfsBaseDirectory() + "/" + directory;
+        final MapReduceTestEnvironment env = MapReduceTestEnvironment.getInstance();
+        final String exportPath = env.getHdfsBaseDirectory() + "/" + directory;
 
-    final File exportDir = new File(exportPath.replace("file:", ""));
-    if (exportDir.exists()) {
-      boolean deleted = false;
-      int attempts = 5;
-      while (!deleted && (attempts-- > 0)) {
-        try {
-          FileUtils.deleteDirectory(exportDir);
-          deleted = true;
-        } catch (final Exception e) {
-          LOGGER.error("Export directory not deleted, trying again in 10s: " + e);
-          Thread.sleep(10000);
+        final File exportDir = new File(exportPath.replace("file:", ""));
+        if (exportDir.exists()) {
+            boolean deleted = false;
+            int attempts = 5;
+            while (!deleted && (attempts-- > 0)) {
+                try {
+                    FileUtils.deleteDirectory(exportDir);
+                    deleted = true;
+                } catch (final Exception e) {
+                    LOGGER.error("Export directory not deleted, trying again in 10s: " + e);
+                    Thread.sleep(10000);
+                }
+            }
         }
-      }
-    }
-    exportCommand.setParameters(exportPath, null);
-    options.setBatchSize(10000);
-    options.setMinSplits(MapReduceTestUtils.MIN_INPUT_SPLITS);
-    options.setMaxSplits(MapReduceTestUtils.MAX_INPUT_SPLITS);
-    options.setResourceManagerHostPort(env.getJobtracker());
+        exportCommand.setParameters(exportPath, null);
+        options.setBatchSize(10000);
+        options.setMinSplits(MapReduceTestUtils.MIN_INPUT_SPLITS);
+        options.setMaxSplits(MapReduceTestUtils.MAX_INPUT_SPLITS);
+        options.setResourceManagerHostPort(env.getJobtracker());
 
-    final Configuration conf = MapReduceTestUtils.getConfiguration();
-    MapReduceTestUtils.filterConfiguration(conf);
-    final int res =
-        ToolRunner.run(conf, exportCommand.createRunner(env.getOperationParams()), new String[] {});
-    Assert.assertTrue("Export Vector Data map reduce job failed", res == 0);
+        final Configuration conf = MapReduceTestUtils.getConfiguration();
+        MapReduceTestUtils.filterConfiguration(conf);
+        final int res = ToolRunner.run(conf,
+            exportCommand.createRunner(env.getOperationParams()),
+            new String[] {});
+        Assert.assertTrue("Export Vector Data map reduce job failed", res == 0);
 
-    TestUtils.deleteAll(inputStorePluginOptions);
-  }
-
-  public static void testMapReduceExportAndReingest(
-      final DataStorePluginOptions inputStorePluginOptions,
-      final DataStorePluginOptions outputStorePluginOptions,
-      final DimensionalityType dimensionalityType) throws Exception {
-    testMapReduceExport(inputStorePluginOptions);
-    MapReduceTestUtils.testMapReduceIngest(
-        outputStorePluginOptions,
-        dimensionalityType,
-        "avro",
-        TestUtils.TEMP_DIR
-            + File.separator
-            + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
-            + File.separator
-            + TEST_EXPORT_DIRECTORY);
-  }
-
-  public static void testMapReduceIngest(
-      final DataStorePluginOptions dataStore,
-      final DimensionalityType dimensionalityType,
-      final String format,
-      final String ingestFilePath) throws Exception {
-    // ingest gpx data directly into GeoWave using the
-    // ingest framework's main method and pre-defined commandline arguments
-    LOGGER.warn("Ingesting '" + ingestFilePath + "' - this may take several minutes...");
-
-    final Thread progressLogger = startProgressLogger();
-
-    // Indexes
-    final String[] indexTypes = dimensionalityType.getDimensionalityArg().split(",");
-    final List<IndexPluginOptions> indexOptions = new ArrayList<>(indexTypes.length);
-    for (final String indexType : indexTypes) {
-      final IndexPluginOptions indexOption = new IndexPluginOptions();
-      indexOption.selectPlugin(indexType);
-      indexOptions.add(indexOption);
-    }
-    // Ingest Formats
-    final MapReduceTestEnvironment env = MapReduceTestEnvironment.getInstance();
-    final IngestFormatPluginOptions ingestFormatOptions = new IngestFormatPluginOptions();
-    ingestFormatOptions.selectPlugin(format);
-
-    // create temporary config file and use it for hdfs FS URL config
-
-    final File configFile = File.createTempFile("test_mr", null);
-    final ManualOperationParams operationParams = new ManualOperationParams();
-    operationParams.getContext().put(ConfigOptions.PROPERTIES_FILE_CONTEXT, configFile);
-
-    final ConfigHDFSCommand configHdfs = new ConfigHDFSCommand();
-    configHdfs.setHdfsUrlParameter(env.getHdfs());
-    configHdfs.execute(operationParams);
-
-    final LocalToMapReduceToGeoWaveCommand mrGw = new LocalToMapReduceToGeoWaveCommand();
-
-    final AddStoreCommand addStore = new AddStoreCommand();
-    addStore.setParameters("test-store");
-    addStore.setPluginOptions(dataStore);
-    addStore.execute(operationParams);
-
-    final IndexStore indexStore = dataStore.createIndexStore();
-
-    final StringBuilder indexParam = new StringBuilder();
-    for (int i = 0; i < indexOptions.size(); i++) {
-      String indexName = "testIndex" + i;
-      if (indexStore.getIndex(indexName) == null) {
-        indexOptions.get(i).setName(indexName);
-        indexStore.addIndex(indexOptions.get(i).createIndex());
-      }
-      indexParam.append(indexName + ",");
+        TestUtils.deleteAll(inputStorePluginOptions);
     }
 
-    mrGw.setPluginFormats(ingestFormatOptions);
-    mrGw.setParameters(
-        ingestFilePath,
-        env.getHdfsBaseDirectory(),
-        "test-store",
-        indexParam.toString());
-    mrGw.getMapReduceOptions().setJobTrackerHostPort(env.getJobtracker());
+    public static void testMapReduceExportAndReingest(
+        final DataStorePluginOptions inputStorePluginOptions,
+        final DataStorePluginOptions outputStorePluginOptions,
+        final DimensionalityType dimensionalityType) throws Exception {
+        testMapReduceExport(inputStorePluginOptions);
+        MapReduceTestUtils.testMapReduceIngest(outputStorePluginOptions,
+            dimensionalityType,
+            "avro",
+            TestUtils.TEMP_DIR
+                + File.separator
+                + MapReduceTestEnvironment.HDFS_BASE_DIRECTORY
+                + File.separator
+                + TEST_EXPORT_DIRECTORY);
+    }
 
-    mrGw.execute(operationParams);
+    public static void testMapReduceIngest(
+        final DataStorePluginOptions dataStore,
+        final DimensionalityType dimensionalityType,
+        final String format,
+        final String ingestFilePath) throws Exception {
+        // ingest gpx data directly into GeoWave using the
+        // ingest framework's main method and pre-defined commandline arguments
+        LOGGER.warn("Ingesting '" + ingestFilePath + "' - this may take several minutes...");
 
-    progressLogger.interrupt();
-  }
+        final Thread progressLogger = startProgressLogger();
 
-  private static Thread startProgressLogger() {
-    final Runnable r = new Runnable() {
-      @Override
-      public void run() {
-        final long start = System.currentTimeMillis();
-        try {
-          while (true) {
-            final long now = System.currentTimeMillis();
-            LOGGER.warn("Ingest running, progress: " + ((now - start) / 1000) + "s.");
-            Thread.sleep(60000);
-          }
-        } catch (final InterruptedException e) {
-          // Do nothing; thread is designed to be interrupted when
-          // ingest completes
+        // Indexes
+        final String[] indexTypes = dimensionalityType.getDimensionalityArg().split(",");
+        final List<IndexPluginOptions> indexOptions = new ArrayList<>(indexTypes.length);
+        for (final String indexType : indexTypes) {
+            final IndexPluginOptions indexOption = new IndexPluginOptions();
+            indexOption.selectPlugin(indexType);
+            indexOptions.add(indexOption);
         }
-      }
-    };
+        // Ingest Formats
+        final MapReduceTestEnvironment env = MapReduceTestEnvironment.getInstance();
+        final IngestFormatPluginOptions ingestFormatOptions = new IngestFormatPluginOptions();
+        ingestFormatOptions.selectPlugin(format);
 
-    final Thread t = new Thread(r);
+        // create temporary config file and use it for hdfs FS URL config
 
-    t.start();
+        final File configFile = File.createTempFile("test_mr", null);
+        final ManualOperationParams operationParams = new ManualOperationParams();
+        operationParams.getContext().put(ConfigOptions.PROPERTIES_FILE_CONTEXT, configFile);
 
-    return t;
-  }
+        final ConfigHDFSCommand configHdfs = new ConfigHDFSCommand();
+        configHdfs.setHdfsUrlParameter(env.getHdfs());
+        configHdfs.execute(operationParams);
 
-  public static void filterConfiguration(final Configuration conf) {
-    // final parameters, can't be overriden
-    conf.unset("mapreduce.job.end-notification.max.retry.interval");
-    conf.unset("mapreduce.job.end-notification.max.attempts");
+        final LocalToMapReduceToGeoWaveCommand mrGw = new LocalToMapReduceToGeoWaveCommand();
 
-    // deprecated parameters (added in by default since we used the
-    // Configuration() constructor (everything is set))
-    conf.unset("session.id");
-    conf.unset("mapred.jar");
-    conf.unset("fs.default.name");
-    conf.unset("mapred.map.tasks.speculative.execution");
-    conf.unset("mapred.reduce.tasks");
-    conf.unset("mapred.reduce.tasks.speculative.execution");
-    conf.unset("mapred.mapoutput.value.class");
-    conf.unset("mapred.used.genericoptionsparser");
-    conf.unset("mapreduce.map.class");
-    conf.unset("mapred.job.name");
-    conf.unset("mapreduce.inputformat.class");
-    conf.unset("mapred.input.dir");
-    conf.unset("mapreduce.outputformat.class");
-    conf.unset("mapred.map.tasks");
-    conf.unset("mapred.mapoutput.key.class");
-    conf.unset("mapred.working.dir");
-  }
+        final AddStoreCommand addStore = new AddStoreCommand();
+        addStore.setParameters("test-store");
+        addStore.setPluginOptions(dataStore);
+        addStore.execute(operationParams);
 
-  public static Configuration getConfiguration() {
-    final Configuration conf = new Configuration();
-    final MapReduceTestEnvironment env = MapReduceTestEnvironment.getInstance();
-    conf.set("fs.defaultFS", env.getHdfs());
-    conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
-    conf.set("mapreduce.jobtracker.address", env.getJobtracker());
+        final IndexStore indexStore = dataStore.createIndexStore();
 
-    filterConfiguration(conf);
+        final StringBuilder indexParam = new StringBuilder();
+        for (int i = 0; i < indexOptions.size(); i++) {
+            String indexName = "testIndex" + i;
+            if (indexStore.getIndex(indexName) == null) {
+                indexOptions.get(i).setName(indexName);
+                indexStore.addIndex(indexOptions.get(i).createIndex());
+            }
+            indexParam.append(indexName + ",");
+        }
 
-    return conf;
-  }
+        mrGw.setPluginFormats(ingestFormatOptions);
+        mrGw.setParameters(ingestFilePath,
+            env.getHdfsBaseDirectory(),
+            "test-store",
+            indexParam.toString());
+        mrGw.getMapReduceOptions().setJobTrackerHostPort(env.getJobtracker());
+
+        mrGw.execute(operationParams);
+
+        progressLogger.interrupt();
+    }
+
+    private static Thread startProgressLogger() {
+        final Runnable r = new Runnable() {
+            @Override public void run() {
+                final long start = System.currentTimeMillis();
+                try {
+                    while (true) {
+                        final long now = System.currentTimeMillis();
+                        LOGGER.warn("Ingest running, progress: " + ((now - start) / 1000) + "s.");
+                        Thread.sleep(60000);
+                    }
+                } catch (final InterruptedException e) {
+                    // Do nothing; thread is designed to be interrupted when
+                    // ingest completes
+                }
+            }
+        };
+
+        final Thread t = new Thread(r);
+
+        t.start();
+
+        return t;
+    }
+
+    public static void filterConfiguration(final Configuration conf) {
+        // final parameters, can't be overriden
+        conf.unset("mapreduce.job.end-notification.max.retry.interval");
+        conf.unset("mapreduce.job.end-notification.max.attempts");
+
+        // deprecated parameters (added in by default since we used the
+        // Configuration() constructor (everything is set))
+        conf.unset("session.id");
+        conf.unset("mapred.jar");
+        conf.unset("fs.default.name");
+        conf.unset("mapred.map.tasks.speculative.execution");
+        conf.unset("mapred.reduce.tasks");
+        conf.unset("mapred.reduce.tasks.speculative.execution");
+        conf.unset("mapred.mapoutput.value.class");
+        conf.unset("mapred.used.genericoptionsparser");
+        conf.unset("mapreduce.map.class");
+        conf.unset("mapred.job.name");
+        conf.unset("mapreduce.inputformat.class");
+        conf.unset("mapred.input.dir");
+        conf.unset("mapreduce.outputformat.class");
+        conf.unset("mapred.map.tasks");
+        conf.unset("mapred.mapoutput.key.class");
+        conf.unset("mapred.working.dir");
+    }
+
+    public static Configuration getConfiguration() {
+        final Configuration conf = new Configuration();
+        final MapReduceTestEnvironment env = MapReduceTestEnvironment.getInstance();
+        conf.set("fs.defaultFS", env.getHdfs());
+        conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
+        conf.set("mapreduce.jobtracker.address", env.getJobtracker());
+
+        filterConfiguration(conf);
+
+        return conf;
+    }
+
+    public static void writeConfigToFile(File file, Configuration config) throws IOException {
+        try(OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+            config.writeXml(out);
+        }
+    }
+
+    protected static void addURLToSystemClassLoader(URL url) throws IntrospectionException {
+        URLClassLoader systemClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+        Class<URLClassLoader> classLoaderClass = URLClassLoader.class;
+
+        try {
+            Method method = classLoaderClass.getDeclaredMethod("addURL", new Class[] {URL.class});
+            method.setAccessible(true);
+            method.invoke(systemClassLoader, new Object[] {url});
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new IntrospectionException("Error when adding url to system ClassLoader ");
+        }
+    }
 }
