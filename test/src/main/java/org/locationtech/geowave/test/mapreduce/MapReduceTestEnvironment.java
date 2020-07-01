@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Locale;
 
 public class MapReduceTestEnvironment implements TestEnvironment {
@@ -86,15 +85,13 @@ public class MapReduceTestEnvironment implements TestEnvironment {
 
         Configuration kerberosConfig = new Configuration(false);
 
-        kerberosConfigFile = File.createTempFile("kerberos-config", null);
+        kerberosConfigFile = new File("./target/test-classes/kerberos-config.xml");
         kerberosConfig.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
               ClusterUser user = KerberosTestEnvironment.getInstance().getRootUser();
         kerberosConfig.set(YarnConfiguration.RM_PRINCIPAL, user.getPrincipal());
         kerberosConfig.set(YarnConfiguration.RM_KEYTAB, user.getKeytab().getAbsolutePath());
-        MapReduceTestUtils.writeConfigToFile(kerberosConfigFile, kerberosConfig);
-        URL kerberosConfigUrl = kerberosConfigFile.toURI().toURL();
-        MapReduceTestUtils.addURLToSystemClassLoader(kerberosConfigUrl);
-        Configuration.addDefaultResource(kerberosConfigUrl.toString());
+        TestUtils.writeConfigToFile(kerberosConfigFile, kerberosConfig);
+        Configuration.addDefaultResource( kerberosConfigFile.getName());
     }
     if (!TestUtils.isSet(jobtracker)) {
       jobtracker = DEFAULT_JOB_TRACKER;

@@ -28,11 +28,7 @@ import org.locationtech.geowave.test.TestUtils.DimensionalityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.IntrospectionException;
 import java.io.*;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -237,25 +233,5 @@ public class MapReduceTestUtils {
         filterConfiguration(conf);
 
         return conf;
-    }
-
-    public static void writeConfigToFile(File file, Configuration config) throws IOException {
-        try(OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-            config.writeXml(out);
-        }
-    }
-
-    protected static void addURLToSystemClassLoader(URL url) throws IntrospectionException {
-        URLClassLoader systemClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Class<URLClassLoader> classLoaderClass = URLClassLoader.class;
-
-        try {
-            Method method = classLoaderClass.getDeclaredMethod("addURL", new Class[] {URL.class});
-            method.setAccessible(true);
-            method.invoke(systemClassLoader, new Object[] {url});
-        } catch (Throwable t) {
-            t.printStackTrace();
-            throw new IntrospectionException("Error when adding url to system ClassLoader ");
-        }
     }
 }

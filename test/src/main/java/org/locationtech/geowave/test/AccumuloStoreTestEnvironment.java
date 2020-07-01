@@ -28,10 +28,12 @@ import org.locationtech.geowave.datastore.accumulo.AccumuloStoreFactoryFamily;
 import org.locationtech.geowave.datastore.accumulo.cli.MiniAccumuloClusterFactory;
 import org.locationtech.geowave.datastore.accumulo.config.AccumuloRequiredOptions;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
-import org.locationtech.geowave.test.mapreduce.MapReduceTestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.*;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -150,7 +152,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
       // the classpath)
       if (coreSite.size() > 0) {
         File csFile = new File(config.getConfDir(), "core-site.xml");
-        MapReduceTestUtils.writeConfigToFile(csFile, coreSite);
+        TestUtils.writeConfigToFile(csFile, coreSite);
       }
     }
     final LinkedList<String> args = new LinkedList<>();
