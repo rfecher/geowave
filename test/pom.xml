@@ -577,7 +577,7 @@
                             <execution>
                                 <configuration>
                                     <environmentVariables>
-                                        <LD_LIBRARY_PATH>${gdal.dir}</LD_LIBRARY_PATH>
+                                        <LD_LIBRARY_PATH>${gdal.dir}${path.separator}${env.LD_LIBRARY_PATH}</LD_LIBRARY_PATH>
                                         <PATH>${gdal.dir}${path.separator}${env.PATH}</PATH>
                                         <BIGTABLE_EMULATOR_HOST>${bigtable.emulator.endpoint}
                                         </BIGTABLE_EMULATOR_HOST>
