@@ -13,7 +13,6 @@ import org.locationtech.geowave.service.IndexService;
 import org.locationtech.geowave.service.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.ws.rs.Path;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;

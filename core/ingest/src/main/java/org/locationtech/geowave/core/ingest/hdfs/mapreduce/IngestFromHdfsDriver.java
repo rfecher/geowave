@@ -20,7 +20,6 @@ import org.locationtech.geowave.core.store.ingest.IngestUtils;
 import org.locationtech.geowave.mapreduce.GeoWaveConfiguratorBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

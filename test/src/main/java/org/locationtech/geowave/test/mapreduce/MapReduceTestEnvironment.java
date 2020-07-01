@@ -23,7 +23,6 @@ import org.locationtech.geowave.test.TestEnvironment;
 import org.locationtech.geowave.test.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
@@ -78,20 +77,20 @@ public class MapReduceTestEnvironment implements TestEnvironment {
         hdfsProtocol = hdfs.toLowerCase(Locale.ENGLISH).startsWith("hdfs://");
       }
     }
-    if (KerberosTestEnvironment.useKerberos()){
+    if (KerberosTestEnvironment.useKerberos()) {
       if (!KerberosTestEnvironment.getInstance().isRunning()) {
         KerberosTestEnvironment.getInstance().setup();
       }
 
-        Configuration kerberosConfig = new Configuration(false);
+      Configuration kerberosConfig = new Configuration(false);
 
-        kerberosConfigFile = new File("./target/test-classes/kerberos-config.xml");
-        kerberosConfig.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
-              ClusterUser user = KerberosTestEnvironment.getInstance().getRootUser();
-        kerberosConfig.set(YarnConfiguration.RM_PRINCIPAL, user.getPrincipal());
-        kerberosConfig.set(YarnConfiguration.RM_KEYTAB, user.getKeytab().getAbsolutePath());
-        TestUtils.writeConfigToFile(kerberosConfigFile, kerberosConfig);
-        Configuration.addDefaultResource( kerberosConfigFile.getName());
+      kerberosConfigFile = new File("./target/test-classes/kerberos-config.xml");
+      kerberosConfig.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
+      ClusterUser user = KerberosTestEnvironment.getInstance().getRootUser();
+      kerberosConfig.set(YarnConfiguration.RM_PRINCIPAL, user.getPrincipal());
+      kerberosConfig.set(YarnConfiguration.RM_KEYTAB, user.getKeytab().getAbsolutePath());
+      TestUtils.writeConfigToFile(kerberosConfigFile, kerberosConfig);
+      Configuration.addDefaultResource(kerberosConfigFile.getName());
     }
     if (!TestUtils.isSet(jobtracker)) {
       jobtracker = DEFAULT_JOB_TRACKER;

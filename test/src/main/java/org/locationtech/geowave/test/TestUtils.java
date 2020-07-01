@@ -68,7 +68,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.ws.rs.core.Response;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -166,7 +165,7 @@ public class TestUtils {
   }
 
   public static void writeConfigToFile(File file, Configuration config) throws IOException {
-    try(OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
       config.writeXml(out);
     }
   }

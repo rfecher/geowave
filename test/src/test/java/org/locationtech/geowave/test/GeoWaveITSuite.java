@@ -27,6 +27,7 @@ import org.locationtech.geowave.test.query.QueryOptionsIT;
 import org.locationtech.geowave.test.query.SpatialTemporalQueryIT;
 import org.locationtech.geowave.test.secondary.*;
 import org.locationtech.geowave.test.services.*;
+import org.locationtech.geowave.test.services.grpc.GeoWaveGrpcIT;
 import org.locationtech.geowave.test.spark.GeoWaveBasicSparkIT;
 import org.locationtech.geowave.test.spark.GeoWaveSparkKMeansIT;
 import org.locationtech.geowave.test.spark.GeoWaveSparkSQLIT;
@@ -75,7 +76,7 @@ import org.locationtech.geowave.test.stability.GeoWaveStabilityIT;
     GeoServerIngestIT.class,
     // has to be after SparkEnvironment usage
     CustomCRSKDERasterResizeIT.class,
-//    GeoWaveGrpcIT.class,
+    GeoWaveGrpcIT.class,
     ConfigServicesIT.class,
     StoreServicesIT.class,
     IndexServicesIT.class,

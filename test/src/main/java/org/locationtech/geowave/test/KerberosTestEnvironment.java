@@ -5,7 +5,6 @@ import org.apache.accumulo.minicluster.impl.MiniAccumuloConfigImpl;
 import org.apache.hadoop.conf.Configuration;
 import org.locationtech.geowave.core.index.SPIServiceRegistry;
 import org.locationtech.geowave.test.kerberos.KerberosTestingUtilSpi;
-
 import java.util.Iterator;
 
 public class KerberosTestEnvironment implements TestEnvironment {
@@ -27,7 +26,8 @@ public class KerberosTestEnvironment implements TestEnvironment {
   private KerberosTestEnvironment() {
 
   }
-  public boolean isRunning(){
+
+  public boolean isRunning() {
     return util != null;
   }
 
