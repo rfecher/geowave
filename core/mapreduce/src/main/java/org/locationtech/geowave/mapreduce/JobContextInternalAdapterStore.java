@@ -19,6 +19,7 @@ public class JobContextInternalAdapterStore implements InternalAdapterStore {
   private static final Class<?> CLASS = JobContextInternalAdapterStore.class;
   private final JobContext context;
   private final InternalAdapterStore persistentInternalAdapterStore;
+  // this is not thread-safe
   protected final BiMap<String, Short> cache = HashBiMap.create();
 
   public JobContextInternalAdapterStore(
@@ -30,7 +31,10 @@ public class JobContextInternalAdapterStore implements InternalAdapterStore {
 
   @Override
   public String getTypeName(final short adapterId) {
-    String typeName = cache.inverse().get(adapterId);
+    String typeName;
+    synchronized (cache) {
+      typeName = cache.inverse().get(adapterId);
+    }
     if (typeName == null) {
       typeName = getTypeNameIInternal(adapterId);
     }
@@ -46,7 +50,9 @@ public class JobContextInternalAdapterStore implements InternalAdapterStore {
     }
 
     if (typeName != null) {
-      cache.put(typeName, adapterId);
+      synchronized (cache) {
+        cache.put(typeName, adapterId);
+      }
     }
     return typeName;
   }
@@ -60,14 +66,19 @@ public class JobContextInternalAdapterStore implements InternalAdapterStore {
     }
 
     if (internalAdapterId != null) {
-      cache.put(typeName, internalAdapterId);
+      synchronized (cache) {
+        cache.put(typeName, internalAdapterId);
+      }
     }
     return internalAdapterId;
   }
 
   @Override
   public Short getAdapterId(final String typeName) {
-    Short internalAdapterId = cache.get(typeName);
+    Short internalAdapterId;
+    synchronized (cache) {
+      internalAdapterId = cache.get(typeName);
+    }
     if (internalAdapterId == null) {
       internalAdapterId = getAdapterIdInternal(typeName);
     }
@@ -106,13 +117,17 @@ public class JobContextInternalAdapterStore implements InternalAdapterStore {
 
   @Override
   public boolean remove(final short adapterId) {
-    cache.inverse().remove(adapterId);
+    synchronized (cache) {
+      cache.inverse().remove(adapterId);
+    }
     return persistentInternalAdapterStore.remove(adapterId);
   }
 
   @Override
   public void removeAll() {
-    cache.clear();
+    synchronized (cache) {
+      cache.clear();
+    }
     persistentInternalAdapterStore.removeAll();
   }
 

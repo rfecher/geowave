@@ -42,6 +42,7 @@ import com.google.common.collect.Iterators;
 public class InternalAdapterStoreImpl implements InternalAdapterStore {
   private static final Logger LOGGER = LoggerFactory.getLogger(InternalAdapterStoreImpl.class);
   private static final Object MUTEX = new Object();
+  // this is not thread-safe
   protected final BiMap<String, Short> cache = HashBiMap.create();
   private static final byte[] INTERNAL_TO_EXTERNAL_ID = new byte[] {0};
   private static final byte[] EXTERNAL_TO_INTERNAL_ID = new byte[] {1};
@@ -76,7 +77,10 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
   }
 
   private String internalGetTypeName(final short adapterId, final boolean warnIfNotExists) {
-    String typeName = cache.inverse().get(adapterId);
+    String typeName;
+    synchronized (cache) {
+      typeName = cache.inverse().get(adapterId);
+    }
     if (typeName != null) {
       return typeName;
     }
@@ -104,7 +108,10 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
         return null;
       }
       typeName = StringUtils.stringFromBinary(it.next().getValue());
-      cache.putIfAbsent(typeName, adapterId);
+
+      synchronized (cache) {
+        cache.putIfAbsent(typeName, adapterId);
+      }
       return typeName;
     }
   }
@@ -115,7 +122,10 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
   }
 
   public Short internalGetAdapterId(final String typeName, final boolean warnIfNotExist) {
-    final Short id = cache.get(typeName);
+    final Short id;
+    synchronized (cache) {
+      id = cache.get(typeName);
+    }
     if (id != null) {
       return id;
     }
@@ -142,7 +152,10 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
         return null;
       }
       final short adapterId = ByteArrayUtils.byteArrayToShort(it.next().getValue());
-      cache.putIfAbsent(typeName, adapterId);
+
+      synchronized (cache) {
+        cache.putIfAbsent(typeName, adapterId);
+      }
       return adapterId;
     }
   }
@@ -256,7 +269,10 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
               operations,
               MetadataType.INTERNAL_ADAPTER,
               null);
-      cache.remove(typeName);
+
+      synchronized (cache) {
+        cache.remove(typeName);
+      }
     }
     boolean internalDeleted = false;
     if (internalAdapterId != null) {
@@ -279,7 +295,10 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
         operations,
         MetadataType.INTERNAL_ADAPTER,
         null);
-    cache.clear();
+
+    synchronized (cache) {
+      cache.clear();
+    }
   }
 
   @Override
