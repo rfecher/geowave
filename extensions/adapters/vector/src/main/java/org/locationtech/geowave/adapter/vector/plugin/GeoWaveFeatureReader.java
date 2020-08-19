@@ -13,12 +13,14 @@ import java.awt.geom.AffineTransform;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -43,6 +45,7 @@ import org.locationtech.geowave.core.geotime.util.ExtractAttributesFilter;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils.GeoConstraintsWrapper;
 import org.locationtech.geowave.core.geotime.util.SpatialIndexUtils;
+import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.dimension.NumericDimensionDefinition;
 import org.locationtech.geowave.core.index.persist.Persistable;
@@ -387,7 +390,7 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
                   fullTransform.inverse(),
                   new Rectangle(width, height),
                   pixelSize);
-          NumericDimensionDefinition[] dimensions =
+          final NumericDimensionDefinition[] dimensions =
               index.getIndexStrategy().getOrderedDimensionDefinitions();
           final double[] maxResolutionSubsampling = new double[dimensions.length];
           for (int i = 0; i < dimensions.length; i++) {
@@ -493,20 +496,43 @@ public class GeoWaveFeatureReader implements FeatureReader<SimpleFeatureType, Si
       final Index[] writeIndices = components.getAdapterIndices();
       final String queryIndexName =
           ((writeIndices != null) && (writeIndices.length > 0)) ? writeIndices[0].getName() : null;
-      VectorQueryBuilder bldr =
+      final VectorQueryBuilder bldr =
           VectorQueryBuilder.newBuilder().addTypeName(
               components.getAdapter().getTypeName()).indexName(queryIndexName).setAuthorizations(
                   transaction.composeAuthorizations());
       if (limit != null) {
-        bldr = bldr.limit(limit);
+        bldr.limit(limit);
       }
-      if (subsetRequested()) {
-        bldr = bldr.subsetFields(components.getAdapter().getTypeName(), getSubset());
-      }
-
-      return components.getDataStore().query(
-          bldr.constraints(bldr.constraintsFactory().dataIds(ids)).build());
+      // if (subsetRequested()) {
+      // bldr = bldr.subsetFields(components.getAdapter().getTypeName(), getSubset());
+      // }
+      final List<CloseableIterator<SimpleFeature>> results =
+          Arrays.stream(ids).map(
+              id -> components.getDataStore().query(
+                  bldr.constraints(
+                      bldr.constraintsFactory().dataIdsByRange(
+                          id,
+                          ByteArrayUtils.getNextPrefix(id))).build())).collect(Collectors.toList());
+      return new CloseableIteratorWrapper<>(
+          () -> results.forEach(CloseableIterator::close),
+          Iterators.concat(results.iterator()));
     }
+    // final ExtractAttributesFilter attributesVisitor = new ExtractAttributesFilter();
+    //
+    // final Object obj = filter.accept(attributesVisitor, null);
+    //
+    // final Collection<String> attrs;
+    // if ((obj != null) && (obj instanceof Collection)) {
+    // attrs = (Collection<String>) obj;
+    // } else {
+    // attrs = new ArrayList<>();
+    // }
+    // if (!attrs.isEmpty() && attrs.contains("entity_id")) {
+    // final VectorQueryBuilder bldr =
+    // VectorQueryBuilder.newBuilder().addTypeName(components.getAdapter().getTypeName());
+    // return components.getDataStore().query(
+    // bldr.constraints(bldr.constraintsFactory().dataIds(ids)).build());
+    // }
     return issueQuery(jtsBounds, timeBounds, new BaseIssuer(filter, limit));
   }
 
