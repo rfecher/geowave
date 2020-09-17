@@ -84,7 +84,7 @@ public class HilbertSFC implements SpaceFillingCurve {
   }
 
   private static final int MAX_CACHED_QUERIES = 500;
-  private final Cache<QueryCacheKey, RangeDecomposition> queryDecompositionCache =
+  private final transient Cache<QueryCacheKey, RangeDecomposition> queryDecompositionCache =
       Caffeine.newBuilder().maximumSize(MAX_CACHED_QUERIES).initialCapacity(
           MAX_CACHED_QUERIES).build();
   protected CompactHilbertCurve compactHilbertCurve;
