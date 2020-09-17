@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.core.index.sfc.hilbert;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -26,7 +27,9 @@ import com.google.uzaygezen.core.CompactHilbertCurve;
 import com.google.uzaygezen.core.MultiDimensionalSpec;
 
 /** * Implementation of a Compact Hilbert space filling curve */
-public class HilbertSFC implements SpaceFillingCurve {
+public class HilbertSFC implements SpaceFillingCurve, Serializable {
+  private static final long serialVersionUID = 4188480975078221947L;
+
   private static class QueryCacheKey {
     private final double[] minsPerDimension;
     private final double[] maxesPerDimension;
