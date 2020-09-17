@@ -13,6 +13,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.VarintUtils;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
@@ -81,6 +83,10 @@ public class HilbertSFC implements SpaceFillingCurve {
     }
   }
 
+  private static final int MAX_CACHED_QUERIES = 500;
+  private transient Cache<QueryCacheKey, RangeDecomposition> queryDecompositionCache =
+      Caffeine.newBuilder().maximumSize(MAX_CACHED_QUERIES).initialCapacity(
+          MAX_CACHED_QUERIES).build();
   protected CompactHilbertCurve compactHilbertCurve;
   protected SFCDimensionDefinition[] dimensionDefinitions;
   protected int totalPrecision;
@@ -170,18 +176,26 @@ public class HilbertSFC implements SpaceFillingCurve {
   public RangeDecomposition decomposeRange(
       final MultiDimensionalNumericData query,
       final boolean overInclusiveOnEdge,
-      final int maxFilteredIndexedRanges) {
+      int maxFilteredIndexedRanges) {
     final int maxRanges =
         (maxFilteredIndexedRanges < 0) ? Integer.MAX_VALUE : maxFilteredIndexedRanges;
+    final QueryCacheKey key =
+        new QueryCacheKey(
+            query.getMinValuesPerDimension(),
+            query.getMaxValuesPerDimension(),
+            overInclusiveOnEdge,
+            maxRanges);
 
-    return decomposeQueryOperations.decomposeRange(
-        query.getDataPerDimension(),
-        compactHilbertCurve,
-        dimensionDefinitions,
-        totalPrecision,
-        maxRanges,
-        REMOVE_VACUUM,
-        overInclusiveOnEdge);
+    return queryDecompositionCache.get(
+        key,
+        k -> decomposeQueryOperations.decomposeRange(
+            query.getDataPerDimension(),
+            compactHilbertCurve,
+            dimensionDefinitions,
+            totalPrecision,
+            maxRanges,
+            REMOVE_VACUUM,
+            overInclusiveOnEdge));
   }
 
   protected static byte[] fitExpectedByteCount(final int expectedByteCount, final byte[] bytes) {
