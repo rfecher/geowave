@@ -14,8 +14,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.VarintUtils;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
@@ -23,6 +21,8 @@ import org.locationtech.geowave.core.index.sfc.RangeDecomposition;
 import org.locationtech.geowave.core.index.sfc.SFCDimensionDefinition;
 import org.locationtech.geowave.core.index.sfc.SpaceFillingCurve;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.uzaygezen.core.CompactHilbertCurve;
 import com.google.uzaygezen.core.MultiDimensionalSpec;
 
@@ -87,9 +87,7 @@ public class HilbertSFC implements SpaceFillingCurve, Serializable {
   }
 
   private static final int MAX_CACHED_QUERIES = 500;
-  private transient Cache<QueryCacheKey, RangeDecomposition> queryDecompositionCache =
-      Caffeine.newBuilder().maximumSize(MAX_CACHED_QUERIES).initialCapacity(
-          MAX_CACHED_QUERIES).build();
+  private transient Cache<QueryCacheKey, RangeDecomposition> queryDecompositionCache;
   protected CompactHilbertCurve compactHilbertCurve;
   protected SFCDimensionDefinition[] dimensionDefinitions;
   protected int totalPrecision;
@@ -108,7 +106,9 @@ public class HilbertSFC implements SpaceFillingCurve, Serializable {
   }
 
   protected void init(final SFCDimensionDefinition[] dimensionDefs) {
-
+    queryDecompositionCache =
+        Caffeine.newBuilder().maximumSize(MAX_CACHED_QUERIES).initialCapacity(
+            MAX_CACHED_QUERIES).build();
     final List<Integer> bitsPerDimension = new ArrayList<>();
     totalPrecision = 0;
     for (final SFCDimensionDefinition dimension : dimensionDefs) {
@@ -179,7 +179,7 @@ public class HilbertSFC implements SpaceFillingCurve, Serializable {
   public RangeDecomposition decomposeRange(
       final MultiDimensionalNumericData query,
       final boolean overInclusiveOnEdge,
-      int maxFilteredIndexedRanges) {
+      final int maxFilteredIndexedRanges) {
     final int maxRanges =
         (maxFilteredIndexedRanges < 0) ? Integer.MAX_VALUE : maxFilteredIndexedRanges;
     final QueryCacheKey key =
