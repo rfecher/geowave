@@ -50,10 +50,9 @@ public class GeoWaveRDDLoader {
       final NumericIndexStrategy indexStrategy) throws IOException {
     final GeoWaveRDD wrappedRDD = GeoWaveRDDLoader.loadRDD(sc, storeOptions, rddOpts);
     // Index strategy can be expensive so we will broadcast it and store it
-    Broadcast<NumericIndexStrategy> broadcastStrategy = null;
+    Broadcast<byte[]> broadcastStrategy = null;
     if (indexStrategy != null) {
-      broadcastStrategy =
-          (Broadcast<NumericIndexStrategy>) RDDUtils.broadcastIndexStrategy(sc, indexStrategy);
+      broadcastStrategy = RDDUtils.broadcastIndexStrategy(sc, indexStrategy);
     }
 
     final GeoWaveIndexedRDD returnRDD = new GeoWaveIndexedRDD(wrappedRDD, broadcastStrategy);
@@ -68,10 +67,9 @@ public class GeoWaveRDDLoader {
       return null;
     }
     // Index strategy can be expensive so we will broadcast it and store it
-    Broadcast<NumericIndexStrategy> broadcastStrategy = null;
+    Broadcast<byte[]> broadcastStrategy = null;
     if (indexStrategy != null) {
-      broadcastStrategy =
-          (Broadcast<NumericIndexStrategy>) RDDUtils.broadcastIndexStrategy(sc, indexStrategy);
+      broadcastStrategy = RDDUtils.broadcastIndexStrategy(sc, indexStrategy);
     }
 
     final GeoWaveIndexedRDD returnRDD = new GeoWaveIndexedRDD(inputRDD, broadcastStrategy);

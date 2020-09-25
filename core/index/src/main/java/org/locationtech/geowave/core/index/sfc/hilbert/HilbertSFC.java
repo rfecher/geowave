@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.core.index.sfc.hilbert;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -27,9 +26,7 @@ import com.google.uzaygezen.core.CompactHilbertCurve;
 import com.google.uzaygezen.core.MultiDimensionalSpec;
 
 /** * Implementation of a Compact Hilbert space filling curve */
-public class HilbertSFC implements SpaceFillingCurve, Serializable {
-  private static final long serialVersionUID = 4188480975078221947L;
-
+public class HilbertSFC implements SpaceFillingCurve {
   private static class QueryCacheKey {
     private final double[] minsPerDimension;
     private final double[] maxesPerDimension;
@@ -87,7 +84,9 @@ public class HilbertSFC implements SpaceFillingCurve, Serializable {
   }
 
   private static final int MAX_CACHED_QUERIES = 500;
-  private transient Cache<QueryCacheKey, RangeDecomposition> queryDecompositionCache;
+  private final Cache<QueryCacheKey, RangeDecomposition> queryDecompositionCache =
+      Caffeine.newBuilder().maximumSize(MAX_CACHED_QUERIES).initialCapacity(
+          MAX_CACHED_QUERIES).build();
   protected CompactHilbertCurve compactHilbertCurve;
   protected SFCDimensionDefinition[] dimensionDefinitions;
   protected int totalPrecision;
@@ -106,9 +105,7 @@ public class HilbertSFC implements SpaceFillingCurve, Serializable {
   }
 
   protected void init(final SFCDimensionDefinition[] dimensionDefs) {
-    queryDecompositionCache =
-        Caffeine.newBuilder().maximumSize(MAX_CACHED_QUERIES).initialCapacity(
-            MAX_CACHED_QUERIES).build();
+
     final List<Integer> bitsPerDimension = new ArrayList<>();
     totalPrecision = 0;
     for (final SFCDimensionDefinition dimension : dimensionDefs) {

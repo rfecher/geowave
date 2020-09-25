@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.HashPartitioner;
 import org.apache.spark.SparkContext;
@@ -39,6 +40,7 @@ import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.HierarchicalNumericIndexStrategy.SubStrategy;
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
+import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.index.sfc.SFCFactory.SFCType;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.index.sfc.tiered.SingleTierSubStrategy;
@@ -50,6 +52,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import jersey.repackaged.com.google.common.collect.Maps;
@@ -82,8 +85,8 @@ public class TieredSpatialJoin extends JoinStrategy {
     final SparkContext sc = spark.sparkContext();
     final JavaSparkContext javaSC = JavaSparkContext.fromSparkContext(sc);
 
-    final NumericIndexStrategy leftStrategy = leftRDD.getIndexStrategy().getValue();
-    final NumericIndexStrategy rightStrategy = rightRDD.getIndexStrategy().getValue();
+    final NumericIndexStrategy leftStrategy = leftRDD.getIndexStrategy();
+    final NumericIndexStrategy rightStrategy = rightRDD.getIndexStrategy();
 
     // Check if either dataset supports the join
     TieredSFCIndexStrategy tieredStrategy = null;
@@ -134,8 +137,8 @@ public class TieredSpatialJoin extends JoinStrategy {
     final int tierCount = tierStrategies.length;
     // Create broadcast variable for indexing strategy
     // Cast is safe because we must be instance of TieredSFCIndexStrategy to support join.
-    final Broadcast<TieredSFCIndexStrategy> broadcastStrategy =
-        (Broadcast<TieredSFCIndexStrategy>) RDDUtils.broadcastIndexStrategy(sc, tieredStrategy);
+    final Broadcast<byte[]> broadcastStrategy =
+        RDDUtils.broadcastIndexStrategy(sc, tieredStrategy);
 
     final Broadcast<GeomFunction> geomPredicate = javaSC.broadcast(predicate);
 
@@ -466,12 +469,16 @@ public class TieredSpatialJoin extends JoinStrategy {
   private JavaPairRDD<ByteArray, Tuple2<GeoWaveInputKey, Geometry>> reprojectToTier(
       final JavaRDD<Tuple2<GeoWaveInputKey, Geometry>> higherTiers,
       final byte targetTierId,
-      final Broadcast<TieredSFCIndexStrategy> broadcastStrategy,
+      final Broadcast<byte[]> broadcastStrategy,
       final double bufferDistance,
       final HashPartitioner partitioner) {
+    final Supplier<TieredSFCIndexStrategy> indexStrategy =
+        Suppliers.memoize(
+            () -> (TieredSFCIndexStrategy) PersistenceUtils.fromBinary(
+                broadcastStrategy.getValue()));
     return higherTiers.flatMapToPair(
         (PairFlatMapFunction<Tuple2<GeoWaveInputKey, Geometry>, ByteArray, Tuple2<GeoWaveInputKey, Geometry>>) t -> {
-          final TieredSFCIndexStrategy index = broadcastStrategy.value();
+          final TieredSFCIndexStrategy index = indexStrategy.get();
           final SubStrategy[] strategies = index.getSubStrategies();
           SingleTierSubStrategy useStrat = null;
           for (final SubStrategy strat : strategies) {

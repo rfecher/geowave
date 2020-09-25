@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.broadcast.Broadcast;
@@ -20,6 +21,7 @@ import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.NumericIndexStrategy;
+import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
 import org.locationtech.jts.geom.Envelope;
@@ -27,6 +29,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import scala.Tuple2;
 
@@ -42,13 +45,18 @@ public class GeoWaveIndexedRDD implements Serializable {
   private JavaPairRDD<ByteArray, Tuple2<GeoWaveInputKey, Geometry>> rawGeometryRDD = null;
   // Because it can be expensive to serialize IndexStrategy for every record.
   // Index strategy must be able to be broadcast.
-  private Broadcast<NumericIndexStrategy> indexStrategy = null;
+  private Broadcast<byte[]> indexStrategyBroadcast = null;
+  private Supplier<NumericIndexStrategy> indexStrategySupplier = null;
 
   public GeoWaveIndexedRDD(
       final GeoWaveRDD geowaveRDD,
-      final Broadcast<NumericIndexStrategy> indexStrategy) {
+      final Broadcast<byte[]> indexStrategyBroadcast) {
     this.geowaveRDD = geowaveRDD;
-    this.indexStrategy = indexStrategy;
+    this.indexStrategyBroadcast = indexStrategyBroadcast;
+    indexStrategySupplier =
+        Suppliers.memoize(
+            () -> (NumericIndexStrategy) PersistenceUtils.fromBinary(
+                indexStrategyBroadcast.value()));
   }
 
   public void reset() {
@@ -56,12 +64,16 @@ public class GeoWaveIndexedRDD implements Serializable {
     rawGeometryRDD = null;
   }
 
-  public void reindex(final Broadcast<? extends NumericIndexStrategy> newIndexStrategy) {
+  public void reindex(final Broadcast<byte[]> newIndexStrategy) {
     // Remove original indexing strategy
-    if (indexStrategy != null) {
-      indexStrategy.unpersist();
+    if (indexStrategyBroadcast != null) {
+      indexStrategyBroadcast.unpersist();
     }
-    indexStrategy = (Broadcast<NumericIndexStrategy>) newIndexStrategy;
+    indexStrategyBroadcast = newIndexStrategy;
+    indexStrategySupplier =
+        Suppliers.memoize(
+            () -> (NumericIndexStrategy) PersistenceUtils.fromBinary(
+                indexStrategyBroadcast.value()));
     reset();
   }
 
@@ -115,7 +127,7 @@ public class GeoWaveIndexedRDD implements Serializable {
                   final MultiDimensionalNumericData boundsRange =
                       GeometryUtils.getBoundsFromEnvelope(internalEnvelope);
 
-                  final NumericIndexStrategy index = indexStrategy.value();
+                  final NumericIndexStrategy index = indexStrategySupplier.get();
                   InsertionIds insertIds = index.getInsertionIds(boundsRange, 80);
 
                   // If we didnt expand the envelope for
@@ -189,7 +201,7 @@ public class GeoWaveIndexedRDD implements Serializable {
                           final MultiDimensionalNumericData boundsRange =
                               GeometryUtils.getBoundsFromEnvelope(internalEnvelope);
 
-                          final NumericIndexStrategy index = indexStrategy.value();
+                          final NumericIndexStrategy index = indexStrategySupplier.get();
                           InsertionIds insertIds = index.getInsertionIds(boundsRange, 80);
 
                           // If we didnt expand the envelope for
@@ -222,8 +234,8 @@ public class GeoWaveIndexedRDD implements Serializable {
     return rawGeometryRDD;
   }
 
-  public Broadcast<NumericIndexStrategy> getIndexStrategy() {
-    return indexStrategy;
+  public NumericIndexStrategy getIndexStrategy() {
+    return indexStrategySupplier.get();
   }
 
   public GeoWaveRDD getGeoWaveRDD() {
@@ -235,7 +247,7 @@ public class GeoWaveIndexedRDD implements Serializable {
       LOGGER.error("Must supply a input rdd to index. Please set one and try again.");
       return false;
     }
-    if (indexStrategy == null) {
+    if (indexStrategyBroadcast == null) {
       LOGGER.error("Broadcasted strategy must be set before features can be indexed.");
       return false;
     }

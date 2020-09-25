@@ -252,13 +252,12 @@ public class RDDUtils {
             gridCoverage)).saveAsNewAPIHadoopDataset(job.getConfiguration());
   }
 
-  public static Broadcast<? extends NumericIndexStrategy> broadcastIndexStrategy(
+  public static Broadcast<byte[]> broadcastIndexStrategy(
       final SparkContext sc,
       final NumericIndexStrategy indexStrategy) {
-    final ClassTag<NumericIndexStrategy> indexClassTag =
-        scala.reflect.ClassTag$.MODULE$.apply(indexStrategy.getClass());
-    final Broadcast<NumericIndexStrategy> broadcastStrategy =
-        sc.broadcast(indexStrategy, indexClassTag);
+    final ClassTag<byte[]> indexClassTag = scala.reflect.ClassTag$.MODULE$.apply(byte[].class);
+    final Broadcast<byte[]> broadcastStrategy =
+        sc.broadcast(indexStrategy.toBinary(), indexClassTag);
     return broadcastStrategy;
   }
 }
