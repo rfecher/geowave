@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Supplier;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.broadcast.Broadcast;
@@ -29,11 +28,12 @@ import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import scala.Tuple2;
 
-public class GeoWaveIndexedRDD implements Serializable {
+public class GeoWaveIndexedRDD implements Serializable, Supplier<NumericIndexStrategy> {
 
   /**
    *
@@ -53,10 +53,7 @@ public class GeoWaveIndexedRDD implements Serializable {
       final Broadcast<byte[]> indexStrategyBroadcast) {
     this.geowaveRDD = geowaveRDD;
     this.indexStrategyBroadcast = indexStrategyBroadcast;
-    indexStrategySupplier =
-        Suppliers.memoize(
-            () -> (NumericIndexStrategy) PersistenceUtils.fromBinary(
-                indexStrategyBroadcast.value()));
+    indexStrategySupplier = Suppliers.memoize(this);
   }
 
   public void reset() {
@@ -70,10 +67,7 @@ public class GeoWaveIndexedRDD implements Serializable {
       indexStrategyBroadcast.unpersist();
     }
     indexStrategyBroadcast = newIndexStrategy;
-    indexStrategySupplier =
-        Suppliers.memoize(
-            () -> (NumericIndexStrategy) PersistenceUtils.fromBinary(
-                indexStrategyBroadcast.value()));
+    indexStrategySupplier = Suppliers.memoize(this);
     reset();
   }
 
@@ -252,5 +246,13 @@ public class GeoWaveIndexedRDD implements Serializable {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public NumericIndexStrategy get() {
+    if (indexStrategyBroadcast == null) {
+      return null;
+    }
+    return (NumericIndexStrategy) PersistenceUtils.fromBinary(indexStrategyBroadcast.value());
   }
 }
