@@ -68,6 +68,17 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.parquet/parquet-avro -->
+<dependency>
+    <groupId>org.apache.parquet</groupId>
+    <artifactId>parquet-avro</artifactId>
+    <version>1.8.3</version>
+</dependency>
+        <dependency>
+    <groupId>org.apache.avro</groupId>
+    <artifactId>avro</artifactId>
+    <version>1.9.0</version>
+</dependency>
         <dependency>
             <groupId>org.locationtech.geowave</groupId>
             <artifactId>geowave-service-rest</artifactId>
