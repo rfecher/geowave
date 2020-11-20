@@ -45,7 +45,7 @@ public class PartitionStatisticsTest {
 
     System.out.println(stats.toString());
 
-    assertEquals(32, stats.getPartitionKeys().size());
+    assertEquals(33, stats.getPartitionKeys().size());
     for (byte i = 0; i < 32; i++) {
       Assert.assertTrue(stats.getPartitionKeys().contains(new ByteArray(new byte[] {i})));
     }
