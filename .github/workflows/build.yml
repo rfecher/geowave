@@ -1,0 +1,89 @@
+name: GeoWave Build
+on: [push, pull_request]
+env:
+    DEV_RESOURCES_VERSION: 1.7
+    MAVEN_PROFILES: '""'
+    BUILD_AND_PUBLISH: false
+    IT_ONLY: true
+    MAVEN_OPTS: "-XX:CompressedClassSpaceSize=256m -XX:+UseSerialGC -Xmx2g -XX:MaxMetaspaceSize=512m -Dorg.slf4j.simpleLogger.defaultLogLevel=warn"
+    
+jobs:
+    unit-tests:
+        runs-on: ubuntu-16.04
+        name: Unit Tests on Latest ASF Versions
+        env:
+            IT_ONLY: false
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+              
+            - name: Cache resources
+              uses: actions/cache@v2
+              env:
+                cache-name: cache-geowave-resources
+              with:
+                key:  ${{ runner.os }}
+                path: |
+                      ~/.m2
+                      ~/.downloads
+                      test/landsat8
+                      test/sentinel2
+                      test/target/temp/gdal
+            - name: Run
+              run: ./.utility/run-all.sh
+    python-tests:
+        runs-on: ubuntu-16.04
+        name: Python Tests on Latest ASF Versions
+        env:
+            IT_ONLY: false
+            PYTHON_BUILD: true
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+              
+            - name: Cache resources
+              uses: actions/cache@v2
+              env:
+                cache-name: cache-geowave-resources
+              with:
+                key:  ${{ runner.os }}
+                path: |
+                      ~/.m2
+                      ~/.downloads
+                      test/landsat8
+                      test/sentinel2
+                      test/target/temp/gdal
+            - name: Run
+              run: ./.utility/run-all.sh
+    integration-tests:
+        runs-on: ubuntu-16.04
+        name: Integration Tests ${{ matrix.profile }}
+        strategy:
+            matrix:
+                profile: [redis-it, rocksdb-it, accumulo-it-client, accumulo-it-server, hbase-it-client, hbase-it-server, cassandra-it, dynamodb-it, bigtable-it, kudu-it, filesystem-it, accumulo-it-kerberos, 'filesystem-it,secondary-index-it', 'rocksdb-it,secondary-index-it', 'hbase-it-client,compatibility,ignore-kerberos-it', 'accumulo-it-server,compatibility,ignore-kerberos-it', 'hbase-it-server,cloudera,ignore-kerberos-it', 'accumulo-it-server,cloudera,ignore-kerberos-it']
+                include:
+                  # include a new variable of TEST_KERBEROS = true
+                  - profile: accumulo-it-kerberos
+                    test_kerberos: true
+        env:
+            IT_ONLY: true
+            MAVEN_PROFILES: ${{ matrix.profile }}
+            TEST_KERBEROS: ${{ matrix.test_kerberos }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+              
+            - name: Cache resources
+              uses: actions/cache@v2
+              env:
+                cache-name: cache-geowave-resources
+              with:
+                key:  ${{ runner.os }}
+                path: |
+                      ~/.m2
+                      ~/.downloads
+                      test/landsat8
+                      test/sentinel2
+                      test/target/temp/gdal
+            - name: Run
+              run: ./.utility/run-all.sh
