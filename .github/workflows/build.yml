@@ -5,7 +5,7 @@ env:
     MAVEN_PROFILES: '""'
     BUILD_AND_PUBLISH: false
     IT_ONLY: true
-    MAVEN_OPTS: "--batch-mode -XX:CompressedClassSpaceSize=256m -XX:+UseSerialGC -Xmx2g -XX:MaxMetaspaceSize=512m -Dorg.slf4j.simpleLogger.defaultLogLevel=warn"
+    MAVEN_OPTS: "-XX:CompressedClassSpaceSize=256m -XX:+UseSerialGC -Xmx2g -XX:MaxMetaspaceSize=512m -Dorg.slf4j.simpleLogger.defaultLogLevel=warn"
     
 jobs:
     unit-tests:
