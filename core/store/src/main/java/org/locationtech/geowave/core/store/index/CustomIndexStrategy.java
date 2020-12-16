@@ -8,8 +8,12 @@
  */
 package org.locationtech.geowave.core.store.index;
 
+<<<<<<< Updated upstream:core/store/src/main/java/org/locationtech/geowave/core/store/index/CustomIndexStrategy.java
 import org.locationtech.geowave.core.index.InsertionIds;
 import org.locationtech.geowave.core.index.QueryRanges;
+=======
+import java.util.function.BiPredicate;
+>>>>>>> Stashed changes:core/index/src/main/java/org/locationtech/geowave/core/index/CustomIndexStrategy.java
 import org.locationtech.geowave.core.index.persist.Persistable;
 
 /**
@@ -48,4 +52,21 @@ public interface CustomIndexStrategy<E, C extends Persistable> extends Persistab
    *         all rows that may match the constraints
    */
   QueryRanges getQueryRanges(C constraints);
+
+  /**
+   * Optionally a custom index strategy can enable additional filtering beyond just the query ranges
+   * (termed "fine-grained" filtering in documentation). This requires reading rows from disk and
+   * evaluating a predicate so it is inherently slower than using query ranges but it is flexible
+   * enough to handle any additional evaluation criteria required.
+   *
+   * @return A predicate that should be used for "fine-grained" filter evaluation
+   */
+  default PersistableBiPredicate<E, C> getFilter(final C constraints) {
+    return null;
+  }
+
+  public static interface PersistableBiPredicate<E, C extends Persistable> extends
+      BiPredicate<E, C>,
+      Persistable {
+  }
 }

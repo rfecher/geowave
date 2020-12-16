@@ -74,8 +74,12 @@ public class CustomIndexExample {
     spatialIndex = new SpatialIndexBuilder().createIndex();
 
     // Create our custom index using the UUID index strategy
+<<<<<<< Updated upstream
     customIndex =
         new CustomIndex<SimpleFeature, UUIDConstraints>(new UUIDIndexStrategy("uuid"), "customIdx");
+=======
+    customIndex = new CustomIndex<>(new UUIDIndexStrategy("uuid"), "customIdx");
+>>>>>>> Stashed changes
 
     // Add the type to the data store with the spatial and custom indices
     dataStore.addType(adapter, spatialIndex, customIndex);

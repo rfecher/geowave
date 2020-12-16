@@ -17,9 +17,9 @@ import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.index.persist.PersistenceUtils;
 
 /**
- * 
+ *
  * This is a basic wrapper around a custom index strategy
- * 
+ *
  * @param <E> The entry type (such as SimpleFeature, GridCoverage, or whatever type the adapter
  *        uses)
  * @param <C> The custom constraints type can be any arbitrary type, although should be persistable
@@ -47,6 +47,11 @@ public class CustomIndex<E, C extends Persistable> extends NullIndex implements
   @Override
   public QueryRanges getQueryRanges(final C constraints) {
     return indexStrategy.getQueryRanges(constraints);
+  }
+
+  @Override
+  public PersistableBiPredicate<E, C> getFilter(final C constraints) {
+    return indexStrategy.getFilter(constraints);
   }
 
   @Override

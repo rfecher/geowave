@@ -28,13 +28,13 @@ import org.locationtech.geowave.test.docs.GeoWaveDocumentationExamplesIT;
 import org.locationtech.geowave.test.kafka.BasicKafkaIT;
 import org.locationtech.geowave.test.landsat.CustomCRSLandsatIT;
 import org.locationtech.geowave.test.mapreduce.BasicMapReduceIT;
-import org.locationtech.geowave.test.mapreduce.BulkIngestInputGenerationIT;
 import org.locationtech.geowave.test.mapreduce.CustomCRSKDERasterResizeIT;
 import org.locationtech.geowave.test.query.AttributesSubsetQueryIT;
 import org.locationtech.geowave.test.query.PolygonDataIdQueryIT;
 import org.locationtech.geowave.test.query.QueryOptionsIT;
 import org.locationtech.geowave.test.query.SpatialTemporalQueryIT;
 import org.locationtech.geowave.test.secondary.BasicSecondaryIndexIT;
+import org.locationtech.geowave.test.secondary.CustomSecondaryIndexIT;
 import org.locationtech.geowave.test.secondary.DataIndexOnlyIT;
 import org.locationtech.geowave.test.secondary.MapReduceSecondaryIndexIT;
 import org.locationtech.geowave.test.secondary.SimpleQuerySecondaryIndexIT;
@@ -73,6 +73,7 @@ import org.locationtech.geowave.test.stability.GeoWaveStabilityIT;
     SimpleQuerySecondaryIndexIT.class,
     BasicSecondaryIndexIT.class,
     DataIndexOnlyIT.class,
+    CustomSecondaryIndexIT.class,
     MapReduceSecondaryIndexIT.class,
     VisibilitySecondaryIndexIT.class,
     GeoWaveStabilityIT.class,
@@ -85,7 +86,6 @@ import org.locationtech.geowave.test.stability.GeoWaveStabilityIT;
     CustomCRSLandsatIT.class,
     GeoWaveBasicRasterIT.class,
     GeoWaveBasicCustomCRSRasterIT.class,
-    BulkIngestInputGenerationIT.class,
     AttributesSubsetQueryIT.class,
     SpatialTemporalQueryIT.class,
     PolygonDataIdQueryIT.class,
