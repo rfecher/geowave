@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -98,6 +99,7 @@ import org.locationtech.geowave.core.store.statistics.query.IndexStatisticQuery;
 import org.locationtech.geowave.core.store.util.NativeEntryIteratorWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.beust.jcommander.internal.Maps;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -1818,70 +1820,107 @@ public class BaseDataStore implements DataStore {
     addStatistic(statistic, true);
   }
 
+  @Override
+  public void addStatistics(Iterator<Statistic<? extends StatisticValue<?>>> statistics) {
+    addStatistics(statistics, true);
+  }
+
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public void addStatistic(
       Statistic<? extends StatisticValue<?>> statistic,
       boolean calculateStat) {
-    if (statistic == null) {
+    addStatistics(Iterators.singletonIterator(statistic), calculateStat);
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  @Override
+  public void addStatistics(
+      Iterator<Statistic<? extends StatisticValue<?>>> statistics,
+      boolean calculateStats) {
+    if (statistics == null || !statistics.hasNext()) {
       return;
     }
-    if (statisticsStore.exists(statistic)) {
-      throw new IllegalArgumentException("The statistic already exists.");
-    }
-    if (statistic instanceof IndexStatistic) {
-      IndexStatistic<?> indexStat = (IndexStatistic) statistic;
-      if (indexStat.getIndexName() == null) {
-        throw new IllegalArgumentException("No index specified.");
+    Map<Index, List<IndexStatistic<?>>> indexStatsToAdd = Maps.newHashMap();
+    Map<DataTypeAdapter<?>, List<Statistic<? extends StatisticValue<?>>>> otherStatsToAdd =
+        Maps.newHashMap();
+    while (statistics.hasNext()) {
+      final Statistic<? extends StatisticValue<?>> statistic = statistics.next();
+      if (statisticsStore.exists(statistic)) {
+        throw new IllegalArgumentException("The statistic already exists.");
       }
-      Index index = indexStore.getIndex(indexStat.getIndexName());
-      if (index == null) {
-        throw new IllegalArgumentException("No index named " + indexStat.getIndexName() + ".");
-      }
-    } else if (statistic instanceof DataTypeStatistic) {
-      DataTypeStatistic<?> adapterStat = (DataTypeStatistic) statistic;
-      if (adapterStat.getTypeName() == null) {
-        throw new IllegalArgumentException("No type specified.");
-      }
-      DataTypeAdapter<?> adapter = getType(adapterStat.getTypeName());
-      if (adapter == null) {
-        throw new IllegalArgumentException("No type named " + adapterStat.getTypeName() + ".");
-      }
-    } else if (statistic instanceof FieldStatistic) {
-      FieldStatistic<?> fieldStat = (FieldStatistic) statistic;
-      if (fieldStat.getTypeName() == null) {
-        throw new IllegalArgumentException("No type specified.");
-      }
-      DataTypeAdapter<?> adapter = getType(fieldStat.getTypeName());
-      if (adapter == null) {
-        throw new IllegalArgumentException("No type named " + fieldStat.getTypeName() + ".");
-      }
-      if (fieldStat.getFieldName() == null) {
-        throw new IllegalArgumentException("No field specified.");
-      }
-      boolean foundMatch = false;
-      for (int i = 0; i < adapter.getFieldCount(); i++) {
-        if (fieldStat.getFieldName().equals(adapter.getFieldName(i))) {
-          foundMatch = true;
-          break;
-        }
-      }
-      if (!foundMatch) {
-        throw new IllegalArgumentException(
-            "No field named "
-                + fieldStat.getFieldName()
-                + " was found on the type "
-                + fieldStat.getTypeName()
-                + ".");
-      }
-    } else {
-      throw new IllegalArgumentException("Unrecognized statistic type.");
-    }
-    statisticsStore.addStatistic(statistic);
-    if (calculateStat) {
       if (statistic instanceof IndexStatistic) {
-        final String indexName = ((IndexStatistic) statistic).getIndexName();
-        final Index index = indexStore.getIndex(indexName);
+        IndexStatistic<?> indexStat = (IndexStatistic) statistic;
+        if (indexStat.getIndexName() == null) {
+          throw new IllegalArgumentException("No index specified.");
+        }
+        Index index = indexStore.getIndex(indexStat.getIndexName());
+        if (index == null) {
+          throw new IllegalArgumentException("No index named " + indexStat.getIndexName() + ".");
+        }
+        if (!indexStatsToAdd.containsKey(index)) {
+          indexStatsToAdd.put(index, Lists.newArrayList());
+        }
+        indexStatsToAdd.get(index).add(indexStat);
+      } else if (statistic instanceof DataTypeStatistic) {
+        DataTypeStatistic<?> adapterStat = (DataTypeStatistic) statistic;
+        if (adapterStat.getTypeName() == null) {
+          throw new IllegalArgumentException("No type specified.");
+        }
+        DataTypeAdapter<?> adapter = getType(adapterStat.getTypeName());
+        if (adapter == null) {
+          throw new IllegalArgumentException("No type named " + adapterStat.getTypeName() + ".");
+        }
+        if (!otherStatsToAdd.containsKey(adapter)) {
+          otherStatsToAdd.put(adapter, Lists.newArrayList());
+        }
+        otherStatsToAdd.get(adapter).add(adapterStat);
+      } else if (statistic instanceof FieldStatistic) {
+        FieldStatistic<?> fieldStat = (FieldStatistic) statistic;
+        if (fieldStat.getTypeName() == null) {
+          throw new IllegalArgumentException("No type specified.");
+        }
+        DataTypeAdapter<?> adapter = getType(fieldStat.getTypeName());
+        if (adapter == null) {
+          throw new IllegalArgumentException("No type named " + fieldStat.getTypeName() + ".");
+        }
+        if (fieldStat.getFieldName() == null) {
+          throw new IllegalArgumentException("No field specified.");
+        }
+        boolean foundMatch = false;
+        for (int i = 0; i < adapter.getFieldCount(); i++) {
+          if (fieldStat.getFieldName().equals(adapter.getFieldName(i))) {
+            foundMatch = true;
+            break;
+          }
+        }
+        if (!foundMatch) {
+          throw new IllegalArgumentException(
+              "No field named "
+                  + fieldStat.getFieldName()
+                  + " was found on the type "
+                  + fieldStat.getTypeName()
+                  + ".");
+        }
+        if (!otherStatsToAdd.containsKey(adapter)) {
+          otherStatsToAdd.put(adapter, Lists.newArrayList());
+        }
+        otherStatsToAdd.get(adapter).add(fieldStat);
+      } else {
+        throw new IllegalArgumentException("Unrecognized statistic type.");
+      }
+    }
+
+    for (List<IndexStatistic<?>> indexStats : indexStatsToAdd.values()) {
+      indexStats.forEach(indexStat -> statisticsStore.addStatistic(indexStat));
+    }
+    for (List<Statistic<? extends StatisticValue<?>>> otherStats : otherStatsToAdd.values()) {
+      otherStats.forEach(statistic -> addStatistic(statistic));
+    }
+
+    if (calculateStats) {
+      for (Entry<Index, List<IndexStatistic<?>>> indexStats : indexStatsToAdd.entrySet()) {
+        final Index index = indexStats.getKey();
         final ArrayList<Short> indexAdapters = new ArrayList<>();
         try (CloseableIterator<InternalDataAdapter<?>> it = adapterStore.getAdapters()) {
           while (it.hasNext()) {
@@ -1891,7 +1930,7 @@ public class BaseDataStore implements DataStore {
                 indexMappingStore.getIndicesForAdapter(dataAdapter.getAdapterId());
             final String[] indexNames = adapterIndexMap.getIndexNames();
             for (int i = 0; i < indexNames.length; i++) {
-              if (indexNames[i].equals(indexName)) {
+              if (indexNames[i].equals(index.getName())) {
                 indexAdapters.add(adapterIndexMap.getAdapterId());
                 break;
               }
@@ -1906,9 +1945,15 @@ public class BaseDataStore implements DataStore {
           Query<?> query =
               QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
                   index.getName()).build();
+          List<Statistic<? extends StatisticValue<?>>> statsToUpdate = Lists.newArrayList(indexStats.getValue());
+          if (otherStatsToAdd.containsKey(adapter)) {
+            statsToUpdate.addAll(otherStatsToAdd.get(adapter));
+            // Adapter-specific stats only need to be computed once, so remove them once they've been processed
+            otherStatsToAdd.remove(adapter);
+          }
           try (StatisticUpdateCallback<?> updateCallback =
               new StatisticUpdateCallback(
-                  Lists.newArrayList(statistic),
+                  statsToUpdate,
                   statisticsStore,
                   index,
                   adapter)) {
@@ -1919,15 +1964,10 @@ public class BaseDataStore implements DataStore {
             }
           }
         }
-
-      } else {
-        final String typeName;
-        if (statistic instanceof DataTypeStatistic) {
-          typeName = ((DataTypeStatistic<?>) statistic).getTypeName();
-        } else {
-          typeName = ((FieldStatistic<?>) statistic).getTypeName();
-        }
-        final DataTypeAdapter<?> adapter = getType(typeName);
+      }
+      for (Entry<DataTypeAdapter<?>, List<Statistic<? extends StatisticValue<?>>>> otherStats : otherStatsToAdd.entrySet()) {
+        final DataTypeAdapter<?> adapter = otherStats.getKey();
+        final String typeName = adapter.getTypeName();
         final Index[] indices = getIndices(typeName);
         if (indices.length == 0) {
           // If there are no indices, then there is nothing to calculate.
@@ -1937,7 +1977,7 @@ public class BaseDataStore implements DataStore {
             QueryBuilder.newBuilder().addTypeName(typeName).indexName(indices[0].getName()).build();
         try (StatisticUpdateCallback<?> updateCallback =
             new StatisticUpdateCallback(
-                Lists.newArrayList(statistic),
+                otherStats.getValue(),
                 statisticsStore,
                 indices[0],
                 adapter)) {
@@ -1954,6 +1994,15 @@ public class BaseDataStore implements DataStore {
   @Override
   public void removeStatistic(Statistic<? extends StatisticValue<?>> statistic) {
     boolean removed = statisticsStore.removeStatistic(statistic);
+    if (!removed) {
+      throw new IllegalArgumentException(
+          "Statistic could not be removed because it was not found.");
+    }
+  }
+  
+  @Override
+  public void removeStatistics(Iterator<Statistic<? extends StatisticValue<?>>> statistics) {
+    boolean removed = statisticsStore.removeStatistics(statistics);
     if (!removed) {
       throw new IllegalArgumentException(
           "Statistic could not be removed because it was not found.");

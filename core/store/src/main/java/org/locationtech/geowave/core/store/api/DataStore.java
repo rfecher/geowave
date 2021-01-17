@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.core.store.api;
 
+import java.util.Iterator;
 import java.util.List;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -115,6 +116,15 @@ public interface DataStore {
    * @param statistic the statistic to add
    */
   void addStatistic(Statistic<? extends StatisticValue<?>> statistic);
+  
+
+  /**
+   * Add statistics to the data store. The initial value of each statistic will be calculated after
+   * being added.
+   * 
+   * @param statistics the statistics to add
+   */
+  void addStatistics(Iterator<Statistic<? extends StatisticValue<?>>> statistics);
 
   /**
    * Add a statistic to the data store.
@@ -124,6 +134,15 @@ public interface DataStore {
    *        after being added
    */
   void addStatistic(Statistic<? extends StatisticValue<?>> statistic, boolean calculateStat);
+  
+  /**
+   * Add statistics to the data store.
+   * 
+   * @param statistics the statistics to add
+   * @param calculateStats if {@code true} the initial value of each statistic will be calculated
+   *        after being added
+   */
+  void addStatistics(Iterator<Statistic<? extends StatisticValue<?>>> statistics, boolean calculateStats);
 
   /**
    * Remove a statistic from the data store.
@@ -131,6 +150,13 @@ public interface DataStore {
    * @param statistic the statistic to remove
    */
   void removeStatistic(final Statistic<? extends StatisticValue<?>> statistic);
+  
+  /**
+   * Remove statistics from the data store.
+   * 
+   * @param statistics the statistics to remove
+   */
+  void removeStatistics(final Iterator<Statistic<? extends StatisticValue<?>>> statistics);
 
   /**
    * Gets all of the statistics that are being tracked on the provided data type adapter.
