@@ -1945,18 +1945,16 @@ public class BaseDataStore implements DataStore {
           Query<?> query =
               QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
                   index.getName()).build();
-          List<Statistic<? extends StatisticValue<?>>> statsToUpdate = Lists.newArrayList(indexStats.getValue());
+          List<Statistic<? extends StatisticValue<?>>> statsToUpdate =
+              Lists.newArrayList(indexStats.getValue());
           if (otherStatsToAdd.containsKey(adapter)) {
             statsToUpdate.addAll(otherStatsToAdd.get(adapter));
-            // Adapter-specific stats only need to be computed once, so remove them once they've been processed
+            // Adapter-specific stats only need to be computed once, so remove them once they've
+            // been processed
             otherStatsToAdd.remove(adapter);
           }
           try (StatisticUpdateCallback<?> updateCallback =
-              new StatisticUpdateCallback(
-                  statsToUpdate,
-                  statisticsStore,
-                  index,
-                  adapter)) {
+              new StatisticUpdateCallback(statsToUpdate, statisticsStore, index, adapter)) {
             try (CloseableIterator<?> entryIt = this.query(query, (ScanCallback) updateCallback)) {
               while (entryIt.hasNext()) {
                 entryIt.next();
@@ -1999,7 +1997,7 @@ public class BaseDataStore implements DataStore {
           "Statistic could not be removed because it was not found.");
     }
   }
-  
+
   @Override
   public void removeStatistics(Iterator<Statistic<? extends StatisticValue<?>>> statistics) {
     boolean removed = statisticsStore.removeStatistics(statistics);

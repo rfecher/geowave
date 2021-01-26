@@ -116,7 +116,7 @@ public interface DataStore {
    * @param statistic the statistic to add
    */
   void addStatistic(Statistic<? extends StatisticValue<?>> statistic);
-  
+
 
   /**
    * Add statistics to the data store. The initial value of each statistic will be calculated after
@@ -134,7 +134,7 @@ public interface DataStore {
    *        after being added
    */
   void addStatistic(Statistic<? extends StatisticValue<?>> statistic, boolean calculateStat);
-  
+
   /**
    * Add statistics to the data store.
    * 
@@ -142,7 +142,9 @@ public interface DataStore {
    * @param calculateStats if {@code true} the initial value of each statistic will be calculated
    *        after being added
    */
-  void addStatistics(Iterator<Statistic<? extends StatisticValue<?>>> statistics, boolean calculateStats);
+  void addStatistics(
+      Iterator<Statistic<? extends StatisticValue<?>>> statistics,
+      boolean calculateStats);
 
   /**
    * Remove a statistic from the data store.
@@ -150,7 +152,7 @@ public interface DataStore {
    * @param statistic the statistic to remove
    */
   void removeStatistic(final Statistic<? extends StatisticValue<?>> statistic);
-  
+
   /**
    * Remove statistics from the data store.
    * 

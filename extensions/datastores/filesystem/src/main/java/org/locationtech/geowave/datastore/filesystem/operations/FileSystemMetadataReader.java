@@ -33,9 +33,8 @@ public class FileSystemMetadataReader implements MetadataReader {
     this.metadataType = metadataType;
   }
 
-  public CloseableIterator<GeoWaveMetadata> query(
-      final MetadataQuery query,
-      final boolean mergeStats) {
+  @Override
+  public CloseableIterator<GeoWaveMetadata> query(final MetadataQuery query) {
     CloseableIterator<GeoWaveMetadata> originalResults;
     Iterator<GeoWaveMetadata> resultsIt;
     if (query.hasPrimaryId()) {
@@ -71,10 +70,5 @@ public class FileSystemMetadataReader implements MetadataReader {
       return MetadataIterators.clientVisibilityFilter(retVal, query.getAuthorizations());
     }
     return retVal;
-  }
-
-  @Override
-  public CloseableIterator<GeoWaveMetadata> query(final MetadataQuery query) {
-    return query(query, true);
   }
 }

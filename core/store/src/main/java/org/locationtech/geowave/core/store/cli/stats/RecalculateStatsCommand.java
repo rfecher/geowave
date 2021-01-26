@@ -62,7 +62,7 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
     final DataStatisticsStore statStore = storeOptions.createDataStatisticsStore();
 
     List<Statistic<? extends StatisticValue<?>>> toRecalculate = Lists.newArrayList();
-    
+
     if (statType != null) {
       StatisticType<StatisticValue<Object>> statisticType =
           StatisticsRegistry.instance().getStatisticType(statType);
@@ -93,7 +93,8 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
         }
         DataTypeAdapter<?> adapter = dataStore.getType(statsOptions.getTypeName());
         if (adapter == null) {
-          throw new ParameterException("Unable to find an type named: " + statsOptions.getTypeName());
+          throw new ParameterException(
+              "Unable to find an type named: " + statsOptions.getTypeName());
         }
         try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
             statStore.getDataTypeStatistics(adapter, statisticType, statsOptions.getTag())) {
@@ -106,7 +107,8 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
         }
         DataTypeAdapter<?> adapter = dataStore.getType(statsOptions.getTypeName());
         if (adapter == null) {
-          throw new ParameterException("Unable to find an type named: " + statsOptions.getTypeName());
+          throw new ParameterException(
+              "Unable to find an type named: " + statsOptions.getTypeName());
         }
         try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
             statStore.getFieldStatistics(
@@ -125,7 +127,6 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
       }
     }
 
-   
 
 
     if (toRecalculate.isEmpty()) {
