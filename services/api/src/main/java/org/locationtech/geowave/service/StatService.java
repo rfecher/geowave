@@ -47,9 +47,13 @@ public interface StatService {
   @Path("/recalc")
   public Response recalcStats(
       @QueryParam("storeName") String storeName,
+      @QueryParam("statType") String statType,
+      @QueryParam("indexName") String indexName,
       @QueryParam("typeName") String typeName,
-      @QueryParam("authorizations") String authorizations,
-      @QueryParam("jsonFormatFlag") Boolean jsonFormatFlag);
+      @QueryParam("fieldName") String fieldName,
+      @QueryParam("tag") String tag,
+      @QueryParam("all") Boolean allFlag,
+      @QueryParam("authorizations") String authorizations);
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)

@@ -8,7 +8,26 @@
  */
 package org.locationtech.geowave.core.store.cli.stats;
 
+import java.util.List;
+import javax.annotation.Nullable;
+import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Statistic;
+import org.locationtech.geowave.core.store.api.StatisticValue;
+import org.locationtech.geowave.core.store.index.IndexStore;
+import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
+import org.locationtech.geowave.core.store.statistics.StatisticType;
+import org.locationtech.geowave.core.store.statistics.adapter.DataTypeStatistic;
+import org.locationtech.geowave.core.store.statistics.adapter.DataTypeStatisticType;
+import org.locationtech.geowave.core.store.statistics.field.FieldStatistic;
+import org.locationtech.geowave.core.store.statistics.field.FieldStatisticType;
+import org.locationtech.geowave.core.store.statistics.index.IndexStatistic;
+import org.locationtech.geowave.core.store.statistics.index.IndexStatisticType;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
+import com.clearspring.analytics.util.Lists;
 
 public class StatsCommandLineOptions {
 
@@ -69,6 +88,111 @@ public class StatsCommandLineOptions {
 
   public String getTag() {
     return tag;
+  }
+
+  @SuppressWarnings("rawtypes")
+  public List<Statistic<? extends StatisticValue<?>>> resolveMatchingStatistics(
+      final @Nullable StatisticType<StatisticValue<Object>> statisticType,
+      final DataStore dataStore,
+      final DataStatisticsStore statsStore,
+      final IndexStore indexStore) {
+    final List<Statistic<? extends StatisticValue<?>>> matching = Lists.newArrayList();
+    if (indexName != null && (typeName != null || fieldName != null)) {
+      throw new ParameterException(
+          "Unable to process index statistics for a single type. Specify either an index name or a type name.");
+    }
+    if (statisticType != null) {
+      if (statisticType instanceof IndexStatisticType) {
+        if (indexName == null) {
+          throw new ParameterException(
+              "An index name must be supplied when specifying an index statistic type.");
+        }
+        final Index index = indexStore.getIndex(indexName);
+        if (index == null) {
+          throw new ParameterException("Unable to find an index named: " + indexName);
+        }
+        try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
+            statsStore.getIndexStatistics(index, statisticType, tag)) {
+          stats.forEachRemaining(stat -> matching.add(stat));
+        }
+      } else if (statisticType instanceof DataTypeStatisticType) {
+        if (typeName == null) {
+          throw new ParameterException(
+              "A type name must be supplied when specifying a data type statistic type.");
+        }
+        DataTypeAdapter<?> adapter = dataStore.getType(typeName);
+        if (adapter == null) {
+          throw new ParameterException("Unable to find an type named: " + typeName);
+        }
+        try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
+            statsStore.getDataTypeStatistics(adapter, statisticType, tag)) {
+          stats.forEachRemaining(stat -> matching.add(stat));
+        }
+      } else if (statisticType instanceof FieldStatisticType) {
+        if (typeName == null) {
+          throw new ParameterException(
+              "A type name must be supplied when specifying a field statistic type.");
+        }
+        DataTypeAdapter<?> adapter = dataStore.getType(typeName);
+        if (adapter == null) {
+          throw new ParameterException("Unable to find an type named: " + typeName);
+        }
+        if (fieldName == null) {
+          throw new ParameterException(
+              "A field name must be supplied when specifying a field statistic type.");
+        }
+        boolean fieldFound = false;
+        for (int i = 0; i < adapter.getFieldCount(); i++) {
+          if (adapter.getFieldName(i).equals(fieldName)) {
+            fieldFound = true;
+            break;
+          }
+        }
+        if (!fieldFound) {
+          throw new ParameterException(
+              "Unable to find a field named '" + fieldName + "' on type '" + typeName + "'.");
+        }
+        try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
+            statsStore.getFieldStatistics(adapter, statisticType, fieldName, tag)) {
+          stats.forEachRemaining(stat -> matching.add(stat));
+        }
+      }
+    } else {
+      try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
+          statsStore.getAllStatistics(null)) {
+        stats.forEachRemaining(stat -> {
+          // This could all be optimized to one giant check, but it's split for readability
+          if (tag != null && !tag.equals(stat.getTag())) {
+            return;
+          }
+          if (indexName != null
+              && (!(stat instanceof IndexStatistic)
+                  || !indexName.equals(((IndexStatistic) stat).getIndexName()))) {
+            return;
+          }
+          if (typeName != null) {
+            if (stat instanceof IndexStatistic) {
+              return;
+            }
+            if (stat instanceof DataTypeStatistic
+                && !typeName.equals(((DataTypeStatistic) stat).getTypeName())) {
+              return;
+            }
+            if (stat instanceof FieldStatistic
+                && !typeName.equals(((FieldStatistic) stat).getTypeName())) {
+              return;
+            }
+          }
+          if (fieldName != null
+              && (!(stat instanceof FieldStatistic)
+                  || !fieldName.equals(((FieldStatistic) stat).getFieldName()))) {
+            return;
+          }
+          matching.add(stat);
+        });
+      }
+    }
+    return matching;
   }
 
 }

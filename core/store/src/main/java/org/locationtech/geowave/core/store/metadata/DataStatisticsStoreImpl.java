@@ -87,7 +87,7 @@ public class DataStatisticsStoreImpl extends
     while (statistics.hasNext()) {
       Statistic<? extends StatisticValue<?>> statistic = statistics.next();
       removeStatisticValues(statistic);
-      deleted = deleted || deleteObject(getPrimaryId(statistic), getSecondaryId(statistic));
+      deleted = deleteObject(getPrimaryId(statistic), getSecondaryId(statistic)) || deleted;
     }
     return deleted;
   }
@@ -96,13 +96,12 @@ public class DataStatisticsStoreImpl extends
   public boolean removeStatistics(final Index index) {
     boolean removed = deleteObjects(IndexStatistic.generateGroupId(index.getName()));
     removed =
-        removed
-            || deleteObjects(
-                null,
-                IndexStatistic.generateGroupId(index.getName()),
-                operations,
-                MetadataType.STAT_VALUES,
-                this);
+        deleteObjects(
+            null,
+            IndexStatistic.generateGroupId(index.getName()),
+            operations,
+            MetadataType.STAT_VALUES,
+            this) || removed;
     return removed;
   }
 
@@ -110,22 +109,20 @@ public class DataStatisticsStoreImpl extends
   public boolean removeStatistics(final DataTypeAdapter<?> type, final Index... adapterIndices) {
     boolean removed = deleteObjects(DataTypeStatistic.generateGroupId(type.getTypeName()));
     removed =
-        removed
-            || deleteObjects(
-                null,
-                DataTypeStatistic.generateGroupId(type.getTypeName()),
-                operations,
-                MetadataType.STAT_VALUES,
-                this);
-    removed = removed || deleteObjects(FieldStatistic.generateGroupId(type.getTypeName()));
+        deleteObjects(
+            null,
+            DataTypeStatistic.generateGroupId(type.getTypeName()),
+            operations,
+            MetadataType.STAT_VALUES,
+            this) || removed;
+    removed = deleteObjects(FieldStatistic.generateGroupId(type.getTypeName())) || removed;
     removed =
-        removed
-            || deleteObjects(
-                null,
-                FieldStatistic.generateGroupId(type.getTypeName()),
-                operations,
-                MetadataType.STAT_VALUES,
-                this);
+        deleteObjects(
+            null,
+            FieldStatistic.generateGroupId(type.getTypeName()),
+            operations,
+            MetadataType.STAT_VALUES,
+            this) || removed;
     final ByteArray adapterBin = DataTypeBinningStrategy.getBin(type);
     for (Index index : adapterIndices) {
       try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statsIter =

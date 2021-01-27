@@ -57,17 +57,29 @@ public class StatServiceClient {
 
   public Response recalcStats(final String storeName) {
 
-    return recalcStats(storeName, null, null, null);
+    return recalcStats(storeName, null, null, null, null, null, true, null);
   }
 
   public Response recalcStats(
       final String storeName,
+      final String statType,
+      final String indexName,
       final String typeName,
-      final String authorizations,
-      final Boolean jsonFormatFlag) {
+      final String fieldName,
+      final String tag,
+      final Boolean all,
+      final String authorizations) {
 
     final Response resp =
-        statService.recalcStats(storeName, typeName, authorizations, jsonFormatFlag);
+        statService.recalcStats(
+            storeName,
+            statType,
+            indexName,
+            typeName,
+            fieldName,
+            tag,
+            all,
+            authorizations);
     return resp;
   }
 

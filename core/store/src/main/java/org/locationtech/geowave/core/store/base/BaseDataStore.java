@@ -1915,7 +1915,7 @@ public class BaseDataStore implements DataStore {
       indexStats.forEach(indexStat -> statisticsStore.addStatistic(indexStat));
     }
     for (List<Statistic<? extends StatisticValue<?>>> otherStats : otherStatsToAdd.values()) {
-      otherStats.forEach(statistic -> addStatistic(statistic));
+      otherStats.forEach(statistic -> statisticsStore.addStatistic(statistic));
     }
 
     if (calculateStats) {
