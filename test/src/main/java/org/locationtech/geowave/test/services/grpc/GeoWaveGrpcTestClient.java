@@ -441,7 +441,8 @@ public class GeoWaveGrpcTestClient {
     final ArrayList<String> params = new ArrayList<>();
     params.add(GeoWaveGrpcTestUtils.storeName);
     final RecalculateStatsCommandParametersProtos request =
-        RecalculateStatsCommandParametersProtos.newBuilder().addAllParameters(params).build();
+        RecalculateStatsCommandParametersProtos.newBuilder().addAllParameters(params).setAll(
+            true).build();
     coreStoreBlockingStub.recalculateStatsCommand(request);
     return true;
   }
@@ -533,10 +534,10 @@ public class GeoWaveGrpcTestClient {
   public boolean RemoveStatCommand() {
     final ArrayList<String> params = new ArrayList<>();
     params.add(GeoWaveGrpcTestUtils.storeName);
-    params.add("BOUNDING_BOX");
     final RemoveStatCommandParametersProtos request =
-        RemoveStatCommandParametersProtos.newBuilder().addAllParameters(params).setTypeName(
-            GeoWaveGrpcTestUtils.typeName).setFieldName("geometry").setForce(true).build();
+        RemoveStatCommandParametersProtos.newBuilder().addAllParameters(params).setStatType(
+            "BOUNDING_BOX").setTypeName(GeoWaveGrpcTestUtils.typeName).setFieldName(
+                "geometry").setForce(true).build();
     coreStoreBlockingStub.removeStatCommand(request);
     return true;
   }
