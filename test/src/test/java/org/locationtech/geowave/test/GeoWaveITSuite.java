@@ -21,6 +21,7 @@ import org.locationtech.geowave.test.basic.GeoWaveBinningAggregationIT;
 import org.locationtech.geowave.test.basic.GeoWaveCustomCRSSpatialVectorIT;
 import org.locationtech.geowave.test.basic.GeoWaveCustomIndexIT;
 import org.locationtech.geowave.test.basic.GeoWaveGeometryPrecisionIT;
+import org.locationtech.geowave.test.basic.GeoWaveStatisticsIT;
 import org.locationtech.geowave.test.basic.GeoWaveTextIndexIT;
 import org.locationtech.geowave.test.basic.GeoWaveVectorSerializationIT;
 import org.locationtech.geowave.test.basic.GeoWaveVisibilityIT;
@@ -67,6 +68,7 @@ import org.locationtech.geowave.test.stability.GeoWaveStabilityIT;
     GeoWaveGeometryPrecisionIT.class,
     GeoWaveCustomIndexIT.class,
     GeoWaveDocumentationExamplesIT.class,
+    GeoWaveStatisticsIT.class,
     // TODO need to mock up S3
     // GeowaveBasicURLIngestIT.class,
     GeoWaveVectorSerializationIT.class,
