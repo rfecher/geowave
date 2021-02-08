@@ -21,6 +21,8 @@ import org.locationtech.geowave.core.store.statistics.field.NumericHistogramStat
 import org.locationtech.geowave.core.store.statistics.field.FixedBinNumericHistogramStatistic.FixedBinNumericHistogramValue;
 import org.locationtech.geowave.core.store.statistics.field.HyperLogLogStatistic.HyperLogLogPlusValue;
 import org.locationtech.geowave.core.store.statistics.field.NumericHistogramStatistic.NumericHistogramValue;
+import org.locationtech.geowave.core.store.statistics.field.NumericMeanStatistic;
+import org.locationtech.geowave.core.store.statistics.field.NumericMeanStatistic.NumericMeanValue;
 import org.locationtech.geowave.core.store.statistics.field.NumericRangeStatistic;
 import org.locationtech.geowave.core.store.statistics.field.CountMinSketchStatistic.CountMinSketchValue;
 import org.locationtech.geowave.core.store.statistics.field.NumericRangeStatistic.NumericRangeValue;
@@ -126,7 +128,13 @@ public class CoreRegisteredStatistics extends StatisticsRegistrySPI {
             NumericHistogramStatistic::new,
             NumericHistogramValue::new,
             (short) 2024,
-            (short) 2025)};
+            (short) 2025),
+        new RegisteredStatistic(
+            NumericMeanStatistic.STATS_TYPE,
+            NumericMeanStatistic::new,
+            NumericMeanValue::new,
+            (short) 2026,
+            (short) 2027),};
   }
 
   @Override

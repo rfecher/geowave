@@ -24,40 +24,45 @@ public interface Statistic<V extends StatisticValue<?>> extends Persistable {
   /**
    * Statistics that are used by internal GeoWave systems use this tag.
    */
-  public static final String INTERNAL_TAG = "internal";
+  static final String INTERNAL_TAG = "internal";
+
+  /**
+   * Statistics that are not explicitly tagged default to this tag.
+   */
+  static final String DEFAULT_TAG = "default";
 
   /**
    * Get the statistic type associated with the statistic.
    * 
    * @return the statistic type
    */
-  public StatisticType<V> getStatisticType();
+  StatisticType<V> getStatisticType();
 
   /**
    * Get the tag for the statistic.
    * 
    * @return the tag
    */
-  public String getTag();
+  String getTag();
 
   /**
    * Get a human-readable description of this statistic.
    * 
    * @return a description of the statistic
    */
-  public String getDescription();
+  String getDescription();
 
   /**
    * Create a new value for this statistic, initialized to a base state (no entries ingested).
    * 
    * @return the new value
    */
-  public V createEmpty();
+  V createEmpty();
 
   /**
    * @return {@code true} if the statistic is an internal statistic
    */
-  public default boolean isInternal() {
+  default boolean isInternal() {
     return INTERNAL_TAG.equals(getTag());
   }
 
@@ -68,7 +73,7 @@ public interface Statistic<V extends StatisticValue<?>> extends Persistable {
    * @param type the data tyep
    * @return the visiblity handler
    */
-  public <T> EntryVisibilityHandler<T> getVisibilityHandler(
+  <T> EntryVisibilityHandler<T> getVisibilityHandler(
       CommonIndexModel indexModel,
       DataTypeAdapter<T> type);
 
@@ -78,14 +83,14 @@ public interface Statistic<V extends StatisticValue<?>> extends Persistable {
    * @param clazz the class to check
    * @return {@code true} if the statistic is compatble
    */
-  public boolean isCompatibleWith(Class<?> clazz);
+  boolean isCompatibleWith(Class<?> clazz);
 
   /**
    * Return the unique identifier for the statistic.
    * 
    * @return the statistic id
    */
-  public StatisticId<V> getId();
+  StatisticId<V> getId();
 
   /**
    * Returns the binning strategy used by the statistic.

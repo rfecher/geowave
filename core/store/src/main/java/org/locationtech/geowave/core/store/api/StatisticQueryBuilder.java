@@ -73,7 +73,7 @@ public interface StatisticQueryBuilder<V extends StatisticValue<R>, R, B extends
    * @param bin the bins to use
    * @return {@code this}
    */
-  public B bins(final ByteArray[] bins);
+  public B bins(final ByteArray... bins);
 
   /**
    * Build the statistic query.

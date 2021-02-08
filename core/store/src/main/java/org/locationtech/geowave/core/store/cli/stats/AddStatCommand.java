@@ -37,12 +37,12 @@ public class AddStatCommand extends ServiceEnabledCommand<Void> {
   @Parameter(
       names = "--binningStrategy",
       description = "If specified, statistics will be binned using the given strategy.")
-  private String binningStrategyName = null;
+  private final String binningStrategyName = null;
 
   @Parameter(
       names = "--skipCalculation",
       description = "If specified, the initial value of the statistic will not be calculated.")
-  private boolean skipCalculation = false;
+  private final boolean skipCalculation = false;
 
   private String statType = null;
 
@@ -102,12 +102,14 @@ public class AddStatCommand extends ServiceEnabledCommand<Void> {
 
     final DataStore dataStore = storeOptions.createDataStore();
 
-    if (binningStrategy != null && statOptions instanceof BaseStatistic<?>) {
+    if ((binningStrategy != null) && (statOptions instanceof BaseStatistic<?>)) {
       ((BaseStatistic<?>) statOptions).setBinningStrategy(binningStrategy);
     }
-
-    dataStore.addStatistic(statOptions, !skipCalculation);
-
+    if (skipCalculation) {
+      dataStore.addEmptyStatistic(statOptions);
+    } else {
+      dataStore.addStatistic(statOptions);
+    }
     return null;
   }
 }

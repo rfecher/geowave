@@ -11,7 +11,6 @@ package org.locationtech.geowave.test.basic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
@@ -29,14 +28,10 @@ import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Statistic;
 import org.locationtech.geowave.core.store.api.StatisticQueryBuilder;
-import org.locationtech.geowave.core.store.api.StatisticValue;
 import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
-import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
-import org.locationtech.geowave.core.store.statistics.StatisticId;
 import org.locationtech.geowave.core.store.statistics.adapter.CountStatistic;
 import org.locationtech.geowave.core.store.statistics.adapter.CountStatistic.CountValue;
-import org.locationtech.geowave.core.store.statistics.adapter.DataTypeStatistic;
 import org.locationtech.geowave.core.store.statistics.field.NumericRangeStatistic;
 import org.locationtech.geowave.core.store.statistics.field.NumericRangeStatistic.NumericRangeValue;
 import org.locationtech.geowave.examples.ingest.SimpleIngest;
@@ -129,8 +124,8 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
         new NumericRangeStatistic(SimpleIngest.FEATURE_NAME, "Longitude");
     final NumericRangeStatistic latitudeRange =
         new NumericRangeStatistic(SimpleIngest.FEATURE_NAME, "Latitude");
-    ds.addStatistic(longitudeRange, true);
-    ds.addStatistic(latitudeRange, false);
+    ds.addStatistic(longitudeRange);
+    ds.addEmptyStatistic(latitudeRange);
 
     try (CloseableIterator<NumericRangeValue> iterator =
         ds.queryStatistics(
@@ -163,17 +158,14 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
 
     // Verify count statistic exists
     CountStatistic count = null;
-    try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> iterator =
-        ds.getTypeStatistics(SimpleIngest.FEATURE_NAME)) {
-      while (iterator.hasNext()) {
-        Statistic<?> stat = iterator.next();
-        if (stat instanceof CountStatistic) {
-          count = (CountStatistic) stat;
-          break;
-        }
+    Statistic<?>[] typeStats = ds.getDataTypeStatistics(SimpleIngest.FEATURE_NAME);
+    for (Statistic<?> stat : typeStats) {
+      if (stat instanceof CountStatistic) {
+        count = (CountStatistic) stat;
+        break;
       }
-      assertNotNull(count);
     }
+    assertNotNull(count);
 
     // Verify value exists
     try (CloseableIterator<CountValue> iterator =
@@ -197,12 +189,9 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
     }
 
     // Verify statistic is no longer present
-    try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> iterator =
-        ds.getTypeStatistics(SimpleIngest.FEATURE_NAME)) {
-      while (iterator.hasNext()) {
-        Statistic<?> stat = iterator.next();
-        assertFalse(stat instanceof CountStatistic);
-      }
+    typeStats = ds.getDataTypeStatistics(SimpleIngest.FEATURE_NAME);
+    for (Statistic<?> stat : typeStats) {
+      assertFalse(stat instanceof CountStatistic);
     }
   }
 

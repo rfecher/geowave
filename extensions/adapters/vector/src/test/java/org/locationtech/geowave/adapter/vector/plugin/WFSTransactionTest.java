@@ -57,9 +57,8 @@ public class WFSTransactionTest extends BaseDataStoreTest {
             CQL.toFilter("BBOX(geometry,27.20,41.20,27.30,41.30)"),
             new String[] {"geometry", "pid"});
     if (dataStore instanceof GeoWaveGTDataStore) {
-      ((GeoWaveGTDataStore) dataStore).dataStore.addStatistic(
-          new NumericRangeStatistic(type.getTypeName(), "pop"),
-          false);
+      ((GeoWaveGTDataStore) dataStore).dataStore.addEmptyStatistic(
+          new NumericRangeStatistic(type.getTypeName(), "pop"));
     }
   }
 

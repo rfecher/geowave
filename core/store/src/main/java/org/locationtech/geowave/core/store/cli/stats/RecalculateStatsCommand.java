@@ -36,12 +36,12 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
   @Parameter(
       names = "--all",
       description = "If specified, all matching statistics will be recalculated.")
-  private boolean all = false;
+  private final boolean all = false;
 
   @Parameter(
       names = "--statType",
       description = "If specified, only statistics of the given type will be recalculated.")
-  private String statType = null;
+  private final String statType = null;
 
   @Override
   public void execute(final OperationParams params) {
@@ -73,15 +73,15 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
 
     if (toRecalculate.isEmpty()) {
       throw new ParameterException("A matching statistic could not be found");
-    } else if (toRecalculate.size() > 1 && !all) {
+    } else if ((toRecalculate.size() > 1) && !all) {
       throw new ParameterException(
           "Multiple statistics matched the given parameters.  If this is intentional, "
               + "supply the --all option, otherwise provide additional parameters to "
               + "specify which statistic to recalculate.");
     }
-
-    dataStore.removeStatistics(toRecalculate.iterator());
-    dataStore.addStatistics(toRecalculate.iterator(), true);
+    final Statistic<?>[] toRecalcArray =
+        toRecalculate.toArray(new Statistic<?>[toRecalculate.size()]);
+    dataStore.recalcStatistic(toRecalcArray);
 
     return true;
   }
