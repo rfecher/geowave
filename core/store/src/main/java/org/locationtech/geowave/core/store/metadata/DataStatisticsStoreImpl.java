@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.core.store.metadata;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -123,13 +124,12 @@ public class DataStatisticsStoreImpl extends
             operations,
             MetadataType.STAT_VALUES,
             this) || removed;
-    final ByteArray adapterBin = DataTypeBinningStrategy.getBin(type);
     for (Index index : adapterIndices) {
       try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statsIter =
           getIndexStatistics(index, null, null)) {
         while (statsIter.hasNext()) {
-          Statistic<?> next = statsIter.next();
-          deleteAdapterIndexStatisticValues(next, adapterBin);
+          IndexStatistic<?> next = (IndexStatistic<?>) statsIter.next();
+          removeTypeSpecificStatisticValues(next, type.getTypeName());
         }
       }
     }
@@ -137,11 +137,17 @@ public class DataStatisticsStoreImpl extends
   }
 
   @SuppressWarnings("unchecked")
-  private void deleteAdapterIndexStatisticValues(
-      Statistic<?> indexStatistic,
-      ByteArray adapterBin) {
+  @Override
+  public boolean removeTypeSpecificStatisticValues(
+      final IndexStatistic<?> indexStatistic,
+      final String typeName) {
+    if (indexStatistic.getBinningStrategy() == null) {
+      return false;
+    }
+    final ByteArray adapterBin = DataTypeBinningStrategy.getBin(typeName);
+    boolean removed = false;
     if (indexStatistic.getBinningStrategy() instanceof DataTypeBinningStrategy) {
-      removeStatisticValue(indexStatistic, adapterBin);
+      removed = removeStatisticValue(indexStatistic, adapterBin);
     } else if (indexStatistic.getBinningStrategy() instanceof CompositeBinningStrategy
         && ((CompositeBinningStrategy) indexStatistic.getBinningStrategy()).usesStrategy(
             DataTypeBinningStrategy.class)) {
@@ -161,9 +167,10 @@ public class DataStatisticsStoreImpl extends
         }
       }
       for (ByteArray bin : binsToRemove) {
-        removeStatisticValue(indexStatistic, bin);
+        removed = removeStatisticValue(indexStatistic, bin) || removed;
       }
     }
+    return removed;
   }
 
   @SuppressWarnings("unchecked")
@@ -529,9 +536,27 @@ public class DataStatisticsStoreImpl extends
     super.removeAll();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public boolean mergeStats() {
-    // STATS_TODO: implement
+    final List<Statistic<StatisticValue<Object>>> statistics = new ArrayList<>();
+    try (CloseableIterator<? extends Statistic<?>> it = this.getAllStatisticsInternal(null)) {
+      while (it.hasNext()) {
+        statistics.add((Statistic<StatisticValue<Object>>) it.next());
+      }
+    }
+    for (final Statistic<StatisticValue<Object>> stat : statistics) {
+      try (CloseableIterator<StatisticValue<Object>> it = this.getStatisticValues(stat)) {
+        if (stat.getBinningStrategy() != null) {
+          while (it.hasNext()) {
+            final StatisticValue<Object> value = it.next();
+            this.setStatisticValue(stat, value, value.getBin());
+          }
+        } else if (it.hasNext()) {
+          this.setStatisticValue(stat, it.next());
+        }
+      }
+    }
     return true;
   }
 

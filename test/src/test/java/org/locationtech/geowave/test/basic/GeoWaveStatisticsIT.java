@@ -11,6 +11,7 @@ package org.locationtech.geowave.test.basic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
@@ -22,14 +23,23 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
+import org.locationtech.geowave.core.geotime.store.query.api.VectorQueryBuilder;
+import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxStatistic;
+import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxStatistic.BoundingBoxValue;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.Query;
 import org.locationtech.geowave.core.store.api.Statistic;
 import org.locationtech.geowave.core.store.api.StatisticQueryBuilder;
 import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
+import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
+import org.locationtech.geowave.core.store.operations.DataStoreOperations;
+import org.locationtech.geowave.core.store.operations.MetadataQuery;
+import org.locationtech.geowave.core.store.operations.MetadataType;
+import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.statistics.adapter.CountStatistic;
 import org.locationtech.geowave.core.store.statistics.adapter.CountStatistic.CountValue;
 import org.locationtech.geowave.core.store.statistics.field.NumericRangeStatistic;
@@ -39,10 +49,12 @@ import org.locationtech.geowave.test.GeoWaveITRunner;
 import org.locationtech.geowave.test.TestUtils;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
+import org.locationtech.jts.geom.Envelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import jersey.repackaged.com.google.common.collect.Iterators;
 
 @RunWith(GeoWaveITRunner.class)
 public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
@@ -151,23 +163,20 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
   @Test
   public void testRemoveStatistic() {
     final DataStore ds = dataStore.createDataStore();
-    // STATS_TODO: Add more statistics endpoints to the data store interface for getStatistics?
-    // getDataTypeStatistic(typeName, statsType, tag)
-    // getIndexStatistic(indexName, statsType, tag)
-    // getFieldStatistic(typeName, fieldName, statsType, tag)
 
     // Verify count statistic exists
-    CountStatistic count = null;
-    Statistic<?>[] typeStats = ds.getDataTypeStatistics(SimpleIngest.FEATURE_NAME);
-    for (Statistic<?> stat : typeStats) {
-      if (stat instanceof CountStatistic) {
-        count = (CountStatistic) stat;
-        break;
-      }
-    }
-    assertNotNull(count);
+    Statistic<CountValue> countStat =
+        ds.getDataTypeStatistic(
+            CountStatistic.STATS_TYPE,
+            SimpleIngest.FEATURE_NAME,
+            Statistic.INTERNAL_TAG);
+    assertNotNull(countStat);
 
     // Verify value exists
+    Long count = ds.getStatisticValue(countStat);
+    assertEquals(new Long(20), count);
+
+    // Verify query
     try (CloseableIterator<CountValue> iterator =
         ds.queryStatistics(
             StatisticQueryBuilder.newBuilder(CountStatistic.STATS_TYPE).typeName(
@@ -178,9 +187,13 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
       assertFalse(iterator.hasNext());
     }
 
-    ds.removeStatistic(count);
+    ds.removeStatistic(countStat);
 
     // Verify statistic value was removed
+    count = ds.getStatisticValue(countStat);
+    assertNull(count);
+
+    // Verify query
     try (CloseableIterator<CountValue> iterator =
         ds.queryStatistics(
             StatisticQueryBuilder.newBuilder(CountStatistic.STATS_TYPE).typeName(
@@ -188,11 +201,113 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
       assertFalse(iterator.hasNext());
     }
 
+
     // Verify statistic is no longer present
-    typeStats = ds.getDataTypeStatistics(SimpleIngest.FEATURE_NAME);
-    for (Statistic<?> stat : typeStats) {
-      assertFalse(stat instanceof CountStatistic);
+    countStat =
+        ds.getDataTypeStatistic(
+            CountStatistic.STATS_TYPE,
+            SimpleIngest.FEATURE_NAME,
+            Statistic.INTERNAL_TAG);
+    assertNull(countStat);
+  }
+
+  @Test
+  public void testRecalcStatistic() {
+    final DataStore ds = dataStore.createDataStore();
+
+    // Get bounding box statistic
+    Statistic<BoundingBoxValue> bboxStat =
+        ds.getFieldStatistic(
+            BoundingBoxStatistic.STATS_TYPE,
+            SimpleIngest.FEATURE_NAME,
+            SimpleIngest.GEOMETRY_FIELD,
+            Statistic.INTERNAL_TAG);
+    assertNotNull(bboxStat);
+
+    // Get the value
+    Envelope bbox = ds.getStatisticValue(bboxStat);
+    assertEquals(-165.0, bbox.getMinX(), 0.1);
+    assertEquals(180.0, bbox.getMaxX(), 0.1);
+    assertEquals(-90.0, bbox.getMinY(), 0.1);
+    assertEquals(85.0, bbox.getMaxY(), 0.1);
+
+    // Delete half of the data
+    final VectorQueryBuilder bldr = VectorQueryBuilder.newBuilder();
+    final Query<?> query =
+        bldr.addTypeName(SimpleIngest.FEATURE_NAME).constraints(
+            bldr.constraintsFactory().cqlConstraints("Longitude > 0")).build();
+    assertTrue(ds.delete(query));
+
+    // Verify the value was unchanged
+    bbox = ds.getStatisticValue(bboxStat);
+    assertEquals(-165.0, bbox.getMinX(), 0.1);
+    assertEquals(180.0, bbox.getMaxX(), 0.1);
+    assertEquals(-90.0, bbox.getMinY(), 0.1);
+    assertEquals(85.0, bbox.getMaxY(), 0.1);
+
+    // Recalculate the stat
+    ds.recalcStatistic(bboxStat);
+
+    // Verify the value was updated
+    bbox = ds.getStatisticValue(bboxStat);
+    assertEquals(-165.0, bbox.getMinX(), 0.1);
+    assertEquals(0, bbox.getMaxX(), 0.1);
+    assertEquals(-60.0, bbox.getMinY(), 0.1);
+    assertEquals(80.0, bbox.getMaxY(), 0.1);
+  }
+
+  @Test
+  public void testMergeStats() {
+    final DataStore ds = dataStore.createDataStore();
+
+    // Create many statistic values by performing single writes
+    final SimpleFeatureBuilder builder =
+        new SimpleFeatureBuilder(SimpleIngest.createPointFeatureType());
+    int featureId = 9000000;
+    for (int i = 0; i < 50; i++) {
+      try (Writer<Object> writer = ds.createWriter(SimpleIngest.FEATURE_NAME)) {
+        writer.write(SimpleIngest.createRandomFeature(builder, featureId++));
+      }
     }
+
+    // Verify count value
+    Statistic<CountValue> countStat =
+        ds.getDataTypeStatistic(
+            CountStatistic.STATS_TYPE,
+            SimpleIngest.FEATURE_NAME,
+            Statistic.INTERNAL_TAG);
+    assertNotNull(countStat);
+
+    // Verify value exists
+    Long count = ds.getStatisticValue(countStat);
+    assertEquals(new Long(70), count);
+
+    // Verify there are many metadata entries for the value
+    final DataStoreOperations operations = dataStore.createDataStoreOperations();
+    final byte[] primaryId = countStat.getId().getUniqueId().getBytes();
+    MetadataQuery query =
+        new MetadataQuery(primaryId, countStat.getId().getGroupId().getBytes(), false);
+    try (CloseableIterator<GeoWaveMetadata> iter =
+        operations.createMetadataReader(MetadataType.STAT_VALUES).query(query)) {
+      int valueCount = Iterators.size(iter);
+      assertTrue(valueCount > 50);
+    }
+
+    // Merge stats
+    final DataStatisticsStore statsStore = dataStore.createDataStatisticsStore();
+    assertTrue(operations.mergeStats(statsStore));
+
+    // Verify value is still correct
+    count = ds.getStatisticValue(countStat);
+    assertEquals(new Long(70), count);
+
+    // Verify there is only 1 metadata entry for it
+    try (CloseableIterator<GeoWaveMetadata> iter =
+        operations.createMetadataReader(MetadataType.STAT_VALUES).query(query)) {
+      int valueCount = Iterators.size(iter);
+      assertTrue(valueCount == 1);
+    }
+
   }
 
   @Override

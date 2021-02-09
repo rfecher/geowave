@@ -86,13 +86,17 @@ import org.locationtech.geowave.core.store.query.filter.DedupeFilter;
 import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.statistics.DefaultStatisticsProvider;
 import org.locationtech.geowave.core.store.statistics.InternalStatisticsHelper;
+import org.locationtech.geowave.core.store.statistics.StatisticId;
 import org.locationtech.geowave.core.store.statistics.StatisticType;
 import org.locationtech.geowave.core.store.statistics.StatisticUpdateCallback;
 import org.locationtech.geowave.core.store.statistics.adapter.DataTypeStatistic;
+import org.locationtech.geowave.core.store.statistics.adapter.DataTypeStatisticType;
 import org.locationtech.geowave.core.store.statistics.field.FieldStatistic;
+import org.locationtech.geowave.core.store.statistics.field.FieldStatisticType;
 import org.locationtech.geowave.core.store.statistics.index.DifferingVisibilityCountStatistic.DifferingVisibilityCountValue;
 import org.locationtech.geowave.core.store.statistics.index.FieldVisibilityCountStatistic.FieldVisibilityCountValue;
 import org.locationtech.geowave.core.store.statistics.index.IndexStatistic;
+import org.locationtech.geowave.core.store.statistics.index.IndexStatisticType;
 import org.locationtech.geowave.core.store.statistics.query.DataTypeStatisticQuery;
 import org.locationtech.geowave.core.store.statistics.query.FieldStatisticQuery;
 import org.locationtech.geowave.core.store.statistics.query.IndexStatisticQuery;
@@ -1749,8 +1753,6 @@ public class BaseDataStore implements DataStore {
       throw new IllegalStateException("Index removal failed. Adapters require at least one index.");
     }
 
-    // STATS_TODO: Remove all index statistics that are specific to the given adapter
-
     // Remove all the data for the adapter and index
     baseOperations.deleteAll(indexName, typeName, adapterId);
 
@@ -1759,6 +1761,15 @@ public class BaseDataStore implements DataStore {
     final Short[] adapters = getAdaptersForIndex(indexName);
     if (adapters.length == 1) {
       indexStore.removeIndex(indexName);
+    } else {
+      try (CloseableIterator<? extends Statistic<?>> iter =
+          statisticsStore.getIndexStatistics(getIndex(indexName), null, null)) {
+        while (iter.hasNext()) {
+          statisticsStore.removeTypeSpecificStatisticValues(
+              (IndexStatistic<?>) iter.next(),
+              typeName);
+        }
+      }
     }
 
     // Finally, remove the mapping
@@ -1829,7 +1840,7 @@ public class BaseDataStore implements DataStore {
     // grouping stats is separated from calculating stats primarily because regardless of whether
     // stats are calculated they should be validated before adding them to the statistics store
     final Pair<Map<Index, List<IndexStatistic<?>>>, Map<DataTypeAdapter<?>, List<Statistic<? extends StatisticValue<?>>>>> groupedStats =
-        groupAndValidateStats(statistics);
+        groupAndValidateStats(statistics, false);
     final Map<Index, List<IndexStatistic<?>>> indexStatsToAdd = groupedStats.getLeft();
     final Map<DataTypeAdapter<?>, List<Statistic<? extends StatisticValue<?>>>> otherStatsToAdd =
         groupedStats.getRight();
@@ -1846,16 +1857,17 @@ public class BaseDataStore implements DataStore {
   }
 
   private Pair<Map<Index, List<IndexStatistic<?>>>, Map<DataTypeAdapter<?>, List<Statistic<? extends StatisticValue<?>>>>> groupAndValidateStats(
-      final Statistic<? extends StatisticValue<?>>[] statistics) {
+      final Statistic<? extends StatisticValue<?>>[] statistics,
+      final boolean allowExisting) {
     final Map<Index, List<IndexStatistic<?>>> indexStatsToAdd = Maps.newHashMap();
     final Map<DataTypeAdapter<?>, List<Statistic<? extends StatisticValue<?>>>> otherStatsToAdd =
         Maps.newHashMap();
     for (final Statistic<? extends StatisticValue<?>> statistic : statistics) {
-      if (statisticsStore.exists(statistic)) {
+      if (!allowExisting && statisticsStore.exists(statistic)) {
         throw new IllegalArgumentException("The statistic already exists.");
       }
       if (statistic instanceof IndexStatistic) {
-        final IndexStatistic<?> indexStat = (IndexStatistic) statistic;
+        final IndexStatistic<?> indexStat = (IndexStatistic<?>) statistic;
         if (indexStat.getIndexName() == null) {
           throw new IllegalArgumentException("No index specified.");
         }
@@ -1868,7 +1880,7 @@ public class BaseDataStore implements DataStore {
         }
         indexStatsToAdd.get(index).add(indexStat);
       } else if (statistic instanceof DataTypeStatistic) {
-        final DataTypeStatistic<?> adapterStat = (DataTypeStatistic) statistic;
+        final DataTypeStatistic<?> adapterStat = (DataTypeStatistic<?>) statistic;
         if (adapterStat.getTypeName() == null) {
           throw new IllegalArgumentException("No type specified.");
         }
@@ -1881,7 +1893,7 @@ public class BaseDataStore implements DataStore {
         }
         otherStatsToAdd.get(adapter).add(adapterStat);
       } else if (statistic instanceof FieldStatistic) {
-        final FieldStatistic<?> fieldStat = (FieldStatistic) statistic;
+        final FieldStatistic<?> fieldStat = (FieldStatistic<?>) statistic;
         if (fieldStat.getTypeName() == null) {
           throw new IllegalArgumentException("No type specified.");
         }
@@ -1918,6 +1930,7 @@ public class BaseDataStore implements DataStore {
     return Pair.of(indexStatsToAdd, otherStatsToAdd);
   }
 
+  @SuppressWarnings("unchecked")
   private void calcStats(
       final Map<Index, List<IndexStatistic<?>>> indexStatsToAdd,
       final Map<DataTypeAdapter<?>, List<Statistic<? extends StatisticValue<?>>>> otherStatsToAdd) {
@@ -1944,7 +1957,7 @@ public class BaseDataStore implements DataStore {
       for (int i = 0; i < indexAdapters.size(); i++) {
         final short adapterId = indexAdapters.get(i);
         final DataTypeAdapter<?> adapter = adapterStore.getAdapter(adapterId);
-        final Query<?> query =
+        final Query<Object> query =
             QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
                 index.getName()).build();
         final List<Statistic<? extends StatisticValue<?>>> statsToUpdate =
@@ -1956,8 +1969,9 @@ public class BaseDataStore implements DataStore {
           otherStatsToAdd.remove(adapter);
         }
         try (StatisticUpdateCallback<?> updateCallback =
-            new StatisticUpdateCallback(statsToUpdate, statisticsStore, index, adapter)) {
-          try (CloseableIterator<?> entryIt = this.query(query, (ScanCallback) updateCallback)) {
+            new StatisticUpdateCallback<>(statsToUpdate, statisticsStore, index, adapter)) {
+          try (CloseableIterator<?> entryIt =
+              this.query(query, (ScanCallback<Object, GeoWaveRow>) updateCallback)) {
             while (entryIt.hasNext()) {
               entryIt.next();
             }
@@ -1973,15 +1987,16 @@ public class BaseDataStore implements DataStore {
         // If there are no indices, then there is nothing to calculate.
         return;
       }
-      final Query<?> query =
+      final Query<Object> query =
           QueryBuilder.newBuilder().addTypeName(typeName).indexName(indices[0].getName()).build();
       try (StatisticUpdateCallback<?> updateCallback =
-          new StatisticUpdateCallback(
+          new StatisticUpdateCallback<>(
               otherStats.getValue(),
               statisticsStore,
               indices[0],
               adapter)) {
-        try (CloseableIterator<?> entryIt = this.query(query, (ScanCallback) updateCallback)) {
+        try (CloseableIterator<?> entryIt =
+            this.query(query, (ScanCallback<Object, GeoWaveRow>) updateCallback)) {
           while (entryIt.hasNext()) {
             entryIt.next();
           }
@@ -2018,7 +2033,11 @@ public class BaseDataStore implements DataStore {
     }
 
     final Pair<Map<Index, List<IndexStatistic<?>>>, Map<DataTypeAdapter<?>, List<Statistic<? extends StatisticValue<?>>>>> groupedStats =
-        groupAndValidateStats(statistic);
+        groupAndValidateStats(statistic, true);
+    // Remove old statistic values
+    for (final Statistic<?> stat : statistic) {
+      statisticsStore.removeStatisticValues(stat);
+    }
     calcStats(groupedStats.getLeft(), groupedStats.getRight());
   }
 
@@ -2029,12 +2048,11 @@ public class BaseDataStore implements DataStore {
       throw new IllegalArgumentException(typeName + " doesn't exist");
     }
     final List<Statistic<?>> retVal = new ArrayList<>();
-    try (CloseableIterator<Statistic<?>> it =
-        (CloseableIterator) statisticsStore.getDataTypeStatistics(
-            adapterStore.getAdapter(adapterId),
-            null,
-            null)) {
-      retVal.add(it.next());
+    try (CloseableIterator<? extends Statistic<?>> it =
+        statisticsStore.getDataTypeStatistics(adapterStore.getAdapter(adapterId), null, null)) {
+      while (it.hasNext()) {
+        retVal.add(it.next());
+      }
     }
     return retVal.toArray(new Statistic<?>[retVal.size()]);
   }
@@ -2052,28 +2070,32 @@ public class BaseDataStore implements DataStore {
     if (adapter == null) {
       throw new IllegalArgumentException(typeName + " is null");
     }
+    if (!(statisticType instanceof DataTypeStatisticType)) {
+      throw new IllegalArgumentException("Statistic type must be a data type statistic.");
+    }
     if (tag == null) {
       final Statistic<V> retVal =
-          internalGetDataTypeStatistic(statisticType, adapter, Statistic.DEFAULT_TAG);
+          internalGetDataTypeStatistic(
+              (DataTypeStatisticType<V>) statisticType,
+              adapter,
+              Statistic.DEFAULT_TAG);
       if (retVal == null) {
-        return internalGetDataTypeStatistic(statisticType, adapter, Statistic.INTERNAL_TAG);
+        return internalGetDataTypeStatistic(
+            (DataTypeStatisticType<V>) statisticType,
+            adapter,
+            Statistic.INTERNAL_TAG);
       }
     }
-    return internalGetDataTypeStatistic(statisticType, adapter, tag);
+    return internalGetDataTypeStatistic((DataTypeStatisticType<V>) statisticType, adapter, tag);
   }
 
   private <V extends StatisticValue<R>, R> Statistic<V> internalGetDataTypeStatistic(
-      final StatisticType<V> statisticType,
+      final DataTypeStatisticType<V> statisticType,
       final DataTypeAdapter<?> adapter,
       final String tag) {
-
-    try (CloseableIterator<Statistic<V>> it =
-        (CloseableIterator) statisticsStore.getDataTypeStatistics(adapter, statisticType, tag)) {
-      if (it.hasNext()) {
-        return it.next();
-      }
-    }
-    return null;
+    final StatisticId<V> statId =
+        DataTypeStatistic.generateStatisticId(adapter.getTypeName(), statisticType, tag);
+    return statisticsStore.getStatisticById(statId);
   }
 
   @Override
@@ -2083,9 +2105,11 @@ public class BaseDataStore implements DataStore {
       throw new IllegalArgumentException(indexName + " doesn't exist");
     }
     final List<Statistic<?>> retVal = new ArrayList<>();
-    try (CloseableIterator<Statistic<?>> it =
-        (CloseableIterator) statisticsStore.getIndexStatistics(index, null, null)) {
-      retVal.add(it.next());
+    try (CloseableIterator<? extends Statistic<?>> it =
+        statisticsStore.getIndexStatistics(index, null, null)) {
+      while (it.hasNext()) {
+        retVal.add(it.next());
+      }
     }
     return retVal.toArray(new Statistic<?>[retVal.size()]);
   }
@@ -2099,28 +2123,32 @@ public class BaseDataStore implements DataStore {
     if (index == null) {
       throw new IllegalArgumentException(indexName + " doesn't exist");
     }
+    if (!(statisticType instanceof IndexStatisticType)) {
+      throw new IllegalArgumentException("Statistic type must be an index statistic.");
+    }
     if (tag == null) {
       final Statistic<V> retVal =
-          internalGetIndexStatistic(statisticType, index, Statistic.DEFAULT_TAG);
+          internalGetIndexStatistic(
+              (IndexStatisticType<V>) statisticType,
+              index,
+              Statistic.DEFAULT_TAG);
       if (retVal == null) {
-        return internalGetIndexStatistic(statisticType, index, Statistic.INTERNAL_TAG);
+        return internalGetIndexStatistic(
+            (IndexStatisticType<V>) statisticType,
+            index,
+            Statistic.INTERNAL_TAG);
       }
     }
-    return internalGetIndexStatistic(statisticType, index, tag);
+    return internalGetIndexStatistic((IndexStatisticType<V>) statisticType, index, tag);
   }
 
   private <V extends StatisticValue<R>, R> Statistic<V> internalGetIndexStatistic(
-      final StatisticType<V> statisticType,
+      final IndexStatisticType<V> statisticType,
       final Index index,
       final String tag) {
-
-    try (CloseableIterator<Statistic<V>> it =
-        (CloseableIterator) statisticsStore.getIndexStatistics(index, statisticType, tag)) {
-      if (it.hasNext()) {
-        return it.next();
-      }
-    }
-    return null;
+    final StatisticId<V> statId =
+        IndexStatistic.generateStatisticId(index.getName(), statisticType, tag);
+    return statisticsStore.getStatisticById(statId);
   }
 
   @Override
@@ -2130,13 +2158,15 @@ public class BaseDataStore implements DataStore {
       throw new IllegalArgumentException(typeName + " doesn't exist");
     }
     final List<Statistic<?>> retVal = new ArrayList<>();
-    try (CloseableIterator<Statistic<?>> it =
-        (CloseableIterator) statisticsStore.getFieldStatistics(
+    try (CloseableIterator<? extends Statistic<?>> it =
+        statisticsStore.getFieldStatistics(
             adapterStore.getAdapter(adapterId),
             null,
             fieldName,
             null)) {
-      retVal.add(it.next());
+      while (it.hasNext()) {
+        retVal.add(it.next());
+      }
     }
     return retVal.toArray(new Statistic<?>[retVal.size()]);
   }
@@ -2155,34 +2185,42 @@ public class BaseDataStore implements DataStore {
     if (adapter == null) {
       throw new IllegalArgumentException(typeName + " is null");
     }
+    if (!(statisticType instanceof FieldStatisticType)) {
+      throw new IllegalArgumentException("Statistic type must be a field statistic.");
+    }
     if (tag == null) {
       final Statistic<V> retVal =
-          internalGetFieldStatistic(statisticType, adapter, fieldName, Statistic.DEFAULT_TAG);
+          internalGetFieldStatistic(
+              (FieldStatisticType<V>) statisticType,
+              adapter,
+              fieldName,
+              Statistic.DEFAULT_TAG);
       if (retVal == null) {
-        return internalGetFieldStatistic(statisticType, adapter, fieldName, Statistic.INTERNAL_TAG);
+        return internalGetFieldStatistic(
+            (FieldStatisticType<V>) statisticType,
+            adapter,
+            fieldName,
+            Statistic.INTERNAL_TAG);
       }
     }
-    return internalGetFieldStatistic(statisticType, adapter, fieldName, tag);
+    return internalGetFieldStatistic(
+        (FieldStatisticType<V>) statisticType,
+        adapter,
+        fieldName,
+        tag);
   }
 
   private <V extends StatisticValue<R>, R> Statistic<V> internalGetFieldStatistic(
-      final StatisticType<V> statisticType,
+      final FieldStatisticType<V> statisticType,
       final DataTypeAdapter<?> adapter,
       final String fieldName,
       final String tag) {
-    try (CloseableIterator<Statistic<V>> it =
-        (CloseableIterator) statisticsStore.getFieldStatistics(
-            adapter,
-            statisticType,
-            fieldName,
-            tag)) {
-      if (it.hasNext()) {
-        return it.next();
-      }
-    }
-    return null;
+    final StatisticId<V> statId =
+        FieldStatistic.generateStatisticId(adapter.getTypeName(), statisticType, fieldName, tag);
+    return statisticsStore.getStatisticById(statId);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <V extends StatisticValue<R>, R> R getStatisticValue(
       final Statistic<V> stat,
@@ -2204,6 +2242,7 @@ public class BaseDataStore implements DataStore {
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <V extends StatisticValue<R>, R> CloseableIterator<Pair<ByteArray, R>> getBinnedStatisticValues(
       final Statistic<V> stat,

@@ -16,6 +16,7 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Statistic;
 import org.locationtech.geowave.core.store.api.StatisticValue;
+import org.locationtech.geowave.core.store.statistics.index.IndexStatistic;
 
 /**
  * This is responsible for persisting data statistics (either in memory or to disk depending on the
@@ -205,6 +206,18 @@ public interface DataStatisticsStore {
    * @return {@code true} if values were removed
    */
   boolean removeStatisticValues(Statistic<? extends StatisticValue<?>> statistic);
+
+  /**
+   * Remove all type-specific values from the given index statistic. If the statistic does not use a
+   * {@link DataTypeBinningStrategy}, nothing will be removed.
+   * 
+   * @param statistic
+   * @param typeName
+   * @return
+   */
+  boolean removeTypeSpecificStatisticValues(
+      IndexStatistic<? extends StatisticValue<?>> statistic,
+      String typeName);
 
   /**
    * Creates a writer that can be used to write values for a given statistic.

@@ -431,6 +431,13 @@ public class ChooseBestMatchIndexQueryStrategyTest {
     }
 
     @Override
+    public boolean removeTypeSpecificStatisticValues(
+        IndexStatistic<? extends StatisticValue<?>> statistic,
+        String typeName) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public <V extends StatisticValue<R>, R> StatisticValueWriter<V> createStatisticValueWriter(
         Statistic<V> statistic) {
       throw new UnsupportedOperationException();
