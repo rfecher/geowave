@@ -282,18 +282,8 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
     Long count = ds.getStatisticValue(countStat);
     assertEquals(new Long(70), count);
 
-    // Verify there are many metadata entries for the value
-    final DataStoreOperations operations = dataStore.createDataStoreOperations();
-    final byte[] primaryId = countStat.getId().getUniqueId().getBytes();
-    MetadataQuery query =
-        new MetadataQuery(primaryId, countStat.getId().getGroupId().getBytes(), false);
-    try (CloseableIterator<GeoWaveMetadata> iter =
-        operations.createMetadataReader(MetadataType.STAT_VALUES).query(query)) {
-      int valueCount = Iterators.size(iter);
-      assertTrue(valueCount > 50);
-    }
-
     // Merge stats
+    final DataStoreOperations operations = dataStore.createDataStoreOperations();
     final DataStatisticsStore statsStore = dataStore.createDataStatisticsStore();
     assertTrue(operations.mergeStats(statsStore));
 
@@ -302,12 +292,16 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
     assertEquals(new Long(70), count);
 
     // Verify there is only 1 metadata entry for it
+    MetadataQuery query =
+        new MetadataQuery(
+            countStat.getId().getUniqueId().getBytes(),
+            countStat.getId().getGroupId().getBytes(),
+            false);
     try (CloseableIterator<GeoWaveMetadata> iter =
         operations.createMetadataReader(MetadataType.STAT_VALUES).query(query)) {
       int valueCount = Iterators.size(iter);
       assertTrue(valueCount == 1);
     }
-
   }
 
   @Override
