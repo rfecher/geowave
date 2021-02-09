@@ -40,6 +40,8 @@ public class StatisticUpdateHandler<T, V extends StatisticValue<R>, R> implement
   private final DataTypeAdapter<T> adapter;
   private final IngestHandler<T, V, R> ingestHandler;
   private final DeleteHandler<T, V, R> deleteHandler;
+  private final boolean supportsIngestCallback;
+  private final boolean supportsDeleteCallback;
 
   private static final ByteArray NO_BIN = new ByteArray(new byte[0]);
 
@@ -53,6 +55,9 @@ public class StatisticUpdateHandler<T, V extends StatisticValue<R>, R> implement
         statistic.getVisibilityHandler(index != null ? index.getIndexModel() : null, adapter);
     this.ingestHandler = new IngestHandler<>();
     this.deleteHandler = new DeleteHandler<>();
+    final V value = statistic.createEmpty();
+    supportsIngestCallback = value instanceof StatisticsIngestCallback;
+    supportsDeleteCallback = value instanceof StatisticsDeleteCallback;
   }
 
   protected void handleEntry(
@@ -91,21 +96,24 @@ public class StatisticUpdateHandler<T, V extends StatisticValue<R>, R> implement
 
   @Override
   public void entryIngested(final T entry, final GeoWaveRow... rows) {
-    // STATS_TODO: There should be an early out if the statistic does not support ingest callbacks
-    handleEntry(ingestHandler, entry, rows);
+    if (supportsIngestCallback) {
+      handleEntry(ingestHandler, entry, rows);
+    }
   }
 
   @Override
   public void entryDeleted(final T entry, final GeoWaveRow... rows) {
-    // STATS_TODO: There should be an early out if the statistic does not support delete callbacks
-    handleEntry(deleteHandler, entry, rows);
+    if (supportsDeleteCallback) {
+      handleEntry(deleteHandler, entry, rows);
+    }
 
   }
 
   @Override
   public void entryScanned(final T entry, final GeoWaveRow row) {
-    // STATS_TODO: There should be an early out if the statistic does not support ingest callbacks
-    handleEntry(ingestHandler, entry, row);
+    if (supportsIngestCallback) {
+      handleEntry(ingestHandler, entry, row);
+    }
   }
 
   public void writeStatistics(final DataStatisticsStore statisticsStore, final boolean overwrite) {

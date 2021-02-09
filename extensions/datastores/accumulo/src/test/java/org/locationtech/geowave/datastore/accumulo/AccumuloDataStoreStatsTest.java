@@ -369,8 +369,6 @@ public class AccumuloDataStoreStatsTest {
       assertEquals(0, c);
     }
 
-    // STATS_TODO: All the data was deleted, should the stat still exist with a value of 0? Does the
-    // type still exist?
     assertNull(statsStore.getStatisticValue(bboxStat, "aaa", "bbb"));
     mockDataStore.addType(adapter, index);
     try (Writer<TestGeometry> indexWriter = mockDataStore.createWriter(adapter.getTypeName())) {

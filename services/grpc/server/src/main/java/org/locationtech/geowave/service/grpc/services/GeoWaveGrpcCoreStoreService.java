@@ -133,8 +133,6 @@ public class GeoWaveGrpcCoreStoreService extends CoreStoreImplBase implements
     }
   }
 
-  // STATS_TODO: Add missing stat commands
-
   @Override
   public void recalculateStatsCommand(
       final org.locationtech.geowave.service.grpc.protobuf.RecalculateStatsCommandParametersProtos request,

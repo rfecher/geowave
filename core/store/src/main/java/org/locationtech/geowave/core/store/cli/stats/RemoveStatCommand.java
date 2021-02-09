@@ -31,7 +31,7 @@ import com.beust.jcommander.internal.Console;
 public class RemoveStatCommand extends AbstractStatsCommand<Void> {
 
   @Parameter(description = "<store name>")
-  private final List<String> parameters = new ArrayList<>();
+  private List<String> parameters = new ArrayList<>();
 
   @Parameter(
       names = "--all",

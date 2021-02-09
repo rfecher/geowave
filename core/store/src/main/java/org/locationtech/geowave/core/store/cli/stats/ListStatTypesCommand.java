@@ -45,7 +45,7 @@ import com.google.common.collect.Maps;
 public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
 
   @Parameter(description = "<store name>")
-  private final List<String> parameters = new ArrayList<>();
+  private List<String> parameters = new ArrayList<>();
 
   @Parameter(
       names = {"--typeName"},

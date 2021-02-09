@@ -31,17 +31,17 @@ import com.beust.jcommander.internal.Console;
 public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
 
   @Parameter(description = "<store name>")
-  private final List<String> parameters = new ArrayList<>();
+  private List<String> parameters = new ArrayList<>();
 
   @Parameter(
       names = "--all",
       description = "If specified, all matching statistics will be recalculated.")
-  private final boolean all = false;
+  private boolean all = false;
 
   @Parameter(
       names = "--statType",
       description = "If specified, only statistics of the given type will be recalculated.")
-  private final String statType = null;
+  private String statType = null;
 
   @Override
   public void execute(final OperationParams params) {

@@ -32,17 +32,17 @@ import com.beust.jcommander.ParametersDelegate;
 public class AddStatCommand extends ServiceEnabledCommand<Void> {
 
   @Parameter(description = "<store name> <stat type>")
-  private final List<String> parameters = new ArrayList<>();
+  private List<String> parameters = new ArrayList<>();
 
   @Parameter(
       names = "--binningStrategy",
       description = "If specified, statistics will be binned using the given strategy.")
-  private final String binningStrategyName = null;
+  private String binningStrategyName = null;
 
   @Parameter(
       names = "--skipCalculation",
       description = "If specified, the initial value of the statistic will not be calculated.")
-  private final boolean skipCalculation = false;
+  private boolean skipCalculation = false;
 
   private String statType = null;
 
