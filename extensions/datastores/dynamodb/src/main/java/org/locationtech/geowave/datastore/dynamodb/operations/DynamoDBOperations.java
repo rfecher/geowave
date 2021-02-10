@@ -115,7 +115,7 @@ public class DynamoDBOperations implements MapReduceDataStoreOperations {
   }
 
   public String getMetadataTableName(final MetadataType metadataType) {
-    final String tableName = metadataType.name() + "_" + AbstractGeoWavePersistence.METADATA_TABLE;
+    final String tableName = metadataType.id() + "_" + AbstractGeoWavePersistence.METADATA_TABLE;
     return getQualifiedTableName(tableName);
   }
 

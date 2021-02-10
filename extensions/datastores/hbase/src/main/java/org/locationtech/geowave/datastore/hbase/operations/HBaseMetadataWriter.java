@@ -31,7 +31,7 @@ public class HBaseMetadataWriter implements MetadataWriter {
 
   public HBaseMetadataWriter(final BufferedMutator writer, final MetadataType metadataType) {
     this.writer = writer;
-    metadataTypeBytes = StringUtils.stringToBinary(metadataType.name());
+    metadataTypeBytes = StringUtils.stringToBinary(metadataType.id());
   }
 
   @Override

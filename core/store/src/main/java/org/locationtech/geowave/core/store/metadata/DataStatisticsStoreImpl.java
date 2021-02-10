@@ -51,7 +51,7 @@ public class DataStatisticsStoreImpl extends
   public static final String STATISTICS_COMBINER_NAME = "STATS_COMBINER";
 
   public DataStatisticsStoreImpl(DataStoreOperations operations, DataStoreOptions options) {
-    super(operations, options, MetadataType.STATS);
+    super(operations, options, MetadataType.STATISTICS);
   }
 
   @Override
@@ -101,7 +101,7 @@ public class DataStatisticsStoreImpl extends
             null,
             IndexStatistic.generateGroupId(index.getName()),
             operations,
-            MetadataType.STAT_VALUES,
+            MetadataType.STATISTIC_VALUES,
             this) || removed;
     return removed;
   }
@@ -114,7 +114,7 @@ public class DataStatisticsStoreImpl extends
             null,
             DataTypeStatistic.generateGroupId(type.getTypeName()),
             operations,
-            MetadataType.STAT_VALUES,
+            MetadataType.STATISTIC_VALUES,
             this) || removed;
     removed = deleteObjects(FieldStatistic.generateGroupId(type.getTypeName())) || removed;
     removed =
@@ -122,7 +122,7 @@ public class DataStatisticsStoreImpl extends
             null,
             FieldStatistic.generateGroupId(type.getTypeName()),
             operations,
-            MetadataType.STAT_VALUES,
+            MetadataType.STATISTIC_VALUES,
             this) || removed;
     for (Index index : adapterIndices) {
       try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statsIter =
@@ -357,7 +357,7 @@ public class DataStatisticsStoreImpl extends
   public <V extends StatisticValue<R>, R> StatisticValueWriter<V> createStatisticValueWriter(
       Statistic<V> statistic) {
     return new StatisticValueWriter<>(
-        operations.createMetadataWriter(MetadataType.STAT_VALUES),
+        operations.createMetadataWriter(MetadataType.STATISTIC_VALUES),
         statistic);
   }
 
@@ -379,7 +379,7 @@ public class DataStatisticsStoreImpl extends
             !exact,
             authorizations);
     return new StatisticValueReader<>(
-        operations.createMetadataReader(MetadataType.STAT_VALUES).query(query),
+        operations.createMetadataReader(MetadataType.STATISTIC_VALUES).query(query),
         statistic);
   }
 
@@ -390,7 +390,8 @@ public class DataStatisticsStoreImpl extends
           "The given statistic uses a binning strategy, but no bin was specified.");
     }
     boolean deleted = false;
-    try (MetadataDeleter deleter = operations.createMetadataDeleter(MetadataType.STAT_VALUES)) {
+    try (
+        MetadataDeleter deleter = operations.createMetadataDeleter(MetadataType.STATISTIC_VALUES)) {
       deleted =
           deleter.delete(
               new MetadataQuery(
@@ -411,7 +412,8 @@ public class DataStatisticsStoreImpl extends
           "The given statistic does not use a binning strategy, but a bin was specified.");
     }
     boolean deleted = false;
-    try (MetadataDeleter deleter = operations.createMetadataDeleter(MetadataType.STAT_VALUES)) {
+    try (
+        MetadataDeleter deleter = operations.createMetadataDeleter(MetadataType.STATISTIC_VALUES)) {
       deleted =
           deleter.delete(
               new MetadataQuery(
@@ -532,7 +534,7 @@ public class DataStatisticsStoreImpl extends
 
   @Override
   public void removeAll() {
-    deleteObjects(null, null, operations, MetadataType.STAT_VALUES, null);
+    deleteObjects(null, null, operations, MetadataType.STATISTIC_VALUES, null);
     super.removeAll();
   }
 

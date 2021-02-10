@@ -74,7 +74,7 @@ public class HBaseMetadataReader implements MetadataReader {
         }
       }
       final boolean clientsideStatsMerge =
-          (metadataType == MetadataType.STAT_VALUES) && !options.isServerSideLibraryEnabled();
+          (metadataType.isStatValues()) && !options.isServerSideLibraryEnabled();
       if (clientsideStatsMerge) {
         scanner.setMaxVersions(); // Get all versions
       }

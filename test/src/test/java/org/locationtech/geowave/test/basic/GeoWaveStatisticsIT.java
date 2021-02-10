@@ -298,7 +298,7 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
             countStat.getId().getGroupId().getBytes(),
             false);
     try (CloseableIterator<GeoWaveMetadata> iter =
-        operations.createMetadataReader(MetadataType.STAT_VALUES).query(query)) {
+        operations.createMetadataReader(MetadataType.STATISTIC_VALUES).query(query)) {
       int valueCount = Iterators.size(iter);
       assertTrue(valueCount == 1);
     }

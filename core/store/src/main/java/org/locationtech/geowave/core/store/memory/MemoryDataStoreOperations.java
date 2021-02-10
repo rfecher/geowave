@@ -505,7 +505,7 @@ public class MemoryDataStoreOperations implements DataStoreOperations {
               new CloseableIterator.Wrapper(
                   Iterators.forArray(Iterators.toArray(itTransformed, GeoWaveMetadata.class))),
               query);
-      if (MetadataType.STAT_VALUES.equals(type)) {
+      if (type.isStatValues()) {
         return MetadataIterators.clientVisibilityFilter(converted, query.getAuthorizations());
       }
       return converted;

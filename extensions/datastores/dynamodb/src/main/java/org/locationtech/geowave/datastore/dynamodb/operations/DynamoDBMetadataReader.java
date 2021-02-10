@@ -45,7 +45,7 @@ public class DynamoDBMetadataReader implements MetadataReader {
   public CloseableIterator<GeoWaveMetadata> query(final MetadataQuery query) {
     final String tableName = operations.getMetadataTableName(metadataType);
 
-    final boolean needsVisibility = MetadataType.STAT_VALUES.equals(metadataType);
+    final boolean needsVisibility = metadataType.isStatValues();
 
     if (query.hasPrimaryId() && query.isExact()) {
       final QueryRequest queryRequest = new QueryRequest(tableName);

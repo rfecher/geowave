@@ -122,7 +122,7 @@ public class RedisOperations implements MapReduceDataStoreOperations {
             gwNamespace,
             metadataType,
             options.getStoreOptions().isVisibilityEnabled()),
-        MetadataType.STAT_VALUES.equals(metadataType));
+        metadataType.isStatValues());
   }
 
   @Override

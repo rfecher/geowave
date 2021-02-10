@@ -419,14 +419,16 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
           // create table
           final Create create = getCreateTable(tableName);
           create.addPartitionKey(CassandraMetadataWriter.PRIMARY_ID_KEY, DataType.blob());
-          if (MetadataType.STATS.equals(metadataType)
-              || MetadataType.STAT_VALUES.equals(metadataType)
+          if (MetadataType.STATISTICS.equals(metadataType)
+              || MetadataType.STATISTIC_VALUES.equals(metadataType)
+              || MetadataType.LEGACY_STATISTICS.equals(metadataType)
               || MetadataType.INTERNAL_ADAPTER.equals(metadataType)) {
             create.addClusteringColumn(CassandraMetadataWriter.SECONDARY_ID_KEY, DataType.blob());
             create.addClusteringColumn(
                 CassandraMetadataWriter.TIMESTAMP_ID_KEY,
                 DataType.timeuuid());
-            if (MetadataType.STAT_VALUES.equals(metadataType)) {
+            if (MetadataType.STATISTIC_VALUES.equals(metadataType)
+                || MetadataType.LEGACY_STATISTICS.equals(metadataType)) {
               create.addColumn(CassandraMetadataWriter.VISIBILITY_KEY, DataType.blob());
             }
           }
@@ -584,7 +586,7 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
   }
 
   public String getMetadataTableName(final MetadataType metadataType) {
-    final String tableName = metadataType.name() + "_" + AbstractGeoWavePersistence.METADATA_TABLE;
+    final String tableName = metadataType.id() + "_" + AbstractGeoWavePersistence.METADATA_TABLE;
     return tableName;
   }
 

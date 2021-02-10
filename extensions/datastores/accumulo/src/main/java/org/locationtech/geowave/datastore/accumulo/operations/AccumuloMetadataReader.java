@@ -53,7 +53,7 @@ public class AccumuloMetadataReader implements MetadataReader {
           operations.createBatchScanner(
               AbstractGeoWavePersistence.METADATA_TABLE,
               query.getAuthorizations());
-      final String columnFamily = metadataType.name();
+      final String columnFamily = metadataType.id();
       final byte[] columnQualifier = query.getSecondaryId();
       if (columnFamily != null) {
         if (columnQualifier != null) {

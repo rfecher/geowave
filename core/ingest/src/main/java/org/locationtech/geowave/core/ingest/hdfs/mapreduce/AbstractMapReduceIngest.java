@@ -155,7 +155,7 @@ public abstract class AbstractMapReduceIngest<T extends Persistable & DataAdapte
       if (indices.length > 0) {
         for (final MetadataType type : MetadataType.values()) {
           // stats and index metadata writers are created elsewhere
-          if (!MetadataType.INDEX.equals(type) && !MetadataType.STAT_VALUES.equals(type)) {
+          if (!MetadataType.INDEX.equals(type) && !MetadataType.STATISTIC_VALUES.equals(type)) {
             dataStoreOptions.createDataStoreOperations().createMetadataWriter(type).close();
           }
         }
@@ -165,7 +165,7 @@ public abstract class AbstractMapReduceIngest<T extends Persistable & DataAdapte
     // distributed ingest
     if (dataStoreOptions.getFactoryOptions().getStoreOptions().isPersistDataStatistics()) {
       dataStoreOptions.createDataStoreOperations().createMetadataWriter(
-          MetadataType.STAT_VALUES).close();
+          MetadataType.STATISTIC_VALUES).close();
     }
     job.setSpeculativeExecution(false);
 

@@ -45,7 +45,7 @@ public class MergingCombiner extends Combiner {
   protected String getColumnOptionValue(final Map<String, String> options) {
     // if this is not "row" merging than it is merging stats on the metadata
     // table
-    return MetadataType.STAT_VALUES.name();
+    return MetadataType.STATISTIC_VALUES.id();
   }
 
   @Override

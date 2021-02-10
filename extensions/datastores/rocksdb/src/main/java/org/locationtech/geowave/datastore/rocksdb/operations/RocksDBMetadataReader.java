@@ -64,7 +64,7 @@ public class RocksDBMetadataReader implements MetadataReader {
     }
     CloseableIterator<GeoWaveMetadata> retVal =
         new CloseableIteratorWrapper<>(originalResults, resultsIt);
-    if (MetadataType.STAT_VALUES.equals(metadataType)) {
+    if (metadataType.isStatValues()) {
       return MetadataIterators.clientVisibilityFilter(retVal, query.getAuthorizations());
     }
     return retVal;

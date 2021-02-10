@@ -58,21 +58,21 @@ public class CustomStatisticExample {
 
     // Add the type to the data store with the spatial and custom indices
     dataStore.addType(adapter, spatialIndex);
-    
+
     // Create a word count statistic on the `str` field of our type for all words
     final WordCountStatistic allWords = new WordCountStatistic();
     allWords.setTypeName(adapter.getTypeName());
     allWords.setFieldName("str");
     allWords.setMinWordLength(0);
     allWords.setTag("ALL_WORDS");
-    
+
     // Create a word count statistic on the `str` field of our type for long words
     final WordCountStatistic longWords = new WordCountStatistic();
     longWords.setTypeName(adapter.getTypeName());
     longWords.setFieldName("str");
     longWords.setMinWordLength(5);
     longWords.setTag("LONG_WORDS");
-    
+
     // Add the statistics
     dataStore.addStatistic(allWords, longWords);
 
@@ -82,11 +82,16 @@ public class CustomStatisticExample {
     // Get the statistics
     System.out.println("Total number of words: " + dataStore.getStatisticValue(allWords));
     System.out.println("Total number of long words: " + dataStore.getStatisticValue(longWords));
-    
+
     // You can also get the actual statistics from the data store at a later time
-    final WordCountStatistic stat = (WordCountStatistic) dataStore.getFieldStatistic(WordCountStatistic.STATS_TYPE, adapter.getTypeName(), "str", "ALL_WORDS");
+    final WordCountStatistic stat =
+        (WordCountStatistic) dataStore.getFieldStatistic(
+            WordCountStatistic.STATS_TYPE,
+            adapter.getTypeName(),
+            "str",
+            "ALL_WORDS");
     System.out.println("ALL_WORDS Statistic: " + stat.toString());
-    
+
   }
 
   public void ingestData() {
@@ -96,7 +101,11 @@ public class CustomStatisticExample {
       writer.write(buildSimpleFeature("feature2", new Coordinate(1, 1), "another set of words"));
       writer.write(buildSimpleFeature("feature3", new Coordinate(2, 2), "two words"));
       writer.write(buildSimpleFeature("feature4", new Coordinate(3, 3), "word"));
-      writer.write(buildSimpleFeature("feature5", new Coordinate(4, 4), "a long string with quite a few words to count"));
+      writer.write(
+          buildSimpleFeature(
+              "feature5",
+              new Coordinate(4, 4),
+              "a long string with quite a few words to count"));
     }
 
   }

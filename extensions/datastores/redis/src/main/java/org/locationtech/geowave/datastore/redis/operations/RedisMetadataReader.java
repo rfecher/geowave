@@ -76,7 +76,7 @@ public class RedisMetadataReader implements MetadataReader {
       });
     }
     final CloseableIterator<GeoWaveMetadata> retVal;
-    if (MetadataType.STAT_VALUES.equals(metadataType)) {
+    if (metadataType.isStatValues()) {
       retVal =
           MetadataIterators.clientVisibilityFilter(
               new CloseableIterator.Wrapper<>(RedisUtils.groupByIds(results)),

@@ -59,7 +59,7 @@ public class FileSystemClient {
       // stat values also store a timestamp because they can be the exact same but
       // need to still be unique (consider multiple count statistics that are
       // exactly the same count, but need to be merged)
-      super(type.equals(MetadataType.STAT_VALUES));
+      super(type.isStatValues());
       this.type = type;
     }
 

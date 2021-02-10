@@ -45,7 +45,7 @@ public class WordCountStatistic extends FieldStatistic<WordCountStatistic.WordCo
   public WordCountStatistic(final String typeName, final String fieldName) {
     super(STATS_TYPE, typeName, fieldName);
   }
-  
+
   /**
    * Add a programmatic setter for min word length.
    */

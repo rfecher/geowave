@@ -42,7 +42,7 @@ public class CassandraMetadataReader implements MetadataReader {
     final String tableName = operations.getMetadataTableName(metadataType);
     String[] selectedColumns = getSelectedColumns(query);
     Predicate<Row> clientFilter = null;
-    if (MetadataType.STAT_VALUES.equals(metadataType)) {
+    if (metadataType.isStatValues()) {
       selectedColumns = Arrays.append(selectedColumns, CassandraMetadataWriter.VISIBILITY_KEY);
     }
     if (query.isPrefix()) {
@@ -92,7 +92,7 @@ public class CassandraMetadataReader implements MetadataReader {
   }
 
   private byte[] getVisibility(final MetadataQuery query, final Row result) {
-    if (MetadataType.STAT_VALUES.equals(metadataType)) {
+    if (metadataType.isStatValues()) {
       final ByteBuffer buf = result.get(CassandraMetadataWriter.VISIBILITY_KEY, ByteBuffer.class);
       if (buf != null) {
         return buf.array();
@@ -123,8 +123,8 @@ public class CassandraMetadataReader implements MetadataReader {
   }
 
   private boolean useSecondaryId(final MetadataQuery query) {
-    return !(MetadataType.STATS.equals(metadataType)
-        || MetadataType.STAT_VALUES.equals(metadataType)
+    return !(MetadataType.STATISTICS.equals(metadataType)
+        || MetadataType.STATISTIC_VALUES.equals(metadataType)
         || MetadataType.INTERNAL_ADAPTER.equals(metadataType)) || query.hasSecondaryId();
   }
 

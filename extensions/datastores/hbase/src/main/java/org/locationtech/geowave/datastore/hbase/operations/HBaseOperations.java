@@ -153,12 +153,12 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
   public static final Pair<GeoWaveColumnFamily, Boolean>[] METADATA_CFS_VERSIONING =
       new Pair[] {
-          ImmutablePair.of(new StringColumnFamily(MetadataType.AIM.name()), true),
-          ImmutablePair.of(new StringColumnFamily(MetadataType.ADAPTER.name()), true),
-          ImmutablePair.of(new StringColumnFamily(MetadataType.STATS.name()), true),
-          ImmutablePair.of(new StringColumnFamily(MetadataType.STAT_VALUES.name()), false),
-          ImmutablePair.of(new StringColumnFamily(MetadataType.INDEX.name()), true),
-          ImmutablePair.of(new StringColumnFamily(MetadataType.INTERNAL_ADAPTER.name()), true),};
+          ImmutablePair.of(new StringColumnFamily(MetadataType.AIM.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.ADAPTER.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.STATISTICS.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.STATISTIC_VALUES.id()), false),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.INDEX.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.INTERNAL_ADAPTER.id()), true),};
 
   public static final int MERGING_MAX_VERSIONS = HConstants.ALL_VERSIONS;
   public static final int DEFAULT_MAX_VERSIONS = 1;
@@ -886,7 +886,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
           METADATA_CFS_VERSIONING,
           StringColumnFamilyFactory.getSingletonInstance(),
           tableName);
-      if (MetadataType.STAT_VALUES.equals(metadataType) && options.isServerSideLibraryEnabled()) {
+      if (metadataType.isStatValues() && options.isServerSideLibraryEnabled()) {
         synchronized (this) {
           if (!iteratorsAttached) {
             iteratorsAttached = true;

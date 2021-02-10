@@ -284,7 +284,7 @@ public class RocksDBClient implements Closeable {
     }
     final String directory = subDirectory + "/" + type.name();
     return metadataTableCache.get(
-        keyCache.get(directory, d -> new CacheKey(d, type.equals(MetadataType.STAT_VALUES))));
+        keyCache.get(directory, d -> new CacheKey(d, type.isStatValues())));
   }
 
   public boolean indexTableExists(final String indexName) {
@@ -304,8 +304,8 @@ public class RocksDBClient implements Closeable {
   public boolean metadataTableExists(final MetadataType type) {
     // this could have been created by a different process so check the
     // directory listing
-    return (keyCache.getIfPresent(subDirectory + "/" + type.name()) != null)
-        || new File(subDirectory + "/" + type.name()).exists();
+    return (keyCache.getIfPresent(subDirectory + "/" + type.id()) != null)
+        || new File(subDirectory + "/" + type.id()).exists();
   }
 
   public void close(final String indexName, final String typeName) {

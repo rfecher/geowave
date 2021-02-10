@@ -51,8 +51,8 @@ public class KuduMetadataReader implements MetadataReader {
       final Schema schema = table.getSchema();
       KuduScanner.KuduScannerBuilder scannerBuilder = operations.getScannerBuilder(table);
       if (query.hasPrimaryId()) {
-        if (metadataType.equals(MetadataType.STATS)
-            || metadataType.equals(MetadataType.STAT_VALUES)) {
+        if (metadataType.equals(MetadataType.STATISTICS)
+            || metadataType.equals(MetadataType.STATISTIC_VALUES)) {
           final KuduPredicate primaryLowerPred =
               KuduPredicate.newComparisonPredicate(
                   schema.getColumn(KuduMetadataField.GW_PRIMARY_ID_KEY.getFieldName()),
@@ -97,14 +97,14 @@ public class KuduMetadataReader implements MetadataReader {
                 getVisibility(result),
                 result.getBinaryCopy(KuduMetadataField.GW_VALUE_KEY.getFieldName()))).iterator();
     final CloseableIterator<GeoWaveMetadata> retVal = new CloseableIterator.Wrapper<>(temp);
-    if (MetadataType.STAT_VALUES.equals(metadataType)) {
+    if (metadataType.isStatValues()) {
       return MetadataIterators.clientVisibilityFilter(retVal, query.getAuthorizations());
     }
     return retVal;
   }
 
   private byte[] getVisibility(final RowResult result) {
-    if (MetadataType.STAT_VALUES.equals(metadataType)) {
+    if (metadataType.isStatValues()) {
       return result.getBinaryCopy(KuduMetadataField.GW_VISIBILITY_KEY.getFieldName());
     }
     return null;
