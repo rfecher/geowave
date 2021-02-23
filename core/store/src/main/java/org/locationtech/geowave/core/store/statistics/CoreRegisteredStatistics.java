@@ -41,7 +41,7 @@ import org.locationtech.geowave.core.store.statistics.index.PartitionsStatistic.
 import org.locationtech.geowave.core.store.statistics.index.RowRangeHistogramStatistic;
 import org.locationtech.geowave.core.store.statistics.index.RowRangeHistogramStatistic.RowRangeHistogramValue;
 
-public class CoreRegisteredStatistics extends StatisticsRegistrySPI {
+public class CoreRegisteredStatistics implements StatisticsRegistrySPI {
 
   @Override
   public RegisteredStatistic[] getRegisteredStatistics() {

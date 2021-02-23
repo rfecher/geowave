@@ -10,6 +10,7 @@ package org.locationtech.geowave.core.store.cli.stats;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.locationtech.geowave.core.cli.annotations.GeowaveOperation;
 import org.locationtech.geowave.core.cli.api.OperationParams;
@@ -31,19 +32,20 @@ import com.beust.jcommander.ParametersDelegate;
 @Parameters(commandDescription = "Add a statistic to a data store")
 public class AddStatCommand extends ServiceEnabledCommand<Void> {
 
-  @Parameter(description = "<store name> <stat type>")
+  @Parameter(description = "<store name>")
   private List<String> parameters = new ArrayList<>();
 
   @Parameter(
-      names = "--binningStrategy",
+      names = {"-b", "--binningStrategy"},
       description = "If specified, statistics will be binned using the given strategy.")
   private String binningStrategyName = null;
 
   @Parameter(
-      names = "--skipCalculation",
+      names = {"-skip", "--skipCalculation"},
       description = "If specified, the initial value of the statistic will not be calculated.")
   private boolean skipCalculation = false;
 
+  @Parameter(names = {"-t", "--type"}, required = true, description = "The statistic type to add.")
   private String statType = null;
 
   @ParametersDelegate
@@ -56,16 +58,12 @@ public class AddStatCommand extends ServiceEnabledCommand<Void> {
   public boolean prepare(final OperationParams params) {
     super.prepare(params);
 
-    // Ensure we have all the required arguments
-    if (parameters.size() != 2) {
-      throw new ParameterException("Requires arguments: <store name> <stat type>");
+    if (statType == null) {
+      throw new ParameterException("Missing statistic type.");
     }
-
-    statType = parameters.get(1);
-
     statOptions = StatisticsRegistry.instance().getStatistic(statType);
     if (statOptions == null) {
-      throw new ParameterException("Unrecognized stat type: " + statType);
+      throw new ParameterException("Unrecognized statistic type: " + statType);
     }
 
     if (binningStrategyName != null) {
@@ -84,6 +82,9 @@ public class AddStatCommand extends ServiceEnabledCommand<Void> {
 
   @Override
   public void execute(final OperationParams params) {
+    if (parameters.size() != 1) {
+      throw new ParameterException("Requires argument: <store name>");
+    }
     computeResults(params);
   }
 

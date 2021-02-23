@@ -9,7 +9,6 @@
 package org.locationtech.geowave.core.store.api;
 
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
@@ -256,7 +255,7 @@ public interface DataStore {
   /**
    * Get data statistics that match the given query criteria
    *
-   * @param query the query criteria, use StatisticsQueryBuilder or its extensions and if you're
+   * @param query the query criteria, use StatisticQueryBuilder or its extensions and if you're
    *        interested in a particular common statistics type use StatisticsQueryBuilder.factory()
    * @return An array of statistics that result from the query
    */
@@ -265,7 +264,7 @@ public interface DataStore {
   /**
    * Get a single statistical result that matches the given query criteria
    *
-   * @param query the query criteria, use StatisticsQueryBuilder or its extensions and if you're
+   * @param query the query criteria, use StatisticQueryBuilder or its extensions and if you're
    *        interested in a particular common statistics type use StatisticsQueryBuilder.factory()
    * @return If the query does not define that statistics type it will return null as aggregation
    *         only makes sense within a single type, otherwise aggregates the results of the query

@@ -5,14 +5,19 @@
 Commands to manage GeoWave statistics.
 
 [[stat-calc]]
-=== Calculate Stat
+=== Add Stat
 
-include::manpages/stat/geowave-calcstat.txt[]
+include::manpages/stat/geowave-addstat.txt[]
 
 [[stat-list]]
 === List Stats
 
 include::manpages/stat/geowave-liststats.txt[]
+
+[[stat-listtypes]]
+=== List Stat Types
+
+include::manpages/stat/geowave-liststattypes.txt[]
 
 [[stat-compact]]
 === Compact Stats

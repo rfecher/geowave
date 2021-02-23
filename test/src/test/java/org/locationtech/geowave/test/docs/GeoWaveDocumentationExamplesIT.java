@@ -26,6 +26,7 @@ import org.locationtech.geowave.core.geotime.store.query.api.VectorQueryBuilder;
 import org.locationtech.geowave.core.geotime.store.query.api.VectorQueryConstraintsFactory;
 import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxStatistic;
 import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxStatistic.BoundingBoxValue;
+import org.locationtech.geowave.core.geotime.store.statistics.SpatialTemporalStatisticQueryBuilder;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
@@ -232,7 +233,7 @@ public class GeoWaveDocumentationExamplesIT extends AbstractGeoWaveIT {
     // --------------------------------------------------------------------
     // Create the statistics query builder for the BoundingBoxStatistic
     FieldStatisticQueryBuilder<BoundingBoxValue, Envelope> builder =
-        StatisticQueryBuilder.newBuilder(BoundingBoxStatistic.STATS_TYPE);
+        SpatialTemporalStatisticQueryBuilder.bbox();
 
     // Specify the type name
     builder.typeName(pointTypeAdapter.getTypeName());

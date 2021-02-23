@@ -14,7 +14,7 @@ import org.locationtech.geowave.adapter.raster.stats.RasterHistogramStatistic.Ra
 import org.locationtech.geowave.adapter.raster.stats.RasterOverviewStatistic.RasterOverviewValue;
 import org.locationtech.geowave.core.store.statistics.StatisticsRegistrySPI;
 
-public class RasterRegisteredStatistics extends StatisticsRegistrySPI {
+public class RasterRegisteredStatistics implements StatisticsRegistrySPI {
 
   @Override
   public RegisteredStatistic[] getRegisteredStatistics() {

@@ -17,11 +17,9 @@ import org.locationtech.geowave.examples.stats.WordCountStatistic.WordCountValue
  * without having to worry about the inner workings of the statistics system.
  * 
  * When adding new statistics via a statistics registry, the registry class needs to be added to
- * `src/main/resources/META-INF/services/org.locationtech.geowave.core.store.statistics.StatisticsRegistrySPI`
- * and
- * `src/main/resources/META-INF/services/org.locationtech.geowave.core.index.persist.PersistableRegistrySpi`.
+ * `src/main/resources/META-INF/services/org.locationtech.geowave.core.store.statistics.StatisticsRegistrySPI`.
  */
-public class ExampleRegisteredStatistics extends StatisticsRegistrySPI {
+public class ExampleRegisteredStatistics implements StatisticsRegistrySPI {
 
   @Override
   public RegisteredStatistic[] getRegisteredStatistics() {

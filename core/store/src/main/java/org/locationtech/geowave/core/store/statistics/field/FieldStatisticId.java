@@ -51,8 +51,8 @@ public class FieldStatisticId<V extends StatisticValue<?>> extends StatisticId<V
 
   /**
    * Get the unique id of the identifier. The unique id is guaranteed to be unique among all
-   * statistics. Multiple statistics of the same type in the same group can be added by using
-   * different tags.
+   * statistics within the same group. Multiple statistics of the same type in the same group can be
+   * added by using different tags.
    * 
    * @return the unique id
    */

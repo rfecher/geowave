@@ -22,49 +22,21 @@ import org.locationtech.geowave.core.store.statistics.index.IndexStatisticType;
  * Base SPI for registered statistics. This class also serves as the persistable registry for those
  * statistics.
  */
-public abstract class StatisticsRegistrySPI implements PersistableRegistrySpi {
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public PersistableIdAndConstructor[] getSupportedPersistables() {
-    RegisteredStatistic[] registeredStatistics = getRegisteredStatistics();
-    RegisteredBinningStrategy[] registeredBinningStrategies = getRegisteredBinningStrategies();
-    PersistableIdAndConstructor[] persistables =
-        new PersistableIdAndConstructor[registeredStatistics.length * 2
-            + registeredBinningStrategies.length];
-    int persistableIndex = 0;
-    for (RegisteredStatistic statistic : registeredStatistics) {
-      persistables[persistableIndex++] =
-          new PersistableIdAndConstructor(
-              statistic.statisticPersistableId,
-              (Supplier<Persistable>) (Supplier<?>) statistic.statisticConstructor);
-      persistables[persistableIndex++] =
-          new PersistableIdAndConstructor(
-              statistic.valuePersistableId,
-              (Supplier<Persistable>) (Supplier<?>) statistic.valueConstructor);
-    }
-    for (RegisteredBinningStrategy binningStrategy : registeredBinningStrategies) {
-      persistables[persistableIndex++] =
-          new PersistableIdAndConstructor(
-              binningStrategy.persistableId,
-              (Supplier<Persistable>) (Supplier<?>) binningStrategy.constructor);
-    }
-    return persistables;
-  };
+public interface StatisticsRegistrySPI {
 
   /**
    * Return a set of registered statistics.
    * 
    * @return the registered statistics
    */
-  public abstract RegisteredStatistic[] getRegisteredStatistics();
+  RegisteredStatistic[] getRegisteredStatistics();
 
   /**
    * Return a set of registered binning strategies.
    * 
    * @return the registered binning strategies
    */
-  public abstract RegisteredBinningStrategy[] getRegisteredBinningStrategies();
+  RegisteredBinningStrategy[] getRegisteredBinningStrategies();
 
   /**
    * This class contains everything needed to register a statistic with GeoWave.
@@ -114,6 +86,14 @@ public abstract class StatisticsRegistrySPI implements PersistableRegistrySpi {
       return (Supplier<Statistic<StatisticValue<Object>>>) statisticConstructor;
     }
 
+    /**
+     * @return the options constructor
+     */
+    @SuppressWarnings("unchecked")
+    public Supplier<StatisticValue<Object>> getValueConstructor() {
+      return (Supplier<StatisticValue<Object>>) valueConstructor;
+    }
+
     public boolean isDataTypeStatistic() {
       return statType instanceof DataTypeStatisticType;
     }
@@ -131,6 +111,14 @@ public abstract class StatisticsRegistrySPI implements PersistableRegistrySpi {
         prototype = statisticConstructor.get();
       }
       return prototype.isCompatibleWith(clazz);
+    }
+
+    public short getStatisticPersistableId() {
+      return statisticPersistableId;
+    }
+
+    public short getValuePersistableId() {
+      return valuePersistableId;
     }
   }
 
@@ -169,6 +157,10 @@ public abstract class StatisticsRegistrySPI implements PersistableRegistrySpi {
     @SuppressWarnings("unchecked")
     public Supplier<StatisticBinningStrategy> getConstructor() {
       return (Supplier<StatisticBinningStrategy>) constructor;
+    }
+
+    public short getPersistableId() {
+      return persistableId;
     }
   }
 

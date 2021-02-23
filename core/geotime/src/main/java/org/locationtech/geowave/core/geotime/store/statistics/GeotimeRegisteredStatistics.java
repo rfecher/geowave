@@ -12,7 +12,7 @@ import org.locationtech.geowave.core.geotime.store.statistics.BoundingBoxStatist
 import org.locationtech.geowave.core.geotime.store.statistics.TimeRangeStatistic.TimeRangeValue;
 import org.locationtech.geowave.core.store.statistics.StatisticsRegistrySPI;
 
-public class GeotimeRegisteredStatistics extends StatisticsRegistrySPI {
+public class GeotimeRegisteredStatistics implements StatisticsRegistrySPI {
 
   @Override
   public RegisteredStatistic[] getRegisteredStatistics() {

@@ -1,0 +1,49 @@
+//:= geowave-stat-add(1)
+:doctype: manpage
+
+[[stat-add-name]]
+==== NAME
+
+geowave-stat-add - Add a statistic to a data store
+
+[[stat-add-synopsis]]
+==== SYNOPSIS
+
+  geowave stat add [options] <store name> <stat type>
+
+[[stat-add-description]]
+==== DESCRIPTION
+
+This command adds a statistic from a GeoWave data store.  Each statistic and binning strategy can provide their own options.  For a list of binning strategies and statistics that are available, see `geowave stat listtypes`.
+
+[[stat-add-options]]
+==== OPTIONS
+  
+*--indexName*::
+  The index for the statistic, if the statistic is an index statistic.
+  
+*--typeName*::
+  The type for the statistic, if the statistic is a field or type statistic.
+
+*--fieldName*::
+  The field name for the statistic, if the statistic is a field statistic.
+  
+*--tag*::
+  An optional tag to uniquely identify the statistic.  This is required if a single statistic type needs to be added to the same data type or index multiple times.
+  
+*--binningStrategy*::
+  The binning strategy to use for the statistic.  If none is specified, the statistic will be aggregated to a single bin.
+  
+*--skipCalculation*::
+  If specified, the statistic will be added without calculating its initial value.  This can be useful if you plan on adding several statistics and then running `geowave stat recalc`.
+
+[[stat-add-examples]]
+==== EXAMPLES
+
+Add a `COUNT` statistic to the `counties` type binned by the `state_code` field in the `example` data store:
+
+  geowave stat add example COUNT --typeName counties --binningStrategy FIELD_VALUE --binField state_code
+
+List the options available for the `COUNT` statistic and `FIELD_VALUE` binning strategy:
+
+  geowave help stat add example COUNT --binningStrategy FIELD_VALUE

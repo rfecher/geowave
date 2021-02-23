@@ -9,11 +9,14 @@
 package org.locationtech.geowave.core.store.statistics;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.locationtech.geowave.core.index.persist.Persistable;
+import org.locationtech.geowave.core.index.persist.PersistableRegistrySpi.PersistableIdAndConstructor;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Statistic;
 import org.locationtech.geowave.core.store.api.StatisticBinningStrategy;
@@ -36,7 +39,7 @@ public class StatisticsRegistry {
 
   private Map<String, RegisteredStatistic> statistics = Maps.newHashMap();
 
-  private Map<String, Supplier<StatisticBinningStrategy>> binningStrategies = Maps.newHashMap();
+  private Map<String, RegisteredBinningStrategy> binningStrategies = Maps.newHashMap();
 
   private StatisticsRegistry() {
     final ServiceLoader<StatisticsRegistrySPI> serviceLoader =
@@ -65,7 +68,7 @@ public class StatisticsRegistry {
           "Multiple binning strategies with the same name were found on the classpath. Only the first instance will be loaded!");
       return;
     }
-    binningStrategies.put(key, strategy.getConstructor());
+    binningStrategies.put(key, strategy);
   }
 
 
@@ -75,6 +78,33 @@ public class StatisticsRegistry {
     }
     return INSTANCE;
   }
+
+  @SuppressWarnings("unchecked")
+  public PersistableIdAndConstructor[] getPersistables() {
+    Collection<RegisteredStatistic> registeredStatistics = statistics.values();
+    Collection<RegisteredBinningStrategy> registeredBinningStrategies = binningStrategies.values();
+    PersistableIdAndConstructor[] persistables =
+        new PersistableIdAndConstructor[registeredStatistics.size() * 2
+            + registeredBinningStrategies.size()];
+    int persistableIndex = 0;
+    for (RegisteredStatistic statistic : registeredStatistics) {
+      persistables[persistableIndex++] =
+          new PersistableIdAndConstructor(
+              statistic.getStatisticPersistableId(),
+              (Supplier<Persistable>) (Supplier<?>) statistic.getStatisticConstructor());
+      persistables[persistableIndex++] =
+          new PersistableIdAndConstructor(
+              statistic.getValuePersistableId(),
+              (Supplier<Persistable>) (Supplier<?>) statistic.getValueConstructor());
+    }
+    for (RegisteredBinningStrategy binningStrategy : registeredBinningStrategies) {
+      persistables[persistableIndex++] =
+          new PersistableIdAndConstructor(
+              binningStrategy.getPersistableId(),
+              (Supplier<Persistable>) (Supplier<?>) binningStrategy.getConstructor());
+    }
+    return persistables;
+  };
 
   /**
    * Get registered index statistics that are compatible with the given index class.
@@ -145,7 +175,8 @@ public class StatisticsRegistry {
    * @return a list of registered binning strategies
    */
   public List<StatisticBinningStrategy> getAllRegisteredBinningStrategies() {
-    return binningStrategies.values().stream().map(b -> b.get()).collect(Collectors.toList());
+    return binningStrategies.values().stream().map(b -> b.getConstructor().get()).collect(
+        Collectors.toList());
   }
 
   /**
@@ -194,12 +225,11 @@ public class StatisticsRegistry {
    * @return the binning strategy, or {@code null} if a matching binning strategy could not be found
    */
   public StatisticBinningStrategy getBinningStrategy(final String binningStrategyType) {
-    Supplier<StatisticBinningStrategy> strategy =
-        binningStrategies.get(binningStrategyType.toLowerCase());
+    RegisteredBinningStrategy strategy = binningStrategies.get(binningStrategyType.toLowerCase());
     if (strategy == null) {
       return null;
     }
-    return strategy.get();
+    return strategy.getConstructor().get();
   }
 
 }
