@@ -66,7 +66,7 @@ public interface StatisticQueryBuilder<V extends StatisticValue<R>, R, B extends
 
   /**
    * Set the tag for the query. Only statistics that match the given tag will be queried.
-   * 
+   *
    * @param tag the tag to use
    * @return {@code this}
    */
@@ -75,14 +75,14 @@ public interface StatisticQueryBuilder<V extends StatisticValue<R>, R, B extends
   /**
    * Set the tag filter to internal statistics. If this is set, only internal statistics willb e
    * queried.
-   * 
+   *
    * @return {@code this}
    */
   B internal();
 
   /**
    * Add an authorization to the query.
-   * 
+   *
    * @param authorization the authorization to add
    * @return {@code this}
    */
@@ -90,67 +90,60 @@ public interface StatisticQueryBuilder<V extends StatisticValue<R>, R, B extends
 
   /**
    * Set the query authorizations to the given set.
-   * 
+   *
    * @param authorizations the authorizations to use
    * @return {@code this}
    */
   B authorizations(final String[] authorizations);
 
-  /**
-   * Add a bin to the query. If a queried statistic uses a binning strategy, only values contained
-   * in one of the given bins will be returned.
-   * 
-   * @param bin the bin to add
-   * @return {@code this}
-   */
-  B addBin(final ByteArray bin);
 
   /**
    * Sets the bins of the query. If a queried statistic uses a binning strategy, only values
-   * contained in one of the given bins will be returned.
-   * 
-   * @param bin the bins to use
+   * contained in one of the bins matching {@code BinConstraints} will be returned.
+   *
+   * @param binConstraints the binConstraints object to use which will be appropriately interpreted
+   *        for this query
    * @return {@code this}
    */
-  B bins(final ByteArray... bins);
+  B binConstraints(final BinConstraints binConstraints);
 
   /**
    * Build the statistic query.
-   * 
+   *
    * @return the statistic query
    */
   StatisticQuery<V, R> build();
 
   /**
    * Create a new index statistic query builder for the given statistic type.
-   * 
+   *
    * @param statisticType the index statistic type to query
    * @return the index statistic query builder
    */
   static <V extends StatisticValue<R>, R> IndexStatisticQueryBuilder<V, R> newBuilder(
-      IndexStatisticType<V> statisticType) {
+      final IndexStatisticType<V> statisticType) {
     return new IndexStatisticQueryBuilder<>(statisticType);
   }
 
   /**
    * Create a new data type statistic query builder for the given statistic type.
-   * 
+   *
    * @param statisticType the data type statistic type to query
    * @return the data type statistic query builder
    */
   static <V extends StatisticValue<R>, R> DataTypeStatisticQueryBuilder<V, R> newBuilder(
-      DataTypeStatisticType<V> statisticType) {
+      final DataTypeStatisticType<V> statisticType) {
     return new DataTypeStatisticQueryBuilder<>(statisticType);
   }
 
   /**
    * Create a new field statistic query builder for the given statistic type.
-   * 
+   *
    * @param statisticType the field statistic type to query
    * @return the field statistic query builder
    */
   static <V extends StatisticValue<R>, R> FieldStatisticQueryBuilder<V, R> newBuilder(
-      FieldStatisticType<V> statisticType) {
+      final FieldStatisticType<V> statisticType) {
     return new FieldStatisticQueryBuilder<>(statisticType);
   }
 

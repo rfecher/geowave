@@ -70,13 +70,6 @@ public abstract class IndexStatistic<V extends StatisticValue<?>> extends BaseSt
   }
 
   @Override
-  public <T> EntryVisibilityHandler<T> getVisibilityHandler(
-      CommonIndexModel indexModel,
-      DataTypeAdapter<T> adapter) {
-    return new EmptyStatisticVisibility<>();
-  }
-
-  @Override
   protected int byteLength() {
     return super.byteLength()
         + VarintUtils.unsignedShortByteLength((short) indexName.length())

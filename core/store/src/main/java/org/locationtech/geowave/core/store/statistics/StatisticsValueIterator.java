@@ -10,10 +10,11 @@ package org.locationtech.geowave.core.store.statistics;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.api.BinConstraints.ByteArrayConstraints;
 import org.locationtech.geowave.core.store.api.Statistic;
 import org.locationtech.geowave.core.store.api.StatisticValue;
+import com.google.common.collect.Iterators;
 
 /**
  * Iterates over the values of a set of statistics.
@@ -22,7 +23,7 @@ public class StatisticsValueIterator implements CloseableIterator<StatisticValue
 
   private final DataStatisticsStore statisticsStore;
   private final Iterator<? extends Statistic<? extends StatisticValue<?>>> statistics;
-  private final ByteArray[] bins;
+  private final ByteArrayConstraints binConstraints;
   private final String[] authorizations;
 
   private CloseableIterator<? extends StatisticValue<?>> current = null;
@@ -32,37 +33,48 @@ public class StatisticsValueIterator implements CloseableIterator<StatisticValue
   public StatisticsValueIterator(
       final DataStatisticsStore statisticsStore,
       final Iterator<? extends Statistic<? extends StatisticValue<?>>> statistics,
-      final ByteArray[] bins,
-      String... authorizations) {
+      final ByteArrayConstraints binConstraints,
+      final String... authorizations) {
     this.statisticsStore = statisticsStore;
     this.statistics = statistics;
-    this.bins = bins;
+    this.binConstraints = binConstraints;
     this.authorizations = authorizations;
   }
 
   @SuppressWarnings("unchecked")
   private void computeNext() {
     if (next == null) {
-      while ((current == null || !current.hasNext()) && statistics.hasNext()) {
+      while (((current == null) || !current.hasNext()) && statistics.hasNext()) {
         if (current != null) {
           current.close();
           current = null;
         }
-        Statistic<StatisticValue<Object>> nextStat =
+        final Statistic<StatisticValue<Object>> nextStat =
             (Statistic<StatisticValue<Object>>) statistics.next();
-        if (nextStat.getBinningStrategy() != null && bins != null && bins.length > 0) {
-          current =
-              new CloseableIterator.Wrapper<>(
-                  Arrays.stream(bins).map(
-                      bin -> statisticsStore.getStatisticValue(
-                          nextStat,
-                          bin,
-                          authorizations)).iterator());
+        if ((nextStat.getBinningStrategy() != null)
+            && (binConstraints != null)
+            && !binConstraints.isAllBins()) {
+          if (binConstraints.getBins().length > 0) {
+            current =
+                new CloseableIterator.Wrapper<>(
+                    Arrays.stream(binConstraints.getBins()).map(
+                        bin -> statisticsStore.getStatisticValue(
+                            nextStat,
+                            bin,
+                            binConstraints.isPrefix(),
+                            authorizations)).iterator());
+          } else {
+            continue;
+          }
         } else {
           current = statisticsStore.getStatisticValues(nextStat, authorizations);
         }
+        if ((current != null) && !current.hasNext()) {
+          current =
+              new CloseableIterator.Wrapper<>(Iterators.singletonIterator(nextStat.createEmpty()));
+        }
       }
-      if (current != null && current.hasNext()) {
+      if ((current != null) && current.hasNext()) {
         next = current.next();
       }
     }
@@ -81,7 +93,7 @@ public class StatisticsValueIterator implements CloseableIterator<StatisticValue
     if (next == null) {
       computeNext();
     }
-    StatisticValue<?> retVal = next;
+    final StatisticValue<?> retVal = next;
     next = null;
     return retVal;
   }

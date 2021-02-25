@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.DataStoreOptions;
+import org.locationtech.geowave.core.store.api.BinConstraints.ByteArrayConstraints;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Statistic;
@@ -451,9 +452,9 @@ public class DataStatisticsStoreImpl extends
   @Override
   public CloseableIterator<? extends StatisticValue<?>> getStatisticValues(
       final Iterator<? extends Statistic<? extends StatisticValue<?>>> statistics,
-      final ByteArray[] bins,
+      final ByteArrayConstraints binConstraints,
       final String... authorizations) {
-    return new StatisticsValueIterator(this, statistics, bins, authorizations);
+    return new StatisticsValueIterator(this, statistics, binConstraints, authorizations);
   }
 
   @Override
@@ -477,13 +478,15 @@ public class DataStatisticsStoreImpl extends
   public <V extends StatisticValue<R>, R> V getStatisticValue(
       Statistic<V> statistic,
       ByteArray bin,
+      boolean binPrefixScan,
       String... authorizations) {
     if (statistic.getBinningStrategy() == null) {
       throw new UnsupportedOperationException(
           "The given statistic does not use a binning strategy, but a bin was specified.");
     }
+    // allow for bin prefix scans
     try (StatisticValueReader<V, R> reader =
-        createStatisticValueReader(statistic, bin, true, authorizations)) {
+        createStatisticValueReader(statistic, bin, !binPrefixScan, authorizations)) {
       if (reader.hasNext()) {
         return reader.next();
       }

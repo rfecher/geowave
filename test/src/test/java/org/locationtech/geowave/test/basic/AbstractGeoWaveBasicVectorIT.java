@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.util.MathUtils;
@@ -90,6 +89,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.Lists;
 import jersey.repackaged.com.google.common.collect.Maps;
 
 public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
@@ -778,7 +778,7 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
             expectedStats.size(),
             statsCount);
         for (final Entry<Statistic<?>, Map<ByteArray, StatisticValue<?>>> expectedStat : expectedStats) {
-          for (Entry<ByteArray, StatisticValue<?>> expectedValues : expectedStat.getValue().entrySet()) {
+          for (final Entry<ByteArray, StatisticValue<?>> expectedValues : expectedStat.getValue().entrySet()) {
             StatisticValue<Object> actual;
             if (expectedValues.getKey().equals(StatisticValue.NO_BIN)) {
               actual =
@@ -788,7 +788,8 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
               actual =
                   statsStore.getStatisticValue(
                       (Statistic<StatisticValue<Object>>) expectedStat.getKey(),
-                      expectedValues.getKey());
+                      expectedValues.getKey(),
+                      false);
             }
             assertEquals(expectedValues.getValue().getValue(), actual.getValue());
           }
@@ -811,7 +812,7 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
         bboxStat = getDataStorePluginOptions().createDataStore().aggregateStatistics(query);
         validateBBox(bboxStat.getValue(), cachedValue);
 
-        StatisticId<BoundingBoxValue> bboxStatId =
+        final StatisticId<BoundingBoxValue> bboxStatId =
             FieldStatistic.generateStatisticId(
                 adapter.getTypeName(),
                 BoundingBoxStatistic.STATS_TYPE,
@@ -888,12 +889,12 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
         } else {
           bins = stat.getBinningStrategy().getBins(adapter, entry, geowaveRows);
         }
-        Map<ByteArray, StatisticValue<?>> binValues = statsCache.get(stat);
-        for (ByteArray bin : bins) {
+        final Map<ByteArray, StatisticValue<?>> binValues = statsCache.get(stat);
+        for (final ByteArray bin : bins) {
           if (!binValues.containsKey(bin)) {
             binValues.put(bin, stat.createEmpty());
           }
-          StatisticValue<?> value = binValues.get(bin);
+          final StatisticValue<?> value = binValues.get(bin);
           if (value instanceof StatisticsIngestCallback) {
             ((StatisticsIngestCallback) value).entryIngested(adapter, entry, geowaveRows);
           }

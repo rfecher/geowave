@@ -13,6 +13,7 @@ import org.locationtech.geowave.core.store.statistics.adapter.CountStatistic.Cou
 import org.locationtech.geowave.core.store.statistics.binning.CompositeBinningStrategy;
 import org.locationtech.geowave.core.store.statistics.binning.DataTypeBinningStrategy;
 import org.locationtech.geowave.core.store.statistics.binning.FieldValueBinningStrategy;
+import org.locationtech.geowave.core.store.statistics.binning.NumericRangeFieldValueBinningStrategy;
 import org.locationtech.geowave.core.store.statistics.binning.PartitionBinningStrategy;
 import org.locationtech.geowave.core.store.statistics.field.CountMinSketchStatistic;
 import org.locationtech.geowave.core.store.statistics.field.FixedBinNumericHistogramStatistic;
@@ -155,6 +156,10 @@ public class CoreRegisteredStatistics implements StatisticsRegistrySPI {
         new RegisteredBinningStrategy(
             FieldValueBinningStrategy.NAME,
             FieldValueBinningStrategy::new,
-            (short) 2053)};
+            (short) 2053),
+        new RegisteredBinningStrategy(
+            NumericRangeFieldValueBinningStrategy.NAME,
+            NumericRangeFieldValueBinningStrategy::new,
+            (short) 2054)};
   }
 }

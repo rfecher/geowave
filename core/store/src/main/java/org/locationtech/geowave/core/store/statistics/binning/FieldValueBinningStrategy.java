@@ -30,7 +30,7 @@ public class FieldValueBinningStrategy implements StatisticBinningStrategy {
       names = "--binField",
       description = "Field that contains the bin value. This can be specified multiple times to bin on a combination of fields.",
       required = true)
-  private List<String> fields;
+  protected List<String> fields;
 
   public FieldValueBinningStrategy() {
     fields = Lists.newArrayList();
@@ -51,7 +51,10 @@ public class FieldValueBinningStrategy implements StatisticBinningStrategy {
   }
 
   @Override
-  public <T> ByteArray[] getBins(DataTypeAdapter<T> adapter, T entry, GeoWaveRow... rows) {
+  public <T> ByteArray[] getBins(
+      final DataTypeAdapter<T> adapter,
+      final T entry,
+      final GeoWaveRow... rows) {
     if (fields.size() == 1) {
       return new ByteArray[] {getSingleBin(adapter.getFieldValue(entry, fields.get(0)))};
     }
@@ -82,7 +85,7 @@ public class FieldValueBinningStrategy implements StatisticBinningStrategy {
   }
 
   @Override
-  public void fromBinary(byte[] bytes) {
+  public void fromBinary(final byte[] bytes) {
     fields = Arrays.asList(StringUtils.stringsFromBinary(bytes));
   }
 

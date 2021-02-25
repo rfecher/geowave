@@ -71,7 +71,6 @@ import org.locationtech.geowave.core.store.index.CommonIndexValue;
 import org.locationtech.geowave.core.store.index.CustomIndex;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
-import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.RangeReaderParams;
 import org.locationtech.geowave.core.store.operations.ReaderParamsBuilder;
 import org.locationtech.geowave.core.store.operations.RowDeleter;
@@ -90,7 +89,6 @@ import org.slf4j.LoggerFactory;
 import com.beust.jcommander.ParameterException;
 import com.clearspring.analytics.util.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.primitives.Bytes;
 
 /*
  */
@@ -201,7 +199,8 @@ public class DataStoreUtils {
               rowRangeHistogramStatistic,
               CompositeBinningStrategy.getBin(
                   DataTypeBinningStrategy.getBin(adapter),
-                  PartitionBinningStrategy.getBin(partitionRange.getPartitionKey())));
+                  PartitionBinningStrategy.getBin(partitionRange.getPartitionKey())),
+              false);
       if (value == null) {
         return Long.MAX_VALUE - 1;
       }
@@ -326,14 +325,14 @@ public class DataStoreUtils {
 
   public static QueryRanges constraintsToQueryRanges(
       final List<MultiDimensionalNumericData> constraints,
-      Index index,
+      final Index index,
       final double[] targetResolutionPerDimensionForHierarchicalIndex,
       final int maxRanges,
       final IndexMetaData... hints) {
-    if (index instanceof CustomIndex
-        && constraints != null
-        && constraints.size() == 1
-        && constraints.get(0) instanceof InternalCustomConstraints) {
+    if ((index instanceof CustomIndex)
+        && (constraints != null)
+        && (constraints.size() == 1)
+        && (constraints.get(0) instanceof InternalCustomConstraints)) {
       return ((CustomIndex) index).getQueryRanges(
           ((InternalCustomConstraints) constraints.get(0)).getCustomConstraints());
     }
@@ -588,11 +587,11 @@ public class DataStoreUtils {
   }
 
   public static List<Index> loadIndices(final IndexStore indexStore, final String indexNames) {
-    List<Index> loadedIndices = Lists.newArrayList();
+    final List<Index> loadedIndices = Lists.newArrayList();
     // Is there a comma?
     final String[] indices = indexNames.split(",");
     for (final String idxName : indices) {
-      Index index = indexStore.getIndex(idxName);
+      final Index index = indexStore.getIndex(idxName);
       if (index == null) {
         throw new ParameterException("Unable to find index with name: " + idxName);
       }
@@ -602,13 +601,13 @@ public class DataStoreUtils {
   }
 
   public static List<Index> loadIndices(final DataStore dataStore, final String indexNames) {
-    List<Index> loadedIndices = Lists.newArrayList();
+    final List<Index> loadedIndices = Lists.newArrayList();
     // Is there a comma?
     final String[] indices = indexNames.split(",");
     final Index[] dataStoreIndices = dataStore.getIndices();
     for (final String idxName : indices) {
       boolean found = false;
-      for (Index index : dataStoreIndices) {
+      for (final Index index : dataStoreIndices) {
         if (index.getName().equals(idxName)) {
           loadedIndices.add(index);
           found = true;

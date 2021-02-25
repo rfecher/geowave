@@ -35,6 +35,7 @@ import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.exceptions.MismatchedIndexToAdapterMapping;
 import org.locationtech.geowave.core.store.api.AggregationQueryBuilder;
+import org.locationtech.geowave.core.store.api.BinConstraints;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.QueryBuilder;
 import org.locationtech.geowave.core.store.api.StatisticQueryBuilder;
@@ -556,12 +557,12 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
     final InternalAdapterStore internalDataStore = dataStoreOptions.createInternalAdapterStore();
     final short internalAdapterId = internalDataStore.getAdapterId(adapter.getTypeName());
 
-    DifferingVisibilityCountValue count =
+    final DifferingVisibilityCountValue count =
         dataStore.aggregateStatistics(
             StatisticQueryBuilder.newBuilder(
                 DifferingVisibilityCountStatistic.STATS_TYPE).indexName(
-                    TestUtils.DEFAULT_SPATIAL_INDEX.getName()).addBin(
-                        DataTypeBinningStrategy.getBin(adapter)).build());
+                    TestUtils.DEFAULT_SPATIAL_INDEX.getName()).binConstraints(
+                        BinConstraints.of(DataTypeBinningStrategy.getBin(adapter))).build());
     verifyDifferingVisibilities.accept(count);
     verifyQuery.accept(store, statsStore, internalAdapterId, false);
     verifyQuery.accept(store, statsStore, internalAdapterId, true);
@@ -754,7 +755,7 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
         expectedResultCount,
         count.intValue());
 
-    CountValue countStat =
+    final CountValue countStat =
         store.aggregateStatistics(
             StatisticQueryBuilder.newBuilder(CountStatistic.STATS_TYPE).typeName(
                 getType().getTypeName()).authorizations(auths).build());

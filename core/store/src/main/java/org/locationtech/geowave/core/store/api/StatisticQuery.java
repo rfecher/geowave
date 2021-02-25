@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.core.store.api;
 
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.statistics.StatisticType;
 
 /**
@@ -31,7 +30,7 @@ public interface StatisticQuery<V extends StatisticValue<R>, R> {
   /**
    * @return the bin filter
    */
-  public ByteArray[] bins();
+  public BinConstraints binConstraints();
 
   /**
    * @return the authorizations for the query

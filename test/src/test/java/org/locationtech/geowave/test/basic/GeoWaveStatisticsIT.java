@@ -155,6 +155,8 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
             StatisticQueryBuilder.newBuilder(NumericRangeStatistic.STATS_TYPE).typeName(
                 SimpleIngest.FEATURE_NAME).fieldName("Latitude").build())) {
       // We only calculated stats for Longitude
+      assertTrue(iterator.hasNext());
+      assertFalse(iterator.next().isSet());
       assertFalse(iterator.hasNext());
     }
 
@@ -191,7 +193,7 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
 
     // Verify statistic value was removed
     count = ds.getStatisticValue(countStat);
-    assertNull(count);
+    assertEquals(count.longValue(), 0L);
 
     // Verify query
     try (CloseableIterator<CountValue> iterator =
