@@ -222,7 +222,7 @@ public class ListStatsCommand extends AbstractStatsCommand<String> implements Co
     public boolean test(StatisticValue<?> value) {
       Statistic<?> statistic = value.getStatistic();
       if (statistic.getBinningStrategy() instanceof DataTypeBinningStrategy) {
-        return true;
+        return Arrays.equals(value.getBin().getBytes(), adapterBin.getBytes());
       } else if (statistic.getBinningStrategy() instanceof CompositeBinningStrategy
           && ((CompositeBinningStrategy) statistic.getBinningStrategy()).usesStrategy(
               DataTypeBinningStrategy.class)) {
