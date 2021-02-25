@@ -12,10 +12,12 @@ import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.api.BinConstraints.ByteArrayConstraints;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Statistic;
 import org.locationtech.geowave.core.store.api.StatisticValue;
+import org.locationtech.geowave.core.store.statistics.binning.DataTypeBinningStrategy;
 import org.locationtech.geowave.core.store.statistics.index.IndexStatistic;
 
 /**
@@ -210,7 +212,7 @@ public interface DataStatisticsStore {
   /**
    * Remove all type-specific values from the given index statistic. If the statistic does not use a
    * {@link DataTypeBinningStrategy}, nothing will be removed.
-   * 
+   *
    * @param statistic
    * @param typeName
    * @return
@@ -247,13 +249,13 @@ public interface DataStatisticsStore {
    * use a binning strategy will only return values that match one of the given bins.
    *
    * @param statistics the statistics to get values for
-   * @param bins an optional bins filter
+   * @param binConstraints an optional bins filter
    * @param authorizations authorizations for the query
    * @return an iterator for all matching statistic values
    */
   CloseableIterator<? extends StatisticValue<?>> getStatisticValues(
       final Iterator<? extends Statistic<? extends StatisticValue<?>>> statistics,
-      @Nullable final ByteArray[] bins,
+      @Nullable final ByteArrayConstraints binConstraints,
       final String... authorizations);
 
   /**
@@ -274,12 +276,14 @@ public interface DataStatisticsStore {
    *
    * @param statistic the statistic to get the value of
    * @param bin the bin of the value to get
+   * @param binPrefixScan whether the bin is meant to be an exact match or a prefix
    * @param authorizations authorizations for the query
    * @return the value of the statistic, or {@code null} if it was not found
    */
   <V extends StatisticValue<R>, R> V getStatisticValue(
       final Statistic<V> statistic,
       ByteArray bin,
+      boolean binPrefixScan,
       String... authorizations);
 
   /**

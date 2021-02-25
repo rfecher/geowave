@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.core.store.statistics.query;
 
-import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.api.StatisticValue;
 import org.locationtech.geowave.core.store.statistics.field.FieldStatisticType;
 
@@ -38,14 +37,13 @@ public class FieldStatisticQueryBuilder<V extends StatisticValue<R>, R> extends
 
   @Override
   public AbstractStatisticQuery<V, R> build() {
-    ByteArray[] binArray = bins.toArray(new ByteArray[bins.size()]);
-    String[] authorizationsArray = authorizations.toArray(new String[authorizations.size()]);
-    return new FieldStatisticQuery<V, R>(
+    final String[] authorizationsArray = authorizations.toArray(new String[authorizations.size()]);
+    return new FieldStatisticQuery<>(
         statisticType,
         typeName,
         fieldName,
         tag,
-        binArray,
+        binConstraints,
         authorizationsArray);
   }
 }

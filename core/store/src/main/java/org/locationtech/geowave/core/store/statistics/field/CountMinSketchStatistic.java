@@ -82,11 +82,6 @@ public class CountMinSketchStatistic extends
   }
 
   @Override
-  public boolean isCompatibleWith(Class<?> fieldClass) {
-    return true;
-  }
-
-  @Override
   public CountMinSketchValue createEmpty() {
     return new CountMinSketchValue(this);
   }

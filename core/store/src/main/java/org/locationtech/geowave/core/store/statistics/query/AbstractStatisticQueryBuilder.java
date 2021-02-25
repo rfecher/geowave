@@ -10,7 +10,7 @@ package org.locationtech.geowave.core.store.statistics.query;
 
 import java.util.Arrays;
 import java.util.List;
-import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.store.api.BinConstraints;
 import org.locationtech.geowave.core.store.api.Statistic;
 import org.locationtech.geowave.core.store.api.StatisticQueryBuilder;
 import org.locationtech.geowave.core.store.api.StatisticValue;
@@ -29,12 +29,18 @@ public abstract class AbstractStatisticQueryBuilder<V extends StatisticValue<R>,
 
   protected String tag = null;
 
-  protected List<String> authorizations = Lists.newArrayList();
+  protected BinConstraints binConstraints = null;
 
-  protected List<ByteArray> bins = Lists.newArrayList();
+  protected List<String> authorizations = Lists.newArrayList();
 
   public AbstractStatisticQueryBuilder(final StatisticType<V> statisticType) {
     this.statisticType = statisticType;
+  }
+
+  @Override
+  public B binConstraints(final BinConstraints binConstraints) {
+    this.binConstraints = binConstraints;
+    return (B) this;
   }
 
   @Override
@@ -61,22 +67,6 @@ public abstract class AbstractStatisticQueryBuilder<V extends StatisticValue<R>,
       this.authorizations = Arrays.asList(authorizations);
     } else {
       this.authorizations.clear();
-    }
-    return (B) this;
-  }
-
-  @Override
-  public B addBin(final ByteArray bin) {
-    bins.add(bin);
-    return (B) this;
-  }
-
-  @Override
-  public B bins(final ByteArray[] bins) {
-    if (bins != null) {
-      this.bins = Arrays.asList(bins);
-    } else {
-      this.bins.clear();
     }
     return (B) this;
   }

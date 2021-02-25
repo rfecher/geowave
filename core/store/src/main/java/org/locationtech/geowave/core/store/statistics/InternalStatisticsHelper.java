@@ -24,19 +24,19 @@ import org.locationtech.geowave.core.store.statistics.binning.PartitionBinningSt
 import org.locationtech.geowave.core.store.statistics.field.FieldStatistic;
 import org.locationtech.geowave.core.store.statistics.field.FieldStatisticType;
 import org.locationtech.geowave.core.store.statistics.index.DifferingVisibilityCountStatistic;
+import org.locationtech.geowave.core.store.statistics.index.DifferingVisibilityCountStatistic.DifferingVisibilityCountValue;
 import org.locationtech.geowave.core.store.statistics.index.DuplicateEntryCountStatistic;
+import org.locationtech.geowave.core.store.statistics.index.DuplicateEntryCountStatistic.DuplicateEntryCountValue;
 import org.locationtech.geowave.core.store.statistics.index.FieldVisibilityCountStatistic;
+import org.locationtech.geowave.core.store.statistics.index.FieldVisibilityCountStatistic.FieldVisibilityCountValue;
 import org.locationtech.geowave.core.store.statistics.index.IndexMetaDataSetStatistic;
+import org.locationtech.geowave.core.store.statistics.index.IndexMetaDataSetStatistic.IndexMetaDataSetValue;
 import org.locationtech.geowave.core.store.statistics.index.IndexStatistic;
 import org.locationtech.geowave.core.store.statistics.index.IndexStatisticType;
 import org.locationtech.geowave.core.store.statistics.index.PartitionsStatistic;
-import org.locationtech.geowave.core.store.statistics.index.RowRangeHistogramStatistic;
-import org.locationtech.geowave.core.store.statistics.index.DifferingVisibilityCountStatistic.DifferingVisibilityCountValue;
 import org.locationtech.geowave.core.store.statistics.index.PartitionsStatistic.PartitionsValue;
+import org.locationtech.geowave.core.store.statistics.index.RowRangeHistogramStatistic;
 import org.locationtech.geowave.core.store.statistics.index.RowRangeHistogramStatistic.RowRangeHistogramValue;
-import org.locationtech.geowave.core.store.statistics.index.DuplicateEntryCountStatistic.DuplicateEntryCountValue;
-import org.locationtech.geowave.core.store.statistics.index.FieldVisibilityCountStatistic.FieldVisibilityCountValue;
-import org.locationtech.geowave.core.store.statistics.index.IndexMetaDataSetStatistic.IndexMetaDataSetValue;
 
 /**
  * This class contains static methods to make querying internal statistics as efficient as possible.
@@ -45,7 +45,7 @@ public class InternalStatisticsHelper {
 
   /**
    * Get the value of an internal data type statistic that does not use a binning strategy.
-   * 
+   *
    * @param statisticsStore the statistics store
    * @param statisticType the statistic type
    * @param typeName the data type name
@@ -57,7 +57,7 @@ public class InternalStatisticsHelper {
       final DataTypeStatisticType<V> statisticType,
       final String typeName,
       final String... authorizations) {
-    Statistic<V> statistic =
+    final Statistic<V> statistic =
         statisticsStore.getStatisticById(
             DataTypeStatistic.generateStatisticId(typeName, statisticType, Statistic.INTERNAL_TAG));
     if (statistic != null) {
@@ -68,7 +68,7 @@ public class InternalStatisticsHelper {
 
   /**
    * Get the value of an internal field statistic that does not use a binning strategy.
-   * 
+   *
    * @param statisticsStore the statistics store
    * @param statisticType the statistic type
    * @param typeName the data type name
@@ -82,7 +82,7 @@ public class InternalStatisticsHelper {
       final String typeName,
       final String fieldName,
       final String... authorizations) {
-    Statistic<V> statistic =
+    final Statistic<V> statistic =
         statisticsStore.getStatisticById(
             FieldStatistic.generateStatisticId(
                 typeName,
@@ -97,7 +97,7 @@ public class InternalStatisticsHelper {
 
   /**
    * Get the duplicate counts for an index.
-   * 
+   *
    * @param index the index
    * @param adapterIdsToQuery the adapters to query
    * @param adapterStore the adapter store
@@ -123,7 +123,7 @@ public class InternalStatisticsHelper {
 
   /**
    * Get the index metadtat for an index.
-   * 
+   *
    * @param index the index
    * @param adapterIdsToQuery the adapters to query
    * @param adapterStore the adapter store
@@ -149,7 +149,7 @@ public class InternalStatisticsHelper {
 
   /**
    * Get the partitions for an index.
-   * 
+   *
    * @param index the index
    * @param adapterIdsToQuery the adapters to query
    * @param adapterStore the adapter store
@@ -175,7 +175,7 @@ public class InternalStatisticsHelper {
 
   /**
    * Get the differing visibility counts for an index.
-   * 
+   *
    * @param index the index
    * @param adapterIdsToQuery the adapters to query
    * @param adapterStore the adapter store
@@ -201,7 +201,7 @@ public class InternalStatisticsHelper {
 
   /**
    * Get the field visibility counts for an index.
-   * 
+   *
    * @param index the index
    * @param adapterIdsToQuery the adapters to query
    * @param adapterStore the adapter store
@@ -227,7 +227,7 @@ public class InternalStatisticsHelper {
 
   /**
    * Get the row range histogram of an index partition.
-   * 
+   *
    * @param index the index
    * @param adapterIds the adapters to query
    * @param adapterStore the adapter store
@@ -243,25 +243,26 @@ public class InternalStatisticsHelper {
       final DataStatisticsStore statisticsStore,
       final ByteArray partitionKey,
       final String... authorizations) {
-    RowRangeHistogramStatistic stat =
+    final RowRangeHistogramStatistic stat =
         (RowRangeHistogramStatistic) statisticsStore.getStatisticById(
             IndexStatistic.generateStatisticId(
                 index.getName(),
                 RowRangeHistogramStatistic.STATS_TYPE,
                 Statistic.INTERNAL_TAG));
-    if (stat != null
-        && stat.getBinningStrategy() instanceof CompositeBinningStrategy
+    if ((stat != null)
+        && (stat.getBinningStrategy() instanceof CompositeBinningStrategy)
         && ((CompositeBinningStrategy) stat.getBinningStrategy()).isOfType(
             DataTypeBinningStrategy.class,
             PartitionBinningStrategy.class)) {
       RowRangeHistogramValue combinedValue = null;
-      for (Short adapterId : adapterIds) {
-        RowRangeHistogramValue value =
+      for (final Short adapterId : adapterIds) {
+        final RowRangeHistogramValue value =
             statisticsStore.getStatisticValue(
                 stat,
                 CompositeBinningStrategy.getBin(
                     DataTypeBinningStrategy.getBin(adapterStore.getAdapter(adapterId)),
                     PartitionBinningStrategy.getBin(partitionKey.getBytes())),
+                false,
                 authorizations);
         if (value != null) {
           if (combinedValue == null) {
@@ -279,7 +280,7 @@ public class InternalStatisticsHelper {
 
   /**
    * Get the row range histogram of a specific partition in an index.
-   * 
+   *
    * @param statisticsStore the statistics store
    * @param indexName the index name
    * @param typeName the type name
@@ -293,14 +294,14 @@ public class InternalStatisticsHelper {
       final String typeName,
       final ByteArray partitionKey,
       final String... authorizations) {
-    Statistic<RowRangeHistogramValue> statistic =
+    final Statistic<RowRangeHistogramValue> statistic =
         statisticsStore.getStatisticById(
             IndexStatistic.generateStatisticId(
                 indexName,
                 RowRangeHistogramStatistic.STATS_TYPE,
                 Statistic.INTERNAL_TAG));
-    if (statistic != null
-        && statistic.getBinningStrategy() instanceof CompositeBinningStrategy
+    if ((statistic != null)
+        && (statistic.getBinningStrategy() instanceof CompositeBinningStrategy)
         && ((CompositeBinningStrategy) statistic.getBinningStrategy()).isOfType(
             DataTypeBinningStrategy.class,
             PartitionBinningStrategy.class)) {
@@ -309,6 +310,7 @@ public class InternalStatisticsHelper {
           CompositeBinningStrategy.getBin(
               DataTypeBinningStrategy.getBin(typeName),
               PartitionBinningStrategy.getBin(partitionKey.getBytes())),
+          false,
           authorizations);
     }
     return null;
@@ -321,18 +323,19 @@ public class InternalStatisticsHelper {
       final PersistentAdapterStore adapterStore,
       final DataStatisticsStore statisticsStore,
       final String... authorizations) {
-    StatisticId<V> statisticId =
+    final StatisticId<V> statisticId =
         IndexStatistic.generateStatisticId(index.getName(), statisticType, Statistic.INTERNAL_TAG);
-    Statistic<V> stat = statisticsStore.getStatisticById(statisticId);
+    final Statistic<V> stat = statisticsStore.getStatisticById(statisticId);
     if (stat != null) {
       V combinedValue = null;
       for (final short adapterId : adapterIdsToQuery) {
-        DataTypeAdapter<?> adapter = adapterStore.getAdapter(adapterId);
+        final DataTypeAdapter<?> adapter = adapterStore.getAdapter(adapterId);
 
-        V value =
+        final V value =
             statisticsStore.getStatisticValue(
                 stat,
                 DataTypeBinningStrategy.getBin(adapter),
+                false,
                 authorizations);
         if (combinedValue == null) {
           combinedValue = value;

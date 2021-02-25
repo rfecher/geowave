@@ -10,7 +10,6 @@ package org.locationtech.geowave.core.store.statistics.index;
 
 import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.locationtech.geowave.core.index.ByteArray;
@@ -21,12 +20,7 @@ import org.locationtech.geowave.core.store.entities.GeoWaveKeyImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.entities.GeoWaveRowImpl;
 import org.locationtech.geowave.core.store.entities.GeoWaveValue;
-import org.locationtech.geowave.core.store.statistics.adapter.CountStatistic;
-import org.locationtech.geowave.core.store.statistics.adapter.CountStatistic.CountValue;
-import org.locationtech.geowave.core.store.statistics.binning.PartitionBinningStrategy;
-import org.locationtech.geowave.core.store.statistics.index.PartitionsStatistic;
 import org.locationtech.geowave.core.store.statistics.index.PartitionsStatistic.PartitionsValue;
-import com.google.common.collect.Maps;
 
 public class PartitionsStatisticTest {
   static final long base = 7l;

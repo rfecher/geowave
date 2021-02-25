@@ -38,6 +38,8 @@ import org.locationtech.geowave.core.store.adapter.InternalDataAdapterWrapper;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.api.Aggregation;
 import org.locationtech.geowave.core.store.api.AggregationQuery;
+import org.locationtech.geowave.core.store.api.BinConstraints;
+import org.locationtech.geowave.core.store.api.BinConstraints.ByteArrayConstraints;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
@@ -1364,10 +1366,33 @@ public class BaseDataStore implements DataStore {
         }
       }
     }
-    return (CloseableIterator<V>) statisticsStore.getStatisticValues(
-        statistics.iterator(),
-        query.bins(),
-        query.authorizations());
+
+    if (query.binConstraints() != null) {
+      final List<CloseableIterator<? extends StatisticValue<?>>> iterators = new ArrayList<>();
+      for (final Statistic<?> stat : statistics) {
+        if (stat.getBinningStrategy() != null) {
+          final ByteArrayConstraints bins =
+              stat.getBinningStrategy().constraints(query.binConstraints());
+          // we really don't need to check if the binning strategy supports the class considering
+          // the binning strategy won't return bin constraints if it doesn't support the object
+          if ((bins != null) && ((bins.getBins().length > 0) || bins.isAllBins())) {
+            iterators.add(
+                statisticsStore.getStatisticValues(
+                    statistics.iterator(),
+                    bins,
+                    query.authorizations()));
+          }
+        }
+      }
+      return new CloseableIteratorWrapper(
+          () -> iterators.forEach(CloseableIterator::close),
+          Iterators.concat(iterators.iterator()));
+    } else {
+      return (CloseableIterator<V>) statisticsStore.getStatisticValues(
+          statistics.iterator(),
+          null,
+          query.authorizations());
+    }
   }
 
   @Override
@@ -2224,19 +2249,21 @@ public class BaseDataStore implements DataStore {
   @Override
   public <V extends StatisticValue<R>, R> R getStatisticValue(
       final Statistic<V> stat,
-      final ByteArray... bin) {
+      BinConstraints binConstraints) {
+    if (stat == null) {
+      throw new IllegalArgumentException("Statistic must be non-null");
+    }
+    if (binConstraints == null) {
+      LOGGER.warn("Constraints are null, assuming all bins should match.");
+      binConstraints = BinConstraints.allBins();
+    }
     try (CloseableIterator<V> values =
-        (CloseableIterator<V>) statisticsStore.getStatisticValues(Iterators.forArray(stat), bin)) {
-      V value = null;
+        (CloseableIterator<V>) statisticsStore.getStatisticValues(
+            Iterators.forArray(stat),
+            binConstraints.constraints(stat))) {
+      final V value = stat.createEmpty();
       while (values.hasNext()) {
-        if (value == null) {
-          value = values.next();
-        } else {
-          value.merge(values.next());
-        }
-      }
-      if (value == null) {
-        return null;
+        value.merge(values.next());
       }
       return value.getValue();
     }
@@ -2246,9 +2273,18 @@ public class BaseDataStore implements DataStore {
   @Override
   public <V extends StatisticValue<R>, R> CloseableIterator<Pair<ByteArray, R>> getBinnedStatisticValues(
       final Statistic<V> stat,
-      final ByteArray... bin) {
+      BinConstraints binConstraints) {
+    if (stat == null) {
+      throw new IllegalArgumentException("Statistic must be non-null");
+    }
+    if (binConstraints == null) {
+      LOGGER.warn("Constraints are null, assuming all bins should match.");
+      binConstraints = BinConstraints.allBins();
+    }
     final CloseableIterator<V> values =
-        (CloseableIterator<V>) statisticsStore.getStatisticValues(Iterators.forArray(stat), bin);
+        (CloseableIterator<V>) statisticsStore.getStatisticValues(
+            Iterators.forArray(stat),
+            binConstraints.constraints(stat));
     return new CloseableIteratorWrapper<>(
         values,
         Iterators.transform(values, (v) -> Pair.of(v.getBin(), v.getValue())));

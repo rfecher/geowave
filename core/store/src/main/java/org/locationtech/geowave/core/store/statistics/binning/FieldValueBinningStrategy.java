@@ -26,7 +26,7 @@ public class FieldValueBinningStrategy implements StatisticBinningStrategy {
       names = "--binField",
       description = "Field that contains the bin value.",
       required = true)
-  private String fieldName;
+  protected String fieldName;
 
   public FieldValueBinningStrategy() {
     fieldName = null;
@@ -47,7 +47,10 @@ public class FieldValueBinningStrategy implements StatisticBinningStrategy {
   }
 
   @Override
-  public <T> ByteArray[] getBins(DataTypeAdapter<T> adapter, T entry, GeoWaveRow... rows) {
+  public <T> ByteArray[] getBins(
+      final DataTypeAdapter<T> adapter,
+      final T entry,
+      final GeoWaveRow... rows) {
     return new ByteArray[] {getBin(adapter.getFieldValue(entry, fieldName))};
   }
 
@@ -64,7 +67,7 @@ public class FieldValueBinningStrategy implements StatisticBinningStrategy {
   }
 
   @Override
-  public void fromBinary(byte[] bytes) {
+  public void fromBinary(final byte[] bytes) {
     fieldName = StringUtils.stringFromBinary(bytes);
   }
 

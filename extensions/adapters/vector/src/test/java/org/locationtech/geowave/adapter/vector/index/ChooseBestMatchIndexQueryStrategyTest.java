@@ -33,6 +33,7 @@ import org.locationtech.geowave.core.index.sfc.data.NumericData;
 import org.locationtech.geowave.core.index.sfc.data.NumericRange;
 import org.locationtech.geowave.core.index.sfc.data.NumericValue;
 import org.locationtech.geowave.core.store.CloseableIterator;
+import org.locationtech.geowave.core.store.api.BinConstraints.ByteArrayConstraints;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.Statistic;
@@ -251,88 +252,88 @@ public class ChooseBestMatchIndexQueryStrategyTest {
 
   public static class TestDataStatisticsStore implements DataStatisticsStore {
 
-    private List<Statistic<?>> statistics;
-    private Map<StatisticId<?>, Map<ByteArray, StatisticValue<?>>> statisticValues;
+    private final List<Statistic<?>> statistics;
+    private final Map<StatisticId<?>, Map<ByteArray, StatisticValue<?>>> statisticValues;
 
     public TestDataStatisticsStore(
-        List<Statistic<?>> statistics,
-        Map<StatisticId<?>, Map<ByteArray, StatisticValue<?>>> statisticValues) {
+        final List<Statistic<?>> statistics,
+        final Map<StatisticId<?>, Map<ByteArray, StatisticValue<?>>> statisticValues) {
       this.statistics = statistics;
       this.statisticValues = statisticValues;
     }
 
     @Override
-    public boolean exists(Statistic<? extends StatisticValue<?>> statistic) {
+    public boolean exists(final Statistic<? extends StatisticValue<?>> statistic) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void addStatistic(Statistic<? extends StatisticValue<?>> statistic) {
+    public void addStatistic(final Statistic<? extends StatisticValue<?>> statistic) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean removeStatistic(Statistic<? extends StatisticValue<?>> statistic) {
+    public boolean removeStatistic(final Statistic<? extends StatisticValue<?>> statistic) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean removeStatistics(
-        Iterator<? extends Statistic<? extends StatisticValue<?>>> statistics) {
+        final Iterator<? extends Statistic<? extends StatisticValue<?>>> statistics) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean removeStatistics(Index index) {
+    public boolean removeStatistics(final Index index) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean removeStatistics(DataTypeAdapter<?> type, Index... indices) {
+    public boolean removeStatistics(final DataTypeAdapter<?> type, final Index... indices) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> getIndexStatistics(
-        Index index,
-        StatisticType<? extends StatisticValue<?>> statisticType,
-        String name) {
+        final Index index,
+        final StatisticType<? extends StatisticValue<?>> statisticType,
+        final String name) {
       return new CloseableIterator.Wrapper<>(
           statistics.stream().filter(
-              stat -> stat instanceof IndexStatistic
+              stat -> (stat instanceof IndexStatistic)
                   && ((IndexStatistic<?>) stat).getIndexName().equals(index.getName())
-                  && (statisticType == null || statisticType.equals(stat.getStatisticType()))
-                  && (name == null || name.equals(stat.getTag()))).iterator());
+                  && ((statisticType == null) || statisticType.equals(stat.getStatisticType()))
+                  && ((name == null) || name.equals(stat.getTag()))).iterator());
     }
 
     @Override
     public CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> getDataTypeStatistics(
-        DataTypeAdapter<?> type,
-        StatisticType<? extends StatisticValue<?>> statisticType,
-        String name) {
+        final DataTypeAdapter<?> type,
+        final StatisticType<? extends StatisticValue<?>> statisticType,
+        final String name) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> getFieldStatistics(
-        DataTypeAdapter<?> type,
-        StatisticType<? extends StatisticValue<?>> statisticType,
-        String fieldName,
-        String name) {
+        final DataTypeAdapter<?> type,
+        final StatisticType<? extends StatisticValue<?>> statisticType,
+        final String fieldName,
+        final String name) {
       throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <V extends StatisticValue<R>, R> Statistic<V> getStatisticById(
-        StatisticId<V> statisticId) {
+        final StatisticId<V> statisticId) {
       return (Statistic<V>) statistics.stream().filter(
           s -> s.getId().equals(statisticId)).findFirst().orElse(null);
     }
 
     @Override
     public CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> getAllStatistics(
-        StatisticType<? extends StatisticValue<?>> statisticType) {
+        final StatisticType<? extends StatisticValue<?>> statisticType) {
       return new CloseableIterator.Wrapper<>(
           statistics.stream().filter(
               stat -> stat.getStatisticType().equals(statisticType)).iterator());
@@ -340,19 +341,20 @@ public class ChooseBestMatchIndexQueryStrategyTest {
 
     @Override
     public CloseableIterator<? extends StatisticValue<?>> getStatisticValues(
-        Iterator<? extends Statistic<? extends StatisticValue<?>>> statistics,
-        ByteArray[] bins,
-        String... authorizations) {
+        final Iterator<? extends Statistic<? extends StatisticValue<?>>> statistics,
+        final ByteArrayConstraints bins,
+        final String... authorizations) {
       throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <V extends StatisticValue<R>, R> V getStatisticValue(
-        Statistic<V> statistic,
-        ByteArray bin,
-        String... authorizations) {
-      Map<ByteArray, StatisticValue<?>> values = statisticValues.get(statistic.getId());
+        final Statistic<V> statistic,
+        final ByteArray bin,
+        final boolean isPrefixScan,
+        final String... authorizations) {
+      final Map<ByteArray, StatisticValue<?>> values = statisticValues.get(statistic.getId());
       if (values != null) {
         return (V) values.get(bin);
       }
@@ -362,9 +364,9 @@ public class ChooseBestMatchIndexQueryStrategyTest {
     @SuppressWarnings("unchecked")
     @Override
     public <V extends StatisticValue<R>, R> CloseableIterator<V> getStatisticValues(
-        Statistic<V> statistic,
-        String... authorizations) {
-      Map<ByteArray, StatisticValue<?>> values = statisticValues.get(statistic.getId());
+        final Statistic<V> statistic,
+        final String... authorizations) {
+      final Map<ByteArray, StatisticValue<?>> values = statisticValues.get(statistic.getId());
       if (values != null) {
         return new CloseableIterator.Wrapper<>((Iterator<V>) values.values().iterator());
       }
@@ -373,8 +375,8 @@ public class ChooseBestMatchIndexQueryStrategyTest {
 
     @Override
     public <V extends StatisticValue<R>, R> V getStatisticValue(
-        Statistic<V> statistic,
-        String... authorizations) {
+        final Statistic<V> statistic,
+        final String... authorizations) {
       throw new UnsupportedOperationException();
     }
 
@@ -385,69 +387,69 @@ public class ChooseBestMatchIndexQueryStrategyTest {
 
     @Override
     public <V extends StatisticValue<R>, R> void setStatisticValue(
-        Statistic<V> statistic,
-        V value) {
+        final Statistic<V> statistic,
+        final V value) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public <V extends StatisticValue<R>, R> void setStatisticValue(
-        Statistic<V> statistic,
-        V value,
-        ByteArray bin) {
+        final Statistic<V> statistic,
+        final V value,
+        final ByteArray bin) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public <V extends StatisticValue<R>, R> void incorporateStatisticValue(
-        Statistic<V> statistic,
-        V value) {
+        final Statistic<V> statistic,
+        final V value) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public <V extends StatisticValue<R>, R> void incorporateStatisticValue(
-        Statistic<V> statistic,
-        V value,
-        ByteArray bin) {
+        final Statistic<V> statistic,
+        final V value,
+        final ByteArray bin) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean removeStatisticValue(Statistic<? extends StatisticValue<?>> statistic) {
+    public boolean removeStatisticValue(final Statistic<? extends StatisticValue<?>> statistic) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean removeStatisticValue(
-        Statistic<? extends StatisticValue<?>> statistic,
-        ByteArray bin) {
+        final Statistic<? extends StatisticValue<?>> statistic,
+        final ByteArray bin) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean removeStatisticValues(Statistic<? extends StatisticValue<?>> statistic) {
+    public boolean removeStatisticValues(final Statistic<? extends StatisticValue<?>> statistic) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean removeTypeSpecificStatisticValues(
-        IndexStatistic<? extends StatisticValue<?>> statistic,
-        String typeName) {
+        final IndexStatistic<? extends StatisticValue<?>> statistic,
+        final String typeName) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public <V extends StatisticValue<R>, R> StatisticValueWriter<V> createStatisticValueWriter(
-        Statistic<V> statistic) {
+        final Statistic<V> statistic) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> StatisticUpdateCallback<T> createUpdateCallback(
-        Index index,
-        DataTypeAdapter<T> adapter,
-        boolean updateAdapterStats) {
+        final Index index,
+        final DataTypeAdapter<T> adapter,
+        final boolean updateAdapterStats) {
       throw new UnsupportedOperationException();
     }
 

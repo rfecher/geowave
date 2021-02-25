@@ -31,11 +31,14 @@ public class DataTypeBinningStrategy implements StatisticBinningStrategy {
   }
 
   @Override
-  public <T> ByteArray[] getBins(DataTypeAdapter<T> adapter, T entry, GeoWaveRow... rows) {
+  public <T> ByteArray[] getBins(
+      final DataTypeAdapter<T> adapter,
+      final T entry,
+      final GeoWaveRow... rows) {
     return new ByteArray[] {getBin(adapter)};
   }
 
-  public static ByteArray getBin(DataTypeAdapter<?> adapter) {
+  public static ByteArray getBin(final DataTypeAdapter<?> adapter) {
     if (adapter == null) {
       return new ByteArray();
     }
@@ -55,11 +58,10 @@ public class DataTypeBinningStrategy implements StatisticBinningStrategy {
   }
 
   @Override
-  public void fromBinary(byte[] bytes) {}
+  public void fromBinary(final byte[] bytes) {}
 
   @Override
   public String binToString(final ByteArray bin) {
     return bin.getString();
   }
-
 }

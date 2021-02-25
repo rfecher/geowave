@@ -13,6 +13,7 @@ import org.locationtech.geowave.core.store.EntryVisibilityHandler;
 import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.statistics.StatisticId;
 import org.locationtech.geowave.core.store.statistics.StatisticType;
+import org.locationtech.geowave.core.store.statistics.visibility.EmptyStatisticVisibility;
 
 /**
  * This is the base interface for all statistics in GeoWave.
@@ -33,28 +34,28 @@ public interface Statistic<V extends StatisticValue<?>> extends Persistable {
 
   /**
    * Get the statistic type associated with the statistic.
-   * 
+   *
    * @return the statistic type
    */
   StatisticType<V> getStatisticType();
 
   /**
    * Get the tag for the statistic.
-   * 
+   *
    * @return the tag
    */
   String getTag();
 
   /**
    * Get a human-readable description of this statistic.
-   * 
+   *
    * @return a description of the statistic
    */
   String getDescription();
 
   /**
    * Create a new value for this statistic, initialized to a base state (no entries ingested).
-   * 
+   *
    * @return the new value
    */
   V createEmpty();
@@ -68,33 +69,37 @@ public interface Statistic<V extends StatisticValue<?>> extends Persistable {
 
   /**
    * Get the visibility handler for the statistic.
-   * 
+   *
    * @param indexModel the index model
    * @param type the data tyep
    * @return the visiblity handler
    */
-  <T> EntryVisibilityHandler<T> getVisibilityHandler(
-      CommonIndexModel indexModel,
-      DataTypeAdapter<T> type);
+  default <T> EntryVisibilityHandler<T> getVisibilityHandler(
+      final CommonIndexModel indexModel,
+      final DataTypeAdapter<T> type) {
+    return new EmptyStatisticVisibility<>();
+  }
 
   /**
    * Determine if the statistic is compatible with the given class.
-   * 
+   *
    * @param clazz the class to check
    * @return {@code true} if the statistic is compatible
    */
-  boolean isCompatibleWith(Class<?> clazz);
+  default boolean isCompatibleWith(final Class<?> clazz) {
+    return true;
+  }
 
   /**
    * Return the unique identifier for the statistic.
-   * 
+   *
    * @return the statistic id
    */
   StatisticId<V> getId();
 
   /**
    * Returns the binning strategy used by the statistic.
-   * 
+   *
    * @return the binning strategy, or {@code null} if there is none
    */
   StatisticBinningStrategy getBinningStrategy();

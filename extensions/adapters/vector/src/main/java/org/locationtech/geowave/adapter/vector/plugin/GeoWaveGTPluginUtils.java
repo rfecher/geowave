@@ -42,11 +42,11 @@ class GeoWaveGTPluginUtils {
   protected static Map<String, List<FieldStatistic<?>>> getFieldStats(
       final DataStatisticsStore statisticsStore,
       final DataTypeAdapter<?> adapter) {
-    Map<String, List<FieldStatistic<?>>> adapterFieldStatistics = Maps.newHashMap();
+    final Map<String, List<FieldStatistic<?>>> adapterFieldStatistics = Maps.newHashMap();
     try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statistics =
         statisticsStore.getFieldStatistics(adapter, null, null, null)) {
       while (statistics.hasNext()) {
-        FieldStatistic<?> next = (FieldStatistic<?>) statistics.next();
+        final FieldStatistic<?> next = (FieldStatistic<?>) statistics.next();
         List<FieldStatistic<?>> fieldStats = adapterFieldStatistics.get(next.getFieldName());
         if (fieldStats == null) {
           fieldStats = Lists.newArrayList();
@@ -71,22 +71,26 @@ class GeoWaveGTPluginUtils {
       final Collection<String> attrs =
           (Collection<String>) minVisitor.getExpression().accept(filter, null);
       int acceptedCount = 0;
-      Map<String, List<FieldStatistic<?>>> adapterFieldStatistics =
+      final Map<String, List<FieldStatistic<?>>> adapterFieldStatistics =
           getFieldStats(statisticsStore, adapter);
       for (final String attr : attrs) {
         if (!adapterFieldStatistics.containsKey(attr)) {
           continue;
         }
         for (final FieldStatistic<?> stat : adapterFieldStatistics.get(attr)) {
-          if (stat instanceof TimeRangeStatistic && stat.getBinningStrategy() == null) {
-            TimeRangeValue statValue = statisticsStore.getStatisticValue((TimeRangeStatistic) stat);
+          if ((stat instanceof TimeRangeStatistic) && (stat.getBinningStrategy() == null)) {
+            final TimeRangeValue statValue =
+                statisticsStore.getStatisticValue((TimeRangeStatistic) stat);
             if (statValue != null) {
               minVisitor.setValue(convertToType(attr, new Date(statValue.getMin()), featureType));
               acceptedCount++;
             }
           } else if (stat instanceof NumericRangeStatistic) {
-            NumericRangeValue statValue =
-                statisticsStore.getStatisticValue((NumericRangeStatistic) stat, new ByteArray());
+            final NumericRangeValue statValue =
+                statisticsStore.getStatisticValue(
+                    (NumericRangeStatistic) stat,
+                    new ByteArray(),
+                    true);
             if (statValue != null) {
               minVisitor.setValue(convertToType(attr, statValue.getMin(), featureType));
               acceptedCount++;
@@ -108,19 +112,23 @@ class GeoWaveGTPluginUtils {
       final Collection<String> attrs =
           (Collection<String>) maxVisitor.getExpression().accept(filter, null);
       int acceptedCount = 0;
-      Map<String, List<FieldStatistic<?>>> adapterFieldStatistics =
+      final Map<String, List<FieldStatistic<?>>> adapterFieldStatistics =
           getFieldStats(statisticsStore, adapter);
       for (final String attr : attrs) {
         for (final FieldStatistic<?> stat : adapterFieldStatistics.get(attr)) {
-          if (stat instanceof TimeRangeStatistic && stat.getBinningStrategy() == null) {
-            TimeRangeValue statValue = statisticsStore.getStatisticValue((TimeRangeStatistic) stat);
+          if ((stat instanceof TimeRangeStatistic) && (stat.getBinningStrategy() == null)) {
+            final TimeRangeValue statValue =
+                statisticsStore.getStatisticValue((TimeRangeStatistic) stat);
             if (statValue != null) {
               maxVisitor.setValue(convertToType(attr, new Date(statValue.getMax()), featureType));
               acceptedCount++;
             }
           } else if (stat instanceof NumericRangeStatistic) {
-            NumericRangeValue statValue =
-                statisticsStore.getStatisticValue((NumericRangeStatistic) stat, new ByteArray());
+            final NumericRangeValue statValue =
+                statisticsStore.getStatisticValue(
+                    (NumericRangeStatistic) stat,
+                    new ByteArray(),
+                    true);
             if (statValue != null) {
               maxVisitor.setValue(convertToType(attr, statValue.getMax(), featureType));
               acceptedCount++;

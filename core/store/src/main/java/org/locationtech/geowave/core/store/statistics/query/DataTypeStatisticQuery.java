@@ -8,7 +8,7 @@
  */
 package org.locationtech.geowave.core.store.statistics.query;
 
-import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.store.api.BinConstraints;
 import org.locationtech.geowave.core.store.api.StatisticValue;
 import org.locationtech.geowave.core.store.statistics.StatisticType;
 
@@ -24,9 +24,9 @@ public class DataTypeStatisticQuery<V extends StatisticValue<R>, R> extends
       final StatisticType<V> statisticType,
       final String typeName,
       final String tag,
-      final ByteArray[] bins,
+      final BinConstraints binConstraints,
       final String[] authorizations) {
-    super(statisticType, tag, bins, authorizations);
+    super(statisticType, tag, binConstraints, authorizations);
     this.typeName = typeName;
   }
 

@@ -72,7 +72,7 @@ public class MemoryDataStoreTest {
         return new GlobalVisibilityHandler("aaa&bbb");
       }
     };
-    List<Statistic<?>> statistics = Lists.newArrayList();
+    final List<Statistic<?>> statistics = Lists.newArrayList();
     statistics.add(new CountStatistic(adapter.getTypeName()));
     statistics.add(
         new NumericRangeStatistic(adapter.getTypeName(), MockAbstractDataAdapter.INTEGER));
@@ -119,11 +119,17 @@ public class MemoryDataStoreTest {
     try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statsIt =
         statsStore.getAllStatistics(null)) {
       try (CloseableIterator<? extends StatisticValue<?>> statisticValues =
-          statsStore.getStatisticValues(statsIt, null)) {
+          statsStore.getStatisticValues(statsIt, null, "aaa", "bbb")) {
         assertTrue(checkStats(statisticValues, 2, new NumericRange(25, 35)));
       }
     }
-
+    try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statsIt =
+        statsStore.getAllStatistics(null)) {
+      try (CloseableIterator<? extends StatisticValue<?>> statisticValues =
+          statsStore.getStatisticValues(statsIt, null)) {
+        assertTrue(checkStats(statisticValues, 0, null));
+      }
+    }
     dataStore.delete(
         QueryBuilder.newBuilder().addTypeName(adapter.getTypeName()).indexName(
             index.getName()).addAuthorization("aaa").addAuthorization("bbb").constraints(
@@ -181,7 +187,7 @@ public class MemoryDataStoreTest {
       }
     };
 
-    List<Statistic<?>> statistics = Lists.newArrayList();
+    final List<Statistic<?>> statistics = Lists.newArrayList();
     statistics.add(
         new NumericRangeStatistic(adapter.getTypeName(), MockAbstractDataAdapter.INTEGER));
 
@@ -228,8 +234,15 @@ public class MemoryDataStoreTest {
     try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statsIt =
         statsStore.getAllStatistics(null)) {
       try (CloseableIterator<? extends StatisticValue<?>> statisticValues =
-          statsStore.getStatisticValues(statsIt, null)) {
+          statsStore.getStatisticValues(statsIt, null, "aaa", "bbb")) {
         assertTrue(checkStats(statisticValues, 2, new NumericRange(25, 35)));
+      }
+    }
+    try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statsIt =
+        statsStore.getAllStatistics(null)) {
+      try (CloseableIterator<? extends StatisticValue<?>> statisticValues =
+          statsStore.getStatisticValues(statsIt, null)) {
+        assertTrue(checkStats(statisticValues, 0, null));
       }
     }
 
@@ -290,26 +303,27 @@ public class MemoryDataStoreTest {
       final Iterator<? extends StatisticValue<?>> statIt,
       final int count,
       final NumericRange range) {
+    boolean countPassed = false;
+    boolean rangePassed = false;
     while (statIt.hasNext()) {
       final StatisticValue<?> stat = statIt.next();
-      if ((stat instanceof CountValue) && (((CountValue) stat).getValue() != count)) {
-        return false;
-      } else if ((stat instanceof NumericRangeValue)
-          && ((((NumericRangeValue) stat).getMin() != range.getMin())
-              || (((NumericRangeValue) stat).getMax() != range.getMax()))) {
-        return false;
+      if ((stat instanceof CountValue)) {
+        countPassed = (((CountValue) stat).getValue() == count);
+      } else if ((stat instanceof NumericRangeValue)) {
+        rangePassed =
+            range == null ? !((NumericRangeValue) stat).isSet()
+                : ((((NumericRangeValue) stat).getMin() == range.getMin())
+                    && (((NumericRangeValue) stat).getMax() == range.getMax()));
       }
     }
-    return true;
+    return countPassed && rangePassed;
   }
 
   private class TestQueryFilter implements QueryFilter {
-    final CommonIndexModel indexModel;
     final double min, max;
 
-    public TestQueryFilter(final CommonIndexModel indexModel, final double min, final double max) {
+    public TestQueryFilter(final double min, final double max) {
       super();
-      this.indexModel = indexModel;
       this.min = min;
       this.max = max;
     }
@@ -348,7 +362,7 @@ public class MemoryDataStoreTest {
 
     @Override
     public List<QueryFilter> createFilters(final Index index) {
-      return Arrays.asList((QueryFilter) new TestQueryFilter(index.getIndexModel(), min, max));
+      return Arrays.asList((QueryFilter) new TestQueryFilter(min, max));
     }
 
     @Override

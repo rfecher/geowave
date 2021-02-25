@@ -161,9 +161,9 @@ public class DeletePyramidLevelCommand extends DefaultOperation implements Comma
           statsStore.getDataTypeStatistics(adapter, RasterOverviewStatistic.STATS_TYPE, null)) {
         while (it.hasNext()) {
           final Statistic<? extends StatisticValue<?>> next = it.next();
-          if (next instanceof RasterOverviewStatistic && next.getBinningStrategy() == null) {
-            RasterOverviewStatistic statistic = (RasterOverviewStatistic) next;
-            RasterOverviewValue value = statsStore.getStatisticValue(statistic);
+          if ((next instanceof RasterOverviewStatistic) && (next.getBinningStrategy() == null)) {
+            final RasterOverviewStatistic statistic = (RasterOverviewStatistic) next;
+            final RasterOverviewValue value = statsStore.getStatisticValue(statistic);
             if (!value.removeResolution(res)) {
               LOGGER.error("Unable to remove resolution for pyramid level " + level);
               return;
@@ -182,13 +182,14 @@ public class DeletePyramidLevelCommand extends DefaultOperation implements Comma
         while (it.hasNext()) {
           final Statistic<? extends StatisticValue<?>> next = it.next();
           if (next instanceof PartitionsStatistic) {
-            if (next.getBinningStrategy() != null
-                && next.getBinningStrategy() instanceof DataTypeBinningStrategy) {
-              PartitionsStatistic statistic = (PartitionsStatistic) next;
-              PartitionsValue value =
+            if ((next.getBinningStrategy() != null)
+                && (next.getBinningStrategy() instanceof DataTypeBinningStrategy)) {
+              final PartitionsStatistic statistic = (PartitionsStatistic) next;
+              final PartitionsValue value =
                   statsStore.getStatisticValue(
                       (PartitionsStatistic) next,
-                      DataTypeBinningStrategy.getBin(adapter));
+                      DataTypeBinningStrategy.getBin(adapter),
+                      false);
               for (final ByteArray p : partitions) {
                 if (!value.getValue().remove(p)) {
                   LOGGER.error(
