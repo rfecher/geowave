@@ -31,8 +31,6 @@ import org.locationtech.geowave.core.store.operations.MetadataReader;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.statistics.DefaultStatisticsProvider;
-import org.locationtech.geowave.core.store.statistics.StatisticType;
-import org.locationtech.geowave.core.store.statistics.StatisticsRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.Parameter;
@@ -53,11 +51,6 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
       description = "If specified, all matching statistics will be recalculated.")
   private boolean all = false;
 
-  @Parameter(
-      names = "--statType",
-      description = "If specified, only statistics of the given type will be recalculated.")
-  private String statType = null;
-
   @Override
   public void execute(final OperationParams params) {
     computeResults(params);
@@ -72,16 +65,7 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
     final DataStore dataStore = storeOptions.createDataStore();
     final DataStatisticsStore statStore = storeOptions.createDataStatisticsStore();
     final IndexStore indexStore = storeOptions.createIndexStore();
-
-    StatisticType<StatisticValue<Object>> statisticType = null;
-
-    if (statType != null) {
-      statisticType = StatisticsRegistry.instance().getStatisticType(statType);
-
-      if (statisticType == null) {
-        throw new ParameterException("Unrecognized statistic type: " + statType);
-      }
-    }
+    
     if (all) {
       // check for legacy stats table and if it exists, delete it and add all default stats
       final DataStoreOperations ops = storeOptions.createDataStoreOperations();
@@ -124,7 +108,7 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
       }
     }
     final List<Statistic<? extends StatisticValue<?>>> toRecalculate =
-        statsOptions.resolveMatchingStatistics(statisticType, dataStore, statStore, indexStore);
+        statsOptions.resolveMatchingStatistics(dataStore, statStore, indexStore);
 
     if (toRecalculate.isEmpty()) {
       throw new ParameterException("A matching statistic could not be found");
@@ -158,9 +142,5 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
 
   public void setAll(final boolean all) {
     this.all = all;
-  }
-
-  public void setStatType(final String statType) {
-    this.statType = statType;
   }
 }

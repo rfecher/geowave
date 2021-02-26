@@ -31,12 +31,17 @@ import org.locationtech.geowave.core.store.api.StatisticValue;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
+import org.locationtech.geowave.core.store.statistics.StatisticType;
+import org.locationtech.geowave.core.store.statistics.StatisticsRegistry;
 import org.locationtech.geowave.core.store.statistics.StatisticsValueIterator;
 import org.locationtech.geowave.core.store.statistics.adapter.DataTypeStatistic;
+import org.locationtech.geowave.core.store.statistics.adapter.DataTypeStatisticType;
 import org.locationtech.geowave.core.store.statistics.binning.CompositeBinningStrategy;
 import org.locationtech.geowave.core.store.statistics.binning.DataTypeBinningStrategy;
 import org.locationtech.geowave.core.store.statistics.field.FieldStatistic;
+import org.locationtech.geowave.core.store.statistics.field.FieldStatisticType;
 import org.locationtech.geowave.core.store.statistics.index.IndexStatistic;
+import org.locationtech.geowave.core.store.statistics.index.IndexStatisticType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.Parameter;
@@ -91,11 +96,24 @@ public class ListStatsCommand extends AbstractStatsCommand<String> implements Co
       }
     }
 
+    StatisticType<StatisticValue<Object>> statisticType = null;
+    if (statsOptions.getStatType() != null) {
+      statisticType = StatisticsRegistry.instance().getStatisticType(statsOptions.getStatType());
+
+      if (statisticType == null) {
+        throw new ParameterException("Unrecognized statistic type: " + statsOptions.getStatType());
+      }
+    }
+
     List<String> headers = null;
     List<Statistic<?>> statsToList = Lists.newLinkedList();
     ValueTransformer transformer = null;
     Predicate<StatisticValue<?>> filter;
     if (statsOptions.getIndexName() != null) {
+      if (statisticType != null && !(statisticType instanceof IndexStatisticType)) {
+        throw new ParameterException(
+            "Only index statistic types can be specified when listing statistics for a specific index.");
+      }
       Index index = indexStore.getIndex(statsOptions.getIndexName());
       if (index == null) {
         throw new ParameterException(
@@ -104,7 +122,7 @@ public class ListStatsCommand extends AbstractStatsCommand<String> implements Co
       headers = Lists.newArrayList("Statistic", "Tag", "Bin", "Value");
       transformer = new ValueToRow();
       try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
-          statsStore.getIndexStatistics(index, null, statsOptions.getTag())) {
+          statsStore.getIndexStatistics(index, statisticType, statsOptions.getTag())) {
         if (adapter != null) {
           stats.forEachRemaining(stat -> {
             if (stat.getBinningStrategy() instanceof DataTypeBinningStrategy
@@ -123,26 +141,38 @@ public class ListStatsCommand extends AbstractStatsCommand<String> implements Co
     } else if (statsOptions.getTypeName() != null) {
       filter = null;
       if (statsOptions.getFieldName() != null) {
+        if (statisticType != null && !(statisticType instanceof FieldStatisticType)) {
+          throw new ParameterException(
+              "Only field statistic types can be specified when listing statistics for a specific field.");
+        }
         headers = Lists.newArrayList("Statistic", "Tag", "Bin", "Value");
         transformer = new ValueToRow();
         try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
             statsStore.getFieldStatistics(
                 adapter,
-                null,
+                statisticType,
                 statsOptions.getFieldName(),
                 statsOptions.getTag())) {
           stats.forEachRemaining(statsToList::add);
         }
       } else {
+        if (statisticType != null && statisticType instanceof IndexStatisticType) {
+          throw new ParameterException(
+              "Only data type and field statistic types can be specified when listing statistics for a specific data type.");
+        }
         headers = Lists.newArrayList("Statistic", "Tag", "Field", "Bin", "Value");
         transformer = new ValueToFieldRow();
-        try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
-            statsStore.getDataTypeStatistics(adapter, null, statsOptions.getTag())) {
-          stats.forEachRemaining(statsToList::add);
+        if (statisticType == null || statisticType instanceof DataTypeStatisticType) {
+          try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
+              statsStore.getDataTypeStatistics(adapter, statisticType, statsOptions.getTag())) {
+            stats.forEachRemaining(statsToList::add);
+          }
         }
-        try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
-            statsStore.getFieldStatistics(adapter, null, null, statsOptions.getTag())) {
-          stats.forEachRemaining(statsToList::add);
+        if (statisticType == null || statisticType instanceof FieldStatisticType) {
+          try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
+              statsStore.getFieldStatistics(adapter, statisticType, null, statsOptions.getTag())) {
+            stats.forEachRemaining(statsToList::add);
+          }
         }
       }
     } else if (statsOptions.getFieldName() != null) {
@@ -152,7 +182,7 @@ public class ListStatsCommand extends AbstractStatsCommand<String> implements Co
       headers = Lists.newArrayList("Index/Adapter", "Statistic", "Tag", "Field", "Bin", "Value");
       transformer = new ValueToAllRow();
       try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> stats =
-          statsStore.getAllStatistics(null)) {
+          statsStore.getAllStatistics(statisticType)) {
         stats.forEachRemaining(statsToList::add);
       }
     }

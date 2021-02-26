@@ -9,7 +9,6 @@
 package org.locationtech.geowave.core.store.cli.stats;
 
 import java.util.List;
-import javax.annotation.Nullable;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
@@ -19,6 +18,7 @@ import org.locationtech.geowave.core.store.api.StatisticValue;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.statistics.StatisticType;
+import org.locationtech.geowave.core.store.statistics.StatisticsRegistry;
 import org.locationtech.geowave.core.store.statistics.adapter.DataTypeStatistic;
 import org.locationtech.geowave.core.store.statistics.adapter.DataTypeStatisticType;
 import org.locationtech.geowave.core.store.statistics.field.FieldStatistic;
@@ -30,6 +30,11 @@ import com.beust.jcommander.ParameterException;
 import com.clearspring.analytics.util.Lists;
 
 public class StatsCommandLineOptions {
+  
+  @Parameter(
+      names = {"-t", "--type"},
+      description = "The type of the statistic.")
+  private String statType;
 
   @Parameter(names = "--indexName", description = "The name of the index, for index statistics.")
   private String indexName;
@@ -89,10 +94,17 @@ public class StatsCommandLineOptions {
   public String getTag() {
     return tag;
   }
+  
+  public void setStatType(final String statType) {
+    this.statType = statType;
+  }
+  
+  public String getStatType() {
+    return statType;
+  }
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public List<Statistic<? extends StatisticValue<?>>> resolveMatchingStatistics(
-      final @Nullable StatisticType<StatisticValue<Object>> statisticType,
       final DataStore dataStore,
       final DataStatisticsStore statsStore,
       final IndexStore indexStore) {
@@ -100,6 +112,14 @@ public class StatsCommandLineOptions {
     if (indexName != null && (typeName != null || fieldName != null)) {
       throw new ParameterException(
           "Unable to process index statistics for a single type. Specify either an index name or a type name.");
+    }
+    StatisticType statisticType = null;
+    if (statType != null) {
+      statisticType = StatisticsRegistry.instance().getStatisticType(statType);
+
+      if (statisticType == null) {
+        throw new ParameterException("Unrecognized statistic type: " + statType);
+      }
     }
     if (statisticType != null) {
       if (statisticType instanceof IndexStatisticType) {

@@ -44,11 +44,6 @@ public class RemoveStatCommand extends AbstractStatsCommand<Void> {
           + "that are marked as \"internal\" can have a detrimental impact on performance!")
   private boolean force = false;
 
-  @Parameter(
-      names = "--statType",
-      description = "If specified, only statistics of the given type will be removed.")
-  private String statType = null;
-
   @Override
   public void execute(final OperationParams params) {
     computeResults(params);
@@ -64,18 +59,8 @@ public class RemoveStatCommand extends AbstractStatsCommand<Void> {
     final DataStatisticsStore statStore = storeOptions.createDataStatisticsStore();
     final IndexStore indexStore = storeOptions.createIndexStore();
 
-    StatisticType<StatisticValue<Object>> statisticType = null;
-
-    if (statType != null) {
-      statisticType = StatisticsRegistry.instance().getStatisticType(statType);
-
-      if (statisticType == null) {
-        throw new ParameterException("Unrecognized statistic type: " + statType);
-      }
-    }
-
     final List<Statistic<? extends StatisticValue<?>>> toRemove =
-        statsOptions.resolveMatchingStatistics(statisticType, dataStore, statStore, indexStore);
+        statsOptions.resolveMatchingStatistics(dataStore, statStore, indexStore);
 
     if (!force) {
       for (Statistic<?> stat : toRemove) {
@@ -96,7 +81,7 @@ public class RemoveStatCommand extends AbstractStatsCommand<Void> {
     }
 
     if (!statStore.removeStatistics(toRemove.iterator())) {
-      throw new RuntimeException("Unable to remove statistics of type: " + statType);
+      throw new RuntimeException("Unable to remove statistics");
     }
 
     return true;

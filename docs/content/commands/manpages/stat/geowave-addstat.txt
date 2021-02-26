@@ -9,7 +9,7 @@ geowave-stat-add - Add a statistic to a data store
 [[stat-add-synopsis]]
 ==== SYNOPSIS
 
-  geowave stat add [options] <store name> <stat type>
+  geowave stat add [options] <store name>
 
 [[stat-add-description]]
 ==== DESCRIPTION
@@ -19,22 +19,25 @@ This command adds a statistic from a GeoWave data store.  Each statistic and bin
 [[stat-add-options]]
 ==== OPTIONS
   
-*--indexName*::
+*$$*$$ -t, --type* _<type>_::
+  The statistic type to add.
+  
+*--indexName* _<name>_::
   The index for the statistic, if the statistic is an index statistic.
   
-*--typeName*::
+*--typeName* _<name>_::
   The type for the statistic, if the statistic is a field or type statistic.
 
-*--fieldName*::
+*--fieldName* _<name>_::
   The field name for the statistic, if the statistic is a field statistic.
   
-*--tag*::
+*--tag* _<tag>_::
   An optional tag to uniquely identify the statistic.  This is required if a single statistic type needs to be added to the same data type or index multiple times.
   
-*--binningStrategy*::
+*-b, --binningStrategy* _<strategy>_::
   The binning strategy to use for the statistic.  If none is specified, the statistic will be aggregated to a single bin.
   
-*--skipCalculation*::
+*-skip, --skipCalculation*::
   If specified, the statistic will be added without calculating its initial value.  This can be useful if you plan on adding several statistics and then running `geowave stat recalc`.
 
 [[stat-add-examples]]
@@ -42,8 +45,8 @@ This command adds a statistic from a GeoWave data store.  Each statistic and bin
 
 Add a `COUNT` statistic to the `counties` type binned by the `state_code` field in the `example` data store:
 
-  geowave stat add example COUNT --typeName counties --binningStrategy FIELD_VALUE --binField state_code
+  geowave stat add example -t COUNT --typeName counties -b FIELD_VALUE --binField state_code
 
 List the options available for the `COUNT` statistic and `FIELD_VALUE` binning strategy:
 
-  geowave help stat add example COUNT --binningStrategy FIELD_VALUE
+  geowave help stat add example -t COUNT -b FIELD_VALUE
