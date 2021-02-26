@@ -86,9 +86,7 @@ public interface Statistic<V extends StatisticValue<?>> extends Persistable {
    * @param clazz the class to check
    * @return {@code true} if the statistic is compatible
    */
-  default boolean isCompatibleWith(final Class<?> clazz) {
-    return true;
-  }
+  boolean isCompatibleWith(final Class<?> clazz);
 
   /**
    * Return the unique identifier for the statistic.

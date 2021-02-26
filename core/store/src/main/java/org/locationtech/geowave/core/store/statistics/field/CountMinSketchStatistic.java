@@ -13,7 +13,6 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.VarintUtils;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
-import org.locationtech.geowave.core.store.api.Statistic;
 import org.locationtech.geowave.core.store.api.StatisticValue;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.statistics.StatisticsIngestCallback;
@@ -79,6 +78,11 @@ public class CountMinSketchStatistic extends
   @Override
   public String getDescription() {
     return "Maintains an estimate of how many of each attribute value occurs in a set of data.";
+  }
+
+  @Override
+  public boolean isCompatibleWith(Class<?> fieldClass) {
+    return true;
   }
 
   @Override

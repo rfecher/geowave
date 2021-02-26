@@ -14,8 +14,6 @@ import org.locationtech.geowave.core.cli.api.OperationParams;
 import org.locationtech.geowave.core.cli.api.ServiceEnabledCommand;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.cli.store.StoreLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.internal.Console;
@@ -28,8 +26,6 @@ public abstract class AbstractStatsCommand<T> extends ServiceEnabledCommand<T> {
   public Boolean successStatusIs200() {
     return true;
   }
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStatsCommand.class);
 
   @ParametersDelegate
   private StatsCommandLineOptions statsOptions = new StatsCommandLineOptions();

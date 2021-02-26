@@ -9,8 +9,6 @@
 package org.locationtech.geowave.core.store.statistics;
 
 import java.util.function.Supplier;
-import org.locationtech.geowave.core.index.persist.Persistable;
-import org.locationtech.geowave.core.index.persist.PersistableRegistrySpi;
 import org.locationtech.geowave.core.store.api.Statistic;
 import org.locationtech.geowave.core.store.api.StatisticBinningStrategy;
 import org.locationtech.geowave.core.store.api.StatisticValue;

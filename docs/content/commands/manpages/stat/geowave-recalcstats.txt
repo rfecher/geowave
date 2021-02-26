@@ -19,6 +19,12 @@ This command recalculates the statistics of an existing GeoWave data store.  If 
 [[stat-recalc-options]]
 ==== OPTIONS
 
+*--all* _<name>_::
+  If specified, all matching statistics will be recalculated.
+  
+*-t, --type* _<type>_::
+  The type of the statistic.
+
 *--typeName* _<name>_::
   The name of the data type adapter, for field and type statistics.
   
@@ -43,4 +49,4 @@ Recalculate all of the statistics in the `example` data store:
   
 Recalculate all of the statistics for the `hail` type in the `example` data store:
 
-  geowave stat recalc --typeName hail example
+  geowave stat recalc example --typeName hail

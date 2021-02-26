@@ -19,8 +19,6 @@ import org.locationtech.geowave.core.store.callback.DeleteCallback;
 import org.locationtech.geowave.core.store.callback.IngestCallback;
 import org.locationtech.geowave.core.store.callback.ScanCallback;
 import org.locationtech.geowave.core.store.entities.GeoWaveRow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 /**
@@ -36,7 +34,6 @@ public class StatisticUpdateCallback<T> implements
     Closeable,
     Flushable {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(StatisticUpdateCallback.class);
   private static final int FLUSH_STATS_THRESHOLD = 1000000;
 
   private final List<StatisticUpdateHandler<T, ?, ?>> statisticUpdateHandlers;

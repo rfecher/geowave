@@ -45,17 +45,27 @@ import com.google.common.collect.Maps;
 public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
 
   @Parameter(description = "<store name>")
-  private List<String> parameters = new ArrayList<>();
+  private final List<String> parameters = new ArrayList<>();
+
+  @Parameter(
+      names = {"--indexName"},
+      description = "If specified, only statistics that are compatible with this index will be listed.")
+  private String indexName = null;
 
   @Parameter(
       names = {"--typeName"},
-      description = "If specified, only statistics that are compaitbile with this type will be listed.")
+      description = "If specified, only statistics that are compatible with this type will be listed.")
   private String typeName = null;
 
   @Parameter(
       names = {"--fieldName"},
-      description = "If specified, only statistics that are compatible with this field will be displayed.  Requires a typeName to be specified.")
+      description = "If specified, only statistics that are compatible with this field will be displayed.")
   private String fieldName = null;
+
+  @Parameter(
+      names = {"-b", "--binningStrategies"},
+      description = "If specified, a list of registered binning strategies will be displayed.")
+  private boolean binningStrategies = false;
 
 
   @Override
@@ -83,38 +93,52 @@ public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
 
     final DataStore dataStore = storeOptions.createDataStore();
 
+    if ((indexName != null) && (typeName != null)) {
+      throw new ParameterException("Specify either index name or type name, not both.");
+    }
+
+    final Index index = indexName != null ? dataStore.getIndex(indexName) : null;
+    if ((indexName != null) && (index == null)) {
+      throw new ParameterException("Unable to find index: " + indexName);
+    }
+
     final DataTypeAdapter<?> adapter = typeName != null ? dataStore.getType(typeName) : null;
-    if (typeName != null && adapter == null) {
+    if ((typeName != null) && (adapter == null)) {
       throw new ParameterException("Unrecognized type name: " + typeName);
     }
 
-    Map<String, List<? extends Statistic<? extends StatisticValue<?>>>> indexStats =
+    final Map<String, List<? extends Statistic<? extends StatisticValue<?>>>> indexStats =
         Maps.newHashMap();
-    Map<String, List<? extends Statistic<? extends StatisticValue<?>>>> adapterStats =
+    final Map<String, List<? extends Statistic<? extends StatisticValue<?>>>> adapterStats =
         Maps.newHashMap();
-    Map<String, Map<String, List<? extends Statistic<? extends StatisticValue<?>>>>> fieldStats =
+    final Map<String, Map<String, List<? extends Statistic<? extends StatisticValue<?>>>>> fieldStats =
         Maps.newHashMap();
     boolean hasAdapters = false;
     if (adapter == null) {
-      DataTypeAdapter<?>[] adapters = dataStore.getTypes();
-      for (DataTypeAdapter<?> dataAdapter : adapters) {
-        hasAdapters = true;
-        adapterStats.put(
-            dataAdapter.getTypeName(),
-            StatisticsRegistry.instance().getRegisteredDataTypeStatistics(
-                dataAdapter.getDataClass()));
-        fieldStats.put(
-            dataAdapter.getTypeName(),
-            StatisticsRegistry.instance().getRegisteredFieldStatistics(dataAdapter, null));
-      }
-
-      Index[] indices = dataStore.getIndices();
-      for (Index index : indices) {
+      if (index != null) {
         indexStats.put(
             index.getName(),
             StatisticsRegistry.instance().getRegisteredIndexStatistics(index.getClass()));
-      }
+      } else {
+        final DataTypeAdapter<?>[] adapters = dataStore.getTypes();
+        for (final DataTypeAdapter<?> dataAdapter : adapters) {
+          hasAdapters = true;
+          adapterStats.put(
+              dataAdapter.getTypeName(),
+              StatisticsRegistry.instance().getRegisteredDataTypeStatistics(
+                  dataAdapter.getDataClass()));
+          fieldStats.put(
+              dataAdapter.getTypeName(),
+              StatisticsRegistry.instance().getRegisteredFieldStatistics(dataAdapter, fieldName));
+        }
 
+        final Index[] indices = dataStore.getIndices();
+        for (final Index idx : indices) {
+          indexStats.put(
+              idx.getName(),
+              StatisticsRegistry.instance().getRegisteredIndexStatistics(idx.getClass()));
+        }
+      }
     } else {
       hasAdapters = true;
       adapterStats.put(
@@ -123,16 +147,9 @@ public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
       fieldStats.put(
           adapter.getTypeName(),
           StatisticsRegistry.instance().getRegisteredFieldStatistics(adapter, fieldName));
-
-      Index[] indices = dataStore.getIndices(adapter.getTypeName());
-      for (Index index : indices) {
-        indexStats.put(
-            index.getName(),
-            StatisticsRegistry.instance().getRegisteredIndexStatistics(index.getClass()));
-      }
     }
 
-    ConsoleTablePrinter printer =
+    final ConsoleTablePrinter printer =
         new ConsoleTablePrinter(0, Integer.MAX_VALUE, params.getConsole());
     if (hasAdapters) {
       displayIndexStats(printer, indexStats);
@@ -146,15 +163,15 @@ public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
   }
 
   private void listAllRegisteredStatistics(final Console console) {
-    List<Statistic<?>> indexStats = Lists.newLinkedList();
-    List<Statistic<?>> adapterStats = Lists.newLinkedList();
-    List<Statistic<?>> fieldStats = Lists.newLinkedList();
-    List<? extends Statistic<? extends StatisticValue<?>>> allStats =
+    final List<Statistic<?>> indexStats = Lists.newLinkedList();
+    final List<Statistic<?>> adapterStats = Lists.newLinkedList();
+    final List<Statistic<?>> fieldStats = Lists.newLinkedList();
+    final List<? extends Statistic<? extends StatisticValue<?>>> allStats =
         StatisticsRegistry.instance().getAllRegisteredStatistics();
     Collections.sort(
         allStats,
         (s1, s2) -> s1.getStatisticType().getString().compareTo(s2.getStatisticType().getString()));
-    for (Statistic<?> statistic : allStats) {
+    for (final Statistic<?> statistic : allStats) {
       if (statistic instanceof IndexStatistic) {
         indexStats.add(statistic);
       } else if (statistic instanceof DataTypeStatistic) {
@@ -163,7 +180,7 @@ public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
         fieldStats.add(statistic);
       }
     }
-    ConsoleTablePrinter printer = new ConsoleTablePrinter(0, Integer.MAX_VALUE, console);
+    final ConsoleTablePrinter printer = new ConsoleTablePrinter(0, Integer.MAX_VALUE, console);
     displayStatList(printer, indexStats, "Registered Index Statistics");
     displayStatList(printer, adapterStats, "Registered Adapter Statistics");
     displayStatList(printer, fieldStats, "Registered Field Statistics");
@@ -171,11 +188,14 @@ public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
   }
 
   private void displayBinningStrategies(final ConsoleTablePrinter printer) {
+    if (!binningStrategies) {
+      return;
+    }
     printer.println("Registered Binning Strategies: ");
-    List<StatisticBinningStrategy> binningStrategies =
+    final List<StatisticBinningStrategy> binningStrategies =
         StatisticsRegistry.instance().getAllRegisteredBinningStrategies();
-    List<List<Object>> rows = Lists.newArrayListWithCapacity(binningStrategies.size());
-    for (StatisticBinningStrategy binningStrategy : binningStrategies) {
+    final List<List<Object>> rows = Lists.newArrayListWithCapacity(binningStrategies.size());
+    for (final StatisticBinningStrategy binningStrategy : binningStrategies) {
       rows.add(Arrays.asList(binningStrategy.getStrategyName(), binningStrategy.getDescription()));
     }
     printer.print(Arrays.asList("Strategy", "Description"), rows);
@@ -186,22 +206,25 @@ public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
       final List<? extends Statistic<? extends StatisticValue<?>>> stats,
       final String title) {
     printer.println(title + ": ");
-    List<List<Object>> rows = Lists.newArrayListWithCapacity(stats.size());
+    final List<List<Object>> rows = Lists.newArrayListWithCapacity(stats.size());
 
-    for (Statistic<?> o : stats) {
+    for (final Statistic<?> o : stats) {
       rows.add(Arrays.asList(o.getStatisticType(), o.getDescription()));
     }
     printer.print(Arrays.asList("Statistic", "Description"), rows);
   }
 
   private void displayIndexStats(
-      ConsoleTablePrinter printer,
-      Map<String, List<? extends Statistic<? extends StatisticValue<?>>>> stats) {
+      final ConsoleTablePrinter printer,
+      final Map<String, List<? extends Statistic<? extends StatisticValue<?>>>> stats) {
+    if (stats.size() == 0) {
+      return;
+    }
     printer.println("Compatible index statistics: ");
-    List<List<Object>> rows = Lists.newArrayListWithCapacity(stats.size());
-    for (Entry<String, List<? extends Statistic<? extends StatisticValue<?>>>> indexStats : stats.entrySet()) {
+    final List<List<Object>> rows = Lists.newArrayListWithCapacity(stats.size());
+    for (final Entry<String, List<? extends Statistic<? extends StatisticValue<?>>>> indexStats : stats.entrySet()) {
       boolean first = true;
-      for (Statistic<?> o : indexStats.getValue()) {
+      for (final Statistic<?> o : indexStats.getValue()) {
         rows.add(
             Arrays.asList(
                 first ? indexStats.getKey() : "",
@@ -214,13 +237,16 @@ public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
   }
 
   private void displayAdapterStats(
-      ConsoleTablePrinter printer,
-      Map<String, List<? extends Statistic<? extends StatisticValue<?>>>> stats) {
+      final ConsoleTablePrinter printer,
+      final Map<String, List<? extends Statistic<? extends StatisticValue<?>>>> stats) {
+    if (stats.size() == 0) {
+      return;
+    }
     printer.println("Compatible data type statistics: ");
-    List<List<Object>> rows = Lists.newArrayListWithCapacity(stats.size());
-    for (Entry<String, List<? extends Statistic<? extends StatisticValue<?>>>> adapterStats : stats.entrySet()) {
+    final List<List<Object>> rows = Lists.newArrayListWithCapacity(stats.size());
+    for (final Entry<String, List<? extends Statistic<? extends StatisticValue<?>>>> adapterStats : stats.entrySet()) {
       boolean first = true;
-      for (Statistic<?> o : adapterStats.getValue()) {
+      for (final Statistic<?> o : adapterStats.getValue()) {
         rows.add(
             Arrays.asList(
                 first ? adapterStats.getKey() : "",
@@ -233,15 +259,18 @@ public class ListStatTypesCommand extends ServiceEnabledCommand<Void> {
   }
 
   private void displayFieldStats(
-      ConsoleTablePrinter printer,
-      Map<String, Map<String, List<? extends Statistic<? extends StatisticValue<?>>>>> stats) {
+      final ConsoleTablePrinter printer,
+      final Map<String, Map<String, List<? extends Statistic<? extends StatisticValue<?>>>>> stats) {
+    if (stats.size() == 0) {
+      return;
+    }
     printer.println("Compatible field statistics: ");
-    List<List<Object>> rows = Lists.newArrayListWithCapacity(stats.size());
-    for (Entry<String, Map<String, List<? extends Statistic<? extends StatisticValue<?>>>>> adapterStats : stats.entrySet()) {
+    final List<List<Object>> rows = Lists.newArrayListWithCapacity(stats.size());
+    for (final Entry<String, Map<String, List<? extends Statistic<? extends StatisticValue<?>>>>> adapterStats : stats.entrySet()) {
       boolean firstAdapter = true;
-      for (Entry<String, List<? extends Statistic<? extends StatisticValue<?>>>> fieldStats : adapterStats.getValue().entrySet()) {
+      for (final Entry<String, List<? extends Statistic<? extends StatisticValue<?>>>> fieldStats : adapterStats.getValue().entrySet()) {
         boolean firstField = true;
-        for (Statistic<?> o : fieldStats.getValue()) {
+        for (final Statistic<?> o : fieldStats.getValue()) {
           rows.add(
               Arrays.asList(
                   firstAdapter ? adapterStats.getKey() : "",

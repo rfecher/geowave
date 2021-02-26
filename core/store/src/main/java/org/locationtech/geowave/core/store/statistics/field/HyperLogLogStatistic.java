@@ -61,6 +61,11 @@ public class HyperLogLogStatistic extends
     return new HyperLogLogPlusValue(this);
   }
 
+  @Override
+  public boolean isCompatibleWith(Class<?> fieldClass) {
+    return true;
+  }
+
   public static class HyperLogLogPlusValue extends StatisticValue<HyperLogLogPlus> implements
       StatisticsIngestCallback {
     private HyperLogLogPlus loglog;

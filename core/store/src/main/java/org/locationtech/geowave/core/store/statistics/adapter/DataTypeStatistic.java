@@ -51,6 +51,11 @@ public abstract class DataTypeStatistic<V extends StatisticValue<?>> extends Bas
   }
 
   @Override
+  public boolean isCompatibleWith(final Class<?> adapterClass) {
+    return true;
+  }
+
+  @Override
   public final StatisticId<V> getId() {
     if (cachedStatisticId == null) {
       cachedStatisticId =

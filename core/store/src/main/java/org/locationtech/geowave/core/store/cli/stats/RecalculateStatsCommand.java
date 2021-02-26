@@ -65,7 +65,7 @@ public class RecalculateStatsCommand extends AbstractStatsCommand<Void> {
     final DataStore dataStore = storeOptions.createDataStore();
     final DataStatisticsStore statStore = storeOptions.createDataStatisticsStore();
     final IndexStore indexStore = storeOptions.createIndexStore();
-    
+
     if (all) {
       // check for legacy stats table and if it exists, delete it and add all default stats
       final DataStoreOperations ops = storeOptions.createDataStoreOperations();

@@ -19,14 +19,14 @@ This command removes a statistic from a GeoWave data store.
 [[stat-rm-options]]
 ==== OPTIONS
 
-*-t, --type* _<type>_::
-  If specified, only statistics of the given type will be removed.
-
 *--all*::
   If specified, all matching statistics will be removed.
   
 *--force*::
-  Force the statistic to be removed.  IMPORTANT: Removing statistics that are marked as `internal` can have a detrimental impact on performance!
+  Force an internal statistic to be removed.  IMPORTANT: Removing statistics that are marked as `internal` can have a detrimental impact on performance!
+  
+*-t, --type* _<type>_::
+  The type of the statistic.
 
 *--typeName* _<name>_::
   The name of the data type adapter, for field and type statistics.

@@ -42,8 +42,6 @@ import org.locationtech.geowave.core.store.statistics.field.FieldStatistic;
 import org.locationtech.geowave.core.store.statistics.field.FieldStatisticType;
 import org.locationtech.geowave.core.store.statistics.index.IndexStatistic;
 import org.locationtech.geowave.core.store.statistics.index.IndexStatisticType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
@@ -54,8 +52,6 @@ import com.google.common.collect.Lists;
 @GeowaveOperation(name = "list", parentOperation = StatsSection.class)
 @Parameters(commandDescription = "Print statistics of a data store to standard output")
 public class ListStatsCommand extends AbstractStatsCommand<String> implements Command {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ListStatsCommand.class);
 
   @Parameter(description = "<store name>")
   private List<String> parameters = new ArrayList<>();

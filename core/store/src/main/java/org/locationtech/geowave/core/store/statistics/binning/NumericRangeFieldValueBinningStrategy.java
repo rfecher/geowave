@@ -17,8 +17,6 @@ import org.apache.commons.lang3.Range;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.lexicoder.Lexicoders;
 import org.locationtech.geowave.core.store.api.BinConstraints.ByteArrayConstraints;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
-import org.locationtech.geowave.core.store.entities.GeoWaveRow;
 import org.locationtech.geowave.core.store.statistics.query.BinConstraintsImpl.ExplicitConstraints;
 import com.beust.jcommander.Parameter;
 
@@ -31,9 +29,7 @@ import com.beust.jcommander.Parameter;
  */
 public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStrategy {
   public static final String NAME = "NUMERIC_FIELD_VALUE";
-  @Parameter(
-      names = "--binInterval",
-      description = "Field that contains the bin interval.  Defaults to 1.")
+  @Parameter(names = "--binInterval", description = "The interval between bins.  Defaults to 1.")
   private double interval = 1;
 
   @Parameter(
@@ -51,6 +47,7 @@ public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStra
     return "Bin the statistic by the numeric value of a specified field.";
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Class<?>[] supportedConstraintClasses() {
     return ArrayUtils.addAll(
@@ -60,6 +57,7 @@ public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStra
         Range[].class);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public ByteArrayConstraints constraints(final Object constraint) {
     if (constraint instanceof Number) {
@@ -75,14 +73,7 @@ public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStra
   }
 
   @Override
-  public <T> ByteArray[] getBins(
-      final DataTypeAdapter<T> adapter,
-      final T entry,
-      final GeoWaveRow... rows) {
-    return new ByteArray[] {getSafeNumericBin(adapter.getFieldValue(entry, fieldName))};
-  }
-
-  private ByteArray getSafeNumericBin(final Object value) {
+  protected ByteArray getSingleBin(final Object value) {
     if ((value == null) || !(value instanceof Number)) {
       return new ByteArray();
     }
@@ -121,14 +112,22 @@ public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStra
     offset = buf.getDouble();
   }
 
-  private Range<Double> getRange(final ByteArray bin) {
-    final double low = (Lexicoders.LONG.fromByteArray(bin.getBytes()) * interval) - offset;
+  private Range<Double> getRange(final ByteBuffer buffer) {
+    final double low = (buffer.getLong() * interval) - offset;
     return Range.between(low, low + interval);
   }
 
   @Override
   public String binToString(final ByteArray bin) {
-    return rangeToString(getRange(bin));
+    final ByteBuffer buffer = ByteBuffer.wrap(bin.getBytes());
+    final StringBuffer sb = new StringBuffer();
+    while (buffer.remaining() > 0) {
+      sb.append(rangeToString(getRange(buffer)));
+      if (buffer.remaining() > 0) {
+        sb.append(buffer.getChar());
+      }
+    }
+    return sb.toString();
   }
 
   private static String rangeToString(final Range<Double> range) {

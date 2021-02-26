@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.core.store.statistics.binning;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,9 +59,22 @@ public class FieldValueBinningStrategy implements StatisticBinningStrategy {
     if (fields.size() == 1) {
       return new ByteArray[] {getSingleBin(adapter.getFieldValue(entry, fields.get(0)))};
     }
-    Object[] fieldValues =
-        fields.stream().map(field -> adapter.getFieldValue(entry, field)).toArray();
-    return new ByteArray[] {getBin(fieldValues)};
+    final ByteArray[] fieldValues =
+        fields.stream().map(field -> getSingleBin(adapter.getFieldValue(entry, field))).toArray(
+            ByteArray[]::new);
+    int length = 0;
+    for (final ByteArray fieldValue : fieldValues) {
+      length += fieldValue.getBytes().length;
+    }
+    final byte[] finalBin = new byte[length + Character.BYTES * (fieldValues.length - 1)];
+    ByteBuffer binBuffer = ByteBuffer.wrap(finalBin);
+    for (final ByteArray fieldValue : fieldValues) {
+      binBuffer.put(fieldValue.getBytes());
+      if (binBuffer.remaining() > 0) {
+        binBuffer.putChar('|');
+      }
+    }
+    return new ByteArray[] {new ByteArray(binBuffer.array())};
   }
 
   public static ByteArray getBin(final Object... values) {
@@ -71,8 +85,8 @@ public class FieldValueBinningStrategy implements StatisticBinningStrategy {
         Arrays.stream(values).map(value -> value == null ? "" : value.toString()).collect(
             Collectors.joining("|")));
   }
-  
-  private static ByteArray getSingleBin(final Object value) {
+
+  protected ByteArray getSingleBin(final Object value) {
     if (value == null) {
       return new ByteArray();
     }

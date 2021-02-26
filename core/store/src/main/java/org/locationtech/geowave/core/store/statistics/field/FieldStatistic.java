@@ -71,6 +71,9 @@ public abstract class FieldStatistic<V extends StatisticValue<?>> extends BaseSt
   }
 
   @Override
+  public abstract boolean isCompatibleWith(Class<?> fieldClass);
+
+  @Override
   public final StatisticId<V> getId() {
     if (cachedStatisticId == null) {
       cachedStatisticId =

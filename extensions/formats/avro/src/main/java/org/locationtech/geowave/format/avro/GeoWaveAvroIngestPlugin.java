@@ -150,7 +150,7 @@ public class GeoWaveAvroIngestPlugin extends
     throw new UnsupportedOperationException(
         "Avro simple feature collections cannot be ingested with a reducer");
   }
-  
+
   @Override
   public DataTypeAdapter<SimpleFeature>[] getDataAdapters(
       final URL url,
@@ -160,7 +160,8 @@ public class GeoWaveAvroIngestPlugin extends
       while (avroObjects.hasNext()) {
         final AvroFeatureDefinition featureDefinition = avroObjects.next().getFeatureType();
         try {
-          final SimpleFeatureType featureType = GeoWaveAvroFeatureUtils.avroFeatureDefinitionToGTSimpleFeatureType(featureDefinition);
+          final SimpleFeatureType featureType =
+              GeoWaveAvroFeatureUtils.avroFeatureDefinitionToGTSimpleFeatureType(featureDefinition);
           final FeatureDataAdapter adapter = new FeatureDataAdapter(featureType);
           adapters.put(adapter.getTypeName(), adapter);
         } catch (ClassNotFoundException e) {
@@ -169,7 +170,7 @@ public class GeoWaveAvroIngestPlugin extends
       }
     }
     return adapters.values().toArray(new FeatureDataAdapter[adapters.size()]);
-    
+
   }
 
   @Override

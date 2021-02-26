@@ -19,8 +19,6 @@ import org.locationtech.geowave.core.store.api.StatisticValue;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
-import org.locationtech.geowave.core.store.statistics.StatisticType;
-import org.locationtech.geowave.core.store.statistics.StatisticsRegistry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
@@ -40,7 +38,7 @@ public class RemoveStatCommand extends AbstractStatsCommand<Void> {
 
   @Parameter(
       names = "--force",
-      description = "Force the statistic to be removed.  IMPORTANT: Removing statistics "
+      description = "Force an internal statistic to be removed.  IMPORTANT: Removing statistics "
           + "that are marked as \"internal\" can have a detrimental impact on performance!")
   private boolean force = false;
 

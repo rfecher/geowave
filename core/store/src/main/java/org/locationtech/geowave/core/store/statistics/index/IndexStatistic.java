@@ -12,13 +12,9 @@ import java.nio.ByteBuffer;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.index.VarintUtils;
-import org.locationtech.geowave.core.store.EntryVisibilityHandler;
-import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.StatisticValue;
-import org.locationtech.geowave.core.store.index.CommonIndexModel;
 import org.locationtech.geowave.core.store.statistics.BaseStatistic;
 import org.locationtech.geowave.core.store.statistics.StatisticId;
-import org.locationtech.geowave.core.store.statistics.visibility.EmptyStatisticVisibility;
 import com.beust.jcommander.Parameter;
 
 /**

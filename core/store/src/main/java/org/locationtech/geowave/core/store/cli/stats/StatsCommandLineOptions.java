@@ -30,10 +30,8 @@ import com.beust.jcommander.ParameterException;
 import com.clearspring.analytics.util.Lists;
 
 public class StatsCommandLineOptions {
-  
-  @Parameter(
-      names = {"-t", "--type"},
-      description = "The type of the statistic.")
+
+  @Parameter(names = {"-t", "--type"}, description = "The type of the statistic.")
   private String statType;
 
   @Parameter(names = "--indexName", description = "The name of the index, for index statistics.")
@@ -94,11 +92,11 @@ public class StatsCommandLineOptions {
   public String getTag() {
     return tag;
   }
-  
+
   public void setStatType(final String statType) {
     this.statType = statType;
   }
-  
+
   public String getStatType() {
     return statType;
   }
