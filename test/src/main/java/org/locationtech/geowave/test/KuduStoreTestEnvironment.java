@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.test;
 
+import org.apache.kudu.test.cluster.FakeDNS;
 import org.locationtech.geowave.core.store.GenericStoreFactory;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.core.store.api.DataStore;
@@ -46,6 +47,7 @@ public class KuduStoreTestEnvironment extends StoreTestEnvironment {
       kuduLocal.stop();
     }
 
+    FakeDNS.getInstance().install();
     if (!kuduLocal.start()) {
       LOGGER.error("Kudu database startup failed");
     }

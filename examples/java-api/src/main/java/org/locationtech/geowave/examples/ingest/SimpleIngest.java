@@ -95,7 +95,7 @@ public class SimpleIngest {
         pointBuilder.set("Latitude", latitude);
         pointBuilder.set("Longitude", longitude);
         // Note since trajectoryID and comment are marked as nillable we
-        // don't need to set them (they default ot null).
+        // don't need to set them (they default to null).
 
         final SimpleFeature sft = pointBuilder.buildFeature(String.valueOf(featureId));
         feats.add(sft);

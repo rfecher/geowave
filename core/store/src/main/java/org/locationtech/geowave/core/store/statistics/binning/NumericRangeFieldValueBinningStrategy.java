@@ -42,6 +42,28 @@ public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStra
     return NAME;
   }
 
+  public NumericRangeFieldValueBinningStrategy() {
+    super();
+  }
+
+  public NumericRangeFieldValueBinningStrategy(final String... fields) {
+    super(fields);
+  }
+
+  public NumericRangeFieldValueBinningStrategy(final double interval, final String... fields) {
+    this(interval, 0.0, fields);
+  }
+
+  public NumericRangeFieldValueBinningStrategy(
+      final double interval,
+      final double offset,
+      final String... fields) {
+    super(fields);
+    this.interval = interval;
+    this.offset = offset;
+  }
+
+
   @Override
   public String getDescription() {
     return "Bin the statistic by the numeric value of a specified field.";
@@ -112,8 +134,14 @@ public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStra
     offset = buf.getDouble();
   }
 
+  public Range<Double> getRange(final ByteArray bytes) {
+    return getRange(ByteBuffer.wrap(bytes.getBytes()));
+  }
+
   private Range<Double> getRange(final ByteBuffer buffer) {
-    final double low = (buffer.getLong() * interval) - offset;
+    final byte[] longBuffer = new byte[Long.BYTES];
+    buffer.get(longBuffer);
+    final double low = (Lexicoders.LONG.fromByteArray(longBuffer) * interval) - offset;
     return Range.between(low, low + interval);
   }
 
@@ -122,7 +150,11 @@ public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStra
     final ByteBuffer buffer = ByteBuffer.wrap(bin.getBytes());
     final StringBuffer sb = new StringBuffer();
     while (buffer.remaining() > 0) {
-      sb.append(rangeToString(getRange(buffer)));
+      if (buffer.get() == 0x0) {
+        sb.append("<null>");
+      } else {
+        sb.append(rangeToString(getRange(buffer)));
+      }
       if (buffer.remaining() > 0) {
         sb.append(buffer.getChar());
       }

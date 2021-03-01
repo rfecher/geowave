@@ -43,10 +43,8 @@ public class CompositeBinningStrategy implements StatisticBinningStrategy {
     childBinningStrategies = new StatisticBinningStrategy[0];
   }
 
-  public CompositeBinningStrategy(
-      final StatisticBinningStrategy left,
-      final StatisticBinningStrategy right) {
-    childBinningStrategies = new StatisticBinningStrategy[] {left, right};
+  public CompositeBinningStrategy(final StatisticBinningStrategy... childBinningStrategies) {
+    this.childBinningStrategies = childBinningStrategies;
   }
 
   @Override
