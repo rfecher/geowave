@@ -25,6 +25,11 @@
 			<groupId>org.apache.kudu</groupId>
 			<artifactId>kudu-test-utils</artifactId>
 			<version>${kuduclient.version}</version>
+		</dependency>		
+		<dependency>
+			<groupId>org.apache.kudu</groupId>
+			<artifactId>kudu-binary</artifactId>
+			<version>${kuduclient.version}</version>
 		</dependency>
 	    <dependency>
 			<groupId>org.locationtech.geowave</groupId>
