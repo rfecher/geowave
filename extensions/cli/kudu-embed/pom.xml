@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>geowave-extension-parent</artifactId>
@@ -25,13 +27,20 @@
 			<groupId>org.apache.kudu</groupId>
 			<artifactId>kudu-test-utils</artifactId>
 			<version>${kuduclient.version}</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>org.apache.kudu</groupId>
 			<artifactId>kudu-binary</artifactId>
 			<version>${kuduclient.version}</version>
+			<classifier>linux-x86_64</classifier>
 		</dependency>
-	    <dependency>
+		<dependency>
+			<groupId>org.apache.kudu</groupId>
+			<artifactId>kudu-binary</artifactId>
+			<version>${kuduclient.version}</version>
+			<classifier>osx-x86_64</classifier>
+		</dependency>
+		<dependency>
 			<groupId>org.locationtech.geowave</groupId>
 			<artifactId>geowave-adapter-raster</artifactId>
 			<version>${project.version}</version>
@@ -48,9 +57,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-    		<groupId>com.jcraft</groupId>
-    		<artifactId>jsch</artifactId>
-    		<version>0.1.55</version>
+			<groupId>com.jcraft</groupId>
+			<artifactId>jsch</artifactId>
+			<version>0.1.55</version>
 		</dependency>
 	</dependencies>
 	<profiles>
