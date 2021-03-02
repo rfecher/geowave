@@ -35,12 +35,6 @@
 			<classifier>linux-x86_64</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.kudu</groupId>
-			<artifactId>kudu-binary</artifactId>
-			<version>${kuduclient.version}</version>
-			<classifier>osx-x86_64</classifier>
-		</dependency>
-		<dependency>
 			<groupId>org.locationtech.geowave</groupId>
 			<artifactId>geowave-adapter-raster</artifactId>
 			<version>${project.version}</version>
