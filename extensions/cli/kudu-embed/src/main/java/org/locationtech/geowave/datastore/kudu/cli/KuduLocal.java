@@ -10,22 +10,12 @@ package org.locationtech.geowave.datastore.kudu.cli;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecuteResultHandler;
-import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.io.FileUtils;
 import org.apache.kudu.test.cluster.MiniKuduCluster;
 import org.apache.kudu.test.cluster.MiniKuduCluster.MiniKuduClusterBuilder;
 
 public class KuduLocal {
-
-  // Tracking the cloudera precompiled package
-  // https://www.cloudera.com/documentation/enterprise/5-16-x/topics/cdh_ig_yumrepo_local_create.html#topic_30__section_sl2_xdw_wm
-
   private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(KuduLocal.class);
 
   private static final long STARTUP_DELAY_MS = 1500L;
@@ -33,8 +23,7 @@ public class KuduLocal {
   public static final File DEFAULT_DIR = new File("./target/temp");
   private MiniKuduCluster kudu;
   private final MiniKuduClusterBuilder kuduBldr;
-  private final File kuduLocalDir;
-  private final File kuduDBDir; // storage for database files
+  private File kuduLocalDir;
 
 
   public KuduLocal(final RunKuduLocalOptions opt) {
@@ -52,10 +41,9 @@ public class KuduLocal {
     } else if (!kuduLocalDir.isDirectory()) {
       LOGGER.error("{} exists but is not a directory", kuduLocalDir.getAbsolutePath());
     }
-    kuduDBDir = new File(kuduLocalDir, "db");
     kuduBldr =
         new MiniKuduClusterBuilder().numMasterServers(1).numTabletServers(numTablets).clusterRoot(
-            localDir);
+            kuduLocalDir.getAbsolutePath());
   }
 
   public boolean start() {
@@ -86,7 +74,7 @@ public class KuduLocal {
 
   public void destroyDB() throws IOException {
     try {
-      FileUtils.deleteDirectory(kuduDBDir);
+      FileUtils.deleteDirectory(kuduLocalDir);
     } catch (final IOException e) {
       LOGGER.error("Could not destroy database files", e);
       throw e;
@@ -94,18 +82,18 @@ public class KuduLocal {
   }
 
   private void startKuduLocal() throws ExecuteException, IOException, InterruptedException {
-    if (!kuduDBDir.exists() && !kuduDBDir.mkdirs()) {
-      LOGGER.error("unable to create directory {}", kuduDBDir.getAbsolutePath());
-    } else if (!kuduDBDir.isDirectory()) {
-      LOGGER.error("{} exists but is not a directory", kuduDBDir.getAbsolutePath());
+    if (!kuduLocalDir.exists() && !kuduLocalDir.mkdirs()) {
+      LOGGER.error("unable to create directory {}", kuduLocalDir.getAbsolutePath());
+    } else if (!kuduLocalDir.isDirectory()) {
+      LOGGER.error("{} exists but is not a directory", kuduLocalDir.getAbsolutePath());
     }
+    LOGGER.error("starting Kudu...");
     if (kudu == null) {
       kudu = kuduBldr.build();
     }
-    kudu.startAllMasterServers();
-    kudu.startAllTabletServers();
-
+    LOGGER.error("complete Kudu...");
     Thread.sleep(STARTUP_DELAY_MS);
+    LOGGER.error(kudu.getMasterAddressesAsString());
   }
 
   public static void main(final String[] args) {
