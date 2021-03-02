@@ -46,6 +46,13 @@ public class KuduLocal {
             kuduLocalDir.getAbsolutePath());
   }
 
+  public String getMasterAddressesAsString() {
+    if (kudu == null) {
+      return "<master not running>";
+    }
+    return kudu.getMasterAddressesAsString();
+  }
+
   public boolean start() {
     try {
       startKuduLocal();
@@ -87,13 +94,10 @@ public class KuduLocal {
     } else if (!kuduLocalDir.isDirectory()) {
       LOGGER.error("{} exists but is not a directory", kuduLocalDir.getAbsolutePath());
     }
-    LOGGER.error("starting Kudu...");
     if (kudu == null) {
       kudu = kuduBldr.build();
     }
-    LOGGER.error("complete Kudu...");
     Thread.sleep(STARTUP_DELAY_MS);
-    LOGGER.error(kudu.getMasterAddressesAsString());
   }
 
   public static void main(final String[] args) {
