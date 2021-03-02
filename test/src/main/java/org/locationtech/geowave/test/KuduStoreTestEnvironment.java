@@ -42,11 +42,6 @@ public class KuduStoreTestEnvironment extends StoreTestEnvironment {
 
   @Override
   public void setup() throws Exception {
-    // Make sure we clean up any old processes first
-    if (kuduLocal.isRunning()) {
-      kuduLocal.stop();
-    }
-
     FakeDNS.getInstance().install();
     if (!kuduLocal.start()) {
       LOGGER.error("Kudu database startup failed");

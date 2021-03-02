@@ -69,7 +69,6 @@ public class KuduLocal {
   }
 
   public void stop() throws IOException {
-    kudu.kdestroy();
     kudu.killAllTabletServers();
     kudu.killAllMasterServers();
 
