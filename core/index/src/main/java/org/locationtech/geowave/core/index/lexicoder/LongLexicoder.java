@@ -41,4 +41,8 @@ public class LongLexicoder implements NumberLexicoder<Long> {
   public Long getMaximumValue() {
     return Long.MAX_VALUE;
   }
+  
+  public Long lexicode(final Long value) {
+    return value ^ 0x8000000000000000l;
+  }
 }

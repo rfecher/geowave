@@ -10,6 +10,10 @@ package org.locationtech.geowave.core.store.statistics.binning;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
@@ -97,21 +101,24 @@ public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStra
   @Override
   protected ByteArray getSingleBin(final Object value) {
     if ((value == null) || !(value instanceof Number)) {
-      return new ByteArray();
+      return new ByteArray(new byte[] {0x0});
     }
     return getNumericBin((Number) value);
   }
 
   private ByteArray getNumericBin(final Number value) {
     final long bin = (long) Math.floor(((value.doubleValue() + offset) / interval));
-    return new ByteArray(Lexicoders.LONG.toByteArray(bin));
+    final ByteBuffer buffer = ByteBuffer.allocate(1 + Long.BYTES);
+    buffer.put((byte) 0x1);
+    buffer.putLong(Lexicoders.LONG.lexicode(bin));
+    return new ByteArray(buffer.array());
   }
 
   private ByteArray[] getNumericBins(final Range<? extends Number> value) {
     final long minBin = (long) Math.floor(((value.getMinimum().doubleValue() + offset) / interval));
     final long maxBin = (long) Math.floor(((value.getMaximum().doubleValue() + offset) / interval));
-    return LongStream.rangeClosed(minBin, maxBin).mapToObj(Lexicoders.LONG::toByteArray).map(
-        ByteArray::new).toArray(ByteArray[]::new);
+    return LongStream.rangeClosed(minBin, maxBin).mapToObj(this::getNumericBin).toArray(
+        ByteArray[]::new);
   }
 
   @Override
@@ -135,7 +142,38 @@ public class NumericRangeFieldValueBinningStrategy extends FieldValueBinningStra
   }
 
   public Range<Double> getRange(final ByteArray bytes) {
-    return getRange(ByteBuffer.wrap(bytes.getBytes()));
+    final Map<String, Range<Double>> allRanges = getRanges(bytes);
+    final Optional<Range<Double>> mergedRange =
+        allRanges.values().stream().filter(Objects::nonNull).reduce(
+            (r1, r2) -> Range.between(
+                Math.min(r1.getMinimum(), r2.getMinimum()),
+                Math.max(r1.getMaximum(), r2.getMaximum())));
+    if (mergedRange.isPresent()) {
+      return mergedRange.get();
+    }
+    return null;
+  }
+
+  public Map<String, Range<Double>> getRanges(final ByteArray bytes) {
+    return getRanges(ByteBuffer.wrap(bytes.getBytes()));
+  }
+
+  private Map<String, Range<Double>> getRanges(final ByteBuffer buffer) {
+    final Map<String, Range<Double>> retVal = new HashMap<>();
+    for (final String field : fields) {
+      if (!buffer.hasRemaining()) {
+        return retVal;
+      }
+      if (buffer.get() == 0x0) {
+        retVal.put(field, null);
+      } else {
+        retVal.put(field, getRange(buffer));
+        if (buffer.hasRemaining()) {
+          buffer.getChar();
+        }
+      }
+    }
+    return retVal;
   }
 
   private Range<Double> getRange(final ByteBuffer buffer) {
