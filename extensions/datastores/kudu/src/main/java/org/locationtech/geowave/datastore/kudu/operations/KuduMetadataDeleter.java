@@ -18,6 +18,7 @@ import org.apache.kudu.client.KuduSession;
 import org.apache.kudu.client.KuduTable;
 import org.apache.kudu.client.OperationResponse;
 import org.apache.kudu.client.RowError;
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
 import org.locationtech.geowave.core.store.operations.MetadataQuery;
 import org.locationtech.geowave.core.store.operations.MetadataType;
@@ -65,6 +66,7 @@ public class KuduMetadataDeleter implements MetadataDeleter {
                 secondaryId));
       }
       for (final Delete delete : operations.getDeletions(table, preds, KuduMetadataRow::new)) {
+        LOGGER.error("deleting " + new ByteArray(delete.getRow().encodePrimaryKey()).toString());
         final OperationResponse resp = session.apply(delete);
         if (resp.hasRowError()) {
           LOGGER.error("Encountered error while deleting row: {}", resp.getRowError());

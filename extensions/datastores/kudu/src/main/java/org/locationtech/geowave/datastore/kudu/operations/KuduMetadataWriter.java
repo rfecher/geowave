@@ -14,6 +14,7 @@ import org.apache.kudu.client.KuduSession;
 import org.apache.kudu.client.OperationResponse;
 import org.apache.kudu.client.PartialRow;
 import org.apache.kudu.client.RowError;
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.core.store.operations.MetadataWriter;
@@ -41,6 +42,7 @@ public class KuduMetadataWriter implements MetadataWriter {
       final KuduMetadataRow row = new KuduMetadataRow(metadata);
       row.populatePartialRow(partialRow);
       final OperationResponse resp = session.apply(insert);
+      LOGGER.error("writing " + new ByteArray(metadata.getPrimaryId()).getString() + " ; " + new ByteArray(metadata.getValue()).getHexString());
       if (resp.hasRowError()) {
         LOGGER.error("Encountered error while writing metadata: {}", resp.getRowError());
       }

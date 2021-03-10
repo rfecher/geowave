@@ -322,6 +322,12 @@ public class DataStatisticsStoreImpl extends
           "The given statistic does not use a binning strategy, but a bin was specified.");
     }
     removeStatisticValue(statistic, bin);
+    try {
+      Thread.sleep(1000L);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     incorporateStatisticValue(statistic, value, bin);
   }
 
