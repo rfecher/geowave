@@ -548,20 +548,31 @@ public class DataStatisticsStoreImpl extends
   @Override
   public boolean mergeStats() {
     final List<Statistic<StatisticValue<Object>>> statistics = new ArrayList<>();
+    LOGGER.error("get stats");
     try (CloseableIterator<? extends Statistic<?>> it = getAllStatisticsInternal(null)) {
       while (it.hasNext()) {
-        statistics.add((Statistic<StatisticValue<Object>>) it.next());
+        Statistic s = (Statistic<StatisticValue<Object>>) it.next();
+        LOGGER.error(s.toString());
+        statistics.add(s);
       }
     }
+
+    LOGGER.error("set values");
     for (final Statistic<StatisticValue<Object>> stat : statistics) {
       try (CloseableIterator<StatisticValue<Object>> it = this.getStatisticValues(stat)) {
         if (stat.getBinningStrategy() != null) {
+
+          LOGGER.error("binning " + stat.toString());
+          LOGGER.error(stat.getBinningStrategy().toString());
           while (it.hasNext()) {
             final StatisticValue<Object> value = it.next();
             this.setStatisticValue(stat, value, value.getBin());
           }
         } else if (it.hasNext()) {
-          this.setStatisticValue(stat, it.next());
+          StatisticValue v = it.next();
+          LOGGER.error("stat: "+ stat);
+          LOGGER.error("value: "+ v);
+          this.setStatisticValue(stat, v);
         }
       }
     }
