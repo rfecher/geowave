@@ -747,7 +747,12 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
     final DataStoreOperations operations = dataStore.createDataStoreOperations();
     final DataStatisticsStore statsStore = dataStore.createDataStatisticsStore();
     assertTrue(operations.mergeStats(statsStore));
-
+    try {
+      Thread.sleep(10000L);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     // Verify value is still correct
     count = ds.getStatisticValue(countStat);
     assertEquals(new Long(70), count);
