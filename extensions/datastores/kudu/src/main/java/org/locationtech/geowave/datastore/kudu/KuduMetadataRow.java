@@ -60,7 +60,7 @@ public class KuduMetadataRow implements PersistentKuduRow {
     visibility = metadata.getVisibility();
     value = metadata.getValue();
     final ByteBuffer timestampBuffer = ByteBuffer.allocate(8);
-    timestampBuffer.putLong(System.nanoTime());
+    timestampBuffer.putLong(Long.MAX_VALUE - System.nanoTime());
     timestamp = timestampBuffer.array();
   }
 

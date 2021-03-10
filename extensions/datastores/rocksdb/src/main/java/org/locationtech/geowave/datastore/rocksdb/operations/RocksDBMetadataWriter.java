@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataWriter;
 import org.locationtech.geowave.datastore.rocksdb.util.RocksDBMetadataTable;
@@ -22,6 +23,7 @@ public class RocksDBMetadataWriter implements MetadataWriter {
 
   @Override
   public void write(final GeoWaveMetadata metadata) {
+    System.err.println("writing " + new ByteArray(metadata.getPrimaryId()).getString() + " ; " + new ByteArray(metadata.getValue()).getHexString());
     table.add(metadata);
   }
 

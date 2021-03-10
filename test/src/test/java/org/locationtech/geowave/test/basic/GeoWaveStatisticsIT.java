@@ -154,7 +154,7 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
     TestUtils.deleteAll(dataStore);
   }
 
-  @Test
+//  @Test
   public void testAddStatistic() {
     final DataStore ds = dataStore.createDataStore();
 
@@ -234,7 +234,7 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
     assertEquals(0.0, tdigest.quantile(0.5), 0.1);
   }
 
-  @Test
+//  @Test
   public void testAddStatisticWithBinningStrategy() {
     DataStore ds = dataStore.createDataStore();
 
@@ -621,7 +621,7 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
     }
   }
 
-  @Test
+//  @Test
   public void testRemoveStatistic() {
     final DataStore ds = dataStore.createDataStore();
 
@@ -672,7 +672,7 @@ public class GeoWaveStatisticsIT extends AbstractGeoWaveBasicVectorIT {
     assertNull(countStat);
   }
 
-  @Test
+//  @Test
   public void testRecalcStatistic() {
     final DataStore ds = dataStore.createDataStore();
 

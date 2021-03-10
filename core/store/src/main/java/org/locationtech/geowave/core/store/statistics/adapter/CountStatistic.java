@@ -8,7 +8,9 @@
  */
 package org.locationtech.geowave.core.store.statistics.adapter;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.VarintUtils;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
@@ -73,7 +75,15 @@ public class CountStatistic extends DataTypeStatistic<CountStatistic.CountValue>
     public byte[] toBinary() {
       return VarintUtils.writeSignedLong(count);
     }
+    public static void main(String[]args) {
 
+      String str = "07DF8C01";
+      int it = Integer.parseInt(str, 16);
+      System.out.println("Hexadecimal String " + str);
+      BigInteger bigInt = BigInteger.valueOf(it);
+      byte[] bytearray = (bigInt.toByteArray());
+      System.err.println(VarintUtils.readSignedLong(ByteBuffer.wrap(bytearray)));
+    }
     @Override
     public void fromBinary(byte[] bytes) {
       count = VarintUtils.readSignedLong(ByteBuffer.wrap(bytes));

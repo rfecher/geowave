@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.datastore.rocksdb.operations;
 
+import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.entities.GeoWaveMetadata;
 import org.locationtech.geowave.core.store.operations.MetadataDeleter;
@@ -33,7 +34,9 @@ public class RocksDBMetadataDeleter implements MetadataDeleter {
     try (CloseableIterator<GeoWaveMetadata> it =
         new RocksDBMetadataReader(table, metadataType).query(query)) {
       while (it.hasNext()) {
-        table.remove(((RocksDBGeoWaveMetadata) it.next()).getKey());
+        byte[] key = ((RocksDBGeoWaveMetadata) it.next()).getKey();
+        System.err.println("deleting " + new ByteArray(key).toString());
+        table.remove(key);
         atLeastOneDeletion = true;
       }
     }
