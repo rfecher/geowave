@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.DataStoreOptions;
 import org.locationtech.geowave.core.store.api.BinConstraints.ByteArrayConstraints;
@@ -684,6 +685,13 @@ public class DataStatisticsStoreImpl extends
     public void close() {
       source.close();
     }
+  }
 
+  @Override
+  public <V extends StatisticValue<R>, R> CloseableIterator<V> getStatisticValue(
+      Statistic<V> statistic,
+      List<ByteArrayRange> ranges,
+      String... authorizations) {
+    return null;
   }
 }

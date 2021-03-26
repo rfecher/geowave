@@ -9,8 +9,10 @@
 package org.locationtech.geowave.core.store.statistics;
 
 import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.BinConstraints.ByteArrayConstraints;
 import org.locationtech.geowave.core.store.api.DataTypeAdapter;
@@ -282,6 +284,20 @@ public interface DataStatisticsStore {
   <V extends StatisticValue<R>, R> V getStatisticValue(
       final Statistic<V> statistic,
       ByteArray bin,
+      String... authorizations);
+
+  /**
+   * Return the value of the given statistic. This method is not applicable to statistics that do
+   * not use a binning strategy.
+   *
+   * @param statistic the statistic to get the value of
+   * @param bin the bin of the value to get
+   * @param authorizations authorizations for the query
+   * @return the value of the statistic, or {@code null} if it was not found
+   */
+  <V extends StatisticValue<R>, R> CloseableIterator<V> getStatisticValue(
+      final Statistic<V> statistic,
+      List<ByteArrayRange> ranges,
       String... authorizations);
 
   /**
