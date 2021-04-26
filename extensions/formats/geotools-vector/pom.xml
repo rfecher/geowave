@@ -19,6 +19,12 @@
 		<dependency>
   			<groupId>org.geotools</groupId>
 			<artifactId>gt-geojsondatastore</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt-epsg-hsql</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.locationtech.geowave</groupId>
