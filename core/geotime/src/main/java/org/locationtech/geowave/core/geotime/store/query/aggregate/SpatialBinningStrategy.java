@@ -9,6 +9,7 @@
 package org.locationtech.geowave.core.geotime.store.query.aggregate;
 
 import java.nio.ByteBuffer;
+import org.locationtech.geowave.core.geotime.binning.ComplexGeometryBinningOption;
 import org.locationtech.geowave.core.geotime.binning.SpatialBinningType;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.VarintUtils;

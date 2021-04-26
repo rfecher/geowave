@@ -44,8 +44,20 @@ public enum SpatialBinningType implements SpatialBinningHelper {
     return helperDelegate.binToString(binId);
   }
 
-  public int getBinByteLength(int precision) {
+  @Override
+  public int getBinByteLength(final int precision) {
     return helperDelegate.getBinByteLength(precision);
   }
 
+  // is used by python converter
+  public static SpatialBinningType fromString(final String code) {
+
+    for (final SpatialBinningType output : SpatialBinningType.values()) {
+      if (output.toString().equalsIgnoreCase(code)) {
+        return output;
+      }
+    }
+
+    return null;
+  }
 }

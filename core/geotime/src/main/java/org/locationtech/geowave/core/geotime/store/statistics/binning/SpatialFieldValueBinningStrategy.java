@@ -11,8 +11,8 @@ package org.locationtech.geowave.core.geotime.store.statistics.binning;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.apache.commons.lang3.ArrayUtils;
+import org.locationtech.geowave.core.geotime.binning.ComplexGeometryBinningOption;
 import org.locationtech.geowave.core.geotime.binning.SpatialBinningType;
-import org.locationtech.geowave.core.geotime.store.query.aggregate.ComplexGeometryBinningOption;
 import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.VarintUtils;
@@ -55,6 +55,17 @@ public class SpatialFieldValueBinningStrategy extends FieldValueBinningStrategy 
 
   public SpatialFieldValueBinningStrategy(final String... fields) {
     super(fields);
+  }
+
+  public SpatialFieldValueBinningStrategy(
+      SpatialBinningType type,
+      int precision,
+      ComplexGeometryBinningOption complexGeometry,
+      final String... fields) {
+    super(fields);
+    this.type = type;
+    this.precision = precision;
+    this.complexGeometry = complexGeometry;
   }
 
   public int getPrecision() {
