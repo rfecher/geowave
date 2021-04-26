@@ -32,7 +32,7 @@ public class SpatialFieldValueBinningStrategy extends FieldValueBinningStrategy 
   public static final String NAME = "SPATIAL";
 
   @Parameter(
-      names = {"--precision"},
+      names = {"--precision", "--resolution", "--length", "--level"},
       description = "The precision (also called resolution, length, or level) of the binning strategy")
   protected int precision = 8;
 
