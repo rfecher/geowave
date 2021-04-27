@@ -10,17 +10,69 @@ package org.locationtech.geowave.test;
 
 import java.io.File;
 import java.io.IOException;
-import org.codehaus.plexus.util.FileUtils;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import org.apache.cassandra.tools.INodeProbeFactory;
+import org.apache.cassandra.tools.NodeProbe;
+import org.apache.cassandra.tools.NodeTool;
+import org.apache.cassandra.tools.Output;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.locationtech.geowave.core.index.ByteArray;
+import org.locationtech.geowave.core.index.persist.Persistable;
+import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.GenericStoreFactory;
+import org.locationtech.geowave.core.store.StoreFactoryFamilySpi;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
+import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
+import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
+import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
+import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
+import org.locationtech.geowave.core.store.api.AggregationQuery;
+import org.locationtech.geowave.core.store.api.BinConstraints;
 import org.locationtech.geowave.core.store.api.DataStore;
+import org.locationtech.geowave.core.store.api.DataTypeAdapter;
+import org.locationtech.geowave.core.store.api.DataTypeStatistic;
+import org.locationtech.geowave.core.store.api.FieldStatistic;
+import org.locationtech.geowave.core.store.api.Index;
+import org.locationtech.geowave.core.store.api.IndexStatistic;
+import org.locationtech.geowave.core.store.api.IngestOptions;
+import org.locationtech.geowave.core.store.api.Query;
+import org.locationtech.geowave.core.store.api.Statistic;
+import org.locationtech.geowave.core.store.api.StatisticQuery;
+import org.locationtech.geowave.core.store.api.StatisticValue;
+import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
+import org.locationtech.geowave.core.store.index.IndexStore;
+import org.locationtech.geowave.core.store.operations.DataStoreOperations;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
+import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
+import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
+import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
+import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
+import org.locationtech.geowave.core.store.statistics.StatisticType;
 import org.locationtech.geowave.datastore.cassandra.CassandraStoreFactoryFamily;
 import org.locationtech.geowave.datastore.cassandra.cli.CassandraServer;
 import org.locationtech.geowave.datastore.cassandra.config.CassandraOptions;
 import org.locationtech.geowave.datastore.cassandra.config.CassandraRequiredOptions;
+import org.locationtech.geowave.mapreduce.MapReduceDataStore;
+import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
+import org.locationtech.geowave.mapreduce.output.GeoWaveOutputKey;
+import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   private static final Logger LOGGER = LoggerFactory.getLogger(CassandraStoreTestEnvironment.class);
@@ -30,11 +82,9 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   private static CassandraStoreTestEnvironment singletonInstance = null;
   protected static final File TEMP_DIR =
       new File(System.getProperty("user.dir") + File.separator + "target", "cassandra_temp");
+  protected static final File DATA_DIR =
+      new File(TEMP_DIR.getAbsolutePath() + File.separator + "cassandra", "data");
   protected static final String NODE_DIRECTORY_PREFIX = "cassandra";
-
-  // for testing purposes, easily toggle between running the cassandra server
-  // as multi-nodes or as standalone
-  private static final boolean CLUSTERED_MODE = false;
 
   public static synchronized CassandraStoreTestEnvironment getInstance() {
     if (singletonInstance == null) {
@@ -44,13 +94,31 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   }
 
   private boolean running = false;
+  CassandraServer s;
 
   private CassandraStoreTestEnvironment() {}
 
   @Override
   protected void initOptions(final StoreFactoryOptions options) {
     final CassandraRequiredOptions cassandraOpts = (CassandraRequiredOptions) options;
-    cassandraOpts.setContactPoint("127.0.0.1");
+    cassandraOpts.getAdditionalOptions().setReplicationFactor(1);
+    cassandraOpts.getAdditionalOptions().setDurableWrites(false);
+    cassandraOpts.getAdditionalOptions().setGcGraceSeconds(0);
+
+    try {
+      final Map<String, String> tableOptions = new HashMap<>();
+      tableOptions.put(
+          "compaction",
+          new ObjectMapper().writeValueAsString(
+              SchemaBuilder.sizeTieredCompactionStrategy().withMinSSTableSizeInBytes(
+                  500000L).withMinThreshold(2).withUncheckedTombstoneCompaction(
+                      true).getOptions()));
+      tableOptions.put("gc_grace_seconds", new ObjectMapper().writeValueAsString(0));
+      cassandraOpts.getAdditionalOptions().setTableOptions(tableOptions);
+    } catch (final JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+    cassandraOpts.setContactPoints("127.0.0.1");
     ((CassandraOptions) cassandraOpts.getStoreOptions()).setBatchWriteSize(5);
   }
 
@@ -68,11 +136,9 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
       if (!TEMP_DIR.mkdirs()) {
         LOGGER.warn("Unable to create temporary cassandra directory");
       }
-      if (CLUSTERED_MODE) {
-        new CassandraServer(4, 512, TEMP_DIR.getAbsolutePath()).start();
-      } else {
-        new CassandraServer(1, 512, TEMP_DIR.getAbsolutePath()).start();
-      }
+      // System.setProperty("cassandra.jmx.local.port", "7199");
+      s = new CassandraServer();
+      s.start();
       running = true;
     }
   }
@@ -80,11 +146,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   @Override
   public void tearDown() {
     if (running) {
-      if (CLUSTERED_MODE) {
-        new CassandraServer(4, 512, TEMP_DIR.getAbsolutePath()).stop();
-      } else {
-        new CassandraServer(1, 512, TEMP_DIR.getAbsolutePath()).stop();
-      }
+      s.stop();
       running = false;
     }
     try {
@@ -113,5 +175,441 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   @Override
   public TestEnvironment[] getDependentEnvironments() {
     return new TestEnvironment[] {};
+  }
+
+  @Override
+  public int getMaxCellSize() {
+    return 64 * 1024;
+  }
+
+  // @Override
+  // public DataStorePluginOptions getDataStoreOptions(
+  // final GeoWaveTestStore store,
+  // final String[] profileOptions) {
+  // // because Cassandra leaves tombstone rows around (even when dropping the entire keyspace,
+  // which
+  // // seems to make little sense), we need to setup this delegation so that we can trigger manual
+  // // file system cleanup on "deleteAll" when the keyspace is dropped anyways
+  // return new DataStorePluginOptionsWrapper(super.getDataStoreOptions(store, profileOptions));
+  // }
+
+  private static class DataStorePluginOptionsWrapper extends DataStorePluginOptions {
+    DataStorePluginOptions delegate;
+
+    public DataStorePluginOptionsWrapper(final DataStorePluginOptions delegate) {
+      super();
+      this.delegate = delegate;
+    }
+
+    @Override
+    public void save(final Properties properties, final String namespace) {
+      delegate.save(properties, namespace);
+    }
+
+    @Override
+    public boolean load(final Properties properties, final String namespace) {
+      return delegate.load(properties, namespace);
+    }
+
+    @Override
+    public int hashCode() {
+      return delegate.hashCode();
+    }
+
+    @Override
+    public void selectPlugin(final String qualifier) {
+      delegate.selectPlugin(qualifier);
+    }
+
+    @Override
+    public Map<String, String> getOptionsAsMap() {
+      return delegate.getOptionsAsMap();
+    }
+
+    @Override
+    public void setFactoryOptions(final StoreFactoryOptions factoryOptions) {
+      delegate.setFactoryOptions(factoryOptions);
+    }
+
+    @Override
+    public void setFactoryFamily(final StoreFactoryFamilySpi factoryPlugin) {
+      delegate.setFactoryFamily(factoryPlugin);
+    }
+
+    @Override
+    public StoreFactoryFamilySpi getFactoryFamily() {
+      return delegate.getFactoryFamily();
+    }
+
+    @Override
+    public StoreFactoryOptions getFactoryOptions() {
+      return delegate.getFactoryOptions();
+    }
+
+    @Override
+    public DataStore createDataStore() {
+      return new DataStoreWrapper((MapReduceDataStore) delegate.createDataStore());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      return delegate.equals(obj);
+    }
+
+    @Override
+    public PersistentAdapterStore createAdapterStore() {
+      return delegate.createAdapterStore();
+    }
+
+    @Override
+    public IndexStore createIndexStore() {
+      return delegate.createIndexStore();
+    }
+
+    @Override
+    public DataStatisticsStore createDataStatisticsStore() {
+      return delegate.createDataStatisticsStore();
+    }
+
+    @Override
+    public AdapterIndexMappingStore createAdapterIndexMappingStore() {
+      return delegate.createAdapterIndexMappingStore();
+    }
+
+    @Override
+    public InternalAdapterStore createInternalAdapterStore() {
+      return delegate.createInternalAdapterStore();
+    }
+
+    @Override
+    public DataStoreOperations createDataStoreOperations() {
+      return delegate.createDataStoreOperations();
+    }
+
+    @Override
+    public String getType() {
+      return delegate.getType();
+    }
+
+    @Override
+    public String getGeoWaveNamespace() {
+      return delegate.getGeoWaveNamespace();
+    }
+
+    @Override
+    public String toString() {
+      return delegate.toString();
+    }
+  }
+  private static class DataStoreWrapper implements MapReduceDataStore {
+    MapReduceDataStore delegate;
+
+
+    public DataStoreWrapper(final MapReduceDataStore delegate) {
+      super();
+      this.delegate = delegate;
+    }
+
+    @Override
+    public <T> void ingest(final String inputPath, final Index... index) {
+      delegate.ingest(inputPath, index);
+    }
+
+    @Override
+    public <T> void ingest(
+        final String inputPath,
+        final IngestOptions<T> options,
+        final Index... index) {
+      delegate.ingest(inputPath, options, index);
+    }
+
+    @Override
+    public <T> CloseableIterator<T> query(final Query<T> query) {
+      return delegate.query(query);
+    }
+
+    @Override
+    public <P extends Persistable, R, T> R aggregate(final AggregationQuery<P, R, T> query) {
+      return delegate.aggregate(query);
+    }
+
+    @Override
+    public DataTypeAdapter<?> getType(final String typeName) {
+      return delegate.getType(typeName);
+    }
+
+    @Override
+    public DataTypeAdapter<?>[] getTypes() {
+      return delegate.getTypes();
+    }
+
+    @Override
+    public void addEmptyStatistic(final Statistic<?>... statistic) {
+      delegate.addEmptyStatistic(statistic);
+    }
+
+    @Override
+    public void addStatistic(final Statistic<?>... statistic) {
+      delegate.addStatistic(statistic);
+    }
+
+    @Override
+    public void removeStatistic(final Statistic<?>... statistic) {
+      delegate.removeStatistic(statistic);
+    }
+
+    @Override
+    public void recalcStatistic(final Statistic<?>... statistic) {
+      delegate.recalcStatistic(statistic);
+    }
+
+    @Override
+    public DataTypeStatistic<?>[] getDataTypeStatistics(final String typeName) {
+      return delegate.getDataTypeStatistics(typeName);
+    }
+
+    @Override
+    public <V extends StatisticValue<R>, R> DataTypeStatistic<V> getDataTypeStatistic(
+        final StatisticType<V> statisticType,
+        final String typeName,
+        final String tag) {
+      return delegate.getDataTypeStatistic(statisticType, typeName, tag);
+    }
+
+    @Override
+    public IndexStatistic<?>[] getIndexStatistics(final String indexName) {
+      return delegate.getIndexStatistics(indexName);
+    }
+
+    @Override
+    public <V extends StatisticValue<R>, R> IndexStatistic<V> getIndexStatistic(
+        final StatisticType<V> statisticType,
+        final String indexName,
+        final String tag) {
+      return delegate.getIndexStatistic(statisticType, indexName, tag);
+    }
+
+    @Override
+    public FieldStatistic<?>[] getFieldStatistics(final String typeName, final String fieldName) {
+      return delegate.getFieldStatistics(typeName, fieldName);
+    }
+
+    @Override
+    public <V extends StatisticValue<R>, R> FieldStatistic<V> getFieldStatistic(
+        final StatisticType<V> statisticType,
+        final String typeName,
+        final String fieldName,
+        final String tag) {
+      return delegate.getFieldStatistic(statisticType, typeName, fieldName, tag);
+    }
+
+    @Override
+    public <V extends StatisticValue<R>, R> R getStatisticValue(final Statistic<V> stat) {
+      return delegate.getStatisticValue(stat);
+    }
+
+    @Override
+    public <V extends StatisticValue<R>, R> R getStatisticValue(
+        final Statistic<V> stat,
+        final BinConstraints binConstraints) {
+      return delegate.getStatisticValue(stat, binConstraints);
+    }
+
+    @Override
+    public <V extends StatisticValue<R>, R> CloseableIterator<Pair<ByteArray, R>> getBinnedStatisticValues(
+        final Statistic<V> stat) {
+      return delegate.getBinnedStatisticValues(stat);
+    }
+
+    @Override
+    public <V extends StatisticValue<R>, R> CloseableIterator<Pair<ByteArray, R>> getBinnedStatisticValues(
+        final Statistic<V> stat,
+        final BinConstraints binConstraints) {
+      return delegate.getBinnedStatisticValues(stat, binConstraints);
+    }
+
+    @Override
+    public <V extends StatisticValue<R>, R> CloseableIterator<V> queryStatistics(
+        final StatisticQuery<V, R> query) {
+      return delegate.queryStatistics(query);
+    }
+
+    @Override
+    public <V extends StatisticValue<R>, R> V aggregateStatistics(
+        final StatisticQuery<V, R> query) {
+      return delegate.aggregateStatistics(query);
+    }
+
+    @Override
+    public void addIndex(final Index index) {
+      delegate.addIndex(index);
+    }
+
+    @Override
+    public Index[] getIndices() {
+      return delegate.getIndices();
+    }
+
+    @Override
+    public Index[] getIndices(final String typeName) {
+      return delegate.getIndices(typeName);
+    }
+
+    @Override
+    public Index getIndex(final String indexName) {
+      return delegate.getIndex(indexName);
+    }
+
+    @Override
+    public void copyTo(final DataStore other) {
+      if (other instanceof DataStoreWrapper) {
+        // unwrap because there is special logic using BaseDataStore
+        delegate.copyTo(((DataStoreWrapper) other).delegate);
+      } else {
+        delegate.copyTo(other);
+      }
+    }
+
+    @Override
+    public void copyTo(final DataStore other, final Query<?> query) {
+      delegate.copyTo(other, query);
+    }
+
+    @Override
+    public void addIndex(final String typeName, final Index... indices) {
+      delegate.addIndex(typeName, indices);
+    }
+
+    @Override
+    public void removeIndex(final String indexName) throws IllegalStateException {
+      delegate.removeIndex(indexName);
+    }
+
+    @Override
+    public void removeIndex(final String typeName, final String indexName)
+        throws IllegalStateException {
+      delegate.removeIndex(typeName, indexName);
+    }
+
+    @Override
+    public void removeType(final String typeName) {
+      delegate.removeType(typeName);
+    }
+
+    @Override
+    public <T> boolean delete(final Query<T> query) {
+      return delegate.delete(query);
+    }
+
+    @Override
+    public void deleteAll() {
+      delegate.deleteAll();
+      new NodeTool(new NodeProbeFactory(), Output.CONSOLE).execute("compact");
+    }
+
+    @Override
+    public <T> void addType(
+        final DataTypeAdapter<T> dataTypeAdapter,
+        final Index... initialIndices) {
+      delegate.addType(dataTypeAdapter, initialIndices);
+    }
+
+    @Override
+    public <T> void addType(
+        final DataTypeAdapter<T> dataTypeAdapter,
+        final List<Statistic<?>> statistics,
+        final Index... initialIndices) {
+      delegate.addType(dataTypeAdapter, statistics, initialIndices);
+    }
+
+    @Override
+    public <T> Writer<T> createWriter(final String typeName) {
+      return delegate.createWriter(typeName);
+    }
+
+    @Override
+    public RecordReader<GeoWaveInputKey, ?> createRecordReader(
+        final CommonQueryOptions commonOptions,
+        final DataTypeQueryOptions<?> typeOptions,
+        final IndexQueryOptions indexOptions,
+        final QueryConstraints constraints,
+        final TransientAdapterStore adapterStore,
+        final InternalAdapterStore internalAdapterStore,
+        final AdapterIndexMappingStore aimStore,
+        final DataStatisticsStore statsStore,
+        final IndexStore indexStore,
+        final boolean isOutputWritable,
+        final InputSplit inputSplit) throws IOException, InterruptedException {
+      return delegate.createRecordReader(
+          commonOptions,
+          typeOptions,
+          indexOptions,
+          constraints,
+          adapterStore,
+          internalAdapterStore,
+          aimStore,
+          statsStore,
+          indexStore,
+          isOutputWritable,
+          inputSplit);
+    }
+
+    @Override
+    public List<InputSplit> getSplits(
+        final CommonQueryOptions commonOptions,
+        final DataTypeQueryOptions<?> typeOptions,
+        final IndexQueryOptions indexOptions,
+        final QueryConstraints constraints,
+        final TransientAdapterStore adapterStore,
+        final AdapterIndexMappingStore aimStore,
+        final DataStatisticsStore statsStore,
+        final InternalAdapterStore internalAdapterStore,
+        final IndexStore indexStore,
+        final JobContext context,
+        final Integer minSplits,
+        final Integer maxSplits) throws IOException, InterruptedException {
+      return delegate.getSplits(
+          commonOptions,
+          typeOptions,
+          indexOptions,
+          constraints,
+          adapterStore,
+          aimStore,
+          statsStore,
+          internalAdapterStore,
+          indexStore,
+          context,
+          minSplits,
+          maxSplits);
+    }
+
+    @Override
+    public RecordWriter<GeoWaveOutputKey<Object>, Object> createRecordWriter(
+        final TaskAttemptContext context,
+        final IndexStore jobContextIndexStore,
+        final TransientAdapterStore jobContextAdapterStore) {
+      return delegate.createRecordWriter(context, jobContextIndexStore, jobContextAdapterStore);
+    }
+
+    @Override
+    public void prepareRecordWriter(final Configuration conf) {
+      delegate.prepareRecordWriter(conf);
+    }
+  }
+  public static class NodeProbeFactory implements INodeProbeFactory {
+
+    @Override
+    public NodeProbe create(final String host, final int port) throws IOException {
+      return new NodeProbe(host, port);
+    }
+
+    @Override
+    public NodeProbe create(
+        final String host,
+        final int port,
+        final String username,
+        final String password) throws IOException {
+      return new NodeProbe(host, port, username, password);
+    }
   }
 }
