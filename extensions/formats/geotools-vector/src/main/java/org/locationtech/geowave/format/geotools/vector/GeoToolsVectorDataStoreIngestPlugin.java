@@ -97,6 +97,7 @@ public class GeoToolsVectorDataStoreIngestPlugin implements LocalFileIngestPlugi
         PROPERTIES_EXTENSION);
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static DataStore getDataStore(final URL file) throws IOException {
     final Map<Object, Object> map = new HashMap<>();
     if (isPropertiesFile(file)) {
@@ -104,7 +105,7 @@ public class GeoToolsVectorDataStoreIngestPlugin implements LocalFileIngestPlugi
         final Properties prop = new Properties();
         prop.load(fis);
         map.putAll(prop);
-        final DataStore dataStore = DataStoreFinder.getDataStore(map);
+        final DataStore dataStore = DataStoreFinder.getDataStore((Map) map);
         return dataStore;
       }
     }
@@ -114,7 +115,7 @@ public class GeoToolsVectorDataStoreIngestPlugin implements LocalFileIngestPlugi
           "charset",
           Charset.forName(System.getProperty(StringUtils.GEOWAVE_CHARSET_PROPERTY_NAME)));
     }
-    final DataStore dataStore = DataStoreFinder.getDataStore(map);
+    final DataStore dataStore = DataStoreFinder.getDataStore((Map) map);
     return dataStore;
   }
 

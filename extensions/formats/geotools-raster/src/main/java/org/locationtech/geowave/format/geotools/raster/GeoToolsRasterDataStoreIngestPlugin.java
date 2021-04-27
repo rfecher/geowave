@@ -22,8 +22,8 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.coverage.grid.io.GridFormatFinder;
-import org.geotools.factory.Hints;
 import org.geotools.referencing.CRS;
+import org.geotools.util.factory.Hints;
 import org.locationtech.geowave.adapter.raster.RasterUtils;
 import org.locationtech.geowave.adapter.raster.adapter.RasterDataAdapter;
 import org.locationtech.geowave.adapter.raster.plugin.GeoWaveGTRasterFormat;
@@ -80,7 +80,7 @@ public class GeoToolsRasterDataStoreIngestPlugin implements LocalFileIngestPlugi
     // accepts this file because the finder should have previously validated
     // this, also don't allwo ingest from geowave raster format because its URL validation is way
     // too lenient (ie. the URL is probably not supported)
-    return (format != null && !(format instanceof GeoWaveGTRasterFormat));
+    return ((format != null) && !(format instanceof GeoWaveGTRasterFormat));
   }
 
   private static AbstractGridFormat prioritizedFindFormat(final URL input) {
@@ -155,7 +155,7 @@ public class GeoToolsRasterDataStoreIngestPlugin implements LocalFileIngestPlugi
           if ((mdNames != null) && (mdNames.length > 0)) {
             for (final String mdName : mdNames) {
               if (mdName != null) {
-                String value = reader.getMetadataValue(coverageName, mdName);
+                final String value = reader.getMetadataValue(coverageName, mdName);
                 if (value != null) {
                   metadata.put(mdName, value);
                 }
@@ -239,11 +239,11 @@ public class GeoToolsRasterDataStoreIngestPlugin implements LocalFileIngestPlugi
   public DataTypeAdapter<GridCoverage>[] getDataAdapters(
       final URL url,
       final String globalVisibility) {
-    Map<String, DataTypeAdapter<GridCoverage>> adapters = Maps.newHashMap();
+    final Map<String, DataTypeAdapter<GridCoverage>> adapters = Maps.newHashMap();
     try (CloseableIterator<GeoWaveData<GridCoverage>> dataIt =
         toGeoWaveData(url, new String[0], globalVisibility)) {
       while (dataIt.hasNext()) {
-        DataTypeAdapter<GridCoverage> adapter = dataIt.next().getAdapter();
+        final DataTypeAdapter<GridCoverage> adapter = dataIt.next().getAdapter();
         adapters.put(adapter.getTypeName(), adapter);
       }
     }

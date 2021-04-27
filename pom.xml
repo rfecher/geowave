@@ -59,12 +59,12 @@
 	<properties>
 		<geowave-dev-resources.version>1.7</geowave-dev-resources.version>
 		<spark.version>2.3.1</spark.version>
-		<geotools.version>20.0</geotools.version>
-		<jts.version>1.16.0</jts.version>
+		<geotools.version>25.0</geotools.version>
+		<jts.version>1.18.1</jts.version>
 		<imageio.ext.version>1.1.25</imageio.ext.version>
 		<guava.version>25.1-jre</guava.version>
 		<hadoop.env.classifier>hadoop2</hadoop.env.classifier>
-		<geoserver.version>2.14.0</geoserver.version>
+		<geoserver.version>2.19.0</geoserver.version>
 		<accumulo.version>1.9.2</accumulo.version>
 		<thrift.version>0.9.3</thrift.version>
 		<accumulo.api>1.9</accumulo.api>
