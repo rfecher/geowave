@@ -249,8 +249,8 @@ public class GeoWavePluginConfig {
     return name;
   }
 
-  public static AuthorizationFactorySPI getAuthorizationFactory(
-      final Map<String, ?> params) throws GeoWavePluginException {
+  public static AuthorizationFactorySPI getAuthorizationFactory(final Map<String, ?> params)
+      throws GeoWavePluginException {
     final Object param = params.get(AUTH_MGT_KEY);
     final Iterator<AuthorizationFactorySPI> authIt = getAuthorizationFactoryList();
     AuthorizationFactorySPI authFactory = new EmptyAuthorizationFactory();
@@ -314,8 +314,7 @@ public class GeoWavePluginConfig {
     return null;
   }
 
-  public static URL getAuthorizationURL(final Map<String, ?> params)
-      throws GeoWavePluginException {
+  public static URL getAuthorizationURL(final Map<String, ?> params) throws GeoWavePluginException {
     final Object param = params.get(AUTH_URL_KEY);
     if ((param == null) || param.toString().trim().isEmpty()) {
       return null;
