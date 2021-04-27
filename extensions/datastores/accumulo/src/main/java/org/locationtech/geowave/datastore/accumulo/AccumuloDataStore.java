@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.datastore.accumulo;
 
+import java.io.Closeable;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * adapters. When the data is ingested it is explicitly given an index and a data adapter which is
  * then persisted to be used in subsequent queries.
  */
-public class AccumuloDataStore extends BaseMapReduceDataStore {
+public class AccumuloDataStore extends BaseMapReduceDataStore implements Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloDataStore.class);
 
   public AccumuloDataStore(
@@ -98,4 +99,10 @@ public class AccumuloDataStore extends BaseMapReduceDataStore {
       LOGGER.error("Unable to determine existence of locality group [" + typeName + "]", e);
     }
   }
+
+  @Override
+  public void close() {
+    ((AccumuloOperations) baseOperations).close();
+  }
+
 }

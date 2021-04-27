@@ -240,8 +240,8 @@
 		</dependency>
 		<dependency>
 			<groupId>io.findify</groupId>
-			<artifactId>s3mock_2.11</artifactId>
-			<version>0.2.5</version>
+			<artifactId>s3mock_2.12</artifactId>
+			<version>0.2.6</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -390,8 +390,35 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>${kafka.artifact}</artifactId>
+			<version>${kafka.version}</version>
+			<classifier>test</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>${kafka.version}</version>
+			<classifier>test</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-streams</artifactId>
+			<version>${kafka.version}</version>
+			<classifier>test</classifier>
+		</dependency>
 	</dependencies>
-
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<!-- kafka tests requires zookeeper 3.5.9 -->
+				<groupId>org.apache.zookeeper</groupId>
+				<artifactId>zookeeper</artifactId>
+				<version>3.5.9</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<profiles>
 		<profile>
@@ -554,28 +581,6 @@
 						</executions>
 					</plugin>
 					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.2.1</version>
-						<executions>
-							<execution>
-								<id>install-gdal-IT</id>
-								<phase>pre-integration-test</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<mainClass>
-								org.locationtech.geowave.adapter.raster.plugin.gdal.InstallGdal
-							</mainClass>
-							<arguments>
-								<argument>${gdal.dir}</argument>
-							</arguments>
-						</configuration>
-					</plugin>
-					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-failsafe-plugin</artifactId>
 						<version>2.18.1</version>
@@ -583,10 +588,7 @@
 							<execution>
 								<configuration>
 									<environmentVariables>
-										<LD_LIBRARY_PATH>${gdal.dir}${path.separator}${env.LD_LIBRARY_PATH}</LD_LIBRARY_PATH>
-										<PATH>${gdal.dir}${path.separator}${env.PATH}</PATH>
 										<BIGTABLE_EMULATOR_HOST>${bigtable.emulator.endpoint}</BIGTABLE_EMULATOR_HOST>
-										<GDAL_DIR>${gdal.dir}</GDAL_DIR>
 										<NCS_USER_PREFS />
 									</environmentVariables>
 									<systemPropertyVariables>
@@ -657,14 +659,11 @@
 
 											<structure name="GeoWave">
 												<classfiles>
-													<fileset dir="../"
-														includes="**/target/classes/**,**/target/munged/classes/**"
-														excludes="**/accumulo/target/classes/**" />
+													<fileset dir="../" includes="**/target/classes/**" />
 												</classfiles>
 												<sourcefiles>
 													<fileset dir="../"
-														includes="**/src/main/java/**,**/src/main/scala/**,**/target/munged/main/**"
-														excludes="**/accumulo/target/src/main/java/**" />
+														includes="**/src/main/java/**,**/src/main/scala/**" />
 												</sourcefiles>
 											</structure>
 

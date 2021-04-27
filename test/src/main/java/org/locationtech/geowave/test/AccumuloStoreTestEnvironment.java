@@ -8,13 +8,19 @@
  */
 package org.locationtech.geowave.test;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.accumulo.cluster.ClusterUser;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.gc.SimpleGarbageCollector;
 import org.apache.accumulo.master.Master;
-import org.apache.accumulo.minicluster.impl.MiniAccumuloClusterImpl;
-import org.apache.accumulo.minicluster.impl.MiniAccumuloConfigImpl;
+import org.apache.accumulo.minicluster.MiniAccumuloCluster;
+import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.accumulo.server.init.Initialize;
 import org.apache.accumulo.tserver.TabletServer;
 import org.apache.commons.io.FileUtils;
@@ -26,17 +32,12 @@ import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.datastore.accumulo.AccumuloStoreFactoryFamily;
 import org.locationtech.geowave.datastore.accumulo.cli.MiniAccumuloClusterFactory;
+import org.locationtech.geowave.datastore.accumulo.cli.MiniAccumuloUtils;
 import org.locationtech.geowave.datastore.accumulo.config.AccumuloRequiredOptions;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
   private static final GenericStoreFactory<DataStore> STORE_FACTORY =
@@ -61,7 +62,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
   protected String accumuloInstance;
   protected String accumuloUser;
   protected String accumuloPassword;
-  protected MiniAccumuloClusterImpl miniAccumulo;
+  protected MiniAccumuloCluster miniAccumulo;
 
   private final List<Process> cleanup = new ArrayList<>();
 
@@ -96,8 +97,8 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
             }
           }
           TEMP_DIR.deleteOnExit();
-          final MiniAccumuloConfigImpl config =
-              new MiniAccumuloConfigImpl(TEMP_DIR, DEFAULT_MINI_ACCUMULO_PASSWORD);
+          final MiniAccumuloConfig config =
+              new MiniAccumuloConfig(TEMP_DIR, DEFAULT_MINI_ACCUMULO_PASSWORD);
           config.setZooKeeperPort(Integer.parseInt(zookeeper.split(":")[1]));
           config.setNumTservers(NUM_TABLET_SERVERS);
 
@@ -124,7 +125,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
     }
   }
 
-  private void startMiniAccumulo(final MiniAccumuloConfigImpl config)
+  private void startMiniAccumulo(final MiniAccumuloConfig config)
       throws IOException, InterruptedException {
 
     final LinkedList<String> jvmArgs = new LinkedList<>();
@@ -138,19 +139,19 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
         tearDown();
       }
     });
-    Configuration coreSite = new Configuration(false);
+    final Configuration coreSite = new Configuration(false);
     final Map<String, String> siteConfig = config.getSiteConfig();
     siteConfig.put(Property.INSTANCE_ZK_HOST.getKey(), zookeeper);
     config.setSiteConfig(siteConfig);
 
     if (KerberosTestEnvironment.useKerberos()) {
       KerberosTestEnvironment.getInstance().configureMiniAccumulo(config, coreSite);
-      File siteFile = new File(config.getConfDir(), "accumulo-site.xml");
+      final File siteFile = new File(MiniAccumuloUtils.getConfDir(config), "accumulo-site.xml");
       writeConfig(siteFile, config.getSiteConfig().entrySet());
       // Write out any configuration items to a file so HDFS will pick them up automatically (from
       // the classpath)
       if (coreSite.size() > 0) {
-        File csFile = new File(config.getConfDir(), "core-site.xml");
+        final File csFile = new File(MiniAccumuloUtils.getConfDir(config), "core-site.xml");
         TestUtils.writeConfigToFile(csFile, coreSite);
       }
     }
@@ -165,7 +166,11 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
       args.add(KerberosTestEnvironment.getInstance().getRootUser().getPrincipal());
     }
     final Process initProcess =
-        miniAccumulo.exec(Initialize.class, jvmArgs, args.toArray(new String[0]));
+        MiniAccumuloUtils.exec(
+            miniAccumulo,
+            Initialize.class,
+            jvmArgs,
+            args.toArray(new String[0]));
 
     cleanup.add(initProcess);
 
@@ -175,7 +180,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
           "Initialize process returned "
               + ret
               + ". Check the logs in "
-              + config.getLogDir()
+              + MiniAccumuloUtils.getLogDir(config)
               + " for errors.");
     }
 
@@ -183,24 +188,24 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
         "Starting MAC against instance "
             + config.getInstanceName()
             + " and zookeeper(s)  "
-            + config.getZooKeepers());
+            + MiniAccumuloUtils.getZooKeepers(config));
 
     for (int i = 0; i < config.getNumTservers(); i++) {
-      cleanup.add(miniAccumulo.exec(TabletServer.class, jvmArgs));
+      cleanup.add(MiniAccumuloUtils.exec(miniAccumulo, TabletServer.class, jvmArgs));
     }
 
-    cleanup.add(miniAccumulo.exec(Master.class, jvmArgs));
-    cleanup.add(miniAccumulo.exec(SimpleGarbageCollector.class, jvmArgs));
+    cleanup.add(MiniAccumuloUtils.exec(miniAccumulo, Master.class, jvmArgs));
+    cleanup.add(MiniAccumuloUtils.exec(miniAccumulo, SimpleGarbageCollector.class, jvmArgs));
   }
 
   @SuppressFBWarnings("DM_DEFAULT_ENCODING")
-  private void writeConfig(File file, Iterable<Map.Entry<String, String>> settings)
+  private void writeConfig(final File file, final Iterable<Map.Entry<String, String>> settings)
       throws IOException {
     try (FileWriter fileWriter = new FileWriter(file)) {
       fileWriter.append("<configuration>\n");
 
-      for (Map.Entry<String, String> entry : settings) {
-        String value =
+      for (final Map.Entry<String, String> entry : settings) {
+        final String value =
             entry.getValue().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
         fileWriter.append(
             "<property><name>"
@@ -256,7 +261,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
   protected void initOptions(final StoreFactoryOptions options) {
     final AccumuloRequiredOptions accumuloOpts = (AccumuloRequiredOptions) options;
     if (KerberosTestEnvironment.useKerberos()) {
-      ClusterUser rootUser = KerberosTestEnvironment.getInstance().getRootUser();
+      final ClusterUser rootUser = KerberosTestEnvironment.getInstance().getRootUser();
       accumuloOpts.setUser(rootUser.getPrincipal());
       accumuloOpts.setKeytab(rootUser.getKeytab().getAbsolutePath());
       accumuloOpts.setUseSasl(true);

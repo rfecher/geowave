@@ -8,12 +8,12 @@
  */
 package org.locationtech.geowave.test;
 
+import java.util.Iterator;
 import org.apache.accumulo.cluster.ClusterUser;
-import org.apache.accumulo.minicluster.impl.MiniAccumuloConfigImpl;
+import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.hadoop.conf.Configuration;
 import org.locationtech.geowave.core.index.SPIServiceRegistry;
 import org.locationtech.geowave.test.kerberos.KerberosTestingUtilSpi;
-import java.util.Iterator;
 
 public class KerberosTestEnvironment implements TestEnvironment {
 
@@ -80,7 +80,7 @@ public class KerberosTestEnvironment implements TestEnvironment {
     return new TestEnvironment[0];
   }
 
-  public void configureMiniAccumulo(MiniAccumuloConfigImpl cfg, Configuration coreSite) {
+  public void configureMiniAccumulo(final MiniAccumuloConfig cfg, final Configuration coreSite) {
     if (util != null) {
       util.configureMiniAccumulo(cfg, coreSite);
     }

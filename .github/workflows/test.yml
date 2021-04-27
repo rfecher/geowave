@@ -21,6 +21,9 @@ jobs:
                 java-version: '8'  
                 architecture: x64  
 
+            - name: Install GDAL
+              run: sudo apt-get install gdal-bin libgdal-java
+              
             - name: Set up Maven
               uses: stCarolas/setup-maven@v4
               with:
@@ -143,6 +146,9 @@ jobs:
               with:
                 java-version: '8' 
                 architecture: x64  
+
+            - name: Install GDAL
+              run: sudo apt-get install gdal-bin libgdal-java
                 
             - name: Set up Maven
               uses: stCarolas/setup-maven@v4

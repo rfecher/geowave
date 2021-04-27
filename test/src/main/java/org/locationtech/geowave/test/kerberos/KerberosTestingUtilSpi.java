@@ -9,7 +9,7 @@
 package org.locationtech.geowave.test.kerberos;
 
 import org.apache.accumulo.cluster.ClusterUser;
-import org.apache.accumulo.minicluster.impl.MiniAccumuloConfigImpl;
+import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -21,7 +21,7 @@ public interface KerberosTestingUtilSpi {
 
   void tearDown() throws Exception;
 
-  void configureMiniAccumulo(MiniAccumuloConfigImpl cfg, Configuration coreSite);
+  void configureMiniAccumulo(MiniAccumuloConfig cfg, Configuration coreSite);
 
   ClusterUser getRootUser();
 }
