@@ -35,7 +35,6 @@ import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.simple.RoundRobinKeyIndexStrategy;
 import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.CloseableIteratorWrapper;
-import org.locationtech.geowave.core.store.adapter.AdapterStore;
 import org.locationtech.geowave.core.store.adapter.InternalDataAdapter;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
 import org.locationtech.geowave.core.store.adapter.exceptions.AdapterException;
@@ -129,28 +128,6 @@ public class AccumuloUtils {
       }
     }
     return namespaces;
-  }
-
-  /**
-   * Get list of data adapters associated with the given namespace
-   */
-  public static List<DataTypeAdapter<?>> getDataAdapters(
-      final Connector connector,
-      final String namespace) {
-    final List<DataTypeAdapter<?>> adapters = new ArrayList<>();
-
-    final AccumuloOptions options = new AccumuloOptions();
-    final AdapterStore adapterStore =
-        new AdapterStoreImpl(new AccumuloOperations(connector, namespace, options), options);
-
-    try (final CloseableIterator<DataTypeAdapter<?>> itr = adapterStore.getAdapters()) {
-
-      while (itr.hasNext()) {
-        adapters.add(itr.next());
-      }
-    }
-
-    return adapters;
   }
 
   /**
@@ -477,5 +454,17 @@ public class AccumuloUtils {
 
     @Override
     public void remove() {}
+  }
+
+  public static void closeConnector(final Connector connector) {
+    try {
+      final Class<?> impl = Class.forName("org.apache.accumulo.core.clientImpl.ConnectorImpl");
+      final Object client = impl.getDeclaredMethod("getAccumuloClient").invoke(connector);
+      ((AutoCloseable) client).close();
+    } catch (final Exception e) {
+      LOGGER.info(
+          "Unable to close Accumulo client, this may be because version is 1.x and close is not supported",
+          e);
+    }
   }
 }

@@ -33,7 +33,7 @@ import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.query.constraints.BasicQueryByClass;
 import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
 import org.opengis.feature.simple.SimpleFeature;
-import org.spark_project.guava.collect.Maps;
+import com.google.common.collect.Maps;
 
 public class GeoWaveDataStoreComponents {
   private final GeotoolsFeatureDataAdapter adapter;

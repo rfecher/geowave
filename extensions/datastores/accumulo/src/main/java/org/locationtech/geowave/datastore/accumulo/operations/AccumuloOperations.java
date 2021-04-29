@@ -132,7 +132,10 @@ import com.google.common.collect.Streams;
  * This class holds all parameters necessary for establishing Accumulo connections and provides
  * basic factory methods for creating a batch scanner and a batch writer
  */
-public class AccumuloOperations implements MapReduceDataStoreOperations, ServerSideOperations {
+public class AccumuloOperations implements
+    MapReduceDataStoreOperations,
+    ServerSideOperations,
+    Closeable {
   private static final Logger LOGGER = Logger.getLogger(AccumuloOperations.class);
   private static final int DEFAULT_NUM_THREADS = 16;
   private static final long DEFAULT_TIMEOUT_MILLIS = 1000L; // 1 second
@@ -460,7 +463,7 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
       final Set<ByteArray> removeSet = new HashSet<>();
       final List<Range> rowRanges = new ArrayList<>();
       for (final ByteArray rowId : rowIds) {
-        if (rowId != null && rowId.getBytes() != null) {
+        if ((rowId != null) && (rowId.getBytes() != null)) {
           rowRanges.add(Range.exact(new Text(rowId.getBytes())));
           removeSet.add(new ByteArray(rowId.getBytes()));
         }
@@ -1702,5 +1705,11 @@ public class AccumuloOperations implements MapReduceDataStoreOperations, ServerS
         deleter.close();
       }
     }
+  }
+
+  @Override
+  public void close() {
+    ConnectorPool.getInstance().invalidate(connector);
+    AccumuloUtils.closeConnector(connector);
   }
 }

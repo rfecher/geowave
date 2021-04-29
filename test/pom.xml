@@ -240,8 +240,8 @@
 		</dependency>
 		<dependency>
 			<groupId>io.findify</groupId>
-			<artifactId>s3mock_2.11</artifactId>
-			<version>0.2.5</version>
+			<artifactId>s3mock_2.12</artifactId>
+			<version>0.2.6</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -389,6 +389,18 @@
 					<artifactId>apacheds-jdbm1</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>${kafka.artifact}</artifactId>
+			<version>${kafka.version}</version>
+			<classifier>test</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>${kafka.version}</version>
+			<classifier>test</classifier>
 		</dependency>
 	</dependencies>
 
@@ -658,13 +670,11 @@
 											<structure name="GeoWave">
 												<classfiles>
 													<fileset dir="../"
-														includes="**/target/classes/**,**/target/munged/classes/**"
-														excludes="**/accumulo/target/classes/**" />
+														includes="**/target/classes/**" />
 												</classfiles>
 												<sourcefiles>
 													<fileset dir="../"
-														includes="**/src/main/java/**,**/src/main/scala/**,**/target/munged/main/**"
-														excludes="**/accumulo/target/src/main/java/**" />
+														includes="**/src/main/java/**,**/src/main/scala/**" />
 												</sourcefiles>
 											</structure>
 

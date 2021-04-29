@@ -14,7 +14,9 @@ import org.locationtech.geowave.test.ZookeeperTestEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import kafka.server.KafkaConfig;
-import kafka.server.KafkaServerStartable;
+import kafka.server.KafkaServer;
+import kafka.utils.MockTime;
+import kafka.utils.TestUtils;
 
 public class KafkaTestEnvironment implements TestEnvironment {
 
@@ -29,7 +31,7 @@ public class KafkaTestEnvironment implements TestEnvironment {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaTestEnvironment.class);
 
-  private KafkaServerStartable kafkaServer;
+  private KafkaServer kafkaServer;
 
   private KafkaTestEnvironment() {}
 
@@ -49,7 +51,7 @@ public class KafkaTestEnvironment implements TestEnvironment {
       }
 
       final KafkaConfig config = KafkaTestUtils.getKafkaBrokerConfig();
-      kafkaServer = new KafkaServerStartable(config);
+      kafkaServer = TestUtils.createServer(config, new MockTime());
 
       kafkaServer.startup();
       Thread.sleep(3000);

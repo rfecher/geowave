@@ -58,21 +58,20 @@
 	</developers>
 	<properties>
 		<geowave-dev-resources.version>1.7</geowave-dev-resources.version>
-		<spark.version>2.3.1</spark.version>
+		<spark.version>3.1.1</spark.version>
 		<geotools.version>25.0</geotools.version>
 		<jts.version>1.18.1</jts.version>
-		<imageio.ext.version>1.1.25</imageio.ext.version>
-		<guava.version>25.1-jre</guava.version>
+		<imageio.ext.version>1.3.5</imageio.ext.version>
+		<guava.version>30.1-jre</guava.version>
 		<hadoop.env.classifier>hadoop2</hadoop.env.classifier>
 		<geoserver.version>2.19.0</geoserver.version>
 		<accumulo.version>1.9.2</accumulo.version>
 		<thrift.version>0.9.3</thrift.version>
-		<accumulo.api>1.9</accumulo.api>
 		<bigtable.version>1.2.0</bigtable.version>
-		<cassandra.version>3.11.3</cassandra.version>
-		<redisson.version>3.11.6</redisson.version>
-		<rocksdb.version>6.11.4</rocksdb.version>
-		<cassandraclient.version>3.5.1</cassandraclient.version>
+		<cassandra.version>3.11.10</cassandra.version>
+		<redisson.version>3.15.4</redisson.version>
+		<rocksdb.version>6.19.3</rocksdb.version>
+		<cassandraclient.version>3.11.0</cassandraclient.version>
 		<kuduclient.version>1.14.0</kuduclient.version>
 		<grpc.version>1.13.1</grpc.version>
 		<netty.version>4.1.45.Final</netty.version>
@@ -93,16 +92,21 @@
 		<jetty.version>9.4.24.v20191120</jetty.version>
 		<zookeeper.version>3.4.6</zookeeper.version>
 		<jersey.version>2.23.1</jersey.version>
-		<scala.version>2.11.12</scala.version>
-		<kafka.artifact>kafka_2.11</kafka.artifact>
-		<kafka.version>0.8.2.1</kafka.version>
-		<snappy.version>1.1.2.6</snappy.version>
-		<collections4.version>4.1</collections4.version>
-		<jcommander.version>1.78</jcommander.version>
+		<scala.version>2.12.13</scala.version>
+		<kafka.artifact>kafka_2.12</kafka.artifact>
+		<kafka.version>2.8.0</kafka.version>
+		<snappy.version>1.1.8.2</snappy.version>
+		<collections4.version>4.4</collections4.version>
+		<io.version>2.8.0</io.version>
+		<lang3.version>3.8.1</lang3.version>
+		<jcommander.version>1.81</jcommander.version>
 		<jackson.version>1.9.13</jackson.version>
-		<fasterxml.jackson.version>2.9.5</fasterxml.jackson.version>
-		<spring-security.version>4.2.7.RELEASE</spring-security.version>
-		<slf4j.version>1.7.21</slf4j.version>
+		<fasterxml.jackson.version>2.10.5</fasterxml.jackson.version>
+    	<fasterxml.jackson.databind.version>2.10.5.1</fasterxml.jackson.databind.version>
+		<spring-security.version>5.1.13.RELEASE</spring-security.version>
+		<slf4j.version>1.7.30</slf4j.version>
+		<math.version>2.2</math.version>
+		<math3.version>3.6.1</math3.version>
 		<junit.version>4.11</junit.version>
 		<clearspring.version>2.9.6</clearspring.version>
 		<py4j.version>0.10.8.1</py4j.version>
@@ -249,17 +253,17 @@
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.6</version>
+				<version>${io.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.4</version>
+				<version>${lang3.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-collections4</artifactId>
-				<version>4.1</version>
+				<version>${collections4.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
@@ -296,7 +300,12 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-math</artifactId>
-				<version>2.1</version>
+				<version>${math.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-math3</artifactId>
+				<version>${math3.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.threeten</groupId>
@@ -339,6 +348,11 @@
 			<dependency>
 				<groupId>org.apache.accumulo</groupId>
 				<artifactId>accumulo-minicluster</artifactId>
+				<version>${accumulo.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.accumulo</groupId>
+				<artifactId>accumulo-shell</artifactId>
 				<version>${accumulo.version}</version>
 			</dependency>
 			<dependency>
@@ -919,25 +933,6 @@
 								</pluginExecution>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>
-											org.sonatype.plugins
-										</groupId>
-										<artifactId>
-											munge-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.0,)
-										</versionRange>
-										<goals>
-											<goal>munge</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
 										<groupId>org.apache.avro</groupId>
 										<artifactId>avro-maven-plugin</artifactId>
 										<versionRange>[1.7.6,)</versionRange>
@@ -1019,47 +1014,6 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			<plugin>
-				<groupId>org.codehaus.gmavenplus</groupId>
-				<artifactId>gmavenplus-plugin</artifactId>
-				<version>1.4</version>
-				<inherited>false</inherited>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<goals>
-							<goal>execute</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<scripts>
-						<script><![CDATA[
-			                import org.apache.maven.plugin.MojoExecutionException
-			                String accumuloVersion = System.getProperties().getProperty("accumulo.version")
-							String accumuloAPI = System.getProperties().getProperty("accumulo.api")
-							if (accumuloVersion != null){
-			                	String apiVersion = accumuloVersion.substring(0,3)
-			                	if (accumuloAPI == null) {
-			                		throw new MojoExecutionException("Error: When defining -Daccumulo.version=" + accumuloVersion + ", you must also define -Daccumulo.api=" + apiVersion)
-			                	} else if (!accumuloAPI.equals(apiVersion)) {
-			                		throw new MojoExecutionException("Error: Setting -Daccumulo.version=" + accumuloVersion + ", is not the same API version as set in -Daccumulo.api=" + accumuloAPI + "; value should be: " + apiVersion)
-			                	}
-			                } else if (accumuloAPI != null) {
-			                		throw new MojoExecutionException("Error: When defining -Daccumulo.api=" + accumuloAPI + ", you must also define -Daccumulo.version equal to a version compatible with that api")
-			                }
-                    ]]></script>
-					</scripts>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.groovy</groupId>
-						<artifactId>groovy-all</artifactId>
-						<version>1.5.0</version>
-						<scope>runtime</scope>
-					</dependency>
-				</dependencies>
-			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -1414,7 +1368,6 @@
 				<hbase.version>1.2.0-cdh5.16.2</hbase.version>
 				<hadoop.version>2.6.0-cdh5.16.2</hadoop.version>
 				<spark.version>2.3.0.cloudera4</spark.version>
-				<accumulo.api>1.7</accumulo.api>
 				<!-- accumulo 1.7 references com.google.common.net.HostAndPort.getHostText() 
 					which was removed in guava 22.0 -->
 				<guava.version>21.0</guava.version>
@@ -1451,8 +1404,7 @@
 		<profile>
 			<id>compatibility</id>
 			<properties>
-				<accumulo.version>1.7.2</accumulo.version>
-				<accumulo.api>1.7</accumulo.api>
+				<accumulo.version>1.9.2</accumulo.version>
 				<hadoop.version>2.6.4</hadoop.version>
 				<hbase.version>1.3.1</hbase.version>
 				<geotools.version>20.0</geotools.version>

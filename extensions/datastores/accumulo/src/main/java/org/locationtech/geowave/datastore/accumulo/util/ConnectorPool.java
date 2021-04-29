@@ -8,19 +8,24 @@
  */
 package org.locationtech.geowave.datastore.accumulo.util;
 
-import org.apache.accumulo.core.client.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.ClientConfiguration;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.client.security.tokens.KerberosToken;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class ConnectorPool {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConnectorPool.class);
@@ -40,35 +45,31 @@ public class ConnectorPool {
       final String instanceName,
       final String userName,
       final String passwordOrKeyTab,
-      boolean useSasl) throws AccumuloException, AccumuloSecurityException, IOException {
+      final boolean useSasl) throws AccumuloException, AccumuloSecurityException, IOException {
 
     final ConnectorConfig config =
         new ConnectorConfig(zookeeperUrl, instanceName, userName, passwordOrKeyTab, useSasl);
     Connector connector = connectorCache.get(config);
     if (connector == null) {
 
-      ClientConfiguration conf =
-          // ClientConfiguration.create().withInstance(instanceName).withZkHosts(zookeeperUrl);
+      final ClientConfiguration conf =
+          ClientConfiguration.create().withInstance(instanceName).withZkHosts(zookeeperUrl);
 
-          // using deprecated constructor for accumulo 1.7 compatibility
-          new ClientConfiguration().withInstance(instanceName).withZkHosts(zookeeperUrl);
       if (useSasl) {
         conf.withSasl(true);
-        File file = new java.io.File(passwordOrKeyTab);
+        final File file = new java.io.File(passwordOrKeyTab);
         UserGroupInformation.loginUserFromKeytab(userName, file.getAbsolutePath());
 
         // using deprecated constructor with replaceCurrentUser=false for accumulo 1.7 compatibility
         connector =
-            new ZooKeeperInstance(conf).getConnector(
-                userName,
-                new KerberosToken(userName, file, false));
+            new ZooKeeperInstance(conf).getConnector(userName, new KerberosToken(userName, file));
         // If on a secured cluster, create a thread to periodically renew Kerberos tgt
-        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+        final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
         executor.scheduleAtFixedRate(() -> {
           try {
             UserGroupInformation.getLoginUser().checkTGTAndReloginFromKeytab();
-          } catch (Exception e) {
+          } catch (final Exception e) {
             LOGGER.warn("Unable to renew Kerberos TGT", e);
           }
         }, 0, 2, TimeUnit.MINUTES);
@@ -80,6 +81,20 @@ public class ConnectorPool {
       connectorCache.put(config, connector);
     }
     return connector;
+  }
+
+  public synchronized void invalidate(final Connector connector) {
+    // first find the key that matches this connector, then remove it
+    ConnectorConfig key = null;
+    for (final Entry<ConnectorConfig, Connector> entry : connectorCache.entrySet()) {
+      if (connector.equals(entry.getValue())) {
+        key = entry.getKey();
+        break;
+      }
+    }
+    if (key != null) {
+      connectorCache.remove(key);
+    }
   }
 
   private static class ConnectorConfig {
@@ -94,7 +109,7 @@ public class ConnectorPool {
         final String instanceName,
         final String userName,
         final String passwordOrKeyTab,
-        boolean useSasl) {
+        final boolean useSasl) {
       this.zookeeperUrl = zookeeperUrl;
       this.instanceName = instanceName;
       this.userName = userName;
@@ -103,13 +118,15 @@ public class ConnectorPool {
     }
 
     @Override
-    public boolean equals(Object o) {
-      if (this == o)
+    public boolean equals(final Object o) {
+      if (this == o) {
         return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if ((o == null) || (getClass() != o.getClass())) {
         return false;
-      ConnectorConfig that = (ConnectorConfig) o;
-      return useSasl == that.useSasl
+      }
+      final ConnectorConfig that = (ConnectorConfig) o;
+      return (useSasl == that.useSasl)
           && zookeeperUrl.equals(that.zookeeperUrl)
           && instanceName.equals(that.instanceName)
           && userName.equals(that.userName)

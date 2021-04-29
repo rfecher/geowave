@@ -8,12 +8,15 @@
  */
 package org.locationtech.geowave.test.kerberos;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 import org.apache.accumulo.cluster.ClusterUser;
 import org.apache.accumulo.core.client.security.tokens.KerberosToken;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.harness.MiniClusterHarness;
 import org.apache.accumulo.harness.TestingKdc;
-import org.apache.accumulo.minicluster.impl.MiniAccumuloConfigImpl;
+import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.accumulo.server.security.handler.KerberosAuthenticator;
 import org.apache.accumulo.server.security.handler.KerberosAuthorizor;
 import org.apache.accumulo.server.security.handler.KerberosPermissionHandler;
@@ -23,11 +26,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.Assert;
+import org.locationtech.geowave.datastore.accumulo.cli.MiniAccumuloUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
 
 public class KerberosTestingUtil implements KerberosTestingUtilSpi {
   private static final Logger LOGGER = LoggerFactory.getLogger(KerberosTestingUtil.class);
@@ -42,6 +43,7 @@ public class KerberosTestingUtil implements KerberosTestingUtilSpi {
       SUN_SECURITY_KRB5_DEBUG = "sun.security.krb5.debug";
   private ClusterUser rootUser;
 
+  @Override
   public void setup() throws Exception {
 
     Assert.assertTrue(TEMP_DIR.mkdirs() || TEMP_DIR.isDirectory());
@@ -51,11 +53,12 @@ public class KerberosTestingUtil implements KerberosTestingUtilSpi {
     System.setProperty(MiniClusterHarness.USE_KERBEROS_FOR_IT_OPTION, "true");
     rootUser = kdc.getRootUser();
     // Enabled kerberos auth
-    Configuration conf = new Configuration(false);
+    final Configuration conf = new Configuration(false);
     conf.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
     UserGroupInformation.setConfiguration(conf);
   }
 
+  @Override
   public void tearDown() throws Exception {
     if (null != kdc) {
       kdc.stop();
@@ -76,11 +79,11 @@ public class KerberosTestingUtil implements KerberosTestingUtilSpi {
   }
 
   @Override
-  public void configureMiniAccumulo(MiniAccumuloConfigImpl cfg, Configuration coreSite) {
+  public void configureMiniAccumulo(final MiniAccumuloConfig cfg, final Configuration coreSite) {
     // Enable native maps by default
     cfg.setNativeLibPaths(NativeMapIT.nativeMapLocation().getAbsolutePath());
-    cfg.setProperty(Property.TSERV_NATIVEMAP_ENABLED, Boolean.TRUE.toString());
-    Map<String, String> siteConfig = cfg.getSiteConfig();
+    MiniAccumuloUtils.setProperty(cfg, Property.TSERV_NATIVEMAP_ENABLED, Boolean.TRUE.toString());
+    final Map<String, String> siteConfig = cfg.getSiteConfig();
     if (TRUE.equals(siteConfig.get(Property.INSTANCE_RPC_SSL_ENABLED.getKey()))) {
       throw new RuntimeException("Cannot use both SSL and SASL/Kerberos");
     }
@@ -97,33 +100,46 @@ public class KerberosTestingUtil implements KerberosTestingUtilSpi {
     LOGGER.info("Enabling Kerberos/SASL for minicluster");
 
     // Turn on SASL and set the keytab/principal information
-    cfg.setProperty(Property.INSTANCE_RPC_SASL_ENABLED, "true");
-    ClusterUser serverUser = kdc.getAccumuloServerUser();
-    cfg.setProperty(Property.GENERAL_KERBEROS_KEYTAB, serverUser.getKeytab().getAbsolutePath());
-    cfg.setProperty(Property.GENERAL_KERBEROS_PRINCIPAL, serverUser.getPrincipal());
-    cfg.setProperty(
+
+    MiniAccumuloUtils.setProperty(cfg, Property.INSTANCE_RPC_SASL_ENABLED, "true");
+    final ClusterUser serverUser = kdc.getAccumuloServerUser();
+    MiniAccumuloUtils.setProperty(
+        cfg,
+        Property.GENERAL_KERBEROS_KEYTAB,
+        serverUser.getKeytab().getAbsolutePath());
+    MiniAccumuloUtils.setProperty(
+        cfg,
+        Property.GENERAL_KERBEROS_PRINCIPAL,
+        serverUser.getPrincipal());
+    MiniAccumuloUtils.setProperty(
+        cfg,
         Property.INSTANCE_SECURITY_AUTHENTICATOR,
         KerberosAuthenticator.class.getName());
-    cfg.setProperty(Property.INSTANCE_SECURITY_AUTHORIZOR, KerberosAuthorizor.class.getName());
-    cfg.setProperty(
+    MiniAccumuloUtils.setProperty(
+        cfg,
+        Property.INSTANCE_SECURITY_AUTHORIZOR,
+        KerberosAuthorizor.class.getName());
+    MiniAccumuloUtils.setProperty(
+        cfg,
         Property.INSTANCE_SECURITY_PERMISSION_HANDLER,
         KerberosPermissionHandler.class.getName());
     // Piggy-back on the "system user" credential, but use it as a normal KerberosToken, not the
     // SystemToken.
-    cfg.setProperty(Property.TRACE_USER, serverUser.getPrincipal());
-    cfg.setProperty(Property.TRACE_TOKEN_TYPE, KerberosToken.CLASS_NAME);
+    MiniAccumuloUtils.setProperty(cfg, Property.TRACE_USER, serverUser.getPrincipal());
+    MiniAccumuloUtils.setProperty(cfg, Property.TRACE_TOKEN_TYPE, KerberosToken.CLASS_NAME);
     // Pass down some KRB5 debug properties
-    Map<String, String> systemProperties = cfg.getSystemProperties();
+    final Map<String, String> systemProperties = MiniAccumuloUtils.getSystemProperties(cfg);
     systemProperties.put(JAVA_SECURITY_KRB5_CONF, System.getProperty(JAVA_SECURITY_KRB5_CONF, ""));
     systemProperties.put(
         SUN_SECURITY_KRB5_DEBUG,
         System.getProperty(SUN_SECURITY_KRB5_DEBUG, "false"));
-    cfg.setSystemProperties(systemProperties);
-    cfg.setRootUserName(kdc.getRootUser().getPrincipal());
+    MiniAccumuloUtils.setSystemProperties(cfg, systemProperties);
+    MiniAccumuloUtils.setRootUserName(cfg, kdc.getRootUser().getPrincipal());
     // Make sure UserGroupInformation will do the correct login
     coreSite.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
   }
 
+  @Override
   public ClusterUser getRootUser() {
     return rootUser;
   }
