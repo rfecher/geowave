@@ -45,10 +45,7 @@ public class StageKafkaData<T extends SpecificRecordBase> {
     if (!cachedProducers.containsKey(typeName)) {
 
       final Producer<byte[], byte[]> producer =
-          new KafkaProducer<>(
-              properties,
-              new ByteArraySerializer(),
-              new ByteArraySerializer());
+          new KafkaProducer<>(properties, new ByteArraySerializer(), new ByteArraySerializer());
 
       cachedProducers.put(typeName, producer);
     }
