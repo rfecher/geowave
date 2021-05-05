@@ -42,9 +42,9 @@ jobs:
               env:
                 cache-name: cache-resources
               with:
-                key: ${{ runner.os }}-other
+                key: ${{ runner.os }}-other2
                 restore-keys: |
-                      ${{ runner.os }}-other
+                      ${{ runner.os }}-other2
                 path: |  
                       ~/.downloads
                       test/landsat8

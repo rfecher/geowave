@@ -247,7 +247,6 @@ public class GeoWaveITRunner extends Suite {
 
   private void createRunnersForDataStores()
       throws InitializationError, SecurityException, GeoWaveITException {
-    final GeoWaveStoreRunnerConfig emptyConfig = new GeoWaveStoreRunnerConfig();
     List<GeoWaveStoreRunnerConfig> configs = new ArrayList<>();
 
     String storeTypeProp = System.getenv(STORE_TYPE_ENVIRONMENT_VARIABLE_NAME);
