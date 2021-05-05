@@ -58,7 +58,7 @@ public class DistributedRenderAggregation implements
   }
 
   @SuppressFBWarnings(
-      value = "NP_NONNULL_RETURN_VIOLATION",
+      value = "NP_NONNULL_PARAM_VIOLATION",
       justification = "This usage requires null params and is tested to work.")
   private void initRenderer(final SimpleFeatureType type) {
     currentRenderer = new DistributedRenderMapOutputFormat(options);

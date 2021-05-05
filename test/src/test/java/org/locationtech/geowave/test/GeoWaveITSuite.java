@@ -76,7 +76,6 @@ import org.locationtech.geowave.test.stability.GeoWaveStabilityIT;
 //    // TODO need to mock up S3
 //    // GeowaveBasicURLIngestIT.class,
 //    GeoWaveVectorSerializationIT.class,
-//    BasicKafkaIT.class,
 //    BasicMapReduceIT.class,
 //    SimpleQuerySecondaryIndexIT.class,
 //    BasicSecondaryIndexIT.class,
@@ -92,6 +91,7 @@ import org.locationtech.geowave.test.stability.GeoWaveStabilityIT;
     // DBScanIT.class,
     // GeoWaveNNIT.class,
     CustomCRSLandsatIT.class,
+    BasicKafkaIT.class,
 //    GeoWaveBasicRasterIT.class,
 //    GeoWaveBasicCustomCRSRasterIT.class,
 //    AttributesSubsetQueryIT.class,
