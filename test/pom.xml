@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>geowave-parent</artifactId>
@@ -401,7 +403,16 @@
 			<classifier>test</classifier>
 		</dependency>
 	</dependencies>
-
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<!-- kafka requires zookeeper >= 3.5.2 -->
+				<groupId>org.apache.zookeeper</groupId>
+				<artifactId>zookeeper</artifactId>
+				<version>3.5.5</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<profiles>
 		<profile>
@@ -656,10 +667,13 @@
 								<configuration>
 									<tasks xmlns:jacoco="antlib:org.jacoco.ant">
 										<mkdir dir="${project.reporting.outputDirectory}" />
-										<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="maven.plugin.classpath" />
+										<taskdef uri="antlib:org.jacoco.ant"
+											resource="org/jacoco/ant/antlib.xml"
+											classpathref="maven.plugin.classpath" />
 										<jacoco:report>
 											<executiondata>
-												<fileset dir="../" includes="**/coverage-reports/*.exec" />
+												<fileset dir="../"
+													includes="**/coverage-reports/*.exec" />
 											</executiondata>
 
 											<structure name="GeoWave">
@@ -667,11 +681,13 @@
 													<fileset dir="../" includes="**/target/classes/**" />
 												</classfiles>
 												<sourcefiles>
-													<fileset dir="../" includes="**/src/main/java/**,**/src/main/scala/**" />
+													<fileset dir="../"
+														includes="**/src/main/java/**,**/src/main/scala/**" />
 												</sourcefiles>
 											</structure>
 
-											<xml destfile="${project.reporting.outputDirectory}/jacoco.xml" />
+											<xml
+												destfile="${project.reporting.outputDirectory}/jacoco.xml" />
 										</jacoco:report>
 									</tasks>
 								</configuration>

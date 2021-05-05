@@ -52,7 +52,7 @@ jobs:
                       test/target/temp/gdal
 
             - name: Run
-              run: ./.utility/retry ./.utility/run-tests.sh
+              run: ./.utility/run-tests.sh
 
             - name: Publish Unit Test Results
               uses: scacap/action-surefire-report@v1
@@ -109,7 +109,7 @@ jobs:
                       test/target/temp/gdal
 
             - name: Run
-              run: ./.utility/retry ./.utility/run-tests.sh
+              run: ./.utility/run-tests.sh
 
             - name: Python Test Results
               uses: scacap/action-surefire-report@v1
@@ -125,11 +125,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                profile: [redis-it, rocksdb-it, accumulo-it-client, accumulo-it-server, hbase-it-client, hbase-it-server, cassandra-it, dynamodb-it, bigtable-it, kudu-it, filesystem-it, accumulo-it-kerberos, 'filesystem-it,secondary-index-it', 'rocksdb-it,secondary-index-it', 'hbase-it-client,compatibility,ignore-kerberos-it', 'accumulo-it-server,compatibility,ignore-kerberos-it', 'hbase-it-server,cloudera,ignore-kerberos-it', 'accumulo-it-server,cloudera,ignore-kerberos-it']
-                include:
-                  # include a new variable of TEST_KERBEROS = true
-                  - profile: accumulo-it-kerberos
-                    test_kerberos: true
+                profile: [rocksdb-it]
         env:
             IT_ONLY: true
             MAVEN_PROFILES: ${{ matrix.profile }}
@@ -149,7 +145,6 @@ jobs:
               with:
                 maven-version: 3.6.3
               
-                
             - name: Cache maven resources
               uses: actions/cache@v2
               env:
@@ -161,22 +156,8 @@ jobs:
                 path: |
                       ~/.m2/repository
 
-            - name: Cache other resources
-              uses: actions/cache@v2
-              env:
-                cache-name: cache-resources
-              with:
-                key: ${{ runner.os }}-other
-                restore-keys: |
-                      ${{ runner.os }}-other
-                path: |  
-                      ~/.downloads
-                      test/landsat8
-                      test/sentinel2
-                      test/target/temp/gdal
-
             - name: Run
-              run: ./.utility/retry ./.utility/run-tests.sh
+              run: ./.utility/run-tests.sh
 
             - name: Publish Integration Test ${{ matrix.profile }} Results
               uses: scacap/action-surefire-report@v1

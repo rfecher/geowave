@@ -258,11 +258,9 @@ public class GeoWaveITRunner extends Suite {
     // See if user specified a single store type
     if (TestUtils.isSet(storeTypeProp)) {
       storeType = GeoWaveStoreType.valueOf(storeTypeProp);
-
     } else { // No user override - just use RocksDB
       storeType = GeoWaveStoreType.ROCKSDB;
-    } // If no match, the configs list will be empty and the IT will be a
-    // no-op
+    }
     if (containsAnnotationForType(storeType)) {
       configs.add(new GeoWaveStoreRunnerConfig(storeType, dataStoreOptionFields));
       storeTypes.add(storeType);
