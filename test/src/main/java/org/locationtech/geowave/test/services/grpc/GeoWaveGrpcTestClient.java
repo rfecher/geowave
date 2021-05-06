@@ -875,7 +875,7 @@ public class GeoWaveGrpcTestClient {
             params).addAllExtensions(extensions).setFormats("gpx").setGroupId(
                 "testGroup").setZookeeperConnect(
                     GeoWaveGrpcTestUtils.getZookeeperTestEnv().getZookeeper()).setAutoOffsetReset(
-                        "smallest").setFetchMessageMaxBytes("5000000").setConsumerTimeoutMs(
+                        "earliest").setFetchMessageMaxBytes("5000000").setConsumerTimeoutMs(
                             "5000").setReconnectOnTimeout(false).setBatchSize(10000).build();
     coreIngestBlockingStub.kafkaToGeoWaveCommand(request);
     return true;

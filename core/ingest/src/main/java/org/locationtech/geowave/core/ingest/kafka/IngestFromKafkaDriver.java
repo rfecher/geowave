@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +24,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.locationtech.geowave.core.ingest.avro.GenericAvroSerializer;
 import org.locationtech.geowave.core.ingest.avro.GeoWaveAvroFormatPlugin;
@@ -195,7 +198,20 @@ public class IngestFromKafkaDriver {
               + "]");
 
       queue.remove(formatPluginName);
-      consumer.subscribe(Collections.singletonList(formatPluginName));
+      consumer.subscribe(
+          Collections.singletonList(formatPluginName),
+          new ConsumerRebalanceListener() {
+
+            @Override
+            public void onPartitionsRevoked(final Collection<TopicPartition> partitions) {
+              System.err.println("revoked");
+            }
+
+            @Override
+            public void onPartitionsAssigned(final Collection<TopicPartition> partitions) {
+              consumer.seekToBeginning(partitions);
+            }
+          });
       final String timeoutMs = kafkaOptions.getConsumerTimeoutMs();
       long millis = -1;
       if ((timeoutMs != null) && !timeoutMs.trim().isEmpty()) {
@@ -219,8 +235,8 @@ public class IngestFromKafkaDriver {
     int currentBatchId = 0;
     final int batchSize = kafkaOptions.getBatchSize();
     try {
-      ConsumerRecords<byte[], byte[]> iterator = consumer.poll(timeout);
-      for (ConsumerRecord<byte[], byte[]> msg : iterator) {
+      final ConsumerRecords<byte[], byte[]> iterator = consumer.poll(timeout);
+      for (final ConsumerRecord<byte[], byte[]> msg : iterator) {
         LOGGER.info("[" + formatPluginName + "] message received");
         final T dataRecord =
             GenericAvroSerializer.deserialize(msg.value(), avroFormatPlugin.getAvroSchema());

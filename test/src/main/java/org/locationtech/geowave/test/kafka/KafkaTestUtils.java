@@ -37,7 +37,6 @@ public class KafkaTestUtils {
   public static void testKafkaStage(final String ingestFilePath) throws Exception {
     LOGGER.warn(
         "Staging '" + ingestFilePath + "' to a Kafka topic - this may take several minutes...");
-    final String[] args = null;
     String localhost = "localhost";
     try {
       localhost = java.net.InetAddress.getLocalHost().getCanonicalHostName();
@@ -52,12 +51,8 @@ public class KafkaTestUtils {
     final LocalToKafkaCommand localToKafka = new LocalToKafkaCommand();
     localToKafka.setParameters(ingestFilePath);
     localToKafka.setPluginFormats(ingestFormatOptions);
-    localToKafka.getKafkaOptions().setMetadataBrokerList(localhost + ":9092");
-    localToKafka.getKafkaOptions().setRequestRequiredAcks("1");
-    localToKafka.getKafkaOptions().setProducerType("sync");
+    localToKafka.getKafkaOptions().setBootstrapServers(localhost + ":9092");
     localToKafka.getKafkaOptions().setRetryBackoffMs("1000");
-    localToKafka.getKafkaOptions().setSerializerClass(
-        "org.locationtech.geowave.core.ingest.kafka.KafkaAvroEncoder");
     localToKafka.execute(new ManualOperationParams());
   }
 
@@ -102,14 +97,19 @@ public class KafkaTestUtils {
     }
 
     kafkaToGeowave.setPluginFormats(ingestFormatOptions);
+    String localhost = "localhost";
+    try {
+      localhost = java.net.InetAddress.getLocalHost().getCanonicalHostName();
+    } catch (final UnknownHostException e) {
+      LOGGER.warn("unable to get canonical hostname for localhost", e);
+    }
 
+    kafkaToGeowave.getKafkaOptions().setBootstrapServers(localhost + ":9092");
     kafkaToGeowave.getKafkaOptions().setConsumerTimeoutMs("5000");
     kafkaToGeowave.getKafkaOptions().setReconnectOnTimeout(false);
     kafkaToGeowave.getKafkaOptions().setGroupId("testGroup");
-    kafkaToGeowave.getKafkaOptions().setAutoOffsetReset("smallest");
-    kafkaToGeowave.getKafkaOptions().setFetchMessageMaxBytes(MAX_MESSAGE_BYTES);
-    kafkaToGeowave.getKafkaOptions().setZookeeperConnect(
-        ZookeeperTestEnvironment.getInstance().getZookeeper());
+    kafkaToGeowave.getKafkaOptions().setAutoOffsetReset("earliest");
+    kafkaToGeowave.getKafkaOptions().setMaxPartitionFetchBytes(MAX_MESSAGE_BYTES);
     kafkaToGeowave.setParameters("test-store", "testIndex");
 
     kafkaToGeowave.execute(params);
