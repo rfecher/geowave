@@ -873,10 +873,9 @@ public class GeoWaveGrpcTestClient {
     final KafkaToGeoWaveCommandParametersProtos request =
         KafkaToGeoWaveCommandParametersProtos.newBuilder().addAllParameters(
             params).addAllExtensions(extensions).setFormats("gpx").setGroupId(
-                "testGroup").setZookeeperConnect(
-                    GeoWaveGrpcTestUtils.getZookeeperTestEnv().getZookeeper()).setAutoOffsetReset(
-                        "earliest").setFetchMessageMaxBytes("5000000").setConsumerTimeoutMs(
-                            "5000").setReconnectOnTimeout(false).setBatchSize(10000).build();
+                "testGroup").setAutoOffsetReset("earliest").setMaxPartitionFetchBytes(
+                    "5000000").setConsumerTimeoutMs("5000").setReconnectOnTimeout(
+                        false).setBatchSize(10000).build();
     coreIngestBlockingStub.kafkaToGeoWaveCommand(request);
     return true;
   }
@@ -914,11 +913,8 @@ public class GeoWaveGrpcTestClient {
 
     final LocalToKafkaCommandParametersProtos request =
         LocalToKafkaCommandParametersProtos.newBuilder().addAllParameters(params).addAllExtensions(
-            extensions).setFormats("gpx").setMetadataBrokerList(
-                localhost + ":9092").setRequestRequiredAcks("1").setProducerType(
-                    "sync").setSerializerClass(
-                        "org.locationtech.geowave.core.ingest.kafka.AvroKafkaEncoder").setRetryBackoffMs(
-                            "1000").build();
+            extensions).setFormats("gpx").setBootstrapServers(
+                localhost + ":9092").setRetryBackoffMs("1000").build();
     coreIngestBlockingStub.localToKafkaCommand(request);
     return true;
   }

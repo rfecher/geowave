@@ -77,7 +77,7 @@ public class KafkaConsumerCommandLineOptions extends KafkaCommandLineOptions {
   public void setGroupId(final String groupId) {
     this.groupId = groupId;
   }
-  
+
   public String getAutoOffsetReset() {
     return autoOffsetReset;
   }
