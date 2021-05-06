@@ -59,7 +59,7 @@ jobs:
                       test/target/temp/gdal
 
             - name: Run
-              run: ./.utility/retry ./.utility/run-tests.sh
+              run: ./.utility/run-tests.sh
 
             - name: Publish Integration Test ${{ matrix.profile }} Results
               uses: scacap/action-surefire-report@v1
