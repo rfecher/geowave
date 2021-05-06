@@ -402,14 +402,20 @@
 			<version>${kafka.version}</version>
 			<classifier>test</classifier>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-streams</artifactId>
+			<version>${kafka.version}</version>
+			<classifier>test</classifier>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<!-- kafka requires zookeeper >= 3.5.2 -->
+				<!-- kafka tests requires zookeeper 3.5.9 -->
 				<groupId>org.apache.zookeeper</groupId>
 				<artifactId>zookeeper</artifactId>
-				<version>3.5.5</version>
+				<version>3.5.9</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

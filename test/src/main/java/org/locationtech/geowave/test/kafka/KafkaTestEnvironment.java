@@ -8,15 +8,13 @@
  */
 package org.locationtech.geowave.test.kafka;
 
+import java.lang.reflect.Method;
+import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.kafka.streams.integration.utils.EmbeddedKafkaCluster;
 import org.locationtech.geowave.test.TestEnvironment;
-import org.locationtech.geowave.test.ZookeeperTestEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import kafka.server.KafkaConfig;
-import kafka.server.KafkaServer;
-import kafka.utils.MockTime;
-import kafka.utils.TestUtils;
 
 public class KafkaTestEnvironment implements TestEnvironment {
 
@@ -31,7 +29,7 @@ public class KafkaTestEnvironment implements TestEnvironment {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaTestEnvironment.class);
 
-  private KafkaServer kafkaServer;
+  private EmbeddedKafkaCluster kafkaServer;
 
   private KafkaTestEnvironment() {}
 
@@ -50,24 +48,27 @@ public class KafkaTestEnvironment implements TestEnvironment {
                 + "]");
       }
 
-      final KafkaConfig config = KafkaTestUtils.getKafkaBrokerConfig();
-      kafkaServer = TestUtils.createServer(config, new MockTime());
+      final Properties config = KafkaTestUtils.getKafkaBrokerConfig();
+      kafkaServer = new EmbeddedKafkaCluster(1, config);
 
-      kafkaServer.startup();
-      Thread.sleep(3000);
+      kafkaServer.start();
     }
   }
 
   @Override
   public void tearDown() throws Exception {
     LOGGER.info("Shutting down Kafka Server...");
-    kafkaServer.shutdown();
-    kafkaServer = null;
+    if (kafkaServer != null) {
+      final Method m = kafkaServer.getClass().getDeclaredMethod("after");
+      m.setAccessible(true);
+      m.invoke(kafkaServer);
+      kafkaServer = null;
+    }
     FileUtils.forceDeleteOnExit(KafkaTestUtils.DEFAULT_LOG_DIR);
   }
 
   @Override
   public TestEnvironment[] getDependentEnvironments() {
-    return new TestEnvironment[] {ZookeeperTestEnvironment.getInstance()};
+    return new TestEnvironment[] {};
   }
 }

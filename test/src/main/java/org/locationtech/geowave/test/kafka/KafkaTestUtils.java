@@ -126,15 +126,20 @@ public class KafkaTestUtils {
     }
   }
 
-  public static KafkaConfig getKafkaBrokerConfig() {
+  public static Properties getKafkaBrokerConfig() {
+    String localhost = "localhost";
+    try {
+      localhost = java.net.InetAddress.getLocalHost().getCanonicalHostName();
+    } catch (final UnknownHostException e) {
+      LOGGER.warn("unable to get canonical hostname for localhost", e);
+    }
     final Properties props = new Properties();
     props.put("log.dirs", DEFAULT_LOG_DIR.getAbsolutePath());
-    props.put("zookeeper.connect", ZookeeperTestEnvironment.getInstance().getZookeeper());
     props.put("broker.id", "0");
-    props.put("port", "9092");
+    props.put("listeners", "PLAINTEXT://" + localhost + ":9092");
     props.put("message.max.bytes", MAX_MESSAGE_BYTES);
     props.put("replica.fetch.max.bytes", MAX_MESSAGE_BYTES);
     props.put("num.partitions", "1");
-    return new KafkaConfig(props);
+    return props;
   }
 }

@@ -198,20 +198,7 @@ public class IngestFromKafkaDriver {
               + "]");
 
       queue.remove(formatPluginName);
-      consumer.subscribe(
-          Collections.singletonList(formatPluginName),
-          new ConsumerRebalanceListener() {
-
-            @Override
-            public void onPartitionsRevoked(final Collection<TopicPartition> partitions) {
-              System.err.println("revoked");
-            }
-
-            @Override
-            public void onPartitionsAssigned(final Collection<TopicPartition> partitions) {
-              consumer.seekToBeginning(partitions);
-            }
-          });
+      consumer.subscribe(Collections.singletonList(formatPluginName));
       final String timeoutMs = kafkaOptions.getConsumerTimeoutMs();
       long millis = -1;
       if ((timeoutMs != null) && !timeoutMs.trim().isEmpty()) {
