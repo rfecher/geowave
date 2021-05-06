@@ -744,18 +744,30 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
         final Set<Entry<Statistic<?>, Map<ByteArray, StatisticValue<?>>>> expectedStats =
             cachedValue.statsCache.entrySet();
         int statsCount = 0;
+        List<Statistic> actualS = new ArrayList<>(); 
         try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statsIterator =
             statsStore.getDataTypeStatistics(adapter, null, null)) {
           while (statsIterator.hasNext()) {
-            statsIterator.next();
+            actualS.add(statsIterator.next());
             statsCount++;
           }
         }
         try (CloseableIterator<? extends Statistic<? extends StatisticValue<?>>> statsIterator =
             statsStore.getFieldStatistics(adapter, null, null, null)) {
           while (statsIterator.hasNext()) {
-            statsIterator.next();
+            actualS.add(statsIterator.next());
             statsCount++;
+          }
+        }
+        if (expectedStats.size() != statsCount) {
+          LOGGER.error("Size doesn't match");
+          LOGGER.error("Expected");
+          for (Entry<Statistic<?>, Map<ByteArray, StatisticValue<?>>> e : expectedStats) {
+            LOGGER.error(e.getKey().getId().getUniqueId().getString());
+          }
+          LOGGER.error("Actual");
+          for (Statistic<?> e : actualS) {
+            LOGGER.error(e.getId().getUniqueId().getString());
           }
         }
         Assert.assertEquals(
@@ -776,6 +788,10 @@ public abstract class AbstractGeoWaveBasicVectorIT extends AbstractGeoWaveIT {
                   statsStore.getStatisticValue(
                       (Statistic<StatisticValue<Object>>) expectedStat.getKey(),
                       expectedValues.getKey());
+            }
+            if (actual ==  null) {
+              LOGGER.error("Null stat found");
+              LOGGER.error(expectedStat.getKey().getId().getUniqueId().toString());
             }
             assertEquals(expectedValues.getValue().getValue(), actual.getValue());
           }
