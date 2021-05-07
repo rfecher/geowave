@@ -8,6 +8,7 @@
  */
 package org.locationtech.geowave.core.ingest.kafka;
 
+import org.apache.kafka.clients.CommonClientConfigs;
 import com.beust.jcommander.Parameter;
 
 public class KafkaConsumerCommandLineOptions extends KafkaCommandLineOptions {
@@ -17,7 +18,7 @@ public class KafkaConsumerCommandLineOptions extends KafkaCommandLineOptions {
       description = "A string that uniquely identifies the group of consumer processes to which this consumer belongs. By setting the same group id multiple processes indicate that they are all part of the same consumer group.")
   private String groupId;
 
-  @PropertyReference("bootstrap.servers")
+  @PropertyReference(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG)
   @Parameter(
       names = "--bootstrapServers",
       description = "This is for bootstrapping and the consumer will only use it for getting metadata (topics, partitions and replicas). The socket connections for sending the actual data will be established based on the broker information returned in the metadata. The format is host1:port1,host2:port2, and the list can be a subset of brokers or a VIP pointing to a subset of brokers.")

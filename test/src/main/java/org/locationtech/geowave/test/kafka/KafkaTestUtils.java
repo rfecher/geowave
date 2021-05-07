@@ -9,7 +9,6 @@
 package org.locationtech.geowave.test.kafka;
 
 import java.io.File;
-import java.net.UnknownHostException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
@@ -23,10 +22,8 @@ import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexPluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.test.TestUtils;
-import org.locationtech.geowave.test.ZookeeperTestEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import kafka.server.KafkaConfig;
 
 public class KafkaTestUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaTestEnvironment.class);
@@ -35,15 +32,6 @@ public class KafkaTestUtils {
   protected static final File DEFAULT_LOG_DIR = new File(TestUtils.TEMP_DIR, "kafka-logs");
 
   public static void testKafkaStage(final String ingestFilePath) throws Exception {
-    LOGGER.warn(
-        "Staging '" + ingestFilePath + "' to a Kafka topic - this may take several minutes...");
-    String localhost = "localhost";
-    try {
-      localhost = java.net.InetAddress.getLocalHost().getCanonicalHostName();
-    } catch (final UnknownHostException e) {
-      LOGGER.warn("unable to get canonical hostname for localhost", e);
-    }
-
     // Ingest Formats
     final IngestFormatPluginOptions ingestFormatOptions = new IngestFormatPluginOptions();
     ingestFormatOptions.selectPlugin("gpx");
@@ -51,7 +39,8 @@ public class KafkaTestUtils {
     final LocalToKafkaCommand localToKafka = new LocalToKafkaCommand();
     localToKafka.setParameters(ingestFilePath);
     localToKafka.setPluginFormats(ingestFormatOptions);
-    localToKafka.getKafkaOptions().setBootstrapServers(localhost + ":9092");
+    localToKafka.getKafkaOptions().setBootstrapServers(
+        KafkaTestEnvironment.getInstance().getBootstrapServers());
     localToKafka.getKafkaOptions().setRetryBackoffMs("1000");
     localToKafka.execute(new ManualOperationParams());
   }
@@ -97,14 +86,8 @@ public class KafkaTestUtils {
     }
 
     kafkaToGeowave.setPluginFormats(ingestFormatOptions);
-    String localhost = "localhost";
-    try {
-      localhost = java.net.InetAddress.getLocalHost().getCanonicalHostName();
-    } catch (final UnknownHostException e) {
-      LOGGER.warn("unable to get canonical hostname for localhost", e);
-    }
-
-    kafkaToGeowave.getKafkaOptions().setBootstrapServers(localhost + ":9092");
+    kafkaToGeowave.getKafkaOptions().setBootstrapServers(
+        KafkaTestEnvironment.getInstance().getBootstrapServers());
     kafkaToGeowave.getKafkaOptions().setConsumerTimeoutMs("5000");
     kafkaToGeowave.getKafkaOptions().setReconnectOnTimeout(false);
     kafkaToGeowave.getKafkaOptions().setGroupId("testGroup");
@@ -126,17 +109,11 @@ public class KafkaTestUtils {
     }
   }
 
-  public static Properties getKafkaBrokerConfig() {
-    String localhost = "localhost";
-    try {
-      localhost = java.net.InetAddress.getLocalHost().getCanonicalHostName();
-    } catch (final UnknownHostException e) {
-      LOGGER.warn("unable to get canonical hostname for localhost", e);
-    }
+  public static Properties getKafkaBrokerConfig(final String host) {
     final Properties props = new Properties();
     props.put("log.dirs", DEFAULT_LOG_DIR.getAbsolutePath());
     props.put("broker.id", "0");
-    props.put("listeners", "PLAINTEXT://" + localhost + ":9092");
+    props.put("listeners", "PLAINTEXT://" + host + ":9092");
     props.put("message.max.bytes", MAX_MESSAGE_BYTES);
     props.put("replica.fetch.max.bytes", MAX_MESSAGE_BYTES);
     props.put("num.partitions", "1");

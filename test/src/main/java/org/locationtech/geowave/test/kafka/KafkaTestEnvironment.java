@@ -9,6 +9,7 @@
 package org.locationtech.geowave.test.kafka;
 
 import java.lang.reflect.Method;
+import java.net.UnknownHostException;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.streams.integration.utils.EmbeddedKafkaCluster;
@@ -31,6 +32,8 @@ public class KafkaTestEnvironment implements TestEnvironment {
 
   private EmbeddedKafkaCluster kafkaServer;
 
+  private String bootstrapServers;
+
   private KafkaTestEnvironment() {}
 
   @Override
@@ -48,9 +51,16 @@ public class KafkaTestEnvironment implements TestEnvironment {
                 + "]");
       }
 
-      final Properties config = KafkaTestUtils.getKafkaBrokerConfig();
-      kafkaServer = new EmbeddedKafkaCluster(1, config);
+      String localhost = "localhost";
+      try {
+        localhost = java.net.InetAddress.getLocalHost().getCanonicalHostName();
+      } catch (final UnknownHostException e) {
+        LOGGER.warn("unable to get canonical hostname for localhost", e);
+      }
 
+      final Properties config = KafkaTestUtils.getKafkaBrokerConfig(localhost);
+      kafkaServer = new EmbeddedKafkaCluster(1, config);
+      bootstrapServers = localhost + ":9092";
       kafkaServer.start();
     }
   }
@@ -65,6 +75,10 @@ public class KafkaTestEnvironment implements TestEnvironment {
       kafkaServer = null;
     }
     FileUtils.forceDeleteOnExit(KafkaTestUtils.DEFAULT_LOG_DIR);
+  }
+
+  public String getBootstrapServers() {
+    return bootstrapServers;
   }
 
   @Override
