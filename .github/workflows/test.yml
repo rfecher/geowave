@@ -7,7 +7,7 @@ env:
     MAVEN_OPTS: "-XX:CompressedClassSpaceSize=256m -XX:+UseSerialGC -Xmx2g -XX:MaxMetaspaceSize=512m -Dorg.slf4j.simpleLogger.defaultLogLevel=warn"    
 jobs:
     unit-tests:
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-20.04
         name: Unit Tests on Latest ASF Versions
         env:
             IT_ONLY: false
@@ -21,9 +21,6 @@ jobs:
                 java-version: '8'  
                 architecture: x64  
 
-            - name: Install GDAL
-              run: sudo apt-get install gdal-bin libgdal-java
-              
             - name: Set up Maven
               uses: stCarolas/setup-maven@v4
               with:
@@ -66,7 +63,7 @@ jobs:
                 github_token: ${{ secrets.GITHUB_TOKEN }} 
                      
     python-tests:
-        runs-on:  ubuntu-18.04
+        runs-on:  ubuntu-20.04
         name: Python Tests on Latest ASF Versions
         env:
             IT_ONLY: false
@@ -123,12 +120,12 @@ jobs:
                 github_token: ${{ secrets.GITHUB_TOKEN }}
 
     integration-tests:
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-20.04
         name: ${{ matrix.profile }} Integration Tests 
         strategy:
             fail-fast: false
             matrix:
-                profile: [redis-it, rocksdb-it, accumulo-it-client, accumulo-it-server, hbase-it-client, hbase-it-server, cassandra-it, dynamodb-it, bigtable-it, kudu-it, filesystem-it, accumulo-it-kerberos, 'filesystem-it,secondary-index-it', 'rocksdb-it,secondary-index-it', 'hbase-it-client,compatibility,ignore-kerberos-it', 'accumulo-it-server,compatibility,ignore-kerberos-it', 'hbase-it-server,cloudera,ignore-kerberos-it', 'accumulo-it-server,cloudera,ignore-kerberos-it']
+                profile: [redis-it, rocksdb-it, accumulo-it-client, accumulo-it-server, hbase-it-client, hbase-it-server, cassandra-it, dynamodb-it, bigtable-it, kudu-it, filesystem-it, accumulo-it-kerberos, 'filesystem-it,secondary-index-it', 'rocksdb-it,secondary-index-it', 'hbase-it-client,compatibility,ignore-kerberos-it', 'accumulo-it-server,compatibility,ignore-kerberos-it']
                 include:
                   # include a new variable of TEST_KERBEROS = true
                   - profile: accumulo-it-kerberos
@@ -146,9 +143,6 @@ jobs:
               with:
                 java-version: '8' 
                 architecture: x64  
-
-            - name: Install GDAL
-              run: sudo apt-get install gdal-bin libgdal-java
                 
             - name: Set up Maven
               uses: stCarolas/setup-maven@v4

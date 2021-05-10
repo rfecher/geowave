@@ -1367,46 +1367,6 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>cloudera</id>
-			<properties>
-				<accumulo.version>1.7.2-cdh5.5.0</accumulo.version>
-				<hbase.version>1.2.0-cdh5.16.2</hbase.version>
-				<hadoop.version>2.6.0-cdh5.16.2</hadoop.version>
-				<spark.version>2.3.0.cloudera4</spark.version>
-				<!-- accumulo 1.7 references com.google.common.net.HostAndPort.getHostText() 
-					which was removed in guava 22.0 -->
-				<guava.version>21.0</guava.version>
-			</properties>
-			<repositories>
-				<repository>
-					<id>cloudera</id>
-					<url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-					</snapshots>
-				</repository>
-				<repository>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-						<checksumPolicy>warn</checksumPolicy>
-					</releases>
-					<snapshots>
-						<enabled>false</enabled>
-						<updatePolicy>never</updatePolicy>
-						<checksumPolicy>fail</checksumPolicy>
-					</snapshots>
-					<id>HDPReleases</id>
-					<name>HDP Releases</name>
-					<url>http://repo.hortonworks.com/content/repositories/releases/</url>
-					<layout>default</layout>
-				</repository>
-			</repositories>
-		</profile>
-		<profile>
 			<id>compatibility</id>
 			<properties>
 				<accumulo.version>1.9.2</accumulo.version>
@@ -1415,9 +1375,6 @@
 				<geotools.version>20.0</geotools.version>
 				<geoserver.version>2.14.0</geoserver.version>
 				<imageio.ext.version>1.1.25</imageio.ext.version>
-				<!-- accumulo 1.7 references com.google.common.net.HostAndPort.getHostText() 
-					which was removed in guava 22.0 -->
-				<guava.version>21.0</guava.version>
 			</properties>
 		</profile>
 		<profile>
