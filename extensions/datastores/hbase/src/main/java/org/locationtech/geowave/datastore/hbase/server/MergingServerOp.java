@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellComparator;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.KeyValue.Type;
@@ -28,6 +27,7 @@ import org.locationtech.geowave.core.index.ByteArrayUtils;
 import org.locationtech.geowave.core.index.Mergeable;
 import org.locationtech.geowave.core.index.StringUtils;
 import org.locationtech.geowave.core.store.operations.MetadataType;
+import org.locationtech.geowave.datastore.hbase.util.HBaseUtils;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
@@ -137,7 +137,7 @@ public class MergingServerOp implements HBaseServerOp {
             }
             // these have to stay in order and they can get out of
             // order when adding cells from 2 maps
-            rowCells.sort(new CellComparator());
+            rowCells.sort(HBaseUtils.getCellComparator());
           }
         }
       } while (!rowScanner.nextCellsInRow().isEmpty());

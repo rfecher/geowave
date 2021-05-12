@@ -17,16 +17,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
+import org.apache.hadoop.hbase.coprocessor.RegionObserver;
+import org.apache.hadoop.hbase.regionserver.FlushLifeCycleTracker;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
+import org.apache.hadoop.hbase.regionserver.Region.Operation;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScanType;
 import org.apache.hadoop.hbase.regionserver.Store;
+import org.apache.hadoop.hbase.regionserver.compactions.CompactionLifeCycleTracker;
 import org.apache.hadoop.hbase.regionserver.compactions.CompactionRequest;
 import org.apache.log4j.Logger;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
@@ -39,7 +41,7 @@ import org.locationtech.geowave.datastore.hbase.server.ServerSideOperationUtils;
 import org.locationtech.geowave.datastore.hbase.util.HBaseUtils;
 import com.google.common.collect.ImmutableSet;
 
-public class ServerSideOperationsObserver extends BaseRegionObserver {
+public class ServerSideOperationsObserver implements RegionObserver {
 
   private static final Logger LOGGER = Logger.getLogger(ServerSideOperationsObserver.class);
   private static final int SERVER_OP_OPTIONS_PREFIX_LENGTH =
@@ -83,51 +85,54 @@ public class ServerSideOperationsObserver extends BaseRegionObserver {
 
   @Override
   public InternalScanner preFlush(
-      final ObserverContext<RegionCoprocessorEnvironment> e,
+      final ObserverContext<RegionCoprocessorEnvironment> c,
       final Store store,
-      final InternalScanner scanner) throws IOException {
+      final InternalScanner scanner,
+      final FlushLifeCycleTracker tracker) throws IOException {
     if (opStore == null) {
-      return super.preFlush(e, store, scanner);
+      return RegionObserver.super.preFlush(c, store, scanner, tracker);
     }
-    return super.preFlush(
-        e,
+    return RegionObserver.super.preFlush(
+        c,
         store,
         wrapScannerWithOps(
-            e.getEnvironment().getRegionInfo().getTable(),
+            c.getEnvironment().getRegionInfo().getTable(),
             scanner,
             null,
             ServerOpScope.MINOR_COMPACTION,
-            INTERNAL_SCANNER_FACTORY));
+            INTERNAL_SCANNER_FACTORY),
+        tracker);
   }
 
   @Override
   public InternalScanner preCompact(
-      final ObserverContext<RegionCoprocessorEnvironment> e,
+      final ObserverContext<RegionCoprocessorEnvironment> c,
       final Store store,
       final InternalScanner scanner,
       final ScanType scanType,
+      final CompactionLifeCycleTracker tracker,
       final CompactionRequest request) throws IOException {
     if (opStore == null) {
-      return super.preCompact(e, store, scanner, scanType, request);
+      return RegionObserver.super.preCompact(c, store, scanner, scanType, tracker, request);
     }
-    return super.preCompact(
-        e,
+
+    return RegionObserver.super.preCompact(
+        c,
         store,
         wrapScannerWithOps(
-            e.getEnvironment().getRegionInfo().getTable(),
+            c.getEnvironment().getRegionInfo().getTable(),
             scanner,
             null,
             ServerOpScope.MAJOR_COMPACTION,
             INTERNAL_SCANNER_FACTORY),
         scanType,
+        tracker,
         request);
   }
 
   @Override
-  public RegionScanner preScannerOpen(
-      final ObserverContext<RegionCoprocessorEnvironment> e,
-      final Scan scan,
-      final RegionScanner s) throws IOException {
+  public void preScannerOpen(final ObserverContext<RegionCoprocessorEnvironment> e, final Scan scan)
+      throws IOException {
     if (opStore != null) {
       final TableName tableName = e.getEnvironment().getRegionInfo().getTable();
       if (!tableName.isSystemTable()) {
@@ -140,26 +145,7 @@ public class ServerSideOperationsObserver extends BaseRegionObserver {
         }
       }
     }
-    return super.preScannerOpen(e, scan, s);
-  }
-
-  @Override
-  public RegionScanner postScannerOpen(
-      final ObserverContext<RegionCoprocessorEnvironment> e,
-      final Scan scan,
-      final RegionScanner s) throws IOException {
-    if (opStore == null) {
-      return super.postScannerOpen(e, scan, s);
-    }
-    return super.postScannerOpen(
-        e,
-        scan,
-        wrapScannerWithOps(
-            e.getEnvironment().getRegionInfo().getTable(),
-            s,
-            scan,
-            ServerOpScope.SCAN,
-            REGION_SCANNER_FACTORY));
+    RegionObserver.super.preScannerOpen(e, scan);
   }
 
   public <T extends InternalScanner> T wrapScannerWithOps(
@@ -181,9 +167,11 @@ public class ServerSideOperationsObserver extends BaseRegionObserver {
   }
 
   @Override
-  public void start(final CoprocessorEnvironment e) throws IOException {
+  public void postStartRegionOperation(
+      final ObserverContext<RegionCoprocessorEnvironment> ctx,
+      final Operation operation) throws IOException {
     opStore = new ServerSideOperationStore();
-    final Configuration config = e.getConfiguration();
+    final Configuration config = ctx.getEnvironment().getConfiguration();
     final Map<String, List<String>> uniqueOpsWithOptionKeys = new HashMap<>();
     for (final Map.Entry<String, String> entry : config) {
       if (entry.getKey().startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
@@ -248,6 +236,6 @@ public class ServerSideOperationsObserver extends BaseRegionObserver {
           ByteArrayUtils.byteArrayFromString(classIdStr),
           optionsMap);
     }
-    super.start(e);
+    RegionObserver.super.postStartRegionOperation(ctx, operation);
   }
 }

@@ -22,6 +22,7 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
+import org.apache.hadoop.hbase.regionserver.HRegion;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
@@ -244,7 +245,7 @@ public class AggregationEndpoint extends AggregationProtosServer.AggregationServ
     if (authorizations != null) {
       scan.setAuthorizations(new Authorizations(authorizations));
     }
-    env.getRegion().getCoprocessorHost().preScannerOpen(scan);
+    ((HRegion) env.getRegion()).getCoprocessorHost().preScannerOpen(scan);
     try (InternalScanner scanner = env.getRegion().getScanner(scan)) {
       final List<Cell> results = new ArrayList<>();
       boolean hasNext;

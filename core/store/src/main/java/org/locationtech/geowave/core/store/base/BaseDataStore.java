@@ -169,6 +169,7 @@ public class BaseDataStore implements DataStore {
     return internalAdapterStore.getAdapterId(typeName);
   }
 
+  @SuppressWarnings("unchecked")
   private <T> Writer<T> createWriter(
       final InternalDataAdapter<T> adapter,
       final boolean writingOriginalData,

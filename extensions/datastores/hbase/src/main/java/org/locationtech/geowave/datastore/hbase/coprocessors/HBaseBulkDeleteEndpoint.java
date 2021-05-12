@@ -9,6 +9,8 @@
 package org.locationtech.geowave.datastore.hbase.coprocessors;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,6 +48,7 @@ import org.locationtech.geowave.datastore.hbase.filters.HBaseNumericIndexStrateg
 import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements
     CoprocessorService,
@@ -54,6 +57,9 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements
   private static final Logger LOGGER = Logger.getLogger(HBaseBulkDeleteEndpoint.class);
 
   private RegionCoprocessorEnvironment env;
+  private static final Object BATCH_MUTATE_MUTEX = new Object();
+  private static Method batchMutate;
+  private static boolean isHBase2 = true;
 
   @Override
   public Service getService() {
@@ -181,8 +187,7 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements
           for (final List<Cell> deleteRow : deleteRows) {
             deleteArr[i++] = createDeleteMutation(deleteRow, deleteType, timestamp);
           }
-          final OperationStatus[] opStatus =
-              region.batchMutate(deleteArr, HConstants.NO_NONCE, HConstants.NO_NONCE);
+          final OperationStatus[] opStatus = batchMutate(region, deleteArr);
           for (i = 0; i < opStatus.length; i++) {
             if (opStatus[i].getOperationStatusCode() != OperationStatusCode.SUCCESS) {
               break;
@@ -218,6 +223,47 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements
     // Send the response back
     final BulkDeleteResponse response = responseBuilder.build();
     done.run(response);
+  }
+
+  @SuppressFBWarnings
+  private static OperationStatus[] batchMutate(final Region region, final Mutation[] deleteArr) {
+    if (batchMutate == null) {
+      synchronized (BATCH_MUTATE_MUTEX) {
+        if (batchMutate == null) {
+          try {
+            batchMutate = Region.class.getMethod("batchMutate", Mutation[].class);
+          } catch (NoSuchMethodException | SecurityException e) {
+            LOGGER.info("HBase 2 batchMutate method not found, using HBase 1");
+            isHBase2 = false;
+            try {
+              batchMutate =
+                  Region.class.getMethod("batchMutate", Mutation[].class, long.class, long.class);
+            } catch (NoSuchMethodException | SecurityException e1) {
+              LOGGER.error("HBase 1 and HBase 2 batchMutate method not found", e);
+            }
+          }
+        }
+      }
+    }
+    if (isHBase2) {
+      try {
+        return (OperationStatus[]) batchMutate.invoke(region, (Object[]) deleteArr);
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        LOGGER.error("HBase 2 batchMutate failed", e);
+        return null;
+      }
+    } else {
+      try {
+        return (OperationStatus[]) batchMutate.invoke(
+            region,
+            deleteArr,
+            HConstants.NO_NONCE,
+            HConstants.NO_NONCE);
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        LOGGER.error("HBase 1 batchMutate failed", e);
+        return null;
+      }
+    }
   }
 
   private Delete createDeleteMutation(
@@ -325,5 +371,37 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements
   @Override
   public void stop(final CoprocessorEnvironment env) throws IOException {
     // nothing to do
+  }
+
+  public static void main(final String[] args) throws Exception {
+    doRegular();
+    doReflection();
+  }
+
+  public static class A {
+    public void doSomeThing() {}
+  }
+
+  public static void doRegular() throws Exception {
+    final long start = System.currentTimeMillis();
+    final A a = new A();
+    for (int i = 0; i < 1000000; i++) {
+      a.doSomeThing();
+    }
+    System.out.println(System.currentTimeMillis() - start);
+  }
+
+  public static void doReflection() throws Exception {
+    final long start = System.currentTimeMillis();
+    System.err.println(A.class.getName());
+    final Class<?> cls =
+        Class.forName(
+            "org.locationtech.geowave.datastore.hbase.coprocessors.HBaseBulkDeleteEndpoint$A");
+    final Method m = cls.getMethod("doSomeThing");
+    final A a = new A();
+    for (int i = 0; i < 1000000; i++) {
+      m.invoke(a);
+    }
+    System.out.println(System.currentTimeMillis() - start);
   }
 }

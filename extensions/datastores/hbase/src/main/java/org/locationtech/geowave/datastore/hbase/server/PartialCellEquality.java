@@ -11,6 +11,7 @@ package org.locationtech.geowave.datastore.hbase.server;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellComparator;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.locationtech.geowave.datastore.hbase.util.HBaseUtils;
 
 public class PartialCellEquality {
   private final Cell cell;
@@ -53,8 +54,8 @@ public class PartialCellEquality {
       return false;
     }
     final PartialCellEquality other = (PartialCellEquality) obj;
-    return CellComparator.equalsFamily(cell, other.cell)
-        && CellComparator.equalsQualifier(cell, other.cell)
+    return (HBaseUtils.getCellComparator().compareFamilies(cell, other.cell) == 0)
+        && (HBaseUtils.getCellComparator().compareQualifiers(cell, other.cell) == 0)
         && (!includeTags || tagsEqual(cell, other.cell));
   }
 

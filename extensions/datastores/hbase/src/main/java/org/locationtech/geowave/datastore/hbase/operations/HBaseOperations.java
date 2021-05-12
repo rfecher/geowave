@@ -57,6 +57,7 @@ import org.apache.hadoop.hbase.filter.MultiRowRangeFilter.RowRange;
 import org.apache.hadoop.hbase.ipc.BlockingRpcCallback;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.shaded.com.google.protobuf.ByteString;
+// import org.apache.hbase.thirdparty.com.google.protobuf.ByteString;
 import org.locationtech.geowave.core.cli.VersionUtils;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
@@ -119,6 +120,7 @@ import org.locationtech.geowave.datastore.hbase.server.MergingServerOp;
 import org.locationtech.geowave.datastore.hbase.server.MergingVisibilityServerOp;
 import org.locationtech.geowave.datastore.hbase.server.ServerSideOperationUtils;
 import org.locationtech.geowave.datastore.hbase.util.ConnectionPool;
+import org.locationtech.geowave.datastore.hbase.util.GeoWaveBlockingRpcCallback;
 import org.locationtech.geowave.datastore.hbase.util.HBaseUtils;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
@@ -988,7 +990,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     // Create the multi-range filter
     try {
       return new MultiRowRangeFilter(rowRanges);
-    } catch (final IOException e) {
+    } catch (final Exception e) {
       LOGGER.error("Error creating range filter.", e);
     }
     return null;
@@ -1120,8 +1122,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
                     @Override
                     public ByteString call(final AggregationProtosClient.AggregationService counter)
                         throws IOException {
-                      final BlockingRpcCallback<AggregationProtosClient.AggregationResponse> rpcCallback =
-                          new BlockingRpcCallback<>();
+                      final GeoWaveBlockingRpcCallback<AggregationProtosClient.AggregationResponse> rpcCallback =
+                          new GeoWaveBlockingRpcCallback<>();
                       counter.aggregate(null, request, rpcCallback);
                       final AggregationProtosClient.AggregationResponse response =
                           rpcCallback.get();
@@ -1244,8 +1246,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
                 @Override
                 public Long call(final HBaseBulkDeleteProtosClient.BulkDeleteService counter)
                     throws IOException {
-                  final BlockingRpcCallback<HBaseBulkDeleteProtosClient.BulkDeleteResponse> rpcCallback =
-                      new BlockingRpcCallback<>();
+                  final GeoWaveBlockingRpcCallback<HBaseBulkDeleteProtosClient.BulkDeleteResponse> rpcCallback =
+                      new GeoWaveBlockingRpcCallback<>();
                   counter.delete(null, request, rpcCallback);
                   final BulkDeleteResponse response = rpcCallback.get();
                   return response.hasRowsDeleted() ? response.getRowsDeleted() : null;
@@ -1522,8 +1524,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
                 @Override
                 public List<String> call(final VersionProtosClient.VersionService versionService)
                     throws IOException {
-                  final BlockingRpcCallback<VersionProtosClient.VersionResponse> rpcCallback =
-                      new BlockingRpcCallback<>();
+                  final GeoWaveBlockingRpcCallback<VersionProtosClient.VersionResponse> rpcCallback =
+                      new GeoWaveBlockingRpcCallback<>();
                   versionService.version(null, VersionRequest.getDefaultInstance(), rpcCallback);
                   final VersionProtosClient.VersionResponse response = rpcCallback.get();
                   return response.getVersionInfoList();

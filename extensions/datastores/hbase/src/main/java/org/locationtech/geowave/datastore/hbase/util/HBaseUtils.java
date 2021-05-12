@@ -10,9 +10,11 @@ package org.locationtech.geowave.datastore.hbase.util;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellComparator;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -22,13 +24,38 @@ import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.api.StatisticValue;
 import org.locationtech.geowave.core.store.server.ServerOpConfig.ServerOpScope;
+import org.locationtech.geowave.datastore.hbase.coprocessors.HBaseBulkDeleteEndpoint;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 public class HBaseUtils {
+  private static final Logger LOGGER = LoggerFactory.getLogger(HBaseBulkDeleteEndpoint.class);
+  private static final CellComparator CELL_COMPARATOR = initHBaseVersionIndependentCellComparator();
+
+  private static CellComparator initHBaseVersionIndependentCellComparator() {
+    try {
+      return (CellComparator) CellComparator.class.getMethod("getInstance").invoke(null);
+    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+        | NoSuchMethodException | SecurityException e) {
+      LOGGER.info("HBase 2 CellComparator newInstance method not found, using HBase 1");
+      try {
+        return CellComparator.class.newInstance();
+      } catch (InstantiationException | IllegalAccessException e1) {
+        LOGGER.error("HBase 1 and 2 CellComparator intialization method not found", e1);
+        return null;
+      }
+    }
+  }
+
+  public static CellComparator getCellComparator() {
+    return CELL_COMPARATOR;
+  }
+
   public static String getQualifiedTableName(
       final String tableNamespace,
       final String unqualifiedTableName) {

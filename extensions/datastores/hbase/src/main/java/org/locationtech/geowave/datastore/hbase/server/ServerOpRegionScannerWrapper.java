@@ -28,7 +28,7 @@ public class ServerOpRegionScannerWrapper extends ServerOpInternalScannerWrapper
 
   @Override
   public HRegionInfo getRegionInfo() {
-    return ((RegionScanner) delegate).getRegionInfo();
+    return (HRegionInfo) ((RegionScanner) delegate).getRegionInfo();
   }
 
   @Override
