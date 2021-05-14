@@ -251,13 +251,13 @@ public class GeoWaveGTDataStore extends ContentDataStore {
 
   @Override
   public void dispose() {
-    if (dataStore instanceof Closeable) {
-      try {
-        ((Closeable) dataStore).close();
-      } catch (final IOException e) {
-        LOGGER.error("Unable to close geowave datastore", e);
-      }
-    }
+//    if (dataStore instanceof Closeable) {
+//      try {
+//        ((Closeable) dataStore).close();
+//      } catch (final IOException e) {
+//        LOGGER.error("Unable to close geowave datastore", e);
+//      }
+//    }
   }
 
   @Override
