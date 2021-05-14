@@ -16,20 +16,10 @@ import org.slf4j.LoggerFactory;
 public class CassandraServer {
   private static final Logger LOGGER = LoggerFactory.getLogger(CassandraServer.class);
 
-  private final RunCassandraServerOptions options;
   protected static final String NODE_DIRECTORY_PREFIX = "cassandra";
-  private EmbeddedCassandraService embeddedService;
+  private final EmbeddedCassandraService embeddedService;
 
-  public CassandraServer(final RunCassandraServerOptions options) {
-    this.options = options;
-  }
-
-  public CassandraServer(final int numNodes, final int memory, final String directory) {
-    options = new RunCassandraServerOptions();
-    options.setClusterSize(numNodes);
-    options.setMemory(memory);
-    options.setDirectory(directory);
-
+  public CassandraServer() {
     embeddedService = new EmbeddedCassandraService();
   }
 

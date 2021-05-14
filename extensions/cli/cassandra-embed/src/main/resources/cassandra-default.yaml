@@ -8,12 +8,12 @@ memtable_allocation_type: offheap_objects
 commitlog_sync: batch
 commitlog_sync_batch_window_in_ms: 1.0
 commitlog_segment_size_in_mb: 5
-commitlog_directory: target/cassandra_temp/cassandra/commitlog
+commitlog_directory: cassandra/commitlog
 # commitlog_compression:
 # - class_name: LZ4Compressor
-cdc_raw_directory: target/cassandra_temp/cassandra/cdc_raw
+cdc_raw_directory: cassandra/cdc_raw
 cdc_enabled: false
-hints_directory: target/cassandra_temp/cassandra/hints
+hints_directory: cassandra/hints
 partitioner: org.apache.cassandra.dht.ByteOrderedPartitioner
 listen_address: 127.0.0.1
 storage_port: 7012
@@ -21,9 +21,9 @@ ssl_storage_port: 17012
 start_native_transport: true
 native_transport_port: 9042
 column_index_size_in_kb: 4
-saved_caches_directory: target/cassandra_temp/cassandra/saved_caches
+saved_caches_directory: cassandra/saved_caches
 data_file_directories:
-    - target/cassandra_temp/cassandra/data
+    - cassandra/data
 disk_access_mode: mmap
 seed_provider:
     - class_name: org.apache.cassandra.locator.SimpleSeedProvider
@@ -53,4 +53,3 @@ batch_size_fail_threshold_in_kb: 50000
 enable_sasi_indexes: true
 enable_materialized_views: true
 file_cache_enabled: true
-auto_snapshot: false

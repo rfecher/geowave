@@ -10,12 +10,12 @@ package org.locationtech.geowave.test;
 
 import java.io.File;
 import java.io.IOException;
-import org.apache.cassandra.service.EmbeddedCassandraService;
 import org.codehaus.plexus.util.FileUtils;
 import org.locationtech.geowave.core.store.GenericStoreFactory;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.core.store.api.DataStore;
 import org.locationtech.geowave.datastore.cassandra.CassandraStoreFactoryFamily;
+import org.locationtech.geowave.datastore.cassandra.cli.CassandraServer;
 import org.locationtech.geowave.datastore.cassandra.config.CassandraOptions;
 import org.locationtech.geowave.datastore.cassandra.config.CassandraRequiredOptions;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
@@ -32,10 +32,6 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
       new File(System.getProperty("user.dir") + File.separator + "target", "cassandra_temp");
   protected static final String NODE_DIRECTORY_PREFIX = "cassandra";
 
-  // for testing purposes, easily toggle between running the cassandra server
-  // as multi-nodes or as standalone
-  private static final boolean CLUSTERED_MODE = false;
-
   public static synchronized CassandraStoreTestEnvironment getInstance() {
     if (singletonInstance == null) {
       singletonInstance = new CassandraStoreTestEnvironment();
@@ -44,7 +40,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   }
 
   private boolean running = false;
-  EmbeddedCassandraService c = new EmbeddedCassandraService();
+  CassandraServer s = new CassandraServer();
 
   private CassandraStoreTestEnvironment() {}
 
@@ -70,17 +66,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
       if (!TEMP_DIR.mkdirs()) {
         LOGGER.warn("Unable to create temporary cassandra directory");
       }
-      try {
-        c.start();
-      } catch (final IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      if (CLUSTERED_MODE) {
-        // new CassandraServer(4, 512, TEMP_DIR.getAbsolutePath()).start();
-      } else {
-        // new CassandraServer(1, 512, TEMP_DIR.getAbsolutePath()).start();
-      }
+      s.start();
       running = true;
     }
   }
@@ -88,12 +74,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   @Override
   public void tearDown() {
     if (running) {
-      c.stop();
-      if (CLUSTERED_MODE) {
-        // new CassandraServer(4, 512, TEMP_DIR.getAbsolutePath()).stop();
-      } else {
-        // new CassandraServer(1, 512, TEMP_DIR.getAbsolutePath()).stop();
-      }
+      s.stop();
       running = false;
     }
     try {
