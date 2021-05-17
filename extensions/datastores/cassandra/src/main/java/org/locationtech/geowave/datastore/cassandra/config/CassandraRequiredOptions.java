@@ -20,9 +20,7 @@ public class CassandraRequiredOptions extends StoreFactoryOptions {
       names = "--contactPoints",
       description = "A single contact point or a comma delimited set of contact points to connect to the Cassandra cluster.")
   private String contactPoints = "";
-  @Parameter(
-      names = "--datacenter",
-      description = "The local datacenter.")
+  @Parameter(names = "--datacenter", description = "The local datacenter.")
   private String datacenter = null;
 
   @ParametersDelegate

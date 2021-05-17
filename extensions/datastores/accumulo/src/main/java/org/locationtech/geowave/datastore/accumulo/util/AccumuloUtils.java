@@ -467,14 +467,14 @@ public class AccumuloUtils {
   }
 
   public static void closeConnector(final Connector connector) {
-//    try {
-//      final Class<?> impl = Class.forName("org.apache.accumulo.core.clientImpl.ConnectorImpl");
-//      final Object client = impl.getDeclaredMethod("getAccumuloClient").invoke(connector);
-//      ((AutoCloseable) client).close();
-//    } catch (final Exception e) {
-//      LOGGER.info(
-//          "Unable to close Accumulo client, this may be because version is 1.x and close is not supported",
-//          e);
-//    }
+    try {
+      final Class<?> impl = Class.forName("org.apache.accumulo.core.clientImpl.ConnectorImpl");
+      final Object client = impl.getDeclaredMethod("getAccumuloClient").invoke(connector);
+      ((AutoCloseable) client).close();
+    } catch (final Exception e) {
+      LOGGER.info(
+          "Unable to close Accumulo client, this may be because version is 1.x and close is not supported",
+          e);
+    }
   }
 }

@@ -43,7 +43,7 @@ public class MiniAccumuloUtils {
     try {
       final Field impl = MiniAccumuloConfig.class.getDeclaredField("impl");
       impl.setAccessible(true);
-      impl.getType().getMethod("setRootUserName", String[].class).invoke(
+      impl.getType().getMethod("setRootUserName", String.class).invoke(
           impl.get(config),
           rootUserName);
     } catch (final Exception e) {
