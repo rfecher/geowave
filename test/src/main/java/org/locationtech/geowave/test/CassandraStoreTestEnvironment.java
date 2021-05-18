@@ -21,6 +21,7 @@ import org.locationtech.geowave.datastore.cassandra.config.CassandraRequiredOpti
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 
 public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   private static final Logger LOGGER = LoggerFactory.getLogger(CassandraStoreTestEnvironment.class);
@@ -48,6 +49,11 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   protected void initOptions(final StoreFactoryOptions options) {
     final CassandraRequiredOptions cassandraOpts = (CassandraRequiredOptions) options;
     cassandraOpts.getAdditionalOptions().setReplicationFactor(1);
+    cassandraOpts.getAdditionalOptions().setDurableWrites(false);
+    cassandraOpts.getAdditionalOptions().setGcGraceSeconds(0);
+    cassandraOpts.getAdditionalOptions().setCompactionStrategy(
+        SchemaBuilder.sizeTieredCompactionStrategy().withMinSSTableSizeInBytes(
+            500000L).withMinThreshold(2).withUncheckedTombstoneCompaction(true));
     cassandraOpts.setContactPoints("127.0.0.1");
     ((CassandraOptions) cassandraOpts.getStoreOptions()).setBatchWriteSize(5);
   }

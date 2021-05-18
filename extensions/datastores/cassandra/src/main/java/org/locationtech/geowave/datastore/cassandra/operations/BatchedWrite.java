@@ -19,9 +19,7 @@ import com.datastax.oss.driver.api.core.cql.AsyncResultSet;
 import com.datastax.oss.driver.api.core.cql.BatchStatementBuilder;
 import com.datastax.oss.driver.api.core.cql.BoundStatement;
 import com.datastax.oss.driver.api.core.cql.PreparedStatement;
-import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Statement;
-import com.google.common.util.concurrent.FutureCallback;
 
 public class BatchedWrite extends BatchHandler implements AutoCloseable {
   private static final Logger LOGGER = LoggerFactory.getLogger(BatchedWrite.class);
@@ -98,7 +96,7 @@ public class BatchedWrite extends BatchHandler implements AutoCloseable {
   private void executeAsync(final Statement statement) throws InterruptedException {
     writeSemaphore.acquire();
     final CompletionStage<AsyncResultSet> future = session.executeAsync(statement);
-    future.whenComplete((result, t) -> {
+    future.whenCompleteAsync((result, t) -> {
       writeSemaphore.release();
       if (t != null) {
         throw new RuntimeException(t);

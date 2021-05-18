@@ -128,6 +128,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * This class holds all parameters necessary for establishing Accumulo connections and provides
@@ -272,6 +273,9 @@ public class AccumuloOperations implements
     return byteBufferSize;
   }
 
+  @SuppressFBWarnings(
+      value = "DC_DOUBLECHECK",
+      justification = "Intentional to avoid unnecessary synchronization for very commonly accessed code blocks")
   public Connector getConnector() {
     if (connector != null) {
       return connector;

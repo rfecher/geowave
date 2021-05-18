@@ -48,6 +48,7 @@ prepared_statements_cache_size_mb: 1
 corrupted_tombstone_strategy: exception
 stream_entire_sstables: true
 stream_throughput_outbound_megabits_per_sec: 200000000
+counter_cache_size_in_mb: 0
 #this is fairly high, but the goal is to avoid failures based on batch size
 batch_size_fail_threshold_in_kb: 50000
 enable_sasi_indexes: true

@@ -164,7 +164,8 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
   }
 
   private void executeDropTable(final Drop drop, final String safeTableName) {
-    session.execute(drop.build());
+    // drop table is extremely slow, need to increase timeout
+    session.execute(drop.build().setTimeout(Duration.of(12L, ChronoUnit.HOURS)));
     state.tableExistsCache.put(safeTableName, false);
   }
 
@@ -405,13 +406,28 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
     return new CassandraWriter(index.getName(), this);
   }
 
+  private CreateTable addOptions(final CreateTable create) {
+    final Iterator<String[]> validOptions =
+        options.getTableOptions().stream().filter(o -> o.contains("=")).map(
+            o -> o.split("=", 2)).iterator();
+    CreateTable retVal = create;
+    while (validOptions.hasNext()) {
+      final String[] option = validOptions.next();
+      retVal = (CreateTable) retVal.withOption(option[0], option[1]);
+    }
+    retVal = (CreateTable) retVal.withCompaction(options.getCompactionStrategy());
+    return (CreateTable) retVal.withGcGraceSeconds(options.getGcGraceSeconds());
+
+  }
+
   private boolean createTable(final String indexName) {
     synchronized (CREATE_TABLE_MUTEX) {
       try {
         if (!indexExists(indexName)) {
           final String tableName = getCassandraSafeName(indexName);
           CreateTable create =
-              CassandraField.GW_PARTITION_ID_KEY.addPartitionKey(getCreateTable(tableName));
+              addOptions(
+                  CassandraField.GW_PARTITION_ID_KEY.addPartitionKey(getCreateTable(tableName)));
           CassandraField[] fields = CassandraField.values();
           if (DataIndexUtils.isDataIndex(tableName)) {
             fields =
@@ -447,9 +463,10 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
         if (!indexExists(tableName)) {
           // create table
           CreateTable create =
-              getCreateTable(tableName).withPartitionKey(
-                  CassandraMetadataWriter.PRIMARY_ID_KEY,
-                  DataTypes.BLOB);
+              addOptions(
+                  getCreateTable(tableName).withPartitionKey(
+                      CassandraMetadataWriter.PRIMARY_ID_KEY,
+                      DataTypes.BLOB));
           if (MetadataType.STATISTICS.equals(metadataType)
               || MetadataType.STATISTIC_VALUES.equals(metadataType)
               || MetadataType.LEGACY_STATISTICS.equals(metadataType)

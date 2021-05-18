@@ -136,7 +136,7 @@ public class BatchedRangeRead<T> {
               futures.add(f);
             }
             queryCount.incrementAndGet();
-            f.whenComplete((result, t) -> {
+            f.whenCompleteAsync((result, t) -> {
               if (result != null) {
                 try {
                   if (result != null) {
