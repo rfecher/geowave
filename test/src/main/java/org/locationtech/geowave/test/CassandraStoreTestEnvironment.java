@@ -10,6 +10,7 @@ package org.locationtech.geowave.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import org.codehaus.plexus.util.FileUtils;
 import org.locationtech.geowave.core.store.GenericStoreFactory;
 import org.locationtech.geowave.core.store.StoreFactoryOptions;
@@ -22,6 +23,8 @@ import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreTyp
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   private static final Logger LOGGER = LoggerFactory.getLogger(CassandraStoreTestEnvironment.class);
@@ -51,9 +54,18 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     cassandraOpts.getAdditionalOptions().setReplicationFactor(1);
     cassandraOpts.getAdditionalOptions().setDurableWrites(false);
     cassandraOpts.getAdditionalOptions().setGcGraceSeconds(0);
-    cassandraOpts.getAdditionalOptions().setCompactionStrategy(
-        SchemaBuilder.sizeTieredCompactionStrategy().withMinSSTableSizeInBytes(
-            500000L).withMinThreshold(2).withUncheckedTombstoneCompaction(true));
+
+    try {
+      cassandraOpts.getAdditionalOptions().setTableOptions(
+          Collections.singletonList(
+              "compaction = "
+                  + new ObjectMapper().writeValueAsString(
+                      SchemaBuilder.sizeTieredCompactionStrategy().withMinSSTableSizeInBytes(
+                          500000L).withMinThreshold(2).withUncheckedTombstoneCompaction(
+                              true).getOptions())));
+    } catch (final JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
     cassandraOpts.setContactPoints("127.0.0.1");
     ((CassandraOptions) cassandraOpts.getStoreOptions()).setBatchWriteSize(5);
   }

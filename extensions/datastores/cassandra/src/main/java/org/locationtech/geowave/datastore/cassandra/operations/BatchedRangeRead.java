@@ -139,22 +139,20 @@ public class BatchedRangeRead<T> {
             f.whenCompleteAsync((result, t) -> {
               if (result != null) {
                 try {
-                  if (result != null) {
-                    final Iterator<GeoWaveRow> iterator =
-                        (Iterator) Streams.stream(ResultSets.newInstance(result)).map(
-                            row -> new CassandraRow(row)).filter(filter).iterator();
-                    rowTransformer.apply(
-                        rowMerging ? new GeoWaveRowMergingIterator(iterator)
-                            : iterator).forEachRemaining(row -> {
-                              try {
-                                results.put(row);
-                              } catch (final InterruptedException e) {
-                                LOGGER.warn(
-                                    "interrupted while waiting to enqueue a cassandra result",
-                                    e);
-                              }
-                            });
-                  }
+                  final Iterator<GeoWaveRow> iterator =
+                      (Iterator) Streams.stream(ResultSets.newInstance(result)).map(
+                          row -> new CassandraRow(row)).filter(filter).iterator();
+                  rowTransformer.apply(
+                      rowMerging ? new GeoWaveRowMergingIterator(iterator)
+                          : iterator).forEachRemaining(row -> {
+                            try {
+                              results.put(row);
+                            } catch (final InterruptedException e) {
+                              LOGGER.warn(
+                                  "interrupted while waiting to enqueue a cassandra result",
+                                  e);
+                            }
+                          });
                 } finally {
                   checkFinalize(queryCount, results, readSemaphore);
                 }

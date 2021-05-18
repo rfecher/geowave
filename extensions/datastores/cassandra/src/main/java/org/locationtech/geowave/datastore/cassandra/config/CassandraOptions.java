@@ -38,7 +38,7 @@ public class CassandraOptions extends BaseDataStoreOptions {
 
   @Parameter(
       names = "--compactionStrategy",
-      description = "The compaction strategy applied to each Cassandra table.",
+      description = "The compaction strategy applied to each Cassandra table. Available options are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.",
       converter = CompactionStrategyConverter.class)
   private CompactionStrategy<?> compactionStrategy = SchemaBuilder.sizeTieredCompactionStrategy();
 
@@ -124,6 +124,16 @@ public class CassandraOptions extends BaseDataStoreOptions {
           case "timewindowcompactionstrategy":
           case "twcs":
             return SchemaBuilder.timeWindowCompactionStrategy();
+        }
+        // backup to a more lenient "contains" check as a last resort (because class names contain
+        // these strings so in case a Java object gets serialized to a string this will still work
+        if (str.contains("leveledcompactionstrategy")) {
+          return SchemaBuilder.leveledCompactionStrategy();
+        } else if (str.contains("sizetieredcompactionstrategy")) {
+          return SchemaBuilder.sizeTieredCompactionStrategy();
+        } else if (str.contains("timewindowcompactionstrategy")) {
+          return SchemaBuilder.timeWindowCompactionStrategy();
+
         }
         throw new IllegalArgumentException(
             "Unable to convert '"

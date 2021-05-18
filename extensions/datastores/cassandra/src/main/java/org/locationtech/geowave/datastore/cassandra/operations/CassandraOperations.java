@@ -28,6 +28,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
@@ -411,12 +412,44 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
         options.getTableOptions().stream().filter(o -> o.contains("=")).map(
             o -> o.split("=", 2)).iterator();
     CreateTable retVal = create;
+    boolean addCompaction = true;
+    boolean addGcGraceSeconds = true;
     while (validOptions.hasNext()) {
       final String[] option = validOptions.next();
-      retVal = (CreateTable) retVal.withOption(option[0], option[1]);
+      final String key = option[0].trim();
+      final String valueStr = option[1].trim();
+      Object value;
+      if (valueStr.startsWith("{")) {
+        try {
+          value = new ObjectMapper().readValue(valueStr, HashMap.class);
+        } catch (final IOException e) {
+          LOGGER.warn(
+              "Unable to convert '" + valueStr + "' to a JSON map for cassandra table creation",
+              e);
+          value = valueStr;
+        }
+      } else {
+        value = valueStr;
+      }
+
+      if ("compaction".equals(key)) {
+        addCompaction = false;
+        LOGGER.info(
+            "Found compaction in general table options, ignoring --compactionStrategy option.");
+      } else if ("gc_grace_seconds".equals(key)) {
+        addGcGraceSeconds = false;
+        LOGGER.info(
+            "Found gc_grace_seconds in general table options, ignoring --gcGraceSeconds option.");
+      }
+      retVal = (CreateTable) retVal.withOption(key, value);
     }
-    retVal = (CreateTable) retVal.withCompaction(options.getCompactionStrategy());
-    return (CreateTable) retVal.withGcGraceSeconds(options.getGcGraceSeconds());
+    if (addCompaction) {
+      retVal = (CreateTable) retVal.withCompaction(options.getCompactionStrategy());
+    }
+    if (addGcGraceSeconds) {
+      retVal = (CreateTable) retVal.withGcGraceSeconds(options.getGcGraceSeconds());
+    }
+    return retVal;
 
   }
 
