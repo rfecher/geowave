@@ -11,11 +11,14 @@ package org.locationtech.geowave.datastore.accumulo.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.ClientConfiguration;
@@ -23,11 +26,16 @@ import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.client.security.tokens.KerberosToken;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConnectorPool {
+  public static interface ConnectorCloseListener {
+    void notifyConnectorClosed();
+  }
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ConnectorPool.class);
   private static ConnectorPool singletonInstance;
 
@@ -38,20 +46,24 @@ public class ConnectorPool {
     return singletonInstance;
   }
 
-  private final Map<ConnectorConfig, Connector> connectorCache = new HashMap<>();
+  private final Map<ConnectorConfig, Pair<Connector, Set<ConnectorCloseListener>>> connectorCache =
+      new HashMap<>();
 
   public synchronized Connector getConnector(
       final String zookeeperUrl,
       final String instanceName,
       final String userName,
       final String passwordOrKeyTab,
-      final boolean useSasl) throws AccumuloException, AccumuloSecurityException, IOException {
+      final boolean useSasl,
+      // the close listener is to ensure all references of this connection are notified
+      @Nullable final ConnectorCloseListener closeListener)
+      throws AccumuloException, AccumuloSecurityException, IOException {
 
     final ConnectorConfig config =
         new ConnectorConfig(zookeeperUrl, instanceName, userName, passwordOrKeyTab, useSasl);
-    Connector connector = connectorCache.get(config);
-    if (connector == null) {
-
+    final Connector connector;
+    final Pair<Connector, Set<ConnectorCloseListener>> value = connectorCache.get(config);
+    if (value == null) {
       final ClientConfiguration conf =
           ClientConfiguration.create().withInstance(instanceName).withZkHosts(zookeeperUrl);
 
@@ -78,7 +90,16 @@ public class ConnectorPool {
         connector =
             new ZooKeeperInstance(conf).getConnector(userName, new PasswordToken(passwordOrKeyTab));
       }
-      connectorCache.put(config, connector);
+      final Set<ConnectorCloseListener> closeListeners = new HashSet<>();
+      if (closeListener != null) {
+        closeListeners.add(closeListener);
+      }
+      connectorCache.put(config, Pair.of(connector, closeListeners));
+    } else {
+      connector = value.getLeft();
+      if (closeListener != null) {
+        value.getRight().add(closeListener);
+      }
     }
     return connector;
   }
@@ -86,9 +107,10 @@ public class ConnectorPool {
   public synchronized void invalidate(final Connector connector) {
     // first find the key that matches this connector, then remove it
     ConnectorConfig key = null;
-    for (final Entry<ConnectorConfig, Connector> entry : connectorCache.entrySet()) {
-      if (connector.equals(entry.getValue())) {
+    for (final Entry<ConnectorConfig, Pair<Connector, Set<ConnectorCloseListener>>> entry : connectorCache.entrySet()) {
+      if (connector.equals(entry.getValue().getKey())) {
         key = entry.getKey();
+        entry.getValue().getValue().forEach(ConnectorCloseListener::notifyConnectorClosed);
         break;
       }
     }

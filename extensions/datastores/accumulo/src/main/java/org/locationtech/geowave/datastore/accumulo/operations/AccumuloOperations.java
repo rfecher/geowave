@@ -117,6 +117,7 @@ import org.locationtech.geowave.datastore.accumulo.iterators.WholeRowQueryFilter
 import org.locationtech.geowave.datastore.accumulo.mapreduce.AccumuloSplitsProvider;
 import org.locationtech.geowave.datastore.accumulo.util.AccumuloUtils;
 import org.locationtech.geowave.datastore.accumulo.util.ConnectorPool;
+import org.locationtech.geowave.datastore.accumulo.util.ConnectorPool.ConnectorCloseListener;
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
@@ -135,6 +136,7 @@ import com.google.common.collect.Streams;
 public class AccumuloOperations implements
     MapReduceDataStoreOperations,
     ServerSideOperations,
+    ConnectorCloseListener,
     Closeable {
   private static Object CONNECTOR_MUTEX = new Object();
   private static final Logger LOGGER = Logger.getLogger(AccumuloOperations.class);
@@ -192,13 +194,6 @@ public class AccumuloOperations implements
     this.userName = userName;
     this.passwordOrKeytab = passwordOrKeytab;
     this.useSasl = useSasl;
-    connector =
-        ConnectorPool.getInstance().getConnector(
-            zookeeperUrl,
-            instanceName,
-            userName,
-            passwordOrKeytab,
-            useSasl);
     this.passwordOrKeytab = passwordOrKeytab;
   }
 
@@ -290,7 +285,8 @@ public class AccumuloOperations implements
                   instanceName,
                   userName,
                   passwordOrKeytab,
-                  useSasl);
+                  useSasl,
+                  this);
         } catch (AccumuloException | AccumuloSecurityException | IOException e) {
           LOGGER.warn("Unable to establish new connection", e);
         }
@@ -1748,9 +1744,14 @@ public class AccumuloOperations implements
   @Override
   public void close() {
     synchronized (CONNECTOR_MUTEX) {
-      ConnectorPool.getInstance().invalidate(connector);
-      AccumuloUtils.closeConnector(connector);
-      connector = null;
+      if (AccumuloUtils.closeConnector(connector)) {
+        ConnectorPool.getInstance().invalidate(connector);
+      }
     }
+  }
+
+  @Override
+  public void notifyConnectorClosed() {
+    connector = null;
   }
 }
