@@ -10,6 +10,7 @@ package org.locationtech.geowave.datastore.hbase.coprocessors;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.Coprocessor;
@@ -17,7 +18,6 @@ import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.CoprocessorException;
-import org.apache.hadoop.hbase.coprocessor.CoprocessorService;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
@@ -43,11 +43,15 @@ import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
 
 public class AggregationEndpoint extends AggregationProtosServer.AggregationService implements
-    Coprocessor,
-    CoprocessorService {
+    Coprocessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(AggregationEndpoint.class);
 
   private RegionCoprocessorEnvironment env;
+
+  @Override
+  public Iterable<Service> getServices() {
+    return Collections.singletonList(this);
+  }
 
   @Override
   public void start(final CoprocessorEnvironment env) throws IOException {
@@ -61,11 +65,6 @@ public class AggregationEndpoint extends AggregationProtosServer.AggregationServ
   @Override
   public void stop(final CoprocessorEnvironment env) throws IOException {
     // nothing to do when coprocessor is shutting down
-  }
-
-  @Override
-  public Service getService() {
-    return this;
   }
 
   @Override

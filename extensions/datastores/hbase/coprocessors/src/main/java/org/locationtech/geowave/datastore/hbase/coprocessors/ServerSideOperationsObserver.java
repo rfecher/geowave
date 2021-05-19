@@ -15,11 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
+import org.apache.hadoop.hbase.coprocessor.RegionCoprocessor;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.coprocessor.RegionObserver;
 import org.apache.hadoop.hbase.regionserver.FlushLifeCycleTracker;
@@ -41,7 +43,7 @@ import org.locationtech.geowave.datastore.hbase.server.ServerSideOperationUtils;
 import org.locationtech.geowave.datastore.hbase.util.HBaseUtils;
 import com.google.common.collect.ImmutableSet;
 
-public class ServerSideOperationsObserver implements RegionObserver {
+public class ServerSideOperationsObserver implements RegionObserver, RegionCoprocessor {
 
   private static final Logger LOGGER = Logger.getLogger(ServerSideOperationsObserver.class);
   private static final int SERVER_OP_OPTIONS_PREFIX_LENGTH =
@@ -81,6 +83,11 @@ public class ServerSideOperationsObserver implements RegionObserver {
         final Scan scan) {
       return new ServerOpInternalScannerWrapper(orderedServerOps, delegate, scan);
     }
+  }
+
+  @Override
+  public Optional<RegionObserver> getRegionObserver() {
+    return Optional.of(this);
   }
 
   @Override

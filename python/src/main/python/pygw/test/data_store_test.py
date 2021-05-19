@@ -491,8 +491,8 @@ def test_bigtable_options():
 
 def test_cassandra_options():
     options = CassandraOptions()
-    options.set_contact_point("test_contact_point")
-    assert options.get_contact_point() == "test_contact_point"
+    options.set_contact_points("test_contact_point")
+    assert options.get_contact_points() == "test_contact_point"
     options.set_batch_write_size(42)
     assert options.get_batch_write_size() == 42
     durable_writes = not options.is_durable_writes()

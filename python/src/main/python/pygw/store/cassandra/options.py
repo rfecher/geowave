@@ -20,7 +20,7 @@ class CassandraOptions(DataStoreOptions):
     def __init__(self):
         super().__init__(geowave_pkg.datastore.cassandra.config.CassandraRequiredOptions())
 
-    def set_contact_point(self, contact_point):
+    def set_contact_points(self, contact_points):
         """
         Sets a single contact point or a comma delimited set of contact points to
         connect to the Cassandra cluster.
@@ -28,14 +28,14 @@ class CassandraOptions(DataStoreOptions):
         Args:
             contact_point (str): The contact point(s) to connect to.
         """
-        self._java_ref.setContactPoint(contact_point)
+        self._java_ref.setContactPoints(contact_points)
 
-    def get_contact_point(self):
+    def get_contact_points(self):
         """
         Returns:
             The contact points of the Cassandra cluster.
         """
-        return self._java_ref.getContactPoint()
+        return self._java_ref.getContactPoints()
 
     def set_batch_write_size(self, batch_write_size):
         """

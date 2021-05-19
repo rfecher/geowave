@@ -24,7 +24,6 @@ import org.locationtech.geowave.core.index.QueryRanges;
 import org.locationtech.geowave.core.index.sfc.data.MultiDimensionalNumericData;
 import org.locationtech.geowave.core.store.api.StatisticValue;
 import org.locationtech.geowave.core.store.server.ServerOpConfig.ServerOpScope;
-import org.locationtech.geowave.datastore.hbase.coprocessors.HBaseBulkDeleteEndpoint;
 import org.locationtech.geowave.mapreduce.URLClassloaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 public class HBaseUtils {
-  private static final Logger LOGGER = LoggerFactory.getLogger(HBaseBulkDeleteEndpoint.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HBaseUtils.class);
   private static final CellComparator CELL_COMPARATOR = initHBaseVersionIndependentCellComparator();
 
   private static CellComparator initHBaseVersionIndependentCellComparator() {

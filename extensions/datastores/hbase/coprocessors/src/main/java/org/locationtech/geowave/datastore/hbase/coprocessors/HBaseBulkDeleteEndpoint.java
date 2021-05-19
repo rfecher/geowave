@@ -13,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,6 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.CoprocessorException;
-import org.apache.hadoop.hbase.coprocessor.CoprocessorService;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
@@ -50,9 +50,7 @@ import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements
-    CoprocessorService,
-    Coprocessor {
+public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements Coprocessor {
   private static final String NO_OF_VERSIONS_TO_DELETE = "noOfVersionsToDelete";
   private static final Logger LOGGER = Logger.getLogger(HBaseBulkDeleteEndpoint.class);
 
@@ -60,12 +58,11 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements
   private static final Object BATCH_MUTATE_MUTEX = new Object();
   private static Method batchMutate;
   private static boolean isHBase2 = true;
-
   @Override
-  public Service getService() {
-    return this;
+  public Iterable<Service> getServices() {
+    return Collections.singletonList(this);
   }
-
+  
   @Override
   public void delete(
       final RpcController controller,

@@ -8,7 +8,6 @@
  */
 package org.locationtech.geowave.datastore.cassandra.config;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +109,7 @@ public class CassandraOptions extends BaseDataStoreOptions {
     return tableOptions;
   }
 
-  public void setTableOptions(Map<String, String> tableOptions) {
+  public void setTableOptions(final Map<String, String> tableOptions) {
     this.tableOptions = tableOptions;
   }
 
@@ -124,7 +123,7 @@ public class CassandraOptions extends BaseDataStoreOptions {
     return false;
   }
 
-  protected static class CompactionStrategyConverter implements
+  public static class CompactionStrategyConverter implements
       IStringConverter<CompactionStrategy<?>> {
 
     @Override

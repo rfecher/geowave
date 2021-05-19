@@ -475,6 +475,11 @@
 											<artifactId>guava</artifactId>
 											<groupId>com.google.guava</groupId>
 											<version>${hbaseguava.version}</version>
+										</artifactItem>										
+										<artifactItem>
+											<groupId>org.locationtech.geowave</groupId>
+											<artifactId>geowave-datastore-hbase</artifactId>
+											<version>${project.version}</version>
 										</artifactItem>
 										<artifactItem>
 											<artifactId>protobuf-java</artifactId>

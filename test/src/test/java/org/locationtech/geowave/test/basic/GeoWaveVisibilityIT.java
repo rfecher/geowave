@@ -541,7 +541,7 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
     final FeatureDataAdapter adapter = new FeatureDataAdapter(getType());
     final DataStore store = dataStoreOptions.createDataStore();
     store.addType(adapter, TestUtils.DEFAULT_SPATIAL_INDEX);
-    try (Writer writer = store.createWriter(adapter.getTypeName())) {
+    try (Writer<SimpleFeature> writer = store.createWriter(adapter.getTypeName())) {
       for (int i = 0; i < totalFeatures; i++) {
         bldr.set("a", Integer.toString(i));
         bldr.set("b", Integer.toString(i));
