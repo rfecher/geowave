@@ -9,10 +9,15 @@
 package org.locationtech.geowave.datastore.cassandra.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.locationtech.geowave.core.store.BaseDataStoreOptions;
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.converters.IParameterSplitter;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.datastax.oss.driver.api.querybuilder.schema.compaction.CompactionStrategy;
 
@@ -42,12 +47,16 @@ public class CassandraOptions extends BaseDataStoreOptions {
       converter = CompactionStrategyConverter.class)
   private CompactionStrategy<?> compactionStrategy = SchemaBuilder.sizeTieredCompactionStrategy();
 
-  @Parameter(
+  // @Parameter(
+  // names = "--tableOptions",
+  // variableArity = true,
+  // description = "Any general table options as 'key=value' applied to each Cassandra table.",
+  // splitter = SemiColonSplitter.class)
+  // private List<String> tableOptions = new ArrayList<>();
+  @DynamicParameter(
       names = "--tableOptions",
-      variableArity = true,
       description = "Any general table options as 'key=value' applied to each Cassandra table.")
-  private List<String> tableOptions = new ArrayList<>();
-
+  private Map<String, String> tableOptions = new HashMap<>();
 
   public int getGcGraceSeconds() {
     return gcGraceSeconds;
@@ -89,11 +98,19 @@ public class CassandraOptions extends BaseDataStoreOptions {
     this.compactionStrategy = compactionStrategy;
   }
 
-  public List<String> getTableOptions() {
+  // public List<String> getTableOptions() {
+  // return tableOptions;
+  // }
+  //
+  // public void setTableOptions(final List<String> tableOptions) {
+  // this.tableOptions = tableOptions;
+  // }
+
+  public Map<String, String> getTableOptions() {
     return tableOptions;
   }
 
-  public void setTableOptions(final List<String> tableOptions) {
+  public void setTableOptions(Map<String, String> tableOptions) {
     this.tableOptions = tableOptions;
   }
 
@@ -111,9 +128,9 @@ public class CassandraOptions extends BaseDataStoreOptions {
       IStringConverter<CompactionStrategy<?>> {
 
     @Override
-    public CompactionStrategy<?> convert(String value) {
-      if (value != null && !value.isEmpty()) {
-        String str = value.trim().toLowerCase();
+    public CompactionStrategy<?> convert(final String value) {
+      if ((value != null) && !value.isEmpty()) {
+        final String str = value.trim().toLowerCase();
         switch (str) {
           case "leveledcompactionstrategy":
           case "lcs":
@@ -143,5 +160,12 @@ public class CassandraOptions extends BaseDataStoreOptions {
       return null;
     }
 
+  }
+  public static class SemiColonSplitter implements IParameterSplitter {
+
+    @Override
+    public List<String> split(final String value) {
+      return Arrays.asList(value.split(";"));
+    }
   }
 }

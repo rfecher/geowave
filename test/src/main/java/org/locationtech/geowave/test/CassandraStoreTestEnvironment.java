@@ -56,13 +56,20 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     cassandraOpts.getAdditionalOptions().setGcGraceSeconds(0);
 
     try {
+      // cassandraOpts.getAdditionalOptions().setTableOptions(
+      // Collections.singletonList(
+      // "compaction = "
+      // + new ObjectMapper().writeValueAsString(
+      // SchemaBuilder.sizeTieredCompactionStrategy().withMinSSTableSizeInBytes(
+      // 500000L).withMinThreshold(2).withUncheckedTombstoneCompaction(
+      // true).getOptions())));
       cassandraOpts.getAdditionalOptions().setTableOptions(
-          Collections.singletonList(
-              "compaction = "
-                  + new ObjectMapper().writeValueAsString(
-                      SchemaBuilder.sizeTieredCompactionStrategy().withMinSSTableSizeInBytes(
-                          500000L).withMinThreshold(2).withUncheckedTombstoneCompaction(
-                              true).getOptions())));
+          Collections.singletonMap(
+              "compaction",
+              new ObjectMapper().writeValueAsString(
+                  SchemaBuilder.sizeTieredCompactionStrategy().withMinSSTableSizeInBytes(
+                      500000L).withMinThreshold(2).withUncheckedTombstoneCompaction(
+                          true).getOptions())));
     } catch (final JsonProcessingException e) {
       throw new RuntimeException(e);
     }
