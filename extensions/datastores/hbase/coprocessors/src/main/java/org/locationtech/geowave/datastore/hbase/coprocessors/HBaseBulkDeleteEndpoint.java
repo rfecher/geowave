@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
-import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HConstants.OperationStatusCode;
@@ -28,6 +27,7 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.CoprocessorException;
+import org.apache.hadoop.hbase.coprocessor.RegionCoprocessor;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
@@ -50,7 +50,7 @@ import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements Coprocessor {
+public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements RegionCoprocessor {
   private static final String NO_OF_VERSIONS_TO_DELETE = "noOfVersionsToDelete";
   private static final Logger LOGGER = Logger.getLogger(HBaseBulkDeleteEndpoint.class);
 
@@ -245,7 +245,7 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements Coproc
     }
     if (isHBase2) {
       try {
-        return (OperationStatus[]) batchMutate.invoke(region, (Object[]) deleteArr);
+        return (OperationStatus[]) batchMutate.invoke(region, (Object) deleteArr);
       } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         LOGGER.error("HBase 2 batchMutate failed", e);
         return null;

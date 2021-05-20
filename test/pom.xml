@@ -193,6 +193,33 @@
 		</dependency>
 		<dependency>
 			<groupId>org.locationtech.geowave</groupId>
+			<artifactId>geowave-datastore-hbase-coprocessors</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.hbase</groupId>
+					<artifactId>hbase-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.hbase</groupId>
+					<artifactId>hbase-protocol</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>jersey-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>jersey-server</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.jackson</groupId>
+					<artifactId>jackson-jaxrs</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.locationtech.geowave</groupId>
 			<artifactId>geowave-datastore-bigtable</artifactId>
 			<version>${project.version}</version>
 			<exclusions>
@@ -475,12 +502,7 @@
 											<artifactId>guava</artifactId>
 											<groupId>com.google.guava</groupId>
 											<version>${hbaseguava.version}</version>
-										</artifactItem>										
-										<artifactItem>
-											<groupId>org.locationtech.geowave</groupId>
-											<artifactId>geowave-datastore-hbase</artifactId>
-											<version>${project.version}</version>
-										</artifactItem>
+										</artifactItem>		
 										<artifactItem>
 											<artifactId>protobuf-java</artifactId>
 											<groupId>com.google.protobuf</groupId>

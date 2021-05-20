@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.CoprocessorException;
+import org.apache.hadoop.hbase.coprocessor.RegionCoprocessor;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
@@ -43,7 +43,7 @@ import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
 
 public class AggregationEndpoint extends AggregationProtosServer.AggregationService implements
-    Coprocessor {
+    RegionCoprocessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(AggregationEndpoint.class);
 
   private RegionCoprocessorEnvironment env;

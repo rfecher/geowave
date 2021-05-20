@@ -20,11 +20,6 @@ import org.slf4j.LoggerFactory;
 public class MiniAccumuloUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(MiniAccumuloUtils.class);
 
-  // public static void setClasspathItems(
-  // final MiniAccumuloConfig config,
-  // final String... classpathItems) {
-  // config.getImpl().setClasspathItems(classpathItems);
-  // }
   public static void setClasspathItems(
       final MiniAccumuloConfig config,
       final String... classpathItems) {
@@ -67,12 +62,6 @@ public class MiniAccumuloUtils {
     }
   }
 
-  // public static void setProperty(
-  // final MiniAccumuloConfig config,
-  // final Property property,
-  // final String value) {
-  // config.getImpl().setProperty(property, value);
-  // }
   public static Map<String, String> getSystemProperties(final MiniAccumuloConfig config) {
     try {
       final Field impl = MiniAccumuloConfig.class.getDeclaredField("impl");
@@ -85,9 +74,6 @@ public class MiniAccumuloUtils {
     return null;
   }
 
-  // public static Map<String, String> getSystemProperties(final MiniAccumuloConfig config) {
-  // return config.getImpl().getSystemProperties();
-  // }
   public static void setSystemProperties(
       final MiniAccumuloConfig config,
       final Map<String, String> systemProperties) {
@@ -101,15 +87,7 @@ public class MiniAccumuloUtils {
       LOGGER.warn("Unable to setSystemProperties", e);
     }
   }
-  // public static void setSystemProperties(
-  // final MiniAccumuloConfig config,
-  // final Map<String, String> systemProperties) {
-  // config.getImpl().setSystemProperties(systemProperties);
-  // }
 
-  // public static File getConfDir(final MiniAccumuloConfig config) {
-  // return config.getImpl().getConfDir();
-  // }
   public static File getConfDir(final MiniAccumuloConfig config) throws IOException {
     try {
       final Field impl = MiniAccumuloConfig.class.getDeclaredField("impl");
@@ -121,9 +99,6 @@ public class MiniAccumuloUtils {
     return null;
   }
 
-  // public static File getLogDir(final MiniAccumuloConfig config) {
-  // return config.getImpl().getLogDir();
-  // }
   public static File getLogDir(final MiniAccumuloConfig config) throws IOException {
     try {
       final Field impl = MiniAccumuloConfig.class.getDeclaredField("impl");
@@ -135,9 +110,6 @@ public class MiniAccumuloUtils {
     return null;
   }
 
-  // public static String getZookeepers(final MiniAccumuloConfig config) {
-  // return config.getImpl().getZooKeepers();
-  // }
   public static String getZooKeepers(final MiniAccumuloConfig config) throws IOException {
     try {
       final Field impl = MiniAccumuloConfig.class.getDeclaredField("impl");

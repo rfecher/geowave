@@ -10,8 +10,8 @@ package org.locationtech.geowave.datastore.hbase.coprocessors;
 
 import java.io.IOException;
 import java.util.Collections;
-import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
+import org.apache.hadoop.hbase.coprocessor.RegionCoprocessor;
 import org.locationtech.geowave.core.cli.VersionUtils;
 import org.locationtech.geowave.datastore.hbase.query.protobuf.VersionProtosServer.VersionRequest;
 import org.locationtech.geowave.datastore.hbase.query.protobuf.VersionProtosServer.VersionResponse;
@@ -20,7 +20,7 @@ import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
 
-public class VersionEndpoint extends VersionService implements Coprocessor {
+public class VersionEndpoint extends VersionService implements RegionCoprocessor {
   @Override
   public void start(final CoprocessorEnvironment env) throws IOException {
     // nothing to do when coprocessor is starting up
