@@ -9,7 +9,6 @@
 package org.locationtech.geowave.datastore.hbase.server;
 
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellComparator;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.locationtech.geowave.datastore.hbase.util.HBaseUtils;
 

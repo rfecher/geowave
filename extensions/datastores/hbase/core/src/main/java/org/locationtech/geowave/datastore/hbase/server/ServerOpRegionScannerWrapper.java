@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.HRegionInfo;
+import org.apache.hadoop.hbase.client.RegionInfo;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
@@ -27,8 +27,8 @@ public class ServerOpRegionScannerWrapper extends ServerOpInternalScannerWrapper
   }
 
   @Override
-  public HRegionInfo getRegionInfo() {
-    return (HRegionInfo) ((RegionScanner) delegate).getRegionInfo();
+  public RegionInfo getRegionInfo() {
+    return ((RegionScanner) delegate).getRegionInfo();
   }
 
   @Override

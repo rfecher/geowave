@@ -155,6 +155,25 @@ public class ServerSideOperationsObserver implements RegionObserver, RegionCopro
     RegionObserver.super.preScannerOpen(e, scan);
   }
 
+  @Override
+  public RegionScanner postScannerOpen(
+      final ObserverContext<RegionCoprocessorEnvironment> e,
+      final Scan scan,
+      final RegionScanner s) throws IOException {
+    if (opStore == null) {
+      return RegionObserver.super.postScannerOpen(e, scan, s);
+    }
+    return RegionObserver.super.postScannerOpen(
+        e,
+        scan,
+        wrapScannerWithOps(
+            e.getEnvironment().getRegionInfo().getTable(),
+            s,
+            scan,
+            ServerOpScope.SCAN,
+            REGION_SCANNER_FACTORY));
+  }
+
   public <T extends InternalScanner> T wrapScannerWithOps(
       final TableName tableName,
       final T scanner,
