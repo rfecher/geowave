@@ -5,12 +5,12 @@
 	<parent>
 		<artifactId>geowave-extension-parent</artifactId>
 		<groupId>org.locationtech.geowave</groupId>
-		<relativePath>../../</relativePath>
+		<relativePath>../../../</relativePath>
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>geowave-datastore-hbase</artifactId>
-	<name>GeoWave Hbase</name>
-	<description>Geowave Data Store on Apache Hbase</description>
+	<name>GeoWave HBase</name>
+	<description>GeoWave Data Store on Apache HBase</description>
 
 	<dependencies>
 		<dependency>

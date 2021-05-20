@@ -1468,8 +1468,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       final String namespace = HBaseUtils.writeTableNameAsConfigSafe(table.getNamespaceAsString());
       final String qualifier = HBaseUtils.writeTableNameAsConfigSafe(table.getQualifierAsString());
       removeConfig(desc, namespace, qualifier, name);
-      final TableDescriptorBuilder bldr =
-          TableDescriptorBuilder.newBuilder(desc);
+      final TableDescriptorBuilder bldr = TableDescriptorBuilder.newBuilder(desc);
       addConfig(bldr, namespace, qualifier, priority, name, operationClass, newScopes, properties);
       admin.modifyTable(table, bldr.build());
       waitForUpdate(admin, table, SLEEP_INTERVAL);

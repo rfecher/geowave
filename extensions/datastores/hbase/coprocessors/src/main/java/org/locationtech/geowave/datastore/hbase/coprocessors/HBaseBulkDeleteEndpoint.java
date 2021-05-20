@@ -58,11 +58,12 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements Coproc
   private static final Object BATCH_MUTATE_MUTEX = new Object();
   private static Method batchMutate;
   private static boolean isHBase2 = true;
+
   @Override
   public Iterable<Service> getServices() {
     return Collections.singletonList(this);
   }
-  
+
   @Override
   public void delete(
       final RpcController controller,
