@@ -57,7 +57,7 @@ import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter.RowRange;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.shaded.com.google.protobuf.ByteString;
-// import org.apache.hbase.thirdparty.com.google.protobuf.ByteString;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.locationtech.geowave.core.cli.VersionUtils;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.ByteArrayRange;
@@ -1357,9 +1357,10 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     final TableName table = getTableName(index);
     try (Admin admin = conn.getAdmin()) {
       final HTableDescriptor desc = admin.getTableDescriptor(table);
-
+      TableDescriptorBuilder bldr = TableDescriptorBuilder.newBuilder(desc);
       if (removeConfig(
-          desc,
+          new HashMap<>(desc.getConfiguration()),
+          bldr,
           HBaseUtils.writeTableNameAsConfigSafe(table.getNamespaceAsString()),
           HBaseUtils.writeTableNameAsConfigSafe(table.getQualifierAsString()),
           serverOpName)) {
@@ -1372,11 +1373,11 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   }
 
   private static boolean removeConfig(
-      final HTableDescriptor desc,
+      Map<String, String> config,
+      final TableDescriptorBuilder bldr,
       final String namespace,
       final String qualifier,
       final String serverOpName) {
-    final Map<String, String> config = new HashMap<>(desc.getConfiguration());
     boolean changed = false;
     for (final Entry<String, String> e : config.entrySet()) {
       if (e.getKey().startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
@@ -1386,7 +1387,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
             && parts[2].equals(qualifier)
             && parts[3].equals(serverOpName)) {
           changed = true;
-          desc.removeConfiguration(e.getKey());
+          bldr.removeValue(Bytes.toBytes(e.getKey()));
         }
       }
     }
@@ -1467,8 +1468,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
       final String namespace = HBaseUtils.writeTableNameAsConfigSafe(table.getNamespaceAsString());
       final String qualifier = HBaseUtils.writeTableNameAsConfigSafe(table.getQualifierAsString());
-      removeConfig(desc, namespace, qualifier, name);
       final TableDescriptorBuilder bldr = TableDescriptorBuilder.newBuilder(desc);
+      removeConfig(new HashMap<>(desc.getConfiguration()), bldr, namespace, qualifier, name);
       addConfig(bldr, namespace, qualifier, priority, name, operationClass, newScopes, properties);
       admin.modifyTable(table, bldr.build());
       waitForUpdate(admin, table, SLEEP_INTERVAL);

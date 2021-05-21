@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
@@ -26,7 +27,6 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.coprocessor.RegionObserver;
 import org.apache.hadoop.hbase.regionserver.FlushLifeCycleTracker;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
-import org.apache.hadoop.hbase.regionserver.Region.Operation;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScanType;
 import org.apache.hadoop.hbase.regionserver.Store;
@@ -193,11 +193,9 @@ public class ServerSideOperationsObserver implements RegionObserver, RegionCopro
   }
 
   @Override
-  public void postStartRegionOperation(
-      final ObserverContext<RegionCoprocessorEnvironment> ctx,
-      final Operation operation) throws IOException {
+  public void start(final CoprocessorEnvironment env) throws IOException {
     opStore = new ServerSideOperationStore();
-    final Configuration config = ctx.getEnvironment().getConfiguration();
+    final Configuration config = env.getConfiguration();
     final Map<String, List<String>> uniqueOpsWithOptionKeys = new HashMap<>();
     for (final Map.Entry<String, String> entry : config) {
       if (entry.getKey().startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
@@ -262,6 +260,6 @@ public class ServerSideOperationsObserver implements RegionObserver, RegionCopro
           ByteArrayUtils.byteArrayFromString(classIdStr),
           optionsMap);
     }
-    RegionObserver.super.postStartRegionOperation(ctx, operation);
+    RegionCoprocessor.super.start(env);
   }
 }

@@ -17,10 +17,10 @@ import java.util.function.Supplier;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Scan.ReadType;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter.RowRange;
-import org.apache.hadoop.hbase.filter.PageFilter;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.locationtech.geowave.core.index.ByteArrayRange;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
@@ -147,7 +147,6 @@ public class HBaseReader<T> implements RowReader<T> {
       addSkipFilter((RangeReaderParams<T>) recordReaderParams, filterList);
     }
 
-    setLimit(recordReaderParams, filterList);
     if (!filterList.getFilters().isEmpty()) {
       if (filterList.getFilters().size() > 1) {
         rscanner.setFilter(filterList);
@@ -193,8 +192,6 @@ public class HBaseReader<T> implements RowReader<T> {
       addSkipFilter(readerParams, filterList);
     }
 
-    setLimit(readerParams, filterList);
-
     if (operations.parallelDecodeEnabled()) {
       final HBaseParallelDecoder<T> parallelScanner =
           new HBaseParallelDecoder<>(
@@ -238,27 +235,6 @@ public class HBaseReader<T> implements RowReader<T> {
         this.scanIt = null;
         return;
       }
-    }
-  }
-
-  private static <T> void setLimit(
-      final RangeReaderParams<T> readerParams,
-      final FilterList filterList) {
-    if ((readerParams.getLimit() != null) && (readerParams.getLimit() > 0)) {
-      // @formatter:off
-      // TODO in hbase 1.4.x there is a scan.getLimit() and
-      // scan.setLimit() which is perfectly suited for this
-      //			if (readerParams.getLimit() < scanner.getLimit() || scanner.getLimit() <= 0) {
-      // also in hbase 1.4.x readType.PREAD would make sense for
-      // limits
-      // 				scanner.setReadType(ReadType.PREAD);
-      //				scanner.setLimit(
-      //						readerParams.getLimit());
-      //			}
-      // @formatter:on
-      // however, to be compatible with earlier versions of hbase, for now
-      // we are using a page filter
-      filterList.addFilter(new PageFilter(readerParams.getLimit()));
     }
   }
 
@@ -339,6 +315,10 @@ public class HBaseReader<T> implements RowReader<T> {
       }
       multiScanner.setStopRow(stopRowExclusive);
     }
+    if ((readerParams.getLimit() != null) && (readerParams.getLimit() > 0)) {
+      multiScanner.setReadType(ReadType.PREAD);
+      multiScanner.setLimit(readerParams.getLimit());
+    }
     return multiScanner;
   }
 
@@ -394,6 +374,10 @@ public class HBaseReader<T> implements RowReader<T> {
         scanner.setCaching(caching);
         scanner.setCacheBlocks(cacheBlocks);
 
+        if ((readerParams.getLimit() != null) && (readerParams.getLimit() > 0)) {
+          scanner.setReadType(ReadType.PREAD);
+          scanner.setLimit(readerParams.getLimit());
+        }
         // Only return the most recent version, unless merging
         if (clientSideRowMerging) {
           scanner.setMaxVersions(HBaseOperations.MERGING_MAX_VERSIONS);

@@ -45,7 +45,7 @@ public class ServerOpInternalScannerWrapper implements InternalScanner {
 
   protected boolean internalNextRow(final List<Cell> rowCells, final ScannerContext scannerContext)
       throws IOException {
-    return internalNextRow(new ScannerContextRowScanner(delegate, rowCells, scannerContext, scan));
+    return internalNextRow(rowCells);
   }
 
   @Override
