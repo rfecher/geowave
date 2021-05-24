@@ -69,7 +69,7 @@
 		<geoserver.version>2.19.0</geoserver.version>
 		<accumulo.version>2.0.1</accumulo.version>
 		<thrift.version>0.12.0</thrift.version>
-		<bigtable.version>1.2.0</bigtable.version>
+		<bigtable.version>1.20.0</bigtable.version>
 		<cassandra.version>4.0-rc1</cassandra.version>
 		<redisson.version>3.15.5</redisson.version>
 		<rocksdb.version>6.19.3</rocksdb.version>
@@ -1396,9 +1396,6 @@
 		<profile>
 			<id>compatibility</id>
 			<properties>
-				<hbase.version>1.4.6</hbase.version>
-				<hbaseprotobuf.version>2.5.0</hbaseprotobuf.version>
-				<hbaseguava.version>12.0.1</hbaseguava.version>
 				<accumulo.version>1.9.2</accumulo.version>
 				<hadoop.version>2.6.4</hadoop.version>
 			</properties>

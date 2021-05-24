@@ -434,6 +434,8 @@ public class AccumuloOperations implements
     locGrpCache.clear();
     ensuredAuthorizationCache.clear();
     ensuredPartitionCache.clear();
+
+    close();
   }
 
   public boolean delete(
