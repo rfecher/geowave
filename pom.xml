@@ -384,7 +384,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.google.cloud.bigtable</groupId>
-				<artifactId>bigtable-hbase-2.x</artifactId>
+				<artifactId>bigtable-hbase-2.x-shaded</artifactId>
 				<version>${bigtable.version}</version>
 			</dependency>
 			<dependency>
