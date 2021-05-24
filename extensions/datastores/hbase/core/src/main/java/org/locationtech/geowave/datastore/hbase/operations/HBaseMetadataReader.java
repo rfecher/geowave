@@ -71,12 +71,11 @@ public class HBaseMetadataReader implements MetadataReader {
         // TODO performance could be perhaps improved using parallel scanning logic but for now keep
         // it simple
         if (filter.getRowRanges().size() == 1) {
-          scanner.setStartRow(filter.getRowRanges().get(0).getStartRow());
-          scanner.setStopRow(filter.getRowRanges().get(0).getStopRow());
+          scanner.withStartRow(filter.getRowRanges().get(0).getStartRow()).withStopRow(
+              filter.getRowRanges().get(0).getStopRow());
         } else if (filter.getRowRanges().size() > 1) {
           scanner.setFilter(filter);
-          scanner.setStartRow(filter.getRowRanges().get(0).getStartRow());
-          scanner.setStopRow(
+          scanner.withStartRow(filter.getRowRanges().get(0).getStartRow()).withStopRow(
               filter.getRowRanges().get(filter.getRowRanges().size() - 1).getStopRow());
         } else {
           return new CloseableIterator.Empty<>();
@@ -84,18 +83,17 @@ public class HBaseMetadataReader implements MetadataReader {
       } else {
         if (query.hasPrimaryId()) {
           if (query.isPrefix()) {
-            scanner.setStartRow(query.getPrimaryId());
-            scanner.setStopRow(ByteArrayUtils.getNextPrefix(query.getPrimaryId()));
+            scanner.withStartRow(query.getPrimaryId()).withStopRow(
+                ByteArrayUtils.getNextPrefix(query.getPrimaryId()));
           } else {
-            scanner.setStartRow(query.getPrimaryId());
-            scanner.setStopRow(query.getPrimaryId());
+            scanner.withStartRow(query.getPrimaryId()).withStopRow(query.getPrimaryId());
           }
         }
       }
       final boolean clientsideStatsMerge =
           (metadataType.isStatValues()) && !options.isServerSideLibraryEnabled();
       if (clientsideStatsMerge) {
-        scanner.setMaxVersions(); // Get all versions
+        scanner.readAllVersions(); // Get all versions
       }
 
       final String[] additionalAuthorizations = query.getAuthorizations();

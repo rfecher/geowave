@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -32,10 +33,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HRegionLocation;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.RegionException;
 import org.apache.hadoop.hbase.TableExistsException;
 import org.apache.hadoop.hbase.TableName;
@@ -43,7 +42,10 @@ import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.BufferedMutatorParams;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.CoprocessorDescriptorBuilder;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.RegionLocator;
@@ -51,6 +53,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.client.coprocessor.Batch;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
@@ -253,17 +256,17 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     synchronized (ADMIN_MUTEX) {
       try (Admin admin = conn.getAdmin()) {
         if (!admin.tableExists(tableName)) {
-          final HTableDescriptor desc = new HTableDescriptor(tableName);
+          final TableDescriptorBuilder desc = TableDescriptorBuilder.newBuilder(tableName);
 
           final HashSet<GeoWaveColumnFamily> cfSet = new HashSet<>();
 
           for (final Pair<GeoWaveColumnFamily, Boolean> columnFamilyAndVersioning : columnFamiliesAndVersioningPairs) {
-            final HColumnDescriptor column =
+            final ColumnFamilyDescriptorBuilder column =
                 columnFamilyAndVersioning.getLeft().toColumnDescriptor();
             if (!columnFamilyAndVersioning.getRight()) {
               column.setMaxVersions(Integer.MAX_VALUE);
             }
-            desc.addFamily(column);
+            desc.setColumnFamily(column.build());
 
             cfSet.add(columnFamilyAndVersioning.getLeft());
           }
@@ -272,9 +275,9 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
           try {
             if (preSplits.length > 0) {
-              admin.createTable(desc, preSplits);
+              admin.createTable(desc.build(), preSplits);
             } else {
-              admin.createTable(desc);
+              admin.createTable(desc.build());
             }
           } catch (final Exception e) {
             // We can ignore TableExists on create
@@ -357,11 +360,11 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     synchronized (ADMIN_MUTEX) {
       try (Admin admin = conn.getAdmin()) {
         if (admin.tableExists(tableName)) {
-          final HTableDescriptor existingTableDescriptor = admin.getTableDescriptor(tableName);
-          final HColumnDescriptor[] existingColumnDescriptors =
+          final TableDescriptor existingTableDescriptor = admin.getDescriptor(tableName);
+          final ColumnFamilyDescriptor[] existingColumnDescriptors =
               existingTableDescriptor.getColumnFamilies();
-          for (final HColumnDescriptor hColumnDescriptor : existingColumnDescriptors) {
-            existingColumnFamilies.add(columnFamilyFactory.fromColumnDescriptor(hColumnDescriptor));
+          for (final ColumnFamilyDescriptor columnDescriptor : existingColumnDescriptors) {
+            existingColumnFamilies.add(columnFamilyFactory.fromColumnDescriptor(columnDescriptor));
           }
           for (final GeoWaveColumnFamily columnFamily : newCFs) {
             if (!existingColumnFamilies.contains(columnFamily)) {
@@ -375,16 +378,15 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
             }
             disableTable(admin, tableName);
             for (final GeoWaveColumnFamily newColumnFamily : newColumnFamilies) {
-              final HColumnDescriptor column = newColumnFamily.toColumnDescriptor();
+              final ColumnFamilyDescriptorBuilder column = newColumnFamily.toColumnDescriptor();
               if (!enableVersioning) {
                 column.setMaxVersions(Integer.MAX_VALUE);
               }
-              admin.addColumn(tableName, column);
+              admin.addColumnFamily(tableName, column.build());
               cfCacheSet.add(newColumnFamily);
             }
 
             enableTable(admin, tableName);
-            waitForUpdate(admin, tableName, SLEEP_INTERVAL);
           } else {
             return true;
           }
@@ -395,36 +397,19 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     return true;
   }
 
-  private void enableTable(final Admin admin, final TableName tableName) throws IOException {
-    admin.enableTableAsync(tableName);
-    while (!admin.isTableEnabled(tableName)) {
-      try {
-        Thread.sleep(10);
-      } catch (final InterruptedException e) {
-        // Do nothing
-      }
-    }
-  }
-
-  private void disableTable(final Admin admin, final TableName tableName) throws IOException {
-    admin.disableTableAsync(tableName);
-    while (!admin.isTableDisabled(tableName)) {
-      try {
-        Thread.sleep(10);
-      } catch (final InterruptedException e) {
-        // Do nothing
-      }
-    }
-  }
-
-  private void waitForUpdate(final Admin admin, final TableName tableName, final long sleepTimeMs) {
+  private void enableTable(final Admin admin, final TableName tableName) {
     try {
-      while (admin.getAlterStatus(tableName).getFirst() > 0) {
+      admin.enableTableAsync(tableName).get();
+    } catch (InterruptedException | ExecutionException | IOException e) {
+      LOGGER.warn("Unable to enable table '" + tableName + "'", e);
+    }
+  }
 
-        Thread.sleep(sleepTimeMs);
-      }
-    } catch (final Exception e) {
-      LOGGER.error("Error waiting for table update", e);
+  private void disableTable(final Admin admin, final TableName tableName) {
+    try {
+      admin.disableTableAsync(tableName).get();
+    } catch (InterruptedException | ExecutionException | IOException e) {
+      LOGGER.warn("Unable to disable table '" + tableName + "'", e);
     }
   }
 
@@ -564,17 +549,17 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       // for whatever reason HBase treats start row as the higher lexicographic row and the end row
       // as the lesser when reversed
       if (startRow != null) {
-        scan.setStopRow(startRow);
+        scan.withStopRow(startRow);
       }
       if (endRow != null) {
-        scan.setStartRow(ByteArrayUtils.getNextPrefix(endRow));
+        scan.withStartRow(ByteArrayUtils.getNextPrefix(endRow));
       }
     } else {
       if (startRow != null) {
-        scan.setStartRow(startRow);
+        scan.withStartRow(startRow);
       }
       if (endRow != null) {
-        scan.setStopRow(HBaseUtils.getInclusiveEndKey(endRow));
+        scan.withStopRow(HBaseUtils.getInclusiveEndKey(endRow));
       }
     }
     if ((additionalAuthorizations != null) && (additionalAuthorizations.length > 0)) {
@@ -683,7 +668,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       synchronized (ADMIN_MUTEX) {
         try (Admin admin = conn.getAdmin()) {
           final TableName tableName = getTableName(tableNameStr);
-          final HTableDescriptor td = admin.getTableDescriptor(tableName);
+          final TableDescriptor td = admin.getDescriptor(tableName);
           final TableDescriptorBuilder bldr = TableDescriptorBuilder.newBuilder(td);
           if (!td.hasCoprocessor(coprocessorName)) {
             LOGGER.debug(tableNameStr + " does not have coprocessor. Adding " + coprocessorName);
@@ -707,20 +692,22 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
             }
 
             if (hdfsJarPath == null) {
-              bldr.addCoprocessor(coprocessorName);
+              bldr.setCoprocessor(coprocessorName);
             } else {
               LOGGER.debug("Coprocessor jar path: " + hdfsJarPath.toString());
 
-              bldr.addCoprocessor(coprocessorName, hdfsJarPath, Coprocessor.PRIORITY_USER, null);
+              bldr.setCoprocessor(
+                  CoprocessorDescriptorBuilder.newBuilder(coprocessorName).setJarPath(
+                      hdfsJarPath == null ? null : hdfsJarPath.toString()).setPriority(
+                          Coprocessor.PRIORITY_USER).setProperties(Collections.emptyMap()).build());
             }
             LOGGER.debug("- modify table...");
-            admin.modifyTable(tableName, bldr.build());
+            // this is non-blocking because we will block on enabling the table next
+            admin.modifyTable(bldr.build());
 
             LOGGER.debug("- enable table...");
             enableTable(admin, tableName);
             tableDisabled = false;
-
-            waitForUpdate(admin, tableName, SLEEP_INTERVAL);
           }
 
           LOGGER.debug("Successfully added coprocessor");
@@ -1278,7 +1265,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
     try (final RegionLocator locator = getRegionLocator(tableNameStr)) {
       for (final HRegionLocation regionLocation : locator.getAllRegionLocations()) {
-        regionIdList.add(new ByteArray(regionLocation.getRegionInfo().getRegionName()));
+        regionIdList.add(new ByteArray(regionLocation.getRegion().getRegionName()));
       }
     } catch (final IOException e) {
       LOGGER.error("Error accessing region locator for " + tableNameStr, e);
@@ -1296,17 +1283,18 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
           HBaseUtils.writeTableNameAsConfigSafe(tableName.getNamespaceAsString());
       final String qualifier =
           HBaseUtils.writeTableNameAsConfigSafe(tableName.getQualifierAsString());
-      final HTableDescriptor desc = admin.getTableDescriptor(tableName);
-      final Map<String, String> config = desc.getConfiguration();
+      final TableDescriptor desc = admin.getDescriptor(tableName);
+      final Map<Bytes, Bytes> config = desc.getValues();
 
-      for (final Entry<String, String> e : config.entrySet()) {
-        if (e.getKey().startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
-          final String[] parts = e.getKey().split(SPLIT_STRING);
+      for (final Entry<Bytes, Bytes> e : config.entrySet()) {
+        final String keyStr = e.getKey().toString();
+        if (keyStr.startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
+          final String[] parts = keyStr.split(SPLIT_STRING);
           if ((parts.length == 5)
               && parts[1].equals(namespace)
               && parts[2].equals(qualifier)
               && parts[4].equals(ServerSideOperationUtils.SERVER_OP_SCOPES_KEY)) {
-            map.put(parts[3], HBaseUtils.stringToScopes(e.getValue()));
+            map.put(parts[3], HBaseUtils.stringToScopes(e.getValue().toString()));
           }
         }
       }
@@ -1328,18 +1316,19 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
           HBaseUtils.writeTableNameAsConfigSafe(tableName.getNamespaceAsString());
       final String qualifier =
           HBaseUtils.writeTableNameAsConfigSafe(tableName.getQualifierAsString());
-      final HTableDescriptor desc = admin.getTableDescriptor(tableName);
-      final Map<String, String> config = desc.getConfiguration();
+      final TableDescriptor desc = admin.getDescriptor(tableName);
+      final Map<Bytes, Bytes> config = desc.getValues();
 
-      for (final Entry<String, String> e : config.entrySet()) {
-        if (e.getKey().startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
-          final String[] parts = e.getKey().split(SPLIT_STRING);
+      for (final Entry<Bytes, Bytes> e : config.entrySet()) {
+        final String keyStr = e.getKey().toString();
+        if (keyStr.startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
+          final String[] parts = keyStr.split(SPLIT_STRING);
           if ((parts.length == 6)
               && parts[1].equals(namespace)
               && parts[2].equals(qualifier)
               && parts[3].equals(serverOpName)
               && parts[4].equals(ServerSideOperationUtils.SERVER_OP_OPTIONS_PREFIX)) {
-            map.put(parts[5], e.getValue());
+            map.put(parts[5], e.getValue().toString());
           }
         }
       }
@@ -1356,38 +1345,38 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       final ImmutableSet<ServerOpScope> scopes) {
     final TableName table = getTableName(index);
     try (Admin admin = conn.getAdmin()) {
-      final HTableDescriptor desc = admin.getTableDescriptor(table);
-      TableDescriptorBuilder bldr = TableDescriptorBuilder.newBuilder(desc);
+      final TableDescriptor desc = admin.getDescriptor(table);
+      final TableDescriptorBuilder bldr = TableDescriptorBuilder.newBuilder(desc);
       if (removeConfig(
-          new HashMap<>(desc.getConfiguration()),
+          desc.getValues(),
           bldr,
           HBaseUtils.writeTableNameAsConfigSafe(table.getNamespaceAsString()),
           HBaseUtils.writeTableNameAsConfigSafe(table.getQualifierAsString()),
           serverOpName)) {
-        admin.modifyTable(table, desc);
-        waitForUpdate(admin, table, SLEEP_INTERVAL);
+        admin.modifyTableAsync(desc).get();
       }
-    } catch (final IOException e) {
+    } catch (final IOException | InterruptedException | ExecutionException e) {
       LOGGER.error("Unable to remove server operation", e);
     }
   }
 
   private static boolean removeConfig(
-      Map<String, String> config,
+      final Map<Bytes, Bytes> config,
       final TableDescriptorBuilder bldr,
       final String namespace,
       final String qualifier,
       final String serverOpName) {
     boolean changed = false;
-    for (final Entry<String, String> e : config.entrySet()) {
-      if (e.getKey().startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
-        final String[] parts = e.getKey().split(SPLIT_STRING);
+    for (final Entry<Bytes, Bytes> e : config.entrySet()) {
+      final String keyStr = e.getKey().toString();
+      if (keyStr.startsWith(ServerSideOperationUtils.SERVER_OP_PREFIX)) {
+        final String[] parts = keyStr.split(SPLIT_STRING);
         if ((parts.length >= 5)
             && parts[1].equals(namespace)
             && parts[2].equals(qualifier)
             && parts[3].equals(serverOpName)) {
           changed = true;
-          bldr.removeValue(Bytes.toBytes(e.getKey()));
+          bldr.removeValue(e.getKey());
         }
       }
     }
@@ -1436,7 +1425,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     final TableName table = getTableName(index);
     try (Admin admin = conn.getAdmin()) {
       final TableDescriptorBuilder bldr =
-          TableDescriptorBuilder.newBuilder(admin.getTableDescriptor(table));
+          TableDescriptorBuilder.newBuilder(admin.getDescriptor(table));
       addConfig(
           bldr,
           table.getNamespaceAsString(),
@@ -1446,9 +1435,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
           operationClass,
           configuredScopes,
           properties);
-      admin.modifyTable(table, bldr.build());
-      waitForUpdate(admin, table, SLEEP_INTERVAL);
-    } catch (final IOException e) {
+      admin.modifyTableAsync(bldr.build()).get();
+    } catch (final IOException | InterruptedException | ExecutionException e) {
       LOGGER.warn("Cannot add server op", e);
     }
   }
@@ -1464,16 +1452,15 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       final ImmutableSet<ServerOpScope> newScopes) {
     final TableName table = getTableName(index);
     try (Admin admin = conn.getAdmin()) {
-      final HTableDescriptor desc = admin.getTableDescriptor(table);
+      final TableDescriptor desc = admin.getDescriptor(table);
 
       final String namespace = HBaseUtils.writeTableNameAsConfigSafe(table.getNamespaceAsString());
       final String qualifier = HBaseUtils.writeTableNameAsConfigSafe(table.getQualifierAsString());
       final TableDescriptorBuilder bldr = TableDescriptorBuilder.newBuilder(desc);
-      removeConfig(new HashMap<>(desc.getConfiguration()), bldr, namespace, qualifier, name);
+      removeConfig(desc.getValues(), bldr, namespace, qualifier, name);
       addConfig(bldr, namespace, qualifier, priority, name, operationClass, newScopes, properties);
-      admin.modifyTable(table, bldr.build());
-      waitForUpdate(admin, table, SLEEP_INTERVAL);
-    } catch (final IOException e) {
+      admin.modifyTableAsync(bldr.build()).get();
+    } catch (final IOException | InterruptedException | ExecutionException e) {
       LOGGER.error("Unable to update server operation", e);
     }
   }

@@ -302,7 +302,7 @@ public class HBaseReader<T> implements RowReader<T> {
       filterList.addFilter(filter);
 
       final List<RowRange> rowRanges = filter.getRowRanges();
-      multiScanner.setStartRow(rowRanges.get(0).getStartRow());
+      multiScanner.withStartRow(rowRanges.get(0).getStartRow());
 
       final RowRange stopRowRange = rowRanges.get(rowRanges.size() - 1);
       byte[] stopRowExclusive;
@@ -313,7 +313,7 @@ public class HBaseReader<T> implements RowReader<T> {
       } else {
         stopRowExclusive = stopRowRange.getStopRow();
       }
-      multiScanner.setStopRow(stopRowExclusive);
+      multiScanner.withStopRow(stopRowExclusive);
     }
     if ((readerParams.getLimit() != null) && (readerParams.getLimit() > 0)) {
       multiScanner.setReadType(ReadType.PREAD);
@@ -380,9 +380,9 @@ public class HBaseReader<T> implements RowReader<T> {
         }
         // Only return the most recent version, unless merging
         if (clientSideRowMerging) {
-          scanner.setMaxVersions(HBaseOperations.MERGING_MAX_VERSIONS);
+          scanner.readVersions(HBaseOperations.MERGING_MAX_VERSIONS);
         } else {
-          scanner.setMaxVersions(HBaseOperations.DEFAULT_MAX_VERSIONS);
+          scanner.readVersions(HBaseOperations.DEFAULT_MAX_VERSIONS);
         }
 
         for (final byte[] family : families) {

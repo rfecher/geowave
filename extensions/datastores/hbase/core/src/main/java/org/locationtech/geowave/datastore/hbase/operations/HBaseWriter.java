@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.hadoop.hbase.client.BufferedMutator;
+import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.RowMutations;
 import org.apache.hadoop.hbase.security.visibility.CellVisibility;
@@ -124,7 +125,7 @@ public class HBaseWriter implements RowWriter {
       }
 
       try {
-        mutation.add(put);
+        mutation.add((Mutation) put);
       } catch (final IOException e) {
         LOGGER.error("Error creating HBase row mutation: " + e.getMessage());
       }
