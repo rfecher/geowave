@@ -75,7 +75,7 @@ public class HBaseOptions extends BaseDataStoreOptions {
   public boolean requiresClientSideMerging() {
     // HBase Observers can time out, the results can be greater than Max PREAD size, or generally
     // greater than size limits
-    
+
     // in which case results may not always be entirely merged at scan time on the server even with
     // serverside libraries and there always must be a fallback to use client-side merging
     return true;
