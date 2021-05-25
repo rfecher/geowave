@@ -62,6 +62,18 @@ public class MiniAccumuloUtils {
     }
   }
 
+  public static Map<String, String> getSiteConfig(final MiniAccumuloConfig config) {
+    try {
+      final Field impl = MiniAccumuloConfig.class.getDeclaredField("impl");
+      impl.setAccessible(true);
+      return (Map<String, String>) impl.getType().getMethod("getSiteConfig").invoke(
+          impl.get(config));
+    } catch (final Exception e) {
+      LOGGER.warn("Unable to getSiteConfig", e);
+    }
+    return null;
+  }
+
   public static Map<String, String> getSystemProperties(final MiniAccumuloConfig config) {
     try {
       final Field impl = MiniAccumuloConfig.class.getDeclaredField("impl");

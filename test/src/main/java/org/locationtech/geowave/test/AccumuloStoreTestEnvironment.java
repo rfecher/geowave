@@ -57,7 +57,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
 
   protected static final String DEFAULT_MINI_ACCUMULO_PASSWORD = "Ge0wave";
   // breaks on windows if temp directory isn't on same drive as project
-  protected static final File TEMP_DIR = new File("./target/accumulo_temp");
+  protected static final File TEMP_DIR = new File("../accumulo2");
   protected String zookeeper;
   protected String accumuloInstance;
   protected String accumuloUser;
@@ -97,6 +97,8 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
             }
           }
           TEMP_DIR.deleteOnExit();
+          accumuloUser = "root";
+          accumuloPassword = DEFAULT_MINI_ACCUMULO_PASSWORD;
           final MiniAccumuloConfig config =
               new MiniAccumuloConfig(TEMP_DIR, DEFAULT_MINI_ACCUMULO_PASSWORD);
           config.setZooKeeperPort(Integer.parseInt(zookeeper.split(":")[1]));
@@ -108,9 +110,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
                   AccumuloStoreTestEnvironment.class);
 
           startMiniAccumulo(config);
-          accumuloUser = "root";
           accumuloInstance = miniAccumulo.getInstanceName();
-          accumuloPassword = DEFAULT_MINI_ACCUMULO_PASSWORD;
         } catch (IOException | InterruptedException e) {
           LOGGER.warn("Unable to start mini accumulo instance", e);
           LOGGER.info(
@@ -146,8 +146,8 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
 
     if (KerberosTestEnvironment.useKerberos()) {
       KerberosTestEnvironment.getInstance().configureMiniAccumulo(config, coreSite);
-      final File siteFile = new File(MiniAccumuloUtils.getConfDir(config), "accumulo-site.xml");
-      writeConfig(siteFile, config.getSiteConfig().entrySet());
+      final File siteFile = new File(MiniAccumuloUtils.getConfDir(config), "accumulo.properties");
+      writeConfig(siteFile, MiniAccumuloUtils.getSiteConfig(config).entrySet());
       // Write out any configuration items to a file so HDFS will pick them up automatically (from
       // the classpath)
       if (coreSite.size() > 0) {
@@ -202,19 +202,12 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
   private void writeConfig(final File file, final Iterable<Map.Entry<String, String>> settings)
       throws IOException {
     try (FileWriter fileWriter = new FileWriter(file)) {
-      fileWriter.append("<configuration>\n");
-
       for (final Map.Entry<String, String> entry : settings) {
         final String value =
             entry.getValue().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-        fileWriter.append(
-            "<property><name>"
-                + entry.getKey()
-                + "</name><value>"
-                + value
-                + "</value></property>\n");
+        fileWriter.append(entry.getKey() + "=" + value + "\n");
       }
-      fileWriter.append("</configuration>\n");
+      fileWriter.append("instance.secret=" + getAccumuloPassword());
     }
   }
 
