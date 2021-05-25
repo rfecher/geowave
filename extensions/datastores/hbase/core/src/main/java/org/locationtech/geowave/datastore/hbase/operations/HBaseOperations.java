@@ -139,7 +139,6 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
   private boolean iteratorsAttached;
   protected static final String DEFAULT_TABLE_NAMESPACE = "";
   public static final Object ADMIN_MUTEX = new Object();
-  private static final long SLEEP_INTERVAL = HConstants.DEFAULT_HBASE_SERVER_PAUSE;
   private static final String SPLIT_STRING = Pattern.quote(".");
   private static final int MAX_AGGREGATE_RETRIES = 3;
   private static final int DELETE_BATCH_SIZE = 1000000;

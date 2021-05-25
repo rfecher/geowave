@@ -439,7 +439,12 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
 
     @Override
     public void copyTo(final DataStore other) {
-      delegate.copyTo(other);
+      if (other instanceof DataStoreWrapper) {
+        // unwrap because there is special logic using BaseDataStore
+        delegate.copyTo(((DataStoreWrapper) other).delegate);
+      } else {
+        delegate.copyTo(other);
+      }
     }
 
     @Override
