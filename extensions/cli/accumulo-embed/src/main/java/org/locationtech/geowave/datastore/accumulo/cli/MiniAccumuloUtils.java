@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
-import org.apache.accumulo.miniclusterImpl.MiniAccumuloClusterImpl.ProcessInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,8 +155,9 @@ public class MiniAccumuloUtils {
               args);
       if (obj instanceof Process) {
         return (Process) obj;
-      } else if (obj instanceof ProcessInfo) {
-        return ((ProcessInfo) obj).getProcess();
+      } else if (obj.getClass().getName().equals(
+          "org.apache.accumulo.miniclusterImpl.MiniAccumuloClusterImpl.ProcessInfo")) {
+        return (Process) obj.getClass().getMethod("getProcess").invoke(obj);
       }
     } catch (final Exception e) {
       LOGGER.warn("Unable start process for " + clazz, e);

@@ -701,8 +701,8 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
 
               bldr.setCoprocessor(
                   CoprocessorDescriptorBuilder.newBuilder(coprocessorName).setJarPath(
-                      hdfsJarPath == null ? null : hdfsJarPath.toString()).setPriority(
-                          Coprocessor.PRIORITY_USER).setProperties(Collections.emptyMap()).build());
+                      hdfsJarPath.toString()).setPriority(Coprocessor.PRIORITY_USER).setProperties(
+                          Collections.emptyMap()).build());
             }
             LOGGER.debug("- modify table...");
             // this is non-blocking because we will block on enabling the table next

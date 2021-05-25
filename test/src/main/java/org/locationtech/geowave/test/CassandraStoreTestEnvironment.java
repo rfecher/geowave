@@ -14,6 +14,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.cassandra.tools.INodeProbeFactory;
+import org.apache.cassandra.tools.NodeProbe;
+import org.apache.cassandra.tools.NodeTool;
+import org.apache.cassandra.tools.Output;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.geowave.core.index.ByteArray;
@@ -76,7 +80,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
   }
 
   private boolean running = false;
-  CassandraServer s = new CassandraServer();
+  CassandraServer s;
 
   private CassandraStoreTestEnvironment() {}
 
@@ -116,6 +120,8 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
       if (!TEMP_DIR.mkdirs()) {
         LOGGER.warn("Unable to create temporary cassandra directory");
       }
+      System.setProperty("cassandra.jmx.local.port", "7199");
+      s = new CassandraServer();
       s.start();
       running = true;
     }
@@ -170,7 +176,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     return new DataStorePluginOptionsWrapper(super.getDataStoreOptions(store, profileOptions));
   }
 
-  private class DataStorePluginOptionsWrapper extends DataStorePluginOptions {
+  private static class DataStorePluginOptionsWrapper extends DataStorePluginOptions {
     DataStorePluginOptions delegate;
 
     public DataStorePluginOptionsWrapper(final DataStorePluginOptions delegate) {
@@ -278,7 +284,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
       return delegate.toString();
     }
   }
-  private class DataStoreWrapper implements DataStore {
+  private static class DataStoreWrapper implements DataStore {
     DataStore delegate;
 
 
@@ -481,16 +487,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     @Override
     public void deleteAll() {
       delegate.deleteAll();
-      s.stop();
-      try {
-        for (final File dataDir : DATA_DIR.listFiles(
-            f -> f.isDirectory() && !f.getName().toLowerCase().contains("system"))) {
-          FileUtils.deleteDirectory(dataDir);
-        }
-      } catch (final IOException e) {
-        LOGGER.warn("Unable to delete cassandra data directory", e);
-      }
-      s.start();
+      new NodeTool(new NodeProbeFactory(), Output.CONSOLE).execute("compact");
     }
 
     @Override
@@ -511,6 +508,22 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     @Override
     public <T> Writer<T> createWriter(final String typeName) {
       return delegate.createWriter(typeName);
+    }
+  }
+  public static class NodeProbeFactory implements INodeProbeFactory {
+
+    @Override
+    public NodeProbe create(final String host, final int port) throws IOException {
+      return new NodeProbe(host, port);
+    }
+
+    @Override
+    public NodeProbe create(
+        final String host,
+        final int port,
+        final String username,
+        final String password) throws IOException {
+      return new NodeProbe(host, port, username, password);
     }
   }
 }

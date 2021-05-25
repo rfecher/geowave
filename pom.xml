@@ -1397,31 +1397,7 @@
 			<id>compatibility</id>
 			<properties>
 				<accumulo.version>1.9.2</accumulo.version>
-				<hadoop.version>2.6.4</hadoop.version>
 			</properties>
-		</profile>
-		<profile>
-			<id>ignore-kerberos-it</id>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-compiler-plugin</artifactId>
-							<configuration>
-								<excludes>
-									<exclude>
-										**/org/locationtech/geowave/test/kerberos/KerberosTestingUtil.java
-									</exclude>
-									<exclude>
-										**/META-INF/services/org.locationtech.geowave.test.kerberos.KerberosTestingUtilSpi
-									</exclude>
-								</excludes>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
 		</profile>
 		<profile>
 			<id>doclint-java8-disable</id>

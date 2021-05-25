@@ -33,16 +33,16 @@ public class BigTableOperations extends HBaseOperations {
 
   // max versions on bigtable throws an NPE with a fix provided on April 14, 2021, not currently
   // in a release though
-//  @SuppressWarnings("unchecked")
-//  public static final Pair<GeoWaveColumnFamily, Boolean>[] METADATA_CFS_VERSIONING =
-//      new Pair[] {
-//          ImmutablePair.of(new StringColumnFamily(MetadataType.AIM.id()), true),
-//          ImmutablePair.of(new StringColumnFamily(MetadataType.ADAPTER.id()), true),
-//          ImmutablePair.of(new StringColumnFamily(MetadataType.STATISTICS.id()), true),
-//          ImmutablePair.of(new StringColumnFamily(MetadataType.STATISTIC_VALUES.id()), true),
-//          ImmutablePair.of(new StringColumnFamily(MetadataType.LEGACY_STATISTICS.id()), true),
-//          ImmutablePair.of(new StringColumnFamily(MetadataType.INDEX.id()), true),
-//          ImmutablePair.of(new StringColumnFamily(MetadataType.INTERNAL_ADAPTER.id()), true),};
+  // @SuppressWarnings("unchecked")
+  // public static final Pair<GeoWaveColumnFamily, Boolean>[] METADATA_CFS_VERSIONING =
+  // new Pair[] {
+  // ImmutablePair.of(new StringColumnFamily(MetadataType.AIM.id()), true),
+  // ImmutablePair.of(new StringColumnFamily(MetadataType.ADAPTER.id()), true),
+  // ImmutablePair.of(new StringColumnFamily(MetadataType.STATISTICS.id()), true),
+  // ImmutablePair.of(new StringColumnFamily(MetadataType.STATISTIC_VALUES.id()), true),
+  // ImmutablePair.of(new StringColumnFamily(MetadataType.LEGACY_STATISTICS.id()), true),
+  // ImmutablePair.of(new StringColumnFamily(MetadataType.INDEX.id()), true),
+  // ImmutablePair.of(new StringColumnFamily(MetadataType.INTERNAL_ADAPTER.id()), true),};
 
   private final HashSet<String> tableCache = Sets.newHashSet();
 
@@ -55,56 +55,56 @@ public class BigTableOperations extends HBaseOperations {
         options.getHBaseOptions());
   }
 
-//  @Override
-//  public boolean verifyColumnFamily(
-//      final short columnFamily,
-//      final boolean enableVersioning,
-//      final String tableNameStr,
-//      final boolean addIfNotExist) {
-//    // max versions on bigtable throws an NPE with a fix provided on April 14, 2021, not currently
-//    // in a release though
-//    return super.verifyColumnFamily(columnFamily, true, tableNameStr, addIfNotExist);
-//  }
+  // @Override
+  // public boolean verifyColumnFamily(
+  // final short columnFamily,
+  // final boolean enableVersioning,
+  // final String tableNameStr,
+  // final boolean addIfNotExist) {
+  // // max versions on bigtable throws an NPE with a fix provided on April 14, 2021, not currently
+  // // in a release though
+  // return super.verifyColumnFamily(columnFamily, true, tableNameStr, addIfNotExist);
+  // }
 
-//  @Override
-//  protected boolean verifyColumnFamilies(
-//      final GeoWaveColumnFamily[] columnFamilies,
-//      final GeoWaveColumnFamilyFactory columnFamilyFactory,
-//      final boolean enableVersioning,
-//      final TableName tableName,
-//      final boolean addIfNotExist) throws IOException {
-//    // TODO Auto-generated method stub
-//    return super.verifyColumnFamilies(
-//        columnFamilies,
-//        columnFamilyFactory,
-//        true,
-//        tableName,
-//        addIfNotExist);
-//  }
-//
-//  @Override
-//  protected void createTable(
-//      final byte[][] preSplits,
-//      final GeoWaveColumnFamily[] columnFamilies,
-//      final GeoWaveColumnFamilyFactory columnFamilyFactory,
-//      final boolean enableVersioning,
-//      final TableName tableName) throws IOException {
-//    super.createTable(preSplits, columnFamilies, columnFamilyFactory, true, tableName);
-//  }
-//
-//  @Override
-//  public void createTable(
-//      final byte[][] preSplits,
-//      final String indexName,
-//      final boolean enableVersioning,
-//      final short internalAdapterId) {
-//    super.createTable(preSplits, indexName, true, internalAdapterId);
-//  }
-//
-//  @Override
-//  protected Pair<GeoWaveColumnFamily, Boolean>[] getMetadataCFAndVersioning() {
-//    return METADATA_CFS_VERSIONING;
-//  }
+  // @Override
+  // protected boolean verifyColumnFamilies(
+  // final GeoWaveColumnFamily[] columnFamilies,
+  // final GeoWaveColumnFamilyFactory columnFamilyFactory,
+  // final boolean enableVersioning,
+  // final TableName tableName,
+  // final boolean addIfNotExist) throws IOException {
+  // // TODO Auto-generated method stub
+  // return super.verifyColumnFamilies(
+  // columnFamilies,
+  // columnFamilyFactory,
+  // true,
+  // tableName,
+  // addIfNotExist);
+  // }
+  //
+  // @Override
+  // protected void createTable(
+  // final byte[][] preSplits,
+  // final GeoWaveColumnFamily[] columnFamilies,
+  // final GeoWaveColumnFamilyFactory columnFamilyFactory,
+  // final boolean enableVersioning,
+  // final TableName tableName) throws IOException {
+  // super.createTable(preSplits, columnFamilies, columnFamilyFactory, true, tableName);
+  // }
+  //
+  // @Override
+  // public void createTable(
+  // final byte[][] preSplits,
+  // final String indexName,
+  // final boolean enableVersioning,
+  // final short internalAdapterId) {
+  // super.createTable(preSplits, indexName, true, internalAdapterId);
+  // }
+  //
+  // @Override
+  // protected Pair<GeoWaveColumnFamily, Boolean>[] getMetadataCFAndVersioning() {
+  // return METADATA_CFS_VERSIONING;
+  // }
 
   @Override
   protected int getMaxVersions() {
