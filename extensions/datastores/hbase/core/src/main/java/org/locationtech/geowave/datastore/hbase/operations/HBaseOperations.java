@@ -263,7 +263,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
             final ColumnFamilyDescriptorBuilder column =
                 columnFamilyAndVersioning.getLeft().toColumnDescriptor();
             if (!columnFamilyAndVersioning.getRight()) {
-              column.setMaxVersions(Integer.MAX_VALUE);
+              column.setMaxVersions(getMaxVersions());
             }
             desc.setColumnFamily(column.build());
 
@@ -287,6 +287,10 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
         }
       }
     }
+  }
+
+  protected int getMaxVersions() {
+    return Integer.MAX_VALUE;
   }
 
   protected void createTable(
@@ -379,7 +383,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
             for (final GeoWaveColumnFamily newColumnFamily : newColumnFamilies) {
               final ColumnFamilyDescriptorBuilder column = newColumnFamily.toColumnDescriptor();
               if (!enableVersioning) {
-                column.setMaxVersions(Integer.MAX_VALUE);
+                column.setMaxVersions(getMaxVersions());
               }
               admin.addColumnFamily(tableName, column.build());
               cfCacheSet.add(newColumnFamily);

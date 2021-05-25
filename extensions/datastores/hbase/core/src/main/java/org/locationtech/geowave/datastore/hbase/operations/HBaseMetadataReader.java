@@ -86,7 +86,7 @@ public class HBaseMetadataReader implements MetadataReader {
             scanner.withStartRow(query.getPrimaryId()).withStopRow(
                 ByteArrayUtils.getNextPrefix(query.getPrimaryId()));
           } else {
-            scanner.withStartRow(query.getPrimaryId()).withStopRow(query.getPrimaryId());
+            scanner.withStartRow(query.getPrimaryId()).withStopRow(query.getPrimaryId(), true);
           }
         }
       }
