@@ -58,7 +58,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
 
   protected static final String DEFAULT_MINI_ACCUMULO_PASSWORD = "Ge0wave";
   // breaks on windows if temp directory isn't on same drive as project
-  protected static final File TEMP_DIR = new File("./target/accumulo_temp");
+  protected static final File TEMP_DIR = new File("../accumulo_temp");
   protected String zookeeper;
   protected String accumuloInstance;
   protected String accumuloUser;
@@ -141,7 +141,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
       }
     });
     final Configuration coreSite = new Configuration(false);
-    final Map<String, String> siteConfig = config.getSiteConfig();
+    final Map<String, String> siteConfig = MiniAccumuloUtils.getSiteConfig(config);
     siteConfig.put(Property.INSTANCE_ZK_HOST.getKey(), zookeeper);
     config.setSiteConfig(siteConfig);
 
@@ -223,7 +223,6 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
             entry.getValue().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
         fileWriter.append(entry.getKey() + "=" + value + "\n");
       }
-      fileWriter.append("instance.secret=" + getAccumuloPassword());
     }
   }
 
