@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import org.apache.accumulo.cluster.ClusterUser;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.gc.SimpleGarbageCollector;
@@ -57,7 +58,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
 
   protected static final String DEFAULT_MINI_ACCUMULO_PASSWORD = "Ge0wave";
   // breaks on windows if temp directory isn't on same drive as project
-  protected static final File TEMP_DIR = new File("../accumulo2");
+  protected static final File TEMP_DIR = new File("./target/accumulo_temp");
   protected String zookeeper;
   protected String accumuloInstance;
   protected String accumuloUser;
@@ -176,6 +177,21 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
 
     final int ret = initProcess.waitFor();
     if (ret != 0) {
+      for (final File fileEntry : MiniAccumuloUtils.getLogDir(config).listFiles()) {
+        LOGGER.warn("Contents of " + fileEntry.getName());
+        try {
+          final Scanner sc = new Scanner(fileEntry);
+
+          while (sc.hasNextLine()) {
+            final String s = sc.nextLine();
+            LOGGER.warn(s);
+          }
+
+          sc.close();
+        } catch (final Exception e) {
+          LOGGER.warn("Unable to read log file", e);
+        }
+      }
       throw new RuntimeException(
           "Initialize process returned "
               + ret
