@@ -170,7 +170,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     return new DataStorePluginOptionsWrapper(super.getDataStoreOptions(store, profileOptions));
   }
 
-  private static class DataStorePluginOptionsWrapper extends DataStorePluginOptions {
+  private class DataStorePluginOptionsWrapper extends DataStorePluginOptions {
     DataStorePluginOptions delegate;
 
     public DataStorePluginOptionsWrapper(final DataStorePluginOptions delegate) {
@@ -278,7 +278,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
       return delegate.toString();
     }
   }
-  private static class DataStoreWrapper implements DataStore {
+  private class DataStoreWrapper implements DataStore {
     DataStore delegate;
 
 
@@ -481,6 +481,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     @Override
     public void deleteAll() {
       delegate.deleteAll();
+      s.stop();
       try {
         for (final File dataDir : DATA_DIR.listFiles(
             f -> f.isDirectory() && !f.getName().toLowerCase().contains("system"))) {
@@ -489,6 +490,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
       } catch (final IOException e) {
         LOGGER.warn("Unable to delete cassandra data directory", e);
       }
+      s.start();
     }
 
     @Override
