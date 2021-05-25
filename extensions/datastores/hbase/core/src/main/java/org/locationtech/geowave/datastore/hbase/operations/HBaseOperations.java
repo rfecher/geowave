@@ -877,7 +877,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     try {
       createTable(
           new byte[0][],
-          METADATA_CFS_VERSIONING,
+          getMetadataCFAndVersioning(),
           StringColumnFamilyFactory.getSingletonInstance(),
           tableName);
       if (metadataType.isStatValues() && options.isServerSideLibraryEnabled()) {
