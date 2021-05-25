@@ -11,6 +11,8 @@ package org.locationtech.geowave.datastore.bigtable.operations;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.RegionLocator;
@@ -22,11 +24,26 @@ import org.locationtech.geowave.datastore.bigtable.BigTableConnectionPool;
 import org.locationtech.geowave.datastore.bigtable.config.BigTableOptions;
 import org.locationtech.geowave.datastore.hbase.operations.GeoWaveColumnFamily;
 import org.locationtech.geowave.datastore.hbase.operations.GeoWaveColumnFamily.GeoWaveColumnFamilyFactory;
+import org.locationtech.geowave.datastore.hbase.operations.GeoWaveColumnFamily.StringColumnFamily;
 import org.locationtech.geowave.datastore.hbase.operations.HBaseOperations;
 import com.google.cloud.bigtable.hbase.BigtableRegionLocator;
 import com.google.common.collect.Sets;
 
 public class BigTableOperations extends HBaseOperations {
+
+  // max versions on bigtable throws an NPE with a fix provided on April 14, 2021, not currently
+  // in a release though
+  @SuppressWarnings("unchecked")
+  public static final Pair<GeoWaveColumnFamily, Boolean>[] METADATA_CFS_VERSIONING =
+      new Pair[] {
+          ImmutablePair.of(new StringColumnFamily(MetadataType.AIM.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.ADAPTER.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.STATISTICS.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.STATISTIC_VALUES.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.LEGACY_STATISTICS.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.INDEX.id()), true),
+          ImmutablePair.of(new StringColumnFamily(MetadataType.INTERNAL_ADAPTER.id()), true),};
+
   private final HashSet<String> tableCache = Sets.newHashSet();
 
   public BigTableOperations(final BigTableOptions options) throws IOException {
@@ -63,6 +80,11 @@ public class BigTableOperations extends HBaseOperations {
         true,
         tableName,
         addIfNotExist);
+  }
+
+  @Override
+  protected Pair<GeoWaveColumnFamily, Boolean>[] getMetadataCFAndVersioning() {
+    return METADATA_CFS_VERSIONING;
   }
 
   @Override

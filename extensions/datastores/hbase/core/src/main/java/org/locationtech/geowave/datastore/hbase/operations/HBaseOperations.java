@@ -1473,6 +1473,11 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
     }
   }
 
+
+  protected Pair<GeoWaveColumnFamily, Boolean>[] getMetadataCFAndVersioning() {
+    return HBaseOperations.METADATA_CFS_VERSIONING;
+  }
+
   @Override
   public String getVersion() {
     String version = null;
@@ -1489,7 +1494,7 @@ public class HBaseOperations implements MapReduceDataStoreOperations, ServerSide
       if (!indexExists(tableName)) {
         createTable(
             new byte[0][],
-            HBaseOperations.METADATA_CFS_VERSIONING,
+            getMetadataCFAndVersioning(),
             StringColumnFamilyFactory.getSingletonInstance(),
             getTableName(getQualifiedTableName(tableName)));
       }
