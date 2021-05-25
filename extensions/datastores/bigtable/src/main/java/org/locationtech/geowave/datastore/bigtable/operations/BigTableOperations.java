@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
@@ -19,6 +20,8 @@ import org.locationtech.geowave.core.store.metadata.AbstractGeoWavePersistence;
 import org.locationtech.geowave.core.store.operations.MetadataType;
 import org.locationtech.geowave.datastore.bigtable.BigTableConnectionPool;
 import org.locationtech.geowave.datastore.bigtable.config.BigTableOptions;
+import org.locationtech.geowave.datastore.hbase.operations.GeoWaveColumnFamily;
+import org.locationtech.geowave.datastore.hbase.operations.GeoWaveColumnFamily.GeoWaveColumnFamilyFactory;
 import org.locationtech.geowave.datastore.hbase.operations.HBaseOperations;
 import com.google.cloud.bigtable.hbase.BigtableRegionLocator;
 import com.google.common.collect.Sets;
@@ -33,6 +36,33 @@ public class BigTableOperations extends HBaseOperations {
             options.getInstanceId()),
         options.getGeoWaveNamespace(),
         options.getHBaseOptions());
+  }
+
+  @Override
+  public boolean verifyColumnFamily(
+      final short columnFamily,
+      final boolean enableVersioning,
+      final String tableNameStr,
+      final boolean addIfNotExist) {
+    // max versions on bigtable throws an NPE with a fix provided on April 14, 2021, not currently
+    // in a release though
+    return super.verifyColumnFamily(columnFamily, true, tableNameStr, addIfNotExist);
+  }
+
+  @Override
+  protected boolean verifyColumnFamilies(
+      final GeoWaveColumnFamily[] columnFamilies,
+      final GeoWaveColumnFamilyFactory columnFamilyFactory,
+      final boolean enableVersioning,
+      final TableName tableName,
+      final boolean addIfNotExist) throws IOException {
+    // TODO Auto-generated method stub
+    return super.verifyColumnFamilies(
+        columnFamilies,
+        columnFamilyFactory,
+        true,
+        tableName,
+        addIfNotExist);
   }
 
   @Override
