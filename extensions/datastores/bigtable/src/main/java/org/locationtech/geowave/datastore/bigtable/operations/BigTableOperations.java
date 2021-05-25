@@ -83,6 +83,25 @@ public class BigTableOperations extends HBaseOperations {
   }
 
   @Override
+  protected void createTable(
+      final byte[][] preSplits,
+      final GeoWaveColumnFamily[] columnFamilies,
+      final GeoWaveColumnFamilyFactory columnFamilyFactory,
+      final boolean enableVersioning,
+      final TableName tableName) throws IOException {
+    super.createTable(preSplits, columnFamilies, columnFamilyFactory, true, tableName);
+  }
+
+  @Override
+  public void createTable(
+      final byte[][] preSplits,
+      final String indexName,
+      final boolean enableVersioning,
+      final short internalAdapterId) {
+    super.createTable(preSplits, indexName, true, internalAdapterId);
+  }
+
+  @Override
   protected Pair<GeoWaveColumnFamily, Boolean>[] getMetadataCFAndVersioning() {
     return METADATA_CFS_VERSIONING;
   }
