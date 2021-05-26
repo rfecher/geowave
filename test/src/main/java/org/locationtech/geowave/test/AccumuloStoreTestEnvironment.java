@@ -126,6 +126,9 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
     }
   }
 
+  @SuppressFBWarnings(
+      value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
+      justification = "Spotbugs is failing with this bug which is a false positive and ironically an identified bug in spotbugs")
   private void startMiniAccumulo(final MiniAccumuloConfig config)
       throws IOException, InterruptedException {
 
@@ -178,27 +181,28 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
 
     final int ret = initProcess.waitFor();
     if (ret != 0) {
-      for (final File fileEntry : MiniAccumuloUtils.getLogDir(config).listFiles()) {
-        LOGGER.warn("Contents of " + fileEntry.getName());
-        try {
-          final Scanner sc = new Scanner(fileEntry);
-
-          while (sc.hasNextLine()) {
-            final String s = sc.nextLine();
-            LOGGER.warn(s);
+      final File logDir = MiniAccumuloUtils.getLogDir(config);
+      if (logDir != null) {
+        for (final File fileEntry : logDir.listFiles()) {
+          LOGGER.warn("Contents of " + fileEntry.getName());
+          try (final Scanner sc = new Scanner(fileEntry, "UTF-8")) {
+            while (sc.hasNextLine()) {
+              final String s = sc.nextLine();
+              LOGGER.warn(s);
+            }
+          } catch (final Exception e) {
+            LOGGER.warn("Unable to read log file", e);
           }
-
-          sc.close();
-        } catch (final Exception e) {
-          LOGGER.warn("Unable to read log file", e);
         }
+        throw new RuntimeException(
+            "Initialize process returned "
+                + ret
+                + ". Check the logs in "
+                + logDir
+                + " for errors.");
       }
       throw new RuntimeException(
-          "Initialize process returned "
-              + ret
-              + ". Check the logs in "
-              + MiniAccumuloUtils.getLogDir(config)
-              + " for errors.");
+          "Initialize process returned " + ret + ". Cannot find log directory.");
     }
 
     LOGGER.info(

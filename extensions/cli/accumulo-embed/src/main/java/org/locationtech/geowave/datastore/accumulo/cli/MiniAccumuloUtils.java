@@ -155,8 +155,10 @@ public class MiniAccumuloUtils {
               args);
       if (obj instanceof Process) {
         return (Process) obj;
-      } else if (obj.getClass().getName().equals(
-          "org.apache.accumulo.miniclusterImpl.MiniAccumuloClusterImpl.ProcessInfo")) {
+      } else {
+//        if (obj.getClass().getName().equals(
+//          "org.apache.accumulo.miniclusterImpl.MiniAccumuloClusterImpl.ProcessInfo")) {
+        System.err.println(obj.getClass().getName());
         return (Process) obj.getClass().getMethod("getProcess").invoke(obj);
       }
     } catch (final Exception e) {
