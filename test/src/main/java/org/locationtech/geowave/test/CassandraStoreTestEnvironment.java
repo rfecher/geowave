@@ -10,7 +10,7 @@ package org.locationtech.geowave.test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -20,6 +20,12 @@ import org.apache.cassandra.tools.NodeTool;
 import org.apache.cassandra.tools.Output;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.locationtech.geowave.core.index.ByteArray;
 import org.locationtech.geowave.core.index.persist.Persistable;
 import org.locationtech.geowave.core.store.CloseableIterator;
@@ -29,6 +35,7 @@ import org.locationtech.geowave.core.store.StoreFactoryOptions;
 import org.locationtech.geowave.core.store.adapter.AdapterIndexMappingStore;
 import org.locationtech.geowave.core.store.adapter.InternalAdapterStore;
 import org.locationtech.geowave.core.store.adapter.PersistentAdapterStore;
+import org.locationtech.geowave.core.store.adapter.TransientAdapterStore;
 import org.locationtech.geowave.core.store.api.AggregationQuery;
 import org.locationtech.geowave.core.store.api.BinConstraints;
 import org.locationtech.geowave.core.store.api.DataStore;
@@ -46,12 +53,19 @@ import org.locationtech.geowave.core.store.api.Writer;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.core.store.operations.DataStoreOperations;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
+import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
+import org.locationtech.geowave.core.store.query.options.DataTypeQueryOptions;
+import org.locationtech.geowave.core.store.query.options.IndexQueryOptions;
 import org.locationtech.geowave.core.store.statistics.DataStatisticsStore;
 import org.locationtech.geowave.core.store.statistics.StatisticType;
 import org.locationtech.geowave.datastore.cassandra.CassandraStoreFactoryFamily;
 import org.locationtech.geowave.datastore.cassandra.cli.CassandraServer;
 import org.locationtech.geowave.datastore.cassandra.config.CassandraOptions;
 import org.locationtech.geowave.datastore.cassandra.config.CassandraRequiredOptions;
+import org.locationtech.geowave.mapreduce.MapReduceDataStore;
+import org.locationtech.geowave.mapreduce.input.GeoWaveInputKey;
+import org.locationtech.geowave.mapreduce.output.GeoWaveOutputKey;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
 import org.slf4j.Logger;
@@ -92,13 +106,15 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     cassandraOpts.getAdditionalOptions().setGcGraceSeconds(0);
 
     try {
-      cassandraOpts.getAdditionalOptions().setTableOptions(
-          Collections.singletonMap(
-              "compaction",
-              new ObjectMapper().writeValueAsString(
-                  SchemaBuilder.sizeTieredCompactionStrategy().withMinSSTableSizeInBytes(
-                      500000L).withMinThreshold(2).withUncheckedTombstoneCompaction(
-                          true).getOptions())));
+      final Map<String, String> tableOptions = new HashMap<>();
+      tableOptions.put(
+          "compaction",
+          new ObjectMapper().writeValueAsString(
+              SchemaBuilder.sizeTieredCompactionStrategy().withMinSSTableSizeInBytes(
+                  500000L).withMinThreshold(2).withUncheckedTombstoneCompaction(
+                      true).getOptions()));
+      tableOptions.put("gc_grace_seconds", new ObjectMapper().writeValueAsString(0));
+      cassandraOpts.getAdditionalOptions().setTableOptions(tableOptions);
     } catch (final JsonProcessingException e) {
       throw new RuntimeException(e);
     }
@@ -231,7 +247,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
 
     @Override
     public DataStore createDataStore() {
-      return new DataStoreWrapper(delegate.createDataStore());
+      return new DataStoreWrapper((MapReduceDataStore) delegate.createDataStore());
     }
 
     @Override
@@ -284,11 +300,11 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
       return delegate.toString();
     }
   }
-  private static class DataStoreWrapper implements DataStore {
-    DataStore delegate;
+  private static class DataStoreWrapper implements MapReduceDataStore {
+    MapReduceDataStore delegate;
 
 
-    public DataStoreWrapper(final DataStore delegate) {
+    public DataStoreWrapper(final MapReduceDataStore delegate) {
       super();
       this.delegate = delegate;
     }
@@ -508,6 +524,75 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     @Override
     public <T> Writer<T> createWriter(final String typeName) {
       return delegate.createWriter(typeName);
+    }
+
+    @Override
+    public RecordReader<GeoWaveInputKey, ?> createRecordReader(
+        final CommonQueryOptions commonOptions,
+        final DataTypeQueryOptions<?> typeOptions,
+        final IndexQueryOptions indexOptions,
+        final QueryConstraints constraints,
+        final TransientAdapterStore adapterStore,
+        final InternalAdapterStore internalAdapterStore,
+        final AdapterIndexMappingStore aimStore,
+        final DataStatisticsStore statsStore,
+        final IndexStore indexStore,
+        final boolean isOutputWritable,
+        final InputSplit inputSplit) throws IOException, InterruptedException {
+      return delegate.createRecordReader(
+          commonOptions,
+          typeOptions,
+          indexOptions,
+          constraints,
+          adapterStore,
+          internalAdapterStore,
+          aimStore,
+          statsStore,
+          indexStore,
+          isOutputWritable,
+          inputSplit);
+    }
+
+    @Override
+    public List<InputSplit> getSplits(
+        final CommonQueryOptions commonOptions,
+        final DataTypeQueryOptions<?> typeOptions,
+        final IndexQueryOptions indexOptions,
+        final QueryConstraints constraints,
+        final TransientAdapterStore adapterStore,
+        final AdapterIndexMappingStore aimStore,
+        final DataStatisticsStore statsStore,
+        final InternalAdapterStore internalAdapterStore,
+        final IndexStore indexStore,
+        final JobContext context,
+        final Integer minSplits,
+        final Integer maxSplits) throws IOException, InterruptedException {
+      return delegate.getSplits(
+          commonOptions,
+          typeOptions,
+          indexOptions,
+          constraints,
+          adapterStore,
+          aimStore,
+          statsStore,
+          internalAdapterStore,
+          indexStore,
+          context,
+          minSplits,
+          maxSplits);
+    }
+
+    @Override
+    public RecordWriter<GeoWaveOutputKey<Object>, Object> createRecordWriter(
+        final TaskAttemptContext context,
+        final IndexStore jobContextIndexStore,
+        final TransientAdapterStore jobContextAdapterStore) {
+      return delegate.createRecordWriter(context, jobContextIndexStore, jobContextAdapterStore);
+    }
+
+    @Override
+    public void prepareRecordWriter(final Configuration conf) {
+      delegate.prepareRecordWriter(conf);
     }
   }
   public static class NodeProbeFactory implements INodeProbeFactory {
