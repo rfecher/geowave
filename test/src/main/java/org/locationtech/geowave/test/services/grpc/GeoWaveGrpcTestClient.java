@@ -141,7 +141,7 @@ public class GeoWaveGrpcTestClient {
   public GeoWaveGrpcTestClient(final String host, final int port) {
     this(
         NettyChannelBuilder.forAddress(host, port).nameResolverFactory(
-            new DnsNameResolverProvider()).usePlaintext(true));
+            new DnsNameResolverProvider()).usePlaintext());
   }
 
   public GeoWaveGrpcTestClient(final NettyChannelBuilder channelBuilder) {
