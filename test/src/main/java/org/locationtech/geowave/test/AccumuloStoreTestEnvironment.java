@@ -146,10 +146,11 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
     final Configuration coreSite = new Configuration(false);
     final Map<String, String> siteConfig = MiniAccumuloUtils.getSiteConfig(config);
     siteConfig.put(Property.INSTANCE_ZK_HOST.getKey(), zookeeper);
-    siteConfig.put(Property.INSTANCE_SECRET.getKey(), accumuloPassword);
     config.setSiteConfig(siteConfig);
 
     if (KerberosTestEnvironment.useKerberos()) {
+      siteConfig.put(Property.INSTANCE_ZK_TIMEOUT.getKey(), "15s");
+      siteConfig.put(Property.INSTANCE_SECRET.getKey(), accumuloPassword);
       KerberosTestEnvironment.getInstance().configureMiniAccumulo(config, coreSite);
       final File siteFile = new File(MiniAccumuloUtils.getConfDir(config), "accumulo.properties");
       writeConfig(siteFile, MiniAccumuloUtils.getSiteConfig(config).entrySet());

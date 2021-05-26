@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import org.apache.accumulo.core.conf.ClientProperty;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
@@ -42,6 +43,22 @@ public class MiniAccumuloUtils {
           rootUserName);
     } catch (final Exception e) {
       LOGGER.warn("Unable to setRootUserName", e);
+    }
+  }
+
+  public static void setClientProperty(
+      final MiniAccumuloConfig config,
+      final ClientProperty property,
+      final String value) {
+    try {
+      final Field impl = MiniAccumuloConfig.class.getDeclaredField("impl");
+      impl.setAccessible(true);
+      impl.getType().getMethod("setClientProperty", ClientProperty.class, String.class).invoke(
+          impl.get(config),
+          property,
+          value);
+    } catch (final Exception e) {
+      LOGGER.warn("Unable to setClientProperty", e);
     }
   }
 
@@ -156,9 +173,6 @@ public class MiniAccumuloUtils {
       if (obj instanceof Process) {
         return (Process) obj;
       } else {
-        // if (obj.getClass().getName().equals(
-        // "org.apache.accumulo.miniclusterImpl.MiniAccumuloClusterImpl.ProcessInfo")) {
-        System.err.println(obj.getClass().getName());
         return (Process) obj.getClass().getMethod("getProcess").invoke(obj);
       }
     } catch (final Exception e) {
