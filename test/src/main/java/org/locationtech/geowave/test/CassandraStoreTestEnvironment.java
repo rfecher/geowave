@@ -136,7 +136,7 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
       if (!TEMP_DIR.mkdirs()) {
         LOGGER.warn("Unable to create temporary cassandra directory");
       }
-      System.setProperty("cassandra.jmx.local.port", "7199");
+      // System.setProperty("cassandra.jmx.local.port", "7199");
       s = new CassandraServer();
       s.start();
       running = true;
@@ -182,15 +182,16 @@ public class CassandraStoreTestEnvironment extends StoreTestEnvironment {
     return 64 * 1024;
   }
 
-  @Override
-  public DataStorePluginOptions getDataStoreOptions(
-      final GeoWaveTestStore store,
-      final String[] profileOptions) {
-    // because Cassandra leaves tombstone rows around (even when dropping the entire keyspace, which
-    // seems to make little sense), we need to setup this delegation so that we can trigger manual
-    // file system cleanup on "deleteAll" when the keyspace is dropped anyways
-    return new DataStorePluginOptionsWrapper(super.getDataStoreOptions(store, profileOptions));
-  }
+  // @Override
+  // public DataStorePluginOptions getDataStoreOptions(
+  // final GeoWaveTestStore store,
+  // final String[] profileOptions) {
+  // // because Cassandra leaves tombstone rows around (even when dropping the entire keyspace,
+  // which
+  // // seems to make little sense), we need to setup this delegation so that we can trigger manual
+  // // file system cleanup on "deleteAll" when the keyspace is dropped anyways
+  // return new DataStorePluginOptionsWrapper(super.getDataStoreOptions(store, profileOptions));
+  // }
 
   private static class DataStorePluginOptionsWrapper extends DataStorePluginOptions {
     DataStorePluginOptions delegate;
