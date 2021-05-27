@@ -408,9 +408,6 @@ public class CassandraOperations implements MapReduceDataStoreOperations {
   }
 
   private CreateTable addOptions(final CreateTable create) {
-    // final Iterator<String[]> validOptions =
-    // options.getTableOptions().stream().filter(o -> o.contains("=")).map(
-    // o -> o.split("=", 2)).iterator();
     final Iterator<String[]> validOptions =
         options.getTableOptions().entrySet().stream().map(
             e -> new String[] {e.getKey(), e.getValue()}).iterator();

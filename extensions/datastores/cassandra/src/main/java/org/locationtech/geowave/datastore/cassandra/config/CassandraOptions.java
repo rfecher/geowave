@@ -46,12 +46,6 @@ public class CassandraOptions extends BaseDataStoreOptions {
       converter = CompactionStrategyConverter.class)
   private CompactionStrategy<?> compactionStrategy = SchemaBuilder.sizeTieredCompactionStrategy();
 
-  // @Parameter(
-  // names = "--tableOptions",
-  // variableArity = true,
-  // description = "Any general table options as 'key=value' applied to each Cassandra table.",
-  // splitter = SemiColonSplitter.class)
-  // private List<String> tableOptions = new ArrayList<>();
   @DynamicParameter(
       names = "--tableOptions",
       description = "Any general table options as 'key=value' applied to each Cassandra table.")
@@ -89,6 +83,14 @@ public class CassandraOptions extends BaseDataStoreOptions {
     this.replicationFactor = replicationFactor;
   }
 
+  public String getCompactionStrategyStr() {
+    return compactionStrategy != null ? compactionStrategy.toString() : null;
+  }
+
+  public void setCompactionStrategyStr(final String compactionStrategyStr) {
+    compactionStrategy = convertCompactionStrategy(compactionStrategyStr);
+  }
+
   public CompactionStrategy<?> getCompactionStrategy() {
     return compactionStrategy;
   }
@@ -96,14 +98,6 @@ public class CassandraOptions extends BaseDataStoreOptions {
   public void setCompactionStrategy(final CompactionStrategy<?> compactionStrategy) {
     this.compactionStrategy = compactionStrategy;
   }
-
-  // public List<String> getTableOptions() {
-  // return tableOptions;
-  // }
-  //
-  // public void setTableOptions(final List<String> tableOptions) {
-  // this.tableOptions = tableOptions;
-  // }
 
   public Map<String, String> getTableOptions() {
     return tableOptions;
@@ -128,38 +122,42 @@ public class CassandraOptions extends BaseDataStoreOptions {
 
     @Override
     public CompactionStrategy<?> convert(final String value) {
-      if ((value != null) && !value.isEmpty()) {
-        final String str = value.trim().toLowerCase();
-        switch (str) {
-          case "leveledcompactionstrategy":
-          case "lcs":
-            return SchemaBuilder.leveledCompactionStrategy();
-          case "sizetieredcompactionstrategy":
-          case "stcs":
-            return SchemaBuilder.sizeTieredCompactionStrategy();
-          case "timewindowcompactionstrategy":
-          case "twcs":
-            return SchemaBuilder.timeWindowCompactionStrategy();
-        }
-        // backup to a more lenient "contains" check as a last resort (because class names contain
-        // these strings so in case a Java object gets serialized to a string this will still work
-        if (str.contains("leveledcompactionstrategy")) {
-          return SchemaBuilder.leveledCompactionStrategy();
-        } else if (str.contains("sizetieredcompactionstrategy")) {
-          return SchemaBuilder.sizeTieredCompactionStrategy();
-        } else if (str.contains("timewindowcompactionstrategy")) {
-          return SchemaBuilder.timeWindowCompactionStrategy();
-
-        }
-        throw new IllegalArgumentException(
-            "Unable to convert '"
-                + value
-                + "' to compaction strategy. Available options are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.");
-      }
-      return null;
+      return convertCompactionStrategy(value);
     }
-
   }
+
+  private static CompactionStrategy<?> convertCompactionStrategy(final String value) {
+    if ((value != null) && !value.isEmpty()) {
+      final String str = value.trim().toLowerCase();
+      switch (str) {
+        case "leveledcompactionstrategy":
+        case "lcs":
+          return SchemaBuilder.leveledCompactionStrategy();
+        case "sizetieredcompactionstrategy":
+        case "stcs":
+          return SchemaBuilder.sizeTieredCompactionStrategy();
+        case "timewindowcompactionstrategy":
+        case "twcs":
+          return SchemaBuilder.timeWindowCompactionStrategy();
+      }
+      // backup to a more lenient "contains" check as a last resort (because class names contain
+      // these strings so in case a Java object gets serialized to a string this will still work
+      if (str.contains("leveledcompactionstrategy")) {
+        return SchemaBuilder.leveledCompactionStrategy();
+      } else if (str.contains("sizetieredcompactionstrategy")) {
+        return SchemaBuilder.sizeTieredCompactionStrategy();
+      } else if (str.contains("timewindowcompactionstrategy")) {
+        return SchemaBuilder.timeWindowCompactionStrategy();
+
+      }
+      throw new IllegalArgumentException(
+          "Unable to convert '"
+              + value
+              + "' to compaction strategy. Available options are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.");
+    }
+    return null;
+  }
+
   public static class SemiColonSplitter implements IParameterSplitter {
 
     @Override

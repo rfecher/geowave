@@ -37,6 +37,22 @@ class CassandraOptions(DataStoreOptions):
         """
         return self._java_ref.getContactPoints()
 
+    def set_datacenter(self, datacenter):
+        """
+        Sets the local datacenter.
+
+        Args:
+            datacenter (str): The datacenter to connect to.
+        """
+        self._java_ref.setDatacenter(datacenter)
+
+    def get_datacenter(self):
+        """
+        Returns:
+            The local datacenter of the Cassandra cluster.
+        """
+        return self._java_ref.getDatacenter()
+
     def set_batch_write_size(self, batch_write_size):
         """
         Sets the number of entries to be gathered before performing a batch write
@@ -86,3 +102,51 @@ class CassandraOptions(DataStoreOptions):
             The number of replicas to use when creating a new keyspace.
         """
         return self._base_options.getReplicationFactor()
+
+    def set_gc_grace_seconds(self, gc_grace_seconds):
+        """
+        Sets the gc_grace_seconds for each table created. Defaults to 10 days and major compaction should be triggered at least as often.
+
+        Args:
+            gc_grace_seconds (int): The gc_grace_seconds to set on the table.
+        """
+        self._base_options.setGcGraceSeconds(gc_grace_seconds)
+
+    def get_gc_grace_seconds(self):
+        """
+        Returns:
+            The gc_grace_seconds applied to new tables.
+        """
+        return self._base_options.getGcGraceSeconds()
+
+    def get_table_options(self, table_options):
+        """
+        Sets additional table options for each new table created.
+
+        Args:
+            table_options (dictionary): The table options to apply to each new table.
+        """
+        self._base_options.setTableOptions(table_options)
+
+    def set_table_options(self):
+        """
+        Returns:
+            The table options that are applied to each new table.
+        """
+        return self._base_options.getTableOptions()
+
+    def get_compaction_strategy(self, compaction_strategy):
+        """
+        Set the compaction strategy applied to each new Cassandra table. Available options are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.
+
+        Args:
+            compaction_strategy (str): The compaction strategy to apply to each new table. Available options are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.
+        """
+        self._base_options.setCompactionStrategyStr(compaction_strategy)
+
+    def set_compaction_strategy(self):
+        """
+        Returns:
+            The compaction strategy applied to each new Cassandra table.
+        """
+        return self._base_options.getCompactionStrategyStr()
