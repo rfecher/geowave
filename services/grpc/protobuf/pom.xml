@@ -57,11 +57,10 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-
 			<plugin>
 				<groupId>com.github.os72</groupId>
 				<artifactId>protoc-jar-maven-plugin</artifactId>
-				<version>${protobuf.version}</version>
+				<version>${mavenprotoc.version}</version>
 				<executions>
 					<execution>
 						<phase>generate-sources</phase>
@@ -69,6 +68,7 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
+							<protocVersion>${protobuf.version}</protocVersion>
 							<protocArtifact>com.google.protobuf:protoc:${protobuf.version}</protocArtifact>
 							<inputDirectories>
 								<include>src/main/protobuf</include>

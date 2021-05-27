@@ -79,6 +79,7 @@
 		<grpc.version>1.38.0</grpc.version>
 		<netty.version>4.1.45.Final</netty.version>
 		<protobuf.version>3.17.1</protobuf.version>
+		<mavenprotoc.version>3.11.4</mavenprotoc.version>
 		<guice.version>3.0</guice.version>
 		<skipITs>true</skipITs>
 		<vfs2.version>2.3</vfs2.version>
@@ -93,6 +94,7 @@
 		<hbase.scope>compile</hbase.scope>
 		<hadoop.scope>compile</hadoop.scope>
 		<jetty.version>9.4.41.v20210516</jetty.version>
+		<lz4.version>1.7.1</lz4.version>
 		<zookeeper.version>3.4.6</zookeeper.version>
 		<jersey.version>2.23.1</jersey.version>
 		<scala.version>2.12.13</scala.version>
@@ -137,7 +139,8 @@
 		<jacoco.version>0.7.4.201502262128</jacoco.version>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-		<test.args>-XX:CompressedClassSpaceSize=512m -XX:+UseSerialGC -Xms1g -Xmx2g -XX:MaxMetaspaceSize=512m</test.args>
+		<test.args>-XX:CompressedClassSpaceSize=512m -XX:+UseSerialGC -Xms1g
+			-Xmx2g -XX:MaxMetaspaceSize=512m</test.args>
 		<spotbugs.version>3.1.10</spotbugs.version>
 		<spotbugs.omitVisitors>MutableStaticFields,FindReturnRef</spotbugs.omitVisitors>
 		<spotbugs.effort>Max</spotbugs.effort>
@@ -314,9 +317,9 @@
 				<version>${guice.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.aol.simplereact</groupId>
-				<artifactId>cyclops-react</artifactId>
-				<version>1.0.0-RC4</version>
+				<groupId>com.oath.cyclops</groupId>
+				<artifactId>cyclops</artifactId>
+				<version>10.4.0</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.slf4j</groupId>
@@ -825,7 +828,7 @@
 			<dependency>
 				<groupId>org.lz4</groupId>
 				<artifactId>lz4-java</artifactId>
-				<version>1.4.0</version>
+				<version>${lz4.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.protobuf</groupId>
@@ -835,7 +838,7 @@
 			<dependency>
 				<groupId>com.google.protobuf</groupId>
 				<artifactId>protobuf-java-util</artifactId>
-				<version>3.5.1</version>
+				<version>${protobuf.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.grpc</groupId>

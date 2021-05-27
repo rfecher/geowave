@@ -27,7 +27,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.aol.cyclops.data.async.Queue;
+import com.oath.cyclops.async.adapters.Queue;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class DistributedRenderAggregation implements
