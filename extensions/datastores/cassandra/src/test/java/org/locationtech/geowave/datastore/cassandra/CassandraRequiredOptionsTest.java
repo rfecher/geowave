@@ -24,8 +24,8 @@ public class CassandraRequiredOptionsTest {
 
   @Test
   public void testSetContactPoint() {
-    mockRequiredOptions.setContactPoint(contactPoint);
-    final String getCT = mockRequiredOptions.getContactPoint();
+    mockRequiredOptions.setContactPoints(contactPoint);
+    final String getCT = mockRequiredOptions.getContactPoints();
     Assert.assertEquals(contactPoint, getCT);
   }
 }

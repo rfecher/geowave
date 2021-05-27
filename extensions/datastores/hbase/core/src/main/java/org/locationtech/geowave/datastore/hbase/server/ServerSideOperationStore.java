@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class ServerSideOperationStore {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerSideOperationStore.class);
@@ -78,6 +79,7 @@ public class ServerSideOperationStore {
               map.values(),
               new Function<ServerSideOperationValue, HBaseServerOp>() {
                 @Override
+                @SuppressFBWarnings
                 public HBaseServerOp apply(final ServerSideOperationValue input) {
                   return input.getOperation(scope);
                 }
