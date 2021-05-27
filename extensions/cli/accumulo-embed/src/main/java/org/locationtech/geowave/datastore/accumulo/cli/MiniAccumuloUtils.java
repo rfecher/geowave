@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import org.apache.accumulo.core.conf.ClientProperty;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
@@ -46,17 +45,30 @@ public class MiniAccumuloUtils {
     }
   }
 
+  public static Object getClientProperty(final String name) {
+    try {
+      return MiniAccumuloUtils.class.getClassLoader().loadClass(
+          "org.apache.accumulo.core.conf.ClientProperty").getDeclaredMethod(
+              "valueOf",
+              String.class).invoke(null, name);
+    } catch (final Exception e) {
+      LOGGER.warn("Unable to getClientProperty", e);
+    }
+    return null;
+  }
+
   public static void setClientProperty(
       final MiniAccumuloConfig config,
-      final ClientProperty property,
+      final Object property,
       final String value) {
     try {
       final Field impl = MiniAccumuloConfig.class.getDeclaredField("impl");
       impl.setAccessible(true);
-      impl.getType().getMethod("setClientProperty", ClientProperty.class, String.class).invoke(
-          impl.get(config),
-          property,
-          value);
+      impl.getType().getMethod(
+          "setClientProperty",
+          MiniAccumuloUtils.class.getClassLoader().loadClass(
+              "org.apache.accumulo.core.conf.ClientProperty"),
+          String.class).invoke(impl.get(config), property, value);
     } catch (final Exception e) {
       LOGGER.warn("Unable to setClientProperty", e);
     }

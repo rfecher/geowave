@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.Map;
 import org.apache.accumulo.cluster.ClusterUser;
 import org.apache.accumulo.core.client.security.tokens.KerberosToken;
-import org.apache.accumulo.core.conf.ClientProperty;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.harness.MiniClusterHarness;
 import org.apache.accumulo.harness.TestingKdc;
@@ -47,7 +46,7 @@ public class KerberosTestEnvironment implements TestEnvironment {
   private static final Logger LOGGER = LoggerFactory.getLogger(KerberosTestEnvironment.class);
   private TestingKdc kdc;
 
-  protected static final File TEMP_DIR = new File("./target/kerberos_temp");
+  protected static final File TEMP_DIR = new File("./kerberos_temp");
   protected static final File TEMP_KEYTABS_DIR = new File(TEMP_DIR, "keytabs");
   public static final String TRUE = Boolean.toString(true);
   // TODO These are defined in MiniKdc >= 2.6.0. Can be removed when minimum Hadoop dependency is
@@ -170,7 +169,10 @@ public class KerberosTestEnvironment implements TestEnvironment {
         System.getProperty(SUN_SECURITY_KRB5_DEBUG, "false"));
     MiniAccumuloUtils.setSystemProperties(cfg, systemProperties);
     MiniAccumuloUtils.setRootUserName(cfg, kdc.getRootUser().getPrincipal());
-    MiniAccumuloUtils.setClientProperty(cfg, ClientProperty.SASL_ENABLED, "true");
+    MiniAccumuloUtils.setClientProperty(
+        cfg,
+        MiniAccumuloUtils.getClientProperty("SASL_ENABLED"),
+        "true");
     // Make sure UserGroupInformation will do the correct login
     coreSite.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
   }
