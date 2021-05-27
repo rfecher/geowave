@@ -121,13 +121,13 @@ import org.locationtech.geowave.datastore.accumulo.util.ConnectorPool.ConnectorC
 import org.locationtech.geowave.mapreduce.MapReduceDataStoreOperations;
 import org.locationtech.geowave.mapreduce.splits.GeoWaveRowRange;
 import org.locationtech.geowave.mapreduce.splits.RecordReaderParams;
-import com.aol.cyclops.util.function.TriFunction;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
+import cyclops.function.checked.CheckedTriFunction;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -1380,7 +1380,7 @@ public class AccumuloOperations implements
   public RowWriter internalCreateWriter(
       final Index index,
       final InternalDataAdapter<?> adapter,
-      final TriFunction<BatchWriter, AccumuloOperations, String, RowWriter> rowWriterSupplier) {
+      final CheckedTriFunction<BatchWriter, AccumuloOperations, String, RowWriter> rowWriterSupplier) {
     final String tableName = index.getName();
     if (createTable(
         tableName,
@@ -1398,7 +1398,7 @@ public class AccumuloOperations implements
 
     try {
       return rowWriterSupplier.apply(createBatchWriter(tableName), this, tableName);
-    } catch (final TableNotFoundException e) {
+    } catch (final Throwable e) {
       LOGGER.error("Table does not exist", e);
     }
     return null;

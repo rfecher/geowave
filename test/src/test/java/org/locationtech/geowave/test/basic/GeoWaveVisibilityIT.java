@@ -13,7 +13,9 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -59,7 +61,6 @@ import org.locationtech.jts.geom.Point;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import com.aol.cyclops.util.function.QuadConsumer;
 
 @RunWith(GeoWaveITRunner.class)
 public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
@@ -520,9 +521,13 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
             "Exactly half the entries should have differing visibility",
             TOTAL_FEATURES / 2,
             differingVisibilities.getValue().intValue()),
-        (store, statsStore, internalAdapterId, spatial) -> {
+        (storeAndStatsStore, internalAdapterIdAndSpatial) -> {
           try {
-            testQueryMixed(store, statsStore, internalAdapterId, spatial);
+            testQueryMixed(
+                storeAndStatsStore.getLeft(),
+                storeAndStatsStore.getRight(),
+                internalAdapterIdAndSpatial.getLeft(),
+                internalAdapterIdAndSpatial.getRight());
           } catch (final IOException e) {
             LOGGER.warn("Unable to test visibility query", e);
             Assert.fail(e.getMessage());
@@ -535,7 +540,7 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
       final DataStorePluginOptions dataStoreOptions,
       final VisibilityWriter<SimpleFeature> visibilityWriter,
       final Consumer<DifferingVisibilityCountValue> verifyDifferingVisibilities,
-      final QuadConsumer<DataStore, DataStatisticsStore, Short, Boolean> verifyQuery,
+      final BiConsumer<Pair<DataStore, DataStatisticsStore>, Pair<Short, Boolean>> verifyQuery,
       final int totalFeatures) {
     final SimpleFeatureBuilder bldr = new SimpleFeatureBuilder(getType());
     final FeatureDataAdapter adapter = new FeatureDataAdapter(getType());
@@ -562,8 +567,8 @@ public class GeoWaveVisibilityIT extends AbstractGeoWaveIT {
                     TestUtils.DEFAULT_SPATIAL_INDEX.getName()).binConstraints(
                         BinConstraints.of(DataTypeBinningStrategy.getBin(adapter))).build());
     verifyDifferingVisibilities.accept(count);
-    verifyQuery.accept(store, statsStore, internalAdapterId, false);
-    verifyQuery.accept(store, statsStore, internalAdapterId, true);
+    verifyQuery.accept(Pair.of(store, statsStore), Pair.of(internalAdapterId, false));
+    verifyQuery.accept(Pair.of(store, statsStore), Pair.of(internalAdapterId, true));
   }
 
   private VisibilityWriter<SimpleFeature> getFeatureVisWriter() {
