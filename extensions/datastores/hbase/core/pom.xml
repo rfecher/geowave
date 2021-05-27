@@ -166,7 +166,7 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<protocVersion>2.5.0</protocVersion>
+							<protocVersion>${hbaseprotoc.version}</protocVersion>
 							<outputDirectory>src/main/java</outputDirectory>
 							<inputDirectories>
 								<include>target/protobuf</include>

@@ -58,10 +58,10 @@ public class RowMergingServerOp extends MergingServerOp {
         Sets.newHashSet(
             Iterables.transform(
                 Splitter.on(",").split(columnStr),
-                new Function<String, GeowaveColumnId>() {
+                new Function<String, GeoWaveColumnId>() {
 
                   @Override
-                  public GeowaveColumnId apply(final String input) {
+                  public GeoWaveColumnId apply(final String input) {
                     return new ShortColumnId(ByteArrayUtils.shortFromString(input));
                   }
                 }));

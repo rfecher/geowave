@@ -67,7 +67,7 @@
 		<guava.version>30.1-jre</guava.version>
 		<geoserver.version>2.19.0</geoserver.version>
 		<accumulo.version>2.0.1</accumulo.version>
-		<thrift.version>0.14.0</thrift.version>
+		<thrift.version>0.12.0</thrift.version>
 		<bigtable.version>1.20.0</bigtable.version>
 		<cassandra.version>4.0-rc1</cassandra.version>
 		<redisson.version>3.15.5</redisson.version>
@@ -105,6 +105,7 @@
 		<lang3.version>3.8.1</lang3.version>
 		<jcommander.version>1.81</jcommander.version>
 		<hbaseprotobuf.version>3.5.1</hbaseprotobuf.version>
+		<hbaseprotoc.version>3.5.1</hbaseprotoc.version>
 		<hbaseguava.version>12.0.1</hbaseguava.version>
 		<jackson.version>1.9.13</jackson.version>
 		<beanutils.version>1.9.3</beanutils.version>

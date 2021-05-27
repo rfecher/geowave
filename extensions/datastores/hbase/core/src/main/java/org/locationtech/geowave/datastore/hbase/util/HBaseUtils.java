@@ -33,23 +33,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 public class HBaseUtils {
-  private static final Logger LOGGER = LoggerFactory.getLogger(HBaseUtils.class);
-  private static final CellComparator CELL_COMPARATOR = initHBaseVersionIndependentCellComparator();
-
-  private static CellComparator initHBaseVersionIndependentCellComparator() {
-    try {
-      return (CellComparator) CellComparator.class.getMethod("getInstance").invoke(null);
-    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-        | NoSuchMethodException | SecurityException e) {
-      LOGGER.info("HBase 2 CellComparator newInstance method not found, using HBase 1");
-      try {
-        return CellComparator.class.newInstance();
-      } catch (InstantiationException | IllegalAccessException e1) {
-        LOGGER.error("HBase 1 and 2 CellComparator intialization method not found", e1);
-        return null;
-      }
-    }
-  }
+  private static final CellComparator CELL_COMPARATOR = CellComparator.getInstance();
 
   public static CellComparator getCellComparator() {
     return CELL_COMPARATOR;

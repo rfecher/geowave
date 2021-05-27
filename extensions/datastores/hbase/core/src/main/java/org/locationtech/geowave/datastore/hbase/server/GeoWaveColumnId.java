@@ -10,11 +10,11 @@ package org.locationtech.geowave.datastore.hbase.server;
 
 import org.locationtech.geowave.core.index.ByteArray;
 
-public interface GeowaveColumnId {
+public interface GeoWaveColumnId {
 }
 
 
-class ShortColumnId implements GeowaveColumnId {
+class ShortColumnId implements GeoWaveColumnId {
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -49,7 +49,7 @@ class ShortColumnId implements GeowaveColumnId {
 }
 
 
-class ByteArrayColumnId implements GeowaveColumnId {
+class ByteArrayColumnId implements GeoWaveColumnId {
 
   private final ByteArray columnId;
 

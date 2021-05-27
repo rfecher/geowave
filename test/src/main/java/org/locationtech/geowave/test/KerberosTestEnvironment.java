@@ -46,7 +46,7 @@ public class KerberosTestEnvironment implements TestEnvironment {
   private static final Logger LOGGER = LoggerFactory.getLogger(KerberosTestEnvironment.class);
   private TestingKdc kdc;
 
-  protected static final File TEMP_DIR = new File("./kerberos_temp");
+  protected static final File TEMP_DIR = new File("./target/kerberos_temp");
   protected static final File TEMP_KEYTABS_DIR = new File(TEMP_DIR, "keytabs");
   public static final String TRUE = Boolean.toString(true);
   // TODO These are defined in MiniKdc >= 2.6.0. Can be removed when minimum Hadoop dependency is

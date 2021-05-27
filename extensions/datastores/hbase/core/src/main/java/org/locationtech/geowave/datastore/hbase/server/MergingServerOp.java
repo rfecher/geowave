@@ -36,7 +36,7 @@ import com.google.common.collect.Sets;
 
 public class MergingServerOp implements HBaseServerOp {
   public static Object MUTEX = new Object();
-  protected Set<GeowaveColumnId> columnFamilyIds = new HashSet<>();
+  protected Set<GeoWaveColumnId> columnFamilyIds = new HashSet<>();
   // protected Set<ByteArrayId> columnFamilyIds = new HashSet<>();
   private static final String OLD_MAX_VERSIONS_KEY = "MAX_VERSIONS";
 
@@ -80,7 +80,7 @@ public class MergingServerOp implements HBaseServerOp {
             final Cell cell = iter.next();
             // TODO consider avoiding extra byte array allocations
             final byte[] familyBytes = CellUtil.cloneFamily(cell);
-            GeowaveColumnId familyId = null;
+            GeoWaveColumnId familyId = null;
             if (columnFamilyIds.iterator().next() instanceof ShortColumnId) {
               familyId =
                   new ShortColumnId(
@@ -207,10 +207,10 @@ public class MergingServerOp implements HBaseServerOp {
         Sets.newHashSet(
             Iterables.transform(
                 Splitter.on(",").split(columnStr),
-                new Function<String, GeowaveColumnId>() {
+                new Function<String, GeoWaveColumnId>() {
 
                   @Override
-                  public GeowaveColumnId apply(final String input) {
+                  public GeoWaveColumnId apply(final String input) {
                     return new ByteArrayColumnId(new ByteArray(input));
                   }
                 }));

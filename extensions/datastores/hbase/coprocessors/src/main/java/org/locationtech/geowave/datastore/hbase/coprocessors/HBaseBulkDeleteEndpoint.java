@@ -9,7 +9,6 @@
 package org.locationtech.geowave.datastore.hbase.coprocessors;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -55,9 +54,6 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements Region
   private static final Logger LOGGER = Logger.getLogger(HBaseBulkDeleteEndpoint.class);
 
   private RegionCoprocessorEnvironment env;
-  private static final Object BATCH_MUTATE_MUTEX = new Object();
-  private static Method batchMutate;
-  private static boolean isHBase2 = true;
 
   @Override
   public Iterable<Service> getServices() {
@@ -225,42 +221,11 @@ public class HBaseBulkDeleteEndpoint extends BulkDeleteService implements Region
 
   @SuppressFBWarnings
   private static OperationStatus[] batchMutate(final Region region, final Mutation[] deleteArr) {
-    if (batchMutate == null) {
-      synchronized (BATCH_MUTATE_MUTEX) {
-        if (batchMutate == null) {
-          try {
-            batchMutate = Region.class.getMethod("batchMutate", Mutation[].class);
-          } catch (NoSuchMethodException | SecurityException e) {
-            LOGGER.info("HBase 2 batchMutate method not found, using HBase 1");
-            isHBase2 = false;
-            try {
-              batchMutate =
-                  Region.class.getMethod("batchMutate", Mutation[].class, long.class, long.class);
-            } catch (NoSuchMethodException | SecurityException e1) {
-              LOGGER.error("HBase 1 and HBase 2 batchMutate method not found", e);
-            }
-          }
-        }
-      }
-    }
-    if (isHBase2) {
-      try {
-        return (OperationStatus[]) batchMutate.invoke(region, (Object) deleteArr);
-      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        LOGGER.error("HBase 2 batchMutate failed", e);
-        return null;
-      }
-    } else {
-      try {
-        return (OperationStatus[]) batchMutate.invoke(
-            region,
-            deleteArr,
-            HConstants.NO_NONCE,
-            HConstants.NO_NONCE);
-      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        LOGGER.error("HBase 1 batchMutate failed", e);
-        return null;
-      }
+    try {
+      return region.batchMutate(deleteArr);
+    } catch (final IOException e) {
+      LOGGER.error("HBase 2 batchMutate failed", e);
+      return null;
     }
   }
 

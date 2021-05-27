@@ -114,7 +114,7 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<protocVersion>${protobuf.version}</protocVersion>
+							<protocVersion>${hbaseprotoc.version}</protocVersion>
 							<outputDirectory>src/main/java</outputDirectory>
 							<inputDirectories>
 								<include>src/main/protobuf</include>
