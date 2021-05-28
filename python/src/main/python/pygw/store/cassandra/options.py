@@ -120,7 +120,7 @@ class CassandraOptions(DataStoreOptions):
         """
         return self._base_options.getGcGraceSeconds()
 
-    def get_table_options(self, **table_options):
+    def get_table_options(self, table_options):
         """
         Sets additional table options for each new table created.
 
