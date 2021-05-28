@@ -13,6 +13,12 @@ jobs:
             fail-fast: false
             matrix:
                 profile: [accumulo-it-kerberos, 'accumulo-it-kerberos,compatibility']
+                include:
+                  # include a new variable of TEST_KERBEROS = true
+                  - profile: accumulo-it-kerberos
+                    test_kerberos: true
+                  - profile: 'accumulo-it-kerberos,compatibility'
+                    test_kerberos: true
         env:
             IT_ONLY: true
             MAVEN_PROFILES: ${{ matrix.profile }}
