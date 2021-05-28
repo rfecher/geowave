@@ -502,8 +502,8 @@ def test_cassandra_options():
     assert options.is_durable_writes() == durable_writes
     options.set_replication_factor(43)
     assert options.get_replication_factor() == 43
-    options.set_table_options(test_key_1="test_value_1",test_key_2="test_value_2")
-    assert options.get_table_options() == {"test_key_1": "test_value_1","test_key_2": "test_value_2"}
+    options.set_table_options('test_key_1'='test_value_1','test_key_2'='test_value_2')
+    assert options.get_table_options() == {'test_key_1': 'test_value_1','test_key_2': 'test_value_2'}
     options.set_compaction_strategy("TimeWindowCompactionStrategy")
     assert options.get_compaction_strategy() == "TimeWindowCompactionStrategy"
     _test_base_options(options, False)
