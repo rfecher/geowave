@@ -105,7 +105,8 @@ class CassandraOptions(DataStoreOptions):
 
     def set_gc_grace_seconds(self, gc_grace_seconds):
         """
-        Sets the gc_grace_seconds for each table created. Defaults to 10 days and major compaction should be triggered at least as often.
+        Sets the gc_grace_seconds for each table created. Defaults to 10 days and major
+        compaction should be triggered at least as often.
 
         Args:
             gc_grace_seconds (int): The gc_grace_seconds to set on the table.
@@ -119,7 +120,7 @@ class CassandraOptions(DataStoreOptions):
         """
         return self._base_options.getGcGraceSeconds()
 
-    def get_table_options(self, table_options):
+    def get_table_options(self, **table_options):
         """
         Sets additional table options for each new table created.
 
@@ -137,10 +138,12 @@ class CassandraOptions(DataStoreOptions):
 
     def get_compaction_strategy(self, compaction_strategy):
         """
-        Set the compaction strategy applied to each new Cassandra table. Available options are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.
+        Set the compaction strategy applied to each new Cassandra table. Available options
+        are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.
 
         Args:
-            compaction_strategy (str): The compaction strategy to apply to each new table. Available options are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.
+            compaction_strategy (str): The compaction strategy to apply to each new table. Available
+            options are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.
         """
         self._base_options.setCompactionStrategyStr(compaction_strategy)
 
