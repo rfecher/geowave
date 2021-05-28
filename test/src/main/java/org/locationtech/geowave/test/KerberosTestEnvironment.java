@@ -166,7 +166,7 @@ public class KerberosTestEnvironment implements TestEnvironment {
     systemProperties.put(JAVA_SECURITY_KRB5_CONF, System.getProperty(JAVA_SECURITY_KRB5_CONF, ""));
     systemProperties.put(
         SUN_SECURITY_KRB5_DEBUG,
-        System.getProperty(SUN_SECURITY_KRB5_DEBUG, "false"));
+        System.getProperty(SUN_SECURITY_KRB5_DEBUG, "true"));
     MiniAccumuloUtils.setSystemProperties(cfg, systemProperties);
     MiniAccumuloUtils.setRootUserName(cfg, kdc.getRootUser().getPrincipal());
     MiniAccumuloUtils.setClientProperty(
