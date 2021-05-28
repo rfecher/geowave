@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.accumulo.cluster.ClusterUser;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.gc.SimpleGarbageCollector;
@@ -205,6 +207,30 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
       throw new RuntimeException(
           "Initialize process returned " + ret + ". Cannot find log directory.");
     }
+    Timer t = new Timer();
+    // Thread tr = new Thread();
+    t.scheduleAtFixedRate(new TimerTask() {
+
+      @Override
+      public void run() {
+        try {
+          for (final File fileEntry : MiniAccumuloUtils.getLogDir(config).listFiles()) {
+            LOGGER.warn("Contents of " + fileEntry.getName());
+            try (final Scanner sc = new Scanner(fileEntry, "UTF-8")) {
+              while (sc.hasNextLine()) {
+                final String s = sc.nextLine();
+                LOGGER.warn(s);
+              }
+            } catch (final Exception e) {
+              LOGGER.warn("Unable to read log file", e);
+            }
+          }
+        } catch (IOException e) {
+          LOGGER.warn("Unable to read file", e);
+        }
+      }
+
+    }, 180000L, 180000L);
 
     LOGGER.info(
         "Starting MAC against instance "

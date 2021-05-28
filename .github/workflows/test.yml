@@ -125,7 +125,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                profile: [redis-it, rocksdb-it, accumulo-it-client, accumulo-it-server, hbase-it-client, hbase-it-server, cassandra-it, dynamodb-it, bigtable-it, kudu-it, filesystem-it, accumulo-it-kerberos, 'filesystem-it,secondary-index-it', 'rocksdb-it,secondary-index-it', 'accumulo-it-kerberos,compatibility', 'accumulo-it-server,compatibility']
+                profile: [accumulo-it-kerberos, 'accumulo-it-kerberos,compatibility']
                 include:
                   # include a new variable of TEST_KERBEROS = true
                   - profile: accumulo-it-kerberos
