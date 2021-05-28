@@ -506,7 +506,7 @@ def test_cassandra_options():
         "test_key_1": "test_value_1",
         "test_key_2": "test_value_2"
     }
-    options.set_table_options(table_options)
+    options.set_table_options(table_options=table_options)
     assert options.get_table_options() == table_options
     options.set_compaction_strategy("TimeWindowCompactionStrategy")
     assert options.get_compaction_strategy() == "TimeWindowCompactionStrategy"
