@@ -8,6 +8,8 @@
  */
 package org.locationtech.geowave.test;
 
+import static org.apache.hadoop.minikdc.MiniKdc.JAVA_SECURITY_KRB5_CONF;
+import static org.apache.hadoop.minikdc.MiniKdc.SUN_SECURITY_KRB5_DEBUG;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -49,17 +51,10 @@ public class KerberosTestEnvironment implements TestEnvironment {
   protected static final File TEMP_DIR = new File("./target/kerberos_temp");
   protected static final File TEMP_KEYTABS_DIR = new File(TEMP_DIR, "keytabs");
   public static final String TRUE = Boolean.toString(true);
-  // TODO These are defined in MiniKdc >= 2.6.0. Can be removed when minimum Hadoop dependency is
-  // increased to that.
-  public static final String JAVA_SECURITY_KRB5_CONF = "java.security.krb5.conf",
-      SUN_SECURITY_KRB5_DEBUG = "sun.security.krb5.debug";
   private ClusterUser rootUser;
   private boolean running = false;
 
-
-  private KerberosTestEnvironment() {
-
-  }
+  private KerberosTestEnvironment() {}
 
   public boolean isRunning() {
     return running;
@@ -166,15 +161,18 @@ public class KerberosTestEnvironment implements TestEnvironment {
     systemProperties.put(JAVA_SECURITY_KRB5_CONF, System.getProperty(JAVA_SECURITY_KRB5_CONF, ""));
     systemProperties.put(
         SUN_SECURITY_KRB5_DEBUG,
-        System.getProperty(SUN_SECURITY_KRB5_DEBUG, "true"));
+        System.getProperty(SUN_SECURITY_KRB5_DEBUG, "false"));
     MiniAccumuloUtils.setSystemProperties(cfg, systemProperties);
+
+    // Make sure UserGroupInformation will do the correct login
+    coreSite.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
+
     MiniAccumuloUtils.setRootUserName(cfg, kdc.getRootUser().getPrincipal());
+
     MiniAccumuloUtils.setClientProperty(
         cfg,
         MiniAccumuloUtils.getClientProperty("SASL_ENABLED"),
         "true");
-    // Make sure UserGroupInformation will do the correct login
-    coreSite.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
   }
 
   public ClusterUser getRootUser() {
