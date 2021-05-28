@@ -8,8 +8,9 @@
 # available at http://www.apache.org/licenses/LICENSE-2.0.txt
 # ===============================================================================================
 
-from pygw.config import geowave_pkg
+from pygw.config import geowave_pkg, java_gateway
 from pygw.store import DataStoreOptions
+from py4j.java_collections import MapConverter
 
 
 class CassandraOptions(DataStoreOptions):
@@ -120,23 +121,23 @@ class CassandraOptions(DataStoreOptions):
         """
         return self._base_options.getGcGraceSeconds()
 
-    def get_table_options(self, table_options):
+    def set_table_options(self, table_options):
         """
         Sets additional table options for each new table created.
 
         Args:
             table_options (dictionary): The table options to apply to each new table.
         """
-        self._base_options.setTableOptions(table_options)
+        self._base_options.setTableOptions(MapConverter().convert(table_options, java_gateway._gateway_client))
 
-    def set_table_options(self):
+    def get_table_options(self):
         """
         Returns:
             The table options that are applied to each new table.
         """
         return self._base_options.getTableOptions()
 
-    def get_compaction_strategy(self, compaction_strategy):
+    def set_compaction_strategy(self, compaction_strategy):
         """
         Set the compaction strategy applied to each new Cassandra table. Available options
         are LeveledCompactionStrategy, SizeTieredCompactionStrategy, or TimeWindowCompactionStrategy.
@@ -147,7 +148,7 @@ class CassandraOptions(DataStoreOptions):
         """
         self._base_options.setCompactionStrategyStr(compaction_strategy)
 
-    def set_compaction_strategy(self):
+    def get_compaction_strategy(self):
         """
         Returns:
             The compaction strategy applied to each new Cassandra table.

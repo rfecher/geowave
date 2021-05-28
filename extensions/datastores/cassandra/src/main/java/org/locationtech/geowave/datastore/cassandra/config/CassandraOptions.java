@@ -19,6 +19,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.IParameterSplitter;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.datastax.oss.driver.api.querybuilder.schema.compaction.CompactionStrategy;
+import com.datastax.oss.driver.api.querybuilder.schema.compaction.LeveledCompactionStrategy;
+import com.datastax.oss.driver.api.querybuilder.schema.compaction.SizeTieredCompactionStrategy;
+import com.datastax.oss.driver.api.querybuilder.schema.compaction.TimeWindowCompactionStrategy;
 
 public class CassandraOptions extends BaseDataStoreOptions {
   @Parameter(names = "--batchWriteSize", description = "The number of inserts in a batch write.")
@@ -84,7 +87,18 @@ public class CassandraOptions extends BaseDataStoreOptions {
   }
 
   public String getCompactionStrategyStr() {
-    return compactionStrategy != null ? compactionStrategy.toString() : null;
+    if (compactionStrategy == null) {
+      return null;
+    } else {
+      if (compactionStrategy instanceof TimeWindowCompactionStrategy) {
+        return "TimeWindowCompactionStrategy";
+      } else if (compactionStrategy instanceof LeveledCompactionStrategy) {
+        return "LeveledCompactionStrategy";
+      } else if (compactionStrategy instanceof SizeTieredCompactionStrategy) {
+        return "SizeTieredCompactionStrategy";
+      }
+    }
+    return null;
   }
 
   public void setCompactionStrategyStr(final String compactionStrategyStr) {
