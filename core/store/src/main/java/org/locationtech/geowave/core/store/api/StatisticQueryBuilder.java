@@ -34,6 +34,7 @@ import org.locationtech.geowave.core.store.statistics.field.NumericMeanStatistic
 import org.locationtech.geowave.core.store.statistics.field.NumericMeanStatistic.NumericMeanValue;
 import org.locationtech.geowave.core.store.statistics.field.NumericRangeStatistic;
 import org.locationtech.geowave.core.store.statistics.field.NumericRangeStatistic.NumericRangeValue;
+import org.locationtech.geowave.core.store.statistics.field.Stats;
 import org.locationtech.geowave.core.store.statistics.index.DifferingVisibilityCountStatistic;
 import org.locationtech.geowave.core.store.statistics.index.DifferingVisibilityCountStatistic.DifferingVisibilityCountValue;
 import org.locationtech.geowave.core.store.statistics.index.DuplicateEntryCountStatistic;
@@ -54,6 +55,7 @@ import org.locationtech.geowave.core.store.statistics.query.FieldStatisticQueryB
 import org.locationtech.geowave.core.store.statistics.query.IndexStatisticQueryBuilder;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.clearspring.analytics.stream.frequency.CountMinSketch;
+import com.google.common.hash.BloomFilter;
 
 /**
  * Base interface for constructing statistic queries.

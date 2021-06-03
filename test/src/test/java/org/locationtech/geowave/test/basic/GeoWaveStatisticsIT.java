@@ -65,6 +65,7 @@ import org.locationtech.geowave.core.store.statistics.field.BloomFilterStatistic
 import org.locationtech.geowave.core.store.statistics.field.NumericRangeStatistic;
 import org.locationtech.geowave.core.store.statistics.field.NumericRangeStatistic.NumericRangeValue;
 import org.locationtech.geowave.core.store.statistics.field.NumericStatsStatistic;
+import org.locationtech.geowave.core.store.statistics.field.Stats;
 import org.locationtech.geowave.core.store.statistics.field.TDigestNumericHistogramStatistic;
 import org.locationtech.geowave.examples.ingest.SimpleIngest;
 import org.locationtech.geowave.test.GeoWaveITRunner;
@@ -79,7 +80,6 @@ import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
 import com.google.common.hash.BloomFilter;
 import com.google.common.math.DoubleMath;
-import com.google.common.math.Stats;
 import jersey.repackaged.com.google.common.collect.Iterators;
 
 @RunWith(GeoWaveITRunner.class)
