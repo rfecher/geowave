@@ -15,6 +15,8 @@ import org.locationtech.geowave.test.basic.GeoWaveBasicRasterIT.SumAndAveragingM
 import org.locationtech.geowave.test.basic.GeoWaveBasicRasterIT.SummingMergeStrategy;
 import org.locationtech.geowave.test.basic.GeoWaveCustomIndexIT.TestEnumConstraints;
 import org.locationtech.geowave.test.basic.GeoWaveCustomIndexIT.TestEnumIndexStrategy;
+import org.locationtech.geowave.test.secondary.CustomSecondaryIndexIT.TestCustomConstraints;
+import org.locationtech.geowave.test.secondary.CustomSecondaryIndexIT.TestCustomIndexStrategy;
 import org.locationtech.geowave.test.secondary.DataIndexOnlyIT.LatLonTimeAdapter;
 
 public class IntegrationTestPersistableRegistry implements PersistableRegistrySpi {
@@ -28,6 +30,8 @@ public class IntegrationTestPersistableRegistry implements PersistableRegistrySp
         new PersistableIdAndConstructor((short) 10778, DuplicateCountAggregation::new),
         new PersistableIdAndConstructor((short) 10779, LatLonTimeAdapter::new),
         new PersistableIdAndConstructor((short) 10780, TestEnumConstraints::new),
-        new PersistableIdAndConstructor((short) 10781, TestEnumIndexStrategy::new),};
+        new PersistableIdAndConstructor((short) 10781, TestEnumIndexStrategy::new),
+        new PersistableIdAndConstructor((short) 10782, TestCustomIndexStrategy::new),
+        new PersistableIdAndConstructor((short) 10783, TestCustomConstraints::new)};
   }
 }
