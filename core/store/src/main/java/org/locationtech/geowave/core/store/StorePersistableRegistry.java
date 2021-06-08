@@ -50,6 +50,7 @@ import org.locationtech.geowave.core.store.query.filter.InsertionIdQueryFilter;
 import org.locationtech.geowave.core.store.query.filter.PrefixIdQueryFilter;
 import org.locationtech.geowave.core.store.query.options.AggregateTypeQueryOptions;
 import org.locationtech.geowave.core.store.query.options.CommonQueryOptions;
+import org.locationtech.geowave.core.store.query.options.CommonQueryOptions.HintKey;
 import org.locationtech.geowave.core.store.query.options.FilterByTypeQueryOptions;
 import org.locationtech.geowave.core.store.query.options.QueryAllIndices;
 import org.locationtech.geowave.core.store.query.options.QueryAllTypes;
@@ -116,8 +117,10 @@ public class StorePersistableRegistry implements PersistableRegistrySpi {
         new PersistableIdAndConstructor((short) 267, BinningAggregation::new),
         new PersistableIdAndConstructor((short) 268, CustomQueryConstraintsWithFilter::new),
         new PersistableIdAndConstructor((short) 269, InternalCustomQueryFilter::new),
-        // this is intentionally not in the statistics registry because its best for programmatic
-        // access, there are no ways to just use it through the CLI
-        new PersistableIdAndConstructor((short) 270, IndexBinningStrategy::new),};
+        new PersistableIdAndConstructor((short) 270, InternalDataAdapterImpl::new),
+        new PersistableIdAndConstructor((short) 271, BasicNumericDimensionField::new),
+        new PersistableIdAndConstructor((short) 272, DataStoreProperty::new),
+        new PersistableIdAndConstructor((short) 273, AdapterToIndexMapping::new),
+        new PersistableIdAndConstructor((short) 274, HintKey::new),};
   }
 }
