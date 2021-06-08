@@ -9,6 +9,7 @@
 package org.locationtech.geowave.core.geotime;
 
 import org.locationtech.geowave.core.geotime.adapter.SpatialFieldDescriptor;
+import org.locationtech.geowave.core.geotime.adapter.TemporalFieldDescriptor;
 import org.locationtech.geowave.core.geotime.index.dimension.LatitudeDefinition;
 import org.locationtech.geowave.core.geotime.index.dimension.LongitudeDefinition;
 import org.locationtech.geowave.core.geotime.index.dimension.SimpleTimeDefinition;
@@ -93,6 +94,7 @@ public class GeoTimePersistableRegistry implements PersistableRegistrySpi {
         new PersistableIdAndConstructor((short) 341, SpatialFieldDescriptor::new),
         new PersistableIdAndConstructor((short) 342, LatitudeField::new),
         new PersistableIdAndConstructor((short) 343, LongitudeField::new),
-        new PersistableIdAndConstructor((short) 344, CustomCRSSpatialField::new)};
+        new PersistableIdAndConstructor((short) 344, CustomCRSSpatialField::new),
+        new PersistableIdAndConstructor((short) 345, TemporalFieldDescriptor::new),};
   }
 }

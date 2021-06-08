@@ -26,4 +26,8 @@ public class TemporalFieldDescriptor<T> extends BaseFieldDescriptor<T> {
     super(bindingClass, fieldName, indexHints);
   }
 
+  public TemporalFieldDescriptor() {
+    super();
+  }
+
 }

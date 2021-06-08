@@ -19,7 +19,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.isFinite;
 import static java.lang.Double.NaN;
 import static java.lang.Double.isNaN;
-
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
 import java.util.Iterator;
@@ -77,7 +76,7 @@ public final class StatsAccumulator {
    * Adds the given values to the dataset.
    *
    * @param values a series of values, which will be converted to {@code double} values (this may
-   *     cause loss of precision)
+   *        cause loss of precision)
    */
   public void addAll(Iterable<? extends Number> values) {
     for (Number value : values) {
@@ -89,7 +88,7 @@ public final class StatsAccumulator {
    * Adds the given values to the dataset.
    *
    * @param values a series of values, which will be converted to {@code double} values (this may
-   *     cause loss of precision)
+   *        cause loss of precision)
    */
   public void addAll(Iterator<? extends Number> values) {
     while (values.hasNext()) {
@@ -123,7 +122,7 @@ public final class StatsAccumulator {
    * Adds the given values to the dataset.
    *
    * @param values a series of values, which will be converted to {@code double} values (this may
-   *     cause loss of precision for longs of magnitude over 2^53 (slightly over 9e15))
+   *        cause loss of precision for longs of magnitude over 2^53 (slightly over 9e15))
    */
   public void addAll(long... values) {
     for (long value : values) {
@@ -155,7 +154,7 @@ public final class StatsAccumulator {
    * Adds the given values to the dataset. The stream will be completely consumed by this method.
    *
    * @param values a series of values, which will be converted to {@code double} values (this may
-   *     cause loss of precision for longs of magnitude over 2^53 (slightly over 9e15))
+   *        cause loss of precision for longs of magnitude over 2^53 (slightly over 9e15))
    * @since 28.2
    */
   public void addAll(LongStream values) {
@@ -237,8 +236,8 @@ public final class StatsAccumulator {
    * contains both {@link Double#POSITIVE_INFINITY} and {@link Double#NEGATIVE_INFINITY} then the
    * result is {@link Double#NaN}. If it contains {@link Double#POSITIVE_INFINITY} and finite values
    * only or {@link Double#POSITIVE_INFINITY} only, the result is {@link Double#POSITIVE_INFINITY}.
-   * If it contains {@link Double#NEGATIVE_INFINITY} and finite values only or {@link
-   * Double#NEGATIVE_INFINITY} only, the result is {@link Double#NEGATIVE_INFINITY}.
+   * If it contains {@link Double#NEGATIVE_INFINITY} and finite values only or
+   * {@link Double#NEGATIVE_INFINITY} only, the result is {@link Double#NEGATIVE_INFINITY}.
    *
    * @throws IllegalStateException if the dataset is empty
    */
@@ -256,8 +255,8 @@ public final class StatsAccumulator {
    * contains both {@link Double#POSITIVE_INFINITY} and {@link Double#NEGATIVE_INFINITY} then the
    * result is {@link Double#NaN}. If it contains {@link Double#POSITIVE_INFINITY} and finite values
    * only or {@link Double#POSITIVE_INFINITY} only, the result is {@link Double#POSITIVE_INFINITY}.
-   * If it contains {@link Double#NEGATIVE_INFINITY} and finite values only or {@link
-   * Double#NEGATIVE_INFINITY} only, the result is {@link Double#NEGATIVE_INFINITY}.
+   * If it contains {@link Double#NEGATIVE_INFINITY} and finite values only or
+   * {@link Double#NEGATIVE_INFINITY} only, the result is {@link Double#NEGATIVE_INFINITY}.
    */
   public final double sum() {
     return mean * count;
@@ -273,8 +272,8 @@ public final class StatsAccumulator {
    *
    * <h3>Non-finite values</h3>
    *
-   * <p>If the dataset contains any non-finite values ({@link Double#POSITIVE_INFINITY}, {@link
-   * Double#NEGATIVE_INFINITY}, or {@link Double#NaN}) then the result is {@link Double#NaN}.
+   * <p>If the dataset contains any non-finite values ({@link Double#POSITIVE_INFINITY},
+   * {@link Double#NEGATIVE_INFINITY}, or {@link Double#NaN}) then the result is {@link Double#NaN}.
    *
    * @throws IllegalStateException if the dataset is empty
    */
@@ -300,8 +299,8 @@ public final class StatsAccumulator {
    *
    * <h3>Non-finite values</h3>
    *
-   * <p>If the dataset contains any non-finite values ({@link Double#POSITIVE_INFINITY}, {@link
-   * Double#NEGATIVE_INFINITY}, or {@link Double#NaN}) then the result is {@link Double#NaN}.
+   * <p>If the dataset contains any non-finite values ({@link Double#POSITIVE_INFINITY},
+   * {@link Double#NEGATIVE_INFINITY}, or {@link Double#NaN}) then the result is {@link Double#NaN}.
    *
    * @throws IllegalStateException if the dataset is empty
    */
@@ -320,8 +319,8 @@ public final class StatsAccumulator {
    *
    * <h3>Non-finite values</h3>
    *
-   * <p>If the dataset contains any non-finite values ({@link Double#POSITIVE_INFINITY}, {@link
-   * Double#NEGATIVE_INFINITY}, or {@link Double#NaN}) then the result is {@link Double#NaN}.
+   * <p>If the dataset contains any non-finite values ({@link Double#POSITIVE_INFINITY},
+   * {@link Double#NEGATIVE_INFINITY}, or {@link Double#NaN}) then the result is {@link Double#NaN}.
    *
    * @throws IllegalStateException if the dataset is empty or contains a single value
    */
@@ -346,8 +345,8 @@ public final class StatsAccumulator {
    *
    * <h3>Non-finite values</h3>
    *
-   * <p>If the dataset contains any non-finite values ({@link Double#POSITIVE_INFINITY}, {@link
-   * Double#NEGATIVE_INFINITY}, or {@link Double#NaN}) then the result is {@link Double#NaN}.
+   * <p>If the dataset contains any non-finite values ({@link Double#POSITIVE_INFINITY},
+   * {@link Double#NEGATIVE_INFINITY}, or {@link Double#NaN}) then the result is {@link Double#NaN}.
    *
    * @throws IllegalStateException if the dataset is empty or contains a single value
    */
@@ -361,10 +360,10 @@ public final class StatsAccumulator {
    * <h3>Non-finite values</h3>
    *
    * <p>If the dataset contains {@link Double#NaN} then the result is {@link Double#NaN}. If it
-   * contains {@link Double#NEGATIVE_INFINITY} and not {@link Double#NaN} then the result is {@link
-   * Double#NEGATIVE_INFINITY}. If it contains {@link Double#POSITIVE_INFINITY} and finite values
-   * only then the result is the lowest finite value. If it contains {@link
-   * Double#POSITIVE_INFINITY} only then the result is {@link Double#POSITIVE_INFINITY}.
+   * contains {@link Double#NEGATIVE_INFINITY} and not {@link Double#NaN} then the result is
+   * {@link Double#NEGATIVE_INFINITY}. If it contains {@link Double#POSITIVE_INFINITY} and finite
+   * values only then the result is the lowest finite value. If it contains
+   * {@link Double#POSITIVE_INFINITY} only then the result is {@link Double#POSITIVE_INFINITY}.
    *
    * @throws IllegalStateException if the dataset is empty
    */
@@ -379,10 +378,10 @@ public final class StatsAccumulator {
    * <h3>Non-finite values</h3>
    *
    * <p>If the dataset contains {@link Double#NaN} then the result is {@link Double#NaN}. If it
-   * contains {@link Double#POSITIVE_INFINITY} and not {@link Double#NaN} then the result is {@link
-   * Double#POSITIVE_INFINITY}. If it contains {@link Double#NEGATIVE_INFINITY} and finite values
-   * only then the result is the highest finite value. If it contains {@link
-   * Double#NEGATIVE_INFINITY} only then the result is {@link Double#NEGATIVE_INFINITY}.
+   * contains {@link Double#POSITIVE_INFINITY} and not {@link Double#NaN} then the result is
+   * {@link Double#POSITIVE_INFINITY}. If it contains {@link Double#NEGATIVE_INFINITY} and finite
+   * values only then the result is the highest finite value. If it contains
+   * {@link Double#NEGATIVE_INFINITY} only then the result is {@link Double#NEGATIVE_INFINITY}.
    *
    * @throws IllegalStateException if the dataset is empty
    */
@@ -404,15 +403,13 @@ public final class StatsAccumulator {
      * Desired behaviour is to match the results of applying the naive mean formula. In particular,
      * the update formula can subtract infinities in cases where the naive formula would add them.
      *
-     * Consequently:
-     * 1. If the previous mean is finite and the new value is non-finite then the new mean is that
-     *    value (whether it is NaN or infinity).
-     * 2. If the new value is finite and the previous mean is non-finite then the mean is unchanged
-     *    (whether it is NaN or infinity).
-     * 3. If both the previous mean and the new value are non-finite and...
-     * 3a. ...either or both is NaN (so mean != value) then the new mean is NaN.
-     * 3b. ...they are both the same infinities (so mean == value) then the mean is unchanged.
-     * 3c. ...they are different infinities (so mean != value) then the new mean is NaN.
+     * Consequently: 1. If the previous mean is finite and the new value is non-finite then the new
+     * mean is that value (whether it is NaN or infinity). 2. If the new value is finite and the
+     * previous mean is non-finite then the mean is unchanged (whether it is NaN or infinity). 3. If
+     * both the previous mean and the new value are non-finite and... 3a. ...either or both is NaN
+     * (so mean != value) then the new mean is NaN. 3b. ...they are both the same infinities (so
+     * mean == value) then the mean is unchanged. 3c. ...they are different infinities (so mean !=
+     * value) then the new mean is NaN.
      */
     if (isFinite(previousMean)) {
       // This is case 1.
@@ -425,6 +422,7 @@ public final class StatsAccumulator {
       return NaN;
     }
   }
+
   /** Returns its argument if it is non-negative, zero if it is negative. */
   static double ensureNonNegative(double value) {
     checkArgument(!isNaN(value));
