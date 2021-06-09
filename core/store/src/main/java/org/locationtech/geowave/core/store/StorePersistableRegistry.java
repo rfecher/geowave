@@ -63,7 +63,7 @@ public class StorePersistableRegistry implements PersistableRegistrySpi {
   @Override
   public PersistableIdAndConstructor[] getSupportedPersistables() {
     return new PersistableIdAndConstructor[] {
-        new PersistableIdAndConstructor((short) 200, AdapterToIndexMapping::new),
+        // 200 is a legacy class (pre 2.0)
         new PersistableIdAndConstructor((short) 201, BaseFieldDescriptor::new),
         // 202 is used by CoreRegisteredIndexFieldMappers
         // 203-207 Unused
