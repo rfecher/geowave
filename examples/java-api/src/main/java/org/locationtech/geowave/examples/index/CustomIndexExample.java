@@ -174,10 +174,12 @@ public class CustomIndexExample {
    * in the index. This implementation allows the user to supply the field name for the UUID field
    * to offer some flexibility.
    */
-  private static class UUIDIndexStrategy implements
+  public static class UUIDIndexStrategy implements
       CustomIndexStrategy<SimpleFeature, UUIDConstraints> {
 
     private String uuidField;
+
+    public UUIDIndexStrategy() {}
 
     public UUIDIndexStrategy(final String uuidField) {
       this.uuidField = uuidField;
