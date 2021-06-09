@@ -117,9 +117,6 @@ public class StorePersistableRegistry implements PersistableRegistrySpi {
         new PersistableIdAndConstructor((short) 267, BinningAggregation::new),
         new PersistableIdAndConstructor((short) 268, CustomQueryConstraintsWithFilter::new),
         new PersistableIdAndConstructor((short) 269, InternalCustomQueryFilter::new),
-        new PersistableIdAndConstructor((short) 270, InternalDataAdapterImpl::new),
-        new PersistableIdAndConstructor((short) 271, BasicNumericDimensionField::new),
-        new PersistableIdAndConstructor((short) 272, DataStoreProperty::new),
         new PersistableIdAndConstructor((short) 273, AdapterToIndexMapping::new),
         new PersistableIdAndConstructor((short) 274, HintKey::new),};
   }
