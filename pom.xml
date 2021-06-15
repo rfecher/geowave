@@ -18,23 +18,20 @@
 		</license>
 	</licenses>
 	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
 		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			<id>dm.nexus</id>
+			<name>Radiance Packages</name>
+			<url>https://www.thedotmatrix.us/nexus/repository/radiance/</url>
 		</repository>
 	</distributionManagement>
 	<scm>
-		<url>https://github.com/locationtech/geowave.git</url>
-		<connection>scm:git:https://github.com/locationtech/geowave.git</connection>
+		<url>https://github.com/rfecher/geowave.git</url>
+		<connection>scm:git:https://github.com/rfecher/geowave.git</connection>
 		<tag>HEAD</tag>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/locationtech/geowave/issues/</url>
+		<url>https://github.com/rfecher/geowave/issues/</url>
 	</issueManagement>
 	<mailingLists>
 		<mailingList>
