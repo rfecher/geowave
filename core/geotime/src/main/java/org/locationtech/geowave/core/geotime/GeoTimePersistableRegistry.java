@@ -45,9 +45,15 @@ import org.locationtech.geowave.core.geotime.store.query.aggregate.OptimalVector
 import org.locationtech.geowave.core.geotime.store.query.aggregate.VectorBoundingBoxAggregation;
 import org.locationtech.geowave.core.geotime.store.query.aggregate.VectorTimeRangeAggregation;
 import org.locationtech.geowave.core.geotime.store.query.filter.SpatialQueryFilter;
+import org.locationtech.geowave.core.geotime.util.GeometryUtils;
 import org.locationtech.geowave.core.index.persist.PersistableRegistrySpi;
 
 public class GeoTimePersistableRegistry implements PersistableRegistrySpi {
+
+  // Make sure GeoTools is properly initialized before we do anything
+  static {
+    GeometryUtils.initClassLoader();
+  }
 
   @Override
   public PersistableIdAndConstructor[] getSupportedPersistables() {
