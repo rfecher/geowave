@@ -112,4 +112,43 @@ public class AccumuloDataStore extends BaseMapReduceDataStore implements Closeab
     ((AccumuloOperations) baseOperations).close();
   }
 
+  @Override
+  public List<InputSplit> getSplits(
+      final CommonQueryOptions commonOptions,
+      final DataTypeQueryOptions<?> typeOptions,
+      final IndexQueryOptions indexOptions,
+      final QueryConstraints constraints,
+      final TransientAdapterStore adapterStore,
+      final AdapterIndexMappingStore aimStore,
+      final DataStatisticsStore statsStore,
+      final InternalAdapterStore internalAdapterStore,
+      final IndexStore indexStore,
+      final JobContext context,
+      final Integer minSplits,
+      final Integer maxSplits) throws IOException, InterruptedException {
+    context.getConfiguration().setBoolean(MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST, true);
+    context.getConfiguration().setBoolean(MRJobConfig.MAPREDUCE_JOB_CLASSLOADER, true);
+    return super.getSplits(
+        commonOptions,
+        typeOptions,
+        indexOptions,
+        constraints,
+        adapterStore,
+        aimStore,
+        statsStore,
+        internalAdapterStore,
+        indexStore,
+        context,
+        minSplits,
+        maxSplits);
+  }
+
+  @Override
+  public void prepareRecordWriter(final Configuration conf) {
+    // because accumulo requires a more recent version of guava 22.0, this user
+    // classpath must override the default hadoop classpath which has an old
+    // version of guava or there will be incompatibility issues
+    conf.setBoolean(MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST, true);
+    conf.setBoolean(MRJobConfig.MAPREDUCE_JOB_CLASSLOADER, true);
+  }
 }
