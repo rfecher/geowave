@@ -894,7 +894,7 @@ public class AccumuloOperations implements
             }
             if (existingScopes.size() > 0) {
               // see if the options are the same, if they are not
-              // the same, apply a  with the existing options
+              // the same, apply a with the existing options
               // and the configured options
               final Iterator<IteratorScope> it = existingScopes.iterator();
               while (it.hasNext()) {
@@ -1122,13 +1122,13 @@ public class AccumuloOperations implements
                 QueryFilterIterator.QUERY_ITERATOR_NAME,
                 AggregationIterator.class);
       }
-      if (params.getIndex() != null && params.getIndex().getIndexModel() != null) {
+      if ((params.getIndex() != null) && (params.getIndex().getIndexModel() != null)) {
         iteratorSettings.addOption(
             QueryFilterIterator.MODEL,
             ByteArrayUtils.byteArrayToString(
                 PersistenceUtils.toBinary(params.getIndex().getIndexModel())));
       }
-      if (params.getIndex() != null && params.getIndex().getIndexStrategy() != null) {
+      if ((params.getIndex() != null) && (params.getIndex().getIndexStrategy() != null)) {
         iteratorSettings.addOption(
             QueryFilterIterator.PARTITION_KEY_LENGTH,
             Integer.toString(params.getIndex().getIndexStrategy().getPartitionKeyLength()));
@@ -1474,7 +1474,7 @@ public class AccumuloOperations implements
       final InternalAdapterStore internalAdapterStore,
       final AdapterIndexMappingStore adapterIndexMappingStore,
       final Integer maxRangeDecomposition) {
-    
+
     if (options.isServerSideLibraryEnabled()) {
       return compactTable(index.getName());
     } else {
@@ -1500,11 +1500,11 @@ public class AccumuloOperations implements
   public boolean compactTable(final String unqualifiedTableName) {
     final String tableName = getQualifiedTableName(unqualifiedTableName);
     try {
-      
+
       LOGGER.info("Compacting table '" + tableName + "'");
       getConnector().tableOperations().compact(tableName, null, null, true, true);
       LOGGER.info("Successfully compacted table '" + tableName + "'");
-      LOGGER.error("Rows in table " + getRowCount(tableName));
+      LOGGER.error("Rows in table " + getRowCount(unqualifiedTableName));
     } catch (AccumuloSecurityException | TableNotFoundException | AccumuloException e) {
       LOGGER.error("Unable to merge data by compacting table '" + tableName + "'", e);
       return false;
