@@ -894,7 +894,7 @@ public class AccumuloOperations implements
             }
             if (existingScopes.size() > 0) {
               // see if the options are the same, if they are not
-              // the same, apply a merge with the existing options
+              // the same, apply a  with the existing options
               // and the configured options
               final Iterator<IteratorScope> it = existingScopes.iterator();
               while (it.hasNext()) {
@@ -1474,6 +1474,7 @@ public class AccumuloOperations implements
       final InternalAdapterStore internalAdapterStore,
       final AdapterIndexMappingStore adapterIndexMappingStore,
       final Integer maxRangeDecomposition) {
+    
     if (options.isServerSideLibraryEnabled()) {
       return compactTable(index.getName());
     } else {
@@ -1499,9 +1500,11 @@ public class AccumuloOperations implements
   public boolean compactTable(final String unqualifiedTableName) {
     final String tableName = getQualifiedTableName(unqualifiedTableName);
     try {
+      
       LOGGER.info("Compacting table '" + tableName + "'");
       getConnector().tableOperations().compact(tableName, null, null, true, true);
       LOGGER.info("Successfully compacted table '" + tableName + "'");
+      LOGGER.error("Rows in table " + getRowCount(tableName));
     } catch (AccumuloSecurityException | TableNotFoundException | AccumuloException e) {
       LOGGER.error("Unable to merge data by compacting table '" + tableName + "'", e);
       return false;
