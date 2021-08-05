@@ -160,39 +160,12 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
   }
 
   @Override
-  public short addTypeNameDistributed(final String typeName) {
-    synchronized (MUTEX) {
-
-      final Short adapterId = internalGetAdapterId(typeName, false);
-      if (adapterId != null) {
-        return adapterId;
-      }
-      // in this case we are taking our chances with a conflicting ID because the lesser of the
-      // issues when this is distributed is running into a conflict and the more likely issue is a
-      // race condition between processes in add the initial ID, so we always assume the initial ID
-      // works
-      final short lazyInitialAdapterId = getLazyInitialAdapterId(typeName);
-      if (internalAdapterIdExists(lazyInitialAdapterId)) {
-        // in this case we're just assuming this type just got added by another process
-        final String lazyIdTypeName = internalGetTypeName(lazyInitialAdapterId, true);
-        if (!lazyIdTypeName.equals(typeName)) {
-          // well this case clearly indicates there actually was a conflict, fallback to the normal
-          // resolution
-          return addTypeName(typeName);
-        }
-        return lazyInitialAdapterId;
-      }
-
-      return internalAddTypeName(typeName, lazyInitialAdapterId);
-    }
-  }
-
-  @Override
   public short getInitialAdapterId(final String typeName) {
     // try to fit it into 1 byte first
     short adapterId = (short) (Math.abs((typeName.hashCode() % 127)));
     for (int i = 0; i < 127; i++) {
-      if (!internalAdapterIdExists(adapterId)) {
+      final String adapterIdTypeName = internalGetTypeName(adapterId, false);
+      if ((adapterIdTypeName == null) || typeName.equals(adapterIdTypeName)) {
         return adapterId;
       }
       adapterId++;

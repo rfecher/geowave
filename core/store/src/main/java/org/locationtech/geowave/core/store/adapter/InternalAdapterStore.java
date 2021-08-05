@@ -34,15 +34,6 @@ public interface InternalAdapterStore {
   public short addTypeName(String typeName);
 
   /**
-   * If an adapter is already associated with an internal Adapter returns false. This method differs
-   * only in that it will not find
-   *
-   * @param typeName the type to add
-   * @return the internal ID
-   */
-  public short addTypeNameDistributed(String typeName);
-
-  /**
    * Remove a mapping from the store by type name.
    *
    * @param typeName the type to remove
@@ -51,7 +42,7 @@ public interface InternalAdapterStore {
 
   /**
    * Remove a mapping from the store by internal adapter ID.
-   * 
+   *
    * @param adapterId the internal adapter ID of the adapter to remove
    * @return {@code true} if the type was removed
    */
