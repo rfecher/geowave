@@ -32,6 +32,7 @@ import org.locationtech.geowave.core.store.api.DataTypeAdapter;
 import org.locationtech.geowave.core.store.api.Index;
 import org.locationtech.geowave.core.store.api.WriteResults;
 import org.locationtech.geowave.core.store.api.Writer;
+import org.locationtech.geowave.core.store.base.BaseDataStore;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
 import org.locationtech.geowave.core.store.index.IndexStore;
 import org.locationtech.geowave.mapreduce.GeoWaveConfiguratorBase;
@@ -254,6 +255,12 @@ public class GeoWaveOutputFormat extends OutputFormat<GeoWaveOutputKey<Object>, 
           } else {
             LOGGER.warn("Index '" + indexName + "' does not exist");
           }
+        }
+        if (dataStore instanceof BaseDataStore) {
+          // we'll try to prep the internal adapter store with the initial adapter ID to maximize
+          // are potential to avoid the distributed race conditions
+          ((BaseDataStore) dataStore).getInternalAdapterStore().addTypeNameDistributed(
+              adapter.getTypeName());
         }
         dataStore.addType(adapter, indices);
         writer = dataStore.createWriter(adapter.getTypeName());

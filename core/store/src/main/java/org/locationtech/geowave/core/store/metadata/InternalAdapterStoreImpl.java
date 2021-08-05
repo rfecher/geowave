@@ -160,6 +160,34 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
   }
 
   @Override
+  public short addTypeNameDistributed(final String typeName) {
+    synchronized (MUTEX) {
+
+      final Short adapterId = internalGetAdapterId(typeName, false);
+      if (adapterId != null) {
+        return adapterId;
+      }
+      // in this case we are taking our chances with a conflicting ID because the lesser of the
+      // issues when this is distributed is running into a conflict and the more likely issue is a
+      // race condition between processes in add the initial ID, so we always assume the initial ID
+      // works
+      final short lazyInitialAdapterId = getLazyInitialAdapterId(typeName);
+      if (internalAdapterIdExists(lazyInitialAdapterId)) {
+        // in this case we're just assuming this type just got added by another process
+        final String lazyIdTypeName = internalGetTypeName(lazyInitialAdapterId, true);
+        if (!lazyIdTypeName.equals(typeName)) {
+          // well this case clearly indicates there actually was a conflict, fallback to the normal
+          // resolution
+          return addTypeName(typeName);
+        }
+        return lazyInitialAdapterId;
+      }
+
+      return internalAddTypeName(typeName, lazyInitialAdapterId);
+    }
+  }
+
+  @Override
   public short getInitialAdapterId(final String typeName) {
     // try to fit it into 1 byte first
     short adapterId = (short) (Math.abs((typeName.hashCode() % 127)));
@@ -205,7 +233,7 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
   }
 
   // ** this introduces a distributed race condition if multiple JVM processes
-  // are excuting this method simultaneously
+  // are executing this method simultaneously
   // care should be taken to either explicitly call this from a single client
   // before running a distributed job, or use a distributed locking mechanism
   // so that internal Adapter Ids are consistent without any race conditions
@@ -217,28 +245,32 @@ public class InternalAdapterStoreImpl implements InternalAdapterStore {
         return adapterId;
       }
       adapterId = getInitialAdapterId(typeName);
-      try (final MetadataWriter writer =
-          operations.createMetadataWriter(MetadataType.INTERNAL_ADAPTER)) {
-        if (writer != null) {
-          final byte[] adapterIdBytes = ByteArrayUtils.shortToByteArray(adapterId);
-          writer.write(
-              new GeoWaveMetadata(
-                  StringUtils.stringToBinary(typeName),
-                  EXTERNAL_TO_INTERNAL_ID,
-                  null,
-                  adapterIdBytes));
-          writer.write(
-              new GeoWaveMetadata(
-                  adapterIdBytes,
-                  INTERNAL_TO_EXTERNAL_ID,
-                  null,
-                  StringUtils.stringToBinary(typeName)));
-        }
-      } catch (final Exception e) {
-        LOGGER.warn("Unable to close metadata writer", e);
-      }
-      return adapterId;
+      return internalAddTypeName(typeName, adapterId);
     }
+  }
+
+  private short internalAddTypeName(final String typeName, final short adapterId) {
+    try (final MetadataWriter writer =
+        operations.createMetadataWriter(MetadataType.INTERNAL_ADAPTER)) {
+      if (writer != null) {
+        final byte[] adapterIdBytes = ByteArrayUtils.shortToByteArray(adapterId);
+        writer.write(
+            new GeoWaveMetadata(
+                StringUtils.stringToBinary(typeName),
+                EXTERNAL_TO_INTERNAL_ID,
+                null,
+                adapterIdBytes));
+        writer.write(
+            new GeoWaveMetadata(
+                adapterIdBytes,
+                INTERNAL_TO_EXTERNAL_ID,
+                null,
+                StringUtils.stringToBinary(typeName)));
+      }
+    } catch (final Exception e) {
+      LOGGER.warn("Unable to close metadata writer", e);
+    }
+    return adapterId;
   }
 
   @Override
