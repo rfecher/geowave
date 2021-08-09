@@ -85,9 +85,9 @@ public class GeoWaveMultiProcessIngestIT extends AbstractGeoWaveBasicVectorIT {
     final Index idx2 = SimpleIngest.createSpatialTemporalIndex();
 
     final DataStore store = dataStorePluginOptions.createDataStore();
-    // final SimpleFeatureType sft = SimpleIngest.createPointFeatureType();
-    // final GeotoolsFeatureDataAdapter<SimpleFeature> fda = SimpleIngest.createDataAdapter(sft);
-    // store.addType(fda, idx1, idx2);
+    final SimpleFeatureType sft = SimpleIngest.createPointFeatureType();
+    final GeotoolsFeatureDataAdapter<SimpleFeature> fda = SimpleIngest.createDataAdapter(sft);
+    store.addType(fda, idx1, idx2);
     store.addIndex(idx1);
     store.addIndex(idx2);
     final StringBuilder indexNames = new StringBuilder();
