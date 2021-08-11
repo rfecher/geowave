@@ -60,7 +60,16 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
   // breaks on windows if temp directory isn't on same drive as project,
   // also windows HDFS URLs have issues with any directory names that begin with 't'
   // it interprets '/t' as the esape sequence for a tab
-  protected static final File TEMP_DIR = new File("./target/accumulo_temp");
+//  protected static final File TEMP_DIR = new File("./target/accumulo_temp");
+  protected static File TEMP_DIR;
+  static {
+    try {
+      TEMP_DIR = new File("../../accumulo_temp").getCanonicalFile();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
   protected String zookeeper;
   protected String accumuloInstance;
   protected String accumuloUser;
