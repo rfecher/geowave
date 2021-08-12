@@ -52,7 +52,7 @@ jobs:
                       test/target/temp/gdal
 
             - name: Run
-              run: ./.utility/retry ./.utility/run-tests.sh
+              run: ./.utility/run-tests.sh
 
             - name: Publish Unit Test Results
               uses: scacap/action-surefire-report@v1
@@ -109,7 +109,7 @@ jobs:
                       test/target/temp/gdal
 
             - name: Run
-              run: ./.utility/retry ./.utility/run-tests.sh
+              run: ./.utility/run-tests.sh
 
             - name: Python Test Results
               uses: scacap/action-surefire-report@v1
@@ -118,15 +118,14 @@ jobs:
                 check_name: Python Test Results
                 report_paths: python/src/main/python/test-report.xml
                 github_token: ${{ secrets.GITHUB_TOKEN }}
-
-    integration-tests:
+   integration-tests:
         runs-on: ubuntu-20.04
         name: ${{ matrix.profile }} Integration Tests 
         strategy:
             fail-fast: false
             matrix:
-                profile: [redis-it, rocksdb-it, accumulo-it-client, accumulo-it-server, hbase-it-client, hbase-it-server, cassandra-it, dynamodb-it, bigtable-it, kudu-it, filesystem-it, accumulo-it-kerberos, 'filesystem-it,secondary-index-it', 'rocksdb-it,secondary-index-it'
-                #, 'accumulo-it-kerberos,compatibility', 'accumulo-it-server,compatibility'
+                profile: [redis-it, rocksdb-it, accumulo-it-client, accumulo-it-server, hbase-it-client, hbase-it-server, dynamodb-it, bigtable-it, kudu-it, filesystem-it, accumulo-it-kerberos, 'filesystem-it,secondary-index-it', 'rocksdb-it,secondary-index-it', 'accumulo-it-server,compatibility','hbase-it-server,secondary-index-it','hbase-it-server,secondary-index-it'
+                #, 'accumulo-it-kerberos,compatibility'
                 ]
                 ## for now kerberos test environment isn't quite working, skip the kerberos tests until the issue is resolved
                 #include:
@@ -135,6 +134,69 @@ jobs:
                 #    test_kerberos: true
                 #  - profile: 'accumulo-it-kerberos,compatibility'
                 #    test_kerberos: true
+        env:
+            IT_ONLY: true
+            MAVEN_PROFILES: ${{ matrix.profile }}
+            TEST_KERBEROS: ${{ matrix.test_kerberos }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+              
+            - name: Set up AdoptOpenJDK 1.8
+              uses: joschi/setup-jdk@v2
+              with:
+                java-version: '8' 
+                architecture: x64  
+                
+            - name: Set up Maven
+              uses: stCarolas/setup-maven@v4
+              with:
+                maven-version: 3.6.3
+              
+                
+            - name: Cache maven resources
+              uses: actions/cache@v2
+              env:
+                cache-name: cache-maven-resources
+              with:
+                key: ${{ runner.os }}-mvn-${{ hashFiles('**/pom.xml') }}
+                restore-keys: |
+                      ${{ runner.os }}-mvn-
+                path: |
+                      ~/.m2/repository
+
+            - name: Cache other resources
+              uses: actions/cache@v2
+              env:
+                cache-name: cache-resources
+              with:
+                key: ${{ runner.os }}-other-${{ secrets.CACHE_ID }}
+                restore-keys: |
+                      ${{ runner.os }}-other-${{ secrets.CACHE_ID }}
+                path: |  
+                      ~/.downloads
+                      test/landsat8
+                      test/sentinel2
+                      test/target/temp/gdal
+
+            - name: Run
+              run: ./.utility/run-tests.sh
+
+            - name: Publish Integration Test ${{ matrix.profile }} Results
+              uses: scacap/action-surefire-report@v1
+              if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+              with:
+                check_name: ${{ matrix.profile }} Results
+                report_paths: test/target/failsafe-reports/TEST-org.locationtech.geowave.test.GeoWaveITSuite.xml
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    integration-tests-with-retries:
+        runs-on: ubuntu-20.04
+        name: ${{ matrix.profile }} Integration Tests 
+        strategy:
+            fail-fast: false
+            matrix:
+                profile: [cassandra-it]
         env:
             IT_ONLY: true
             MAVEN_PROFILES: ${{ matrix.profile }}
