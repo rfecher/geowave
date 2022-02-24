@@ -76,7 +76,7 @@ public class AccumuloStoreTestEnvironment extends StoreTestEnvironment {
   // }
   // }
 
-  protected static final File LIB_DIR = new File(TEMP_DIR, "lib");
+  protected static final File LIB_DIR = new File("./target/accumulo", "lib");
   protected String zookeeper;
   protected String accumuloInstance;
   protected String accumuloUser;
