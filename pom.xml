@@ -257,9 +257,10 @@
 						<groupId>log4j</groupId>
 						<artifactId>log4j</artifactId>
 					</exclusion>
-				</exclusions>				
+				</exclusions>
 			</dependency>
-			<dependency> <!-- Spark dependency -->
+			<dependency>
+				<!-- Spark dependency -->
 				<groupId>org.apache.spark</groupId>
 				<artifactId>spark-core_2.12</artifactId>
 				<version>${spark.version}</version>
@@ -299,7 +300,7 @@
 						<artifactId>log4j</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>commons-beanutils</groupId>
 				<artifactId>commons-beanutils</artifactId>
@@ -371,18 +372,18 @@
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-1.2-api</artifactId>
 				<version>${log4j.version}</version>
-			</dependency>		
+			</dependency>
 			<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
 			<dependency>
-			    <groupId>org.apache.logging.log4j</groupId>
-			    <artifactId>log4j-slf4j-impl</artifactId>
-			    <version>${log4j.version}</version>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-slf4j-impl</artifactId>
+				<version>${log4j.version}</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.apache.logging.log4j</groupId>
-			    <artifactId>log4j-core</artifactId>
-			    <version>${log4j.version}</version>
-			</dependency>	
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-core</artifactId>
+				<version>${log4j.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-pool2</artifactId>
@@ -605,7 +606,7 @@
 						<artifactId>slf4j-log4j12</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>	
+			</dependency>
 			<dependency>
 				<groupId>org.apache.hbase</groupId>
 				<artifactId>hbase-common</artifactId>
@@ -851,7 +852,7 @@
 						<artifactId>slf4j-log4j12</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>				
+			</dependency>
 			<dependency>
 				<groupId>org.hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>
@@ -1143,16 +1144,21 @@
 		</dependencies>
 	</dependencyManagement>
 	<!-- Dependencies used across ALL projects -->
-	<dependencies>	
+	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
 		<dependency>
-		    <groupId>org.apache.logging.log4j</groupId>
-		    <artifactId>log4j-slf4j-impl</artifactId>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
 		<dependency>
-		    <groupId>org.apache.logging.log4j</groupId>
-		    <artifactId>log4j-core</artifactId>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -1640,6 +1646,11 @@
 		</profile>
 		<profile>
 			<id>compatibility</id>
+			<activation>
+				<property>
+					<name>accumulo.legacy</name>
+				</property>
+			</activation>
 			<properties>
 				<accumulo.version>1.9.2</accumulo.version>
 			</properties>
