@@ -14,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.locationtech.geowave.adapter.vector.plugin.GeoWaveDataStoreComponents;
+import org.locationtech.geowave.adapter.vector.plugin.GeoWaveFeatureCollection;
 import org.locationtech.geowave.core.geotime.binning.SpatialBinningType;
 import org.locationtech.geowave.core.geotime.store.statistics.binning.SpatialFieldValueBinningStrategy;
 import org.locationtech.geowave.core.index.ByteArray;
@@ -21,6 +22,7 @@ import org.locationtech.geowave.core.store.CloseableIterator;
 import org.locationtech.geowave.core.store.api.BinConstraints;
 import org.locationtech.geowave.core.store.api.DataTypeStatistic;
 import org.locationtech.geowave.core.store.api.FieldStatistic;
+import org.locationtech.geowave.core.store.query.constraints.QueryConstraints;
 import org.locationtech.geowave.core.store.statistics.adapter.CountStatistic;
 import org.locationtech.geowave.core.store.statistics.adapter.CountStatistic.CountValue;
 import org.locationtech.geowave.core.store.statistics.field.NumericStatsStatistic;
@@ -31,12 +33,12 @@ import org.opengis.feature.simple.SimpleFeature;
 
 /**
  * Methods for HeatMap statistics queries. <br>
- * 
+ *
  * @author M. Zagorski <br>
  * @apiNote Date: 3-25-2022 <br>
  *
  * @apiNote Changelog: <br>
- * 
+ *
  */
 public class HeatMapStatistics {
 
@@ -47,7 +49,7 @@ public class HeatMapStatistics {
 
   /**
    * Builds the count statistics query and returns a SimpleFeatureCollection.
-   * 
+   *
    * @param components {GeoWaveDataStoreComponents} The base components of the dataset.
    * @param jtsBounds {Geometry} The geometry representing the bounds of the GeoServer map viewer
    *        extent.
@@ -61,50 +63,51 @@ public class HeatMapStatistics {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static SimpleFeatureCollection buildCountStatsQuery(
-      GeoWaveDataStoreComponents components,
-      Geometry jtsBounds,
-      Integer geohashPrec,
-      String weightAttr,
-      Boolean createStats) {
+      final GeoWaveDataStoreComponents components,
+      final QueryConstraints queryConstraints,
+      final Geometry jtsBounds,
+      final Integer geohashPrec,
+      final String weightAttr,
+      final Boolean createStats) {
 
     // Initialize empty SimpleFeature list
-    List<SimpleFeature> newSimpleFeatures = new ArrayList<>();
+    final List<SimpleFeature> newSimpleFeatures = new ArrayList<>();
 
     // Get type name
-    String typeName = components.getFeatureType().getTypeName();
+    final String typeName = components.getFeatureType().getTypeName();
     // Note - Another way to get the typeName: String typeName =
     // components.getAdapter().getTypeName();
 
     // Get all data type statistics from the datastore
-    DataTypeStatistic<?>[] stats = components.getDataStore().getDataTypeStatistics(typeName);
+    final DataTypeStatistic<?>[] stats = components.getDataStore().getDataTypeStatistics(typeName);
 
-    for (DataTypeStatistic stat : stats) {
+    for (final DataTypeStatistic stat : stats) {
 
       // Get the tag for the statistic
-      String statTag = stat.getTag();
+      final String statTag = stat.getTag();
 
       // Only proceed if the tag contains "geohash"
       if (statTag.contains(GEOHASH_STR)) {
 
         // Get the statistic Geohash precision from the tag
-        Integer statGeohashPrec = Integer.valueOf(statTag.split("-")[3]);
+        final Integer statGeohashPrec = Integer.valueOf(statTag.split("-")[3]);
 
         // Find out if the statistic precision matches the geohash precision
-        Boolean matchPrec = statGeohashPrec.equals(geohashPrec);
+        final Boolean matchPrec = statGeohashPrec.equals(geohashPrec);
 
         // Continue if a count statistic and an instance of spatial field value binning strategy
-        if (stat.getStatisticType() == CountStatistic.STATS_TYPE
-            && stat.getBinningStrategy() instanceof SpatialFieldValueBinningStrategy
+        if ((stat.getStatisticType() == CountStatistic.STATS_TYPE)
+            && (stat.getBinningStrategy() instanceof SpatialFieldValueBinningStrategy)
             && matchPrec) {
 
           // Get the spatial binning strategy
-          SpatialFieldValueBinningStrategy spatialBinningStrategy =
+          final SpatialFieldValueBinningStrategy spatialBinningStrategy =
               (SpatialFieldValueBinningStrategy) stat.getBinningStrategy();
 
           // Continue only if spatial binning strategy type is GEOHASH
           if (spatialBinningStrategy.getType() == SpatialBinningType.GEOHASH) {
 
-            DataTypeStatistic<CountValue> geohashCount = stat;
+            final DataTypeStatistic<CountValue> geohashCount = stat;
 
             // Create new SimpleFeatures from the GeoHash centroid, add the statistic as attribute
             try (CloseableIterator<Pair<ByteArray, Long>> it =
@@ -115,13 +118,13 @@ public class HeatMapStatistics {
               // Iterate over all bins and build the SimpleFeature list
               while (it.hasNext()) {
                 final Pair<ByteArray, Long> pair = it.next();
-                ByteArray geohashId = pair.getLeft();
-                Long weightValLong = pair.getRight();
-                Double weightVal = weightValLong.doubleValue();
+                final ByteArray geohashId = pair.getLeft();
+                final Long weightValLong = pair.getRight();
+                final Double weightVal = weightValLong.doubleValue();
 
-                SimpleFeature simpFeature =
+                final SimpleFeature simpFeature =
                     HeatMapUtils.buildSimpleFeature(
-                        components.getAdapter().getFeatureType(),
+                        GeoWaveFeatureCollection.getHeatmapFeatureType(),
                         geohashId,
                         weightVal,
                         geohashPrec,
@@ -152,7 +155,12 @@ public class HeatMapStatistics {
 
       // In the meantime, default to the count aggregation query for rendered results
       newFeatures =
-          HeatMapAggregations.buildCountAggrQuery(components, jtsBounds, geohashPrec, weightAttr);
+          HeatMapAggregations.buildCountAggrQuery(
+              components,
+              queryConstraints,
+              jtsBounds,
+              geohashPrec,
+              weightAttr);
 
     }
 
@@ -163,21 +171,21 @@ public class HeatMapStatistics {
   /**
    * Programmatically add a GeoHash count statistic to the DataStore. This should only be done once
    * as needed. The count is the number of instance geometries per GeoHash grid cell.
-   * 
+   *
    * @param components {GeoWaveDataStoreComponents} The base components of the dataset.
    * @param typeName {String} The name of the data layer or dataset.
    * @param geohashPrec {Integer} The Geohash precision to use for binning.
    */
   private static void addGeoHashCountStatisticToDataStore(
-      GeoWaveDataStoreComponents components,
-      String typeName,
-      Integer geohashPrec) {
+      final GeoWaveDataStoreComponents components,
+      final String typeName,
+      final Integer geohashPrec) {
 
     // Set up the count statistic
     final CountStatistic geohashCount = new CountStatistic(typeName);
 
     // Set a tag for information purposes
-    String tagStr = "count-stat-geohash-" + geohashPrec;
+    final String tagStr = "count-stat-geohash-" + geohashPrec;
     geohashCount.setTag(tagStr);
 
     // Set up spatial binning strategy
@@ -200,7 +208,7 @@ public class HeatMapStatistics {
 
   /**
    * Builds the field statistics query and returns a SimpleFeatureCollection.
-   * 
+   *
    * @param components {GeoWaveDataStoreComponents} The base components of the dataset.
    * @param jtsBounds {Geometry} The geometry representing the bounds of the GeoServer map viewer
    *        extent.
@@ -214,48 +222,49 @@ public class HeatMapStatistics {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static SimpleFeatureCollection buildFieldStatsQuery(
-      GeoWaveDataStoreComponents components,
-      Geometry jtsBounds,
-      Integer geohashPrec,
-      String weightAttr,
-      Boolean createStats) {
+      final GeoWaveDataStoreComponents components,
+      final QueryConstraints queryConstraints,
+      final Geometry jtsBounds,
+      final Integer geohashPrec,
+      final String weightAttr,
+      final Boolean createStats) {
 
     // Initialize empty SimpleFeature list
-    List<SimpleFeature> newSimpleFeatures = new ArrayList<>();
+    final List<SimpleFeature> newSimpleFeatures = new ArrayList<>();
 
     // Get type name
-    String typeName = components.getFeatureType().getTypeName();
+    final String typeName = components.getFeatureType().getTypeName();
 
     // Get all data type statistics from the datastore
     FieldStatistic<?>[] stats = components.getDataStore().getFieldStatistics(typeName, weightAttr);
 
-    for (FieldStatistic stat : stats) {
+    for (final FieldStatistic stat : stats) {
 
       // Get the tag for the statistic
-      String statTag = stat.getTag();
+      final String statTag = stat.getTag();
 
       // Only proceed if the tag contains "geohash"
       if (statTag.contains(GEOHASH_STR)) {
 
         // Get the stored Geohash precision from the tag
-        Integer statGeohashPrec = Integer.valueOf(statTag.split("-")[3]);
+        final Integer statGeohashPrec = Integer.valueOf(statTag.split("-")[3]);
 
         // Find out if the statistic precision matches the geohash precision
-        Boolean matchPrec = statGeohashPrec.equals(geohashPrec);
+        final Boolean matchPrec = statGeohashPrec.equals(geohashPrec);
 
         // Continue if a field sum statistic and an instance of spatial field value binning strategy
-        if (stat.getStatisticType() == NumericStatsStatistic.STATS_TYPE
-            && stat.getBinningStrategy() instanceof SpatialFieldValueBinningStrategy
+        if ((stat.getStatisticType() == NumericStatsStatistic.STATS_TYPE)
+            && (stat.getBinningStrategy() instanceof SpatialFieldValueBinningStrategy)
             && matchPrec) {
 
           // Get the spatial binning strategy
-          SpatialFieldValueBinningStrategy spatialBinningStrategy =
+          final SpatialFieldValueBinningStrategy spatialBinningStrategy =
               (SpatialFieldValueBinningStrategy) stat.getBinningStrategy();
 
           // Continue only if spatial binning strategy type is GEOHASH
           if (spatialBinningStrategy.getType() == SpatialBinningType.GEOHASH) {
 
-            FieldStatistic<NumericStatsValue> geohashNumeric = stat;
+            final FieldStatistic<NumericStatsValue> geohashNumeric = stat;
 
             // Create new SimpleFeatures from the GeoHash centroid and add the statistic and other
             try (CloseableIterator<Pair<ByteArray, Stats>> it =
@@ -266,8 +275,8 @@ public class HeatMapStatistics {
               // Iterate over all bins and build the SimpleFeature list
               while (it.hasNext()) {
                 final Pair<ByteArray, Stats> pair = it.next();
-                ByteArray geoHashId = pair.getLeft();
-                Double fieldSum = pair.getRight().sum();
+                final ByteArray geoHashId = pair.getLeft();
+                final Double fieldSum = pair.getRight().sum();
 
                 // KEEP THIS - Other types of field statistics:
                 // Long fieldCount = pair.getRight().count();
@@ -275,9 +284,9 @@ public class HeatMapStatistics {
                 // Double fieldMax = pair.getRight().max();
                 // Double fieldMin = pair.getRight().min();
 
-                SimpleFeature simpFeature =
+                final SimpleFeature simpFeature =
                     HeatMapUtils.buildSimpleFeature(
-                        components.getAdapter().getFeatureType(),
+                        GeoWaveFeatureCollection.getHeatmapFeatureType(),
                         geoHashId,
                         fieldSum, // TODO: this could be made dynamic
                         geohashPrec,
@@ -305,12 +314,83 @@ public class HeatMapStatistics {
       // proceed if createStats is true
       if (createStats) {
         addGeoHashFieldStatisticsToDataStore(components, typeName, geohashPrec, weightAttr);
+        stats = components.getDataStore().getFieldStatistics(typeName, weightAttr);
+
+        for (final FieldStatistic stat : stats) {
+
+          // Get the tag for the statistic
+          final String statTag = stat.getTag();
+
+          // Only proceed if the tag contains "geohash"
+          if (statTag.contains(GEOHASH_STR)) {
+
+            // Get the stored Geohash precision from the tag
+            final Integer statGeohashPrec = Integer.valueOf(statTag.split("-")[3]);
+
+            // Find out if the statistic precision matches the geohash precision
+            final Boolean matchPrec = statGeohashPrec.equals(geohashPrec);
+
+            // Continue if a field sum statistic and an instance of spatial field value binning
+            // strategy
+            if ((stat.getStatisticType() == NumericStatsStatistic.STATS_TYPE)
+                && (stat.getBinningStrategy() instanceof SpatialFieldValueBinningStrategy)
+                && matchPrec) {
+
+              // Get the spatial binning strategy
+              final SpatialFieldValueBinningStrategy spatialBinningStrategy =
+                  (SpatialFieldValueBinningStrategy) stat.getBinningStrategy();
+
+              // Continue only if spatial binning strategy type is GEOHASH
+              if (spatialBinningStrategy.getType() == SpatialBinningType.GEOHASH) {
+
+                final FieldStatistic<NumericStatsValue> geohashNumeric = stat;
+
+                // Create new SimpleFeatures from the GeoHash centroid and add the statistic and
+                // other
+                try (CloseableIterator<Pair<ByteArray, Stats>> it =
+                    components.getDataStore().getBinnedStatisticValues(
+                        geohashNumeric,
+                        BinConstraints.ofObject(jtsBounds))) {
+
+                  // Iterate over all bins and build the SimpleFeature list
+                  while (it.hasNext()) {
+                    final Pair<ByteArray, Stats> pair = it.next();
+                    final ByteArray geoHashId = pair.getLeft();
+                    final Double fieldSum = pair.getRight().sum();
+
+                    // KEEP THIS - Other types of field statistics:
+                    // Long fieldCount = pair.getRight().count();
+                    // Double fieldMean = pair.getRight().mean();
+                    // Double fieldMax = pair.getRight().max();
+                    // Double fieldMin = pair.getRight().min();
+
+                    final SimpleFeature simpFeature =
+                        HeatMapUtils.buildSimpleFeature(
+                            components.getAdapter().getFeatureType(),
+                            geoHashId,
+                            fieldSum, // TODO: this could be made dynamic
+                            geohashPrec,
+                            weightAttr,
+                            SUM_STATS);
+
+                    newSimpleFeatures.add(simpFeature);
+                  }
+                  // Close the iterator
+                  it.close();
+                }
+                break;
+              }
+            }
+          }
+        }
+        return newFeatures;
       }
 
       // In the meantime, default to the count aggregation query for rendered results
       newFeatures =
           HeatMapAggregations.buildFieldSumAggrQuery(
               components,
+              queryConstraints,
               jtsBounds,
               geohashPrec,
               weightAttr);
@@ -324,23 +404,23 @@ public class HeatMapStatistics {
    * Programmatically add a GeoHash field statistic to the DataStore. This should only be done once
    * as needed. The default statistic is sum, but could be count, mean, max, or min of the selected
    * numeric field.
-   * 
+   *
    * @param components {GeoWaveDataStoreComponents} The base components of the dataset.
    * @param typeName {String} The name of the data layer or dataset.
    * @param geohashPrec {Integer} The Geohash precision to use for binning.
    * @param weightAttr {String} The name of the field in the dataset to which the query is applied.
    */
   private static void addGeoHashFieldStatisticsToDataStore(
-      GeoWaveDataStoreComponents components,
-      String typeName,
-      Integer geohashPrec,
-      String weightAttr) {
+      final GeoWaveDataStoreComponents components,
+      final String typeName,
+      final Integer geohashPrec,
+      final String weightAttr) {
 
     // Set up the field statistic
     final NumericStatsStatistic geohashFieldStat = new NumericStatsStatistic(typeName, weightAttr);
 
     // Set a tag for information purposes
-    String tagStr = "field-stat-geohash-" + geohashPrec;
+    final String tagStr = "field-stat-geohash-" + geohashPrec;
     geohashFieldStat.setTag(tagStr);
 
     // Set up spatial binning strategy
