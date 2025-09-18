@@ -147,7 +147,7 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<test.args>-XX:CompressedClassSpaceSize=512m -XX:+UseSerialGC -Xms1g
 			-Xmx2g -XX:MaxMetaspaceSize=512m</test.args>
-		<spotbugs.version>4.9.5.0</spotbugs.version>
+		<spotbugs.version>3.1.10</spotbugs.version>
 		<spotbugs.omitVisitors>MutableStaticFields,FindReturnRef</spotbugs.omitVisitors>
 		<spotbugs.effort>Max</spotbugs.effort>
 		<spotbugs.threshold>Medium</spotbugs.threshold>
@@ -1003,7 +1003,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
+				<artifactId>spotbugs</artifactId>
 				<version>${spotbugs.version}</version>
 			</dependency>
 			<dependency>
