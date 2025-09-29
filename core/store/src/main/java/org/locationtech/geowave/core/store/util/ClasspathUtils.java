@@ -220,6 +220,7 @@ public class ClasspathUtils {
             }
           } catch (Exception e) {
             // Field/method not available, try alternative approach
+            LOGGER.debug("Failed to get URLs from BuiltinClassLoader.ucp field", e);
           }
 
           // Alternative: try getURLs() method directly (some custom loaders)
@@ -229,6 +230,7 @@ public class ClasspathUtils {
               urls = (URL[]) getUrlsMethod.invoke(classLoader);
             } catch (Exception e) {
               // Method not available
+              LOGGER.debug("Failed to get URLs from getURLs() method", e);
             }
           }
 
