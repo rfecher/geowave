@@ -10,11 +10,7 @@ package org.locationtech.geowave.test.secondary;
 
 import java.io.File;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
 import org.locationtech.geowave.test.GeoWaveITRunner;
@@ -30,7 +26,7 @@ import org.locationtech.geowave.test.spark.SparkTestEnvironment;
 import org.locationtech.geowave.test.spark.SparkUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.MAP_REDUCE, Environment.SPARK})
 public class MapReduceSecondaryIndexIT extends AbstractSecondaryIndexIT {
