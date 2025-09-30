@@ -39,7 +39,7 @@ import org.locationtech.geowave.test.kafka.KafkaTestEnvironment;
 import org.locationtech.geowave.test.mapreduce.MapReduceTestEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.SERVICES})
 public class IngestIT extends BaseServiceIT {

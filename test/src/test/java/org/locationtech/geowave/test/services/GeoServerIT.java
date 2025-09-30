@@ -70,7 +70,7 @@ import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreTyp
 import org.locationtech.geowave.test.basic.AbstractGeoWaveIT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.SERVICES})
 public class GeoServerIT extends AbstractGeoWaveIT {

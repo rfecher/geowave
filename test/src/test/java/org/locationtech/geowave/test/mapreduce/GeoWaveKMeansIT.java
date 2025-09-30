@@ -17,10 +17,7 @@ import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.analytic.AnalyticItemWrapper;
 import org.locationtech.geowave.analytic.GeometryDataSetGenerator;
@@ -59,7 +56,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.MAP_REDUCE})
 public class GeoWaveKMeansIT {

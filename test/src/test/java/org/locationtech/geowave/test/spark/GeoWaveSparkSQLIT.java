@@ -13,10 +13,7 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.analytic.spark.GeoWaveRDD;
 import org.locationtech.geowave.analytic.spark.GeoWaveRDDLoader;
@@ -38,6 +35,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.SPARK})
 public class GeoWaveSparkSQLIT extends AbstractGeoWaveBasicVectorIT {

@@ -24,13 +24,12 @@ import java.util.TreeMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.adapter.vector.FeatureDataAdapter;
 import org.locationtech.geowave.core.geotime.binning.ComplexGeometryBinningOption;
+import org.junit.Ignore;
+
 import org.locationtech.geowave.core.geotime.binning.SpatialBinningType;
 import org.locationtech.geowave.core.geotime.store.query.api.VectorQueryBuilder;
 import org.locationtech.geowave.core.geotime.store.statistics.binning.SpatialFieldValueBinningStrategy;
@@ -173,6 +172,7 @@ public class GeoWaveSpatialBinningStatisticsIT extends AbstractGeoWaveBasicVecto
   }
 
   @Test
+  @Ignore("Temporarily disabled because we took out our geojson ingest plugin")
   public void testPolygonGeometry() {
     final DataStore store = dataStoreOptions.createDataStore();
     store.ingest(

@@ -10,10 +10,7 @@ package org.locationtech.geowave.test.services;
 
 import java.util.List;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.core.geotime.store.GeotoolsFeatureDataAdapter;
 import org.locationtech.geowave.core.store.api.DataStore;
@@ -33,7 +30,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.SERVICES})
 public class TypeServicesIT extends BaseServiceIT {

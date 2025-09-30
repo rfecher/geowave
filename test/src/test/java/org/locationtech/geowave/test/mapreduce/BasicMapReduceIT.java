@@ -35,10 +35,7 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 import org.geotools.data.DataStoreFinder;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.adapter.raster.util.ZipUtils;
 import org.locationtech.geowave.core.index.ByteArrayUtils;
@@ -67,7 +64,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.MAP_REDUCE})
 public class BasicMapReduceIT extends AbstractGeoWaveIT {

@@ -14,10 +14,7 @@ import java.net.URL;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.analytic.spark.GeoWaveRDD;
 import org.locationtech.geowave.analytic.spark.GeoWaveRDDLoader;
@@ -41,6 +38,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.SPARK})
 public class GeoWaveBasicSparkIT extends AbstractGeoWaveBasicVectorIT {

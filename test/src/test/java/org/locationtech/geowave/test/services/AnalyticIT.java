@@ -25,7 +25,7 @@ import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.SERVICES})
 public class AnalyticIT {

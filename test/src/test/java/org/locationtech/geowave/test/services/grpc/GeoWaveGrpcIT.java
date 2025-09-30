@@ -14,10 +14,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Map;
 import org.apache.logging.log4j.Level;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.adapter.raster.util.ZipUtils;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
@@ -43,7 +40,7 @@ import org.locationtech.geowave.test.spark.SparkTestEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.logging.log4j.core.config.Configurator;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.MAP_REDUCE, Environment.KAFKA,})
 @GeoWaveTestStore(

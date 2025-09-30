@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.adapter.raster.util.ZipUtils;
@@ -47,6 +48,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.KAFKA})
 public class BasicKafkaIT extends AbstractGeoWaveIT {

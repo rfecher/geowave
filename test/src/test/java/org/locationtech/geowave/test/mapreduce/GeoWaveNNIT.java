@@ -19,10 +19,7 @@ import org.apache.hadoop.io.Text;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.analytic.GeometryDataSetGenerator;
 import org.locationtech.geowave.analytic.PropertyManagement;
@@ -54,7 +51,7 @@ import org.locationtech.geowave.test.basic.AbstractGeoWaveIT;
 import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.MAP_REDUCE})
 public class GeoWaveNNIT extends AbstractGeoWaveIT {

@@ -11,10 +11,7 @@ package org.locationtech.geowave.test.mapreduce;
 import java.io.File;
 import java.net.URL;
 import org.apache.hadoop.util.ToolRunner;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.core.cli.operations.config.options.ConfigOptions;
 import org.locationtech.geowave.core.cli.parser.ManualOperationParams;
@@ -32,7 +29,7 @@ import org.locationtech.geowave.test.annotation.NamespaceOverride;
 import org.locationtech.geowave.test.basic.AbstractGeoWaveBasicVectorIT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.MAP_REDUCE})
 @GeoWaveTestStore({

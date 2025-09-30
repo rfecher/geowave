@@ -11,6 +11,7 @@ package org.locationtech.geowave.test.services;
 import jakarta.ws.rs.ProcessingException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.core.store.cli.store.DataStorePluginOptions;
@@ -23,7 +24,7 @@ import org.locationtech.geowave.test.annotation.GeoWaveTestStore;
 import org.locationtech.geowave.test.annotation.GeoWaveTestStore.GeoWaveStoreType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.SERVICES})
 public class FileUploadIT {

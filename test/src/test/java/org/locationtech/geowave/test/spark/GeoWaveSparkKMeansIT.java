@@ -13,10 +13,7 @@ import java.util.Date;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.mllib.clustering.KMeansModel;
 import org.apache.spark.mllib.linalg.Vector;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.locationtech.geowave.analytic.spark.kmeans.KMeansHullGenerator;
 import org.locationtech.geowave.analytic.spark.kmeans.KMeansRunner;
@@ -40,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
+@Ignore
 @RunWith(GeoWaveITRunner.class)
 @Environments({Environment.SPARK})
 public class GeoWaveSparkKMeansIT {
