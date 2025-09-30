@@ -162,8 +162,8 @@ public final class HBaseMiniClusterClassLoader extends URLClassLoader {
       // Check whether the class has already been loaded:
       Class<?> clasz = findLoadedClass(name);
       if (clasz != null) {
-        if (LOG.isErrorEnabled()) {
-          LOG.error("Class " + name + " already loaded");
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Class " + name + " already loaded");
         }
       } else {
         try {

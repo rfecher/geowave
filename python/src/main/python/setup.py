@@ -41,6 +41,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
     ],
-    install_requires=['py4j==0.10.8.1', 'shapely==2.0.4'],
+    install_requires=['py4j>=0.10.9.7,<0.11', 'shapely==2.0.4'],
     python_requires='>=3.8'
 )
