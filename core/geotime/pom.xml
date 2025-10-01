@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>com.uber</groupId>
 			<artifactId>h3</artifactId>
-			<version>3.7.0</version>
+			<version>3.7.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.davidmoten</groupId>
@@ -28,7 +28,7 @@
 			<groupId>org.locationtech.jts</groupId>
 			<artifactId>jts-core</artifactId>
 		</dependency>
-		<!--we can switch the dependency from store to ingest when accumulo becomes 
+		<!--we can switch the dependency from store to ingest when accumulo becomes
 			a pluggable data store and is no longer a dependency on ingest -->
 		<dependency>
 			<groupId>org.locationtech.geowave</groupId>
